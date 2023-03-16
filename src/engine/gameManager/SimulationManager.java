@@ -41,7 +41,8 @@ public enum SimulationManager {
 	private long _updatePulseTime = System.currentTimeMillis() + UPDATE_PULSE;
 	private long _flightPulseTime = System.currentTimeMillis() + FlIGHT_PULSE;
 	
-	public static Duration HeartbeatDelta;
+	public static Duration executionTime = Duration.ofNanos(1);
+	public static Duration executionMax = Duration.ofNanos(1);
 
 	private SimulationManager() {
 
@@ -114,8 +115,10 @@ public enum SimulationManager {
 	
 		}
 
-		SimulationManager.HeartbeatDelta = Duration.between(startTime, Instant.now());
+		SimulationManager.executionTime = Duration.between(startTime, Instant.now());
 
+		if (executionTime.compareTo(executionMax) > 0)
+			executionMax = executionTime;
 	}
 
 	/*

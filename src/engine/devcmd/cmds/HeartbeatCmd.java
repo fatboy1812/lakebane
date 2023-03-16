@@ -16,9 +16,6 @@ import engine.gameManager.SimulationManager;
 import engine.objects.AbstractGameObject;
 import engine.objects.PlayerCharacter;
 
-import java.time.temporal.TemporalUnit;
-import java.util.concurrent.TimeUnit;
-
 public class HeartbeatCmd extends AbstractDevCmd {
 
 	public HeartbeatCmd() {
@@ -29,8 +26,11 @@ public class HeartbeatCmd extends AbstractDevCmd {
 	protected void _doCmd(PlayerCharacter pc, String[] words,
 			AbstractGameObject target) {
 
-		this.throwbackInfo(pc, "Heartbeat : " + SimulationManager.HeartbeatDelta.getNano() + "ns");
-		this.throwbackInfo(pc, "FSM: " + MobileFSMManager.executionTime.getNano() + "ns");
+		this.throwbackInfo(pc, "Heartbeat : " + SimulationManager.executionTime.toNanos() + "ns");
+		this.throwbackInfo(pc, "Heartbeat Max: " + SimulationManager.executionMax.toNanos() + "ns");
+
+		this.throwbackInfo(pc, "FSM: " + MobileFSMManager.executionTime.toNanos() + "ns");
+		this.throwbackInfo(pc, "FSM max: " + MobileFSMManager.executionMax.toNanos() + "ns");
 
 	}
 

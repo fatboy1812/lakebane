@@ -26,7 +26,8 @@ public class MobileFSMManager {
 	private volatile boolean alive;
 	private long timeOfKill = -1;
 
-	public static Duration executionTime;
+	public static Duration executionTime = Duration.ofNanos(1);
+	public static Duration executionMax = Duration.ofNanos(1);
 
 	private MobileFSMManager() {
 
@@ -97,6 +98,10 @@ public class MobileFSMManager {
 				}
 
 				this.executionTime = Duration.between(startTime, Instant.now());
+
+				if (executionTime.compareTo(executionMax) > 0)
+					executionMax = executionTime;
+
 				mobPulse = System.currentTimeMillis() + MBServerStatics.AI_PULSE_MOB_THRESHOLD;
 			}
 		}
