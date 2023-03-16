@@ -26,11 +26,11 @@ public class HeartbeatCmd extends AbstractDevCmd {
 	protected void _doCmd(PlayerCharacter pc, String[] words,
 			AbstractGameObject target) {
 
-		this.throwbackInfo(pc, "Heartbeat : " + SimulationManager.executionTime.toMillis() + "ms");
-		this.throwbackInfo(pc, "Heartbeat Max: " + SimulationManager.executionMax.toMillis() + "ms");
+		this.throwbackInfo(pc, "Heartbeat : " + SimulationManager.executionTime);
+		this.throwbackInfo(pc, "Heartbeat Max: " + SimulationManager.executionMax);
 
-		this.throwbackInfo(pc, "FSM: " + MobileFSMManager.executionTime.toMillis() + "ms");
-		this.throwbackInfo(pc, "FSM max: " + MobileFSMManager.executionMax.toMillis() + "ms");
+		this.throwbackInfo(pc, "FSM: " + MobileFSMManager.executionTime);
+		this.throwbackInfo(pc, "FSM max: " + MobileFSMManager.executionMax);
 
 	}
 
