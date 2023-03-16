@@ -8,16 +8,12 @@
 
 
 package engine.ai;
-
-import engine.gameManager.SessionManager;
 import engine.gameManager.ZoneManager;
 import engine.objects.Mob;
 import engine.objects.Zone;
 import engine.server.MBServerStatics;
 import engine.util.ThreadUtils;
 import org.pmw.tinylog.Logger;
-
-import java.util.Random;
 
 
 public class MobileFSMManager {
@@ -68,17 +64,18 @@ public class MobileFSMManager {
 
 	private void execution() {
 
-		//no players online means no mob action required
+		//Load zone threshold once.
+
 		long mobPulse = System.currentTimeMillis() + MBServerStatics.AI_PULSE_MOB_THRESHOLD;
 
 		while (alive) {
-			//assign random range of delay between 1ms and 2000ms so mob actions don't appear synchronized
-			Random r = new Random();
-			ThreadUtils.sleep(r.nextInt(2000-1) + 1);
+
+			ThreadUtils.sleep(1);
 
 			if (System.currentTimeMillis() > mobPulse) {
 
 				for (Zone zone : ZoneManager.getAllZones()) {
+
 					for (Mob mob : zone.zoneMobSet) {
 
 						try {
