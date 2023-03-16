@@ -15,6 +15,9 @@ import engine.server.MBServerStatics;
 import engine.util.ThreadUtils;
 import org.pmw.tinylog.Logger;
 
+import java.time.Duration;
+import java.time.Instant;
+
 
 public class MobileFSMManager {
 
@@ -22,6 +25,8 @@ public class MobileFSMManager {
 
 	private volatile boolean alive;
 	private long timeOfKill = -1;
+
+	public static Duration executionTime;
 
 	private MobileFSMManager() {
 
@@ -67,12 +72,15 @@ public class MobileFSMManager {
 		//Load zone threshold once.
 
 		long mobPulse = System.currentTimeMillis() + MBServerStatics.AI_PULSE_MOB_THRESHOLD;
+		Instant startTime;
 
 		while (alive) {
 
 			ThreadUtils.sleep(1);
 
 			if (System.currentTimeMillis() > mobPulse) {
+
+				startTime = Instant.now();
 
 				for (Zone zone : ZoneManager.getAllZones()) {
 
@@ -88,6 +96,7 @@ public class MobileFSMManager {
 					}
 				}
 
+				this.executionTime = Duration.between(startTime, Instant.now());
 				mobPulse = System.currentTimeMillis() + MBServerStatics.AI_PULSE_MOB_THRESHOLD;
 			}
 		}

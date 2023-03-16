@@ -16,6 +16,8 @@ import engine.objects.PlayerCharacter;
 import engine.objects.Runegate;
 import org.pmw.tinylog.Logger;
 
+import java.time.Duration;
+import java.time.Instant;
 import java.util.Collection;
 
 /*
@@ -39,8 +41,7 @@ public enum SimulationManager {
 	private long _updatePulseTime = System.currentTimeMillis() + UPDATE_PULSE;
 	private long _flightPulseTime = System.currentTimeMillis() + FlIGHT_PULSE;
 	
-	public static long HeartbeatDelta = 0;
-	public static long currentHeartBeatDelta = 0;
+	public static Duration HeartbeatDelta;
 
 	private SimulationManager() {
 
@@ -69,7 +70,7 @@ public enum SimulationManager {
 		 * runegates stop working than the game itself!
 		 */
 		
-		long start = System.currentTimeMillis();
+		Instant startTime = Instant.now();
 
 		try {
 			if ((_flightPulseTime != 0)
@@ -112,17 +113,8 @@ public enum SimulationManager {
 			e.printStackTrace();
 	
 		}
-		
-		long end = System.currentTimeMillis();
-		
-		long delta = end - start;
-		
-		if (delta > SimulationManager.HeartbeatDelta)
-			SimulationManager.HeartbeatDelta = delta;
-		
-		SimulationManager.currentHeartBeatDelta = delta;
-		
 
+		SimulationManager.HeartbeatDelta = Duration.between(startTime, Instant.now());
 
 	}
 
