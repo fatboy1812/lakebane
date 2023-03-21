@@ -425,21 +425,30 @@ public class HeightMap {
 
         Zone parentZone = currentZone.getParent();
         HeightMap heightMap = currentZone.getHeightMap();
+
         //find the next parents heightmap if the currentzone heightmap is null.
+
         while (heightMap == null) {
 
-            if (currentZone == ZoneManager.getSeaFloor()) {
+            if (currentZone == ZoneManager.getSeaFloor())
                 break;
-            }
+
             currentZone = currentZone.getParent();
             heightMap = currentZone.getHeightMap();
 
             parentZone = currentZone.getParent();
-        }
-        if ((heightMap == null) || (currentZone == ZoneManager.getSeaFloor())) {
 
-            return currentZone.getAbsY();
+            // Account for databases where the continental
+            // heightmaps are driven by the zone above them.
+
+            if (parentZone.getHeightMap() == null)
+                parentZone = parentZone.getParent();
+
         }
+
+        if ((heightMap == null) || (currentZone == ZoneManager.getSeaFloor()))
+            return currentZone.getAbsY();
+
 
         Vector2f zoneLoc = ZoneManager.worldToZoneSpace(worldLoc, currentZone);
         Vector3fImmutable localLocFromCenter = ZoneManager.worldToLocal(worldLoc, currentZone);
