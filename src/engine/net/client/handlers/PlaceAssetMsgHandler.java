@@ -978,7 +978,7 @@ public class PlaceAssetMsgHandler extends AbstractClientMsgHandler {
 
 		// All trees must be placed within a continent.
 
-		if (!serverZone.isContininent()) {
+		if (!serverZone.isContinent()) {
 
 			PlaceAssetMsg.sendPlaceAssetError(origin, 69, ""); // Tree must be within a territory
 			return false;

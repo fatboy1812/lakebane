@@ -23,7 +23,6 @@ import org.pmw.tinylog.Logger;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Set;
@@ -288,8 +287,7 @@ public class Zone extends AbstractGameObject {
 
 	public boolean isMacroZone() {
 
-		// Player cities are not considered a macrozone
-		// although their parent is always a continent.
+		// Macro zones have icons.
 
 		if (this.isPlayerCity == true)
 			return false;
@@ -297,7 +295,7 @@ public class Zone extends AbstractGameObject {
 		if (this.parent == null)
 			return false;
 
-		return (this.parent.isContininent() == true);
+		return !this.getIcon1().equals("");
 	}
 
 	public boolean isNPCCity() {
@@ -440,7 +438,7 @@ public class Zone extends AbstractGameObject {
 			if (zone == this)
 				continue;
 
-			if (zone.isContininent() && zone.getPlayerCityUUID() == 0)
+			if (zone.isContinent() && zone.getPlayerCityUUID() == 0)
 				continue;
 
 			if (zone.getPlayerCityUUID() != 0){
@@ -464,12 +462,18 @@ public class Zone extends AbstractGameObject {
 		return RuinedZone;
 	}
 
-	public boolean isContininent() {
+	public boolean isContinent() {
 
-		if (this.parent == null)
+		if (this.equals(ZoneManager.getSeaFloor()))
 			return false;
 
-		return this.parent.equals(ZoneManager.getSeaFloor());
+		if (this.getNodes().isEmpty())
+			return false;
+
+		if (this.getNodes().get(0).isMacroZone())
+			return true;
+
+		return false;
 	}
 
 	/**

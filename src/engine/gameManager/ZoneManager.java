@@ -444,7 +444,7 @@ public enum ZoneManager {
         boolean validLocation = true;
         Bounds treeBounds;
 
-        if (currentZone.isContininent() == false)
+        if (currentZone.isContinent() == false)
             return false;
 
 
@@ -456,7 +456,7 @@ public enum ZoneManager {
 
         for (Zone zone : zoneList) {
 
-            if (zone.isContininent())
+            if (zone.isContinent())
                 continue;
 
             if (Bounds.collide(treeBounds, zone.getBounds(), 0.0f))
