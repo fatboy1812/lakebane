@@ -288,6 +288,22 @@ public class HeightMap {
         return interpolatedHeight;
     }
 
+    public static Zone getNextZoneWithTerrain(Zone zone) {
+
+        Zone nextZone = zone;
+
+        if (zone.getHeightMap() != null)
+            return zone;
+
+        if (zone.equals(ZoneManager.getSeaFloor()))
+            return zone;
+
+        while (nextZone.getHeightMap() == null)
+            nextZone = nextZone.getParent();
+
+        return nextZone;
+    }
+
     public static float getWorldHeight(AbstractWorldObject worldObject) {
 
         Vector2f parentLoc = new Vector2f(-1, -1);
@@ -296,32 +312,19 @@ public class HeightMap {
         if (currentZone == null)
             return worldObject.getAltitude();
 
-        Zone parentZone = currentZone.getParent();
-        HeightMap heightMap = currentZone.getHeightMap();
+        currentZone = getNextZoneWithTerrain(currentZone);
 
-        //find the next parents heightmap if the currentzone heightmap is null.
-
-        while (heightMap == null) {
-
-            if (currentZone == ZoneManager.getSeaFloor()) {
-                break;
-            }
-            currentZone = currentZone.getParent();
-            heightMap = currentZone.getHeightMap();
-
-            parentZone = currentZone.getParent();
-        }
-        if ((heightMap == null) || (currentZone == ZoneManager.getSeaFloor())) {
-
+        if (currentZone == ZoneManager.getSeaFloor())
             return currentZone.getAbsY() + worldObject.getAltitude();
-        }
+
+        Zone parentZone = getNextZoneWithTerrain(currentZone.getParent());
+        HeightMap heightMap = currentZone.getHeightMap();
 
         Vector2f zoneLoc = ZoneManager.worldToZoneSpace(worldObject.getLoc(), currentZone);
         Vector3fImmutable localLocFromCenter = ZoneManager.worldToLocal(worldObject.getLoc(), currentZone);
 
-        if ((parentZone != null) && (parentZone.getHeightMap() != null)) {
+        if ((parentZone != null) && (parentZone.getHeightMap() != null))
             parentLoc = ZoneManager.worldToZoneSpace(worldObject.getLoc(), parentZone);
-        }
 
         float interaltitude = currentZone.getHeightMap().getInterpolatedTerrainHeight(zoneLoc);
 
@@ -331,13 +334,10 @@ public class HeightMap {
 
         //OUTSET
 
-
         if (parentZone != null) {
-
 
             float parentXRadius = currentZone.getBounds().getHalfExtents().x;
             float parentZRadius = currentZone.getBounds().getHalfExtents().y;
-
 
             float offsetX = Math.abs((localLocFromCenter.x / parentXRadius));
             float offsetZ = Math.abs((localLocFromCenter.z / parentZRadius));
@@ -345,18 +345,14 @@ public class HeightMap {
             float bucketScaleX = heightMap.outsetX / parentXRadius;
             float bucketScaleZ = heightMap.outsetZ / parentZRadius;
 
-
-            if (bucketScaleX <= 0.40000001) {
+            if (bucketScaleX <= 0.40000001)
                 bucketScaleX = heightMap.outsetZ / parentXRadius;
-
-            }
 
             if (bucketScaleX > 0.40000001)
                 bucketScaleX = 0.40000001f;
 
-            if (bucketScaleZ <= 0.40000001) {
+            if (bucketScaleZ <= 0.40000001)
                 bucketScaleZ = heightMap.outsetX / parentZRadius;
-            }
 
             if (bucketScaleZ > 0.40000001)
                 bucketScaleZ = 0.40000001f;
@@ -367,7 +363,6 @@ public class HeightMap {
 
             double scale;
 
-
             if (offsetX > outsideGridSizeX && offsetX > offsetZ) {
                 weight = (offsetX - outsideGridSizeX) / bucketScaleX;
                 scale = Math.atan2((.5 - weight) * 3.1415927, 1);
@@ -375,10 +370,8 @@ public class HeightMap {
                 float scaleChild = (float) ((scale + 1) * .5);
                 float scaleParent = 1 - scaleChild;
 
-
                 float parentAltitude = parentZone.getHeightMap().getInterpolatedTerrainHeight(parentLoc);
                 float parentCenterAltitude = parentZone.getHeightMap().getInterpolatedTerrainHeight(ZoneManager.worldToZoneSpace(currentZone.getLoc(), parentZone));
-
 
                 parentCenterAltitude += currentZone.getYCoord();
                 parentCenterAltitude += interaltitude;
@@ -411,7 +404,6 @@ public class HeightMap {
             }
         }
 
-
         return realWorldAltitude;
     }
 
@@ -423,39 +415,22 @@ public class HeightMap {
         if (currentZone == null)
             return 0;
 
-        Zone parentZone = currentZone.getParent();
+        currentZone = getNextZoneWithTerrain(currentZone);
+
+        if (currentZone == ZoneManager.getSeaFloor())
+            return currentZone.getAbsY();
+
+        Zone parentZone = getNextZoneWithTerrain(currentZone.getParent());
         HeightMap heightMap = currentZone.getHeightMap();
-
-        //find the next parents heightmap if the currentzone heightmap is null.
-
-        while (heightMap == null) {
-
-            if (currentZone == ZoneManager.getSeaFloor())
-                break;
-
-            currentZone = currentZone.getParent();
-            heightMap = currentZone.getHeightMap();
-
-            parentZone = currentZone.getParent();
-
-            // Account for databases where the continental
-            // heightmaps are driven by the zone above them.
-
-            if (parentZone.getHeightMap() == null)
-                parentZone = parentZone.getParent();
-
-        }
 
         if ((heightMap == null) || (currentZone == ZoneManager.getSeaFloor()))
             return currentZone.getAbsY();
 
-
         Vector2f zoneLoc = ZoneManager.worldToZoneSpace(worldLoc, currentZone);
         Vector3fImmutable localLocFromCenter = ZoneManager.worldToLocal(worldLoc, currentZone);
 
-        if ((parentZone != null) && (parentZone.getHeightMap() != null)) {
+        if ((parentZone != null) && (parentZone.getHeightMap() != null))
             parentLoc = ZoneManager.worldToZoneSpace(worldLoc, parentZone);
-        }
 
         float interaltitude = currentZone.getHeightMap().getInterpolatedTerrainHeight(zoneLoc);
 
@@ -464,7 +439,6 @@ public class HeightMap {
         float realWorldAltitude = interaltitude + worldAltitude;
 
         //OUTSET
-
 
         if (parentZone != null) {
 
@@ -494,10 +468,8 @@ public class HeightMap {
                 float scaleChild = (float) ((scale + 1) * .5);
                 float scaleParent = 1 - scaleChild;
 
-
                 float parentAltitude = parentZone.getHeightMap().getInterpolatedTerrainHeight(parentLoc);
                 float parentCenterAltitude = parentZone.getHeightMap().getInterpolatedTerrainHeight(ZoneManager.worldToZoneSpace(currentZone.getLoc(), parentZone));
-
 
                 parentCenterAltitude += currentZone.getYCoord();
                 parentCenterAltitude += interaltitude;
@@ -529,7 +501,6 @@ public class HeightMap {
                 realWorldAltitude = outsetALt;
             }
         }
-
 
         return realWorldAltitude;
     }
