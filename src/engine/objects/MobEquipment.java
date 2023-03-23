@@ -347,8 +347,6 @@ public class MobEquipment extends AbstractGameObject {
 			item.setIsID(true);
 	}
 
-
-
 	/*
 	 * Database
 	 */
@@ -357,34 +355,7 @@ public class MobEquipment extends AbstractGameObject {
 	}
 
 
-	public void persistObject() {
-		PreparedStatementShared ps = null;
-		try {
-			ps = prepareStatement("INSERT INTO static_npc_mobequipment (`mobID`, `slot`, `itemID`) VALUES (?, ?, ?)");
-			ps.setInt(1, this.parentID, true);
-			ps.setInt(2, this.slot);
-			ps.setInt(3, this.itemBase.getUUID(), true);
-			ps.executeUpdate();
-		} catch (SQLException e) {
-			Logger.error( e.toString());
-		} finally {
-			ps.release();
-		}
-	}
 
-	public static void removeObject(int UUID, int slot) {
-		PreparedStatementShared ps = null;
-		try {
-			ps = prepareStatement("DELETE FROM `static_npc_mobequipment` WHERE `mobID`=? AND slot=?");
-			ps.setInt(1, UUID);
-			ps.setInt(2, slot);
-			ps.executeUpdate();
-		} catch (SQLException e) {
-			Logger.error( e.toString());
-		} finally {
-			ps.release();
-		}
-	}
 
 	public float getDropChance() {
 		return dropChance;
