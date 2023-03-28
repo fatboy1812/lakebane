@@ -287,6 +287,9 @@ public class WorldServer {
 		Logger.info("Loading NPC and Mob Equipment Sets");
 		NPCManager.LoadAllEquipmentSets();
 
+		Logger.info("Loading NPC and Mob Rune Sets");
+		NPCManager.LoadAllRuneSets();
+
 		Logger.info("Loading Gold Loot for Mobbases");
 		MobbaseGoldEntry.LoadMobbaseGold();
 
