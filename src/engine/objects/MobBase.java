@@ -12,6 +12,7 @@ package engine.objects;
 import ch.claude_martin.enumbitset.EnumBitSet;
 import engine.Enum;
 import engine.gameManager.DbManager;
+import engine.gameManager.NPCManager;
 import engine.server.MBServerStatics;
 
 import java.sql.ResultSet;
@@ -144,7 +145,7 @@ public class MobBase extends AbstractGameObject {
 		if (equipmentSetID == 0)
 			return equip;
 
-		equipList = EquipmentSetEntry.EquipmentSetMap.get(equipmentSetID);
+		equipList = NPCManager.EquipmentSetMap.get(equipmentSetID);
 
 		if (equipList == null)
 			return equip;

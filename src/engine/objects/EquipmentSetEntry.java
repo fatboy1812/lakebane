@@ -10,18 +10,15 @@
 package engine.objects;
 
 import engine.gameManager.DbManager;
+import engine.gameManager.NPCManager;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
-import java.util.HashMap;
 
 public class EquipmentSetEntry {
 
 	private float dropChance;
 	private int itemID;
-
-	static HashMap<Integer, ArrayList<EquipmentSetEntry>> EquipmentSetMap = new HashMap<>();
 
 	/**
 	 * ResultSet Constructor
@@ -33,7 +30,7 @@ public class EquipmentSetEntry {
 	}
 
 	public static void LoadAllEquipmentSets() {
-		EquipmentSetMap = DbManager.ItemBaseQueries.LOAD_EQUIPMENT_FOR_NPC_AND_MOBS();
+		NPCManager.EquipmentSetMap = DbManager.ItemBaseQueries.LOAD_EQUIPMENT_FOR_NPC_AND_MOBS();
 	}
 
 	float getDropChance() {
