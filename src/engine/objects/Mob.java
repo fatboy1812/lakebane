@@ -108,6 +108,8 @@ public class Mob extends AbstractIntelligenceAgent {
     private boolean lootSync = false;
     private int fidalityID = 0;
     private int equipmentSetID = 0;
+    public int runeSetID = 0;
+    public int bootySetID = 0;
     private int lootSet = 0;
     private boolean isGuard;
     private ArrayList<Integer> fidelityRunes = null;
@@ -298,6 +300,8 @@ public class Mob extends AbstractIntelligenceAgent {
             this.fidalityID = rs.getInt("fidalityID");
 
             this.equipmentSetID = rs.getInt("equipmentSet");
+            this.runeSetID = rs.getInt("runeSet");
+            this.bootySetID = rs.getInt("bootySet");
 
             if (this.contract != null)
                 this.equipmentSetID = this.contract.getEquipmentSet();

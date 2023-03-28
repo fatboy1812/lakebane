@@ -95,6 +95,7 @@ public class NPC extends AbstractCharacter {
 	public HashMap<Integer, MobEquipment> equip = null;
 	private String nameOverride = "";
 	private int equipmentSetID = 0;
+	public int runeSetID = 0;
 	private int slot;
 	private Regions region = null;
 
@@ -189,6 +190,7 @@ public class NPC extends AbstractCharacter {
 			this.contract = DbManager.ContractQueries.GET_CONTRACT(contractID);
 			this.fidalityID = (rs.getInt("fidalityID"));
 			this.equipmentSetID = rs.getInt("equipmentSet");
+			this.runeSetID = rs.getInt("runeSet");
 
 			if (this.equipmentSetID == 0 && this.contract != null)
 				this.equipmentSetID = this.contract.equipmentSet;
