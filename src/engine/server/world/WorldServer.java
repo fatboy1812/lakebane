@@ -285,7 +285,7 @@ public class WorldServer {
 		DbManager.PromotionQueries.GET_ALL_PROMOTIONS();
 
 		Logger.info("Loading NPC and Mob Equipment Sets");
-		EquipmentSetEntry.LoadAllEquipmentSets();
+		NPCManager.LoadAllEquipmentSets();
 
 		Logger.info("Loading Gold Loot for Mobbases");
 		MobbaseGoldEntry.LoadMobbaseGold();

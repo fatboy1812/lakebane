@@ -152,7 +152,7 @@ public class MobBase extends AbstractGameObject {
 
 		for (EquipmentSetEntry equipmentSetEntry : equipList) {
 
-			MobEquipment mobEquipment = new MobEquipment(equipmentSetEntry.getItemID(), equipmentSetEntry.getDropChance());
+			MobEquipment mobEquipment = new MobEquipment(equipmentSetEntry.itemID, equipmentSetEntry.dropChance);
 			ItemBase itemBase = mobEquipment.getItemBase();
 
 			if (itemBase != null) {

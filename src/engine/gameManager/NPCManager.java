@@ -10,4 +10,7 @@ public enum NPCManager {
     public static HashMap<Integer, ArrayList<EquipmentSetEntry>> EquipmentSetMap = new HashMap<>();
 
 
+    public static void LoadAllEquipmentSets() {
+        EquipmentSetMap = DbManager.ItemBaseQueries.LOAD_EQUIPMENT_FOR_NPC_AND_MOBS();
+    }
 }
