@@ -34,7 +34,6 @@ import engine.net.client.msg.PlaceAssetMsg;
 import engine.net.client.msg.chat.ChatSystemMsg;
 import engine.powers.EffectsBase;
 import engine.server.MBServerStatics;
-import engine.server.world.WorldServer;
 import org.joda.time.DateTime;
 import org.pmw.tinylog.Logger;
 
@@ -69,7 +68,7 @@ public class Mob extends AbstractIntelligenceAgent {
     protected int dbID; //the database ID
     protected int loadID;
     protected boolean isMob;
-    protected MobBase mobBase;
+    public MobBase mobBase;
     protected float spawnRadius;
     protected int spawnTime;
     //used by static mobs
@@ -79,14 +78,14 @@ public class Mob extends AbstractIntelligenceAgent {
     protected float statLon;
     protected float statAlt;
     protected Building building;
-    protected Contract contract;
+    public Contract contract;
     private int currentID;
     private int ownerUID = 0; //only used by pets
     private boolean hasLoot = false;
     private AbstractWorldObject fearedObject = null;
     private int buildingID;
     private boolean isSiege = false;
-    private boolean isPlayerGuard = false;
+    public boolean isPlayerGuard = false;
     private long timeToSpawnSiege;
     private AbstractCharacter npcOwner;
     private Vector3fImmutable inBuildingLoc = null;
@@ -112,7 +111,6 @@ public class Mob extends AbstractIntelligenceAgent {
     public int bootySetID = 0;
     private int lootSet = 0;
     private boolean isGuard;
-    private ArrayList<Integer> fidelityRunes = null;
 
     /**
      * No Id Constructor
@@ -311,21 +309,6 @@ public class Mob extends AbstractIntelligenceAgent {
             if (this.fidalityID != 0)
                 this.nameOverride = rs.getString("mob_name");
 
-            if (this.fidalityID != 0) {
-
-                Zone parentZone = ZoneManager.getZoneByUUID(this.parentZoneID);
-                if (parentZone != null) {
-                    this.fidelityRunes = WorldServer.ZoneFidelityMobRunes.get(parentZone.getLoadNum()).get(this.fidalityID);
-
-                    if (this.fidelityRunes != null)
-                        for (Integer runeID : this.fidelityRunes) {
-                            if (runeID == 252623) {
-                                this.isGuard = true;
-                                this.noAggro = true;
-                            }
-                        }
-                }
-            }
         } catch (Exception e) {
             Logger.error(currentID + "");
         }
@@ -600,8 +583,8 @@ public class Mob extends AbstractIntelligenceAgent {
 
 
         int level = mob.getLevel();
-        level = (level < 0) ? 0 : level;
-        level = (level > 50) ? 50 : level;
+        level = Math.max(level, 0);
+        level = Math.min(level, 50);
 
         double minGold;
         double maxGold;
@@ -724,30 +707,6 @@ public class Mob extends AbstractIntelligenceAgent {
             return 0f;
 
         return skill.getModifiedAmount();
-    }
-
-    public static int getBuildingSlot(Mob mob) {
-        int slot = -1;
-
-        if (mob.building == null)
-            return -1;
-
-
-        BuildingModelBase buildingModel = BuildingModelBase.getModelBase(mob.building.getMeshUUID());
-
-        if (buildingModel == null)
-            return -1;
-
-
-        if (mob.building.getHirelings().containsKey(mob))
-            slot = (mob.building.getHirelings().get(mob));
-
-
-        if (buildingModel.getNPCLocation(slot) == null)
-            return -1;
-
-
-        return slot;
     }
 
     public static void HandleAssistedAggro(PlayerCharacter source, PlayerCharacter target) {
@@ -984,199 +943,6 @@ public class Mob extends AbstractIntelligenceAgent {
         }
     }
 
-    private void initializeStaticEffects() {
-
-        EffectsBase eb = null;
-        for (MobBaseEffects mbe : this.mobBase.getRaceEffectsList()) {
-
-            eb = PowersManager.getEffectByToken(mbe.getToken());
-
-            if (eb == null) {
-                Logger.info("EffectsBase Null for Token " + mbe.getToken());
-                continue;
-            }
-
-            //check to upgrade effects if needed.
-            if (this.effects.containsKey(Integer.toString(eb.getUUID()))) {
-                if (mbe.getReqLvl() > (int) this.level)
-                    continue;
-
-                Effect eff = this.effects.get(Integer.toString(eb.getUUID()));
-
-                if (eff == null)
-                    continue;
-
-                if (eff.getTrains() > mbe.getRank())
-                    continue;
-
-                //new effect is of a higher rank. remove old effect and apply new one.
-                eff.cancelJob();
-                this.addEffectNoTimer(Integer.toString(eb.getUUID()), eb, mbe.getRank(), true);
-            } else {
-                if (mbe.getReqLvl() > (int) this.level)
-                    continue;
-
-                this.addEffectNoTimer(Integer.toString(eb.getUUID()), eb, mbe.getRank(), true);
-            }
-        }
-
-        //Apply all rune effects.
-        // Only Captains have contracts
-        if (contract != null || this.isPlayerGuard) {
-            RuneBase guardRune = RuneBase.getRuneBase(252621);
-            for (MobBaseEffects mbe : guardRune.getEffectsList()) {
-
-                eb = PowersManager.getEffectByToken(mbe.getToken());
-
-                if (eb == null) {
-                    Logger.info("EffectsBase Null for Token " + mbe.getToken());
-                    continue;
-                }
-
-                //check to upgrade effects if needed.
-                if (this.effects.containsKey(Integer.toString(eb.getUUID()))) {
-
-                    if (mbe.getReqLvl() > (int) this.level)
-                        continue;
-
-                    Effect eff = this.effects.get(Integer.toString(eb.getUUID()));
-
-                    if (eff == null)
-                        continue;
-
-                    //Current effect is a higher rank, dont apply.
-                    if (eff.getTrains() > mbe.getRank())
-                        continue;
-
-                    //new effect is of a higher rank. remove old effect and apply new one.
-                    eff.cancelJob();
-                    this.addEffectNoTimer(Integer.toString(eb.getUUID()), eb, mbe.getRank(), true);
-                } else {
-
-                    if (mbe.getReqLvl() > (int) this.level)
-                        continue;
-
-                    this.addEffectNoTimer(Integer.toString(eb.getUUID()), eb, mbe.getRank(), true);
-                }
-            }
-
-            RuneBase WarriorRune = RuneBase.getRuneBase(2518);
-            for (MobBaseEffects mbe : WarriorRune.getEffectsList()) {
-
-                eb = PowersManager.getEffectByToken(mbe.getToken());
-
-                if (eb == null) {
-                    Logger.info("EffectsBase Null for Token " + mbe.getToken());
-                    continue;
-                }
-
-                //check to upgrade effects if needed.
-                if (this.effects.containsKey(Integer.toString(eb.getUUID()))) {
-
-                    if (mbe.getReqLvl() > (int) this.level)
-                        continue;
-
-                    Effect eff = this.effects.get(Integer.toString(eb.getUUID()));
-
-                    if (eff == null)
-                        continue;
-
-                    //Current effect is a higher rank, dont apply.
-                    if (eff.getTrains() > mbe.getRank())
-                        continue;
-
-                    //new effect is of a higher rank. remove old effect and apply new one.
-                    eff.cancelJob();
-                    this.addEffectNoTimer(Integer.toString(eb.getUUID()), eb, mbe.getRank(), true);
-                } else {
-
-                    if (mbe.getReqLvl() > (int) this.level)
-                        continue;
-
-                    this.addEffectNoTimer(Integer.toString(eb.getUUID()), eb, mbe.getRank(), true);
-                }
-            }
-        }
-
-        if (this.fidelityRunes != null) {
-
-            for (int fidelityRune : this.fidelityRunes) {
-
-                RuneBase rune = RuneBase.getRuneBase(fidelityRune);
-
-                if (rune != null)
-                    for (MobBaseEffects mbe : rune.getEffectsList()) {
-
-                        eb = PowersManager.getEffectByToken(mbe.getToken());
-                        if (eb == null) {
-                            Logger.info("EffectsBase Null for Token " + mbe.getToken());
-                            continue;
-                        }
-
-                        //check to upgrade effects if needed.
-                        if (this.effects.containsKey(Integer.toString(eb.getUUID()))) {
-                            if (mbe.getReqLvl() > (int) this.level)
-                                continue;
-
-                            Effect eff = this.effects.get(Integer.toString(eb.getUUID()));
-
-                            if (eff == null)
-                                continue;
-
-                            //Current effect is a higher rank, dont apply.
-                            if (eff.getTrains() > mbe.getRank())
-                                continue;
-
-                            //new effect is of a higher rank. remove old effect and apply new one.
-                            eff.cancelJob();
-                            this.addEffectNoTimer(Integer.toString(eb.getUUID()), eb, mbe.getRank(), true);
-
-                        } else {
-
-                            if (mbe.getReqLvl() > (int) this.level)
-                                continue;
-
-                            this.addEffectNoTimer(Integer.toString(eb.getUUID()), eb, mbe.getRank(), true);
-                        }
-                    }
-            }
-        } else
-            for (RuneBase rune : this.mobBase.getRunes()) {
-                for (MobBaseEffects mbe : rune.getEffectsList()) {
-
-                    eb = PowersManager.getEffectByToken(mbe.getToken());
-                    if (eb == null) {
-                        Logger.info("EffectsBase Null for Token " + mbe.getToken());
-                        continue;
-                    }
-
-                    //check to upgrade effects if needed.
-                    if (this.effects.containsKey(Integer.toString(eb.getUUID()))) {
-                        if (mbe.getReqLvl() > (int) this.level)
-                            continue;
-
-                        Effect eff = this.effects.get(Integer.toString(eb.getUUID()));
-
-                        if (eff == null)
-                            continue;
-
-                        //Current effect is a higher rank, dont apply.
-                        if (eff.getTrains() > mbe.getRank())
-                            continue;
-
-                        //new effect is of a higher rank. remove old effect and apply new one.
-                        eff.cancelJob();
-                        this.addEffectNoTimer(Integer.toString(eb.getUUID()), eb, mbe.getRank(), true);
-                    } else {
-
-                        if (mbe.getReqLvl() > (int) this.level)
-                            continue;
-
-                        this.addEffectNoTimer(Integer.toString(eb.getUUID()), eb, mbe.getRank(), true);
-                    }
-                }
-            }
-    }
 
     /*
      * Getters
@@ -1638,7 +1404,7 @@ public class Mob extends AbstractIntelligenceAgent {
         this.bindLoc = this.lastBindLoc;
         this.setLoc(this.lastBindLoc);
         this.stopMovement(this.lastBindLoc);
-        this.initializeStaticEffects();
+        NPCManager.initializeStaticEffects(this);
         this.recalculateStats();
 
         this.setHealth(this.healthMax);
@@ -1646,8 +1412,6 @@ public class Mob extends AbstractIntelligenceAgent {
         if (!this.isSiege && !this.isPlayerGuard && contract == null)
             loadInventory();
 
-        //		LoadJob.getInstance();
-        //		LoadJob.forceLoad(this);
     }
 
     public void despawn() {
@@ -2341,7 +2105,7 @@ public class Mob extends AbstractIntelligenceAgent {
         }
 
         try {
-            this.initializeStaticEffects();
+            NPCManager.initializeStaticEffects(this);
 
             try {
                 this.initializeSkills();

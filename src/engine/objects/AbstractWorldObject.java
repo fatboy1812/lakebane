@@ -50,7 +50,7 @@ public abstract class AbstractWorldObject extends AbstractGameObject {
 	protected AtomicFloat health = new AtomicFloat();
 	public float healthMax;
 	protected boolean load = true;
-	protected ConcurrentHashMap<String, Effect> effects = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_LOW);
+	public ConcurrentHashMap<String, Effect> effects = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_LOW);
 	private int objectTypeMask = 0;
 	private Bounds bounds;
 	

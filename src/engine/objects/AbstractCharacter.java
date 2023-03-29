@@ -51,7 +51,7 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
 	protected short statIntCurrent;
 	protected short statSpiCurrent;
 	protected short unusedStatPoints;
-	protected short level;
+	public short level;
 	protected int exp;
 	protected Vector3fImmutable bindLoc;
 	protected Vector3fImmutable faceDir;
@@ -494,26 +494,6 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
 
 	public final short getStatSpiCurrent() {
 		return this.statSpiCurrent;
-	}
-
-	public final void setStatStrCurrent(final short value) {
-		this.statStrCurrent = (value < 1) ? (short) 1 : value;
-	}
-
-	public final void setStatDexCurrent(final short value) {
-		this.statDexCurrent = (value < 1) ? (short) 1 : value;
-	}
-
-	public final void setStatConCurrent(final short value) {
-		this.statConCurrent = (value < 1) ? (short) 1 : value;
-	}
-
-	public final void setStatIntCurrent(final short value) {
-		this.statIntCurrent = (value < 1) ? (short) 1 : value;
-	}
-
-	public final void setStatSpiCurrent(final short value) {
-		this.statSpiCurrent = (value < 1) ? (short) 1 : value;
 	}
 
 	public short getLevel() {
@@ -1915,16 +1895,6 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
 
 	public void setItemCasting(boolean itemCasting) {
 		this.itemCasting = itemCasting;
-	}
-	
-	public static void MoveInsideBuilding(PlayerCharacter source, AbstractCharacter ac){
-		MoveToPointMsg moveMsg = new MoveToPointMsg();
-		moveMsg.setPlayer(ac);
-        moveMsg.setTarget(ac, BuildingManager.getBuildingFromCache(ac.inBuildingID));
-		
-		Dispatch dispatch = Dispatch.borrow(source, moveMsg);
-		DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.PRIMARY);
-		
 	}
 	
 	//updates
