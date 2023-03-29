@@ -918,32 +918,6 @@ public class Mob extends AbstractIntelligenceAgent {
             Mob.mobMapByDBID.put(this.dbID, this);
     }
 
-    private void initializeSkills() {
-
-        if (this.mobBase.getMobBaseStats() == null)
-            return;
-
-        long skillVector = this.mobBase.getMobBaseStats().getSkillSet();
-        int skillValue = this.mobBase.getMobBaseStats().getSkillValue();
-
-        if (this.mobBase.getObjectUUID() >= 17233) {
-            for (CharacterSkills cs : CharacterSkills.values()) {
-                SkillsBase sb = DbManager.SkillsBaseQueries.GET_BASE_BY_TOKEN(cs.getToken());
-                CharacterSkill css = new CharacterSkill(sb, this, 50);
-                this.skills.put(sb.getName(), css);
-            }
-        } else {
-            for (CharacterSkills cs : CharacterSkills.values()) {
-                if ((skillVector & cs.getFlag()) != 0) {
-                    SkillsBase sb = DbManager.SkillsBaseQueries.GET_BASE_BY_TOKEN(cs.getToken());
-                    CharacterSkill css = new CharacterSkill(sb, this, skillValue);
-                    this.skills.put(sb.getName(), css);
-                }
-            }
-        }
-    }
-
-
     /*
      * Getters
      */
@@ -2106,7 +2080,6 @@ public class Mob extends AbstractIntelligenceAgent {
 
         try {
             NPCManager.applyRuneSetEffects(this);
-            initializeSkills();
             recalculateStats();
             this.setHealth(this.healthMax);
 
