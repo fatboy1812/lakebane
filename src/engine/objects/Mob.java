@@ -1404,7 +1404,7 @@ public class Mob extends AbstractIntelligenceAgent {
         this.bindLoc = this.lastBindLoc;
         this.setLoc(this.lastBindLoc);
         this.stopMovement(this.lastBindLoc);
-        NPCManager.initializeStaticEffects(this);
+        NPCManager.applyRuneSetEffects(this);
         this.recalculateStats();
 
         this.setHealth(this.healthMax);
@@ -2105,7 +2105,7 @@ public class Mob extends AbstractIntelligenceAgent {
         }
 
         try {
-            NPCManager.initializeStaticEffects(this);
+            NPCManager.applyRuneSetEffects(this);
 
             try {
                 this.initializeSkills();

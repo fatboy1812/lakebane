@@ -28,162 +28,74 @@ public enum NPCManager {
         _bootySetMap = DbManager.ItemBaseQueries.LOAD_BOOTY_FOR_MOBS();
     }
 
-    public static void initializeStaticEffects(Mob mob) {
+    public static void applyRuneSetEffects(Mob mob) {
 
-        EffectsBase eb = null;
-        for (MobBaseEffects mbe : mob.mobBase.getRaceEffectsList()) {
+        EffectsBase effectsBase;
 
-            eb = PowersManager.getEffectByToken(mbe.getToken());
+        //Apply all rune effects.
 
-            if (eb == null) {
-                Logger.info("EffectsBase Null for Token " + mbe.getToken());
+        if (NPCManager._runeSetMap.get(mob.runeSetID).contains(252623)) {
+            mob.isPlayerGuard = true;
+            mob.setNoAggro(true);
+        }
+
+        // Only captains have contracts
+
+        if (mob.contract != null || mob.isPlayerGuard)
+            applyEffectsForRune(mob, 252621);
+
+
+        // Apply effects from RuneSet
+
+        if (mob.runeSetID != 0)
+            for (int runeID : _runeSetMap.get(mob.runeSetID))
+                applyEffectsForRune(mob, runeID);
+
+        // Not sure why but apply Warrior effects for some reason?
+
+        applyEffectsForRune(mob, 2518);
+    }
+
+    public static void applyEffectsForRune(AbstractCharacter character, int runeID) {
+
+        EffectsBase effectsBase;
+        RuneBase sourceRune = RuneBase.getRuneBase(runeID);
+
+        for (MobBaseEffects mbe : sourceRune.getEffectsList()) {
+
+            effectsBase = PowersManager.getEffectByToken(mbe.getToken());
+
+            if (effectsBase == null) {
+                Logger.info("Mob: " + character.getObjectUUID() + "  EffectsBase Null for Token " + mbe.getToken());
                 continue;
             }
 
             //check to upgrade effects if needed.
-            if (mob.effects.containsKey(Integer.toString(eb.getUUID()))) {
-                if (mbe.getReqLvl() > (int) mob.level)
+            if (character.effects.containsKey(Integer.toString(effectsBase.getUUID()))) {
+
+                if (mbe.getReqLvl() > (int) character.level)
                     continue;
 
-                Effect eff = mob.effects.get(Integer.toString(eb.getUUID()));
+                Effect eff = character.effects.get(Integer.toString(effectsBase.getUUID()));
 
                 if (eff == null)
                     continue;
 
+                //Current effect is a higher rank, dont apply.
                 if (eff.getTrains() > mbe.getRank())
                     continue;
 
                 //new effect is of a higher rank. remove old effect and apply new one.
                 eff.cancelJob();
-                mob.addEffectNoTimer(Integer.toString(eb.getUUID()), eb, mbe.getRank(), true);
+                character.addEffectNoTimer(Integer.toString(effectsBase.getUUID()), effectsBase, mbe.getRank(), true);
             } else {
-                if (mbe.getReqLvl() > (int) mob.level)
+
+                if (mbe.getReqLvl() > (int) character.level)
                     continue;
 
-                mob.addEffectNoTimer(Integer.toString(eb.getUUID()), eb, mbe.getRank(), true);
+                character.addEffectNoTimer(Integer.toString(effectsBase.getUUID()), effectsBase, mbe.getRank(), true);
             }
+
         }
-
-        //Apply all rune effects.
-        // Only Captains have contracts
-        if (mob.contract != null || mob.isPlayerGuard) {
-            RuneBase guardRune = RuneBase.getRuneBase(252621);
-            for (MobBaseEffects mbe : guardRune.getEffectsList()) {
-
-                eb = PowersManager.getEffectByToken(mbe.getToken());
-
-                if (eb == null) {
-                    Logger.info("Mob: " + mob.getObjectUUID() + "  EffectsBase Null for Token " + mbe.getToken());
-                    continue;
-                }
-
-                //check to upgrade effects if needed.
-                if (mob.effects.containsKey(Integer.toString(eb.getUUID()))) {
-
-                    if (mbe.getReqLvl() > (int) mob.level)
-                        continue;
-
-                    Effect eff = mob.effects.get(Integer.toString(eb.getUUID()));
-
-                    if (eff == null)
-                        continue;
-
-                    //Current effect is a higher rank, dont apply.
-                    if (eff.getTrains() > mbe.getRank())
-                        continue;
-
-                    //new effect is of a higher rank. remove old effect and apply new one.
-                    eff.cancelJob();
-                    mob.addEffectNoTimer(Integer.toString(eb.getUUID()), eb, mbe.getRank(), true);
-                } else {
-
-                    if (mbe.getReqLvl() > (int) mob.level)
-                        continue;
-
-                    mob.addEffectNoTimer(Integer.toString(eb.getUUID()), eb, mbe.getRank(), true);
-                }
-            }
-
-            RuneBase WarriorRune = RuneBase.getRuneBase(2518);
-            for (MobBaseEffects mbe : WarriorRune.getEffectsList()) {
-
-                eb = PowersManager.getEffectByToken(mbe.getToken());
-
-                if (eb == null) {
-                    Logger.info("EffectsBase Null for Token " + mbe.getToken());
-                    continue;
-                }
-
-                //check to upgrade effects if needed.
-                if (mob.effects.containsKey(Integer.toString(eb.getUUID()))) {
-
-                    if (mbe.getReqLvl() > (int) mob.level)
-                        continue;
-
-                    Effect eff = mob.effects.get(Integer.toString(eb.getUUID()));
-
-                    if (eff == null)
-                        continue;
-
-                    //Current effect is a higher rank, dont apply.
-                    if (eff.getTrains() > mbe.getRank())
-                        continue;
-
-                    //new effect is of a higher rank. remove old effect and apply new one.
-                    eff.cancelJob();
-                    mob.addEffectNoTimer(Integer.toString(eb.getUUID()), eb, mbe.getRank(), true);
-                } else {
-
-                    if (mbe.getReqLvl() > (int) mob.level)
-                        continue;
-
-                    mob.addEffectNoTimer(Integer.toString(eb.getUUID()), eb, mbe.getRank(), true);
-                }
-            }
-        }
-
-        // Apply effects from RuneSet
-
-        if (mob.runeSetID != 0)
-        for (int runeID : _runeSetMap.get(mob.runeSetID)) {
-
-            RuneBase rune = RuneBase.getRuneBase(runeID);
-
-            if (rune != null)
-                for (MobBaseEffects mbe : rune.getEffectsList()) {
-
-                    eb = PowersManager.getEffectByToken(mbe.getToken());
-                    if (eb == null) {
-                        Logger.info("EffectsBase Null for Token " + mbe.getToken());
-                        continue;
-                    }
-
-                    //check to upgrade effects if needed.
-                    if (mob.effects.containsKey(Integer.toString(eb.getUUID()))) {
-                        if (mbe.getReqLvl() > (int) mob.level)
-                            continue;
-
-                        Effect eff = mob.effects.get(Integer.toString(eb.getUUID()));
-
-                        if (eff == null)
-                            continue;
-
-                        //Current effect is a higher rank, dont apply.
-                        if (eff.getTrains() > mbe.getRank())
-                            continue;
-
-                        //new effect is of a higher rank. remove old effect and apply new one.
-                        eff.cancelJob();
-                        mob.addEffectNoTimer(Integer.toString(eb.getUUID()), eb, mbe.getRank(), true);
-
-                    } else {
-
-                        if (mbe.getReqLvl() > (int) mob.level)
-                            continue;
-
-                        mob.addEffectNoTimer(Integer.toString(eb.getUUID()), eb, mbe.getRank(), true);
-                    }
-                }
-            }
-        }
+    }
 }
