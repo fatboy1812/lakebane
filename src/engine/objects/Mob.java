@@ -2106,13 +2106,7 @@ public class Mob extends AbstractIntelligenceAgent {
 
         try {
             NPCManager.applyRuneSetEffects(this);
-
-            try {
-                this.initializeSkills();
-            } catch (Exception e) {
-                Logger.error(e.getMessage());
-            }
-
+            initializeSkills();
             recalculateStats();
             this.setHealth(this.healthMax);
 

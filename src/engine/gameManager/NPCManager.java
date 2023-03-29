@@ -30,7 +30,10 @@ public enum NPCManager {
 
     public static void applyRuneSetEffects(Mob mob) {
 
-        EffectsBase effectsBase;
+        // Early exit
+
+        if (mob.runeSetID == 0)
+            return;;
 
         //Apply all rune effects.
 
@@ -60,6 +63,11 @@ public enum NPCManager {
 
         EffectsBase effectsBase;
         RuneBase sourceRune = RuneBase.getRuneBase(runeID);
+
+        // Race runes are in the runeset but not in runebase for some reason
+
+        if (sourceRune == null)
+            return;;
 
         for (MobBaseEffects mbe : sourceRune.getEffectsList()) {
 
