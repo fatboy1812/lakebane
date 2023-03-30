@@ -105,7 +105,6 @@ public class Mob extends AbstractIntelligenceAgent {
     private DeferredPowerJob weaponPower;
     private DateTime upgradeDateTime = null;
     private boolean lootSync = false;
-    private int fidalityID = 0;
     private int equipmentSetID = 0;
     public int runeSetID = 0;
     public int bootySetID = 0;
@@ -257,12 +256,7 @@ public class Mob extends AbstractIntelligenceAgent {
             int guildID = rs.getInt("mob_guildUID");
 
 
-            if (this.fidalityID != 0) {
-                if (this.building != null)
-                    this.guild = this.building.getGuild();
-                else
-                    this.guild = Guild.getGuild(guildID);
-            } else if (this.building != null)
+             if (this.building != null)
                 this.guild = this.building.getGuild();
             else
                 this.guild = Guild.getGuild(guildID);
@@ -294,9 +288,6 @@ public class Mob extends AbstractIntelligenceAgent {
 
             this.setParentZone(ZoneManager.getZoneByUUID(this.parentZoneID));
 
-
-            this.fidalityID = rs.getInt("fidalityID");
-
             this.equipmentSetID = rs.getInt("equipmentSet");
             this.runeSetID = rs.getInt("runeSet");
             this.bootySetID = rs.getInt("bootySet");
@@ -306,8 +297,7 @@ public class Mob extends AbstractIntelligenceAgent {
 
             this.lootSet = (rs.getInt("lootSet"));
 
-            if (this.fidalityID != 0)
-                this.nameOverride = rs.getString("mob_name");
+            this.nameOverride = rs.getString("mob_name");
 
         } catch (Exception e) {
             Logger.error(currentID + "");
@@ -780,58 +770,6 @@ public class Mob extends AbstractIntelligenceAgent {
         mob.upgradeDateTime = upgradeDateTime;
     }
 
-    public static Vector3fImmutable GetSpawnRadiusLocation(Mob mob) {
-
-        Vector3fImmutable returnLoc = Vector3fImmutable.ZERO;
-
-        if (mob.fidalityID != 0 && mob.building != null) {
-
-
-            Vector3fImmutable spawnRadiusLoc = Vector3fImmutable.getRandomPointInCircle(mob.localLoc, mob.spawnRadius);
-
-            Vector3fImmutable buildingWorldLoc = ZoneManager.convertLocalToWorld(mob.building, spawnRadiusLoc);
-
-            return buildingWorldLoc;
-
-
-        } else {
-
-            boolean run = true;
-
-            while (run) {
-                Vector3fImmutable localLoc = new Vector3fImmutable(mob.statLat + mob.parentZone.absX, mob.statAlt + mob.parentZone.absY, mob.statLon + mob.parentZone.absZ);
-                Vector3fImmutable spawnRadiusLoc = Vector3fImmutable.getRandomPointInCircle(localLoc, mob.spawnRadius);
-
-                //not a roaming mob, just return the random loc.
-                if (mob.spawnRadius < 12000)
-                    return spawnRadiusLoc;
-
-                Zone spawnZone = ZoneManager.findSmallestZone(spawnRadiusLoc);
-                //dont spawn roaming mobs in npc cities
-                if (spawnZone.isNPCCity())
-                    continue;
-
-                //dont spawn roaming mobs in player cities.
-                if (spawnZone.isPlayerCity())
-                    continue;
-
-                //don't spawn mobs in water.
-                if (HeightMap.isLocUnderwater(spawnRadiusLoc))
-                    continue;
-
-                run = false;
-
-                return spawnRadiusLoc;
-
-            }
-
-        }
-
-        //shouldn't ever get here.
-
-        return returnLoc;
-    }
-
     private void clearStatic() {
 
         if (this.parentZone != null)
@@ -872,7 +810,7 @@ public class Mob extends AbstractIntelligenceAgent {
             this.level = 1;
 
         //add this npc to building
-        if (this.building != null && this.loadID != 0 && this.fidalityID == 0) {
+        if (this.building != null && this.loadID != 0 && building.getBlueprintUUID() != 0) {
 
             int maxSlots;
             maxSlots = building.getBlueprint().getSlotsForRank(this.building.getRank());
@@ -1003,16 +941,29 @@ public class Mob extends AbstractIntelligenceAgent {
 
     public void setParentZone(Zone zone) {
 
-        if (this.parentZone == null) {
+        if (this.parentZone == null){
             zone.zoneMobSet.add(this);
             this.parentZone = zone;
         }
 
-        this.bindLoc = Mob.GetSpawnRadiusLocation(this);
-        this.lastBindLoc = bindLoc;
-        this.setLoc(bindLoc);
-        this.stopMovement(bindLoc);
-    }
+
+        if ( this.building != null) {
+
+            Vector3fImmutable localLoc = new Vector3fImmutable(this.statLat,this.statAlt,this.statLon);
+            Vector3fImmutable buildingWorldLoc = ZoneManager.convertLocalToWorld(this.building, localLoc);
+            this.setBindLoc(buildingWorldLoc);
+            this.setLoc(buildingWorldLoc);
+            this.endLoc = buildingWorldLoc;
+            this.stopMovement(endLoc);
+            return;
+        }
+
+            Vector3fImmutable localLoc = new Vector3fImmutable(this.statLat + zone.absX, this.statAlt + zone.absY, this.statLon + zone.absZ);
+            this.setBindLoc(localLoc);
+            this.setLoc(localLoc);
+            this.endLoc = localLoc;
+            this.stopMovement(endLoc);
+        }
 
     public int getParentZoneID() {
 
@@ -1371,10 +1322,7 @@ public class Mob extends AbstractIntelligenceAgent {
         this.combatTarget = null;
         this.isAlive.set(true);
 
-        if (!this.isSiege)
-            this.lastBindLoc = Mob.GetSpawnRadiusLocation(this);
-        else
-            this.lastBindLoc = this.bindLoc;
+        this.lastBindLoc = this.bindLoc;
         this.bindLoc = this.lastBindLoc;
         this.setLoc(this.lastBindLoc);
         this.stopMovement(this.lastBindLoc);
@@ -2508,10 +2456,6 @@ public class Mob extends AbstractIntelligenceAgent {
 
     public void setLootSync(boolean lootSync) {
         this.lootSync = lootSync;
-    }
-
-    public int getFidalityID() {
-        return fidalityID;
     }
 
     public HashMap<Integer, MobEquipment> getEquip() {

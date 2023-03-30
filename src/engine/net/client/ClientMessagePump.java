@@ -1130,15 +1130,12 @@ public class ClientMessagePump implements NetMsgHandler {
 							//Take equipment off mob
 							if (tar.getObjectType() == GameObjectType.Mob && itemRet != null){
 								Mob mobTarget = (Mob)tar;
-								if (mobTarget.getFidalityID() != 0){
+
 									if (item != null && item.getObjectType() == GameObjectType.MobLoot){
-										int fidelityEquipID = ((MobLoot)item).getFidelityEquipID();
 
-										if (fidelityEquipID != 0){
 											for (MobEquipment equip: mobTarget.getEquip().values()){
-												if (equip.getObjectUUID() == fidelityEquipID){
-													TransferItemFromEquipToInventoryMsg back = new TransferItemFromEquipToInventoryMsg(mobTarget, equip.getSlot());
 
+													TransferItemFromEquipToInventoryMsg back = new TransferItemFromEquipToInventoryMsg(mobTarget, equip.getSlot());
 													DispatchMessage.dispatchMsgToInterestArea(mobTarget, back, DispatchChannel.SECONDARY, MBServerStatics.CHARACTER_LOAD_RANGE, false, false);
 
 													LootMsg lootMsg = new LootMsg(0,0,tar.getObjectType().ordinal(), tar.getObjectUUID(), equip);
@@ -1146,23 +1143,13 @@ public class ClientMessagePump implements NetMsgHandler {
 													DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.SECONDARY);
 													break;
 												}
-											}
 										}
-
-
 									}
 								}
 
-
 							}
-						}
-
-					}
-					else {
-
 					}
 
-				}
 				else if (targetType == GameObjectType.Corpse.ordinal()) {
 					corpse = Corpse.getCorpse(targetID);
 					if (corpse == null)
