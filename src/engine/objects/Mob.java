@@ -214,7 +214,6 @@ public class Mob extends AbstractIntelligenceAgent {
 
         super(rs);
 
-        try {
             this.dbID = rs.getInt(1);
             this.state = STATE.Idle;
             this.loadID = rs.getInt("mob_mobbaseID");
@@ -256,13 +255,7 @@ public class Mob extends AbstractIntelligenceAgent {
 
             int guildID = rs.getInt("mob_guildUID");
 
-
-            if (this.fidalityID != 0) {
-                if (this.building != null)
-                    this.guild = this.building.getGuild();
-                else
-                    this.guild = Guild.getGuild(guildID);
-            } else if (this.building != null)
+            if (this.building != null)
                 this.guild = this.building.getGuild();
             else
                 this.guild = Guild.getGuild(guildID);
@@ -294,7 +287,6 @@ public class Mob extends AbstractIntelligenceAgent {
 
             this.setParentZone(ZoneManager.getZoneByUUID(this.parentZoneID));
 
-
             this.fidalityID = rs.getInt("fidalityID");
 
             this.equipmentSetID = rs.getInt("equipmentSet");
@@ -304,34 +296,7 @@ public class Mob extends AbstractIntelligenceAgent {
 
             this.lootSet = (rs.getInt("lootSet"));
 
-            if (this.fidalityID != 0)
-                this.nameOverride = rs.getString("mob_name");
-
-            if (this.fidalityID != 0) {
-
-                Zone parentZone = ZoneManager.getZoneByUUID(this.parentZoneID);
-                if (parentZone != null) {
-                    this.fidelityRunes = WorldServer.ZoneFidelityMobRunes.get(parentZone.getLoadNum()).get(this.fidalityID);
-
-                    if (this.fidelityRunes != null)
-                        for (Integer runeID : this.fidelityRunes) {
-                            if (runeID == 252623) {
-                                this.isGuard = true;
-                                this.noAggro = true;
-                            }
-                        }
-                }
-            }
-        } catch (Exception e) {
-            Logger.error(currentID + "");
-        }
-
-        try {
-            initializeMob(false, false, this.isPlayerGuard);
-        } catch (Exception e) {
-            Logger.error(e);
-        }
-
+            this.nameOverride = rs.getString("mob_name");
     }
 
     public static void __serializeForClientMsg(Mob mob, ByteBufferWriter writer) throws SerializationException {
@@ -821,7 +786,7 @@ public class Mob extends AbstractIntelligenceAgent {
 
         Vector3fImmutable returnLoc = Vector3fImmutable.ZERO;
 
-        if (mob.fidalityID != 0 && mob.building != null) {
+        if (mob.building != null) {
 
 
             Vector3fImmutable spawnRadiusLoc = Vector3fImmutable.getRandomPointInCircle(mob.localLoc, mob.spawnRadius);
@@ -909,7 +874,7 @@ public class Mob extends AbstractIntelligenceAgent {
             this.level = 1;
 
         //add this npc to building
-        if (this.building != null && this.loadID != 0 && this.fidalityID == 0) {
+        if (this.building != null && this.loadID != 0) {
 
             int maxSlots;
             maxSlots = building.getBlueprint().getSlotsForRank(this.building.getRank());
@@ -2773,10 +2738,6 @@ public class Mob extends AbstractIntelligenceAgent {
 
     public void setLootSync(boolean lootSync) {
         this.lootSync = lootSync;
-    }
-
-    public int getFidalityID() {
-        return fidalityID;
     }
 
     public HashMap<Integer, MobEquipment> getEquip() {
