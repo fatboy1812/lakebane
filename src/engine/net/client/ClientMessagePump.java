@@ -1130,7 +1130,7 @@ public class ClientMessagePump implements NetMsgHandler {
 							//Take equipment off mob
 							if (tar.getObjectType() == GameObjectType.Mob && itemRet != null){
 								Mob mobTarget = (Mob)tar;
-
+								if (mobTarget.getFidalityID() != 0){
 									if (item != null && item.getObjectType() == GameObjectType.MobLoot){
 										int fidelityEquipID = ((MobLoot)item).getFidelityEquipID();
 
@@ -1148,10 +1148,20 @@ public class ClientMessagePump implements NetMsgHandler {
 												}
 											}
 										}
+
+
+									}
 								}
+
+
 							}
 						}
+
 					}
+					else {
+
+					}
+
 				}
 				else if (targetType == GameObjectType.Corpse.ordinal()) {
 					corpse = Corpse.getCorpse(targetID);

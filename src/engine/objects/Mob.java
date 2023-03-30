@@ -1257,32 +1257,17 @@ public class Mob extends AbstractIntelligenceAgent {
         return this.parentZone;
     }
 
-
-
     public void setParentZone(Zone zone) {
 
-            if (this.parentZone == null){
-                zone.zoneMobSet.add(this);
-                this.parentZone = zone;
-            }
+        if (this.parentZone == null) {
+            zone.zoneMobSet.add(this);
+            this.parentZone = zone;
+        }
 
-            if (this.building != null) {
-
-                Vector3fImmutable localLoc = new Vector3fImmutable(this.statLat,this.statAlt,this.statLon);
-                Vector3fImmutable buildingWorldLoc = ZoneManager.convertLocalToWorld(this.building, localLoc);
-                this.setBindLoc(buildingWorldLoc);
-                this.setLoc(buildingWorldLoc);
-                this.stopMovement(buildingWorldLoc);
-                return;
-            }
-
-                Vector3fImmutable localLoc = new Vector3fImmutable(this.statLat + zone.absX, this.statAlt + zone.absY, this.statLon + zone.absZ);
-                Vector3fImmutable spawnRadiusLoc = Vector3fImmutable.getRandomPointInCircle(localLoc, this.spawnRadius);
-
-                this.setBindLoc(spawnRadiusLoc);
-                this.setLoc(spawnRadiusLoc);
-                this.stopMovement(spawnRadiusLoc);
-
+        this.bindLoc = Mob.GetSpawnRadiusLocation(this);
+        this.lastBindLoc = bindLoc;
+        this.setLoc(bindLoc);
+        this.stopMovement(bindLoc);
     }
 
     public int getParentZoneID() {
