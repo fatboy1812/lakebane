@@ -16,13 +16,11 @@ import engine.Enum.SourceType;
 import engine.gameManager.ChatManager;
 import engine.gameManager.DbManager;
 import engine.powers.EffectsBase;
-import engine.powers.effectmodifiers.ArmorPiercingEffectModifier;
 import engine.server.MBServerStatics;
 import org.pmw.tinylog.Logger;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;

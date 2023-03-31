@@ -38,7 +38,10 @@ import engine.net.client.msg.ClientNetMsg;
 import engine.net.client.msg.ErrorPopupMsg;
 import engine.net.client.msg.guild.GuildCreationFinalizeMsg;
 import engine.net.client.msg.guild.GuildInfoMsg;
-import engine.objects.*;
+import engine.objects.Guild;
+import engine.objects.Item;
+import engine.objects.ItemBase;
+import engine.objects.PlayerCharacter;
 import engine.util.StringUtils;
 
 public class GuildCreationFinalizeHandler extends AbstractClientMsgHandler {

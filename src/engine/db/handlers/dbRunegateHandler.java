@@ -13,13 +13,10 @@ import engine.Enum;
 import engine.gameManager.DbManager;
 import engine.objects.Building;
 import engine.objects.Portal;
-import engine.objects.Resists;
 
-import java.sql.Array;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.List;
 
 public class dbRunegateHandler extends dbHandlerBase {
 

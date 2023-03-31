@@ -11,19 +11,15 @@ package engine.db.handlers;
 
 import engine.ai.MobileFSM.STATE;
 import engine.gameManager.NPCManager;
-import engine.math.Vector3fImmutable;
 import engine.objects.Mob;
-import engine.objects.PlayerCharacter;
 import engine.objects.Zone;
 import engine.server.MBServerStatics;
-import engine.server.world.WorldServer;
 import org.joda.time.DateTime;
 import org.pmw.tinylog.Logger;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class dbMobHandler extends dbHandlerBase {
 

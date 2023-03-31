@@ -6,7 +6,6 @@ package engine.util;
 
 import engine.InterestManagement.RealmMap;
 import engine.server.MBServerStatics;
-import engine.server.world.WorldServer;
 import org.pmw.tinylog.Logger;
 
 import javax.imageio.ImageIO;

@@ -14,8 +14,6 @@ import discord.RobotSpeak;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.pmw.tinylog.Logger;
 
-import static discord.ChatChannel.GENERAL;
-
 public class ChatChannelHandler {
 
     public static void handleRequest(ChatChannel chatChannel, MessageReceivedEvent event, String[] args) {

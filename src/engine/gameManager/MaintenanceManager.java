@@ -13,12 +13,9 @@ package engine.gameManager;
 
 import engine.Enum;
 import engine.objects.*;
-import org.joda.time.DateTime;
 import org.pmw.tinylog.Logger;
 
-import java.time.DayOfWeek;
 import java.time.LocalDateTime;
-import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 
 public enum MaintenanceManager {

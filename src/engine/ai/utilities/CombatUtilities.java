@@ -10,31 +10,20 @@
 
 package engine.ai.utilities;
 
-import engine.Enum;
 import engine.Enum.*;
-import engine.ai.MobileFSM.STATE;
 import engine.gameManager.ChatManager;
 import engine.gameManager.CombatManager;
-import engine.gameManager.PowersManager;
-import engine.math.Vector3f;
 import engine.math.Vector3fImmutable;
 import engine.net.DispatchMessage;
-import engine.net.client.msg.PerformActionMsg;
 import engine.net.client.msg.TargetedActionMsg;
 import engine.objects.*;
-import engine.powers.ActionsBase;
-import engine.powers.PowersBase;
 import engine.server.MBServerStatics;
 import org.pmw.tinylog.Logger;
 
-import java.util.Map;
-import java.util.Random;
-import java.util.Set;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static engine.math.FastMath.sqr;
 import static java.lang.Math.pow;
-import static java.lang.Math.sqrt;
 
 public class CombatUtilities {
 

@@ -9,7 +9,6 @@
 
 package engine.db.handlers;
 
-import engine.gameManager.NPCManager;
 import engine.objects.BootySetEntry;
 import engine.objects.EquipmentSetEntry;
 import engine.objects.ItemBase;

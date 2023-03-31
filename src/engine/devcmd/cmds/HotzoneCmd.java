@@ -12,12 +12,8 @@ package engine.devcmd.cmds;
 
 import engine.devcmd.AbstractDevCmd;
 import engine.gameManager.ZoneManager;
-import engine.math.FastMath;
-import engine.net.client.msg.HotzoneChangeMsg;
 import engine.objects.AbstractGameObject;
 import engine.objects.PlayerCharacter;
-import engine.objects.Zone;
-import engine.server.world.WorldServer;
 
 /**
  * ./hotzone                      <- display the current hotzone & time remaining

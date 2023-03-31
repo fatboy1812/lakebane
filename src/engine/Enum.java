@@ -13,7 +13,10 @@ import engine.gameManager.PowersManager;
 import engine.gameManager.ZoneManager;
 import engine.math.Vector2f;
 import engine.math.Vector3fImmutable;
-import engine.objects.*;
+import engine.objects.AbstractCharacter;
+import engine.objects.ItemBase;
+import engine.objects.Shrine;
+import engine.objects.Zone;
 import engine.powers.EffectsBase;
 import org.pmw.tinylog.Logger;
 

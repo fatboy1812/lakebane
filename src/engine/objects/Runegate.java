@@ -1,7 +1,6 @@
 package engine.objects;
 
 import engine.Enum;
-import engine.Enum.PortalType;
 import engine.gameManager.DbManager;
 import engine.net.ByteBufferWriter;
 
