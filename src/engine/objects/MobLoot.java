@@ -34,9 +34,6 @@ public final class MobLoot extends Item {
 	private String prefix = "";
 	private String suffix = "";
 
-	private int fidelityEquipID = 0;
-
-
 	/**
 	 * Create a new MobLoot.
 	 * Do not use this to create Gold.
@@ -394,15 +391,5 @@ public final class MobLoot extends Item {
 	public void setSuffix(String suffix) {
 		this.suffix = suffix;
 	}
-
-	public int getFidelityEquipID() {
-		return fidelityEquipID;
-	}
-
-	public void setFidelityEquipID(int fidelityEquipID) {
-		this.fidelityEquipID = fidelityEquipID;
-	}
-
-
 
 }

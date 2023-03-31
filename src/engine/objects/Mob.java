@@ -1277,7 +1277,6 @@ public class Mob extends AbstractIntelligenceAgent {
 
                             if (chance <= me.getDropChance()) {
                                 MobLoot ml = new MobLoot(this, me.getItemBase(), false);
-                                ml.setFidelityEquipID(me.getObjectUUID());
                                 this.charItemManager.addItemToInventory(ml);
                             }
                         }
