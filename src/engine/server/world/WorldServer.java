@@ -74,7 +74,6 @@ public class WorldServer {
 
 	// Member variable declaration
 
-	public static HashMap<Integer,HashMap<Integer,ArrayList<Integer>>> ZoneFidelityMobRunes = new HashMap<>();
 	public WorldServer() {
 		super();
 	}
@@ -295,9 +294,6 @@ public class WorldServer {
 
 		Logger.info("Loading Gold Loot for Mobbases");
 		MobbaseGoldEntry.LoadMobbaseGold();
-
-		Logger.info("Loading fidelity mob runes.");
-		DbManager.MobQueries.LOAD_RUNES_FOR_FIDELITY_MOBS();
 
 		//load lootTable
 		Logger.info("Loading Loot Tables");
