@@ -382,8 +382,6 @@ public class InfoCmd extends AbstractDevCmd {
 				output += newline;
 				output += "Slottable: " + targetNPC.getContract().getAllowedBuildings().toString();
 				output += newline;
-				output += "Fidelity ID: " + targetNPC.getFidalityID();
-				output += newline;
 				output += "EquipSet: " + targetNPC.getEquipmentSetID();
 				output += newline;
 				output += "Parent Zone LoadNum : " + targetNPC.getParentZone().getLoadNum();

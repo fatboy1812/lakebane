@@ -89,7 +89,6 @@ public class NPC extends AbstractCharacter {
 	private int parentZoneID;
 
 	public ArrayList<ProducedItem> forgedItems = new ArrayList<>();
-	private int fidalityID;
 	private int buildingLevel;
 	private int buildingFloor;
 	public HashMap<Integer, MobEquipment> equip = null;
@@ -188,7 +187,6 @@ public class NPC extends AbstractCharacter {
 
 			this.gridObjectType = GridObjectType.STATIC;
 			this.contract = DbManager.ContractQueries.GET_CONTRACT(contractID);
-			this.fidalityID = (rs.getInt("fidalityID"));
 			this.equipmentSetID = rs.getInt("equipmentSet");
 			this.runeSetID = rs.getInt("runeSet");
 
@@ -202,8 +200,7 @@ public class NPC extends AbstractCharacter {
 
 			int mobBaseOverride = rs.getInt("npc_raceID");
 
-			if ((this.fidalityID != 0) || (mobBaseOverride != 0))
-				this.loadID = mobBaseOverride;
+			this.loadID = mobBaseOverride;
 
 			this.mobBase = MobBase.getMobBase(this.loadID);
 			this.level = rs.getByte("npc_level");
@@ -253,12 +250,6 @@ public class NPC extends AbstractCharacter {
 
 			int guildID = rs.getInt("npc_guildID");
 
-			if (this.fidalityID != 0){
-				if (this.building != null)
-					this.guild = this.building.getGuild();
-				else
-					this.guild = Guild.getGuild(guildID);
-			}else
 				if (this.building != null)
 					this.guild = this.building.getGuild();
 				else
@@ -266,9 +257,8 @@ public class NPC extends AbstractCharacter {
 
 			if (guildID != 0 && (this.guild == null || this.guild.isEmptyGuild()))
 				NPC.Oprhans.add(currentID);
-			else if(this.building == null && buildingID > 0) {
+			else if(this.building == null && buildingID > 0)
 				NPC.Oprhans.add(currentID);
-			}
 
 			if (this.guild == null)
 				this.guild = Guild.getErrantGuild();
@@ -292,8 +282,8 @@ public class NPC extends AbstractCharacter {
 			this.setParentZone(ZoneManager.getZoneByUUID(this.parentZoneID));
 
 
-			if (this.fidalityID != 0)
-				this.nameOverride = rs.getString("npc_name");
+
+			this.nameOverride = rs.getString("npc_name");
 
 		}catch(Exception e){
 			Logger.error(e);
@@ -367,7 +357,7 @@ public class NPC extends AbstractCharacter {
 		}
 
 		//add this npc to building
-		if (this.building != null && this.loadID != 0 && this.fidalityID == 0) {
+		if (this.building != null && this.loadID != 0) {
 
 			if (building.getBlueprint() != null){
 
@@ -1175,9 +1165,6 @@ public class NPC extends AbstractCharacter {
 		if (ConfigManager.serverType.equals(ServerType.LOGINSERVER))
 			return;
 
-		if (this.fidalityID != 0)
-			DbManager.NPCQueries.LOAD_RUNES_FOR_FIDELITY_NPC(this);
-
 		try{
 
 			this.equip = loadEquipmentSet(this.equipmentSetID);
@@ -1621,10 +1608,6 @@ public class NPC extends AbstractCharacter {
 		return true;
 	}
 
-	public int getFidalityID() {
-		return fidalityID;
-	}
-
 	public int getBuildingLevel() {
 		return buildingLevel;
 	}
@@ -1650,20 +1633,11 @@ public class NPC extends AbstractCharacter {
 		if (buildingModel == null)
 			return -1;
 
-		if (npc.fidalityID != 0){
-
-			if (npc.building.fidelityNpcs.get(npc.currentID) != null){
-				slot = npc.building.fidelityNpcs.get(npc.currentID);
-			}
-
-		} else{
-			if (npc.building.getHirelings().containsKey(npc))
-				slot =  (npc.building.getHirelings().get(npc));
-		}
+		if (npc.building.getHirelings().containsKey(npc))
+			slot =  (npc.building.getHirelings().get(npc));
 
 		if (buildingModel.getNPCLocation(slot) == null)
 			return -1;
-
 
 		return slot;
 	}
