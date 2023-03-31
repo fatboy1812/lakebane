@@ -99,7 +99,6 @@ public class Building extends AbstractWorldObject {
 
 	public int floor;
 	public int level;
-	public HashMap<Integer,Integer> fidelityNpcs = new HashMap<>();
 	public AtomicBoolean isDeranking = new AtomicBoolean(false);
 	private ArrayList<Building> children = null;
 	public LocalDateTime maintDateTime;

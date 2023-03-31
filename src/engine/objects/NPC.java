@@ -210,9 +210,6 @@ public class NPC extends AbstractCharacter {
 			try{
 				this.building = BuildingManager.getBuilding(buildingID);
 
-				if (this.building != null)
-					this.building.fidelityNpcs.put(currentID, this.building.fidelityNpcs.size() + 1);
-
 			}catch(Exception e){
 				this.building = null;
 				Logger.error( e.getMessage());
