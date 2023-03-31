@@ -1713,7 +1713,8 @@ public class Mob extends AbstractIntelligenceAgent {
         }
 
         //add random loot to mob
-        ArrayList<MobLoot> alml = LootTable.getMobLoot(this, this.getLevel(), this.getLootTable(), false); //add hotzone check in later
+        boolean inHotzone = ZoneManager.inHotZone(this.getLoc());
+        ArrayList<MobLoot> alml = LootTable.getMobLoot(this, this.getLevel(), this.getLootTable(), inHotzone); //add hotzone check in later
 
         for (MobLoot ml : alml) {
             this.charItemManager.addItemToInventory(ml);
