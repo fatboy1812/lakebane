@@ -6,6 +6,7 @@ import engine.Enum.ProfitType;
 import engine.exception.MsgSendException;
 import engine.gameManager.BuildingManager;
 import engine.gameManager.DbManager;
+import engine.gameManager.NPCManager;
 import engine.gameManager.SessionManager;
 import engine.math.FastMath;
 import engine.math.Vector3fImmutable;
@@ -209,7 +210,7 @@ public class OrderNPCMsgHandler extends AbstractClientMsgHandler {
                     if (building.getHirelings().containsKey(mob) == false)
                         return true;
 
-                    if (mob.remove(building) == false) {
+                    if (NPCManager.removeMobileFromBuilding(mob, building) == false) {
                         PlaceAssetMsg.sendPlaceAssetError(player.getClientConnection(), 1, "A Serious error has occurred. Please post details for to ensure transaction integrity");
                         return true;
                     }
@@ -439,9 +440,9 @@ public class OrderNPCMsgHandler extends AbstractClientMsgHandler {
             case Mob:
 
                 Mob mob = (Mob) abstractCharacter;
-                building = mob.getBuilding();
+                building = mob.building;
 
-                if (mob.getBuilding() == null)
+                if (mob.building == null)
                     return;
 
                 City mobCity = building.getCity();

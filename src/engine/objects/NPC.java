@@ -797,7 +797,7 @@ public class NPC extends AbstractCharacter {
 
 		for (Mob toRemove : this.siegeMinionMap.keySet()) {
 
-			toRemove.setState(STATE.Disabled);
+			toRemove.state = STATE.Disabled;
 
 			try {
 				toRemove.clearEffects();
@@ -1461,14 +1461,14 @@ public class NPC extends AbstractCharacter {
 
 		siegeMinionMap.put(mob, slot);
 		mob.setInBuildingLoc(this.building, this);
-	
-		Vector3fImmutable buildingWorldLoc = ZoneManager.convertLocalToWorld(this.building, mob.getInBuildingLoc());
+
+		Vector3fImmutable buildingWorldLoc = ZoneManager.convertLocalToWorld(this.building, mob.inBuildingLoc);
 		mob.setBindLoc(buildingWorldLoc);
 		mob.setLoc(buildingWorldLoc);
 		
 		mob.setSpawnTime(10);
 		mob.setNpcOwner(this);
-		mob.setState(STATE.Awake);
+		mob.state = STATE.Awake;
 
 		return mob;
 	}

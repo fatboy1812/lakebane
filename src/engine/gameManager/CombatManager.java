@@ -183,8 +183,8 @@ public enum CombatManager {
 
 		//set sources target
 		pet.setCombatTarget(target);
-		pet.setState(STATE.Attack);
-		//		setFirstHitCombatTarget(player,target);
+        pet.state = STATE.Attack;
+        //		setFirstHitCombatTarget(player,target);
 
 		//put in combat if not already
 		if (!pet.isCombat())
@@ -691,8 +691,8 @@ public enum CombatManager {
 								count++;
 
 							mob.setCombatTarget(ac);
-							mob.setState(STATE.Attack);
-						}
+                            mob.state = STATE.Attack;
+                        }
 					}
 				}
 			}
@@ -1339,8 +1339,8 @@ public enum CombatManager {
 			Mob pet = ((PlayerCharacter) tarAc).getPet();
 			if (pet != null && pet.assist() && pet.getCombatTarget() == null) {
 				pet.setCombatTarget(ac);
-				pet.setState(STATE.Retaliate);
-			}
+                pet.state = STATE.Retaliate;
+            }
 		}
 
 		//Handle Mob Retaliate.
@@ -1351,9 +1351,9 @@ public enum CombatManager {
 			if (ac.getObjectType() == GameObjectType.Mob && retaliater.isSiege())
 				return;
 			retaliater.setCombatTarget(ac);
-			retaliater.setState(STATE.Retaliate);
+            retaliater.state = STATE.Retaliate;
 
-		}
+        }
 	}
 
 	public static void handleDamageShields(AbstractCharacter ac, AbstractCharacter target, float damage) {

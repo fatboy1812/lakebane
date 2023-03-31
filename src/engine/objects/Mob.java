@@ -11,7 +11,6 @@ package engine.objects;
 
 import engine.Enum;
 import engine.Enum.*;
-import engine.InterestManagement.HeightMap;
 import engine.InterestManagement.WorldGrid;
 import engine.ai.MobileFSM;
 import engine.ai.MobileFSM.STATE;
@@ -32,7 +31,6 @@ import engine.net.client.msg.ManageCityAssetsMsg;
 import engine.net.client.msg.PetMsg;
 import engine.net.client.msg.PlaceAssetMsg;
 import engine.net.client.msg.chat.ChatSystemMsg;
-import engine.powers.EffectsBase;
 import engine.server.MBServerStatics;
 import org.joda.time.DateTime;
 import org.pmw.tinylog.Logger;
@@ -57,7 +55,7 @@ public class Mob extends AbstractIntelligenceAgent {
     private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
     //mob specific
-    private final ConcurrentHashMap<Integer, Boolean> playerAgroMap = new ConcurrentHashMap<>();
+    public final ConcurrentHashMap<Integer, Boolean> playerAgroMap = new ConcurrentHashMap<>();
     public long nextCastTime = 0;
     public long nextCallForHelp = 0;
     public ReentrantReadWriteLock minionLock = new ReentrantReadWriteLock();
@@ -70,42 +68,42 @@ public class Mob extends AbstractIntelligenceAgent {
     protected boolean isMob;
     public MobBase mobBase;
     protected float spawnRadius;
-    protected int spawnTime;
+    public int spawnTime;
     //used by static mobs
     protected int parentZoneID;
-    protected Zone parentZone;
+    public Zone parentZone;
     protected float statLat;
     protected float statLon;
     protected float statAlt;
-    protected Building building;
+    public Building building;
     public Contract contract;
     private int currentID;
     private int ownerUID = 0; //only used by pets
-    private boolean hasLoot = false;
+    public boolean hasLoot = false;
     private AbstractWorldObject fearedObject = null;
     private int buildingID;
     private boolean isSiege = false;
     public boolean isPlayerGuard = false;
     private long timeToSpawnSiege;
-    private AbstractCharacter npcOwner;
-    private Vector3fImmutable inBuildingLoc = null;
+    public AbstractCharacter npcOwner;
+    public Vector3fImmutable inBuildingLoc = null;
     private boolean noAggro = false;
-    private STATE state = STATE.Disabled;
+    public STATE state = STATE.Disabled;
     private int aggroTargetID = 0;
     private boolean walkingHome = true;
     private long lastAttackTime = 0;
-    private long deathTime = 0;
-    private final ConcurrentHashMap<Mob, Integer> siegeMinionMap = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_LOW);
+    public long deathTime = 0;
+    public final ConcurrentHashMap<Mob, Integer> siegeMinionMap = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_LOW);
     private int patrolPointIndex = 0;
     private int lastMobPowerToken = 0;
     private HashMap<Integer, MobEquipment> equip = null;
-    private String nameOverride = "";
+    public String nameOverride = "";
     private Regions lastRegion = null;
     private long despawnTime = 0;
     private DeferredPowerJob weaponPower;
     private DateTime upgradeDateTime = null;
     private boolean lootSync = false;
-    private int equipmentSetID = 0;
+    public int equipmentSetID = 0;
     public int runeSetID = 0;
     public int bootySetID = 0;
 
@@ -1950,10 +1948,6 @@ public class Mob extends AbstractIntelligenceAgent {
 
     }
 
-    public Vector3fImmutable getInBuildingLoc() {
-        return inBuildingLoc;
-    }
-
     public ItemBase getWeaponItemBase(boolean mainHand) {
 
         if (this.equipmentSetID != 0) {
@@ -2070,10 +2064,6 @@ public class Mob extends AbstractIntelligenceAgent {
         this.timeToSpawnSiege = timeToSpawnSiege;
     }
 
-    public AbstractCharacter getNpcOwner() {
-        return npcOwner;
-    }
-
     public void setNpcOwner(AbstractCharacter npcOwner) {
         this.npcOwner = npcOwner;
     }
@@ -2106,81 +2096,6 @@ public class Mob extends AbstractIntelligenceAgent {
         }
     }
 
-    public boolean remove(Building building) {
-
-        // Remove npc from it's building
-        this.state = STATE.Disabled;
-
-        try {
-            this.clearEffects();
-        } catch (Exception e) {
-            Logger.error(e.getMessage());
-        }
-
-        if (this.parentZone != null)
-            this.parentZone.zoneMobSet.remove(this);
-
-        if (building != null) {
-            building.getHirelings().remove(this);
-            this.removeMinions();
-        }
-
-        // Delete npc from database
-
-        if (DbManager.MobQueries.DELETE_MOB(this) == 0)
-            return false;
-
-        // Remove npc from the simulation
-
-        this.removeFromCache();
-        DbManager.removeFromCache(this);
-        WorldGrid.RemoveWorldObject(this);
-        WorldGrid.removeObject(this);
-        return true;
-    }
-
-    public void removeMinions() {
-
-        for (Mob toRemove : this.siegeMinionMap.keySet()) {
-
-            toRemove.state = STATE.Disabled;
-
-            if (this.isMoving()) {
-
-                this.stopMovement(this.getLoc());
-                this.state = STATE.Disabled;
-
-                if (toRemove.parentZone != null)
-                    toRemove.parentZone.zoneMobSet.remove(toRemove);
-            }
-
-            try {
-                toRemove.clearEffects();
-            } catch (Exception e) {
-                Logger.error(e.getMessage());
-            }
-
-            if (toRemove.parentZone != null)
-                toRemove.parentZone.zoneMobSet.remove(toRemove);
-
-            WorldGrid.RemoveWorldObject(toRemove);
-            WorldGrid.removeObject(toRemove);
-            DbManager.removeFromCache(toRemove);
-
-            PlayerCharacter petOwner = toRemove.getOwner();
-
-            if (petOwner != null) {
-
-                petOwner.setPet(null);
-                toRemove.setOwner(null);
-
-                PetMsg petMsg = new PetMsg(5, null);
-                Dispatch dispatch = Dispatch.borrow(petOwner, petMsg);
-                DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.PRIMARY);
-            }
-        }
-    }
-
     public void setRank(int newRank) {
 
         DbManager.MobQueries.SET_PROPERTY(this, "mob_level", newRank);
@@ -2199,14 +2114,6 @@ public class Mob extends AbstractIntelligenceAgent {
 
     public void setNoAggro(boolean noAggro) {
         this.noAggro = noAggro;
-    }
-
-    public STATE getState() {
-        return state;
-    }
-
-    public void setState(STATE state) {
-        this.state = state;
     }
 
     public int getAggroTargetID() {
@@ -2233,14 +2140,6 @@ public class Mob extends AbstractIntelligenceAgent {
         this.lastAttackTime = lastAttackTime;
     }
 
-    public ConcurrentHashMap<Integer, Boolean> getPlayerAgroMap() {
-        return playerAgroMap;
-    }
-
-    public long getDeathTime() {
-        return deathTime;
-    }
-
     public void setDeathTime(long deathTime) {
         this.deathTime = deathTime;
     }
@@ -2261,10 +2160,6 @@ public class Mob extends AbstractIntelligenceAgent {
         return siegeMinionMap;
     }
 
-    public Building getBuilding() {
-        return this.building;
-    }
-
     public DateTime getUpgradeDateTime() {
 
         lock.readLock().lock();
@@ -2274,136 +2169,6 @@ public class Mob extends AbstractIntelligenceAgent {
         } finally {
             lock.readLock().unlock();
         }
-    }
-
-    public synchronized Mob createGuardMob(int loadID, Guild guild, Zone parent, Vector3fImmutable loc, short level, String pirateName) {
-
-        MobBase minionMobBase;
-        Mob mob;
-        int maxSlots = 1;
-
-        switch (this.getRank()) {
-            case 1:
-            case 2:
-                maxSlots = 1;
-                break;
-            case 3:
-                maxSlots = 2;
-                break;
-            case 4:
-            case 5:
-                maxSlots = 3;
-                break;
-            case 6:
-                maxSlots = 4;
-                break;
-            case 7:
-                maxSlots = 5;
-                break;
-            default:
-                maxSlots = 1;
-
-        }
-
-        if (siegeMinionMap.size() == maxSlots)
-            return null;
-
-        minionMobBase = this.mobBase;
-
-        if (minionMobBase == null)
-            return null;
-
-        mob = new Mob(minionMobBase, guild, parent, level, new Vector3fImmutable(1, 1, 1), 0, true);
-
-        mob.despawned = true;
-
-        mob.setLevel(level);
-        //grab equipment and name from minionbase.
-        if (this.contract != null) {
-            MinionType minionType = MinionType.ContractToMinionMap.get(this.contract.getContractID());
-            if (minionType != null) {
-                mob.equipmentSetID = minionType.getEquipSetID();
-                String rank = "";
-
-                if (this.getRank() < 3)
-                    rank = MBServerStatics.JUNIOR;
-                else if (this.getRank() < 6)
-                    rank = "";
-                else if (this.getRank() == 6)
-                    rank = MBServerStatics.VETERAN;
-                else
-                    rank = MBServerStatics.ELITE;
-
-                if (rank.isEmpty())
-                    mob.nameOverride = pirateName + " " + minionType.getRace() + " " + minionType.getName();
-                else
-                    mob.nameOverride = pirateName + " " + minionType.getRace() + " " + rank + " " + minionType.getName();
-            }
-        }
-
-
-        if (parent != null)
-            mob.setRelPos(parent, loc.x - parent.absX, loc.y - parent.absY, loc.z - parent.absZ);
-
-        mob.setObjectTypeMask(MBServerStatics.MASK_MOB | mob.getTypeMasks());
-
-        // mob.setMob();
-        mob.isPlayerGuard = true;
-        mob.setParentZone(parent);
-        DbManager.addToCache(mob);
-        mob.runAfterLoad();
-
-
-        RuneBase guardRune = RuneBase.getRuneBase(252621);
-
-        for (MobBaseEffects mbe : guardRune.getEffectsList()) {
-
-            EffectsBase eb = PowersManager.getEffectByToken(mbe.getToken());
-
-            if (eb == null) {
-                Logger.info("EffectsBase Null for Token " + mbe.getToken());
-                continue;
-            }
-
-            //check to upgrade effects if needed.
-            if (mob.effects.containsKey(Integer.toString(eb.getUUID()))) {
-                if (mbe.getReqLvl() > (int) mob.level) {
-                    continue;
-                }
-
-                Effect eff = mob.effects.get(Integer.toString(eb.getUUID()));
-
-                if (eff == null)
-                    continue;
-
-                //Current effect is a higher rank, dont apply.
-                if (eff.getTrains() > mbe.getRank())
-                    continue;
-
-                //new effect is of a higher rank. remove old effect and apply new one.
-                eff.cancelJob();
-                mob.addEffectNoTimer(Integer.toString(eb.getUUID()), eb, mbe.getRank(), true);
-            } else {
-
-                if (mbe.getReqLvl() > (int) mob.level)
-                    continue;
-
-                mob.addEffectNoTimer(Integer.toString(eb.getUUID()), eb, mbe.getRank(), true);
-            }
-        }
-
-        int slot = 0;
-        slot += siegeMinionMap.size() + 1;
-
-        siegeMinionMap.put(mob, slot);
-        mob.setInBuildingLoc(this.building, this);
-        mob.setBindLoc(loc.add(mob.inBuildingLoc));
-        mob.deathTime = System.currentTimeMillis();
-        mob.spawnTime = 900;
-        mob.npcOwner = this;
-        mob.state = STATE.Respawn;
-
-        return mob;
     }
 
     public Contract getContract() {
@@ -2472,7 +2237,7 @@ public class Mob extends AbstractIntelligenceAgent {
 
         try {
 
-            building = this.getBuilding();
+            building = this.building;
 
             // Cannot upgrade an npc not within a building
 
@@ -2550,7 +2315,7 @@ public class Mob extends AbstractIntelligenceAgent {
             if (!building.getHirelings().containsKey(this))
                 return;
 
-            if (!this.remove(building)) {
+            if (!NPCManager.removeMobileFromBuilding(this, building)) {
                 PlaceAssetMsg.sendPlaceAssetError(player.getClientConnection(), 1, "A Serious error has occurred. Please post details for to ensure transaction integrity");
                 return;
             }
@@ -2607,7 +2372,7 @@ public class Mob extends AbstractIntelligenceAgent {
                 WorldGrid.RemoveWorldObject(this);
                 DbManager.removeFromCache(this);
                 if (this.getObjectType() == GameObjectType.Mob) {
-                    this.setState(STATE.Disabled);
+                    this.state = STATE.Disabled;
                     if (this.getParentZone() != null)
                         this.getParentZone().zoneMobSet.remove(this);
                 }
@@ -2638,45 +2403,5 @@ public class Mob extends AbstractIntelligenceAgent {
 
         }
     }
-
-    public void dismissNecroPet(boolean updateOwner) {
-
-        this.state = STATE.Disabled;
-
-        this.combatTarget = null;
-        this.hasLoot = false;
-
-        if (this.parentZone != null)
-            this.parentZone.zoneMobSet.remove(this);
-
-        try {
-            this.clearEffects();
-        } catch (Exception e) {
-            Logger.error(e.getMessage());
-        }
-        this.playerAgroMap.clear();
-        WorldGrid.RemoveWorldObject(this);
-
-        DbManager.removeFromCache(this);
-
-        // YEAH BONUS CODE!  THANKS UNNAMED ASSHOLE!
-        //WorldServer.removeObject(this);
-        //WorldGrid.INSTANCE.removeWorldObject(this);
-        //owner.getPet().disableIntelligence();
-
-        PlayerCharacter petOwner = this.getOwner();
-
-        if (petOwner != null) {
-            this.setOwner(null);
-            petOwner.setPet(null);
-
-            if (updateOwner == false)
-                return;
-            PetMsg petMsg = new PetMsg(5, null);
-            Dispatch dispatch = Dispatch.borrow(petOwner, petMsg);
-            DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.PRIMARY);
-        }
-    }
-
 
 }

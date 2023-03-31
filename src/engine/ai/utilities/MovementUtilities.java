@@ -40,10 +40,10 @@ public class MovementUtilities {
 			if (agent.getContract() != null)
 				guardCaptain = agent;
 			else
-		guardCaptain = (Mob) agent.getNpcOwner();
+				guardCaptain = (Mob) agent.npcOwner;
 			
 			if (guardCaptain != null){
-				Building barracks = guardCaptain.getBuilding();
+                Building barracks = guardCaptain.building;
 				
 				if (barracks != null){
 					City city = barracks.getCity();

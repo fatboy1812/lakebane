@@ -28,7 +28,6 @@ import engine.net.client.msg.*;
 import engine.net.client.msg.chat.AbstractChatMsg;
 import engine.net.client.msg.commands.ClientAdminCommandMsg;
 import engine.objects.*;
-import engine.powers.effectmodifiers.AbstractEffectModifier;
 import engine.server.MBServerStatics;
 import engine.server.world.WorldServer;
 import engine.session.Session;
@@ -37,7 +36,6 @@ import org.pmw.tinylog.Logger;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -2028,7 +2026,7 @@ public class ClientMessagePump implements NetMsgHandler {
 		
 		if (pet.getCombatTarget() == null)
 			return;
-		pet.setState(STATE.Attack);
+		pet.state = STATE.Attack;
 	}
 
 	protected static void petCmd(PetCmdMsg msg, ClientConnection conn) throws MsgSendException {
@@ -2046,7 +2044,7 @@ public class ClientMessagePump implements NetMsgHandler {
 		if (!pet.isAlive())
 			return;
 
-		if (pet.getState() == STATE.Disabled)
+        if (pet.state == STATE.Disabled)
 			return;
 
 		int type = msg.getType();
@@ -2054,7 +2052,7 @@ public class ClientMessagePump implements NetMsgHandler {
 		if (type == 1) { //stop attack
 			pet.setCombatTarget(null);
 			pc.setCombat(false);
-			pet.setState(STATE.Awake);
+			pet.state = STATE.Awake;
 
 		}
 		else if (type == 2) { //dismiss

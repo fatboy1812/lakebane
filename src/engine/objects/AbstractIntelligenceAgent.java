@@ -204,8 +204,8 @@ public abstract class AbstractIntelligenceAgent extends AbstractCharacter {
 
 				WorldGrid.RemoveWorldObject(this);
 				if (this.getObjectType() == GameObjectType.Mob){
-					((Mob)this).setState(STATE.Disabled);
-					if (((Mob)this).getParentZone() != null)
+                    ((Mob)this).state = STATE.Disabled;
+                    if (((Mob)this).getParentZone() != null)
 						((Mob)this).getParentZone().zoneMobSet.remove(this);
 				}
 

@@ -626,7 +626,7 @@ public class PlayerCharacter extends AbstractCharacter {
 		if (this.pet != null)
 			this.dismissPet();
 
-		this.dismissNecroPets();
+		NPCManager.dismissNecroPets(this);
 		// remove flight job.
 
 		this.setTakeOffTime(0);
@@ -1586,77 +1586,13 @@ public class PlayerCharacter extends AbstractCharacter {
 		return this.pet;
 	}
 
-	public Mob getNecroPet(int i) {
-		return this.necroPets.get(i);
-	}
-
-	
-public static void auditNecroPets(PlayerCharacter player){
-	int removeIndex =0;
-	while(player.necroPets.size() >= 10){
-		
-		
-		if (removeIndex == player.necroPets.size())
-			break;
-	
-		Mob toRemove = player.necroPets.get(removeIndex);
-		
-		if (toRemove == null){
-			removeIndex++;
-			continue;
-		}
-		toRemove.dismissNecroPet(true);
-		player.necroPets.remove(toRemove);
-		removeIndex++;
-		
-		
-	}
-}
-
-public static void resetNecroPets(PlayerCharacter player){
-	for (Mob necroPet: player.necroPets)
-		if (necroPet.isPet())
-			necroPet.setMob();
-}
-	
-	public void spawnNecroPet(Mob mob) {
-		if (mob == null)
-			return;
-		if (mob.getMobBaseID() != 12021 && mob.getMobBaseID() != 12022)
-			return;
-		
-		PlayerCharacter.auditNecroPets(this);
-		PlayerCharacter.resetNecroPets(this);
-	
-		this.necroPets.add(mob);	
-	}
-	
-
 	public void dismissPet() {
+
 		if (this.pet != null) {
 			this.pet.dismiss();
 			this.pet = null;
 		}
 	}
-	
-public void dismissNecroPets() {
-
-	
-	if (this.necroPets.isEmpty())
-		return;
-
-		for (Mob necroPet: this.necroPets){
-			
-			try{
-				necroPet.dismissNecroPet(true);
-			}catch(Exception e){
-				necroPet.setState(STATE.Disabled);
-				Logger.error(e);
-			}
-				}
-		this.necroPets.clear();
-	}
-
 
 	//called to verify player has correct item equipped for casting.
 	public boolean validEquip(int slot, String type) {
@@ -4644,7 +4580,7 @@ public void dismissNecroPets() {
 			if (!currentPet.isSiege()) {
 
 				currentPet.setCombatTarget(null);
-				currentPet.setState(STATE.Disabled);
+				currentPet.state = STATE.Disabled;
 
 				if (currentPet.getParentZone() != null)
 
@@ -4655,7 +4591,7 @@ public void dismissNecroPets() {
 				}catch(Exception e){
 					Logger.error( e.getMessage());
 				}
-				currentPet.getPlayerAgroMap().clear();
+				currentPet.playerAgroMap.clear();
 				WorldGrid.RemoveWorldObject(currentPet);
 				DbManager.removeFromCache(currentPet);
 

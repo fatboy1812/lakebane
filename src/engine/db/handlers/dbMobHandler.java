@@ -10,6 +10,7 @@
 package engine.db.handlers;
 
 import engine.ai.MobileFSM.STATE;
+import engine.gameManager.NPCManager;
 import engine.math.Vector3fImmutable;
 import engine.objects.Mob;
 import engine.objects.PlayerCharacter;
@@ -118,7 +119,7 @@ public class dbMobHandler extends dbHandlerBase {
 			while (rs.next()) {
 				int mobBaseID = rs.getInt("mobBaseID");
 				String name = rs.getString("name");
-				Mob toCreate = captain.createGuardMob(mobBaseID, captain.getGuild(), captain.getParentZone(), captain.getBuilding().getLoc(), captain.getLevel(),name);
+				Mob toCreate = NPCManager.createGuardMob(captain, captain.getGuild(), captain.getParentZone(), captain.building.getLoc(), captain.getLevel(),name);
 				if (toCreate == null)
 					return;
 
@@ -127,7 +128,7 @@ public class dbMobHandler extends dbHandlerBase {
 					
 					toCreate.setTimeToSpawnSiege(System.currentTimeMillis() + MBServerStatics.FIFTEEN_MINUTES);
 					toCreate.setDeathTime(System.currentTimeMillis());
-					toCreate.setState(STATE.Respawn);
+					toCreate.state = STATE.Respawn;
 
 				}
 			}
@@ -241,7 +242,7 @@ public class dbMobHandler extends dbHandlerBase {
 			worldDelta = worldDelta.subtract(new Vector3fImmutable(sourceZone.getAbsX(), sourceZone.getAbsY(), sourceZone.getAbsZ()));
 
 			newMobile = Mob.createMob(mobile.getLoadID(),
-					mobile.getLoc().add(worldDelta), null, true, targetZone, mobile.getBuilding(), 0);
+					mobile.getLoc().add(worldDelta), null, true, targetZone, mobile.building, 0);
 
 			if (newMobile != null) {
 				newMobile.updateDatabase();

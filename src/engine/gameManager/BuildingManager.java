@@ -260,7 +260,7 @@ public enum BuildingManager {
                 if (slottedNPC.getObjectType() == Enum.GameObjectType.NPC)
                     ((NPC) slottedNPC).remove();
                 else if (slottedNPC.getObjectType() == Enum.GameObjectType.Mob)
-                    ((Mob) slottedNPC).remove(building);
+                    NPCManager.removeMobileFromBuilding(((Mob) slottedNPC), building);
             }
             return;
         }
@@ -285,7 +285,7 @@ public enum BuildingManager {
                     else
                         building.getHirelings().remove(npc);
                 } else if (mob != null) {
-                    if (!mob.remove(building))
+                    if (!NPCManager.removeMobileFromBuilding(mob, building))
                         Logger.error("Failed to remove npc " + npc.getObjectUUID()
                                 + "from Building " + building.getObjectUUID());
                     else

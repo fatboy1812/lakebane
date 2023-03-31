@@ -560,7 +560,7 @@ public class WorldServer {
 					m.setParentZone(zone);
 
 				//ADD GUARDS HERE.
-				if (m.getBuilding() != null && m.getBuilding().getBlueprint() != null && m.getBuilding().getBlueprint().getBuildingGroup() == BuildingGroup.BARRACK)
+					if (m.building != null && m.building.getBlueprint() != null && m.building.getBlueprint().getBuildingGroup() == BuildingGroup.BARRACK)
 					DbManager.MobQueries.LOAD_PATROL_POINTS(m);
 				}
 
@@ -683,7 +683,7 @@ public class WorldServer {
 		if (player.getPet() != null)
 			player.getPet().dismiss();
 		
-		player.dismissNecroPets();
+		NPCManager.dismissNecroPets(player);
 
 		// Set player inactive so they quit loading for other players
 
