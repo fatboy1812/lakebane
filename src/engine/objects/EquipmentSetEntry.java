@@ -14,16 +14,16 @@ import java.sql.SQLException;
 
 public class EquipmentSetEntry {
 
-	public float dropChance;
 	public int itemID;
+	public float dropChance;
 
 	/**
 	 * ResultSet Constructor
 	 */
 
 	public EquipmentSetEntry(ResultSet rs) throws SQLException {
-		this.dropChance = (rs.getFloat("dropChance"));
 		this.itemID = (rs.getInt("itemID"));
+		this.dropChance = (rs.getFloat("dropChance"));
 	}
 
 }

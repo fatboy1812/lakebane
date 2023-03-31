@@ -14,16 +14,16 @@ import java.sql.SQLException;
 
 public class BootySetEntry {
 
-	public float dropChance;
-	public int itemBase;
 
+	public int itemBase;
+	public float dropChance;
 	/**
 	 * ResultSet Constructor
 	 */
 
 	public BootySetEntry(ResultSet rs) throws SQLException {
-		this.dropChance = (rs.getFloat("dropChance"));
 		this.itemBase = (rs.getInt("itemBase"));
+		this.dropChance = (rs.getFloat("dropChance"));
 	}
 
 }
