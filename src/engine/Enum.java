@@ -9,7 +9,6 @@
 package engine;
 
 import ch.claude_martin.enumbitset.EnumBitSetHelper;
-import engine.gameManager.ConfigManager;
 import engine.gameManager.PowersManager;
 import engine.gameManager.ZoneManager;
 import engine.math.Vector2f;
@@ -1773,7 +1772,7 @@ public class Enum {
 		SkillReq,
 		SkillsBase,
 		SkillsBaseAttribute,
-		SpecialLoot,
+		MobileBooty,
 		StrongBox,
 		Trigger,
 		ValidRaceBeardStyle,

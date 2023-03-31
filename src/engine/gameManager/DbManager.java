@@ -303,7 +303,6 @@ public enum DbManager {
 	public static final dbRuneBaseHandler RuneBaseQueries = new dbRuneBaseHandler();
 	public static final dbSkillBaseHandler SkillsBaseQueries = new dbSkillBaseHandler();
 	public static final dbSkillReqHandler SkillReqQueries = new dbSkillReqHandler();
-	public static final dbSpecialLootHandler SpecialLootQueries = new dbSpecialLootHandler();
 	public static final dbVendorDialogHandler VendorDialogQueries = new dbVendorDialogHandler();
 	public static final dbZoneHandler ZoneQueries = new dbZoneHandler();
 	public static final dbRealmHandler RealmQueries = new dbRealmHandler();

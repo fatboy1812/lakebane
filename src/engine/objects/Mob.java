@@ -108,8 +108,6 @@ public class Mob extends AbstractIntelligenceAgent {
     private int equipmentSetID = 0;
     public int runeSetID = 0;
     public int bootySetID = 0;
-    private int lootSet = 0;
-    private boolean isGuard;
 
     /**
      * No Id Constructor
@@ -294,8 +292,6 @@ public class Mob extends AbstractIntelligenceAgent {
 
             if (this.contract != null)
                 this.equipmentSetID = this.contract.getEquipmentSet();
-
-            this.lootSet = (rs.getInt("lootSet"));
 
             this.nameOverride = rs.getString("mob_name");
 
@@ -2464,14 +2460,6 @@ public class Mob extends AbstractIntelligenceAgent {
 
     public int getEquipmentSetID() {
         return equipmentSetID;
-    }
-
-    public int getLootSet() {
-        return lootSet;
-    }
-
-    public boolean isGuard() {
-        return this.isGuard;
     }
 
     public String getNameOverride() {

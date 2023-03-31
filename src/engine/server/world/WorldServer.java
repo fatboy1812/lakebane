@@ -344,9 +344,6 @@ public class WorldServer {
 		Blueprint.loadAllDoorNumbers();
 		Blueprint.loadAllBlueprints();
 
-		Logger.info("Loading Special Loot For Mobs");
-		DbManager.SpecialLootQueries.GenerateSpecialLoot();
-
 		Logger.info("Initializing Heightmap data");
 		HeightMap.loadAlHeightMaps();
 

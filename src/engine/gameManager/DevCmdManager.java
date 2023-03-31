@@ -134,7 +134,6 @@ public enum DevCmdManager {
 		DevCmdManager.registerDevCmd(new convertLoc());
 		DevCmdManager.registerDevCmd(new GetMobBaseLoot());
 		DevCmdManager.registerDevCmd(new MBDropCmd());
-		DevCmdManager.registerDevCmd(new GetDisciplineLocCmd());
 		DevCmdManager.registerDevCmd(new AuditHeightMapCmd());
 		DevCmdManager.registerDevCmd(new UnloadFurnitureCmd());
 		DevCmdManager.registerDevCmd(new SetNPCSlotCmd());
