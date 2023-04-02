@@ -93,8 +93,11 @@ public class MobileFSM {
 
                 if (mob.isPlayerGuard())
                     guardAggro(mob, mob.getAggroTargetID());
-                else
+                else if (mob.isGuard()) {
+                    awakeNPCguard(mob);
+                } else {
                     aggro(mob, mob.getAggroTargetID());
+                }
                 break;
             case Patrol:
 
