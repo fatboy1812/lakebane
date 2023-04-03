@@ -382,8 +382,6 @@ public class InfoCmd extends AbstractDevCmd {
 				output += newline;
 				output += "Slottable: " + targetNPC.getContract().getAllowedBuildings().toString();
 				output += newline;
-				output += "Fidelity ID: " + targetNPC.getFidalityID();
-				output += newline;
 				output += "EquipSet: " + targetNPC.getEquipmentSetID();
 				output += newline;
 				output += "Parent Zone LoadNum : " + targetNPC.getParentZone().getLoadNum();
@@ -451,12 +449,10 @@ public class InfoCmd extends AbstractDevCmd {
 			output += StringUtils.addWS("isAlive: "
 					+ targetMob.isAlive(), 20);
 			output += newline;
-			output += "Mob State: " +targetMob.getState().name();
+			output += "Mob State: " + targetMob.state.name();
 
 			output += newline;
 			output += "Speed : " + targetMob.getSpeed();
-			output += newline;
-			output += "Fidelity ID: " + targetMob.getFidalityID();
 			output += newline;
 			output += "EquipSet: " + targetMob.getEquipmentSetID();
 			output += newline;

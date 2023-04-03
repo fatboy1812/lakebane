@@ -9,7 +9,6 @@ import engine.net.DispatchMessage;
 import engine.net.client.ClientConnection;
 import engine.net.client.msg.ArcMineWindowAvailableTimeMsg;
 import engine.net.client.msg.ClientNetMsg;
-import engine.net.client.msg.KeepAliveServerClientMsg;
 import engine.objects.Building;
 import engine.objects.Guild;
 import engine.objects.GuildStatusController;

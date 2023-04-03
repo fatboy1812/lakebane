@@ -28,7 +28,6 @@ import engine.net.client.msg.*;
 import engine.net.client.msg.chat.AbstractChatMsg;
 import engine.net.client.msg.commands.ClientAdminCommandMsg;
 import engine.objects.*;
-import engine.powers.effectmodifiers.AbstractEffectModifier;
 import engine.server.MBServerStatics;
 import engine.server.world.WorldServer;
 import engine.session.Session;
@@ -37,7 +36,6 @@ import org.pmw.tinylog.Logger;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -1130,15 +1128,12 @@ public class ClientMessagePump implements NetMsgHandler {
 							//Take equipment off mob
 							if (tar.getObjectType() == GameObjectType.Mob && itemRet != null){
 								Mob mobTarget = (Mob)tar;
-								if (mobTarget.getFidalityID() != 0){
+
 									if (item != null && item.getObjectType() == GameObjectType.MobLoot){
-										int fidelityEquipID = ((MobLoot)item).getFidelityEquipID();
 
-										if (fidelityEquipID != 0){
 											for (MobEquipment equip: mobTarget.getEquip().values()){
-												if (equip.getObjectUUID() == fidelityEquipID){
-													TransferItemFromEquipToInventoryMsg back = new TransferItemFromEquipToInventoryMsg(mobTarget, equip.getSlot());
 
+													TransferItemFromEquipToInventoryMsg back = new TransferItemFromEquipToInventoryMsg(mobTarget, equip.getSlot());
 													DispatchMessage.dispatchMsgToInterestArea(mobTarget, back, DispatchChannel.SECONDARY, MBServerStatics.CHARACTER_LOAD_RANGE, false, false);
 
 													LootMsg lootMsg = new LootMsg(0,0,tar.getObjectType().ordinal(), tar.getObjectUUID(), equip);
@@ -1146,23 +1141,13 @@ public class ClientMessagePump implements NetMsgHandler {
 													DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.SECONDARY);
 													break;
 												}
-											}
 										}
-
-
 									}
 								}
 
-
 							}
-						}
-
-					}
-					else {
-
 					}
 
-				}
 				else if (targetType == GameObjectType.Corpse.ordinal()) {
 					corpse = Corpse.getCorpse(targetID);
 					if (corpse == null)
@@ -2041,7 +2026,7 @@ public class ClientMessagePump implements NetMsgHandler {
 		
 		if (pet.getCombatTarget() == null)
 			return;
-		pet.setState(STATE.Attack);
+		pet.state = STATE.Attack;
 	}
 
 	protected static void petCmd(PetCmdMsg msg, ClientConnection conn) throws MsgSendException {
@@ -2059,7 +2044,7 @@ public class ClientMessagePump implements NetMsgHandler {
 		if (!pet.isAlive())
 			return;
 
-		if (pet.getState() == STATE.Disabled)
+        if (pet.state == STATE.Disabled)
 			return;
 
 		int type = msg.getType();
@@ -2067,7 +2052,7 @@ public class ClientMessagePump implements NetMsgHandler {
 		if (type == 1) { //stop attack
 			pet.setCombatTarget(null);
 			pc.setCombat(false);
-			pet.setState(STATE.Awake);
+			pet.state = STATE.Awake;
 
 		}
 		else if (type == 2) { //dismiss

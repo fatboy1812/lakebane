@@ -31,8 +31,8 @@ public class ClearNearbyAggroPowerAction extends AbstractPowerAction {
 	@Override
 	protected void _startAction(AbstractCharacter source, AbstractWorldObject awo, Vector3fImmutable targetLoc, int trains, ActionsBase ab, PowersBase pb) {
 		if (source.getObjectType() == GameObjectType.Mob){
-			((Mob)source).setState(STATE.Patrol);
-		}
+            ((Mob)source).state = STATE.Patrol;
+        }
 
 	}
 

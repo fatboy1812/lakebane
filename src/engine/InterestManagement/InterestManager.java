@@ -285,7 +285,7 @@ public enum InterestManager implements Runnable {
                     uom.addObject(obj);
 
                     if (obj.getObjectType() == GameObjectType.Mob)
-                        ((Mob) obj).getPlayerAgroMap().remove(player.getObjectUUID());
+                        ((Mob) obj).playerAgroMap.remove(player.getObjectUUID());
                 } catch (Exception e) {
                     Logger.error("UnloadCharacter", obj.getObjectUUID() + " " + e.getMessage());
                 }
@@ -338,10 +338,10 @@ public enum InterestManager implements Runnable {
                     if (!awonpc.isAlive() && (awonpc.isPet() || awonpc.isSiege() || awonpc.isNecroPet() || awonpc.isPlayerGuard()))
                         continue;
 
-                    if (awonpc.getState().equals(STATE.Respawn) || awonpc.getState().equals(STATE.Disabled))
+                    if (awonpc.state.equals(STATE.Respawn) || awonpc.state.equals(STATE.Disabled))
                         continue;
 
-                    awonpc.getPlayerAgroMap().put(player.getObjectUUID(), false);
+                    awonpc.playerAgroMap.put(player.getObjectUUID(), false);
                     MobileFSM.setAwake(awonpc, false);
                     //				IVarController.setVariable(awonpc, "IntelligenceDisableDelay", (double) (System.currentTimeMillis() + 5000));
                     //				awonpc.enableIntelligence();
@@ -355,7 +355,7 @@ public enum InterestManager implements Runnable {
                     if (!awonpc.isAlive())
                         continue;
 
-                    awonpc.getPlayerAgroMap().put(player.getObjectUUID(), false);
+                    awonpc.playerAgroMap.put(player.getObjectUUID(), false);
 
                     if (awonpc.isMob())
                         MobileFSM.setAwake(awonpc, false);

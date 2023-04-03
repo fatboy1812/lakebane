@@ -7,6 +7,7 @@ import engine.ai.MobileFSM;
 import engine.exception.MsgSendException;
 import engine.gameManager.BuildingManager;
 import engine.gameManager.DbManager;
+import engine.gameManager.NPCManager;
 import engine.gameManager.SessionManager;
 import engine.net.Dispatch;
 import engine.net.DispatchMessage;
@@ -66,8 +67,8 @@ public class MinionTrainingMsgHandler extends AbstractClientMsgHandler {
 						if (!npc.getSiegeMinionMap().containsKey(toRemove))
 							return true;
 
-						toRemove.setState(MobileFSM.STATE.Disabled);
-						npc.getSiegeMinionMap().remove(toRemove);
+                        toRemove.state = MobileFSM.STATE.Disabled;
+                        npc.getSiegeMinionMap().remove(toRemove);
 
 						//toRemove.disableIntelligence();
 						WorldGrid.RemoveWorldObject(toRemove);
@@ -159,8 +160,8 @@ public class MinionTrainingMsgHandler extends AbstractClientMsgHandler {
 							toCreate.setSpawnTime(60 * 15);
 							toCreate.setTimeToSpawnSiege(System.currentTimeMillis() + (60 * 15 * 1000));
 							toCreate.setDeathTime(System.currentTimeMillis());
-							toCreate.setState(MobileFSM.STATE.Respawn);
-						}
+                            toCreate.state = MobileFSM.STATE.Respawn;
+                        }
 					}
 
 					ManageNPCMsg mnm = new ManageNPCMsg(npc);
@@ -198,8 +199,8 @@ public class MinionTrainingMsgHandler extends AbstractClientMsgHandler {
 						if (!DbManager.MobQueries.REMOVE_FROM_GUARDS(npc.getObjectUUID(), toRemove.getMobBaseID(), npc.getSiegeMinionMap().get(toRemove)))
 							return true;
 
-						toRemove.setState(MobileFSM.STATE.Disabled);
-						npc.getSiegeMinionMap().remove(toRemove);
+                        toRemove.state = MobileFSM.STATE.Disabled;
+                        npc.getSiegeMinionMap().remove(toRemove);
 
 						//toRemove.disableIntelligence();
 						WorldGrid.RemoveWorldObject(toRemove);
@@ -283,7 +284,7 @@ public class MinionTrainingMsgHandler extends AbstractClientMsgHandler {
 						if (!DbManager.MobQueries.ADD_TO_GUARDS(npc.getObjectUUID(), mobBase, pirateName, npc.getSiegeMinionMap().size() + 1))
 							return true;
 
-						Mob toCreate = npc.createGuardMob(mobBase, npc.getGuild(), zone, b.getLoc(), npc.getLevel(),pirateName);
+						Mob toCreate = NPCManager.createGuardMob(npc, npc.getGuild(), zone, b.getLoc(), npc.getLevel(),pirateName);
 
 						if (toCreate == null)
 							return true;
@@ -292,8 +293,8 @@ public class MinionTrainingMsgHandler extends AbstractClientMsgHandler {
 						if (toCreate != null) {
 							toCreate.setTimeToSpawnSiege(System.currentTimeMillis() + MBServerStatics.FIFTEEN_MINUTES);
 							toCreate.setDeathTime(System.currentTimeMillis());
-							toCreate.setState(MobileFSM.STATE.Respawn);
-						}
+                            toCreate.state = MobileFSM.STATE.Respawn;
+                        }
 					}
 
 					ManageNPCMsg mnm = new ManageNPCMsg(npc);

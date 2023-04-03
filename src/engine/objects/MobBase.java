@@ -12,6 +12,7 @@ package engine.objects;
 import ch.claude_martin.enumbitset.EnumBitSet;
 import engine.Enum;
 import engine.gameManager.DbManager;
+import engine.gameManager.NPCManager;
 import engine.server.MBServerStatics;
 
 import java.sql.ResultSet;
@@ -128,7 +129,6 @@ public class MobBase extends AbstractGameObject {
 		if (Enum.MobFlagType.RAT.elementOf(this.flags))
 			this.mask += MBServerStatics.MASK_RAT;
 
-		this.runes = DbManager.MobBaseQueries.LOAD_RUNES_FOR_MOBBASE(this.loadID);
 		this.raceEffectsList = DbManager.MobBaseQueries.LOAD_STATIC_EFFECTS(this.loadID);
 		this.mobBaseStats = DbManager.MobBaseQueries.LOAD_STATS(this.loadID);
 		DbManager.MobBaseQueries.LOAD_ALL_MOBBASE_LOOT(this.loadID);
@@ -144,14 +144,14 @@ public class MobBase extends AbstractGameObject {
 		if (equipmentSetID == 0)
 			return equip;
 
-		equipList = EquipmentSetEntry.EquipmentSetMap.get(equipmentSetID);
+		equipList = NPCManager._equipmentSetMap.get(equipmentSetID);
 
 		if (equipList == null)
 			return equip;
 
 		for (EquipmentSetEntry equipmentSetEntry : equipList) {
 
-			MobEquipment mobEquipment = new MobEquipment(equipmentSetEntry.getItemID(), equipmentSetEntry.getDropChance());
+			MobEquipment mobEquipment = new MobEquipment(equipmentSetEntry.itemID, equipmentSetEntry.dropChance);
 			ItemBase itemBase = mobEquipment.getItemBase();
 
 			if (itemBase != null) {
@@ -172,10 +172,6 @@ public class MobBase extends AbstractGameObject {
 
 	public void updateStaticEffects() {
 		this.raceEffectsList = DbManager.MobBaseQueries.LOAD_STATIC_EFFECTS(this.getObjectUUID());
-	}
-
-	public void updateRunes() {
-		this.runes = DbManager.MobBaseQueries.LOAD_RUNES_FOR_MOBBASE(this.getObjectUUID());
 	}
 
 	public void updatePowers() {

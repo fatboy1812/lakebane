@@ -12,17 +12,17 @@ package engine.objects;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
-public class EquipmentSetEntry {
+public class BootySetEntry {
 
-	public int itemID;
+
+	public int itemBase;
 	public float dropChance;
-
 	/**
 	 * ResultSet Constructor
 	 */
 
-	public EquipmentSetEntry(ResultSet rs) throws SQLException {
-		this.itemID = (rs.getInt("itemID"));
+	public BootySetEntry(ResultSet rs) throws SQLException {
+		this.itemBase = (rs.getInt("itemBase"));
 		this.dropChance = (rs.getFloat("dropChance"));
 	}
 

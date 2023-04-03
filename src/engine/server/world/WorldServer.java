@@ -60,7 +60,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Timer;
 
@@ -74,7 +73,6 @@ public class WorldServer {
 
 	// Member variable declaration
 
-	public static HashMap<Integer,HashMap<Integer,ArrayList<Integer>>> ZoneFidelityMobRunes = new HashMap<>();
 	public WorldServer() {
 		super();
 	}
@@ -285,13 +283,16 @@ public class WorldServer {
 		DbManager.PromotionQueries.GET_ALL_PROMOTIONS();
 
 		Logger.info("Loading NPC and Mob Equipment Sets");
-		EquipmentSetEntry.LoadAllEquipmentSets();
+		NPCManager.LoadAllEquipmentSets();
+
+		Logger.info("Loading NPC and Mob Rune Sets");
+		NPCManager.LoadAllRuneSets();
+
+		Logger.info("Loading Mobile Booty Sets");
+		NPCManager.LoadAllBootySets();
 
 		Logger.info("Loading Gold Loot for Mobbases");
 		MobbaseGoldEntry.LoadMobbaseGold();
-
-		Logger.info("Loading fidelity mob runes.");
-		DbManager.MobQueries.LOAD_RUNES_FOR_FIDELITY_MOBS();
 
 		//load lootTable
 		Logger.info("Loading Loot Tables");
@@ -337,9 +338,6 @@ public class WorldServer {
 		BuildingRegions.loadAllStaticColliders();
 		Blueprint.loadAllDoorNumbers();
 		Blueprint.loadAllBlueprints();
-
-		Logger.info("Loading Special Loot For Mobs");
-		DbManager.SpecialLootQueries.GenerateSpecialLoot();
 
 		Logger.info("Initializing Heightmap data");
 		HeightMap.loadAlHeightMaps();
@@ -557,7 +555,7 @@ public class WorldServer {
 					m.setParentZone(zone);
 
 				//ADD GUARDS HERE.
-				if (m.getBuilding() != null && m.getBuilding().getBlueprint() != null && m.getBuilding().getBlueprint().getBuildingGroup() == BuildingGroup.BARRACK)
+					if (m.building != null && m.building.getBlueprint() != null && m.building.getBlueprint().getBuildingGroup() == BuildingGroup.BARRACK)
 					DbManager.MobQueries.LOAD_PATROL_POINTS(m);
 				}
 
@@ -680,7 +678,7 @@ public class WorldServer {
 		if (player.getPet() != null)
 			player.getPet().dismiss();
 		
-		player.dismissNecroPets();
+		NPCManager.dismissNecroPets(player);
 
 		// Set player inactive so they quit loading for other players
 

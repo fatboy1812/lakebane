@@ -174,49 +174,11 @@ public class dbMobBaseHandler extends dbHandlerBase {
 
 	}
 
-	public ArrayList<RuneBase> LOAD_RUNES_FOR_MOBBASE(int mobBaseUUID) {
-
-		ArrayList<RuneBase> runes = new ArrayList<>();
-		prepareCallable("SELECT * FROM `static_npc_mobbase_runes` WHERE `mobbaseUUID` = ?");
-		setInt(1, mobBaseUUID);
-		try {
-			ResultSet rs = executeQuery();
-			while (rs.next()) {
-				int runeID = rs.getInt("runeID");
-				RuneBase rune = RuneBase.getRuneBase(runeID);
-				runes.add(rune);
-			}
-
-		} catch (SQLException e) {
-			Logger.error(e.getErrorCode() + ' ' + e.getMessage(), e);
-		} finally {
-			closeCallable();
-		}
-		return runes;
-
-	}
-
-	public boolean ADD_MOBBASE_EFFECT(int mobBaseUUID, int token, int rank, int reqLvl) {
-		prepareCallable("INSERT INTO `static_npc_mobbase_effects` (`mobbaseUUID`, `token`, `rank`, `reqLvl`) VALUES (?, ?, ?, ?);");
-		setInt(1, mobBaseUUID);
-		setInt(2, token);
-		setInt(3, rank);
-		setInt(4, reqLvl);
-		return (executeUpdate() > 0);
-	}
-
 	public boolean ADD_MOBBASE_POWER(int mobBaseUUID, int token, int rank) {
 		prepareCallable("INSERT INTO `static_npc_mobbase_powers` (`mobbaseUUID`, `token`, `rank`) VALUES (?, ?, ?);");
 		setInt(1, mobBaseUUID);
 		setInt(2, token);
 		setInt(3, rank);
-		return (executeUpdate() > 0);
-	}
-
-	public boolean UPDATE_SKILLS(int ID, int skillsID) {
-		prepareCallable("UPDATE `static_npc_mobbase` SET `baseSkills`=? WHERE `ID`=?;");
-		setInt(1, skillsID);
-		setInt(2, ID);
 		return (executeUpdate() > 0);
 	}
 

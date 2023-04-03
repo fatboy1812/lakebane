@@ -9,13 +9,14 @@
 
 package engine.powers.effectmodifiers;
 
-import engine.Enum;
 import engine.jobs.AbstractEffectJob;
-import engine.objects.*;
+import engine.objects.AbstractCharacter;
+import engine.objects.AbstractWorldObject;
+import engine.objects.Building;
+import engine.objects.Item;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class DurabilityEffectModifier extends AbstractEffectModifier {
 

@@ -13,6 +13,7 @@ import engine.Enum;
 import engine.InterestManagement.WorldGrid;
 import engine.ai.MobileFSM.STATE;
 import engine.gameManager.DbManager;
+import engine.gameManager.NPCManager;
 import engine.gameManager.ZoneManager;
 import engine.math.Vector3fImmutable;
 import engine.net.Dispatch;
@@ -81,13 +82,13 @@ public class CreateMobPowerAction extends AbstractPowerAction {
 			if(currentPet!= null && !currentPet.isNecroPet() && !currentPet.isSiege()) {
 				DbManager.removeFromCache(currentPet);
 				WorldGrid.RemoveWorldObject(currentPet);
-				currentPet.setState(STATE.Disabled);
-				currentPet.setCombatTarget(null);
+                currentPet.state = STATE.Disabled;
+                currentPet.setCombatTarget(null);
 
 				if (currentPet.getParentZone() != null)
 					currentPet.getParentZone().zoneMobSet.remove(currentPet);
 
-				currentPet.getPlayerAgroMap().clear();
+				currentPet.playerAgroMap.clear();
 
 				try {
 					currentPet.clearEffects();
@@ -107,7 +108,7 @@ public class CreateMobPowerAction extends AbstractPowerAction {
 			//remove 10th pet
 			
 		
-			owner.spawnNecroPet(pet);
+			NPCManager.spawnNecroPet(owner, pet);
 
 		}
 		else { //is not a necro pet
@@ -115,13 +116,13 @@ public class CreateMobPowerAction extends AbstractPowerAction {
 				if(!currentPet.isNecroPet() && !currentPet.isSiege()) {
 					DbManager.removeFromCache(currentPet);
 					currentPet.setCombatTarget(null);
-					currentPet.setState(STATE.Disabled);
+                    currentPet.state = STATE.Disabled;
 
-					currentPet.setOwner(null);
+                    currentPet.setOwner(null);
 					WorldGrid.RemoveWorldObject(currentPet);
 
 					currentPet.getParentZone().zoneMobSet.remove(currentPet);
-					currentPet.getPlayerAgroMap().clear();
+					currentPet.playerAgroMap.clear();
 					currentPet.clearEffects();
 					//currentPet.disableIntelligence();
 				}
@@ -136,8 +137,8 @@ public class CreateMobPowerAction extends AbstractPowerAction {
 					}
 					
 				}
-				PlayerCharacter.auditNecroPets(owner);
-				PlayerCharacter.resetNecroPets(owner);
+				NPCManager.auditNecroPets(owner);
+				NPCManager.resetNecroPets(owner);
 			}
 		}
 		/*		if(owner.getPet() != null) {

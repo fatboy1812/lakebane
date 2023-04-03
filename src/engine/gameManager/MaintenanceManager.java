@@ -13,12 +13,9 @@ package engine.gameManager;
 
 import engine.Enum;
 import engine.objects.*;
-import org.joda.time.DateTime;
 import org.pmw.tinylog.Logger;
 
-import java.time.DayOfWeek;
 import java.time.LocalDateTime;
-import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 
 public enum MaintenanceManager {
@@ -79,7 +76,7 @@ public enum MaintenanceManager {
 
             Building building = (Building) gameObject;
 
-            // No Maintenance on fidelity structures
+            // No maintenance on NPC owned buildings (Cache loaded)
 
             if (building.getProtectionState() == Enum.ProtectionState.NPC)
                 continue;

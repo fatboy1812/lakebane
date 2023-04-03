@@ -243,48 +243,7 @@ public class dbNPCHandler extends dbHandlerBase {
 			closeCallable();
 		}
 	}
-	
-	public void LOAD_RUNES_FOR_FIDELITY_NPC(NPC npc) {
 
-
-
-
-
-		prepareCallable("SELECT static_zone_npc.npcID,static_zone_npc.loadNum, static_zone_npc.classID, static_zone_npc.professionID, static_zone_npc.extraRune, static_zone_npc.extraRune2 FROM static_zone_npc WHERE static_zone_npc.loadNum = ? AND static_zone_npc.npcID = ?");
-		setInt(1,npc.getParentZoneID());
-		setInt(2, npc.getFidalityID());
-		try {
-			ResultSet rs = executeQuery();
-
-			while (rs.next()) {
-
-
-				
-				int classID = rs.getInt("classID");
-				int professionID = rs.getInt("professionID");
-				int extraRune = rs.getInt("extraRune");
-				int extraRune2 = rs.getInt("extraRune2");
-				
-				npc.classID = classID;
-				npc.professionID = professionID;
-				npc.extraRune = extraRune;
-				npc.extraRune2 = extraRune2;
-
-			
-
-			}
-
-			rs.close();
-
-
-
-		} catch (SQLException e) {
-			Logger.error( e.toString());
-		} finally {
-			closeCallable();
-
-		}
-	}
 
 	public boolean ADD_TO_PRODUCTION_LIST(final long ID,final long npcUID, final long itemBaseID, DateTime dateTime, String prefix, String suffix, String name, boolean isRandom, int playerID) {
 		prepareCallable("INSERT INTO `dyn_npc_production` (`ID`,`npcUID`, `itemBaseID`,`dateToUpgrade`, `isRandom`, `prefix`, `suffix`, `name`,`playerID`) VALUES (?,?,?,?,?,?,?,?,?)");

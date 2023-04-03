@@ -16,7 +16,10 @@ import engine.Enum.GameObjectType;
 import engine.InterestManagement.WorldGrid;
 import engine.ai.utilities.CombatUtilities;
 import engine.ai.utilities.MovementUtilities;
-import engine.gameManager.*;
+import engine.gameManager.BuildingManager;
+import engine.gameManager.CombatManager;
+import engine.gameManager.MovementManager;
+import engine.gameManager.PowersManager;
 import engine.math.Vector3fImmutable;
 import engine.net.DispatchMessage;
 import engine.net.client.msg.PerformActionMsg;
@@ -28,13 +31,13 @@ import engine.powers.PowersBase;
 import engine.server.MBServerStatics;
 import org.pmw.tinylog.Logger;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
 import static engine.math.FastMath.sqr;
-import static java.lang.Math.sqrt;
 
 public class MobileFSM {
 
@@ -58,7 +61,7 @@ public class MobileFSM {
         if (mob == null) {
             return;
         }
-        STATE state = mob.getState();
+        STATE state = mob.state;
         switch (state) {
             case Idle:
                 if (mob.isAlive())
@@ -90,8 +93,11 @@ public class MobileFSM {
 
                 if (mob.isPlayerGuard())
                     guardAggro(mob, mob.getAggroTargetID());
-                else
+                else if (mob.isGuard()) {
+                    awakeNPCguard(mob);
+                } else {
                     aggro(mob, mob.getAggroTargetID());
+                }
                 break;
             case Patrol:
 
@@ -149,21 +155,21 @@ public class MobileFSM {
 
     public static boolean setAwake(Mob aiAgent, boolean force) {
         if (force) {
-            aiAgent.setState(STATE.Awake);
+            aiAgent.state = STATE.Awake;
             return true;
         }
-        if (aiAgent.getState() == STATE.Idle) {
-            aiAgent.setState(STATE.Awake);
+        if (aiAgent.state == STATE.Idle) {
+            aiAgent.state = STATE.Awake;
             return true;
         }
         return false;
     }
 
     public static boolean setAggro(Mob aiAgent, int targetID) {
-        if (aiAgent.getState() != STATE.Dead) {
+        if (aiAgent.state != STATE.Dead) {
             aiAgent.setNoAggro(false);
             aiAgent.setAggroTargetID(targetID);
-            aiAgent.setState(STATE.Aggro);
+            aiAgent.state = STATE.Aggro;
             return true;
         }
         return false;
@@ -173,18 +179,18 @@ public class MobileFSM {
         if (mob.getLoc().distanceSquared2D(mob.getBindLoc()) > sqr(2000)) {
 
             mob.setWalkingHome(false);
-            mob.setState(STATE.Home);
+            mob.state = STATE.Home;
         }
     }
     private static void awake(Mob aiAgent) {
         if (!aiAgent.isAlive()) {
-            aiAgent.setState(STATE.Dead);
+            aiAgent.state = STATE.Dead;
             return;
         }
 
         if (aiAgent.getLoc().distanceSquared2D(aiAgent.getBindLoc()) > sqr(2000)) {
             aiAgent.setWalkingHome(false);
-            aiAgent.setState(STATE.Home);
+            aiAgent.state = STATE.Home;
             return;
         }
         //Don't attempt to aggro if No aggro is on and aiAgent is not home yet.
@@ -197,8 +203,8 @@ public class MobileFSM {
             aiAgent.setNoAggro(false);
         }
         //no players currently have this mob loaded. return to IDLE.
-        if (aiAgent.getPlayerAgroMap().isEmpty()) {
-            aiAgent.setState(STATE.Idle);
+        if (aiAgent.playerAgroMap.isEmpty()) {
+            aiAgent.state = STATE.Idle;
             return;
         }
 
@@ -210,7 +216,7 @@ public class MobileFSM {
 
         //Get the Map for Players that loaded this mob.
 
-        ConcurrentHashMap<Integer, Boolean> loadedPlayers = aiAgent.getPlayerAgroMap();
+        ConcurrentHashMap<Integer, Boolean> loadedPlayers = aiAgent.playerAgroMap;
 
 
         if (!Enum.MobFlagType.AGGRESSIVE.elementOf(aiAgent.getMobBase().getFlags()) && aiAgent.getCombatTarget() == null) {
@@ -218,7 +224,7 @@ public class MobileFSM {
 
             int patrolRandom = ThreadLocalRandom.current().nextInt(1000);
             if (patrolRandom <= MBServerStatics.AI_PATROL_DIVISOR) {
-                aiAgent.setState(STATE.Patrol);
+                aiAgent.state = STATE.Patrol;
             }
             return;
         }
@@ -251,7 +257,7 @@ public class MobileFSM {
 
             if (MovementUtilities.inRangeToAggro(aiAgent, loadedPlayer)) {
                 aiAgent.setAggroTargetID(playerID);
-                aiAgent.setState(STATE.Aggro);
+                aiAgent.state = STATE.Aggro;
                 return;
             }
 
@@ -260,37 +266,37 @@ public class MobileFSM {
 
         int patrolRandom = ThreadLocalRandom.current().nextInt(1000);
         if (patrolRandom <= MBServerStatics.AI_PATROL_DIVISOR) {
-            aiAgent.setState(STATE.Patrol);
+            aiAgent.state = STATE.Patrol;
         }
 
     }
     private static void guardAttackMob(Mob aiAgent) {
         if (!aiAgent.isAlive()) {
-            aiAgent.setState(STATE.Dead);
+            aiAgent.state = STATE.Dead;
             return;
         }
 
         AbstractGameObject target = aiAgent.getCombatTarget();
         if (target == null) {
-            aiAgent.setState(STATE.Awake);
+            aiAgent.state = STATE.Awake;
             return;
         }
 
         if (target.getObjectType().equals(GameObjectType.Mob) == false) {
-            aiAgent.setState(STATE.Awake);
+            aiAgent.state = STATE.Awake;
             return;
         }
 
         if (target.equals(aiAgent)) {
-            aiAgent.setState(STATE.Awake);
+            aiAgent.state = STATE.Awake;
             return;
         }
 
         Mob mob = (Mob) target;
 
-        if (!mob.isAlive() || mob.getState() == STATE.Dead) {
+        if (!mob.isAlive() || mob.state == STATE.Dead) {
             aiAgent.setCombatTarget(null);
-            aiAgent.setState(STATE.Awake);
+            aiAgent.state = STATE.Awake;
             return;
         }
 
@@ -350,7 +356,7 @@ public class MobileFSM {
     }
     private static void awakeNPCguard(Mob aiAgent) {
         if (!aiAgent.isAlive()) {
-            aiAgent.setState(STATE.Dead);
+            aiAgent.state = STATE.Dead;
             return;
         }
 
@@ -359,7 +365,7 @@ public class MobileFSM {
 
         if (aiAgent.getLoc().distanceSquared2D(aiAgent.getBindLoc()) > sqr(2000)) {
             aiAgent.setWalkingHome(false);
-            aiAgent.setState(STATE.Home);
+            aiAgent.state = STATE.Home;
             return;
         }
 
@@ -383,13 +389,13 @@ public class MobileFSM {
             if (aiAgent.getLoc().distanceSquared2D(mob.getLoc()) > sqr(50))
                 continue;
             aiAgent.setCombatTarget(mob);
-            aiAgent.setState(STATE.Attack);
+            aiAgent.state = STATE.Attack;
         }
     }
     private static void petAwake(Mob aiAgent) {
 
         if (!aiAgent.isAlive()) {
-            aiAgent.setState(STATE.Dead);
+            aiAgent.state = STATE.Dead;
             return;
         }
 
@@ -425,13 +431,13 @@ public class MobileFSM {
     private static void aggro(Mob aiAgent, int targetID) {
 
         if (!aiAgent.isAlive()) {
-            aiAgent.setState(STATE.Dead);
+            aiAgent.state = STATE.Dead;
             return;
         }
 
         if (aiAgent.getLoc().distanceSquared2D(aiAgent.getBindLoc()) > sqr(2000)) {
             aiAgent.setWalkingHome(false);
-            aiAgent.setState(STATE.Home);
+            aiAgent.state = STATE.Home;
             return;
         }
 
@@ -447,22 +453,22 @@ public class MobileFSM {
 
         if (aggroTarget == null) {
             // Logger.error("MobileFSM.aggro", "aggro target with UUID " + targetID + " returned null");
-            aiAgent.getPlayerAgroMap().remove(targetID);
+            aiAgent.playerAgroMap.remove(targetID);
             aiAgent.setAggroTargetID(0);
-            aiAgent.setState(STATE.Patrol);
+            aiAgent.state = STATE.Patrol;
             return;
         }
         if (!aiAgent.canSee(aggroTarget)) {
             aiAgent.setCombatTarget(null);
             targetID = 0;
-            aiAgent.setState(STATE.Patrol);
+            aiAgent.state = STATE.Patrol;
             return;
         }
 
         if (!aggroTarget.isActive()) {
             aiAgent.setCombatTarget(null);
             targetID = 0;
-            aiAgent.setState(STATE.Patrol);
+            aiAgent.state = STATE.Patrol;
             return;
         }
         aiAgent.setCombatTarget(aggroTarget);
@@ -471,7 +477,7 @@ public class MobileFSM {
                 attack(aiAgent, targetID);
             }
         } else if (CombatUtilities.inRange2D(aiAgent, aggroTarget, aiAgent.getRange())) {
-            aiAgent.setState(STATE.Attack);
+            aiAgent.state = STATE.Attack;
             attack(aiAgent, targetID);
             return;
         }
@@ -480,14 +486,14 @@ public class MobileFSM {
             aiAgent.setAggroTargetID(0);
             aiAgent.setCombatTarget(null);
             MovementUtilities.moveToLocation(aiAgent, aiAgent.getTrueBindLoc(), 0);
-            aiAgent.setState(STATE.Awake);
+            aiAgent.state = STATE.Awake;
             return;
         }
 
         if (!MovementUtilities.inRangeOfBindLocation(aiAgent)) {
             aiAgent.setCombatTarget(null);
             aiAgent.setAggroTargetID(0);
-            aiAgent.setState(STATE.Home);
+            aiAgent.state = STATE.Home;
             return;
         }
 
@@ -511,14 +517,14 @@ public class MobileFSM {
     private static void petAttack(Mob aiAgent) {
 
         if (!aiAgent.isAlive()) {
-            aiAgent.setState(STATE.Dead);
+            aiAgent.state = STATE.Dead;
             return;
         }
 
         AbstractGameObject target = aiAgent.getCombatTarget();
 
         if (target == null) {
-            aiAgent.setState(STATE.Awake);
+            aiAgent.state = STATE.Awake;
             return;
         }
 
@@ -530,13 +536,13 @@ public class MobileFSM {
 
                 if (!player.isActive()) {
                     aiAgent.setCombatTarget(null);
-                    aiAgent.setState(STATE.Awake);
+                    aiAgent.state = STATE.Awake;
                     return;
                 }
 
                 if (player.inSafeZone()) {
                     aiAgent.setCombatTarget(null);
-                    aiAgent.setState(STATE.Awake);
+                    aiAgent.state = STATE.Awake;
                     return;
                 }
 
@@ -556,21 +562,21 @@ public class MobileFSM {
     private static void mobAttack(Mob aiAgent) {
 
         if (!aiAgent.isAlive()) {
-            aiAgent.setState(STATE.Dead);
+            aiAgent.state = STATE.Dead;
             return;
         }
 
         if (aiAgent.getLoc().distanceSquared2D(aiAgent.getBindLoc()) > sqr(2000)) {
 
             aiAgent.setWalkingHome(false);
-            aiAgent.setState(STATE.Home);
+            aiAgent.state = STATE.Home;
             return;
         }
 
         AbstractGameObject target = aiAgent.getCombatTarget();
 
         if (target == null) {
-            aiAgent.setState(STATE.Patrol);
+            aiAgent.state = STATE.Patrol;
             return;
         }
 
@@ -582,13 +588,13 @@ public class MobileFSM {
 
                 if (!player.isActive()) {
                     aiAgent.setCombatTarget(null);
-                    aiAgent.setState(STATE.Patrol);
+                    aiAgent.state = STATE.Patrol;
                     return;
                 }
 
                 if (aiAgent.isNecroPet() && player.inSafeZone()) {
                     aiAgent.setCombatTarget(null);
-                    aiAgent.setState(STATE.Idle);
+                    aiAgent.state = STATE.Idle;
                     return;
                 }
                 if (canCast(aiAgent) == true) {
@@ -614,19 +620,19 @@ public class MobileFSM {
 
         if (building.getRank() == -1) {
             aiAgent.setCombatTarget(null);
-            aiAgent.setState(STATE.Awake);
+            aiAgent.state = STATE.Awake;
             return;
         }
 
         if (!building.isVulnerable()) {
             aiAgent.setCombatTarget(null);
-            aiAgent.setState(STATE.Awake);
+            aiAgent.state = STATE.Awake;
             return;
         }
 
         if (BuildingManager.getBuildingFromCache(building.getObjectUUID()) == null) {
             aiAgent.setCombatTarget(null);
-            aiAgent.setState(STATE.Awake);
+            aiAgent.state = STATE.Awake;
             return;
         }
 
@@ -645,7 +651,7 @@ public class MobileFSM {
                         continue;
 
                 mob.setCombatTarget(aiAgent);
-                mob.setState(STATE.Attack);
+                mob.state = STATE.Attack;
             }
         }
 
@@ -722,13 +728,13 @@ public class MobileFSM {
 
         if (aiAgent.getMobBase().getSeeInvis() < player.getHidden()) {
             aiAgent.setCombatTarget(null);
-            aiAgent.setState(STATE.Awake);
+            aiAgent.state = STATE.Awake;
             return;
         }
 
         if (!player.isAlive()) {
             aiAgent.setCombatTarget(null);
-            aiAgent.setState(STATE.Awake);
+            aiAgent.state = STATE.Awake;
             return;
         }
 
@@ -798,13 +804,13 @@ public class MobileFSM {
 
         if (aiAgent.getMobBase().getSeeInvis() < player.getHidden()) {
             aiAgent.setCombatTarget(null);
-            aiAgent.setState(STATE.Awake);
+            aiAgent.state = STATE.Awake;
             return;
         }
 
         if (!player.isAlive()) {
             aiAgent.setCombatTarget(null);
-            aiAgent.setState(STATE.Awake);
+            aiAgent.state = STATE.Awake;
             return;
         }
 
@@ -815,14 +821,14 @@ public class MobileFSM {
             aiAgent.setCombatTarget(null);
             aiAgent.setAggroTargetID(0);
             aiAgent.setWalkingHome(false);
-            aiAgent.setState(STATE.Home);
+            aiAgent.state = STATE.Home;
             return;
         }
         if (!MovementUtilities.inRangeDropAggro(aiAgent, player)) {
             aiAgent.setAggroTargetID(0);
             aiAgent.setCombatTarget(null);
             MovementUtilities.moveToLocation(aiAgent, aiAgent.getTrueBindLoc(), 0);
-            aiAgent.setState(STATE.Awake);
+            aiAgent.state = STATE.Awake;
             return;
         }
         if (CombatUtilities.inRange2D(aiAgent, player, aiAgent.getRange())) {
@@ -891,13 +897,13 @@ public class MobileFSM {
         if (CombatUtilities.inRangeToAttack2D(aiAgent, player))
             return;
         //set mob to pursue target
-        aiAgent.setState(MobileFSM.STATE.Chase);
+        aiAgent.state = STATE.Chase;
     }
     private static void handleMobAttackForPet(Mob aiAgent, Mob mob) {
 
         if (!mob.isAlive()) {
             aiAgent.setCombatTarget(null);
-            aiAgent.setState(STATE.Awake);
+            aiAgent.state = STATE.Awake;
             return;
         }
 
@@ -969,7 +975,7 @@ public class MobileFSM {
 
         if (!mob.isAlive()) {
             aiAgent.setCombatTarget(null);
-            aiAgent.setState(STATE.Awake);
+            aiAgent.state = STATE.Awake;
             return;
         }
 
@@ -1040,7 +1046,7 @@ public class MobileFSM {
 
         //in range to attack, start attacking now!
         if (!aiAgent.isAlive()) {
-            aiAgent.setState(STATE.Dead);
+            aiAgent.state = STATE.Dead;
             return;
         }
 
@@ -1048,23 +1054,23 @@ public class MobileFSM {
 
         if (aggroTarget == null) {
             //  Logger.error("MobileFSM.aggro", "aggro target with UUID " + targetID + " returned null");
-            aiAgent.getPlayerAgroMap().remove(targetID);
+            aiAgent.playerAgroMap.remove(targetID);
             aiAgent.setAggroTargetID(0);
-            aiAgent.setState(STATE.Patrol);
+            aiAgent.state = STATE.Patrol;
             return;
         }
 
         if (aiAgent.getMobBase().getSeeInvis() < aggroTarget.getHidden()) {
             aiAgent.setAggroTargetID(0);
             aiAgent.setCombatTarget(null);
-            aiAgent.setState(STATE.Patrol);
+            aiAgent.state = STATE.Patrol;
             return;
         }
 
         if (!aggroTarget.isAlive()) {
             aiAgent.setAggroTargetID(0);
             aiAgent.setCombatTarget(null);
-            aiAgent.setState(STATE.Patrol);
+            aiAgent.state = STATE.Patrol;
             return;
         }
 
@@ -1072,7 +1078,7 @@ public class MobileFSM {
             aiAgent.setCombatTarget(null);
             aiAgent.setAggroTargetID(0);
             aiAgent.setWalkingHome(false);
-            aiAgent.setState(STATE.Home);
+            aiAgent.state = STATE.Home;
             return;
         }
 
@@ -1080,7 +1086,7 @@ public class MobileFSM {
             aiAgent.setAggroTargetID(0);
             aiAgent.setCombatTarget(null);
             MovementUtilities.moveToLocation(aiAgent, aiAgent.getTrueBindLoc(), 0);
-            aiAgent.setState(STATE.Awake);
+            aiAgent.state = STATE.Awake;
             return;
         }
 
@@ -1144,17 +1150,17 @@ public class MobileFSM {
         MovementManager.translocate(aiAgent, aiAgent.getBindLoc(), null);
         aiAgent.setAggroTargetID(0);
         aiAgent.setCombatTarget(null);
-        aiAgent.setState(STATE.Awake);
+        aiAgent.state = STATE.Awake;
     }
     private static void recalling(Mob aiAgent) {
         //recall home.
         if (aiAgent.getLoc() == aiAgent.getBindLoc())
-            aiAgent.setState(STATE.Awake);
+            aiAgent.state = STATE.Awake;
 
         if (aiAgent.getLoc().distanceSquared2D(aiAgent.getBindLoc()) > sqr(2000)) {
 
             aiAgent.setWalkingHome(false);
-            aiAgent.setState(STATE.Home);
+            aiAgent.state = STATE.Home;
         }
     }
     private static void patrol(Mob aiAgent) {
@@ -1162,7 +1168,7 @@ public class MobileFSM {
         MobBase mobbase = aiAgent.getMobBase();
 
         if (mobbase != null && (Enum.MobFlagType.SENTINEL.elementOf(mobbase.getFlags()) || !Enum.MobFlagType.CANROAM.elementOf(mobbase.getFlags()))) {
-            aiAgent.setState(STATE.Awake);
+            aiAgent.state = STATE.Awake;
             return;
         }
 
@@ -1178,35 +1184,35 @@ public class MobileFSM {
 
             MovementUtilities.aiMove(aiAgent, Vector3fImmutable.getRandomPointInCircle(aiAgent.getBindLoc(), patrolRadius), true);
         }
-        aiAgent.setState(STATE.Awake);
+        aiAgent.state = STATE.Awake;
     }
     private static void dead(Mob aiAgent) {
         //Despawn Timer with Loot currently in inventory.
         if (aiAgent.getCharItemManager().getInventoryCount() > 0) {
-            if (System.currentTimeMillis() > aiAgent.getDeathTime() + MBServerStatics.DESPAWN_TIMER_WITH_LOOT) {
+            if (System.currentTimeMillis() > aiAgent.deathTime + MBServerStatics.DESPAWN_TIMER_WITH_LOOT) {
                 aiAgent.despawn();
                 //update time of death after mob despawns so respawn time happens after mob despawns.
                 aiAgent.setDeathTime(System.currentTimeMillis());
-                aiAgent.setState(STATE.Respawn);
+                aiAgent.state = STATE.Respawn;
             }
 
             //No items in inventory.
         } else {
             //Mob's Loot has been looted.
             if (aiAgent.isHasLoot()) {
-                if (System.currentTimeMillis() > aiAgent.getDeathTime() + MBServerStatics.DESPAWN_TIMER_ONCE_LOOTED) {
+                if (System.currentTimeMillis() > aiAgent.deathTime + MBServerStatics.DESPAWN_TIMER_ONCE_LOOTED) {
                     aiAgent.despawn();
                     //update time of death after mob despawns so respawn time happens after mob despawns.
                     aiAgent.setDeathTime(System.currentTimeMillis());
-                    aiAgent.setState(STATE.Respawn);
+                    aiAgent.state = STATE.Respawn;
                 }
                 //Mob never had Loot.
             } else {
-                if (System.currentTimeMillis() > aiAgent.getDeathTime() + MBServerStatics.DESPAWN_TIMER) {
+                if (System.currentTimeMillis() > aiAgent.deathTime + MBServerStatics.DESPAWN_TIMER) {
                     aiAgent.despawn();
                     //update time of death after mob despawns so respawn time happens after mob despawns.
                     aiAgent.setDeathTime(System.currentTimeMillis());
-                    aiAgent.setState(STATE.Respawn);
+                    aiAgent.state = STATE.Respawn;
                 }
             }
         }
@@ -1214,14 +1220,14 @@ public class MobileFSM {
     private static void guardAwake(Mob aiAgent) {
 
         if (!aiAgent.isAlive()) {
-            aiAgent.setState(STATE.Dead);
+            aiAgent.state = STATE.Dead;
             return;
         }
 
         if (aiAgent.getLoc().distanceSquared2D(aiAgent.getBindLoc()) > sqr(2000)) {
 
             aiAgent.setWalkingHome(false);
-            aiAgent.setState(STATE.Home);
+            aiAgent.state = STATE.Home;
             return;
         }
 
@@ -1232,12 +1238,12 @@ public class MobileFSM {
             aiAgent.setNoAggro(false);
 
         // do nothing if no players are around.
-        if (aiAgent.getPlayerAgroMap().isEmpty())
+        if (aiAgent.playerAgroMap.isEmpty())
             return;
 
         //Get the Map for Players that loaded this mob.
 
-        ConcurrentHashMap<Integer, Boolean> loadedPlayers = aiAgent.getPlayerAgroMap();
+        ConcurrentHashMap<Integer, Boolean> loadedPlayers = aiAgent.playerAgroMap;
 
         //no players currently have this mob loaded. return to IDLE.
         //aiAgent finished moving home, set aggro on.
@@ -1342,13 +1348,13 @@ public class MobileFSM {
             if (aggro) {
                 if (CombatUtilities.inRangeToAttack(aiAgent, loadedPlayer)) {
                     aiAgent.setAggroTargetID(playerID);
-                    aiAgent.setState(STATE.Aggro);
+                    aiAgent.state = STATE.Aggro;
                     return;
                 }
 
                 if (MovementUtilities.inRangeToAggro(aiAgent, loadedPlayer)) {
                     aiAgent.setAggroTargetID(playerID);
-                    aiAgent.setState(STATE.Aggro);
+                    aiAgent.state = STATE.Aggro;
                     return;
                 }
             }
@@ -1356,12 +1362,12 @@ public class MobileFSM {
 
         //attempt to patrol even if aiAgent isn't aggresive;
         if (aiAgent.isMoving() == false)
-            aiAgent.setState(STATE.Patrol);
+            aiAgent.state = STATE.Patrol;
     }
     private static void guardAggro(Mob aiAgent, int targetID) {
 
         if (!aiAgent.isAlive()) {
-            aiAgent.setState(STATE.Dead);
+            aiAgent.state = STATE.Dead;
             return;
         }
 
@@ -1376,26 +1382,26 @@ public class MobileFSM {
         PlayerCharacter aggroTarget = PlayerCharacter.getFromCache(targetID);
 
         if (aggroTarget == null) {
-            aiAgent.setState(STATE.Patrol);
+            aiAgent.state = STATE.Patrol;
             return;
         }
 
         if (!aiAgent.canSee(aggroTarget)) {
             aiAgent.setCombatTarget(null);
             targetID = 0;
-            aiAgent.setState(STATE.Patrol);
+            aiAgent.state = STATE.Patrol;
             return;
         }
 
         if (!aggroTarget.isActive()) {
             aiAgent.setCombatTarget(null);
             targetID = 0;
-            aiAgent.setState(STATE.Patrol);
+            aiAgent.state = STATE.Patrol;
             return;
         }
         if (CombatUtilities.inRangeToAttack(aiAgent, aggroTarget)) {
             aiAgent.setCombatTarget(aggroTarget);
-            aiAgent.setState(STATE.Attack);
+            aiAgent.state = STATE.Attack;
             guardAttack(aiAgent);
             return;
         }
@@ -1412,7 +1418,7 @@ public class MobileFSM {
             aiAgent.setAggroTargetID(0);
             aiAgent.setCombatTarget(null);
             MovementUtilities.moveToLocation(aiAgent, aiAgent.getTrueBindLoc(), 0);
-            aiAgent.setState(STATE.Awake);
+            aiAgent.state = STATE.Awake;
             return;
         }
 
@@ -1420,7 +1426,7 @@ public class MobileFSM {
             aiAgent.setCombatTarget(null);
             aiAgent.setAggroTargetID(0);
             aiAgent.setWalkingHome(false);
-            aiAgent.setState(STATE.Home);
+            aiAgent.state = STATE.Home;
             return;
         }
 
@@ -1437,8 +1443,8 @@ public class MobileFSM {
     }
     private static void guardPatrol(Mob aiAgent) {
 
-        if (aiAgent.getPlayerAgroMap().isEmpty()) {
-            aiAgent.setState(STATE.Awake);
+        if (aiAgent.playerAgroMap.isEmpty()) {
+            aiAgent.state = STATE.Awake;
             return;
         }
 
@@ -1449,7 +1455,7 @@ public class MobileFSM {
             DispatchMessage.sendToAllInRange(aiAgent, rwss);
         }
 
-        if (aiAgent.getNpcOwner() == null) {
+        if (aiAgent.npcOwner == null) {
 
             if (!aiAgent.isWalk() || (aiAgent.isCombat() && aiAgent.getCombatTarget() == null)) {
                 aiAgent.setWalkMode(true);
@@ -1460,14 +1466,14 @@ public class MobileFSM {
             }
 
             if (aiAgent.isMoving()) {
-                aiAgent.setState(STATE.Awake);
+                aiAgent.state = STATE.Awake;
                 return;
             }
 
-            Building barrack = aiAgent.getBuilding();
+            Building barrack = aiAgent.building;
 
             if (barrack == null) {
-                aiAgent.setState(STATE.Awake);
+                aiAgent.state = STATE.Awake;
                 return;
             }
 
@@ -1480,7 +1486,7 @@ public class MobileFSM {
                 }
             }
 
-            aiAgent.setState(STATE.Awake);
+            aiAgent.state = STATE.Awake;
             return;
 
         }
@@ -1494,25 +1500,25 @@ public class MobileFSM {
 
         }
 
-        Building barrack = ((Mob) aiAgent.getNpcOwner()).getBuilding();
+        Building barrack = ((Mob) aiAgent.npcOwner).building;
 
         if (barrack == null) {
-            aiAgent.setState(STATE.Awake);
+            aiAgent.state = STATE.Awake;
             return;
         }
 
         if (barrack.getPatrolPoints() == null) {
-            aiAgent.setState(STATE.Awake);
+            aiAgent.state = STATE.Awake;
             return;
         }
 
         if (barrack.getPatrolPoints().isEmpty()) {
-            aiAgent.setState(STATE.Awake);
+            aiAgent.state = STATE.Awake;
             return;
         }
 
         if (aiAgent.isMoving()) {
-            aiAgent.setState(STATE.Awake);
+            aiAgent.state = STATE.Awake;
             return;
         }
 
@@ -1528,24 +1534,24 @@ public class MobileFSM {
                 if (patrolLoc != null) {
                     if (MovementUtilities.canMove(aiAgent)) {
                         MovementUtilities.aiMove(aiAgent, patrolLoc, true);
-                        aiAgent.setState(STATE.Awake);
+                        aiAgent.state = STATE.Awake;
                     }
                 }
             }
         }
-        aiAgent.setState(STATE.Awake);
+        aiAgent.state = STATE.Awake;
     }
     private static void guardAttack(Mob aiAgent) {
 
         if (!aiAgent.isAlive()) {
-            aiAgent.setState(STATE.Dead);
+            aiAgent.state = STATE.Dead;
             return;
         }
 
         AbstractGameObject target = aiAgent.getCombatTarget();
 
         if (target == null) {
-            aiAgent.setState(STATE.Patrol);
+            aiAgent.state = STATE.Patrol;
             return;
         }
 
@@ -1556,13 +1562,13 @@ public class MobileFSM {
 
                 if (!player.isActive()) {
                     aiAgent.setCombatTarget(null);
-                    aiAgent.setState(STATE.Patrol);
+                    aiAgent.state = STATE.Patrol;
                     return;
                 }
 
                 if (aiAgent.isNecroPet() && player.inSafeZone()) {
                     aiAgent.setCombatTarget(null);
-                    aiAgent.setState(STATE.Idle);
+                    aiAgent.state = STATE.Idle;
                     return;
                 }
                 if (canCast(aiAgent) == true) {
@@ -1575,7 +1581,7 @@ public class MobileFSM {
                 break;
             case Building:
                 Logger.info("PLAYER GUARD ATTEMPTING TO ATTACK BUILDING IN " + aiAgent.getParentZone().getName());
-                aiAgent.setState(STATE.Awake);
+                aiAgent.state = STATE.Awake;
                 break;
             case Mob:
                 Mob mob = (Mob) target;
@@ -1590,7 +1596,7 @@ public class MobileFSM {
 
         aiAgent.setAggroTargetID(0);
         aiAgent.setCombatTarget(null);
-        aiAgent.setState(STATE.Awake);
+        aiAgent.state = STATE.Awake;
     }
     private static void respawn(Mob aiAgent) {
 
@@ -1599,26 +1605,26 @@ public class MobileFSM {
 
         long spawnTime = aiAgent.getSpawnTime();
 
-        if (aiAgent.isPlayerGuard() && aiAgent.getNpcOwner() != null && !aiAgent.getNpcOwner().isAlive())
+        if (aiAgent.isPlayerGuard() && aiAgent.npcOwner != null && !aiAgent.npcOwner.isAlive())
             return;
 
-        if (System.currentTimeMillis() > aiAgent.getDeathTime() + spawnTime) {
+        if (System.currentTimeMillis() > aiAgent.deathTime + spawnTime) {
             aiAgent.respawn();
-            aiAgent.setState(STATE.Idle);
+            aiAgent.state = STATE.Idle;
         }
     }
     private static void retaliate(Mob aiAgent) {
 
         if (aiAgent.getCombatTarget() == null)
-            aiAgent.setState(STATE.Awake);
+            aiAgent.state = STATE.Awake;
 
         //out of range to attack move
         if (!MovementUtilities.canMove(aiAgent)) {
-            aiAgent.setState(STATE.Attack);
+            aiAgent.state = STATE.Attack;
             return;
         }
 
-        aiAgent.setState(STATE.Attack);
+        aiAgent.state = STATE.Attack;
 
         //lets make mobs ai less twitchy, Don't call another movement until mob reaches it's destination.
         if (aiAgent.isMoving())
@@ -1730,7 +1736,7 @@ public class MobileFSM {
         Zone mobCamp = mob.getParentZone();
         for (Mob mob1 : mobCamp.zoneMobSet) {
             if (mob1.getMobBase().getFlags().contains(Enum.MobFlagType.RESPONDSTOCALLSFORHELP)) {
-                if (mob1.getState() == STATE.Awake) {
+                if (mob1.state == STATE.Awake) {
                     if (CombatUtilities.inRange2D(mob, mob1, mob.getAggroRange()) == true) {
                         MovementUtilities.moveToLocation(mob1, mob.getLoc(), 0);
                     }
@@ -1745,14 +1751,14 @@ public class MobileFSM {
             mob.setCombatTarget(null);
             mob.setAggroTargetID(0);
             mob.setWalkingHome(false);
-            mob.setState(STATE.Home);
+            mob.state = STATE.Home;
             return;
         }
         mob.updateMovementState();
         mob.updateLocation();
         if(CombatUtilities.inRange2D(mob,mob.getCombatTarget(), mob.getRange()) == true) {
             MovementUtilities.moveToLocation(mob, mob.getLoc(), 0);
-            mob.setState(STATE.Attack);
+            mob.state = STATE.Attack;
         }
         else {//if (mob.isMoving() == false){
             if(mob.getRange() > 15) {

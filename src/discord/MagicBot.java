@@ -35,7 +35,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 import static discord.ChatChannel.ADMINLOG;
-import static discord.ChatChannel.SEPTIC;
 
 /*
 *  MagicBot is many things to Magicbane...

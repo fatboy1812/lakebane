@@ -14,7 +14,10 @@ import engine.Enum.*;
 import engine.InterestManagement.InterestManager;
 import engine.InterestManagement.WorldGrid;
 import engine.exception.SerializationException;
-import engine.gameManager.*;
+import engine.gameManager.CombatManager;
+import engine.gameManager.ConfigManager;
+import engine.gameManager.MovementManager;
+import engine.gameManager.PowersManager;
 import engine.job.AbstractJob;
 import engine.job.JobContainer;
 import engine.job.JobScheduler;
@@ -25,9 +28,6 @@ import engine.math.AtomicFloat;
 import engine.math.Bounds;
 import engine.math.Vector3fImmutable;
 import engine.net.ByteBufferWriter;
-import engine.net.Dispatch;
-import engine.net.DispatchMessage;
-import engine.net.client.msg.MoveToPointMsg;
 import engine.powers.EffectsBase;
 import engine.server.MBServerStatics;
 import org.pmw.tinylog.Logger;
@@ -51,7 +51,7 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
 	protected short statIntCurrent;
 	protected short statSpiCurrent;
 	protected short unusedStatPoints;
-	protected short level;
+	public short level;
 	protected int exp;
 	protected Vector3fImmutable bindLoc;
 	protected Vector3fImmutable faceDir;
@@ -84,7 +84,7 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
 	protected float manaMax;                                            // Health/Mana/Stamina
 	protected AtomicBoolean isAlive = new AtomicBoolean(true);
 	protected Resists resists = new Resists("Genric");
-	protected AbstractWorldObject combatTarget;
+	public AbstractWorldObject combatTarget;
 	protected ConcurrentHashMap<String, JobContainer> timers;
 	protected ConcurrentHashMap<String, Long> timestamps;
 	protected int atrHandOne;
@@ -494,26 +494,6 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
 
 	public final short getStatSpiCurrent() {
 		return this.statSpiCurrent;
-	}
-
-	public final void setStatStrCurrent(final short value) {
-		this.statStrCurrent = (value < 1) ? (short) 1 : value;
-	}
-
-	public final void setStatDexCurrent(final short value) {
-		this.statDexCurrent = (value < 1) ? (short) 1 : value;
-	}
-
-	public final void setStatConCurrent(final short value) {
-		this.statConCurrent = (value < 1) ? (short) 1 : value;
-	}
-
-	public final void setStatIntCurrent(final short value) {
-		this.statIntCurrent = (value < 1) ? (short) 1 : value;
-	}
-
-	public final void setStatSpiCurrent(final short value) {
-		this.statSpiCurrent = (value < 1) ? (short) 1 : value;
 	}
 
 	public short getLevel() {
@@ -1915,16 +1895,6 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
 
 	public void setItemCasting(boolean itemCasting) {
 		this.itemCasting = itemCasting;
-	}
-	
-	public static void MoveInsideBuilding(PlayerCharacter source, AbstractCharacter ac){
-		MoveToPointMsg moveMsg = new MoveToPointMsg();
-		moveMsg.setPlayer(ac);
-        moveMsg.setTarget(ac, BuildingManager.getBuildingFromCache(ac.inBuildingID));
-		
-		Dispatch dispatch = Dispatch.borrow(source, moveMsg);
-		DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.PRIMARY);
-		
 	}
 	
 	//updates

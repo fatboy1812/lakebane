@@ -9,12 +9,14 @@
 package engine;
 
 import ch.claude_martin.enumbitset.EnumBitSetHelper;
-import engine.gameManager.ConfigManager;
 import engine.gameManager.PowersManager;
 import engine.gameManager.ZoneManager;
 import engine.math.Vector2f;
 import engine.math.Vector3fImmutable;
-import engine.objects.*;
+import engine.objects.AbstractCharacter;
+import engine.objects.ItemBase;
+import engine.objects.Shrine;
+import engine.objects.Zone;
 import engine.powers.EffectsBase;
 import org.pmw.tinylog.Logger;
 
@@ -33,65 +35,6 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 
 public class Enum {
-
-	public enum MobRaceType {
-
-		Aelfborn(436353765),
-		All(80289),
-		Animal(-1674072607),
-		Aracoix(-1764716937),
-		Celestial(-317458791),
-		Centaur(775630999),
-		Construct(-513218610),
-		CSR(52803),
-		Dragon(-1731031452),
-		Dwarf(71831236),
-		Elf(70053),
-		Giant(90574087),
-		Goblin(-1732836921),
-		Grave(75107943),
-		HalfGiant(251196434),
-		Human(79806088),
-		Infernal(-654077031),
-		Insect(-1407990295),
-		Irekei(-1770742167),
-		Minotaur(-949570680),
-		Monster(258519513),
-		NecroPet(618137151),
-		NPC(35374),
-		Pet(88208),
-		Plant(90574256),
-		Rat(88082),
-		Reptile(-591705981),
-		Shade(74648883),
-		Siege(74620179),
-		SiegeEngineer(-839969219),
-		Summoned(-656950110),
-		Troll(82261620),
-		Undead(-1942775307),
-		Nephilim(-592098572),
-		Vampire(-524731385);
-
-		int token;
-
-		private static HashMap<Integer, MobRaceType> _mobRaceTypeByToken = new HashMap<>();
-
-		MobRaceType(int token) {
-			this.token = token;
-		}
-
-		public static MobRaceType getRaceTypebyToken(int token) {
-			return _mobRaceTypeByToken.get(token);
-		}
-
-		public static void initRaceTypeTables() {
-
-			for (MobRaceType raceType : MobRaceType.values()) {
-				_mobRaceTypeByToken.put(raceType.token, raceType);
-			}
-		}
-
-	}
 
 	public enum MobFlagType implements EnumBitSetHelper<MobFlagType> {
 		AGGRESSIVE,
@@ -1832,7 +1775,7 @@ public class Enum {
 		SkillReq,
 		SkillsBase,
 		SkillsBaseAttribute,
-		SpecialLoot,
+		MobileBooty,
 		StrongBox,
 		Trigger,
 		ValidRaceBeardStyle,

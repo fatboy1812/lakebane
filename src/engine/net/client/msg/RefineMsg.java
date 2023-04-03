@@ -10,17 +10,14 @@
 package engine.net.client.msg;
 
 
-import engine.gameManager.PowersManager;
 import engine.gameManager.SessionManager;
 import engine.net.*;
 import engine.net.client.ClientConnection;
 import engine.net.client.Protocol;
 import engine.objects.*;
-import engine.powers.PowersBase;
 import engine.server.MBServerStatics;
 
 import java.util.ArrayList;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class RefineMsg extends ClientNetMsg {

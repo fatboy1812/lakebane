@@ -10,7 +10,6 @@
 package engine.powers.poweractions;
 
 import engine.Enum;
-import engine.Enum.PortalType;
 import engine.math.Vector3fImmutable;
 import engine.net.Dispatch;
 import engine.net.DispatchMessage;
