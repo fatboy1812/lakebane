@@ -473,7 +473,8 @@ public class Zone extends AbstractGameObject {
 		if (this.getNodes().get(0).isMacroZone())
 			return true;
 
-		return false;
+		return this.getParent().equals(ZoneManager.getSeaFloor());
+
 	}
 
 	/**
