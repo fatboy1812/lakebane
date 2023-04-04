@@ -804,17 +804,16 @@ public class Mob extends AbstractIntelligenceAgent {
             this.level = 1;
 
         //add this npc to building
-        if (this.building != null && this.loadID != 0 && building.getBlueprintUUID() != 0) {
 
-            int maxSlots;
-            maxSlots = building.getBlueprint().getSlotsForRank(this.building.getRank());
+        if (this.building != null) {
 
-            for (int slot = 1; slot < maxSlots + 1; slot++) {
+            int maxSlots = 10;
+
+            for (int slot = 1; slot < maxSlots + 1; slot++)
                 if (!this.building.getHirelings().containsValue(slot)) {
                     this.building.getHirelings().put(this, slot);
                     break;
                 }
-            }
         }
 
         //set bonuses

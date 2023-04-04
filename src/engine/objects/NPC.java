@@ -354,28 +354,12 @@ public class NPC extends AbstractCharacter {
 
 		if (this.building != null) {
 
-			if (building.getBlueprint() != null) {
+			int maxSlots = 10;
 
-				int maxSlots;
-				maxSlots = building.getBlueprint().getSlotsForRank(this.building.getRank());
-
-				for (int slot = 1; slot < maxSlots + 1; slot++) {
-
-					if (!this.building.getHirelings().containsValue(slot)) {
-						this.building.getHirelings().put(this, slot);
-						break;
-					}
-				}
-			} else {
-
-				int maxSlots = 10;
-
-				for (int slot = 1; slot < maxSlots + 1; slot++) {
-					if (!this.building.getHirelings().containsValue(slot)) {
-						this.building.getHirelings().put(this, slot);
-						break;
-					}
-				}
+			for (int slot = 1; slot < maxSlots + 1; slot++)
+				if (!this.building.getHirelings().containsValue(slot)) {
+					this.building.getHirelings().put(this, slot);
+					break;
 			}
 		}
 
