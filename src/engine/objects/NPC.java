@@ -361,7 +361,7 @@ public class NPC extends AbstractCharacter {
 
 			// Artillery Tower Captains use a hardcoded slot not first available
 
-			if (this.contract != null && this.contract.getContractID() == 650)
+			if (this.contract != null && this.contract.getContractID() == 850)
 				this.building.getHirelings().put(this, 2);
 			else
 				slotMobInBuilding();
