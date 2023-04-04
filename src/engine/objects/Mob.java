@@ -803,9 +803,11 @@ public class Mob extends AbstractIntelligenceAgent {
         } else
             this.level = 1;
 
-        //add this npc to building
+        // Use slot locations and add as a hireling
+        // only if this building has a blueprint.
+        // otherwise use the mob cache location.
 
-        if (this.building != null) {
+        if (this.building != null && building.getBlueprintUUID() != 0) {
 
             int maxSlots = 10;
 

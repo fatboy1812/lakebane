@@ -216,10 +216,12 @@ public class NPC extends AbstractCharacter {
 			}
 
 			this.name = rs.getString("npc_name");
-			this.buyPercent = rs.getFloat("npc_buyPercent");
 
-			if (this.buyPercent == 1)
-				this.buyPercent = .33f;
+			// Most objects from the cache have a default buy
+			// percentage of 100% which was a dupe source due
+			// to the way MB calculated item values.
+
+			// this.buyPercent = rs.getFloat("npc_buyPercent");
 
 			this.buyPercent = .33f;
 			this.sellPercent = 1;
