@@ -164,7 +164,7 @@ public class NPC extends AbstractCharacter {
 		this.dbID = newUUID;
 		this.currentID = newUUID;
 
-		initializeMob();
+		initializeNPC();
 		clearStatic();
 	}
 
@@ -289,7 +289,7 @@ public class NPC extends AbstractCharacter {
 		}
 
 		try{
-			initializeMob();
+			initializeNPC();
 		}catch(Exception e){
 			Logger.error( e.toString());
 		}
@@ -340,7 +340,7 @@ public class NPC extends AbstractCharacter {
 		this.statAlt = 0f;
 	}
 
-	private void initializeMob() {
+	private void initializeNPC() {
 
 		if (this.mobBase != null) {
 			this.healthMax = this.mobBase.getHealthMax();
