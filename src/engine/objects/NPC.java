@@ -132,7 +132,6 @@ public class NPC extends AbstractCharacter {
 
 		this.parentZone = parent;
 
-		initializeMob();
 		clearStatic();
 
 		this.dbID = MBServerStatics.NO_DB_ROW_ASSIGNED_YET;
@@ -356,8 +355,7 @@ public class NPC extends AbstractCharacter {
 		// For some reason the npc is created and initialized twice when
 		// createMobWithNoID() is called.
 
-		if (this.building != null &&
-		    this.loadID != 0) {
+		if (this.building != null) {
 
 			// Artillery Tower Captains use a hardcoded slot not first available
 
@@ -1616,8 +1614,6 @@ public class NPC extends AbstractCharacter {
 
 		if (npc.building == null)
 			return -1;
-
-
 
 		BuildingModelBase buildingModel = BuildingModelBase.getModelBase(npc.building.getMeshUUID());
 
