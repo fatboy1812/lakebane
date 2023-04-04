@@ -361,10 +361,10 @@ public class NPC extends AbstractCharacter {
 
 			// Artillery Tower Captains use a hardcoded slot not first available
 
-			if (this.contract != null && this.contract.getContractID() == 850)
+			if (this.contract != null && this.contract.getContractID() == 842)
 				this.building.getHirelings().put(this, 2);
 			else
-				slotMobInBuilding();
+				slotNPCinBuilding(); // picks first available free slot
 		}
 
 		//TODO set these correctly later
@@ -382,7 +382,7 @@ public class NPC extends AbstractCharacter {
 		this.charItemManager.load();
 	}
 
-	private void slotMobInBuilding() {
+	private void slotNPCinBuilding() {
 		int maxSlots = 10;
 
 		for (int slot = 1; slot < maxSlots + 1; slot++)
