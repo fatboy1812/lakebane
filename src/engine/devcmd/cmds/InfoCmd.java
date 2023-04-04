@@ -348,16 +348,18 @@ public class InfoCmd extends AbstractDevCmd {
 			output += "Name: " + targetNPC.getName();
 			output += newline;
 			output += StringUtils.addWS("Level: " + targetNPC.getLevel(), 20);
-			MobBase mobBase = targetNPC.getMobBase();
+
+			MobBase mobBase;
+
+			if (targetNPC.getContract() == null)
+				mobBase = targetNPC.getMobBase();
+			else
+				mobBase = MobBase.getMobBase(targetNPC.getContract().getMobbaseID());
 
 			if (mobBase != null) {
 				output += "Mobbbase: " + mobBase.getObjectUUID();
 				output += newline;
 				output += "Flags: " + targetNPC.getMobBase().getFlags().toString();
-			} else {
-				output += "RaceID (no mobbase): " + targetNPC.getLoadID();
-				output += "Flags: " + MobBase.getMobBase(targetNPC.getLoadID()).getFlags().toString();
-
 			}
 
 			output += newline;
