@@ -450,7 +450,7 @@ public enum BuildingManager {
 
     }
 
-    public static synchronized boolean addHireling(Building building, PlayerCharacter contractOwner, Vector3fImmutable NpcLoc, Zone zone, Contract NpcID, Item item) {
+    public static synchronized boolean addHireling(Building building, PlayerCharacter contractOwner, Vector3fImmutable NpcLoc, Zone zone, Contract contractID, Item item) {
 
         int rank = 1;
 
@@ -460,7 +460,7 @@ public enum BuildingManager {
         if (building.getBlueprint().getMaxSlots() == building.getHirelings().size())
             return false;
 
-        String pirateName = NPC.getPirateName(NpcID.getMobbaseID());
+        String pirateName = NPC.getPirateName(contractID.getMobbaseID());
 
         if (item.getChargesRemaining() > 0)
             rank = item.getChargesRemaining() * 10;
@@ -469,9 +469,9 @@ public enum BuildingManager {
         Mob mob = null;
         NPC npc = null;
 
-        if (NPC.ISGuardCaptain(NpcID.getContractID())) {
+        if (NPC.ISGuardCaptain(contractID.getContractID())) {
 
-            mob = Mob.createMob( NpcID.getMobbaseID(), NpcLoc, contractOwner.getGuild(), true, zone, building, NpcID.getContractID());
+            mob = Mob.createMob( contractID.getMobbaseID(), NpcLoc, contractOwner.getGuild(), true, zone, building, contractID.getContractID());
 
             if (mob == null)
                 return false;
@@ -480,25 +480,23 @@ public enum BuildingManager {
             mob.setPlayerGuard(true);
             mob.setParentZone(zone);
             return true;
-        } else {
-            npc = NPC.createNPC( pirateName, NpcID.getObjectUUID(), NpcLoc, contractOwner.getGuild(), false, zone, (short) rank, false, building);
-
-            if (npc == null)
-                return false;
-
-
-            npc.setBindLoc(NpcLoc.x - zone.getAbsX(), NpcLoc.y - zone.getAbsY(), NpcLoc.z - zone.getAbsZ());
-
-            npc.setBuilding(building);
-            npc.setParentZone(zone);
-
-            if (NPC.GetNPCProfits(npc) == null)
-                NPCProfits.CreateProfits(npc);
-
-            WorldGrid.addObject(npc, contractOwner);
-
-            return true;
         }
+        npc = NPC.createNPC( pirateName, contractID.getObjectUUID(), NpcLoc, contractOwner.getGuild(), false, zone, (short) rank, false, building);
+
+        if (npc == null)
+            return false;
+
+        npc.setBindLoc(NpcLoc.x - zone.getAbsX(), NpcLoc.y - zone.getAbsY(), NpcLoc.z - zone.getAbsZ());
+
+        npc.setBuilding(building);
+        npc.setParentZone(zone);
+
+        if (NPC.GetNPCProfits(npc) == null)
+            NPCProfits.CreateProfits(npc);
+
+        WorldGrid.addObject(npc, contractOwner);
+
+        return true;
     }
 
     public static boolean IsWallPiece(Building building) {

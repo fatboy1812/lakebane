@@ -940,7 +940,6 @@ public class Mob extends AbstractIntelligenceAgent {
             this.parentZone = zone;
         }
 
-
         if ( this.building != null) {
 
             Vector3fImmutable localLoc = new Vector3fImmutable(this.statLat,this.statAlt,this.statLon);

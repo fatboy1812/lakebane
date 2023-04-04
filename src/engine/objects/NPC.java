@@ -348,15 +348,13 @@ public class NPC extends AbstractCharacter {
 			this.setHealth(this.healthMax);
 			this.mana.set(this.manaMax);
 			this.stamina.set(this.staminaMax);
-			//this.firstName = this.minionMobBase.getFirstName();
-			//this.lastName = "";
-			//this.level = (short)(this.minionMobBase.getLevel());
 		}
 
 		//add this npc to building
-		if (this.building != null && this.loadID != 0) {
 
-			if (building.getBlueprint() != null){
+		if (this.building != null) {
+
+			if (building.getBlueprint() != null) {
 
 				int maxSlots;
 				maxSlots = building.getBlueprint().getSlotsForRank(this.building.getRank());
@@ -368,8 +366,7 @@ public class NPC extends AbstractCharacter {
 						break;
 					}
 				}
-				//npc created by an admin without a blueprint, just default max slot size to 10.
-			}else{
+			} else {
 
 				int maxSlots = 10;
 
@@ -1094,6 +1091,7 @@ public class NPC extends AbstractCharacter {
 	// *** Refactor : this has a useInit flag that can be removed
 
 	public static NPC createNPC(String name, int contractID, Vector3fImmutable spawn, Guild guild, boolean isMob, Zone parent, short level, boolean useInit, Building building) {
+
 		NPC npcWithoutID = new NPC(name, (short) 0, (short) 0, (short) 0, (short) 0,
 				(short) 0, (short) 1, 0, false, false, false, spawn, spawn, Vector3fImmutable.ZERO,
 				(short) 1, (short) 1, (short) 1, guild, (byte) 0, 0, isMob, building, contractID, parent);
