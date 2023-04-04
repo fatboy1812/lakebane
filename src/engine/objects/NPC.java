@@ -357,7 +357,7 @@ public class NPC extends AbstractCharacter {
 		// createMobWithNoID() is called.
 
 		if (this.building != null &&
-		    this.loadID == 0) {
+		    this.loadID != 0) {
 
 			// Artillery Tower Captains use a hardcoded slot not first available
 

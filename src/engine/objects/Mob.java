@@ -808,7 +808,7 @@ public class Mob extends AbstractIntelligenceAgent {
         // otherwise use the mob cache location.
 
         if (this.building != null && building.getBlueprintUUID() != 0
-            && this.loadID == 0) {
+            && this.loadID != 0) {
 
             int maxSlots = 10;
 
