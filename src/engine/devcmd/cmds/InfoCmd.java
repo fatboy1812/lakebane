@@ -225,8 +225,6 @@ public class InfoCmd extends AbstractDevCmd {
 				output += newline;
 				output += "Hirelings List: name / slot / floor";
 
-				BuildingModelBase buildingModelBase = BuildingModelBase.getModelBase(targetBuilding.getMeshUUID());
-
 				for (AbstractCharacter npc : targetBuilding.getHirelings().keySet()) {
 
 					if (npc.getObjectType() != GameObjectType.NPC)
