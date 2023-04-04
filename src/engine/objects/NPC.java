@@ -353,19 +353,18 @@ public class NPC extends AbstractCharacter {
 		}
 
 		// Add this npc to building hireling list if not there yet.
-		// For some reason the mob is initialized twice when
+		// For some reason the npc is created and initialized twice when
 		// createMobWithNoID() is called.
 
 		if (this.building != null &&
 		    this.loadID == 0) {
 
-			int maxSlots = 10;
+			// Artillery Tower Captains use a hardcoded slot not first available
 
-			for (int slot = 1; slot < maxSlots + 1; slot++)
-				if (!this.building.getHirelings().containsValue(slot)) {
-					this.building.getHirelings().put(this, slot);
-					break;
-			}
+			if (this.contract != null && this.contract.getContractID() == 650)
+				this.building.getHirelings().put(this, 2);
+			else
+				slotMobInBuilding();
 		}
 
 		//TODO set these correctly later
@@ -381,6 +380,16 @@ public class NPC extends AbstractCharacter {
 		this.isActive = true;
 
 		this.charItemManager.load();
+	}
+
+	private void slotMobInBuilding() {
+		int maxSlots = 10;
+
+		for (int slot = 1; slot < maxSlots + 1; slot++)
+			if (!this.building.getHirelings().containsValue(slot)) {
+				this.building.getHirelings().put(this, slot);
+				break;
+		}
 	}
 
 	public static NPC getFromCache(int id) {
@@ -891,13 +900,15 @@ public class NPC extends AbstractCharacter {
 	}
 
 	public void setParentZone(Zone zone) {
-		if (ConfigManager.serverType.equals(ServerType.LOGINSERVER)) {
+		
+		if (ConfigManager.serverType.equals(ServerType.LOGINSERVER)) 
 			return;
-		}
-
+		
 		if (this.contract == null)
 			return;
-		//update ZoneManager's zone building list
+		
+		//update ZoneManager's zone mpc set
+		
 		if (zone != null) {
 			if (this.parentZone != null) {
 				if (zone.getObjectUUID() != this.parentZone.getObjectUUID()) {
@@ -925,8 +936,7 @@ public class NPC extends AbstractCharacter {
 			Vector3fImmutable slotLocation = Vector3fImmutable.ZERO;
 
 			if (buildingModel != null){
-
-
+				
 				int putSlot;
 				BuildingLocation buildingLocation = null;
 
@@ -935,8 +945,7 @@ public class NPC extends AbstractCharacter {
 					putSlot = this.slot;
 				else
 					putSlot = NPC.getBuildingSlot(this);
-
-
+				
 				buildingLocation = buildingModel.getSlotLocation(putSlot);
 
 				if (buildingLocation != null){
@@ -951,8 +960,7 @@ public class NPC extends AbstractCharacter {
 					}
 				}
 			}
-
-
+			
 			Vector3fImmutable buildingWorldLoc = ZoneManager.convertLocalToWorld(this.building, slotLocation);
 
 			//Set floor and level here after building World Location.
@@ -961,8 +969,7 @@ public class NPC extends AbstractCharacter {
 
 
 			if (this.region != null){
-
-
+				
 				this.buildingFloor = region.getRoom();
 				this.buildingLevel = region.getLevel();
 				this.inBuildingLoc = ZoneManager.convertWorldToLocal(building, this.getLoc());
