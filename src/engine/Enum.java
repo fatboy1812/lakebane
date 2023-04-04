@@ -37,7 +37,6 @@ import java.util.concurrent.ThreadLocalRandom;
 public class Enum {
 
 	public enum MobFlagType implements EnumBitSetHelper<MobFlagType> {
-		NONE,
 		AGGRESSIVE,
 		CANROAM,
 		CALLSFORHELP,
