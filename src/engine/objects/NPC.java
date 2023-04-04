@@ -352,9 +352,12 @@ public class NPC extends AbstractCharacter {
 			this.stamina.set(this.staminaMax);
 		}
 
-		//add this npc to building
+		// Add this npc to building hireling list if not there yet.
+		// For some reason the mob is initialized twice when
+		// createMobWithNoID() is called.
 
-		if (this.building != null) {
+		if (this.building != null &&
+		    this.building.getHirelings().contains(this) == false) {
 
 			int maxSlots = 10;
 
