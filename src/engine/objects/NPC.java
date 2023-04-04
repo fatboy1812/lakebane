@@ -357,7 +357,7 @@ public class NPC extends AbstractCharacter {
 		// createMobWithNoID() is called.
 
 		if (this.building != null &&
-		    this.building.getHirelings().contains(this) == false) {
+		    this.loadID == 0) {
 
 			int maxSlots = 10;
 
