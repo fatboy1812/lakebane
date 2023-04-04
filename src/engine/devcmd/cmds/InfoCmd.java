@@ -357,7 +357,7 @@ public class InfoCmd extends AbstractDevCmd {
 			if (mobBase != null) {
 				output += "Mobbbase: " + mobBase.getObjectUUID();
 				output += newline;
-				output += "Flags: " + targetNPC.getMobBase().getFlags().toString();
+				output += "Flags: " + mobBase.getFlags().toString();
 			}
 
 			output += newline;
