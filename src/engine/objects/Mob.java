@@ -803,21 +803,6 @@ public class Mob extends AbstractIntelligenceAgent {
         } else
             this.level = 1;
 
-        // Use slot locations and add as a hireling
-        // only if this building has a blueprint.
-        // otherwise use the mob cache location.
-
-        if (this.building != null && building.getBlueprintUUID() != 0) {
-
-            int maxSlots = 10;
-
-            for (int slot = 1; slot < maxSlots + 1; slot++)
-                if (!this.building.getHirelings().containsValue(slot)) {
-                    this.building.getHirelings().put(this, slot);
-                    break;
-                }
-        }
-
         //set bonuses
         this.bonuses = new PlayerBonuses(this);
 
