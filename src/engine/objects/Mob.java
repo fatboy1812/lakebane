@@ -139,7 +139,6 @@ public class Mob extends AbstractIntelligenceAgent {
         if (this.contract != null)
             this.level = 10;
 
-        //initializeMob(false, false);
         clearStatic();
     }
 
@@ -1915,12 +1914,6 @@ public class Mob extends AbstractIntelligenceAgent {
                     putSlot = mob.getSiegeMinionMap().get(this);
 
             int count = 0;
-
-            // if Arty Tower then the slot will always be 1
-
-            if (building.getBlueprint() != null &&
-                    building.getBlueprint().getBuildingGroup().equals(BuildingGroup.ARTYTOWER))
-                putSlot = 1;
 
             for (BuildingLocation slotLoc : buildingModel.getLocations())
                 if (slotLoc.getType() == 6)
