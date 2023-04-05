@@ -1916,16 +1916,19 @@ public class Mob extends AbstractIntelligenceAgent {
 
             int count = 0;
 
+            // if it's a wall piece then the slot will be +1
+
+            if (Blueprint.isMeshWallPiece(building.meshUUID))
+                putSlot = putSlot =1;
+
             for (BuildingLocation slotLoc : buildingModel.getLocations())
                 if (slotLoc.getType() == 6)
                     count++;
 
-
             buildingLocation = buildingModel.getSlotLocation((count) - putSlot);
 
-            if (buildingLocation != null) {
+            if (buildingLocation != null)
                 slotLocation = buildingLocation.getLoc();
-            }
 
         }
 
