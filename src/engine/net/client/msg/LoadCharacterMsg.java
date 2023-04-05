@@ -9,6 +9,7 @@
 
 package engine.net.client.msg;
 
+import engine.Enum;
 import engine.Enum.GameObjectType;
 import engine.exception.SerializationException;
 import engine.net.AbstractConnection;
@@ -102,13 +103,25 @@ public class LoadCharacterMsg extends ClientNetMsg {
 				}
 			}
 			//TODO below is Mob Region Serialization, not implemented. default to -1, which is ground.
-		}else{
-			writer.putInt(-1);
-			writer.putInt(-1);
+		}else {
+
+			Mob mobile = (Mob) absChar;
+
+			if (mobile.building != null &&
+					mobile.building.getBlueprint() != null) {
+
+				Blueprint blueprint = mobile.building.getBlueprint();
+
+				if (blueprint.getBuildingGroup().equals(Enum.BuildingGroup.ARTYTOWER)) {
+					writer.putInt(-0);
+					writer.putInt(-0);
+					return;
+				}
+
+				writer.putInt(-1);
+				writer.putInt(-1);
+			}
 		}
-			
-			
-			
 
 		} else if (corpse != null){
 			writer.putInt(-1);

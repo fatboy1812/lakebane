@@ -1451,11 +1451,6 @@ public class NPC extends AbstractCharacter {
 		else if (!siegeMinionMap.containsValue(2))
 			slot = 2;
 
-		// Corner trebs always are slot 1
-
-		if (this.building.getBlueprint().getBuildingGroup().equals(BuildingGroup.ARTYTOWER))
-			slot = 1;
-
 		siegeMinionMap.put(mob, slot);
 		mob.setInBuildingLoc(this.building, this);
 
