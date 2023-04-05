@@ -1916,10 +1916,11 @@ public class Mob extends AbstractIntelligenceAgent {
 
             int count = 0;
 
-            // if it's a wall piece then the slot will be +1
+            // if Arty Tower then the slot will always be 1
 
-            if (Blueprint.isMeshWallPiece(building.meshUUID))
-                putSlot = putSlot =1;
+            if (building.getBlueprint() != null &&
+                    building.getBlueprint().getBuildingGroup().equals(BuildingGroup.ARTYTOWER))
+                putSlot = 1;
 
             for (BuildingLocation slotLoc : buildingModel.getLocations())
                 if (slotLoc.getType() == 6)
