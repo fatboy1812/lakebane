@@ -14,15 +14,23 @@ import java.sql.SQLException;
 
 public class BootySetEntry {
 
-
+	public String bootyType;
+	public int lowGold;
+	public int highGold;
 	public int itemBase;
+	public  int lootTable;
 	public float dropChance;
+
 	/**
 	 * ResultSet Constructor
 	 */
 
 	public BootySetEntry(ResultSet rs) throws SQLException {
+		this.bootyType = (rs.getString("bootyType"));
+		this.lowGold = (rs.getInt("lowGold"));
+		this.highGold = (rs.getInt("highGold"));
 		this.itemBase = (rs.getInt("itemBase"));
+		this.lootTable = (rs.getInt("lootTable"));
 		this.dropChance = (rs.getFloat("dropChance"));
 	}
 
