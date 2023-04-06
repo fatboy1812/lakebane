@@ -102,6 +102,22 @@ public class LoadCharacterMsg extends ClientNetMsg {
 					writer.putInt(region.getRoom());
 				}
 			}
+			else if (absChar.getObjectType().equals(GameObjectType.Mob)){
+				Regions Mobregion = absChar.getRegion();
+
+				if (region == null){
+					writer.putInt(-1);
+					writer.putInt(-1);
+				}else{
+					Building regionBuilding = Regions.GetBuildingForRegion(Mobregion);
+					if (regionBuilding == null){
+						writer.putInt(-1);
+						writer.putInt(-1);
+					}else{
+						writer.putInt(region.getLevel());
+						writer.putInt(region.getRoom());
+					}
+				}
 			//TODO below is Mob Region Serialization, not implemented. default to -1, which is ground.
 		}else {
 

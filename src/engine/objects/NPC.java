@@ -1222,6 +1222,7 @@ public class NPC extends AbstractCharacter {
 		}catch (Exception e){
 			Logger.error( e.getMessage());
 		}
+		this.region = AbstractWorldObject.GetRegionByWorldObject(this);
 	}
 
 	public void removeFromZone() {
