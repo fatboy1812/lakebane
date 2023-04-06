@@ -86,30 +86,31 @@ public class LoadCharacterMsg extends ClientNetMsg {
 
 		} else if (absChar != null) {
 		
-		if (absChar.getObjectType().equals(GameObjectType.PlayerCharacter)){
+		if (absChar.getObjectType().equals(GameObjectType.PlayerCharacter)) {
 			Regions region = absChar.getRegion();
-			
-			if (region == null){
+
+			if (region == null) {
 				writer.putInt(-1);
 				writer.putInt(-1);
-			}else{
+			} else {
 				Building regionBuilding = Regions.GetBuildingForRegion(region);
-				if (regionBuilding == null){
+				if (regionBuilding == null) {
 					writer.putInt(-1);
 					writer.putInt(-1);
-				}else{
+				} else {
 					writer.putInt(region.getLevel());
 					writer.putInt(region.getRoom());
 				}
 			}
+		}
 			else if (absChar.getObjectType().equals(GameObjectType.Mob)){
-				Regions Mobregion = absChar.getRegion();
+				Regions region = absChar.getRegion();
 
 				if (region == null){
 					writer.putInt(-1);
 					writer.putInt(-1);
 				}else{
-					Building regionBuilding = Regions.GetBuildingForRegion(Mobregion);
+					Building regionBuilding = Regions.GetBuildingForRegion(region);
 					if (regionBuilding == null){
 						writer.putInt(-1);
 						writer.putInt(-1);
