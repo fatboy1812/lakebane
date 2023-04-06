@@ -117,10 +117,9 @@ public class LoadCharacterMsg extends ClientNetMsg {
 					writer.putInt(-0);
 					return;
 				}
-
-				writer.putInt(-1);
-				writer.putInt(-1);
 			}
+			writer.putInt(-1);
+			writer.putInt(-1);
 		}
 
 		} else if (corpse != null){
