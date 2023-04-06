@@ -1462,7 +1462,7 @@ public class NPC extends AbstractCharacter {
 		mob.setSpawnTime(10);
 		mob.setNpcOwner(this);
 		mob.state = STATE.Awake;
-
+		mob.region = AbstractWorldObject.GetRegionByWorldObject(mob);
 		return mob;
 	}
 
