@@ -133,8 +133,12 @@ public class dbLootTableHandler extends dbHandlerBase {
             ResultSet rs = executeQuery();
 
             while (rs.next()) {
-                LootManager.GenTable gt = new LootManager.GenTable();
-                LootManager.AddGenTableRow(rs.getInt("groupID"),gt,new LootManager.GenTableRow(rs));
+                try {
+                    LootManager.GenTable gt = new LootManager.GenTable();
+                    LootManager.AddGenTableRow(rs.getInt("groupID"), gt, new LootManager.GenTableRow(rs));
+                } catch(Exception ex){
+                    Logger.info("LOOT TABLE ERROR FOR TABLE: " + rs.getInt("groupID"));
+                }
             }
 
             Logger.info( "read: " + recordsRead);
@@ -158,8 +162,12 @@ public class dbLootTableHandler extends dbHandlerBase {
             while (rs.next()) {
 
                 recordsRead++;
+            try{
                 LootManager.ItemTable it = new LootManager.ItemTable();
                 LootManager.AddItemTableRow(rs.getInt("lootTable"),it,new LootManager.ItemTableRow(rs));
+            } catch(Exception ex){
+                Logger.info("LOOT TABLE ERROR FOR TABLE: " + rs.getInt("lootTable"));
+            }
             }
 
             Logger.info("read: " + recordsRead);
@@ -182,8 +190,12 @@ public class dbLootTableHandler extends dbHandlerBase {
             while (rs.next()) {
 
                 recordsRead++;
+                try{
                 LootManager.ModTypeTable mtt = new LootManager.ModTypeTable();
                 LootManager.AddModTypeTableRow(rs.getInt("modGroup"),mtt,new LootManager.ModTypeTableRow(rs));
+                } catch(Exception ex){
+                    Logger.info("LOOT TABLE ERROR FOR TABLE: " + rs.getInt("modGroup"));
+                }
             }
 
             Logger.info( "read: " + recordsRead);
@@ -206,8 +218,12 @@ public class dbLootTableHandler extends dbHandlerBase {
             while (rs.next()) {
 
                 recordsRead++;
+            try{
                 LootManager.ModTable mt = new LootManager.ModTable();
                 LootManager.AddModTableRow(rs.getInt("modTable"),mt,new LootManager.ModTableRow(rs));
+            } catch(Exception ex){
+                Logger.info("LOOT TABLE ERROR FOR TABLE: " + rs.getInt("modTable"));
+            }
             }
 
             Logger.info( "read: " + recordsRead);

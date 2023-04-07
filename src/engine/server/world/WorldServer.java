@@ -295,11 +295,11 @@ public class WorldServer {
 		MobbaseGoldEntry.LoadMobbaseGold();
 
 		//load lootTable
-		Logger.info("Loading Loot Tables");
+		//Logger.info("Loading Loot Tables");
 		//LootTable.populateLootTables();
 
 		// Load new loot system
-		Logger.info("Loading SuperLoot Tables");
+		Logger.info("Loading New Loot Tables");
 		LootManager.loadLootData();
 		RuneBaseAttribute.LoadAllAttributes();
 		RuneBase.LoadAllRuneBases();
