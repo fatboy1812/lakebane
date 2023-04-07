@@ -11,6 +11,7 @@ package engine.loot;
 import engine.Enum;
 import engine.gameManager.ConfigManager;
 import engine.gameManager.DbManager;
+import engine.gameManager.NPCManager;
 import engine.gameManager.ZoneManager;
 import engine.net.DispatchMessage;
 import engine.net.client.msg.chat.ChatSystemMsg;
@@ -51,7 +52,7 @@ public class LootManager {
             multiplier = Float.parseFloat(ConfigManager.MB_HOTZONE_DROP_RATE.getValue());
         }
         //iterate the booty sets
-        for(BootySetEntry bse : mob.getMobBase().bootySets) {
+        for(BootySetEntry bse : NPCManager._bootySetMap.get(mob.getMobBase().bootySet)) {
             //check if chance roll is good
             if (ThreadLocalRandom.current().nextInt(100) <= (bse.dropChance * multiplier)) {
                 //early exit, failed to hit minimum chance roll
