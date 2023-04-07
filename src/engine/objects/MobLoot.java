@@ -103,7 +103,7 @@ public final class MobLoot extends Item {
 			return null;
 
 		
-		Item item = this;
+		Item item = (Item)this;
 		
 		item.setOwner(looter);
 		//item.setIsID(false);

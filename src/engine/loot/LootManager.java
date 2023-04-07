@@ -140,11 +140,11 @@ public class LootManager {
         outItem = new MobLoot(mob, ItemBase.getItemBase(itemUUID), false);
         String prefixAction = prefixMod.action;
         if(prefixMod.action.length() > 0){
-            outItem.addPermanentEnchantment(prefixMod.action, prefixMod.level);
+            outItem.setPrefix(prefixMod.action);
         }
         String suffixaction = suffixMod.action;
         if(suffixMod.action.length() > 0){
-            outItem.addPermanentEnchantment(suffixMod.action, suffixMod.level);
+            outItem.setSuffix(suffixMod.action);
         }
         return outItem;
     }
