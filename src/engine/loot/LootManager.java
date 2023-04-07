@@ -112,48 +112,48 @@ public class LootManager {
         }
         return outItem;
     }
-    public static void AddGenTableRow(int tableID, GenTable genTable, GenTableRow row){
+    public static void AddGenTableRow(int tableID,GenTableRow row){
         if(!generalItemTables.containsKey(tableID)){
             //create the new table
-            generalItemTables.put(tableID,genTable);
-            //add row to new table
-            generalItemTables.get(tableID).rows.add(row);
+            GenTable gt = new GenTable();
+            gt.rows.add(row);
+            generalItemTables.put(tableID,gt);
         } else{
             //add row to existing table
             GenTable toAdd = generalItemTables.get(tableID);
             toAdd.rows.add(row);
         }
     }
-    public static void AddItemTableRow(int tableID,ItemTable itemTable, ItemTableRow row){
+    public static void AddItemTableRow(int tableID, ItemTableRow row){
         if(!itemTables.containsKey(tableID)){
             //create the new table
-            itemTables.put(tableID,itemTable);
-            //add new row to table
-            itemTables.get(tableID).rows.add(row);
+            ItemTable it = new ItemTable();
+            it.rows.add(row);
+            itemTables.put(tableID,it);
         } else{
             //add row to existing table
             ItemTable toAdd = itemTables.get(tableID);
             toAdd.rows.add(row);
         }
     }
-    public static void AddModTypeTableRow(int tableID,ModTypeTable modtypeTable, ModTypeTableRow row){
+    public static void AddModTypeTableRow(int tableID, ModTypeTableRow row){
         if(!modTypeTables.containsKey(tableID)){
             //create the new table
-            modTypeTables.put(tableID,modtypeTable);
-            //add row to new table
-            modTypeTables.get(tableID).rows.add(row);
+            ModTypeTable mtt = new ModTypeTable();
+            mtt.rows.add(row);
+            modTypeTables.put(tableID,mtt);
         } else{
             //add row to existing table
             ModTypeTable toAdd = modTypeTables.get(tableID);
             toAdd.rows.add(row);
         }
     }
-    public static void AddModTableRow(int tableID, ModTable modTable, ModTableRow row){
+    public static void AddModTableRow(int tableID,ModTableRow row){
         if(!itemTables.containsKey(tableID)){
             //create the new table
-            modTables.put(tableID,modTable);
-            //add row to new table
-            modTables.get(tableID).rows.add(row);
+            ModTable mt = new ModTable();
+            mt.rows.add(row);
+            modTables.put(tableID,mt);
         } else{
             //add row to existing table
             ModTable toAdd = modTables.get(tableID);

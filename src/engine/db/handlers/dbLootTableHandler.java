@@ -133,12 +133,8 @@ public class dbLootTableHandler extends dbHandlerBase {
             ResultSet rs = executeQuery();
 
             while (rs.next()) {
-                try {
-                    LootManager.GenTable gt = new LootManager.GenTable();
-                    LootManager.AddGenTableRow(rs.getInt("groupID"), gt, new LootManager.GenTableRow(rs));
-                } catch(Exception ex){
-                    Logger.info("LOOT TABLE ERROR FOR TABLE: " + rs.getInt("groupID"));
-                }
+                LootManager.GenTableRow row = new LootManager.GenTableRow(rs);
+                LootManager.AddGenTableRow(rs.getInt("groupID"), row);
             }
 
             Logger.info( "read: " + recordsRead);
@@ -162,12 +158,8 @@ public class dbLootTableHandler extends dbHandlerBase {
             while (rs.next()) {
 
                 recordsRead++;
-            try{
-                LootManager.ItemTable it = new LootManager.ItemTable();
-                LootManager.AddItemTableRow(rs.getInt("lootTable"),it,new LootManager.ItemTableRow(rs));
-            } catch(Exception ex){
-                Logger.info("LOOT TABLE ERROR FOR TABLE: " + rs.getInt("lootTable"));
-            }
+                LootManager.ItemTableRow row = new LootManager.ItemTableRow(rs);
+                LootManager.AddItemTableRow(rs.getInt("lootTable"),row);
             }
 
             Logger.info("read: " + recordsRead);
@@ -190,12 +182,8 @@ public class dbLootTableHandler extends dbHandlerBase {
             while (rs.next()) {
 
                 recordsRead++;
-                try{
-                LootManager.ModTypeTable mtt = new LootManager.ModTypeTable();
-                LootManager.AddModTypeTableRow(rs.getInt("modGroup"),mtt,new LootManager.ModTypeTableRow(rs));
-                } catch(Exception ex){
-                    Logger.info("LOOT TABLE ERROR FOR TABLE: " + rs.getInt("modGroup"));
-                }
+                LootManager.ModTypeTableRow mttr = new LootManager.ModTypeTableRow(rs);
+                LootManager.AddModTypeTableRow(rs.getInt("modGroup"),mttr);
             }
 
             Logger.info( "read: " + recordsRead);
@@ -218,12 +206,8 @@ public class dbLootTableHandler extends dbHandlerBase {
             while (rs.next()) {
 
                 recordsRead++;
-            try{
-                LootManager.ModTable mt = new LootManager.ModTable();
-                LootManager.AddModTableRow(rs.getInt("modTable"),mt,new LootManager.ModTableRow(rs));
-            } catch(Exception ex){
-                Logger.info("LOOT TABLE ERROR FOR TABLE: " + rs.getInt("modTable"));
-            }
+                LootManager.ModTableRow mtr = new LootManager.ModTableRow(rs);
+                LootManager.AddModTableRow(rs.getInt("modTable"),mtr);
             }
 
             Logger.info( "read: " + recordsRead);
