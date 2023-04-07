@@ -58,27 +58,35 @@ public class LootManager {
                 //early exit, failed to hit minimum chance roll
                 continue;
             }
-            if (bse.bootyType.equals("GOLD")) {
-                //determine and add gold to mob inventory
-                int gold = new Random().nextInt(bse.highGold - bse.lowGold) + bse.lowGold;
-                if (gold > 0) {
-                    MobLoot goldAmount = new MobLoot(mob, (int) (gold * multiplier));
-                    mob.getCharItemManager().addItemToInventory(goldAmount);
-                }
-            } else if (bse.bootyType.equals("LOOT")) {
-                //iterate the booty tables and add items to mob inventory
-                Item toAdd = getGenTableItem(bse.lootTable, mob);
-                if(toAdd != null) {
-                    mob.getCharItemManager().addItemToInventory(toAdd);
-                }
-                if (inHotzone) {
-                    Item toAddHZ = getGenTableItem(bse.lootTable + 1, mob);
-                    mob.getCharItemManager().addItemToInventory(toAddHZ);
-                }
-            } else if(bse.bootyType.equals("ITEM")){
-                if(Item.getItem(bse.itemBase) != null) {
-                    mob.getCharItemManager().addItemToInventory(Item.getItem(bse.itemBase));
-                }
+            switch(bse.bootyType){
+                case "GOLD":
+                    //determine and add gold to mob inventory
+                    int gold = new Random().nextInt(bse.highGold - bse.lowGold) + bse.lowGold;
+                    if (gold > 0) {
+                        MobLoot goldAmount = new MobLoot(mob, (int) (gold * multiplier));
+                        mob.getCharItemManager().addItemToInventory(goldAmount);
+                    }
+                    break;
+                case "LOOT":
+                    //iterate the booty tables and add items to mob inventory
+                    Item toAdd = getGenTableItem(bse.lootTable, mob);
+                    if(toAdd != null) {
+                        mob.getCharItemManager().addItemToInventory(toAdd);
+                    }
+                    if (inHotzone) {
+                        Item toAddHZ = getGenTableItem(bse.lootTable + 1, mob);
+                        if(toAddHZ != null) {
+                            mob.getCharItemManager().addItemToInventory(toAddHZ);
+                        }
+                    }
+                    break;
+                case "ITEM":
+                    Item disc = Item.getItem(bse.itemBase);
+                    if(disc != null) {
+
+                        mob.getCharItemManager().addItemToInventory(disc);
+                    }
+                    break;
             }
         }
         //lastly, check mobs inventory for godly or disc runes to send a server announcement
