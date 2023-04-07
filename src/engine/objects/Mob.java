@@ -1152,11 +1152,13 @@ public class Mob extends AbstractIntelligenceAgent {
 
         if (newLoc.equals(this.getEndLoc())) {
             this.stopMovement(newLoc);
+            this.region = AbstractWorldObject.GetRegionByWorldObject(this);
             return;
             //Next upda
         }
 
         setLoc(newLoc);
+        this.region = AbstractWorldObject.GetRegionByWorldObject(this);
         //Next update will be end Loc, lets stop him here.
 
     }

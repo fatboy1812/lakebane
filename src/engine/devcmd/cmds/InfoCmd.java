@@ -396,6 +396,10 @@ public class InfoCmd extends AbstractDevCmd {
 				output += "BuildingID : " + targetNPC.getRegion().parentBuildingID;
 				output += "building level : " + targetNPC.getRegion().level;
 				output += "building room : " + targetNPC.getRegion().room;
+			}else if(targetNPC.getBuilding() != null) {
+				output += newline;
+				output += "Building : " + targetNPC.getBuilding();
+				output += "In BuildingLoc : " + targetNPC.inBuildingLoc;
 			}else{
 				output += newline;
 				output += "No building found.";
@@ -462,6 +466,19 @@ public class InfoCmd extends AbstractDevCmd {
 			output += "Parent Zone LoadNum : " + targetMob.getParentZone().getLoadNum();
 			output += newline;
 			output += "isMoving : " + targetMob.isMoving();
+			if (targetMob.getRegion() != null){
+				output += newline;
+				output += "BuildingID : " + targetMob.getRegion().parentBuildingID;
+				output += "building level : " + targetMob.getRegion().level;
+				output += "building room : " + targetMob.getRegion().room;
+			}else if(targetMob.building != null) {
+				output += newline;
+				output += "BuildingID : " + targetMob.building;
+				output += "In BuildingLoc : " + targetMob.inBuildingLoc;
+			}else{
+				output += newline;
+				output += "No building found.";
+			}
 			break;
 		case Item:  //intentional passthrough
 		case MobLoot:
