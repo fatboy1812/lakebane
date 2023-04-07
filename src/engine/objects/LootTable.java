@@ -320,10 +320,10 @@ public class LootTable {
 		ArrayList<BootySetEntry> bootySetList;
 		ArrayList<MobLoot> mobLootList = new ArrayList<>();
 
-		if (mob.bootySetID == 0)
+		if (mob.bootySet == 0)
 			return mobLootList;
 
-		bootySetList = NPCManager._bootySetMap.get(mob.bootySetID);
+		bootySetList = NPCManager._bootySetMap.get(mob.bootySet);
 
 			for (BootySetEntry bootyEntry : bootySetList)
 					if (ThreadLocalRandom.current().nextInt(100) < bootyEntry.dropChance) {

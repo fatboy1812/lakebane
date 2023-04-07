@@ -106,7 +106,7 @@ public class Mob extends AbstractIntelligenceAgent {
     private boolean lootSync = false;
     public int equipmentSetID = 0;
     public int runeSetID = 0;
-    public int bootySetID = 0;
+    public int bootySet = 0;
 
     /**
      * No Id Constructor
@@ -286,7 +286,7 @@ public class Mob extends AbstractIntelligenceAgent {
 
             this.equipmentSetID = rs.getInt("equipmentSet");
             this.runeSetID = rs.getInt("runeSet");
-            this.bootySetID = rs.getInt("bootySet");
+            this.bootySet = rs.getInt("bootySet");
 
             if (this.contract != null)
                 this.equipmentSetID = this.contract.getEquipmentSet();

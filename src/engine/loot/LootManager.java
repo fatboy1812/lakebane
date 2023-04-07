@@ -52,14 +52,29 @@ public class LootManager {
             multiplier = Float.parseFloat(ConfigManager.MB_HOTZONE_DROP_RATE.getValue());
         }
         //iterate the booty sets
-        for(BootySetEntry bse : NPCManager._bootySetMap.get(mob.getMobBase().bootySet)) {
-            //check if chance roll is good
-            if (ThreadLocalRandom.current().nextInt(100) <= (bse.dropChance * multiplier)) {
-                //early exit, failed to hit minimum chance roll
-                continue;
+        RunBootySet(NPCManager._bootySetMap.get(mob.getMobBase().bootySet),mob,multiplier,inHotzone);
+        RunBootySet(NPCManager._bootySetMap.get(mob.bootySet),mob,multiplier,inHotzone);
+        //lastly, check mobs inventory for godly or disc runes to send a server announcement
+        for (Item it : mob.getInventory()) {
+            ItemBase ib = it.getItemBase();
+            if (ib.isDiscRune() || ib.getName().toLowerCase().contains("of the gods")) {
+                ChatSystemMsg chatMsg = new ChatSystemMsg(null, mob.getName() + " in " + mob.getParentZone().getName() + " has found the " + ib.getName() + ". Are you tough enough to take it?");
+                chatMsg.setMessageType(10);
+                chatMsg.setChannel(Enum.ChatChannelType.SYSTEM.getChannelID());
+                DispatchMessage.dispatchMsgToAll(chatMsg);
             }
+        }
+    }
+    private static void RunBootySet(ArrayList<BootySetEntry> entries, Mob mob, float multiplier, boolean inHotzone){
+
+        for(BootySetEntry bse : entries) {
+            //check if chance roll is good
             switch(bse.bootyType){
                 case "GOLD":
+                    if (ThreadLocalRandom.current().nextInt(100) <= (bse.dropChance * multiplier)) {
+                        //early exit, failed to hit minimum chance roll
+                        break;
+                    }
                     //determine and add gold to mob inventory
                     int gold = new Random().nextInt(bse.highGold - bse.lowGold) + bse.lowGold;
                     if (gold > 0) {
@@ -68,6 +83,10 @@ public class LootManager {
                     }
                     break;
                 case "LOOT":
+                    if (ThreadLocalRandom.current().nextInt(100) <= (bse.dropChance * multiplier)) {
+                        //early exit, failed to hit minimum chance roll
+                        break;
+                    }
                     //iterate the booty tables and add items to mob inventory
                     Item toAdd = getGenTableItem(bse.lootTable, mob);
                     if(toAdd != null) {
@@ -86,16 +105,6 @@ public class LootManager {
                         mob.getCharItemManager().addItemToInventory(disc);
                     }
                     break;
-            }
-        }
-        //lastly, check mobs inventory for godly or disc runes to send a server announcement
-        for (Item it : mob.getInventory()) {
-            ItemBase ib = it.getItemBase();
-            if (ib.isDiscRune() || ib.getName().toLowerCase().contains("of the gods")) {
-                ChatSystemMsg chatMsg = new ChatSystemMsg(null, mob.getName() + " in " + mob.getParentZone().getName() + " has found the " + ib.getName() + ". Are you tough enough to take it?");
-                chatMsg.setMessageType(10);
-                chatMsg.setChannel(Enum.ChatChannelType.SYSTEM.getChannelID());
-                DispatchMessage.dispatchMsgToAll(chatMsg);
             }
         }
     }
