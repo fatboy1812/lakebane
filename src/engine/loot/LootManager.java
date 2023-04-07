@@ -65,7 +65,7 @@ public class LootManager {
                     MobLoot goldAmount = new MobLoot(mob, (int) (gold * multiplier));
                     mob.getCharItemManager().addItemToInventory(goldAmount);
                 }
-            } else if (bse.bootyType.equals("BOOTYTABLE")) {
+            } else if (bse.bootyType.equals("LOOT")) {
                 //iterate the booty tables and add items to mob inventory
                 Item toAdd = getGenTableItem(bse.lootTable, mob);
                 if(toAdd != null) {
@@ -74,6 +74,10 @@ public class LootManager {
                 if (inHotzone) {
                     Item toAddHZ = getGenTableItem(bse.lootTable + 1, mob);
                     mob.getCharItemManager().addItemToInventory(toAddHZ);
+                }
+            } else if(bse.bootyType.equals("ITEM")){
+                if(Item.getItem(bse.itemBase) != null) {
+                    mob.getCharItemManager().addItemToInventory(Item.getItem(bse.itemBase));
                 }
             }
         }
