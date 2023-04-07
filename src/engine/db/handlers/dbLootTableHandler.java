@@ -182,13 +182,10 @@ public class dbLootTableHandler extends dbHandlerBase {
             while (rs.next()) {
 
                 recordsRead++;
-                try {
+
                     LootManager.ModTypeTableRow mttr = new LootManager.ModTypeTableRow(rs);
                     LootManager.AddModTypeTableRow(rs.getInt("modGroup"), mttr);
-                }
-                catch(Exception ex){
-                    Logger.info("MOD TABLE ERROR: " + rs.getInt("modGroup"));
-                }
+
             }
 
             Logger.info( "read: " + recordsRead);
@@ -211,8 +208,13 @@ public class dbLootTableHandler extends dbHandlerBase {
             while (rs.next()) {
 
                 recordsRead++;
+                try {
                 LootManager.ModTableRow mtr = new LootManager.ModTableRow(rs);
                 LootManager.AddModTableRow(rs.getInt("modTable"),mtr);
+                }
+                catch(Exception ex){
+                    Logger.info("MOD TABLE ERROR: " + rs.getInt("modTable"));
+                }
             }
 
             Logger.info( "read: " + recordsRead);

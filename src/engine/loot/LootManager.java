@@ -83,7 +83,6 @@ public class LootManager {
                 case "ITEM":
                     Item disc = Item.getItem(bse.itemBase);
                     if(disc != null) {
-
                         mob.getCharItemManager().addItemToInventory(disc);
                     }
                     break;
