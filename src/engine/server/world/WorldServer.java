@@ -296,7 +296,7 @@ public class WorldServer {
 
 		//load lootTable
 		Logger.info("Loading Loot Tables");
-		LootTable.populateLootTables();
+		//LootTable.populateLootTables();
 
 		// Load new loot system
 		Logger.info("Loading SuperLoot Tables");
