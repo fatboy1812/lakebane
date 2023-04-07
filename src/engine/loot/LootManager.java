@@ -52,7 +52,9 @@ public class LootManager {
             multiplier = Float.parseFloat(ConfigManager.MB_HOTZONE_DROP_RATE.getValue());
         }
         //iterate the booty sets
-        RunBootySet(NPCManager._bootySetMap.get(mob.getMobBase().bootySet),mob,multiplier,inHotzone);
+        if(mob.getMobBase().bootySet != 0 && NPCManager._bootySetMap.containsKey(mob.getMobBase().bootySet)) {
+            RunBootySet(NPCManager._bootySetMap.get(mob.getMobBase().bootySet), mob, multiplier, inHotzone);
+        }
         if(mob.bootySet != 0) {
             RunBootySet(NPCManager._bootySetMap.get(mob.bootySet), mob, multiplier, inHotzone);
         }
@@ -133,18 +135,29 @@ public class LootManager {
         if(itemUUID == 0){
             return null;
         }
-        ModTypeTable prefixTable = modTypeTables.get(selectedRow.pModTable);
-        ModTypeTable suffixTable = modTypeTables.get(selectedRow.sModTable);
-        ModTable prefixModTable = modTables.get(prefixTable.getRowForRange(100).modTableID);
-        ModTable suffixModTable = modTables.get(suffixTable.getRowForRange(100).modTableID);
-        ModTableRow prefixMod = prefixModTable.getRowForRange(new Random().nextInt(maxRollRange) + minRollRange);
-        ModTableRow suffixMod = suffixModTable.getRowForRange(new Random().nextInt(maxRollRange) + minRollRange);
-        outItem = new MobLoot(mob, ItemBase.getItemBase(itemUUID), false);
-        if(prefixMod != null && prefixMod.action.length() > 0){
-            outItem.setPrefix(prefixMod.action);
+        if(ItemBase.getItemBase(itemUUID).getType().ordinal() == Enum.ItemType.RESOURCE.ordinal()){
+            int amount = ThreadLocalRandom.current().nextInt(tableRow.maxSpawn - tableRow.minSpawn) + tableRow.minSpawn;
+            return new MobLoot(mob, ItemBase.getItemBase(itemUUID),amount, false);
         }
-        if(suffixMod != null && suffixMod.action.length() > 0){
-            outItem.setSuffix(suffixMod.action);
+        outItem = new MobLoot(mob, ItemBase.getItemBase(itemUUID), false);
+        Enum.ItemType outType = outItem.getItemBase().getType();
+        if(outType.ordinal() == Enum.ItemType.WEAPON.ordinal() || outType.ordinal() == Enum.ItemType.ARMOR.ordinal() || outType.ordinal() == Enum.ItemType.JEWELRY.ordinal() && outItem.getItemBase().isGlass() == false) {
+            ModTypeTable prefixTable = modTypeTables.get(selectedRow.pModTable);
+            ModTypeTable suffixTable = modTypeTables.get(selectedRow.sModTable);
+            if (modTables.get(prefixTable.getRowForRange(100).modTableID) != null) {
+                ModTable prefixModTable = modTables.get(prefixTable.getRowForRange(100).modTableID);
+                ModTableRow prefixMod = prefixModTable.getRowForRange(new Random().nextInt(maxRollRange) + minRollRange);
+                if (prefixMod != null && prefixMod.action.length() > 0) {
+                    outItem.setPrefix(prefixMod.action);
+                }
+            }
+            if (modTables.get(suffixTable.getRowForRange(100).modTableID) != null) {
+                ModTable suffixModTable = modTables.get(suffixTable.getRowForRange(100).modTableID);
+                ModTableRow suffixMod = suffixModTable.getRowForRange(new Random().nextInt(maxRollRange) + minRollRange);
+                if (suffixMod != null && suffixMod.action.length() > 0) {
+                    outItem.setSuffix(suffixMod.action);
+                }
+            }
         }
         return outItem;
     }
@@ -229,7 +242,7 @@ public class LootManager {
             ModTypeTableRow outRow = null;
             for(ModTypeTableRow iteration : this.rows){
                 if(roll >= iteration.minRoll && roll <= iteration.maxRoll){
-                    outRow = iteration;
+                    return iteration;
                 }
             }
             return outRow;
@@ -268,10 +281,14 @@ public class LootManager {
         public int minRoll;
         public int maxRoll;
         public int cacheID;
+        public int minSpawn;
+        public int maxSpawn;
         public ItemTableRow(ResultSet rs) throws SQLException {
             this.minRoll = rs.getInt("minRoll");
             this.maxRoll = rs.getInt("maxRoll");
             this.cacheID = rs.getInt("itemBaseUUID");
+            this.minSpawn = rs.getInt("minSpawn");
+            this.maxSpawn = rs.getInt("maxSpawn");
 
         }
     }
