@@ -61,6 +61,8 @@ public class MobileFSM {
         if (mob == null) {
             return;
         }
+        if (mob.isGuard())
+            awakeNPCguard(mob);
         STATE state = mob.state;
         switch (state) {
             case Idle:

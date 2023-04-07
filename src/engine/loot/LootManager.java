@@ -90,12 +90,12 @@ public class LootManager {
                         break;
                     }
                     //iterate the booty tables and add items to mob inventory
-                    Item toAdd = getGenTableItem(bse.lootTable, mob);
+                    MobLoot toAdd = getGenTableItem(bse.lootTable, mob);
                     if (toAdd != null) {
                         mob.getCharItemManager().addItemToInventory(toAdd);
                     }
                     if (inHotzone) {
-                        Item toAddHZ = getGenTableItem(bse.lootTable + 1, mob);
+                        MobLoot toAddHZ = getGenTableItem(bse.lootTable + 1, mob);
                         if (toAddHZ != null)
                             mob.getCharItemManager().addItemToInventory(toAddHZ);
 
