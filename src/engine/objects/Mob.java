@@ -20,6 +20,7 @@ import engine.job.JobContainer;
 import engine.job.JobScheduler;
 import engine.jobs.DeferredPowerJob;
 import engine.jobs.UpgradeNPCJob;
+import engine.loot.LootManager;
 import engine.math.Bounds;
 import engine.math.Vector3fImmutable;
 import engine.net.ByteBufferWriter;
@@ -1247,11 +1248,6 @@ public class Mob extends AbstractIntelligenceAgent {
 
                 if (!this.isPlayerGuard) {
 
-                    ArrayList<MobLoot> alml = LootTable.getMobLootDeath(this, this.getLevel(), this.getLootTable());
-
-                    for (MobLoot ml : alml) {
-                        this.charItemManager.addItemToInventory(ml);
-                    }
 
                     if (this.equip != null) {
 
@@ -1375,41 +1371,7 @@ public class Mob extends AbstractIntelligenceAgent {
         if (isPlayerGuard)
             return;
 
-        int gold = Mob.randomGoldAmount(this);
-
-        if (gold > 0 && this.getLootTable() != 0) {
-            addGoldToInventory(gold);
-        }
-
-        //add random loot to mob
-        boolean inHotzone = ZoneManager.inHotZone(this.getLoc());
-        ArrayList<MobLoot> alml = LootTable.getMobLoot(this, this.getLevel(), this.getLootTable(), inHotzone); //add hotzone check in later
-
-        for (MobLoot ml : alml) {
-            this.charItemManager.addItemToInventory(ml);
-        }
-
-//send announcement if disc or godly rune
-        for (Item it : this.getInventory()) {
-            ItemBase ib = it.getItemBase();
-            if (ib.isDiscRune()) {
-                //if disc rune send system message
-                ChatSystemMsg chatMsg = new ChatSystemMsg(null, this.getName() + " in " + this.getParentZone().getName() + " has found the " + ib.getName() + ". Are you tough enough to take it?");
-                chatMsg.setMessageType(10);
-                chatMsg.setChannel(Enum.ChatChannelType.SYSTEM.getChannelID());
-                DispatchMessage.dispatchMsgToAll(chatMsg);
-            }
-            if (ib.isStatRune() && ib.getName().toLowerCase().contains("of the gods")) {
-                //godly rune send system message
-                ChatSystemMsg chatMsg = new ChatSystemMsg(null, this.getName() + " in " + this.getParentZone().getName() + " has found the " + ib.getName() + ". Are you tough enough to take it?");
-                chatMsg.setMessageType(10);
-                chatMsg.setChannel(Enum.ChatChannelType.SYSTEM.getChannelID());
-                DispatchMessage.dispatchMsgToAll(chatMsg);
-                return;
-            }
-        }
-
-        //add special loot to mob
+        LootManager.GenerateMobLoot(this);
     }
 
     private int getLootTable() {
