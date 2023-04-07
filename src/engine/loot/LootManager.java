@@ -8,11 +8,18 @@
 
 package engine.loot;
 
+import engine.Enum;
+import engine.gameManager.ConfigManager;
 import engine.gameManager.DbManager;
-import engine.objects.Item;
-
+import engine.gameManager.ZoneManager;
+import engine.net.DispatchMessage;
+import engine.net.client.msg.chat.ChatSystemMsg;
+import engine.objects.*;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.TreeMap;
+import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -20,212 +27,239 @@ import java.util.concurrent.ThreadLocalRandom;
  */
 public class LootManager {
 
-    private static final HashMap<Integer, TreeMap<Integer, LootGroup>> _lootGroups = new HashMap<>();
-    private static final HashMap<Integer, TreeMap<Integer, LootTable>> _lootTables = new HashMap<>();
-    private static final HashMap<Integer, TreeMap<Integer, ModifierGroup>> _modGroups = new HashMap<>();
-    private static final HashMap<Integer, TreeMap> _modTables = new HashMap<>();
+    //new tables
+    private static final HashMap<Integer,GenTable> generalItemTables = new HashMap<>();
+    private static final HashMap<Integer,ItemTable> itemTables = new HashMap<>();
+    private static final HashMap<Integer,ModTypeTable> modTypeTables = new HashMap<>();
+    private static final HashMap<Integer,ModTable> modTables = new HashMap<>();
 
-    private LootManager() {
-
-    }
-
-// Method adds a lootGroup to the class's internal collection
-// and configures the treemap accordingly
-    
-    public static void addLootGroup(LootGroup lootGroup) {
-
-    // If entry for this lootGroup does not currently exist
-    // we need to create one.
-        
-        if (_lootGroups.containsKey(lootGroup.getGroupID()) == false)
-            _lootGroups.put(lootGroup.getGroupID(), new TreeMap<>());
-
-    // Add this lootgroup to the appropriate treemap
-        
-        _lootGroups.get(lootGroup.getGroupID()).put(lootGroup.getMaxRoll(), lootGroup);
-
-    }
-
-    public static void addLootTable(engine.loot.LootTable lootTable) {
-
-    // If entry for this lootTabe does not currently exist
-    // we need to create one.
-        
-        if (_lootTables.containsKey(lootTable.getLootTable()) == false)
-            _lootTables.put(lootTable.getLootTable(),
-                    new TreeMap<>());
-
-    // Add this lootTable to the appropriate treemap
-        
-        _lootTables.get(lootTable.getLootTable()).put(lootTable.getMaxRoll(), lootTable);
-
-    }
-
-    public static void addModifierGroup(ModifierGroup modGroup) {
-
-    // If entry for this lootTabe does not currently exist
-    // we need to create one.
-        
-        if (_modGroups.containsKey(modGroup.getModGroup()) == false)
-            _modGroups.put(modGroup.getModGroup(),
-                    new TreeMap<>());
-
-    // Add this lootTable to the appropriate treemap
-        
-        _modGroups.get(modGroup.getModGroup()).put(modGroup.getMaxRoll(), modGroup);
-
-    }
-
-    public static void addModifierTable(ModifierTable modTable) {
-
-    // If entry for this lootTabe does not currently exist
-    // we need to create one.
-        
-        if (_modTables.containsKey(modTable.getModTable()) == false)
-            _modTables.put(modTable.getModTable(),
-                    new TreeMap<Float, ModifierGroup>());
-
-    // Add this lootTable to the appropriate treemap
-        
-        _modTables.get(modTable.getModTable()).put(modTable.getMaxRoll(), modTable);
-
-    }
-
-    /* Mainline interfaces for this class.  Methods below retrieve
-     * entries from the loottable by random number and range.
-    */
-    
-    public static LootGroup getRandomLootGroup(int lootGroupID, int randomRoll) {
-
-        if ((randomRoll < 1) || (randomRoll > 100))
-            return null;
-
-    // Get random lootGroup for this roll
-        
-        return _lootGroups.get(lootGroupID).floorEntry(randomRoll).getValue();
-
-    }
-
-    public static engine.loot.LootTable getRandomLootTable(int lootTableID, int randomRoll) {
-
-        if ((randomRoll < 1) || (randomRoll > 100))
-            return null;
-
-    // Get random lootTable for this roll
-        
-        return _lootTables.get(lootTableID).floorEntry(randomRoll).getValue();
-
-    }
-
-    public static ModifierGroup getRandomModifierGroup(int modGroupID, int randomRoll) {
-
-        if ((randomRoll < 1) || (randomRoll > 100))
-            return null;
-
-    // Get random modGroup for this roll
-        
-        return _modGroups.get(modGroupID).floorEntry(randomRoll).getValue();
-
-    }
-
-    public static ModifierTable getRandomModifierTable(int modTableID, float randomRoll) {
-
-        if ((randomRoll < 1.0f))
-            return null;
-
-        // Roll is outside of range
-        
-        if (randomRoll > getMaxRangeForModifierTable(modTableID))
-            return null;
-
-    // Get random lootGroup for this roll
-        
-        return (ModifierTable) _modTables.get(modTableID).floorEntry(randomRoll).getValue();
-
-    }
-    
-    // Returns minmum rolling range for a particular modifier table entry
-    
-    public static float getMinRangeForModifierTable(int modTableID) {
-
-        ModifierTable outTable;
-
-        outTable = (ModifierTable) _modTables.get(modTableID).firstEntry();
-
-        return outTable.getMinRoll();
-
-    }
-
-    // Returns maximum rolling range for a particular modifier table entry
-    
-    public static float getMaxRangeForModifierTable(int modTableID) {
-
-        ModifierTable outTable;
-
-        outTable = (ModifierTable) _modTables.get(modTableID).lastEntry();
-
-        return outTable.getMaxRoll();
-    }
-
-    public static Item getRandomItemFromLootGroup(int lootGroupID, int randomRoll) {
-    
-        Item outItem = null;
-        LootGroup lootGroup;
-        LootTable lootTable;
-        ModifierGroup modGroup;
-        ModifierTable prefixTable;
-        ModifierTable suffixTable;
-        
-        // Retrieve a random loot group
-        
-        lootGroup = getRandomLootGroup(lootGroupID, randomRoll);
-        
-        if (lootGroup == null)
-            return null;
-        
-        // Retrieve a random loot table
-        
-        lootTable = getRandomLootTable(lootGroup.getLootTableID(), ThreadLocalRandom.current().nextInt(100));
-        
-        if (lootTable == null)
-            return null;
-        
-        // Retrieve a random prefix
-        
-        modGroup = getRandomModifierGroup(lootGroup.getpModTableID(), ThreadLocalRandom.current().nextInt(100));
-        
-        if (modGroup == null)
-            return null;
-        
-        prefixTable = getRandomModifierTable(modGroup.getSubTableID(), ThreadLocalRandom.current().nextFloat() * getMaxRangeForModifierTable(lootGroup.getpModTableID()));
-        
-        if (prefixTable == null)
-            return null;
-        
-        // Retrieve a random suffix
-        
-        modGroup = getRandomModifierGroup(lootGroup.getsModTableID(), ThreadLocalRandom.current().nextInt(100));
-        
-        if (modGroup == null)
-            return null;
-        
-        suffixTable = getRandomModifierTable(modGroup.getSubTableID(), ThreadLocalRandom.current().nextFloat() * getMaxRangeForModifierTable(lootGroup.getsModTableID()));
-        
-        if (suffixTable == null)
-            return null;
-        
-        // Create the item!
-        
-        return outItem;
-    }
-    
+    private LootManager() {}
     // Bootstrap routine to load loot data from database
-    
     public static void loadLootData() {
         DbManager.LootQueries.LOAD_ALL_LOOTGROUPS();
         DbManager.LootQueries.LOAD_ALL_LOOTTABLES();
         DbManager.LootQueries.LOAD_ALL_MODGROUPS();
         DbManager.LootQueries.LOAD_ALL_MODTABLES();
     }
+    public static void GenerateMobLoot(Mob mob){
+        //determine if mob is in hotzone
+        boolean inHotzone = ZoneManager.inHotZone(mob.getLoc());
+        //get multiplier form config manager
+        float multiplier = Float.parseFloat(ConfigManager.MB_NORMAL_DROP_RATE.getValue());
+        if (inHotzone) {
+            //if mob is inside hotzone, use the hotzone gold multiplier form the config instead
+            multiplier = Float.parseFloat(ConfigManager.MB_HOTZONE_DROP_RATE.getValue());
+        }
+        //iterate the booty sets
+        for(BootySetEntry bse : mob.getMobBase().bootySets) {
+            //check if chance roll is good
+            if (ThreadLocalRandom.current().nextInt(100) <= (bse.dropChance * multiplier)) {
+                //early exit, failed to hit minimum chance roll
+                continue;
+            }
+            if (bse.bootyType.equals("GOLD")) {
+                //determine and add gold to mob inventory
+                int gold = new Random().nextInt(bse.highGold - bse.lowGold) + bse.lowGold;
+                if (gold > 0) {
+                    MobLoot goldAmount = new MobLoot(mob, (int) (gold * multiplier));
+                    mob.getCharItemManager().addItemToInventory(goldAmount);
+                }
+            } else if (bse.bootyType.equals("BOOTYTABLE")) {
+                //iterate the booty tables and add items to mob inventory
+                Item toAdd = getGenTableItem(bse.lootTable, mob);
+                if(toAdd != null) {
+                    mob.getCharItemManager().addItemToInventory(toAdd);
+                }
+                if (inHotzone) {
+                    Item toAddHZ = getGenTableItem(bse.lootTable + 1, mob);
+                    mob.getCharItemManager().addItemToInventory(toAddHZ);
+                }
+            }
+        }
+        //lastly, check mobs inventory for godly or disc runes to send a server announcement
+        for (Item it : mob.getInventory()) {
+            ItemBase ib = it.getItemBase();
+            if (ib.isDiscRune() || ib.getName().toLowerCase().contains("of the gods")) {
+                ChatSystemMsg chatMsg = new ChatSystemMsg(null, mob.getName() + " in " + mob.getParentZone().getName() + " has found the " + ib.getName() + ". Are you tough enough to take it?");
+                chatMsg.setMessageType(10);
+                chatMsg.setChannel(Enum.ChatChannelType.SYSTEM.getChannelID());
+                DispatchMessage.dispatchMsgToAll(chatMsg);
+            }
+        }
+    }
+    public static Item getGenTableItem(int genTableID, Mob mob){
+        Item outItem;
+        int minRollRange = mob.getParentZone().minLvl + mob.getLevel();
+        int maxRollRange = (mob.getParentZone().minLvl + mob.getLevel() + mob.getParentZone().maxLvl) * 2;
+        GenTableRow selectedRow = generalItemTables.get(genTableID).getRowForRange(new Random().nextInt(100));
+        int itemUUID = itemTables.get(selectedRow.itemTableID).getRowForRange(new Random().nextInt(maxRollRange) + minRollRange).cacheID;
+        if(itemUUID == 0){
+            return null;
+        }
+        ModTypeTable prefixTable = modTypeTables.get(selectedRow.pModTable);
+        ModTypeTable suffixTable = modTypeTables.get(selectedRow.sModTable);
+        ModTable prefixModTable = modTables.get(prefixTable.getRowForRange(100).modTableID);
+        ModTable suffixModTable = modTables.get(suffixTable.getRowForRange(100).modTableID);
+        ModTableRow prefixMod = prefixModTable.getRowForRange(new Random().nextInt(maxRollRange) + minRollRange);
+        ModTableRow suffixMod = suffixModTable.getRowForRange(new Random().nextInt(maxRollRange) + minRollRange);
+        outItem = Item.getItem(itemUUID);
+        if(prefixMod.action.length() > 0){
+            outItem.addPermanentEnchantment(prefixMod.action, prefixMod.level);
+        }
+        if(suffixMod.action.length() > 0){
+            outItem.addPermanentEnchantment(suffixMod.action, suffixMod.level);
+        }
+        return outItem;
+    }
+    public static void AddGenTableRow(int tableID, GenTable genTable, GenTableRow row){
+        if(!generalItemTables.containsKey(tableID)){
+            //create the new table
+            generalItemTables.put(tableID,genTable);
+            //add row to new table
+            generalItemTables.get(tableID).rows.add(row);
+        } else{
+            //add row to existing table
+            GenTable toAdd = generalItemTables.get(tableID);
+            toAdd.rows.add(row);
+        }
+    }
+    public static void AddItemTableRow(int tableID,ItemTable itemTable, ItemTableRow row){
+        if(!itemTables.containsKey(tableID)){
+            //create the new table
+            itemTables.put(tableID,itemTable);
+            //add new row to table
+            itemTables.get(tableID).rows.add(row);
+        } else{
+            //add row to existing table
+            ItemTable toAdd = itemTables.get(tableID);
+            toAdd.rows.add(row);
+        }
+    }
+    public static void AddModTypeTableRow(int tableID,ModTypeTable modtypeTable, ModTypeTableRow row){
+        if(!modTypeTables.containsKey(tableID)){
+            //create the new table
+            modTypeTables.put(tableID,modtypeTable);
+            //add row to new table
+            modTypeTables.get(tableID).rows.add(row);
+        } else{
+            //add row to existing table
+            ModTypeTable toAdd = modTypeTables.get(tableID);
+            toAdd.rows.add(row);
+        }
+    }
+    public static void AddModTableRow(int tableID, ModTable modTable, ModTableRow row){
+        if(!itemTables.containsKey(tableID)){
+            //create the new table
+            modTables.put(tableID,modTable);
+            //add row to new table
+            modTables.get(tableID).rows.add(row);
+        } else{
+            //add row to existing table
+            ModTable toAdd = modTables.get(tableID);
+            toAdd.rows.add(row);
+        }
+    }
+    public static class GenTable{
+        public ArrayList<GenTableRow> rows = new ArrayList<GenTableRow>();
+        public GenTableRow getRowForRange(int roll){
+            GenTableRow outRow = null;
+            for(GenTableRow iteration : this.rows){
+                if(iteration.minRoll >= roll && iteration.maxRoll <= roll){
+                    outRow = iteration;
+                }
+            }
+            return outRow;
+        }
+    }
+    public static class ItemTable{
+        public ArrayList<ItemTableRow> rows = new ArrayList<ItemTableRow>();
+        public ItemTableRow getRowForRange(int roll){
+            if(roll > 320){
+                roll = 320;
+            }
+            ItemTableRow outRow = null;
+            for(ItemTableRow iteration : this.rows){
+                if(iteration.minRoll >= roll && iteration.maxRoll <= roll){
+                    outRow = iteration;
+                }
+            }
+            return outRow;
+        }
+    }
+    public static class ModTypeTable{
+        public ArrayList<ModTypeTableRow> rows = new ArrayList<ModTypeTableRow>();
+        public ModTypeTableRow getRowForRange(int roll){
+            ModTypeTableRow outRow = null;
+            for(ModTypeTableRow iteration : this.rows){
+                if(iteration.minRoll >= roll && iteration.maxRoll <= roll){
+                    outRow = iteration;
+                }
+            }
+            return outRow;
+        }
+    }
+    public static class ModTable{
+        public ArrayList<ModTableRow> rows = new ArrayList<ModTableRow>();
+        public ModTableRow getRowForRange(int roll){
+            if(roll > 320){
+                roll = 320;
+            }
+            ModTableRow outRow = null;
+            for(ModTableRow iteration : this.rows){
+                if(iteration.minRoll >= roll && iteration.maxRoll <= roll){
+                    outRow = iteration;
+                }
+            }
+            return outRow;
+        }
+    }
+    public static class GenTableRow{
+        public int minRoll;
+        public int maxRoll;
+        public int itemTableID;
+        public int pModTable;
+        public int sModTable;
+        public GenTableRow(ResultSet rs) throws SQLException {
+            this.minRoll = rs.getInt("minRoll");
+            this.maxRoll = rs.getInt("maxRoll");
+            this.itemTableID = rs.getInt("lootTableID");
+            this.pModTable = rs.getInt("pModTableID");
+            this.sModTable = rs.getInt("sModTableID");
+        }
+    }
+    public static class ItemTableRow{
+        public int minRoll;
+        public int maxRoll;
+        public int cacheID;
+        public ItemTableRow(ResultSet rs) throws SQLException {
+            this.minRoll = rs.getInt("minRoll");
+            this.maxRoll = rs.getInt("maxRoll");
+            this.cacheID = rs.getInt("itemBaseUUID");
 
+        }
+    }
+    public static class ModTypeTableRow{
+        public int minRoll;
+        public int maxRoll;
+        public int modTableID;
+        public ModTypeTableRow(ResultSet rs) throws SQLException {
+            this.minRoll = rs.getInt("minRoll");
+            this.maxRoll = rs.getInt("maxRoll");
+            this.modTableID = rs.getInt("subTableID");
+
+        }
+    }
+    public static class ModTableRow{
+        public int minRoll;
+        public int maxRoll;
+        public String action;
+        public int level;
+        public ModTableRow(ResultSet rs) throws SQLException {
+            this.minRoll = rs.getInt("minRoll");
+            this.maxRoll = rs.getInt("maxRoll");
+            this.action = rs.getString("action");
+            this.level = rs.getInt("level");
+
+        }
+    }
 }

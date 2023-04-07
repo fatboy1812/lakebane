@@ -9,10 +9,7 @@
 
 package engine.db.handlers;
 
-import engine.loot.LootGroup;
 import engine.loot.LootManager;
-import engine.loot.ModifierGroup;
-import engine.loot.ModifierTable;
 import engine.objects.Item;
 import engine.objects.LootTable;
 import org.pmw.tinylog.Logger;
@@ -30,7 +27,7 @@ public class dbLootTableHandler extends dbHandlerBase {
     public void populateLootGroups() {
         int recordsRead = 0;
         prepareCallable("SELECT `groupID`, `minRoll`, `maxRoll`, `lootTableID`, `pModTableID`, `sModTableID` FROM `static_lootgroups`");
-        
+
         try {
             ResultSet rs = executeQuery();
             if (rs != null)
@@ -39,7 +36,7 @@ public class dbLootTableHandler extends dbHandlerBase {
                     LootTable lootTable = LootTable.getLootGroup(rs.getInt("groupID"));
                     lootTable.addRow(rs.getFloat("minRoll"), rs.getFloat("maxRoll"), rs.getInt("lootTableID"), rs.getInt("pModTableID"), rs.getInt("sModTableID"), "");
                 }
-            
+
             Logger.info("read: " + recordsRead + " cached: " + LootTable.getLootGroups().size());
         } catch (SQLException e) {
         } finally {
@@ -49,9 +46,9 @@ public class dbLootTableHandler extends dbHandlerBase {
 
     public void populateLootTables() {
         int recordsRead = 0;
-        
+
         prepareCallable("SELECT `lootTable`, `minRoll`, `maxRoll`, `itemBaseUUID`, `minSpawn`, `maxSpawn` FROM `static_loottables`");
-        
+
         try {
             ResultSet rs = executeQuery();
             if (rs != null)
@@ -60,8 +57,8 @@ public class dbLootTableHandler extends dbHandlerBase {
                     LootTable lootTable = LootTable.getLootTable(rs.getInt("lootTable"));
                     lootTable.addRow(rs.getFloat("minRoll"), rs.getFloat("maxRoll"), rs.getInt("itemBaseUUID"), rs.getInt("minSpawn"), rs.getInt("maxSpawn"), "");
                 }
-            
-             Logger.info("read: " + recordsRead + " cached: " + LootTable.getLootTables().size());
+
+            Logger.info("read: " + recordsRead + " cached: " + LootTable.getLootTables().size());
         } catch (SQLException e) {
         } finally {
             closeCallable();
@@ -69,11 +66,11 @@ public class dbLootTableHandler extends dbHandlerBase {
     }
 
     public void populateModTables() {
-        
+
         int recordsRead = 0;
-                
+
         prepareCallable("SELECT `modTable`,`minRoll`,`maxRoll`,`value`,`action` FROM `static_modtables`");
-        
+
         try {
             ResultSet rs = executeQuery();
             if (rs != null)
@@ -90,11 +87,11 @@ public class dbLootTableHandler extends dbHandlerBase {
     }
 
     public void populateModGroups() {
-        
+
         int recordsRead = 0;
-        
+
         prepareCallable("SELECT `modGroup`,`minRoll`,`maxRoll`,`subTableID` FROM `static_modgroups`");
-        
+
         try {
             ResultSet rs = executeQuery();
             if (rs != null)
@@ -111,10 +108,10 @@ public class dbLootTableHandler extends dbHandlerBase {
     }
 
     public void LOAD_ENCHANT_VALUES() {
-        
+
         prepareCallable("SELECT `IDString`, `minMod` FROM `static_power_effectmod` WHERE `modType` = ?");
         setString(1,"Value");
-        
+
         try {
             ResultSet rs = executeQuery();
             while (rs.next()) {
@@ -126,108 +123,99 @@ public class dbLootTableHandler extends dbHandlerBase {
             closeCallable();
         }
     }
-    
+
     public void LOAD_ALL_LOOTGROUPS() {
-        
-            LootGroup lootGroup;
-            int recordsRead = 0;
-            
-		prepareCallable("SELECT * FROM static_lootgroups");
+        int recordsRead = 0;
 
-		try {
-			ResultSet rs = executeQuery();
-                        
-			while (rs.next()) {
-                            
-                          recordsRead++;
-                          lootGroup = new LootGroup(rs);
-                          LootManager.addLootGroup(lootGroup);
-			}
-                        
-                        Logger.info( "read: " + recordsRead);
-                                
-		} catch (SQLException e) {
-			Logger.error( e.getErrorCode() + ' ' + e.getMessage(), e);
-		} finally {
-			closeCallable();
-		}
-	}
-    
-        public void LOAD_ALL_LOOTTABLES() {
-        
-            engine.loot.LootTable lootTable;
-            int recordsRead = 0;
-            
-		prepareCallable("SELECT * FROM static_loottables");
+        prepareCallable("SELECT * FROM static_lootgroups");
 
-		try {
-			ResultSet rs = executeQuery();
-                        
-			while (rs.next()) {
-                            
-                          recordsRead++;
-                          lootTable = new engine.loot.LootTable(rs);
-                          LootManager.addLootTable(lootTable);
-			}
-                        
-                        Logger.info("read: " + recordsRead);
-                                
-		} catch (SQLException e) {
-			Logger.error( e.getErrorCode() + ' ' + e.getMessage(), e);
-		} finally {
-			closeCallable();
-		}
-	}
-        
-        public void LOAD_ALL_MODGROUPS() {
-        
-            ModifierGroup modGroup;
-            int recordsRead = 0;
-            
-		prepareCallable("SELECT * FROM static_modgroups");
+        try {
+            ResultSet rs = executeQuery();
 
-		try {
-			ResultSet rs = executeQuery();
-                        
-			while (rs.next()) {
-                            
-                          recordsRead++;
-                          modGroup = new ModifierGroup(rs);
-                          LootManager.addModifierGroup(modGroup);
-			}
-                        
-                        Logger.info( "read: " + recordsRead);
-                                
-		} catch (SQLException e) {
-			Logger.error(e.getErrorCode() + ' ' + e.getMessage(), e);
-		} finally {
-			closeCallable();
-		}
-	}
-        
-        public void LOAD_ALL_MODTABLES() {
-        
-            ModifierTable modTable;
-            int recordsRead = 0;
-            
-		prepareCallable("SELECT * FROM static_modtables");
+            while (rs.next()) {
+                LootManager.GenTable gt = new LootManager.GenTable();
+                LootManager.AddGenTableRow(rs.getInt("groupID"),gt,new LootManager.GenTableRow(rs));
+            }
 
-		try {
-			ResultSet rs = executeQuery();
-                        
-			while (rs.next()) {
-                            
-                          recordsRead++;
-                          modTable = new ModifierTable(rs);
-                          LootManager.addModifierTable(modTable);
-			}
-                        
-                        Logger.info( "read: " + recordsRead);
-                                
-		} catch (SQLException e) {
-			Logger.error( e.getErrorCode() + ' ' + e.getMessage(), e);
-		} finally {
-			closeCallable();
-		}
-	}
+            Logger.info( "read: " + recordsRead);
+
+        } catch (SQLException e) {
+            Logger.error( e.getErrorCode() + ' ' + e.getMessage(), e);
+        } finally {
+            closeCallable();
+        }
+    }
+
+    public void LOAD_ALL_LOOTTABLES() {
+
+        int recordsRead = 0;
+
+        prepareCallable("SELECT * FROM static_loottables");
+
+        try {
+            ResultSet rs = executeQuery();
+
+            while (rs.next()) {
+
+                recordsRead++;
+                LootManager.ItemTable it = new LootManager.ItemTable();
+                LootManager.AddItemTableRow(rs.getInt("lootTable"),it,new LootManager.ItemTableRow(rs));
+            }
+
+            Logger.info("read: " + recordsRead);
+
+        } catch (SQLException e) {
+            Logger.error( e.getErrorCode() + ' ' + e.getMessage(), e);
+        } finally {
+            closeCallable();
+        }
+    }
+
+    public void LOAD_ALL_MODGROUPS() {
+        int recordsRead = 0;
+
+        prepareCallable("SELECT * FROM static_modgroups");
+
+        try {
+            ResultSet rs = executeQuery();
+
+            while (rs.next()) {
+
+                recordsRead++;
+                LootManager.ModTypeTable mtt = new LootManager.ModTypeTable();
+                LootManager.AddModTypeTableRow(rs.getInt("modGroup"),mtt,new LootManager.ModTypeTableRow(rs));
+            }
+
+            Logger.info( "read: " + recordsRead);
+
+        } catch (SQLException e) {
+            Logger.error(e.getErrorCode() + ' ' + e.getMessage(), e);
+        } finally {
+            closeCallable();
+        }
+    }
+
+    public void LOAD_ALL_MODTABLES() {
+        int recordsRead = 0;
+
+        prepareCallable("SELECT * FROM static_modtables");
+
+        try {
+            ResultSet rs = executeQuery();
+
+            while (rs.next()) {
+
+                recordsRead++;
+                LootManager.ModTable mt = new LootManager.ModTable();
+                LootManager.AddModTableRow(rs.getInt("modTable"),mt,new LootManager.ModTableRow(rs));
+            }
+
+            Logger.info( "read: " + recordsRead);
+
+        } catch (SQLException e) {
+            Logger.error( e.getErrorCode() + ' ' + e.getMessage(), e);
+        } finally {
+            closeCallable();
+        }
+    }
 }

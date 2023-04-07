@@ -60,7 +60,7 @@ public class MobBase extends AbstractGameObject {
 	private float run = 0;
 	private float walkCombat = 0;
 	private float runCombat = 0;
-
+	public ArrayList<BootySetEntry> bootySets;
 	/**
 	 * ResultSet Constructor
 	 */
