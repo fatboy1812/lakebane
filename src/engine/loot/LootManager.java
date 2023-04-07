@@ -95,7 +95,8 @@ public class LootManager {
                         mob.getCharItemManager().addItemToInventory(toAdd);
                     }
                     if (inHotzone) {
-                        MobLoot toAddHZ = getGenTableItem(bse.lootTable + 1, mob);
+                        int lootTableID = bse.lootTable + 1;
+                        MobLoot toAddHZ = getGenTableItem(lootTableID, mob);
                         if (toAddHZ != null)
                             mob.getCharItemManager().addItemToInventory(toAddHZ);
 
@@ -111,19 +112,20 @@ public class LootManager {
         }
     }
     public static MobLoot getGenTableItem(int genTableID, Mob mob){
-        if(genTableID == 0 ||mob == null){
+        if(genTableID == 0 ||mob == null || generalItemTables.containsKey(genTableID) == false){
             return null;
         }
         MobLoot outItem;
         int minRollRange = mob.getParentZone().minLvl + mob.getLevel();
         int maxRollRange = (mob.getParentZone().minLvl + mob.getLevel() + mob.getParentZone().maxLvl) * 2;
-        GenTableRow selectedRow = generalItemTables.get(genTableID).getRowForRange(new Random().nextInt(100));
+        int roll = new Random().nextInt(100);
+        GenTableRow selectedRow = generalItemTables.get(genTableID).getRowForRange(roll);
         if(selectedRow == null) {
         return null;
         }
         int itemTableId = selectedRow.itemTableID;
-        int roll = new Random().nextInt(maxRollRange) + minRollRange;
-        ItemTableRow tableRow = itemTables.get(itemTableId).getRowForRange(roll);
+        int roll2 = new Random().nextInt(maxRollRange) + minRollRange;
+        ItemTableRow tableRow = itemTables.get(itemTableId).getRowForRange(roll2);
         if(tableRow == null){
             return null;
         }
@@ -138,12 +140,10 @@ public class LootManager {
         ModTableRow prefixMod = prefixModTable.getRowForRange(new Random().nextInt(maxRollRange) + minRollRange);
         ModTableRow suffixMod = suffixModTable.getRowForRange(new Random().nextInt(maxRollRange) + minRollRange);
         outItem = new MobLoot(mob, ItemBase.getItemBase(itemUUID), false);
-        String prefixAction = prefixMod.action;
-        if(prefixMod.action.length() > 0){
+        if(prefixMod != null && prefixMod.action.length() > 0){
             outItem.setPrefix(prefixMod.action);
         }
-        String suffixaction = suffixMod.action;
-        if(suffixMod.action.length() > 0){
+        if(suffixMod != null && suffixMod.action.length() > 0){
             outItem.setSuffix(suffixMod.action);
         }
         return outItem;
@@ -201,7 +201,7 @@ public class LootManager {
         public GenTableRow getRowForRange(int roll){
             GenTableRow outRow = null;
             for(GenTableRow iteration : this.rows){
-                if(iteration.minRoll >= roll && iteration.maxRoll <= roll){
+                if(roll >= iteration.minRoll && roll <= iteration.maxRoll){
                     outRow = iteration;
                 }
             }
