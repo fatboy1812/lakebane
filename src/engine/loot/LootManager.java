@@ -100,6 +100,9 @@ public class LootManager {
         }
     }
     public static Item getGenTableItem(int genTableID, Mob mob){
+        if(genTableID == 0 ||mob == null){
+            return null;
+        }
         Item outItem;
         int minRollRange = mob.getParentZone().minLvl + mob.getLevel();
         int maxRollRange = (mob.getParentZone().minLvl + mob.getLevel() + mob.getParentZone().maxLvl) * 2;
@@ -160,7 +163,7 @@ public class LootManager {
         }
     }
     public static void AddModTableRow(int tableID,ModTableRow row){
-        if(!itemTables.containsKey(tableID)){
+        if(!modTables.containsKey(tableID)){
             //create the new table
             ModTable mt = new ModTable();
             mt.rows.add(row);
