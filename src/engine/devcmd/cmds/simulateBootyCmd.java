@@ -24,9 +24,19 @@ public class simulateBootyCmd  extends AbstractDevCmd {
         if (pc == null) {
             return;
         }
-
+        int iterations = 100;
         String newline = "\r\n ";
-
+        if(words[1].length() > 0){
+            try{
+                iterations = Integer.parseInt(words[1]);
+            }catch(Exception ex){
+                iterations = 100;
+            }
+        }
+        boolean isZone = false;
+        if(words[2].length() > 0 && words[2].toLowerCase().equals("zone")){
+            isZone = true;
+        }
         try {
             int targetID = Integer.parseInt(words[0]);
             Building b = BuildingManager.getBuilding(targetID);
@@ -45,13 +55,10 @@ public class simulateBootyCmd  extends AbstractDevCmd {
                     + "   Table ID: " + pc.getLastTargetID());
             return;
         }
-
-
         Enum.GameObjectType objType = target.getObjectType();
-        int objectUUID = target.getObjectUUID();
         String output;
 
-        output = "Loot Simulation:" + newline;
+        output = "Booty Simulation:" + newline;
 
         switch (objType) {
             case Building:
@@ -74,49 +81,70 @@ public class simulateBootyCmd  extends AbstractDevCmd {
                 ArrayList<Item> Offerings = new ArrayList<Item>();
                 ArrayList<Item> OtherDrops = new ArrayList<Item>();
                 int failures = 0;
-                for(int i = 0; i < 100; ++i) {
-
+                //for(int i = 0; i < iterations; ++i) {
+                    ArrayList<Item> simulatedBooty = new ArrayList<>();
+                    if(isZone == false){
+                        //simulate individual mob booty
+                        simulatedBooty = simulateMobBooty(mob, iterations);
+                    }
+                    else {
+                        simulatedBooty = simulateZoneBooty(mob.getParentZone(), iterations);
+                    }
                     try {
-                        mob.loadInventory();
-                        for (Item lootItem : mob.getCharItemManager().getInventory()) {
-                            ItemBase ib = lootItem.getItemBase();
-                                    int ordinal = ib.getType().ordinal();
-                                    switch (lootItem.getItemBase().getType()) {
-                                        case CONTRACT: //CONTRACT
-                                            Contracts.add(lootItem);
-                                            break;
-                                        case OFFERING: //OFFERING
-                                            Offerings.add(lootItem);
-                                            break;
-                                        case RESOURCE: //RESOURCE
-                                            Resources.add(lootItem);
-                                            break;
-                                        case RUNE: //RUNE
-                                            Runes.add(lootItem);
-                                            break;
-                                        case WEAPON: //WEAPON
-                                            if (lootItem.getItemBase().isGlass()) {
-                                                GlassItems.add(lootItem);
-                                            } else {
-                                                OtherDrops.add(lootItem);
-                                            }
-                                            break;
-                                        default:
-                                            OtherDrops.add(lootItem);
-                                            break;
+                        for (Item lootItem : simulatedBooty) {
+                            switch (lootItem.getItemBase().getType()) {
+                                case CONTRACT: //CONTRACT
+                                    Contracts.add(lootItem);
+                                    break;
+                                case OFFERING: //OFFERING
+                                    Offerings.add(lootItem);
+                                    break;
+                                case RESOURCE: //RESOURCE
+                                    Resources.add(lootItem);
+                                    break;
+                                case RUNE: //RUNE
+                                    Runes.add(lootItem);
+                                    break;
+                                case WEAPON: //WEAPON
+                                    if (lootItem.getItemBase().isGlass()) {
+                                        GlassItems.add(lootItem);
+                                    } else {
+                                        OtherDrops.add(lootItem);
                                     }
+                                    break;
+                                default:
+                                    OtherDrops.add(lootItem);
+                                    break;
+                            }
                         }
                     } catch (Exception ex) {
                         failures++;
                     }
-                }
+                //}
                 output += "GLASS ITEMS DROPPED: " + GlassItems.size() + newline;
                 output += "RESOURCE STACKS DROPPED: " + Resources.size() + newline;
                 output += "RUNES DROPPED: " + Runes.size() + newline;
                 output += "CONTRACTS DROPPED: " + Contracts.size() + newline;
                 output += "OFFERINGS DROPPED: " + Offerings.size() + newline;
-                output += "OTHERS DROPPED: " + OtherDrops.size() + newline;
+                output += "OTHER ITEMS DROPPED: " + OtherDrops.size() + newline;
                 output += "FAILED ROLLS: " + failures + newline;
+
+                output += "Glass Drops:" + newline;
+                for(Item glassItem : GlassItems){
+                    output += glassItem.getName() + newline;
+                }
+                output += "Rune Drops:" + newline;
+                for(Item runeItem : Runes){
+                    output += runeItem.getName() + newline;
+                }
+                output += "Contract Drops:" + newline;
+                for(Item contractItem : Contracts){
+                    output += contractItem.getName() + newline;
+                }
+                output += "Resource Drops:" + newline;
+                for(Item resourceItem : Contracts){
+                    output += resourceItem.getName() + newline;
+                }
                 break;
         }
 
@@ -125,69 +153,33 @@ public class simulateBootyCmd  extends AbstractDevCmd {
 
     @Override
     protected String _getHelpString() {
-        return "Gets information on an Object.";
+        return "simulates mob loot X amount of times for mob or zone";
     }
 
     @Override
     protected String _getUsageString() {
-        return "' /info targetID'";
+        return "' ./simluatebooty <ITERATIONS> <zone or blank>";
     }
-    public static ArrayList<MobLoot> SimulateMobLoot(Mob mob){
-        ArrayList<MobLoot> outList = new ArrayList<>();
-        //determine if mob is in hotzone
-        boolean inHotzone = ZoneManager.inHotZone(mob.getLoc());
-        //get multiplier form config manager
-        float multiplier = Float.parseFloat(ConfigManager.MB_NORMAL_DROP_RATE.getValue());
-        if (inHotzone) {
-            //if mob is inside hotzone, use the hotzone gold multiplier form the config instead
-            multiplier = Float.parseFloat(ConfigManager.MB_HOTZONE_DROP_RATE.getValue());
+    public static ArrayList<Item> simulateMobBooty(Mob mob, int iterations){
+        ArrayList<Item> producedBooty = new ArrayList<>();
+        for(int i = 0; i < iterations; ++i) {
+            mob.loadInventory();
+            for (Item lootItem : mob.getCharItemManager().getInventory()) {
+                producedBooty.add(lootItem);
+            }
         }
-        //simulate loot 100 times
-        for(int i = 0; i < 5; ++i) {
-            //iterate the booty sets
-            if (mob.getMobBase().bootySet != 0 && NPCManager._bootySetMap.containsKey(mob.getMobBase().bootySet)) {
-                try {
-                    ArrayList<MobLoot> testList = RunBootySet(NPCManager._bootySetMap.get(mob.getMobBase().bootySet), mob, multiplier, inHotzone);
-                    for (MobLoot lootItem : testList) {
-                        outList.add((lootItem));
-                    }
-                }catch(Exception ex){
+        return producedBooty;
+    }
+    public static ArrayList<Item> simulateZoneBooty(Zone zone, int iterations){
+        ArrayList<Item> producedBooty = new ArrayList<>();
+        for(Mob mob : zone.zoneMobSet) {
+            for (int i = 0; i < iterations; ++i) {
+                mob.loadInventory();
+                for (Item lootItem : mob.getCharItemManager().getInventory()) {
+                    producedBooty.add(lootItem);
                 }
             }
         }
-        return outList;
-    }
-    private static ArrayList<MobLoot> RunBootySet(ArrayList<BootySetEntry> entries, Mob mob, float multiplier, boolean inHotzone) {
-        ArrayList<MobLoot> outList = new ArrayList<>();
-        for (BootySetEntry bse : entries) {
-            switch (bse.bootyType) {
-                case "GOLD":
-
-                    break;
-                case "LOOT":
-                    if (ThreadLocalRandom.current().nextInt(100) <= (bse.dropChance * multiplier)) {
-                        //early exit, failed to hit minimum chance roll
-                        break;
-                    }
-                    //iterate the booty tables and add items to mob inventory
-                    MobLoot toAdd = getGenTableItem(bse.lootTable, mob);
-                    if (toAdd != null) {
-                        //mob.getCharItemManager().addItemToInventory(toAdd);
-                        outList.add(toAdd);
-                    }
-                    if (inHotzone) {
-                        int lootTableID = bse.lootTable + 1;
-                        MobLoot toAddHZ = getGenTableItem(lootTableID, mob);
-                        if (toAddHZ != null)
-                            //mob.getCharItemManager().addItemToInventory(toAddHZ);
-                            outList.add(toAdd);
-                    }
-                    break;
-                case "ITEM":
-
-                    break;
-            }
-        }
-        return outList;
+        return producedBooty;
     }
 }
