@@ -144,23 +144,25 @@ public class LootManager {
         }
         outItem = new MobLoot(mob, ItemBase.getItemBase(itemUUID), false);
         Enum.ItemType outType = outItem.getItemBase().getType();
-        if(outType.ordinal() == Enum.ItemType.WEAPON.ordinal() || outType.ordinal() == Enum.ItemType.ARMOR.ordinal() || outType.ordinal() == Enum.ItemType.JEWELRY.ordinal() && outItem.getItemBase().isGlass() == false) {
-            ModTypeTable prefixTable = modTypeTables.get(selectedRow.pModTable);
-            ModTypeTable suffixTable = modTypeTables.get(selectedRow.sModTable);
-            if (modTables.get(prefixTable.getRowForRange(100).modTableID) != null) {
-                ModTable prefixModTable = modTables.get(prefixTable.getRowForRange(100).modTableID);
-                ModTableRow prefixMod = prefixModTable.getRowForRange(new Random().nextInt(maxRollRange) + minRollRange);
-                if (prefixMod != null && prefixMod.action.length() > 0) {
-                    outItem.setPrefix(prefixMod.action);
-                }
-            }
-            if (modTables.get(suffixTable.getRowForRange(100).modTableID) != null) {
-                ModTable suffixModTable = modTables.get(suffixTable.getRowForRange(100).modTableID);
-                ModTableRow suffixMod = suffixModTable.getRowForRange(new Random().nextInt(maxRollRange) + minRollRange);
-                if (suffixMod != null && suffixMod.action.length() > 0) {
-                    outItem.setSuffix(suffixMod.action);
-                }
-            }
+        if(outType.ordinal() == Enum.ItemType.WEAPON.ordinal() || outType.ordinal() == Enum.ItemType.ARMOR.ordinal() || outType.ordinal() == Enum.ItemType.JEWELRY.ordinal()) {
+             if(outItem.getItemBase().isGlass() == false) {
+                 ModTypeTable prefixTable = modTypeTables.get(selectedRow.pModTable);
+                 ModTypeTable suffixTable = modTypeTables.get(selectedRow.sModTable);
+                 if (modTables.get(prefixTable.getRowForRange(100).modTableID) != null) {
+                     ModTable prefixModTable = modTables.get(prefixTable.getRowForRange(100).modTableID);
+                     ModTableRow prefixMod = prefixModTable.getRowForRange(new Random().nextInt(maxRollRange) + minRollRange);
+                     if (prefixMod != null && prefixMod.action.length() > 0) {
+                         outItem.setPrefix(prefixMod.action);
+                     }
+                 }
+                 if (modTables.get(suffixTable.getRowForRange(100).modTableID) != null) {
+                     ModTable suffixModTable = modTables.get(suffixTable.getRowForRange(100).modTableID);
+                     ModTableRow suffixMod = suffixModTable.getRowForRange(new Random().nextInt(maxRollRange) + minRollRange);
+                     if (suffixMod != null && suffixMod.action.length() > 0) {
+                         outItem.setSuffix(suffixMod.action);
+                     }
+                 }
+             }
         }
         return outItem;
     }

@@ -83,8 +83,6 @@ public class simulateBootyCmd  extends AbstractDevCmd {
                     try {
                         mob.loadInventory();
                         for (Item lootItem : mob.getCharItemManager().getInventory()) {
-                            ItemBase ib = lootItem.getItemBase();
-                            int ordinal = ib.getType().ordinal();
                             switch (lootItem.getItemBase().getType()) {
                                 case CONTRACT: //CONTRACT
                                     Contracts.add(lootItem);
@@ -121,25 +119,13 @@ public class simulateBootyCmd  extends AbstractDevCmd {
                 output += "BootySet: " + mob.getMobBase().bootySet + newline;
                 output += "Tables Rolled On: " + newline;
                 for(BootySetEntry entry : NPCManager._bootySetMap.get(mob.getMobBase().bootySet)){
-                    output += entry.lootTable + newline;
+                    output += "[" + entry.bootyType + "] " + entry.lootTable + newline;
                 }
                 output += "Time Required To Gain Simulated Booty: " + respawnTime * 100 + " Seconds" + newline;
                 output += "GLASS DROPS: " + GlassItems.size() + newline;
-                for(Item glassItem : GlassItems){
-                    output += glassItem.getName() + newline;
-                }
                 output += "RUNE DROPS: " + Runes.size() + newline;
-                for(Item runeItem : Runes){
-                    output += runeItem.getName() + newline;
-                }
                 output += "CONTRACTS DROPS: " + Contracts.size() + newline;
-                for(Item contractItem : Contracts){
-                    output += contractItem.getName() + newline;
-                }
                 output += "RESOURCE DROPS: " + Resources.size() + newline;
-                for(Item resourceItem : Contracts){
-                    output += resourceItem.getName() + newline;
-                }
                 output += "OFFERINGS DROPPED: " + Offerings.size() + newline;
                 output += "OTHER ITEMS DROPPED: " + OtherDrops.size() + newline;
                 output += "FAILED ROLLS: " + failures + newline;
