@@ -124,8 +124,11 @@ public class LootManager {
         return null;
         }
         int itemTableId = selectedRow.itemTableID;
-        int minRollRange = roll + mob.getParentZone().minLvl + mob.getLevel();
-        int maxRollRange = (roll + mob.getParentZone().maxLvl + mob.getLevel()) * 2;
+        int minRollRange = mob.getLevel() + roll + mob.getParentZone().minLvl;
+        int maxRollRange = (mob.getLevel() * 2) + roll + (mob.getParentZone().maxLvl * 2);
+        if(maxRollRange > 320){
+            maxRollRange = 320;
+        }
         int roll2 = new Random().nextInt(maxRollRange- minRollRange) + minRollRange;
         ItemTableRow tableRow = itemTables.get(itemTableId).getRowForRange(roll2);
         if(tableRow == null){
