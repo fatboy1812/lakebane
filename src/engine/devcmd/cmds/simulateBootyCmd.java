@@ -51,6 +51,7 @@ public class simulateBootyCmd  extends AbstractDevCmd {
         Enum.GameObjectType objType = target.getObjectType();
         String output;
         output = "Booty Simulation:" + newline;
+
         switch (objType) {
             case Building:
             case PlayerCharacter:
@@ -70,9 +71,11 @@ public class simulateBootyCmd  extends AbstractDevCmd {
                     ArrayList<Item> simulatedBooty = new ArrayList<>();
                     if(isZone == false){
                         //simulate individual mob booty
+                        output += "Simulated " + iterations + " Iterations 0n " + mob.parentZone.zoneMobSet.size() + " Mobs." + newline;
                         simulatedBooty = simulateMobBooty(mob, iterations);
                     }
                     else {
+                        output += "Simulated " + iterations + " Iterations 0n " + mob.getName() + newline;
                         simulatedBooty = simulateZoneBooty(mob.getParentZone(), iterations);
                     }
                     try {
@@ -105,26 +108,27 @@ public class simulateBootyCmd  extends AbstractDevCmd {
                     } catch (Exception ex) {
                         failures++;
                     }
-                output += "Glass Drops:" + GlassItems.size() + newline;
+                    output += "Time Required To Gain Simulated Booty: " + mob.getMobBase().getSpawnTime() * iterations + " Seconds" + newline;
+                    output += "Glass Drops:" + GlassItems.size() + newline;
                 for(Item glassItem : GlassItems){
                     output += glassItem.getName() + newline;
                 }
-                output += "Rune Drops:" + Runes.size() + newline;
+                    output += "Rune Drops:" + Runes.size() + newline;
                 for(Item runeItem : Runes){
                     output += runeItem.getName() + newline;
                 }
-                output += "Contract Drops:" + Contracts.size() + newline;
+                    output += "Contract Drops:" + Contracts.size() + newline;
                 for(Item contractItem : Contracts){
                     output += contractItem.getName() + newline;
                 }
-                output += "Resource Drops:" + Resources.size() + newline;
+                    output += "Resource Drops:" + Resources.size() + newline;
                 for(Item resourceItem : Contracts){
                     output += resourceItem.getName() + newline;
                 }
-                output += "OFFERINGS DROPPED: " + Offerings.size() + newline;
-                output += "OTHER ITEMS DROPPED: " + OtherDrops.size() + newline;
-                output += "FAILED ROLLS: " + failures + newline;
-                break;
+                    output += "OFFERINGS DROPPED: " + Offerings.size() + newline;
+                    output += "OTHER ITEMS DROPPED: " + OtherDrops.size() + newline;
+                    output += "FAILED ROLLS: " + failures + newline;
+                    break;
         }
         throwbackInfo(pc, output);
     }
