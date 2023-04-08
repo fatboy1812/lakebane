@@ -1,21 +1,15 @@
 package engine.devcmd.cmds;
-
 import engine.Enum;
 import engine.devcmd.AbstractDevCmd;
 import engine.gameManager.*;
 import engine.objects.*;
 import java.util.ArrayList;
-import java.util.concurrent.ThreadLocalRandom;
-import static engine.loot.LootManager.getGenTableItem;
-
 public class simulateBootyCmd  extends AbstractDevCmd {
     public simulateBootyCmd() {
         super("simulatebooty");
     }
-
     @Override
-    protected void _doCmd(PlayerCharacter pc, String[] words,
-                          AbstractGameObject target) {
+    protected void _doCmd(PlayerCharacter pc, String[] words, AbstractGameObject target) {
         // Arg Count Check
         if (words.length != 1) {
             this.sendUsage(pc);
@@ -47,7 +41,6 @@ public class simulateBootyCmd  extends AbstractDevCmd {
                 target = b;
         } catch (Exception e) {
         }
-
         if (target == null) {
             throwbackError(pc, "Target is unknown or of an invalid type."
                     + newline + "Type ID: 0x"
@@ -57,21 +50,14 @@ public class simulateBootyCmd  extends AbstractDevCmd {
         }
         Enum.GameObjectType objType = target.getObjectType();
         String output;
-
         output = "Booty Simulation:" + newline;
-
         switch (objType) {
             case Building:
-
-                break;
             case PlayerCharacter:
-
-                break;
-
             case NPC:
-
+            default:
+                output += "Target is Not a Mob! Please Select a Mob to Simulate Booty" + newline;
                 break;
-
             case Mob:
                 Mob mob = (Mob) target;
                 ArrayList<Item> GlassItems = new ArrayList<Item>();
@@ -81,7 +67,6 @@ public class simulateBootyCmd  extends AbstractDevCmd {
                 ArrayList<Item> Offerings = new ArrayList<Item>();
                 ArrayList<Item> OtherDrops = new ArrayList<Item>();
                 int failures = 0;
-                //for(int i = 0; i < iterations; ++i) {
                     ArrayList<Item> simulatedBooty = new ArrayList<>();
                     if(isZone == false){
                         //simulate individual mob booty
@@ -120,42 +105,33 @@ public class simulateBootyCmd  extends AbstractDevCmd {
                     } catch (Exception ex) {
                         failures++;
                     }
-                //}
-                output += "GLASS ITEMS DROPPED: " + GlassItems.size() + newline;
-                output += "RESOURCE STACKS DROPPED: " + Resources.size() + newline;
-                output += "RUNES DROPPED: " + Runes.size() + newline;
-                output += "CONTRACTS DROPPED: " + Contracts.size() + newline;
-                output += "OFFERINGS DROPPED: " + Offerings.size() + newline;
-                output += "OTHER ITEMS DROPPED: " + OtherDrops.size() + newline;
-                output += "FAILED ROLLS: " + failures + newline;
-
-                output += "Glass Drops:" + newline;
+                output += "Glass Drops:" + GlassItems.size() + newline;
                 for(Item glassItem : GlassItems){
                     output += glassItem.getName() + newline;
                 }
-                output += "Rune Drops:" + newline;
+                output += "Rune Drops:" + Runes.size() + newline;
                 for(Item runeItem : Runes){
                     output += runeItem.getName() + newline;
                 }
-                output += "Contract Drops:" + newline;
+                output += "Contract Drops:" + Contracts.size() + newline;
                 for(Item contractItem : Contracts){
                     output += contractItem.getName() + newline;
                 }
-                output += "Resource Drops:" + newline;
+                output += "Resource Drops:" + Resources.size() + newline;
                 for(Item resourceItem : Contracts){
                     output += resourceItem.getName() + newline;
                 }
+                output += "OFFERINGS DROPPED: " + Offerings.size() + newline;
+                output += "OTHER ITEMS DROPPED: " + OtherDrops.size() + newline;
+                output += "FAILED ROLLS: " + failures + newline;
                 break;
         }
-
         throwbackInfo(pc, output);
     }
-
     @Override
     protected String _getHelpString() {
         return "simulates mob loot X amount of times for mob or zone";
     }
-
     @Override
     protected String _getUsageString() {
         return "' ./simluatebooty <ITERATIONS> <zone or blank>";
