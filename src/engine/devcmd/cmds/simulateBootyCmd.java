@@ -73,43 +73,50 @@ public class simulateBootyCmd  extends AbstractDevCmd {
                 ArrayList<Item> Contracts = new ArrayList<Item>();
                 ArrayList<Item> Offerings = new ArrayList<Item>();
                 ArrayList<Item> OtherDrops = new ArrayList<Item>();
-                ArrayList<Item>ReturnedBootyList = new ArrayList<Item>();
+                int failures = 0;
                 for(int i = 0; i < 100; ++i) {
-                    mob.loadInventory();
-                    for(Item lootItem : mob.getCharItemManager().getInventory()){
-                        ReturnedBootyList.add(lootItem);
+
+                    try {
+                        mob.loadInventory();
+                        for (Item lootItem : mob.getCharItemManager().getInventory()) {
+                            ItemBase ib = lootItem.getItemBase();
+                                    int ordinal = ib.getType().ordinal();
+                                    switch (lootItem.getItemBase().getType()) {
+                                        case CONTRACT: //CONTRACT
+                                            Contracts.add(lootItem);
+                                            break;
+                                        case OFFERING: //OFFERING
+                                            Offerings.add(lootItem);
+                                            break;
+                                        case RESOURCE: //RESOURCE
+                                            Resources.add(lootItem);
+                                            break;
+                                        case RUNE: //RUNE
+                                            Runes.add(lootItem);
+                                            break;
+                                        case WEAPON: //WEAPON
+                                            if (lootItem.getItemBase().isGlass()) {
+                                                GlassItems.add(lootItem);
+                                            } else {
+                                                OtherDrops.add(lootItem);
+                                            }
+                                            break;
+                                        default:
+                                            OtherDrops.add(lootItem);
+                                            break;
+                                    }
+                        }
+                    } catch (Exception ex) {
+                        failures++;
                     }
                 }
-                for(Item ml : ReturnedBootyList){
-                    if(ml.getItemBase().isGlass() == true){
-                        GlassItems.add(ml);
-                        break;
-                    }
-                    switch(ml.getItemBase().getType().ordinal()){
-                        case 20: //CONTRACT
-                            Contracts.add(ml);
-                            break;
-                        case 33: //OFFERING
-                            Offerings.add(ml);
-                            break;
-                        case 34: //RESOURCE
-                            Resources.add(ml);
-                            break;
-                        case 5: //RUNE
-                            Runes.add(ml);
-                            break;
-                        default:
-                            OtherDrops.add(ml);
-                            break;
-                    }
-                }
-                output += "TOTAL ITEMS DROPPED: " + ReturnedBootyList.size() + newline;
                 output += "GLASS ITEMS DROPPED: " + GlassItems.size() + newline;
                 output += "RESOURCE STACKS DROPPED: " + Resources.size() + newline;
                 output += "RUNES DROPPED: " + Runes.size() + newline;
                 output += "CONTRACTS DROPPED: " + Contracts.size() + newline;
                 output += "OFFERINGS DROPPED: " + Offerings.size() + newline;
                 output += "OTHERS DROPPED: " + OtherDrops.size() + newline;
+                output += "FAILED ROLLS: " + failures + newline;
                 break;
         }
 
