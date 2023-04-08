@@ -74,7 +74,7 @@ public class simulateBootyCmd  extends AbstractDevCmd {
                 ArrayList<Item> Offerings = new ArrayList<Item>();
                 ArrayList<Item> OtherDrops = new ArrayList<Item>();
                 int failures = 0;
-                for(int i = 0; i < 100; ++i) {
+                for (int i = 0; i < 100; ++i) {
 
                     try {
                         mob.loadInventory();
