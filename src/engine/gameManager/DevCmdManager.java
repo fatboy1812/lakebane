@@ -56,6 +56,7 @@ public enum DevCmdManager {
 		DevCmdManager.registerDevCmd(new PrintResistsCmd());
 		DevCmdManager.registerDevCmd(new PrintLocationCmd());
 		DevCmdManager.registerDevCmd(new InfoCmd());
+		DevCmdManager.registerDevCmd(new simulateBootyCmd());
 		DevCmdManager.registerDevCmd(new GetHeightCmd());
 
 		// Tester

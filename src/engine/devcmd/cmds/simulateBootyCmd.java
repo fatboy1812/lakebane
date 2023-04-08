@@ -129,20 +129,23 @@ public class simulateBootyCmd  extends AbstractDevCmd {
             //if mob is inside hotzone, use the hotzone gold multiplier form the config instead
             multiplier = Float.parseFloat(ConfigManager.MB_HOTZONE_DROP_RATE.getValue());
         }
-        //iterate the booty sets
-        ArrayList<MobLoot> output1 = new ArrayList<>();
-        ArrayList<MobLoot> output2 = new ArrayList<>();
-        if(mob.getMobBase().bootySet != 0 && NPCManager._bootySetMap.containsKey(mob.getMobBase().bootySet)) {
-            output1 = RunBootySet(NPCManager._bootySetMap.get(mob.getMobBase().bootySet), mob, multiplier, inHotzone);
-        }
-        if(mob.bootySet != 0) {
-            output2 =RunBootySet(NPCManager._bootySetMap.get(mob.bootySet), mob, multiplier, inHotzone);
-        }
-        for(MobLoot lootItem : output1){
-            outList.add((lootItem));
-        }
-        for(MobLoot lootItem : output2){
-            outList.add((lootItem));
+        //simulate loot 100 times
+        for(int i = 0; i < 100; ++i) {
+            //iterate the booty sets
+            ArrayList<MobLoot> output1 = new ArrayList<>();
+            ArrayList<MobLoot> output2 = new ArrayList<>();
+            if (mob.getMobBase().bootySet != 0 && NPCManager._bootySetMap.containsKey(mob.getMobBase().bootySet)) {
+                output1 = RunBootySet(NPCManager._bootySetMap.get(mob.getMobBase().bootySet), mob, multiplier, inHotzone);
+            }
+            if (mob.bootySet != 0) {
+                output2 = RunBootySet(NPCManager._bootySetMap.get(mob.bootySet), mob, multiplier, inHotzone);
+            }
+            for (MobLoot lootItem : output1) {
+                outList.add((lootItem));
+            }
+            for (MobLoot lootItem : output2) {
+                outList.add((lootItem));
+            }
         }
         return outList;
     }
