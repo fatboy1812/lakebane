@@ -67,14 +67,20 @@ public class simulateBootyCmd  extends AbstractDevCmd {
 
             case Mob:
                 Mob mob = (Mob) target;
-                ArrayList<MobLoot> GlassItems = new ArrayList<MobLoot>();
-                ArrayList<MobLoot> Resources = new ArrayList<MobLoot>();
-                ArrayList<MobLoot> Runes = new ArrayList<MobLoot>();
-                ArrayList<MobLoot> Contracts = new ArrayList<MobLoot>();
-                ArrayList<MobLoot> Offerings = new ArrayList<MobLoot>();
-                ArrayList<MobLoot> OtherDrops = new ArrayList<MobLoot>();
-                ArrayList<MobLoot>ReturnedBootyList = SimulateMobLoot(mob);
-                for(MobLoot ml : ReturnedBootyList){
+                ArrayList<Item> GlassItems = new ArrayList<Item>();
+                ArrayList<Item> Resources = new ArrayList<Item>();
+                ArrayList<Item> Runes = new ArrayList<Item>();
+                ArrayList<Item> Contracts = new ArrayList<Item>();
+                ArrayList<Item> Offerings = new ArrayList<Item>();
+                ArrayList<Item> OtherDrops = new ArrayList<Item>();
+                ArrayList<Item>ReturnedBootyList = new ArrayList<Item>();
+                for(int i = 0; i < 100; ++i) {
+                    mob.loadInventory();
+                    for(Item lootItem : mob.getCharItemManager().getInventory()){
+                        ReturnedBootyList.add(lootItem);
+                    }
+                }
+                for(Item ml : ReturnedBootyList){
                     if(ml.getItemBase().isGlass() == true){
                         GlassItems.add(ml);
                         break;
@@ -97,13 +103,13 @@ public class simulateBootyCmd  extends AbstractDevCmd {
                             break;
                     }
                 }
-                output += "TOTAL ITEMS DROPPED: " + ReturnedBootyList.size();
-                output += "GLASS ITEMS DROPPED: " + GlassItems.size();
-                output += "RESOURCE STACKS DROPPED: " + Resources.size();
-                output += "RUNES DROPPED: " + Runes.size();
-                output += "CONTRACTS DROPPED: " + Contracts.size();
-                output += "OFFERINGS DROPPED: " + Offerings.size();
-                output += "OTHERS DROPPED: " + OtherDrops.size();
+                output += "TOTAL ITEMS DROPPED: " + ReturnedBootyList.size() + newline;
+                output += "GLASS ITEMS DROPPED: " + GlassItems.size() + newline;
+                output += "RESOURCE STACKS DROPPED: " + Resources.size() + newline;
+                output += "RUNES DROPPED: " + Runes.size() + newline;
+                output += "CONTRACTS DROPPED: " + Contracts.size() + newline;
+                output += "OFFERINGS DROPPED: " + Offerings.size() + newline;
+                output += "OTHERS DROPPED: " + OtherDrops.size() + newline;
                 break;
         }
 
@@ -130,21 +136,16 @@ public class simulateBootyCmd  extends AbstractDevCmd {
             multiplier = Float.parseFloat(ConfigManager.MB_HOTZONE_DROP_RATE.getValue());
         }
         //simulate loot 100 times
-        for(int i = 0; i < 100; ++i) {
+        for(int i = 0; i < 5; ++i) {
             //iterate the booty sets
-            ArrayList<MobLoot> output1 = new ArrayList<>();
-            ArrayList<MobLoot> output2 = new ArrayList<>();
             if (mob.getMobBase().bootySet != 0 && NPCManager._bootySetMap.containsKey(mob.getMobBase().bootySet)) {
-                output1 = RunBootySet(NPCManager._bootySetMap.get(mob.getMobBase().bootySet), mob, multiplier, inHotzone);
-            }
-            if (mob.bootySet != 0) {
-                output2 = RunBootySet(NPCManager._bootySetMap.get(mob.bootySet), mob, multiplier, inHotzone);
-            }
-            for (MobLoot lootItem : output1) {
-                outList.add((lootItem));
-            }
-            for (MobLoot lootItem : output2) {
-                outList.add((lootItem));
+                try {
+                    ArrayList<MobLoot> testList = RunBootySet(NPCManager._bootySetMap.get(mob.getMobBase().bootySet), mob, multiplier, inHotzone);
+                    for (MobLoot lootItem : testList) {
+                        outList.add((lootItem));
+                    }
+                }catch(Exception ex){
+                }
             }
         }
         return outList;
@@ -152,7 +153,6 @@ public class simulateBootyCmd  extends AbstractDevCmd {
     private static ArrayList<MobLoot> RunBootySet(ArrayList<BootySetEntry> entries, Mob mob, float multiplier, boolean inHotzone) {
         ArrayList<MobLoot> outList = new ArrayList<>();
         for (BootySetEntry bse : entries) {
-            //check if chance roll is good
             switch (bse.bootyType) {
                 case "GOLD":
 
@@ -177,9 +177,6 @@ public class simulateBootyCmd  extends AbstractDevCmd {
                     }
                     break;
                 case "ITEM":
-                    MobLoot disc = new MobLoot(mob, ItemBase.getItemBase(bse.itemBase), true);
-                    if (disc != null)
-                        //mob.getCharItemManager().addItemToInventory(disc);
 
                     break;
             }

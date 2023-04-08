@@ -1360,7 +1360,7 @@ public class Mob extends AbstractIntelligenceAgent {
      * Clears and sets the inventory of the Mob. Must be called every time the
      * mob is spawned or respawned.
      */
-    private void loadInventory() {
+    public void loadInventory() {
 
         if (!MBServerStatics.ENABLE_MOB_LOOT)
             return;
