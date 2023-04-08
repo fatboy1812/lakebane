@@ -51,7 +51,7 @@ public class simulateBootyCmd  extends AbstractDevCmd {
         int objectUUID = target.getObjectUUID();
         String output;
 
-        output = "Loot Simulation:" + newline;
+        output = "Booty Simulation:" + newline;
 
         switch (objType) {
             case Building:
@@ -67,6 +67,10 @@ public class simulateBootyCmd  extends AbstractDevCmd {
 
             case Mob:
                 Mob mob = (Mob) target;
+                output += "Name: " + mob.getName() + newline;
+                int minRollRange = mob.getLevel() + 0 + mob.getParentZone().minLvl;
+                int maxRollRange = (mob.getLevel() * 2) + 100 + (mob.getParentZone().maxLvl * 2);
+                output += "Roll Range: " + minRollRange + " - " + maxRollRange + newline;
                 ArrayList<Item> GlassItems = new ArrayList<Item>();
                 ArrayList<Item> Resources = new ArrayList<Item>();
                 ArrayList<Item> Runes = new ArrayList<Item>();
@@ -110,23 +114,29 @@ public class simulateBootyCmd  extends AbstractDevCmd {
                         failures++;
                     }
                 }
-                output += "OFFERINGS DROPPED: " + Offerings.size() + newline;
-                output += "OTHERS DROPPED: " + OtherDrops.size() + newline;
-                output += "FAILED ROLLS: " + failures + newline;
-                output += "Time Required To Gain Simulated Booty: " + mob.getMobBase().getSpawnTime() * 100 + " Seconds" + newline;
-                output += "Glass Drops:" + GlassItems.size() + newline;
+                int respawnTime = mob.getMobBase().getSpawnTime();
+                if(mob.spawnTime > 0){
+                    respawnTime = mob.spawnTime;
+                }
+                output += "BootySet: " + mob.getMobBase().bootySet + newline;
+                output += "Tables Rolled On: " + newline;
+                for(BootySetEntry entry : NPCManager._bootySetMap.get(mob.getMobBase().bootySet)){
+                    output += entry.lootTable + newline;
+                }
+                output += "Time Required To Gain Simulated Booty: " + respawnTime * 100 + " Seconds" + newline;
+                output += "GLASS DROPS: " + GlassItems.size() + newline;
                 for(Item glassItem : GlassItems){
                     output += glassItem.getName() + newline;
                 }
-                output += "Rune Drops:" + Runes.size() + newline;
+                output += "RUNE DROPS: " + Runes.size() + newline;
                 for(Item runeItem : Runes){
                     output += runeItem.getName() + newline;
                 }
-                output += "Contract Drops:" + Contracts.size() + newline;
+                output += "CONTRACTS DROPS: " + Contracts.size() + newline;
                 for(Item contractItem : Contracts){
                     output += contractItem.getName() + newline;
                 }
-                output += "Resource Drops:" + Resources.size() + newline;
+                output += "RESOURCE DROPS: " + Resources.size() + newline;
                 for(Item resourceItem : Contracts){
                     output += resourceItem.getName() + newline;
                 }
