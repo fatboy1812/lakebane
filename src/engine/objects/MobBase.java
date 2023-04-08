@@ -60,7 +60,8 @@ public class MobBase extends AbstractGameObject {
 	private float run = 0;
 	private float walkCombat = 0;
 	private float runCombat = 0;
-
+	public int bootySet;
+	public String fsm = "";
 	/**
 	 * ResultSet Constructor
 	 */
@@ -84,6 +85,8 @@ public class MobBase extends AbstractGameObject {
 		this.attackRating = rs.getInt("atr");
 		this.defenseRating = rs.getInt("defense");
 		this.attackRange = rs.getFloat("attackRange");
+		this.bootySet = rs.getInt("bootySet");
+		this.fsm = rs.getString("fsm");
 
 		if (MobbaseGoldEntry.MobbaseGoldMap.containsKey(this.loadID)){
 			MobbaseGoldEntry goldEntry = MobbaseGoldEntry.MobbaseGoldMap.get(this.loadID);
