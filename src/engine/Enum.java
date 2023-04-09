@@ -50,7 +50,6 @@ public class Enum {
 	}
 
 	public enum MonsterType implements EnumBitSetHelper<MonsterType> {
-		NONE,
 		Aelfborn,
 		All,
 		Animal,
