@@ -88,28 +88,6 @@ public class Enum {
 
 	}
 
-	public enum AggroType implements EnumBitSetHelper<AggroType> {
-
-		// Used for MobBase NoAggro types
-		// *** WARNING: ENUM IS FRAGILE AS
-		// ORDINALS STORED IN DB.
-
-		AELF,
-		ARACOIX,
-		CENTAUR,
-		DWARF,
-		ELF,
-		HALFGIANT,
-		HUMAN,
-		IREKEI,
-		MINO,
-		NEPH,
-		SHADE,
-		VAMP,
-		ARCHON;
-
-	}
-
 	public enum CharacterSex {
 		MALE,
 		FEMALE,
@@ -121,45 +99,45 @@ public class Enum {
 
 		// RaceRuneID / AggroType, isFemale
 
-		AELFMALE(2000, AggroType.AELF, RunSpeed.STANDARD, CharacterSex.MALE,1.05f),
-		AELFFEMALE(2001, AggroType.AELF, RunSpeed.STANDARD, CharacterSex.FEMALE,1.05f),
-		ARACOIXMALE(2002, AggroType.ARACOIX, RunSpeed.STANDARD, CharacterSex.MALE,1),
-		ARACOIXFEMALE(2003, AggroType.ARACOIX, RunSpeed.STANDARD, CharacterSex.FEMALE,1),
-		CENTAURMALE(2004, AggroType.CENTAUR, RunSpeed.CENTAUR, CharacterSex.MALE,1.2f),
-		CENTAURFEMALE(2005, AggroType.CENTAUR, RunSpeed.CENTAUR, CharacterSex.FEMALE, 1.2f),
-		DWARFMALE(2006, AggroType.DWARF, RunSpeed.STANDARD, CharacterSex.MALE,0.80000001f),
-		ELFMALE(2008, AggroType.ELF, RunSpeed.STANDARD, CharacterSex.MALE, 1.4f),
-		ELFFEMALE(2009, AggroType.ELF, RunSpeed.STANDARD, CharacterSex.FEMALE,1.1f),
-		HALFGIANTMALE(2010, AggroType.HALFGIANT, RunSpeed.STANDARD, CharacterSex.MALE, 1.15f),
-		HUMANMALE(2011, AggroType.HUMAN, RunSpeed.STANDARD, CharacterSex.MALE,1),
-		HUMANFEMALE(2012, AggroType.HUMAN, RunSpeed.STANDARD, CharacterSex.FEMALE,1),
-		IREKEIMALE(2013, AggroType.IREKEI, RunSpeed.STANDARD, CharacterSex.MALE,1.1f),
-		IREKEIFEMALE(2014, AggroType.IREKEI, RunSpeed.STANDARD, CharacterSex.FEMALE,1.1f),
-		SHADEMALE(2015, AggroType.SHADE, RunSpeed.STANDARD, CharacterSex.MALE,1),
-		SHADEFEMALE(2016, AggroType.SHADE, RunSpeed.STANDARD, CharacterSex.FEMALE,1),
-		MINOMALE(2017, AggroType.MINO, RunSpeed.MINOTAUR, CharacterSex.MALE,1.3f),
-		ARCHONMALE(2018, AggroType.ARCHON, RunSpeed.STANDARD, CharacterSex.MALE,1),
-		HALEGIANTOLDMALE(2019, AggroType.HALFGIANT, RunSpeed.STANDARD, CharacterSex.MALE,1.15f),
-		CSRFEMALE(2020, AggroType.ARCHON, RunSpeed.STANDARD, CharacterSex.FEMALE,0.66000003f),
-		CSRMALE(2021, AggroType.ARCHON, RunSpeed.STANDARD, CharacterSex.MALE,1),
-		NEPHMALE(2025, AggroType.NEPH, RunSpeed.STANDARD, CharacterSex.MALE,1.1f),
-		NEPHFEMALE(2026, AggroType.NEPH, RunSpeed.STANDARD, CharacterSex.FEMALE,1.1f),
-		HALFGIANTFEMALE(2027, AggroType.HALFGIANT, RunSpeed.STANDARD, CharacterSex.FEMALE,1.15f),
-		VAMPMALE(2028, AggroType.VAMP, RunSpeed.STANDARD, CharacterSex.MALE, 1),
-		VAMPFEMALE(2029, AggroType.VAMP, RunSpeed.STANDARD, CharacterSex.FEMALE,1);
+		AELFMALE(2000, MonsterType.Aelfborn, RunSpeed.STANDARD, CharacterSex.MALE,1.05f),
+		AELFFEMALE(2001, MonsterType.Aelfborn, RunSpeed.STANDARD, CharacterSex.FEMALE,1.05f),
+		ARACOIXMALE(2002, MonsterType.Aracoix, RunSpeed.STANDARD, CharacterSex.MALE,1),
+		ARACOIXFEMALE(2003, MonsterType.Aracoix, RunSpeed.STANDARD, CharacterSex.FEMALE,1),
+		CENTAURMALE(2004, MonsterType.Centaur, RunSpeed.CENTAUR, CharacterSex.MALE,1.2f),
+		CENTAURFEMALE(2005, MonsterType.Centaur, RunSpeed.CENTAUR, CharacterSex.FEMALE, 1.2f),
+		DWARFMALE(2006, MonsterType.Dwarf, RunSpeed.STANDARD, CharacterSex.MALE,0.80000001f),
+		ELFMALE(2008, MonsterType.Elf, RunSpeed.STANDARD, CharacterSex.MALE, 1.4f),
+		ELFFEMALE(2009, MonsterType.Elf, RunSpeed.STANDARD, CharacterSex.FEMALE,1.1f),
+		HALFGIANTMALE(2010, MonsterType.HalfGiant, RunSpeed.STANDARD, CharacterSex.MALE, 1.15f),
+		HUMANMALE(2011, MonsterType.Human, RunSpeed.STANDARD, CharacterSex.MALE,1),
+		HUMANFEMALE(2012, MonsterType.Human, RunSpeed.STANDARD, CharacterSex.FEMALE,1),
+		IREKEIMALE(2013, MonsterType.Irekei, RunSpeed.STANDARD, CharacterSex.MALE,1.1f),
+		IREKEIFEMALE(2014, MonsterType.Irekei, RunSpeed.STANDARD, CharacterSex.FEMALE,1.1f),
+		SHADEMALE(2015, MonsterType.Shade, RunSpeed.STANDARD, CharacterSex.MALE,1),
+		SHADEFEMALE(2016, MonsterType.Shade, RunSpeed.STANDARD, CharacterSex.FEMALE,1),
+		MINOMALE(2017, MonsterType.Minotaur, RunSpeed.MINOTAUR, CharacterSex.MALE,1.3f),
+		ARCHONMALE(2018, MonsterType.Celestial, RunSpeed.STANDARD, CharacterSex.MALE,1),
+		HALEGIANTOLDMALE(2019, MonsterType.HalfGiant, RunSpeed.STANDARD, CharacterSex.MALE,1.15f),
+		CSRFEMALE(2020, MonsterType.CSR, RunSpeed.STANDARD, CharacterSex.FEMALE,0.66000003f),
+		CSRMALE(2021, MonsterType.CSR, RunSpeed.STANDARD, CharacterSex.MALE,1),
+		NEPHMALE(2025, MonsterType.Nephilim, RunSpeed.STANDARD, CharacterSex.MALE,1.1f),
+		NEPHFEMALE(2026, MonsterType.Nephilim, RunSpeed.STANDARD, CharacterSex.FEMALE,1.1f),
+		HALFGIANTFEMALE(2027, MonsterType.HalfGiant, RunSpeed.STANDARD, CharacterSex.FEMALE,1.15f),
+		VAMPMALE(2028, MonsterType.Vampire, RunSpeed.STANDARD, CharacterSex.MALE, 1),
+		VAMPFEMALE(2029, MonsterType.Vampire, RunSpeed.STANDARD, CharacterSex.FEMALE,1);
 
 		@SuppressWarnings("unchecked")
 		private static HashMap<Integer, RaceType> _raceTypeByID = new HashMap<>();
 
 		int runeID;
-		private AggroType aggroType;
+		private MonsterType monsterType;
 		private CharacterSex characterSex;
 		private RunSpeed runSpeed;
 		private float scaleHeight;
 
-		RaceType(int runeID, AggroType aggroType, RunSpeed runspeed, CharacterSex characterSex, float scaleHeight) {
+		RaceType(int runeID, MonsterType aggroType, RunSpeed runspeed, CharacterSex characterSex, float scaleHeight) {
 			this.runeID = runeID;
-			this.aggroType = aggroType;
+			this.monsterType = aggroType;
 			this.runSpeed = runspeed;
 			this.characterSex = characterSex;
 			this.scaleHeight = scaleHeight;
@@ -184,8 +162,8 @@ public class Enum {
 			}
 		}
 
-		public AggroType getAggroType() {
-			return aggroType;
+		public MonsterType getMonsterType() {
+			return monsterType;
 		}
 
 		public RunSpeed getRunSpeed() {

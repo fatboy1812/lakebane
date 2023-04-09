@@ -189,28 +189,6 @@ public class dbMobBaseHandler extends dbHandlerBase {
 		return (executeUpdate() > 0);
 	}
 
-	public MobBase COPY_MOBBASE(MobBase toAdd, String name) {
-		prepareCallable("INSERT INTO `static_npc_mobbase` (`loadID`, `lootTableID`, `name`, `level`, `health`, `atr`, `defense`, `minDmg`,`maxDmg`, `goldMod`, `seeInvis`, `flags`, `noaggro`, `spawntime`) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
-		setInt(1, toAdd.getLoadID());
-		setInt(2, toAdd.getLootTable());
-		setString(3, (name.length() > 0) ? name : toAdd.getFirstName());
-		setInt(4, toAdd.getLevel());
-		setFloat(5, toAdd.getHealthMax());
-		setInt(5, toAdd.getAtr());
-		setInt(6, toAdd.getDefense());
-		setFloat(7, toAdd.getMinDmg());
-		setFloat(8, toAdd.getMaxDmg());
-		setInt(9, toAdd.getGoldMod());
-		setInt(10, toAdd.getSeeInvis());
-		setLong(11, toAdd.getFlags().toLong());
-		setLong(12, toAdd.getNoAggro().toLong());
-		setInt(13, toAdd.getSpawnTime());
-		int objectUUID = insertGetUUID();
-		if (objectUUID > 0)
-			return GET_MOBBASE(objectUUID, true);
-		return null;
-	}
-
 	public boolean RENAME_MOBBASE(int ID, String newName) {
 		prepareCallable("UPDATE `static_npc_mobbase` SET `name`=? WHERE `ID`=?;");
 		setString(1, newName);

@@ -38,7 +38,6 @@ public class MobBase extends AbstractGameObject {
 	private int maxGold;
 
 	private EnumBitSet<Enum.MobFlagType> flags;
-	private EnumBitSet<Enum.AggroType> noAggro;
 	private int mask;
 
 	private int goldMod;
@@ -110,7 +109,6 @@ public class MobBase extends AbstractGameObject {
 			}
 
 		this.flags = EnumBitSet.asEnumBitSet(rs.getLong("flags"), Enum.MobFlagType.class);
-		this.noAggro = EnumBitSet.asEnumBitSet(rs.getLong("noaggro"), Enum.AggroType.class);
 
 		this.notEnemy = EnumBitSet.asEnumBitSet(rs.getLong("notEnemy"), Enum.MonsterType.class);
 		this.enemy = EnumBitSet.asEnumBitSet(rs.getLong("enemy"), Enum.MonsterType.class);
@@ -247,10 +245,6 @@ public class MobBase extends AbstractGameObject {
 		return this.flags;
 	}
 
-	public EnumBitSet getNoAggro() {
-		return this.noAggro;
-	}
-
 	public int getGoldMod() {
 		return this.goldMod;
 	}
@@ -284,9 +278,6 @@ public class MobBase extends AbstractGameObject {
 		return DbManager.MobBaseQueries.GET_MOBBASE(id, forceDB);
 	}
 
-	public static MobBase copyMobBase(MobBase mobbase, String name) {
-		return DbManager.MobBaseQueries.COPY_MOBBASE(mobbase, name);
-	}
 
 	public static boolean renameMobBase(int ID, String newName) {
 		return DbManager.MobBaseQueries.RENAME_MOBBASE(ID, newName);

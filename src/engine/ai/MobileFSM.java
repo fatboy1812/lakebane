@@ -251,7 +251,7 @@ public class MobileFSM {
             }
 
             // No aggro for this race type
-            if (loadedPlayer.getRace().getRaceType().getAggroType().elementOf(aiAgent.getMobBase().getNoAggro()))
+            if (loadedPlayer.getRace().getRaceType().getMonsterType().elementOf(aiAgent.notEnemy))
                 continue;
 
 

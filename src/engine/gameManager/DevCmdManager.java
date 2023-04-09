@@ -85,7 +85,6 @@ public enum DevCmdManager {
 		DevCmdManager.registerDevCmd(new AddBuildingCmd());
 		DevCmdManager.registerDevCmd(new AddNPCCmd());
 		DevCmdManager.registerDevCmd(new AddMobCmd());
-		DevCmdManager.registerDevCmd(new CopyMobCmd());
 		DevCmdManager.registerDevCmd(new RemoveObjectCmd());
 		DevCmdManager.registerDevCmd(new RotateCmd());
 		DevCmdManager.registerDevCmd(new FlashMsgCmd());
