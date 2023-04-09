@@ -20,6 +20,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -125,7 +126,8 @@ public class LootManager {
         }
         int itemTableId = selectedRow.itemTableID;
         int minRollRange = mob.getLevel() + roll + mob.getParentZone().minLvl;
-        int maxRollRange = (mob.getLevel() * 2) + roll + (mob.getParentZone().maxLvl * 2);
+        //add 20 to max roll range to make dwarven HA and Sage possible
+        int maxRollRange = (mob.getLevel() * 2) + roll + 20 + (mob.getParentZone().maxLvl * 2);
         if(maxRollRange > 320){
             maxRollRange = 320;
         }
@@ -153,6 +155,7 @@ public class LootManager {
                      ModTableRow prefixMod = prefixModTable.getRowForRange(new Random().nextInt(maxRollRange) + minRollRange);
                      if (prefixMod != null && prefixMod.action.length() > 0) {
                          outItem.setPrefix(prefixMod.action);
+                         outItem.addPermanentEnchantment(prefixMod.action, 0, prefixMod.level, true);
                      }
                  }
                  if (modTables.get(suffixTable.getRowForRange(100).modTableID) != null) {
@@ -160,6 +163,7 @@ public class LootManager {
                      ModTableRow suffixMod = suffixModTable.getRowForRange(new Random().nextInt(maxRollRange) + minRollRange);
                      if (suffixMod != null && suffixMod.action.length() > 0) {
                          outItem.setSuffix(suffixMod.action);
+                         outItem.addPermanentEnchantment(suffixMod.action, 0, suffixMod.level, true);
                      }
                  }
              }
