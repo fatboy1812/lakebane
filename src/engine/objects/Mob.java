@@ -1968,6 +1968,18 @@ public class Mob extends AbstractIntelligenceAgent {
             this.equip = new HashMap<>(0);
         }
 
+        // Combine mobbase and mob aggro arrays into one bitvector
+
+        this.notEnemy.addAll(this.getMobBase().notEnemy);
+
+        if (this.notEnemy.size() > 1)
+            this.notEnemy.remove(MonsterType.NONE);
+
+        this.enemy.addAll(this.getMobBase().enemy);
+
+        if (this.enemy.size() > 1)
+            this.enemy.remove(MonsterType.NONE);
+
         try {
             NPCManager.applyRuneSetEffects(this);
             recalculateStats();
