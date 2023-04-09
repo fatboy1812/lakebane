@@ -49,6 +49,46 @@ public class Enum {
 		SENTINEL,
 	}
 
+	public enum MonsterType implements EnumBitSetHelper<MonsterType> {
+		NONE,
+		Aelfborn,
+		All,
+		Animal,
+		Aracoix,
+		Celestial,
+		Centaur,
+		Construct,
+		CSR,
+		Dragon,
+		Dwarf,
+		Elf,
+		Giant,
+		Goblin,
+		Grave,
+		HalfGiant,
+		Human,
+		Infernal,
+		Insect,
+		Irekei,
+		Minotaur,
+		Monster,
+		NecroPet,
+		NPC,
+		Pet,
+		Plant,
+		Rat,
+		Reptile,
+		Shade,
+		Siege,
+		Summoned,
+		Troll,
+		Undead,
+		Nephilim,
+		Vampire,
+		SiegeEngineer;
+
+	}
+
 	public enum AggroType implements EnumBitSetHelper<AggroType> {
 
 		// Used for MobBase NoAggro types
