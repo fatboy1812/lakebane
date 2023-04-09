@@ -62,6 +62,10 @@ public class MobBase extends AbstractGameObject {
 	private float runCombat = 0;
 	public int bootySet;
 	public String fsm = "";
+
+	public EnumBitSet<Enum.MonsterType> notEnemy;
+	public EnumBitSet<Enum.MonsterType> enemy;
+
 	/**
 	 * ResultSet Constructor
 	 */
@@ -107,6 +111,11 @@ public class MobBase extends AbstractGameObject {
 
 		this.flags = EnumBitSet.asEnumBitSet(rs.getLong("flags"), Enum.MobFlagType.class);
 		this.noAggro = EnumBitSet.asEnumBitSet(rs.getLong("noaggro"), Enum.AggroType.class);
+
+		// From cache data
+
+		this.notEnemy = EnumBitSet.asEnumBitSet(rs.getLong("notEnemy"), Enum.MonsterType.class);
+		this.enemy = EnumBitSet.asEnumBitSet(rs.getLong("enemy"), Enum.MonsterType.class);
 
 		this.seeInvis = rs.getInt("seeInvis");
 		this.scale = rs.getFloat("scale");
