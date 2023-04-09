@@ -108,8 +108,8 @@ public class Mob extends AbstractIntelligenceAgent {
     public int runeSet = 0;
     public int bootySet = 0;
 
-    public EnumBitSet<MonsterType> notEnemy = EnumBitSet.just(MonsterType.NONE);
-    public EnumBitSet<Enum.MonsterType> enemy = EnumBitSet.just(MonsterType.NONE);;
+    public EnumBitSet<MonsterType> notEnemy;
+    public EnumBitSet<Enum.MonsterType> enemy;
 
     /**
      * No Id Constructor
@@ -1971,14 +1971,7 @@ public class Mob extends AbstractIntelligenceAgent {
         // Combine mobbase and mob aggro arrays into one bitvector
 
         this.notEnemy.addAll(this.getMobBase().notEnemy);
-
-        if (this.notEnemy.size() > 1)
-            this.notEnemy.remove(MonsterType.NONE);
-
         this.enemy.addAll(this.getMobBase().enemy);
-
-        if (this.enemy.size() > 1)
-            this.enemy.remove(MonsterType.NONE);
 
         try {
             NPCManager.applyRuneSetEffects(this);
