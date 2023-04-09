@@ -38,12 +38,12 @@ public enum NPCManager {
 
         // Early exit
 
-        if (mob.runeSetID == 0)
+        if (mob.runeSet == 0)
             return;
 
         //Apply all rune effects.
 
-        if (NPCManager._runeSetMap.get(mob.runeSetID).contains(252623)) {
+        if (NPCManager._runeSetMap.get(mob.runeSet).contains(252623)) {
             mob.isPlayerGuard = true;
             mob.setNoAggro(true);
         }
@@ -56,8 +56,8 @@ public enum NPCManager {
 
         // Apply effects from RuneSet
 
-        if (mob.runeSetID != 0)
-            for (int runeID : _runeSetMap.get(mob.runeSetID))
+        if (mob.runeSet != 0)
+            for (int runeID : _runeSetMap.get(mob.runeSet))
                 applyEffectsForRune(mob, runeID);
 
         // Not sure why but apply Warrior effects for some reason?

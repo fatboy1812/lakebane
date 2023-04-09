@@ -9,6 +9,7 @@
 
 package engine.objects;
 
+import ch.claude_martin.enumbitset.EnumBitSet;
 import engine.Enum;
 import engine.Enum.*;
 import engine.InterestManagement.WorldGrid;
@@ -31,7 +32,6 @@ import engine.net.client.msg.ErrorPopupMsg;
 import engine.net.client.msg.ManageCityAssetsMsg;
 import engine.net.client.msg.PetMsg;
 import engine.net.client.msg.PlaceAssetMsg;
-import engine.net.client.msg.chat.ChatSystemMsg;
 import engine.server.MBServerStatics;
 import org.joda.time.DateTime;
 import org.pmw.tinylog.Logger;
@@ -105,8 +105,11 @@ public class Mob extends AbstractIntelligenceAgent {
     private DateTime upgradeDateTime = null;
     private boolean lootSync = false;
     public int equipmentSetID = 0;
-    public int runeSetID = 0;
+    public int runeSet = 0;
     public int bootySet = 0;
+
+    public EnumBitSet<MonsterType> notEnemy = EnumBitSet.just(MonsterType.NONE);
+    public EnumBitSet<Enum.MonsterType> enemy = EnumBitSet.just(MonsterType.NONE);;
 
     /**
      * No Id Constructor
@@ -285,8 +288,11 @@ public class Mob extends AbstractIntelligenceAgent {
             this.setParentZone(ZoneManager.getZoneByUUID(this.parentZoneID));
 
             this.equipmentSetID = rs.getInt("equipmentSet");
-            this.runeSetID = rs.getInt("runeSet");
+            this.runeSet = rs.getInt("runeSet");
             this.bootySet = rs.getInt("bootySet");
+
+            this.notEnemy = EnumBitSet.asEnumBitSet(rs.getLong("notEnemy"), Enum.MonsterType.class);
+            this.enemy = EnumBitSet.asEnumBitSet(rs.getLong("enemy"), Enum.MonsterType.class);
 
             if (this.contract != null)
                 this.equipmentSetID = this.contract.getEquipmentSet();

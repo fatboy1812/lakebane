@@ -112,8 +112,6 @@ public class MobBase extends AbstractGameObject {
 		this.flags = EnumBitSet.asEnumBitSet(rs.getLong("flags"), Enum.MobFlagType.class);
 		this.noAggro = EnumBitSet.asEnumBitSet(rs.getLong("noaggro"), Enum.AggroType.class);
 
-		// From cache data
-
 		this.notEnemy = EnumBitSet.asEnumBitSet(rs.getLong("notEnemy"), Enum.MonsterType.class);
 		this.enemy = EnumBitSet.asEnumBitSet(rs.getLong("enemy"), Enum.MonsterType.class);
 
