@@ -421,7 +421,9 @@ public class InfoCmd extends AbstractDevCmd {
 			else
 				output += "RaceID: " + targetMob.getLoadID();
 			output += newline;
-			output += "NoAggro: " + mobBase.getNoAggro().toString();
+			output += "notEnemy: " + targetMob.notEnemy.toString();
+			output += newline;
+			output += "enemy: " + targetMob.enemy.toString();
 			output += newline;
 			output += "Spawn: (" + targetMob.getBindLoc().getX();
 			output += ", " + targetMob.getBindLoc().getY();
