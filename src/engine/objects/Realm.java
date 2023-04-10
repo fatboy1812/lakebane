@@ -74,11 +74,11 @@ public class Realm {
 	 */
 	public Realm(ResultSet rs) throws SQLException, UnknownHostException {
 
-		this.mapColor = new Color(rs.getInt("mapColor"));
-		this.mapR = rs.getFloat("mapR");
-		this.mapG = rs.getFloat("mapG");
-		this.mapB = rs.getFloat("mapB");
-		this.mapA = rs.getFloat("mapA");
+		this.mapColor = new Color(Integer.parseInt(rs.getString("realmColor"), 16));
+		this.mapR = (float) (mapColor.getRed() * 0.00392156863);
+		this.mapG = (float) (mapColor.getGreen() * 0.00392156863);
+		this.mapB = (float) (mapColor.getBlue() * 0.00392156863);
+		this.mapA = 1;
 		this.canBeClaimed = rs.getBoolean("canBeClaimed");
 		this.canPlaceCities = rs.getBoolean("canPlaceCities");
 		this.numCities = rs.getInt("numCities");
