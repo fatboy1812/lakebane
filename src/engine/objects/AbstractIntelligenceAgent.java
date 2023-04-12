@@ -14,7 +14,6 @@ import engine.Enum.GameObjectType;
 import engine.Enum.ModType;
 import engine.Enum.SourceType;
 import engine.InterestManagement.WorldGrid;
-import engine.ai.MobileFSM.STATE;
 import engine.gameManager.ZoneManager;
 import engine.math.Vector3fImmutable;
 import engine.net.Dispatch;
@@ -204,7 +203,7 @@ public abstract class AbstractIntelligenceAgent extends AbstractCharacter {
 
 				WorldGrid.RemoveWorldObject(this);
 				if (this.getObjectType() == GameObjectType.Mob){
-                    ((Mob)this).state = STATE.Disabled;
+                    //((Mob)this).state = STATE.Disabled;
                     if (((Mob)this).getParentZone() != null)
 						((Mob)this).getParentZone().zoneMobSet.remove(this);
 				}

@@ -458,7 +458,7 @@ public class InfoCmd extends AbstractDevCmd {
 			output += StringUtils.addWS("isAlive: "
 					+ targetMob.isAlive(), 20);
 			output += newline;
-			output += "Mob State: " + targetMob.state.name();
+			//output += "Mob State: " + targetMob.state.name();
 
 			output += newline;
 			output += "Speed : " + targetMob.getSpeed();

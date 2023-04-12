@@ -10,11 +10,9 @@
 package engine.powers.poweractions;
 
 import engine.Enum.GameObjectType;
-import engine.ai.MobileFSM.STATE;
 import engine.math.Vector3fImmutable;
 import engine.objects.AbstractCharacter;
 import engine.objects.AbstractWorldObject;
-import engine.objects.Mob;
 import engine.powers.ActionsBase;
 import engine.powers.PowersBase;
 
@@ -31,7 +29,6 @@ public class ClearNearbyAggroPowerAction extends AbstractPowerAction {
 	@Override
 	protected void _startAction(AbstractCharacter source, AbstractWorldObject awo, Vector3fImmutable targetLoc, int trains, ActionsBase ab, PowersBase pb) {
 		if (source.getObjectType() == GameObjectType.Mob){
-            ((Mob)source).state = STATE.Patrol;
         }
 
 	}

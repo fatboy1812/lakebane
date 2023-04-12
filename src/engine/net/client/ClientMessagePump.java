@@ -12,7 +12,6 @@ package engine.net.client;
 
 import engine.Enum.*;
 import engine.InterestManagement.WorldGrid;
-import engine.ai.MobileFSM.STATE;
 import engine.exception.MsgSendException;
 import engine.gameManager.*;
 import engine.job.JobContainer;
@@ -2026,7 +2025,6 @@ public class ClientMessagePump implements NetMsgHandler {
 		
 		if (pet.getCombatTarget() == null)
 			return;
-		pet.state = STATE.Attack;
 	}
 
 	protected static void petCmd(PetCmdMsg msg, ClientConnection conn) throws MsgSendException {
@@ -2044,15 +2042,14 @@ public class ClientMessagePump implements NetMsgHandler {
 		if (!pet.isAlive())
 			return;
 
-        if (pet.state == STATE.Disabled)
-			return;
+        //if (pet.state == STATE.Disabled)
+		//	return;
 
 		int type = msg.getType();
 
 		if (type == 1) { //stop attack
 			pet.setCombatTarget(null);
 			pc.setCombat(false);
-			pet.state = STATE.Awake;
 
 		}
 		else if (type == 2) { //dismiss

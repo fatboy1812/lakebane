@@ -125,7 +125,7 @@ public class ApplyEffectPowerAction extends AbstractPowerAction {
 			if (this.effectID.equals("TAUNT")){
 
 				if (awo != null && awo.getObjectType() == GameObjectType.Mob){
-					MobileFSM.setAggro((Mob)awo,source.getObjectUUID());
+					((Mob) awo).setCombatTarget(source);
 					ChatSystemMsg msg = ChatManager.CombatInfo(source, awo);
 					DispatchMessage.sendToAllInRange(source, msg);
 				}
@@ -252,7 +252,7 @@ public class ApplyEffectPowerAction extends AbstractPowerAction {
 			if (this.effectID.equals("TAUNT")){
 
 				if (awo != null && awo.getObjectType() == GameObjectType.Mob){
-					MobileFSM.setAggro((Mob)awo,source.getObjectUUID());
+					((Mob) awo).setCombatTarget(source);
 					ChatSystemMsg msg = ChatManager.CombatInfo(source, awo);
 					DispatchMessage.sendToAllInRange(source, msg);
 				}

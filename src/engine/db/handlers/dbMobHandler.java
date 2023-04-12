@@ -9,7 +9,6 @@
 
 package engine.db.handlers;
 
-import engine.ai.MobileFSM.STATE;
 import engine.gameManager.NPCManager;
 import engine.objects.Mob;
 import engine.objects.Zone;
@@ -124,9 +123,8 @@ public class dbMobHandler extends dbHandlerBase {
 					
 					toCreate.setTimeToSpawnSiege(System.currentTimeMillis() + MBServerStatics.FIFTEEN_MINUTES);
 					toCreate.setDeathTime(System.currentTimeMillis());
-					toCreate.state = STATE.Respawn;
 
-				}
+                }
 			}
 
 

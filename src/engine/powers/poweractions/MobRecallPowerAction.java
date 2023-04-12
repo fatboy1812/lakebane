@@ -41,7 +41,8 @@ public class MobRecallPowerAction extends AbstractPowerAction {
 		
 		MovementManager.translocate(awoac,awoac.getBindLoc(), null);
 		if (awoac.getObjectType() == GameObjectType.Mob){
-			MobileFSM.setAwake((Mob)awoac,true);
+			//MobileFSM.setAwake((Mob)awoac,true);
+			((Mob)awoac).setCombatTarget(null);
 		}
 
 

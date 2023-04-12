@@ -9,7 +9,6 @@
 package engine.gameManager;
 
 import engine.Enum.*;
-import engine.ai.MobileFSM.STATE;
 import engine.exception.MsgSendException;
 import engine.job.JobContainer;
 import engine.job.JobScheduler;
@@ -183,7 +182,6 @@ public enum CombatManager {
 
 		//set sources target
 		pet.setCombatTarget(target);
-        pet.state = STATE.Attack;
         //		setFirstHitCombatTarget(player,target);
 
 		//put in combat if not already
@@ -691,7 +689,6 @@ public enum CombatManager {
 								count++;
 
 							mob.setCombatTarget(ac);
-                            mob.state = STATE.Attack;
                         }
 					}
 				}
@@ -1339,7 +1336,6 @@ public enum CombatManager {
 			Mob pet = ((PlayerCharacter) tarAc).getPet();
 			if (pet != null && pet.assist() && pet.getCombatTarget() == null) {
 				pet.setCombatTarget(ac);
-                pet.state = STATE.Retaliate;
             }
 		}
 
@@ -1351,7 +1347,6 @@ public enum CombatManager {
 			if (ac.getObjectType() == GameObjectType.Mob && retaliater.isSiege())
 				return;
 			retaliater.setCombatTarget(ac);
-            retaliater.state = STATE.Retaliate;
 
         }
 	}

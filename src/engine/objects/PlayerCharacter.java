@@ -15,7 +15,6 @@ import engine.InterestManagement.HeightMap;
 import engine.InterestManagement.InterestManager;
 import engine.InterestManagement.RealmMap;
 import engine.InterestManagement.WorldGrid;
-import engine.ai.MobileFSM.STATE;
 import engine.db.archive.CharacterRecord;
 import engine.db.archive.DataWarehouse;
 import engine.db.archive.PvpRecord;
@@ -4580,7 +4579,6 @@ public class PlayerCharacter extends AbstractCharacter {
 			if (!currentPet.isSiege()) {
 
 				currentPet.setCombatTarget(null);
-				currentPet.state = STATE.Disabled;
 
 				if (currentPet.getParentZone() != null)
 

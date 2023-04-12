@@ -10,8 +10,6 @@ package engine.InterestManagement;
 
 import engine.Enum.DispatchChannel;
 import engine.Enum.GameObjectType;
-import engine.ai.MobileFSM;
-import engine.ai.MobileFSM.STATE;
 import engine.gameManager.GroupManager;
 import engine.gameManager.SessionManager;
 import engine.job.JobScheduler;
@@ -338,11 +336,12 @@ public enum InterestManager implements Runnable {
                     if (!awonpc.isAlive() && (awonpc.isPet() || awonpc.isSiege() || awonpc.isNecroPet() || awonpc.isPlayerGuard()))
                         continue;
 
-                    if (awonpc.state.equals(STATE.Respawn) || awonpc.state.equals(STATE.Disabled))
+                    if (awonpc.isAlive() == false)
                         continue;
 
                     awonpc.playerAgroMap.put(player.getObjectUUID(), false);
-                    MobileFSM.setAwake(awonpc, false);
+                    //MobileFSM.setAwake(awonpc, false);
+                    ((Mob)awonpc).setCombatTarget(null);
                     //				IVarController.setVariable(awonpc, "IntelligenceDisableDelay", (double) (System.currentTimeMillis() + 5000));
                     //				awonpc.enableIntelligence();
                     lcm = new LoadCharacterMsg(awonpc, PlayerCharacter.hideNonAscii());
@@ -358,7 +357,8 @@ public enum InterestManager implements Runnable {
                     awonpc.playerAgroMap.put(player.getObjectUUID(), false);
 
                     if (awonpc.isMob())
-                        MobileFSM.setAwake(awonpc, false);
+                        //MobileFSM.setAwake(awonpc, false);
+                        ((Mob)awonpc).setCombatTarget(null);
                     //				IVarController.setVariable(awonpc, "IntelligenceDisableDelay", (double) (System.currentTimeMillis() + 5000));
                     //				awonpc.enableIntelligence();
                     lcm = new LoadCharacterMsg(awonpc, PlayerCharacter.hideNonAscii());

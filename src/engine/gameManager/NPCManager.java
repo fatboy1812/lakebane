@@ -2,7 +2,6 @@ package engine.gameManager;
 
 import engine.Enum;
 import engine.InterestManagement.WorldGrid;
-import engine.ai.MobileFSM;
 import engine.math.Vector3fImmutable;
 import engine.net.Dispatch;
 import engine.net.DispatchMessage;
@@ -115,8 +114,6 @@ public enum NPCManager {
 
     public static void dismissNecroPet(Mob necroPet, boolean updateOwner) {
 
-        necroPet.state = MobileFSM.STATE.Disabled;
-
         necroPet.combatTarget = null;
         necroPet.hasLoot = false;
 
@@ -202,7 +199,6 @@ public enum NPCManager {
             try {
                 dismissNecroPet(necroPet, true);
             } catch (Exception e) {
-                necroPet.state = MobileFSM.STATE.Disabled;
                 Logger.error(e);
             }
         }
@@ -333,7 +329,6 @@ public enum NPCManager {
         mob.deathTime = System.currentTimeMillis();
         mob.spawnTime = 900;
         mob.npcOwner = guardCaptain;
-        mob.state = MobileFSM.STATE.Respawn;
 
         return mob;
     }
@@ -342,12 +337,9 @@ public enum NPCManager {
 
         for (Mob toRemove : mobile.siegeMinionMap.keySet()) {
 
-            toRemove.state = MobileFSM.STATE.Disabled;
-
             if (mobile.isMoving()) {
 
                 mobile.stopMovement(mobile.getLoc());
-                mobile.state = MobileFSM.STATE.Disabled;
 
                 if (toRemove.parentZone != null)
                     toRemove.parentZone.zoneMobSet.remove(toRemove);
@@ -383,7 +375,6 @@ public enum NPCManager {
     public static boolean removeMobileFromBuilding(Mob mobile, Building building) {
 
         // Remove npc from it's building
-        mobile.state = MobileFSM.STATE.Disabled;
 
         try {
             mobile.clearEffects();

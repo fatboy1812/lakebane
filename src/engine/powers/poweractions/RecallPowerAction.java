@@ -67,7 +67,7 @@ public class RecallPowerAction extends AbstractPowerAction {
 				awoac.setBindLoc(MBServerStatics.startX, MBServerStatics.startY, MBServerStatics.startZ);
 			awoac.teleport(awoac.getBindLoc());
 			if (awoac.getObjectType() == GameObjectType.Mob){
-				MobileFSM.setAwake((Mob)awoac,true);
+				((Mob)awoac).setCombatTarget(null);
 				if (awoac.isAlive())
 					WorldGrid.updateObject(awoac);
 			}

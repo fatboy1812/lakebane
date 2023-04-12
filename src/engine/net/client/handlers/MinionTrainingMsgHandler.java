@@ -3,7 +3,6 @@ package engine.net.client.handlers;
 import engine.Enum;
 import engine.Enum.DispatchChannel;
 import engine.InterestManagement.WorldGrid;
-import engine.ai.MobileFSM;
 import engine.exception.MsgSendException;
 import engine.gameManager.BuildingManager;
 import engine.gameManager.DbManager;
@@ -67,7 +66,6 @@ public class MinionTrainingMsgHandler extends AbstractClientMsgHandler {
 						if (!npc.getSiegeMinionMap().containsKey(toRemove))
 							return true;
 
-                        toRemove.state = MobileFSM.STATE.Disabled;
                         npc.getSiegeMinionMap().remove(toRemove);
 
 						//toRemove.disableIntelligence();
@@ -160,7 +158,6 @@ public class MinionTrainingMsgHandler extends AbstractClientMsgHandler {
 							toCreate.setSpawnTime(60 * 15);
 							toCreate.setTimeToSpawnSiege(System.currentTimeMillis() + (60 * 15 * 1000));
 							toCreate.setDeathTime(System.currentTimeMillis());
-                            toCreate.state = MobileFSM.STATE.Respawn;
                         }
 					}
 
@@ -199,7 +196,6 @@ public class MinionTrainingMsgHandler extends AbstractClientMsgHandler {
 						if (!DbManager.MobQueries.REMOVE_FROM_GUARDS(npc.getObjectUUID(), toRemove.getMobBaseID(), npc.getSiegeMinionMap().get(toRemove)))
 							return true;
 
-                        toRemove.state = MobileFSM.STATE.Disabled;
                         npc.getSiegeMinionMap().remove(toRemove);
 
 						//toRemove.disableIntelligence();
@@ -293,7 +289,6 @@ public class MinionTrainingMsgHandler extends AbstractClientMsgHandler {
 						if (toCreate != null) {
 							toCreate.setTimeToSpawnSiege(System.currentTimeMillis() + MBServerStatics.FIFTEEN_MINUTES);
 							toCreate.setDeathTime(System.currentTimeMillis());
-                            toCreate.state = MobileFSM.STATE.Respawn;
                         }
 					}
 

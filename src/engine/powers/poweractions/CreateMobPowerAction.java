@@ -11,7 +11,6 @@ package engine.powers.poweractions;
 
 import engine.Enum;
 import engine.InterestManagement.WorldGrid;
-import engine.ai.MobileFSM.STATE;
 import engine.gameManager.DbManager;
 import engine.gameManager.NPCManager;
 import engine.gameManager.ZoneManager;
@@ -82,7 +81,6 @@ public class CreateMobPowerAction extends AbstractPowerAction {
 			if(currentPet!= null && !currentPet.isNecroPet() && !currentPet.isSiege()) {
 				DbManager.removeFromCache(currentPet);
 				WorldGrid.RemoveWorldObject(currentPet);
-                currentPet.state = STATE.Disabled;
                 currentPet.setCombatTarget(null);
 
 				if (currentPet.getParentZone() != null)
@@ -116,7 +114,6 @@ public class CreateMobPowerAction extends AbstractPowerAction {
 				if(!currentPet.isNecroPet() && !currentPet.isSiege()) {
 					DbManager.removeFromCache(currentPet);
 					currentPet.setCombatTarget(null);
-                    currentPet.state = STATE.Disabled;
 
                     currentPet.setOwner(null);
 					WorldGrid.RemoveWorldObject(currentPet);

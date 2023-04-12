@@ -8,13 +8,11 @@
 
 
 package engine.objects;
-
 import ch.claude_martin.enumbitset.EnumBitSet;
 import engine.Enum;
 import engine.Enum.*;
 import engine.InterestManagement.WorldGrid;
 import engine.ai.MobileFSM;
-import engine.ai.MobileFSM.STATE;
 import engine.exception.SerializationException;
 import engine.gameManager.*;
 import engine.job.JobContainer;
@@ -35,7 +33,6 @@ import engine.net.client.msg.PlaceAssetMsg;
 import engine.server.MBServerStatics;
 import org.joda.time.DateTime;
 import org.pmw.tinylog.Logger;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -44,7 +41,6 @@ import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-
 import static engine.net.client.msg.ErrorPopupMsg.sendErrorPopup;
 
 public class Mob extends AbstractIntelligenceAgent {
@@ -89,7 +85,6 @@ public class Mob extends AbstractIntelligenceAgent {
     public AbstractCharacter npcOwner;
     public Vector3fImmutable inBuildingLoc = null;
     private boolean noAggro = false;
-    public STATE state = STATE.Disabled;
     private int aggroTargetID = 0;
     private boolean walkingHome = true;
     private long lastAttackTime = 0;
@@ -110,7 +105,7 @@ public class Mob extends AbstractIntelligenceAgent {
 
     public EnumBitSet<MonsterType> notEnemy;
     public EnumBitSet<Enum.MonsterType> enemy;
-
+    public MobileFSM.MobBehaviourType BehaviourType;
     /**
      * No Id Constructor
      */
@@ -122,7 +117,7 @@ public class Mob extends AbstractIntelligenceAgent {
                 walk, combat, bindLoc, currentLoc, faceDir, healthCurrent, manaCurrent, stamCurrent, guild, runningTrains);
 
         this.dbID = MBServerStatics.NO_DB_ROW_ASSIGNED_YET;
-        this.state = STATE.Idle;
+        //this.state = STATE.Idle;
         this.loadID = npcType;
         this.isMob = isMob;
         this.mobBase = MobBase.getMobBase(loadID);
@@ -155,7 +150,7 @@ public class Mob extends AbstractIntelligenceAgent {
                byte runningTrains, int npcType, boolean isMob, Zone parent, int newUUID, Building building, int contractID) {
         super(firstName, lastName, statStrCurrent, statDexCurrent, statConCurrent, statIntCurrent, statSpiCurrent, level, exp, sit,
                 walk, combat, bindLoc, currentLoc, faceDir, healthCurrent, manaCurrent, stamCurrent, guild, runningTrains, newUUID);
-        this.state = STATE.Idle;
+        //this.state = STATE.Idle;
         this.dbID = newUUID;
         this.loadID = npcType;
         this.isMob = isMob;
@@ -178,7 +173,7 @@ public class Mob extends AbstractIntelligenceAgent {
      */
     public Mob(MobBase mobBase, Guild guild, Zone parent, short level, PlayerCharacter owner, int tableID) {
         super(mobBase.getFirstName(), "", (short) 0, (short) 0, (short) 0, (short) 0, (short) 0, level, 0, false, true, false, owner.getLoc(), owner.getLoc(), owner.getFaceDir(), (short) mobBase.getHealthMax(), (short) 0, (short) 0, guild, (byte) 0, tableID);
-        this.state = STATE.Idle;
+        //this.state = STATE.Idle;
         this.dbID = tableID;
         this.loadID = mobBase.getObjectUUID();
         this.isMob = true;
@@ -214,7 +209,7 @@ public class Mob extends AbstractIntelligenceAgent {
 
         try {
             this.dbID = rs.getInt(1);
-            this.state = STATE.Idle;
+            //this.state = STATE.Idle;
             this.loadID = rs.getInt("mob_mobbaseID");
             this.gridObjectType = GridObjectType.DYNAMIC;
             this.spawnRadius = rs.getFloat("mob_spawnRadius");
@@ -298,7 +293,7 @@ public class Mob extends AbstractIntelligenceAgent {
                 this.equipmentSetID = this.contract.getEquipmentSet();
 
             this.nameOverride = rs.getString("mob_name");
-
+            this.BehaviourType = MobileFSM.MobBehaviourType.valueOf(rs.getString("fsm"));
         } catch (Exception e) {
             Logger.error(currentID + "");
         }
@@ -650,7 +645,7 @@ public class Mob extends AbstractIntelligenceAgent {
             DbManager.addToCache(mob);
             mob.setPet(owner, true);
             mob.setWalkMode(false);
-            mob.state = STATE.Awake;
+            //mob.state = STATE.Awake;
 
         } catch (Exception e) {
             Logger.error(e);
@@ -717,7 +712,7 @@ public class Mob extends AbstractIntelligenceAgent {
             //target is mob's combat target, LETS GO.
             if (source.getHateValue() > target.getHateValue()) {
                 mob.setCombatTarget(source);
-                MobileFSM.setAggro(mob, source.getObjectUUID());
+                //MobileFSM.setAggro(mob, source.getObjectUUID());
             }
         }
     }
@@ -1144,8 +1139,8 @@ public class Mob extends AbstractIntelligenceAgent {
         if (!this.isMoving())
             return;
 
-        if (state == STATE.Disabled)
-            return;
+        //if (state == STATE.Disabled)
+        //    return;
 
         if (this.isAlive() == false || this.getBonuses().getBool(ModType.Stunned, SourceType.None) || this.getBonuses().getBool(ModType.CannotMove, SourceType.None)) {
             //Target is stunned or rooted. Don't move
@@ -1185,7 +1180,8 @@ public class Mob extends AbstractIntelligenceAgent {
         try {
             if (this.isSiege) {
                 this.deathTime = System.currentTimeMillis();
-                this.state = STATE.Dead;
+                //this.state = STATE.Dead;
+                MobileFSM.dead(this);
                 try {
                     this.clearEffects();
                 } catch (Exception e) {
@@ -1211,7 +1207,7 @@ public class Mob extends AbstractIntelligenceAgent {
                 }
 
             } else if (this.isPet() || this.isNecroPet()) {
-                this.state = STATE.Disabled;
+                //this.state = STATE.Disabled;
 
                 this.combatTarget = null;
                 this.hasLoot = false;
@@ -1248,7 +1244,8 @@ public class Mob extends AbstractIntelligenceAgent {
                 //cleanup effects
 
                 this.deathTime = System.currentTimeMillis();
-                this.state = STATE.Dead;
+                //this.state = STATE.Dead;
+                MobileFSM.dead(this);
 
                 playerAgroMap.clear();
 
@@ -2037,7 +2034,8 @@ public class Mob extends AbstractIntelligenceAgent {
         PlayerCharacter player = (PlayerCharacter) ac;
 
         if (this.getCombatTarget() == null) {
-            MobileFSM.setAggro(this, player.getObjectUUID());
+            //MobileFSM.setAggro(this, player.getObjectUUID());
+            this.combatTarget = ac;
             return;
         }
 
@@ -2048,7 +2046,7 @@ public class Mob extends AbstractIntelligenceAgent {
 
             if (ac.getHateValue() > ((PlayerCharacter) this.getCombatTarget()).getHateValue()) {
                 this.setCombatTarget(player);
-                MobileFSM.setAggro(this, player.getObjectUUID());
+                //MobileFSM.setAggro(this, player.getObjectUUID());
             }
         }
     }
@@ -2329,7 +2327,7 @@ public class Mob extends AbstractIntelligenceAgent {
                 WorldGrid.RemoveWorldObject(this);
                 DbManager.removeFromCache(this);
                 if (this.getObjectType() == GameObjectType.Mob) {
-                    this.state = STATE.Disabled;
+                    //this.state = STATE.Disabled;
                     if (this.getParentZone() != null)
                         this.getParentZone().zoneMobSet.remove(this);
                 }

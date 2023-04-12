@@ -12,7 +12,6 @@ package engine.objects;
 import engine.Enum;
 import engine.Enum.*;
 import engine.InterestManagement.WorldGrid;
-import engine.ai.MobileFSM.STATE;
 import engine.exception.SerializationException;
 import engine.gameManager.*;
 import engine.job.JobContainer;
@@ -790,7 +789,6 @@ public class NPC extends AbstractCharacter {
 
 		for (Mob toRemove : this.siegeMinionMap.keySet()) {
 
-			toRemove.state = STATE.Disabled;
 
 			try {
 				toRemove.clearEffects();
@@ -1461,7 +1459,6 @@ public class NPC extends AbstractCharacter {
 		
 		mob.setSpawnTime(10);
 		mob.setNpcOwner(this);
-		mob.state = STATE.Awake;
 		mob.region = AbstractWorldObject.GetRegionByWorldObject(mob);
 		return mob;
 	}
