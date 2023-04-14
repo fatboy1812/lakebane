@@ -152,7 +152,7 @@ public class MobBase extends AbstractGameObject {
 		if (equipmentSetID == 0)
 			return equip;
 
-		equipList = NPCManager._equipmentSetMap.get(equipmentSetID);
+		equipList = NPCManager._bootySetMap.get(equipmentSetID);
 
 		if (equipList == null)
 			return equip;

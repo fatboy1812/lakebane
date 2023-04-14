@@ -282,9 +282,6 @@ public class WorldServer {
 		Logger.info("Loading PromotionClasses");
 		DbManager.PromotionQueries.GET_ALL_PROMOTIONS();
 
-		Logger.info("Loading NPC and Mob Equipment Sets");
-		NPCManager.LoadAllEquipmentSets();
-
 		Logger.info("Loading NPC and Mob Rune Sets");
 		NPCManager.LoadAllRuneSets();
 

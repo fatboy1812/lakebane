@@ -107,49 +107,6 @@ public class dbItemBaseHandler extends dbHandlerBase {
 		}
 	}
 
-	public HashMap<Integer, ArrayList<BootySetEntry>> LOAD_EQUIPMENT_FOR_NPC_AND_MOBS() {
-
-		HashMap<Integer, ArrayList<BootySetEntry>> equipmentSets;
-		BootySetEntry equipmentSetEntry;
-		int	equipSetID;
-
-		equipmentSets = new HashMap<>();
-		int recordsRead = 0;
-
-		prepareCallable("SELECT * FROM static_npc_bootySet WHERE bootyType='EQUIP'");
-
-		try {
-			ResultSet rs = executeQuery();
-
-			while (rs.next()) {
-
-				recordsRead++;
-
-				equipSetID = rs.getInt("bootySet");
-				equipmentSetEntry = new BootySetEntry(rs);
-
-				if (equipmentSets.get(equipSetID) == null){
-					ArrayList<BootySetEntry> equipList = new ArrayList<>();
-					equipList.add(equipmentSetEntry);
-					equipmentSets.put(equipSetID, equipList);
-				}
-				else{
-					ArrayList<BootySetEntry>equipList = equipmentSets.get(equipSetID);
-					equipList.add(equipmentSetEntry);
-					equipmentSets.put(equipSetID, equipList);
-				}
-			}
-
-			Logger.info("read: " + recordsRead + " cached: " + equipmentSets.size());
-
-		} catch (SQLException e) {
-			Logger.error( e.toString());
-		} finally {
-			closeCallable();
-		}
-		return equipmentSets;
-	}
-
 	public HashMap<Integer, ArrayList<Integer>> LOAD_RUNES_FOR_NPC_AND_MOBS() {
 
 		HashMap<Integer, ArrayList<Integer>> runeSets = new HashMap<>();
