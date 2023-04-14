@@ -10,7 +10,6 @@
 package engine.db.handlers;
 
 import engine.objects.BootySetEntry;
-import engine.objects.EquipmentSetEntry;
 import engine.objects.ItemBase;
 import org.pmw.tinylog.Logger;
 
@@ -108,16 +107,16 @@ public class dbItemBaseHandler extends dbHandlerBase {
 		}
 	}
 
-	public HashMap<Integer, ArrayList<EquipmentSetEntry>> LOAD_EQUIPMENT_FOR_NPC_AND_MOBS() {
+	public HashMap<Integer, ArrayList<BootySetEntry>> LOAD_EQUIPMENT_FOR_NPC_AND_MOBS() {
 
-		HashMap<Integer, ArrayList<EquipmentSetEntry>> equipmentSets;
-		EquipmentSetEntry equipmentSetEntry;
+		HashMap<Integer, ArrayList<BootySetEntry>> equipmentSets;
+		BootySetEntry equipmentSetEntry;
 		int	equipSetID;
 
 		equipmentSets = new HashMap<>();
 		int recordsRead = 0;
 
-		prepareCallable("SELECT * FROM static_npc_equipmentset");
+		prepareCallable("SELECT * FROM static_npc_bootySet WHERE bootyType='EQUIP'");
 
 		try {
 			ResultSet rs = executeQuery();
@@ -126,16 +125,16 @@ public class dbItemBaseHandler extends dbHandlerBase {
 
 				recordsRead++;
 
-				equipSetID = rs.getInt("equipmentSet");
-				equipmentSetEntry = new EquipmentSetEntry(rs);
+				equipSetID = rs.getInt("bootySet");
+				equipmentSetEntry = new BootySetEntry(rs);
 
 				if (equipmentSets.get(equipSetID) == null){
-					ArrayList<EquipmentSetEntry> equipList = new ArrayList<>();
+					ArrayList<BootySetEntry> equipList = new ArrayList<>();
 					equipList.add(equipmentSetEntry);
 					equipmentSets.put(equipSetID, equipList);
 				}
 				else{
-					ArrayList<EquipmentSetEntry>equipList = equipmentSets.get(equipSetID);
+					ArrayList<BootySetEntry>equipList = equipmentSets.get(equipSetID);
 					equipList.add(equipmentSetEntry);
 					equipmentSets.put(equipSetID, equipList);
 				}

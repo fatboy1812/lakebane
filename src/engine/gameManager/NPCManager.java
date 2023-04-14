@@ -18,7 +18,7 @@ import java.util.HashMap;
 public enum NPCManager {
 
     NPC_MANAGER;
-    public static HashMap<Integer, ArrayList<EquipmentSetEntry>> _equipmentSetMap = new HashMap<>();
+    public static HashMap<Integer, ArrayList<BootySetEntry>> _equipmentSetMap = new HashMap<>();
     public static HashMap<Integer, ArrayList<Integer>> _runeSetMap = new HashMap<>();
     public static HashMap<Integer, ArrayList<BootySetEntry>> _bootySetMap = new HashMap<>();
 
