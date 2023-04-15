@@ -451,21 +451,6 @@ public class MobileFSM {
             }
         }
     }
-    private static void respawn(Mob aiAgent) {
-
-        if (!aiAgent.canRespawn())
-            return;
-
-        long spawnTime = aiAgent.getSpawnTime();
-
-        if (aiAgent.isPlayerGuard() && aiAgent.npcOwner != null && !aiAgent.npcOwner.isAlive())
-            return;
-
-        if (System.currentTimeMillis() > aiAgent.deathTime + spawnTime) {
-            aiAgent.respawn();
-            aiAgent.setCombatTarget(null);
-        }
-    }
     public static boolean canCast(Mob mob) {
 
         // Performs validation to determine if a
@@ -578,6 +563,8 @@ public class MobileFSM {
         if (mob == null) {
             return;
         }
+        //add default behaviour type
+            mob.BehaviourType = MobBehaviourType.Aggro;
         if (mob.isAlive() == false) {
             //no need to continue if mob is dead, check for respawn and move on
             CheckForRespawn(mob);
@@ -599,7 +586,7 @@ public class MobileFSM {
             CheckMobMovement(mob);
         }
         //check if mob can attack if it isn't wimpy
-        if (!mob.BehaviourType.isWimpy && !mob.isMoving()) {
+        if (!mob.BehaviourType.isWimpy && !mob.isMoving() && mob.combatTarget != null) {
             CheckForAttack(mob);
         }
     }
@@ -631,11 +618,13 @@ public class MobileFSM {
                 continue;
             if (MovementUtilities.inRangeToAggro(aiAgent, loadedPlayer)) {
                 aiAgent.setAggroTargetID(playerID);
+                aiAgent.setCombatTarget(loadedPlayer);
                 return;
             }
         }
     }
     private static void CheckMobMovement(Mob mob) {
+        mob.updateLocation();
         if (mob.getCombatTarget() == null) {
             //patrol
             int patrolRandom = ThreadLocalRandom.current().nextInt(1000);
@@ -654,19 +643,18 @@ public class MobileFSM {
                         patrolRadius = 60;
 
                     MovementUtilities.aiMove(mob, Vector3fImmutable.getRandomPointInCircle(mob.getBindLoc(), patrolRadius), true);
+                }
+            }
+        }else {
+            //chase target
+            mob.updateMovementState();
+            if (CombatUtilities.inRange2D(mob, mob.getCombatTarget(), mob.getRange()) == false) {
+                if (mob.getRange() > 15) {
+                    mob.destination = mob.getCombatTarget().getLoc();
+                    MovementUtilities.moveToLocation(mob, mob.destination, 0);
                 } else {
-                    //chase target
-                    mob.updateMovementState();
-                    mob.updateLocation();
-                    if (CombatUtilities.inRange2D(mob, mob.getCombatTarget(), mob.getRange()) == false) {
-                        if (mob.getRange() > 15) {
-                            mob.destination = mob.getCombatTarget().getLoc();
-                            MovementUtilities.moveToLocation(mob, mob.destination, 0);
-                        } else {
-                            mob.destination = MovementUtilities.GetDestinationToCharacter(mob, (AbstractCharacter) mob.getCombatTarget());
-                            MovementUtilities.moveToLocation(mob, mob.destination, mob.getRange());
-                        }
-                    }
+                    mob.destination = MovementUtilities.GetDestinationToCharacter(mob, (AbstractCharacter) mob.getCombatTarget());
+                    MovementUtilities.moveToLocation(mob, mob.destination, mob.getRange());
                 }
             }
         }
@@ -759,6 +747,21 @@ public class MobileFSM {
                     //aiAgent.state = STATE.Respawn;
                 }
             }
+        }
+    }
+    private static void respawn(Mob aiAgent) {
+
+        if (!aiAgent.canRespawn())
+            return;
+
+        long spawnTime = aiAgent.getSpawnTime();
+
+        if (aiAgent.isPlayerGuard() && aiAgent.npcOwner != null && !aiAgent.npcOwner.isAlive())
+            return;
+
+        if (System.currentTimeMillis() > aiAgent.deathTime + spawnTime) {
+            aiAgent.respawn();
+            aiAgent.setCombatTarget(null);
         }
     }
 }
