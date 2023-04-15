@@ -678,7 +678,9 @@ public class MobileFSM {
             if (System.currentTimeMillis() > aiAgent.deathTime + MBServerStatics.DESPAWN_TIMER_WITH_LOOT) {
                 aiAgent.despawn();
                 //update time of death after mob despawns so respawn time happens after mob despawns.
-                aiAgent.setDeathTime(System.currentTimeMillis());
+                if(aiAgent.deathTime != 0) {
+                    aiAgent.setDeathTime(System.currentTimeMillis());
+                }
                 respawn(aiAgent);
             }
 
@@ -689,7 +691,9 @@ public class MobileFSM {
                 if (System.currentTimeMillis() > aiAgent.deathTime + MBServerStatics.DESPAWN_TIMER_ONCE_LOOTED) {
                     aiAgent.despawn();
                     //update time of death after mob despawns so respawn time happens after mob despawns.
-                    aiAgent.setDeathTime(System.currentTimeMillis());
+                    if(aiAgent.deathTime != 0) {
+                        aiAgent.setDeathTime(System.currentTimeMillis());
+                    }
                     respawn(aiAgent);
                 }
                 //Mob never had Loot.
@@ -697,7 +701,9 @@ public class MobileFSM {
                 if (System.currentTimeMillis() > aiAgent.deathTime + MBServerStatics.DESPAWN_TIMER) {
                     aiAgent.despawn();
                     //update time of death after mob despawns so respawn time happens after mob despawns.
-                    aiAgent.setDeathTime(System.currentTimeMillis());
+                    if(aiAgent.deathTime != 0) {
+                        aiAgent.setDeathTime(System.currentTimeMillis());
+                    }
                     respawn(aiAgent);
                 }
             }

@@ -293,7 +293,11 @@ public class Mob extends AbstractIntelligenceAgent {
                 this.equipmentSetID = this.contract.getEquipmentSet();
 
             this.nameOverride = rs.getString("mob_name");
-            this.BehaviourType = MobileFSM.MobBehaviourType.valueOf(rs.getString("fsm"));
+            if(rs.getString("fsm").length() > 1) {
+                this.BehaviourType = MobileFSM.MobBehaviourType.valueOf(rs.getString("fsm"));
+            } else{
+                this.BehaviourType = MobileFSM.MobBehaviourType.Simple;
+            }
         } catch (Exception e) {
             Logger.error(currentID + "");
         }
@@ -1299,7 +1303,7 @@ public class Mob extends AbstractIntelligenceAgent {
         this.walkMode = true;
         this.combatTarget = null;
         this.isAlive.set(true);
-
+        this.deathTime = 0;
         this.lastBindLoc = this.bindLoc;
         this.bindLoc = this.lastBindLoc;
         this.setLoc(this.lastBindLoc);
