@@ -43,7 +43,7 @@ public class LootManager {
         DbManager.LootQueries.LOAD_ALL_MODGROUPS();
         DbManager.LootQueries.LOAD_ALL_MODTABLES();
     }
-    public static void GenerateMobLoot(Mob mob){
+    public static void GenerateMobLoot(Mob mob, boolean fromDeath){
         //determine if mob is in hotzone
         boolean inHotzone = ZoneManager.inHotZone(mob.getLoc());
         //get multiplier form config manager
@@ -54,10 +54,10 @@ public class LootManager {
         }
         //iterate the booty sets
         if(mob.getMobBase().bootySet != 0 && NPCManager._bootySetMap.containsKey(mob.getMobBase().bootySet)) {
-            RunBootySet(NPCManager._bootySetMap.get(mob.getMobBase().bootySet), mob, multiplier, inHotzone);
+            RunBootySet(NPCManager._bootySetMap.get(mob.getMobBase().bootySet), mob, multiplier, inHotzone, fromDeath);
         }
         if(mob.bootySet != 0) {
-            RunBootySet(NPCManager._bootySetMap.get(mob.bootySet), mob, multiplier, inHotzone);
+            RunBootySet(NPCManager._bootySetMap.get(mob.bootySet), mob, multiplier, inHotzone, fromDeath);
         }
         //lastly, check mobs inventory for godly or disc runes to send a server announcement
         for (Item it : mob.getInventory()) {
@@ -70,14 +70,13 @@ public class LootManager {
             }
         }
     }
-    private static void RunBootySet(ArrayList<BootySetEntry> entries, Mob mob, float multiplier, boolean inHotzone) {
+    private static void RunBootySet(ArrayList<BootySetEntry> entries, Mob mob, float multiplier, boolean inHotzone, boolean fromDeath) {
 
         for (BootySetEntry bse : entries) {
-            //check if chance roll is good
             switch (bse.bootyType) {
                 case "GOLD":
-                    if (ThreadLocalRandom.current().nextInt(100) <= (bse.dropChance * multiplier)) {
-                        //early exit, failed to hit minimum chance roll
+                    if (ThreadLocalRandom.current().nextInt(100) <= (bse.dropChance * multiplier) || fromDeath) {
+                        //early exit, failed to hit minimum chance roll OR booty was generated from mob's death
                         break;
                     }
                     //determine and add gold to mob inventory
@@ -88,8 +87,8 @@ public class LootManager {
                     }
                     break;
                 case "LOOT":
-                    if (ThreadLocalRandom.current().nextInt(100) <= (bse.dropChance * multiplier)) {
-                        //early exit, failed to hit minimum chance roll
+                    if (ThreadLocalRandom.current().nextInt(100) <= (bse.dropChance * multiplier) || fromDeath) {
+                        //early exit, failed to hit minimum chance roll OR booty was generated from mob's death
                         break;
                     }
                     //iterate the booty tables and add items to mob inventory
@@ -107,9 +106,19 @@ public class LootManager {
                     break;
                 case "ITEM":
                     MobLoot disc = new MobLoot(mob, ItemBase.getItemBase(bse.itemBase), true);
-                    if (disc != null)
+                    if (disc != null || fromDeath)
                         mob.getCharItemManager().addItemToInventory(disc);
 
+                    break;
+                case "EQUIP":
+                    if (ThreadLocalRandom.current().nextInt(100) <= (bse.dropChance * multiplier) || !fromDeath) {
+                        //early exit, failed to hit minimum chance roll OR booty wasn't generated form mob's death
+                        break;
+                    }
+                    MobLoot equipToAdd = new MobLoot(mob, ItemBase.getItemBase(bse.itemBase), true);
+                    if (equipToAdd != null) {
+                        mob.getCharItemManager().addItemToInventory(equipToAdd);
+                    }
                     break;
             }
         }

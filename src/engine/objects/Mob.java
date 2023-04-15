@@ -1253,23 +1253,8 @@ public class Mob extends AbstractIntelligenceAgent {
 
                 playerAgroMap.clear();
 
-                if (!this.isPlayerGuard) {
-
-
-                    if (this.equip != null) {
-
-                        for (MobEquipment me : equip.values()) {
-                            if (me.getDropChance() == 0)
-                                continue;
-
-                            float chance = ThreadLocalRandom.current().nextFloat();
-
-                            if (chance <= me.getDropChance()) {
-                                MobLoot ml = new MobLoot(this, me.getItemBase(), false);
-                                this.charItemManager.addItemToInventory(ml);
-                            }
-                        }
-                    }
+                if (!this.isPlayerGuard && this.equip != null) {
+                    LootManager.GenerateMobLoot(this, true);
                 }
 
             }
@@ -1378,7 +1363,7 @@ public class Mob extends AbstractIntelligenceAgent {
         if (isPlayerGuard)
             return;
 
-        LootManager.GenerateMobLoot(this);
+        LootManager.GenerateMobLoot(this, false);
     }
 
     private int getLootTable() {
