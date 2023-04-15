@@ -9,18 +9,17 @@
 
 package engine.ai;
 
+import engine.Enum;
 import engine.Enum.DispatchChannel;
 import engine.ai.utilities.CombatUtilities;
 import engine.ai.utilities.MovementUtilities;
-import engine.gameManager.BuildingManager;
-import engine.gameManager.CombatManager;
-import engine.gameManager.MovementManager;
-import engine.gameManager.PowersManager;
+import engine.gameManager.*;
 import engine.math.Vector3fImmutable;
 import engine.net.DispatchMessage;
 import engine.net.client.msg.PerformActionMsg;
 import engine.net.client.msg.PowerProjectileMsg;
 import engine.net.client.msg.UpdateStateMsg;
+import engine.net.client.msg.chat.ChatSystemMsg;
 import engine.objects.*;
 import engine.powers.ActionsBase;
 import engine.powers.PowersBase;
@@ -544,20 +543,26 @@ public class MobileFSM {
         return false;
     }
     public static void MobCallForHelp(Mob mob) {
+        boolean callGotResponse = false;
         if (mob.nextCallForHelp == 0) {
             mob.nextCallForHelp = System.currentTimeMillis();
         }
         if (mob.nextCallForHelp < System.currentTimeMillis()) {
             return;
         }
+        //mob sends call for help message
+        ChatManager.chatSayInfo(null, mob.getName() + " calls for help!");
         Zone mobCamp = mob.getParentZone();
         for (Mob helper : mobCamp.zoneMobSet) {
             if (helper.BehaviourType.respondsToCallForHelp && helper.BehaviourType.BehaviourHelperType.equals(mob.BehaviourType)) {
                 helper.setCombatTarget(mob.getCombatTarget());
+                callGotResponse = true;
             }
         }
-        //wait 60 seconds to call for help again
-        mob.nextCallForHelp = System.currentTimeMillis() + 60000;
+        if(callGotResponse){
+            //wait 60 seconds to call for help again
+            mob.nextCallForHelp = System.currentTimeMillis() + 60000;
+        }
     }
     public static void run(Mob mob) {
         if (mob == null) {
@@ -766,4 +771,5 @@ public class MobileFSM {
             aiAgent.setCombatTarget(null);
         }
     }
+
 }

@@ -112,7 +112,7 @@ public class LootManager {
                     break;
                 case "EQUIP":
                     if (ThreadLocalRandom.current().nextInt(100) <= (bse.dropChance * multiplier) || !fromDeath) {
-                        //early exit, failed to hit minimum chance roll OR booty wasn't generated form mob's death
+                        //early exit, failed to hit minimum chance roll OR booty wasn't generated from mob's death
                         break;
                     }
                     MobLoot equipToAdd = new MobLoot(mob, ItemBase.getItemBase(bse.itemBase), true);
