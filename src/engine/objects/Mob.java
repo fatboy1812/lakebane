@@ -1979,6 +1979,7 @@ public class Mob extends AbstractIntelligenceAgent {
             this.setBounds(mobBounds);
             //assign 5 random patrol points for regular mobs
             if(!this.isGuard() && !this.isPlayerGuard() && !this.isPet() && !this.isNecroPet() && !this.isSummonedPet() && !this.isCharmedPet()){
+                this.patrolPoints = new ArrayList<>();
                 for(int i = 0; i < 5; ++i){
                     float patrolRadius = this.getSpawnRadius();
 
@@ -1989,7 +1990,7 @@ public class Mob extends AbstractIntelligenceAgent {
                         patrolRadius = 60;
 
                     Vector3fImmutable newPatrolPoint =  Vector3fImmutable.getRandomPointInCircle(this.getBindLoc(), patrolRadius);
-                    patrolPoints.add(newPatrolPoint);
+                    this.patrolPoints.add(newPatrolPoint);
                 }
             }
         } catch (Exception e) {
