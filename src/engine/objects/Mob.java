@@ -13,6 +13,7 @@ import engine.Enum;
 import engine.Enum.*;
 import engine.InterestManagement.WorldGrid;
 import engine.ai.MobileFSM;
+import engine.ai.utilities.MovementUtilities;
 import engine.exception.SerializationException;
 import engine.gameManager.*;
 import engine.job.JobContainer;
@@ -106,6 +107,9 @@ public class Mob extends AbstractIntelligenceAgent {
     public EnumBitSet<MonsterType> notEnemy;
     public EnumBitSet<Enum.MonsterType> enemy;
     public MobileFSM.MobBehaviourType BehaviourType;
+    public ArrayList<Vector3fImmutable> patrolPoints;
+    public int lastPatrolPointIndex = 0;
+    public long stopPatrolTime = 0;
     /**
      * No Id Constructor
      */
@@ -1972,7 +1976,21 @@ public class Mob extends AbstractIntelligenceAgent {
             Bounds mobBounds = Bounds.borrow();
             mobBounds.setBounds(this.getLoc());
             this.setBounds(mobBounds);
+            //assign 5 random patrol points for regular mobs
+            if(!this.isGuard() && !this.isPlayerGuard() && !this.isPet() && !this.isNecroPet() && !this.isSummonedPet() && !this.isCharmedPet()){
+                for(int i = 0; i < 5; ++i){
+                    float patrolRadius = this.getSpawnRadius();
 
+                    if (patrolRadius > 256)
+                        patrolRadius = 256;
+
+                    if (patrolRadius < 60)
+                        patrolRadius = 60;
+
+                    Vector3fImmutable newPatrolPoint =  Vector3fImmutable.getRandomPointInCircle(this.getBindLoc(), patrolRadius);
+                    patrolPoints.add(newPatrolPoint);
+                }
+            }
         } catch (Exception e) {
             Logger.error(e.getMessage());
         }

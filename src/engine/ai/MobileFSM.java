@@ -60,7 +60,9 @@ public class MobileFSM {
         Simple(null, false, false, true, false, false),
         Helpee(null, false, true, true, false, true),
         HelpeeWimpy(null, true, false, true, false, false),
-        None(null, false, false, false, false, false);
+        None(null, false, false, false, false, false),
+        GuardCaptain(null,false,true,true,true,false),
+        GuardMinion(GuardCaptain,false,true,true,false,true);
 
         private static HashMap<Integer, MobBehaviourType> _behaviourTypes = new HashMap<>();
         public MobBehaviourType BehaviourHelperType;
@@ -372,6 +374,41 @@ public class MobileFSM {
         if (!MovementUtilities.updateMovementToCharacter(aiAgent, mob))
             return;
     }
+    private static void patrol(Mob mob){
+        if(mob.isMoving() == true){
+            //early exit for a mob who is already moving to a patrol point
+            //while mob moving, update lastPatrolTime so that when they stop moving the 10 second timer can begin
+            mob.stopPatrolTime = System.currentTimeMillis();
+            return;
+        }
+        //wait 10 seconds after reaching patrol point before moving again
+        if(mob.stopPatrolTime + 10000 > System.currentTimeMillis()){
+            //early exit while waiting to patrol again
+            return;
+        }
+        //make sure mob is out of combat stance
+        if (mob.isCombat() && mob.getCombatTarget() == null) {
+            mob.setCombat(false);
+            UpdateStateMsg rwss = new UpdateStateMsg();
+            rwss.setPlayer(mob);
+            DispatchMessage.sendToAllInRange(mob, rwss);
+        }
+        //guard captains inherit barracks patrol points dynamically
+        if(mob.isPlayerGuard() && mob.getContract() != null){
+            Building barracks = mob.building;
+            if(barracks != null && barracks.patrolPoints != null && barracks.getPatrolPoints().isEmpty() == false) {
+                mob.patrolPoints = barracks.patrolPoints;
+            }
+        }
+        if (MovementUtilities.canMove(mob)) {
+            //get the next index of the patrol point from the patrolPoints list
+            if (mob.lastPatrolPointIndex > mob.patrolPoints.size()) {
+                mob.lastPatrolPointIndex = 0;
+            }
+            MovementUtilities.aiMove(mob, mob.patrolPoints.get(mob.lastPatrolPointIndex), true);
+            mob.lastPatrolPointIndex += 1;
+        }
+    }
     private static void guardPatrol(Mob aiAgent) {
         if (aiAgent.isCombat() && aiAgent.getCombatTarget() == null) {
             aiAgent.setCombat(false);
@@ -573,6 +610,9 @@ public class MobileFSM {
             if (mob.BehaviourType != null && mob.BehaviourType == MobBehaviourType.None) {
                 return;
             }
+            if(mob.BehaviourType == null || mob.BehaviourType.ordinal() == MobBehaviourType.None.ordinal()){
+                mob.BehaviourType = MobBehaviourType.Simple;
+            }
             if (mob.isAlive() == false) {
                 //no need to continue if mob is dead, check for respawn and move on
                 CheckForRespawn(mob);
@@ -674,9 +714,13 @@ public class MobileFSM {
             }
         } else{
             //pet logic
+            if(mob.playerAgroMap.containsKey(mob.getOwner().getObjectUUID()) == false){
+                //mob no longer has its owner loaded, translocate pet to owner
+                MovementManager.translocate(mob,mob.getOwner().getLoc(),null);
+            }
             if (mob.getCombatTarget() == null || mob.combatTarget.isAlive() == false) {
                 //move back to owner
-                if (CombatUtilities.inRange2D(mob, mob.getOwner(), 5) == false) {
+                if (CombatUtilities.inRange2D(mob, mob.getOwner(), 10) == false) {
                     mob.destination = mob.getOwner().getLoc();
                     MovementUtilities.moveToLocation(mob, mob.destination, 5);
                 }

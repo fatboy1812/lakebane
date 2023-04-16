@@ -106,7 +106,7 @@ public class LootManager {
                     break;
                 case "ITEM":
                     MobLoot disc = new MobLoot(mob, ItemBase.getItemBase(bse.itemBase), true);
-                    if (disc != null || fromDeath)
+                    if (disc != null && !fromDeath)
                         mob.getCharItemManager().addItemToInventory(disc);
 
                     break;

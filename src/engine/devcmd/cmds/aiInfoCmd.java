@@ -81,7 +81,11 @@ public class aiInfoCmd extends AbstractDevCmd {
             output += mob.getName() + newline;
             if(mob.BehaviourType != null) {
                 output += "BehaviourType: " + mob.BehaviourType.toString() + newline;
-                output += "Behaviour Helper Type: " + mob.BehaviourType.BehaviourHelperType.toString() + newline;
+                if(mob.BehaviourType.BehaviourHelperType != null) {
+                    output += "Behaviour Helper Type: " + mob.BehaviourType.BehaviourHelperType.toString() + newline;
+                } else{
+                    output += "Behaviour Helper Type: NULL" + newline;
+                }
                 output += "Wimpy: " + mob.BehaviourType.isWimpy + newline;
                 output += "Agressive: " + mob.BehaviourType.isAgressive + newline;
                 output += "Can Roam: " + mob.BehaviourType.canRoam + newline;
