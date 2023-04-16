@@ -2022,7 +2022,6 @@ public class ClientMessagePump implements NetMsgHandler {
 			return;
 
 		CombatManager.setAttackTarget(msg, conn);
-		
 		if (pet.getCombatTarget() == null)
 			return;
 	}

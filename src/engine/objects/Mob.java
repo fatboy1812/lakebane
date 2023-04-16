@@ -181,6 +181,7 @@ public class Mob extends AbstractIntelligenceAgent {
         this.parentZone = parent;
         this.parentZoneID = (parent != null) ? parent.getObjectUUID() : 0;
         this.ownerUID = owner.getObjectUUID();
+        this.BehaviourType = MobileFSM.MobBehaviourType.Pet1;
         initializeMob(true, false, false);
         clearStatic();
     }
@@ -1955,10 +1956,13 @@ public class Mob extends AbstractIntelligenceAgent {
         }
 
         // Combine mobbase and mob aggro arrays into one bitvector
+        try {
+            this.notEnemy.addAll(this.getMobBase().notEnemy);
+            this.enemy.addAll(this.getMobBase().enemy);
+        }
+        catch(Exception ex){
 
-        this.notEnemy.addAll(this.getMobBase().notEnemy);
-        this.enemy.addAll(this.getMobBase().enemy);
-
+        }
         try {
             NPCManager.applyRuneSetEffects(this);
             recalculateStats();

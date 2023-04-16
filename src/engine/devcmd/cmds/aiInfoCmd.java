@@ -79,19 +79,23 @@ public class aiInfoCmd extends AbstractDevCmd {
             Mob mob = (Mob) target;
             output = "Mob AI Information:" + newline;
             output += mob.getName() + newline;
-            output += "BehaviourType: " + mob.BehaviourType.toString() + newline;
-            output += "Behaviour Helper Type: " + mob.BehaviourType.BehaviourHelperType.toString() + newline;
-            output += "Wimpy: " + mob.BehaviourType.isWimpy + newline;
-            output += "Agressive: " + mob.BehaviourType.isAgressive + newline;
-            output += "Can Roam: " + mob.BehaviourType.canRoam + newline;
-            output += "Calls For Help: " + mob.BehaviourType.callsForHelp + newline;
-            output += "Responds To Call For Help: " + mob.BehaviourType.respondsToCallForHelp + newline;
+            if(mob.BehaviourType != null) {
+                output += "BehaviourType: " + mob.BehaviourType.toString() + newline;
+                output += "Behaviour Helper Type: " + mob.BehaviourType.BehaviourHelperType.toString() + newline;
+                output += "Wimpy: " + mob.BehaviourType.isWimpy + newline;
+                output += "Agressive: " + mob.BehaviourType.isAgressive + newline;
+                output += "Can Roam: " + mob.BehaviourType.canRoam + newline;
+                output += "Calls For Help: " + mob.BehaviourType.callsForHelp + newline;
+                output += "Responds To Call For Help: " + mob.BehaviourType.respondsToCallForHelp + newline;
+            } else{
+                output += "BehaviourType: NULL" + newline;
+            }
             output += "Player Aggro Map Size: " + mob.playerAgroMap.size() + newline;
             if(mob.playerAgroMap.size() > 0){
                 output += "Players Loaded:" + newline;
             }
             for(Map.Entry<Integer,Boolean> entry : mob.playerAgroMap.entrySet()){
-                output += "Player ID: " + entry.getKey() + "In Range To Aggro: " + entry.getValue() + newline;
+                output += "Player ID: " + entry.getKey() + " In Range To Aggro: " + entry.getValue() + newline;
             }
         }
         throwbackInfo(pc, output);

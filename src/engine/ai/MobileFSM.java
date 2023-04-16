@@ -56,7 +56,7 @@ public class MobileFSM {
         SpellAggroGrouperWimpy(Spell, true, false, true, false, false),
         //Independent Types
         SimpleStandingGuard(null, false, false, false, false, false),
-        Pet1(null, false, false, false, false, false),
+        Pet1(null, false, false, true, false, false),
         Simple(null, false, false, true, false, false),
         Helpee(null, false, true, true, false, true),
         HelpeeWimpy(null, true, false, true, false, false),
@@ -566,34 +566,43 @@ public class MobileFSM {
         }
     }
     public static void run(Mob mob) {
-        if (mob == null || mob.BehaviourType == MobBehaviourType.None) {
+        if (mob == null) {
             return;
         }
-        if (mob.isAlive() == false) {
-            //no need to continue if mob is dead, check for respawn and move on
-            CheckForRespawn(mob);
-            return;
-        }
-        //check to see if mob has wandered too far from his bind loc
-        CheckToSendMobHome(mob);
-        //check to see if players have mob loaded
-        if (mob.playerAgroMap.isEmpty()) {
-            //no players loaded, no need to proceed
-            return;
-        }
-        //check for players that can be aggroed if mob is agressive and has no target
-        if (mob.BehaviourType.isAgressive && mob.getCombatTarget() == null) {
-            CheckForAggro(mob);
-        }
-        //check if mob can move for patrol or moving to target
-        if (mob.BehaviourType.canRoam) {
+        if (mob.isPet() == false && mob.isSummonedPet() == false && mob.isNecroPet() == false) {
+            if (mob.BehaviourType != null && mob.BehaviourType == MobBehaviourType.None) {
+                return;
+            }
+            if (mob.isAlive() == false) {
+                //no need to continue if mob is dead, check for respawn and move on
+                CheckForRespawn(mob);
+                return;
+            }
+            //check to see if mob has wandered too far from his bind loc
+            CheckToSendMobHome(mob);
+            //check to see if players have mob loaded
+            if (mob.playerAgroMap.isEmpty()) {
+                //no players loaded, no need to proceed
+                return;
+            }
+            //check for players that can be aggroed if mob is agressive and has no target
+            if (mob.BehaviourType.isAgressive && mob.getCombatTarget() == null) {
+                CheckForAggro(mob);
+            }
+            //check if mob can move for patrol or moving to target
+            if (mob.BehaviourType.canRoam) {
+                CheckMobMovement(mob);
+            }
+            //check if mob can attack if it isn't wimpy
+            if (!mob.BehaviourType.isWimpy && !mob.isMoving() && mob.combatTarget != null) {
+                CheckForAttack(mob);
+            }
+        } else {
             CheckMobMovement(mob);
-        }
-        //check if mob can attack if it isn't wimpy
-        if (!mob.BehaviourType.isWimpy && !mob.isMoving() && mob.combatTarget != null) {
             CheckForAttack(mob);
         }
     }
+
     private static void CheckForAggro(Mob aiAgent) {
         //looks for and sets mobs combatTarget
         if (!aiAgent.isAlive()) {
@@ -629,36 +638,59 @@ public class MobileFSM {
     }
     private static void CheckMobMovement(Mob mob) {
         mob.updateLocation();
-        if (mob.getCombatTarget() == null) {
-            //patrol
-            int patrolRandom = ThreadLocalRandom.current().nextInt(1000);
-            if (patrolRandom <= MBServerStatics.AI_PATROL_DIVISOR) {
-                if (MovementUtilities.canMove(mob) && !mob.isMoving()) {
-                    if (mob.isPlayerGuard()) {
-                        guardPatrol(mob);
-                        return;
+        if (mob.isPet() == false && mob.isSummonedPet() == false && mob.isNecroPet() == false) {
+            if (mob.getCombatTarget() == null) {
+                //patrol
+                int patrolRandom = ThreadLocalRandom.current().nextInt(1000);
+                if (patrolRandom <= MBServerStatics.AI_PATROL_DIVISOR) {
+                    if (MovementUtilities.canMove(mob) && !mob.isMoving()) {
+                        if (mob.isPlayerGuard()) {
+                            guardPatrol(mob);
+                            return;
+                        }
+                        float patrolRadius = mob.getSpawnRadius();
+
+                        if (patrolRadius > 256)
+                            patrolRadius = 256;
+
+                        if (patrolRadius < 60)
+                            patrolRadius = 60;
+
+                        MovementUtilities.aiMove(mob, Vector3fImmutable.getRandomPointInCircle(mob.getBindLoc(), patrolRadius), true);
                     }
-                    float patrolRadius = mob.getSpawnRadius();
-
-                    if (patrolRadius > 256)
-                        patrolRadius = 256;
-
-                    if (patrolRadius < 60)
-                        patrolRadius = 60;
-
-                    MovementUtilities.aiMove(mob, Vector3fImmutable.getRandomPointInCircle(mob.getBindLoc(), patrolRadius), true);
+                }
+            } else {
+                //chase target
+                mob.updateMovementState();
+                if (CombatUtilities.inRange2D(mob, mob.getCombatTarget(), mob.getRange()) == false) {
+                    if (mob.getRange() > 15) {
+                        mob.destination = mob.getCombatTarget().getLoc();
+                        MovementUtilities.moveToLocation(mob, mob.destination, 0);
+                    } else {
+                        mob.destination = MovementUtilities.GetDestinationToCharacter(mob, (AbstractCharacter) mob.getCombatTarget());
+                        MovementUtilities.moveToLocation(mob, mob.destination, mob.getRange());
+                    }
                 }
             }
-        }else {
-            //chase target
-            mob.updateMovementState();
-            if (CombatUtilities.inRange2D(mob, mob.getCombatTarget(), mob.getRange()) == false) {
-                if (mob.getRange() > 15) {
-                    mob.destination = mob.getCombatTarget().getLoc();
-                    MovementUtilities.moveToLocation(mob, mob.destination, 0);
-                } else {
-                    mob.destination = MovementUtilities.GetDestinationToCharacter(mob, (AbstractCharacter) mob.getCombatTarget());
-                    MovementUtilities.moveToLocation(mob, mob.destination, mob.getRange());
+        } else{
+            //pet logic
+            if (mob.getCombatTarget() == null || mob.combatTarget.isAlive() == false) {
+                //move back to owner
+                if (CombatUtilities.inRange2D(mob, mob.getOwner(), 5) == false) {
+                    mob.destination = mob.getOwner().getLoc();
+                    MovementUtilities.moveToLocation(mob, mob.destination, 5);
+                }
+            } else {
+                //chase target
+                mob.updateMovementState();
+                if (CombatUtilities.inRange2D(mob, mob.getCombatTarget(), mob.getRange()) == false) {
+                    if (mob.getRange() > 15) {
+                        mob.destination = mob.getCombatTarget().getLoc();
+                        MovementUtilities.moveToLocation(mob, mob.destination, 0);
+                    } else {
+                        mob.destination = MovementUtilities.GetDestinationToCharacter(mob, (AbstractCharacter) mob.getCombatTarget());
+                        MovementUtilities.moveToLocation(mob, mob.destination, mob.getRange());
+                    }
                 }
             }
         }
