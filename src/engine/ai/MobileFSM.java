@@ -59,7 +59,8 @@ public class MobileFSM {
         Pet1(null, false, false, false, false, false),
         Simple(null, false, false, true, false, false),
         Helpee(null, false, true, true, false, true),
-        HelpeeWimpy(null, true, false, true, false, false);
+        HelpeeWimpy(null, true, false, true, false, false),
+        None(null, false, false, false, false, false);
 
         private static HashMap<Integer, MobBehaviourType> _behaviourTypes = new HashMap<>();
         public MobBehaviourType BehaviourHelperType;
@@ -565,7 +566,7 @@ public class MobileFSM {
         }
     }
     public static void run(Mob mob) {
-        if (mob == null) {
+        if (mob == null || mob.BehaviourType == MobBehaviourType.None) {
             return;
         }
         //add default behaviour type

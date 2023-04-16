@@ -296,7 +296,7 @@ public class Mob extends AbstractIntelligenceAgent {
             if(rs.getString("fsm").length() > 1) {
                 this.BehaviourType = MobileFSM.MobBehaviourType.valueOf(rs.getString("fsm"));
             } else{
-                this.BehaviourType = MobileFSM.MobBehaviourType.Simple;
+                this.BehaviourType = MobileFSM.MobBehaviourType.None;
             }
         } catch (Exception e) {
             Logger.error(currentID + "");
