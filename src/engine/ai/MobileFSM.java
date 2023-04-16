@@ -381,8 +381,9 @@ public class MobileFSM {
             mob.stopPatrolTime = System.currentTimeMillis();
             return;
         }
-        //wait 10 seconds after reaching patrol point before moving again
-        if(mob.stopPatrolTime + 10000 > System.currentTimeMillis()){
+        //wait between 10 and 15 seconds after reaching patrol point before moving
+        int patrolDelay = ThreadLocalRandom.current().nextInt(10000) + 5000;
+        if(mob.stopPatrolTime + patrolDelay > System.currentTimeMillis()){
             //early exit while waiting to patrol again
             return;
         }
@@ -402,7 +403,7 @@ public class MobileFSM {
         }
         if (MovementUtilities.canMove(mob)) {
             //get the next index of the patrol point from the patrolPoints list
-            if (mob.lastPatrolPointIndex > mob.patrolPoints.size()) {
+            if (mob.lastPatrolPointIndex > mob.patrolPoints.size() - 1) {
                 mob.lastPatrolPointIndex = 0;
             }
             MovementUtilities.aiMove(mob, mob.patrolPoints.get(mob.lastPatrolPointIndex), true);
@@ -607,12 +608,14 @@ public class MobileFSM {
             return;
         }
         if (mob.isPet() == false && mob.isSummonedPet() == false && mob.isNecroPet() == false) {
-            if (mob.BehaviourType != null && mob.BehaviourType == MobBehaviourType.None) {
-                return;
-            }
+            //if (mob.BehaviourType != null && mob.BehaviourType == MobBehaviourType.None) {
+            //    return;
+            //}
+            //TEST CODE FOR BEHAVIOUR CHANGING START
             if(mob.BehaviourType == null || mob.BehaviourType.ordinal() == MobBehaviourType.None.ordinal()){
                 mob.BehaviourType = MobBehaviourType.Simple;
             }
+            //TEST CODE FOR BEHAVIOUR CHANGING END
             if (mob.isAlive() == false) {
                 //no need to continue if mob is dead, check for respawn and move on
                 CheckForRespawn(mob);
