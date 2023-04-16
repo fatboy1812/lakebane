@@ -523,9 +523,6 @@ public class MobileFSM {
             return;
         }
         if (mob.isPet() == false && mob.isSummonedPet() == false && mob.isNecroPet() == false) {
-            //if (mob.BehaviourType != null && mob.BehaviourType == MobBehaviourType.None) {
-            //    return;
-            //}
             //TEST CODE FOR BEHAVIOUR CHANGING START
             if (mob.BehaviourType == null || mob.BehaviourType.ordinal() == MobBehaviourType.None.ordinal()) {
                 mob.BehaviourType = MobBehaviourType.Simple;
@@ -544,8 +541,12 @@ public class MobileFSM {
                 return;
             }
             //check for players that can be aggroed if mob is agressive and has no target
-            if (mob.BehaviourType.isAgressive && mob.getCombatTarget() == null) {
+            if (mob.BehaviourType.isAgressive && mob.getCombatTarget() == null && mob.BehaviourType != MobBehaviourType.SimpleStandingGuard) {
+                //normal aggro
                 CheckForAggro(mob);
+            } else if(mob.BehaviourType == MobBehaviourType.SimpleStandingGuard){
+                //safehold guard
+                SafeGuardAggro(mob);
             }
             //check if mob can move for patrol or moving to target
             if (mob.BehaviourType.canRoam) {
@@ -734,6 +735,11 @@ public class MobileFSM {
                 mob.destination = MovementUtilities.GetDestinationToCharacter(mob, (AbstractCharacter) mob.getCombatTarget());
                 MovementUtilities.moveToLocation(mob, mob.destination, mob.getRange());
             }
+        }
+    }
+    private static void SafeGuardAggro(Mob mob){
+        for(Entry<Integer,Boolean> entry : mob.playerAgroMap.entrySet()){
+
         }
     }
 }
