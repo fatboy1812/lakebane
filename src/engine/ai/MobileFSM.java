@@ -5,21 +5,15 @@
 // ▀▀  █▪▀▀▀ ▀  ▀ ·▀▀▀▀ ▀▀▀·▀▀▀ ·▀▀▀▀  ▀  ▀ ▀▀  █▪ ▀▀▀
 //      Magicbane Emulator Project © 2013 - 2022
 //                www.magicbane.com
-
-
 package engine.ai;
-
-import engine.Enum;
 import engine.Enum.DispatchChannel;
 import engine.ai.utilities.CombatUtilities;
 import engine.ai.utilities.MovementUtilities;
 import engine.gameManager.*;
-import engine.math.Vector3fImmutable;
 import engine.net.DispatchMessage;
 import engine.net.client.msg.PerformActionMsg;
 import engine.net.client.msg.PowerProjectileMsg;
 import engine.net.client.msg.UpdateStateMsg;
-import engine.net.client.msg.chat.ChatSystemMsg;
 import engine.objects.*;
 import engine.powers.ActionsBase;
 import engine.powers.PowersBase;
@@ -61,8 +55,8 @@ public class MobileFSM {
         Helpee(null, false, true, true, false, true),
         HelpeeWimpy(null, true, false, true, false, false),
         None(null, false, false, false, false, false),
-        GuardCaptain(null,false,true,true,true,false),
-        GuardMinion(GuardCaptain,false,true,true,false,true);
+        GuardCaptain(null, false, true, true, true, false),
+        GuardMinion(GuardCaptain, false, true, true, false, true);
 
         private static HashMap<Integer, MobBehaviourType> _behaviourTypes = new HashMap<>();
         public MobBehaviourType BehaviourHelperType;
@@ -374,8 +368,8 @@ public class MobileFSM {
         if (!MovementUtilities.updateMovementToCharacter(aiAgent, mob))
             return;
     }
-    private static void patrol(Mob mob){
-        if(mob.isMoving() == true){
+    private static void patrol(Mob mob) {
+        if (mob.isMoving() == true) {
             //early exit for a mob who is already moving to a patrol point
             //while mob moving, update lastPatrolTime so that when they stop moving the 10 second timer can begin
             mob.stopPatrolTime = System.currentTimeMillis();
@@ -383,7 +377,7 @@ public class MobileFSM {
         }
         //wait between 10 and 15 seconds after reaching patrol point before moving
         int patrolDelay = ThreadLocalRandom.current().nextInt(10000) + 5000;
-        if(mob.stopPatrolTime + patrolDelay > System.currentTimeMillis()){
+        if (mob.stopPatrolTime + patrolDelay > System.currentTimeMillis()) {
             //early exit while waiting to patrol again
             return;
         }
@@ -397,7 +391,7 @@ public class MobileFSM {
         //guard captains inherit barracks patrol points dynamically
         if (mob.contract != null && NPC.ISGuardCaptain(mob.contract.getContractID())) {
             Building barracks = mob.building;
-            if(barracks != null && barracks.patrolPoints != null && barracks.getPatrolPoints().isEmpty() == false) {
+            if (barracks != null && barracks.patrolPoints != null && barracks.getPatrolPoints().isEmpty() == false) {
                 mob.patrolPoints = barracks.patrolPoints;
             }
         }
@@ -519,7 +513,7 @@ public class MobileFSM {
                 callGotResponse = true;
             }
         }
-        if(callGotResponse){
+        if (callGotResponse) {
             //wait 60 seconds to call for help again
             mob.nextCallForHelp = System.currentTimeMillis() + 60000;
         }
@@ -533,7 +527,7 @@ public class MobileFSM {
             //    return;
             //}
             //TEST CODE FOR BEHAVIOUR CHANGING START
-            if(mob.BehaviourType == null || mob.BehaviourType.ordinal() == MobBehaviourType.None.ordinal()){
+            if (mob.BehaviourType == null || mob.BehaviourType.ordinal() == MobBehaviourType.None.ordinal()) {
                 mob.BehaviourType = MobBehaviourType.Simple;
             }
             //TEST CODE FOR BEHAVIOUR CHANGING END
@@ -590,7 +584,7 @@ public class MobileFSM {
                 continue;
             }
             // No aggro for this race type
-                if(aiAgent.notEnemy.contains(loadedPlayer.getRace().getRaceType()))
+            if (aiAgent.notEnemy.contains(loadedPlayer.getRace().getRaceType()))
                 continue;
             if (MovementUtilities.inRangeToAggro(aiAgent, loadedPlayer)) {
                 aiAgent.setAggroTargetID(playerID);
@@ -602,30 +596,25 @@ public class MobileFSM {
     private static void CheckMobMovement(Mob mob) {
         mob.updateLocation();
         if (mob.isPet() == false && mob.isSummonedPet() == false && mob.isNecroPet() == false) {
-            patrol(mob);
-        } else{
+
+            if (mob.getCombatTarget() == null) {
+                patrol(mob);
+            } else {
+                chaseTarget(mob);
+            }
+        } else {
             //pet logic
-            if(mob.playerAgroMap.containsKey(mob.getOwner().getObjectUUID()) == false){
+            if (mob.playerAgroMap.containsKey(mob.getOwner().getObjectUUID()) == false) {
                 //mob no longer has its owner loaded, translocate pet to owner
-                MovementManager.translocate(mob,mob.getOwner().getLoc(),null);
+                MovementManager.translocate(mob, mob.getOwner().getLoc(), null);
             }
             if (mob.getCombatTarget() == null || mob.combatTarget.isAlive() == false) {
                 //move back to owner
                 if (CombatUtilities.inRange2D(mob, mob.getOwner(), 10) == false) {
                     mob.destination = mob.getOwner().getLoc();
                     MovementUtilities.moveToLocation(mob, mob.destination, 5);
-                }
-            } else {
-                //chase target
-                mob.updateMovementState();
-                if (CombatUtilities.inRange2D(mob, mob.getCombatTarget(), mob.getRange()) == false) {
-                    if (mob.getRange() > 15) {
-                        mob.destination = mob.getCombatTarget().getLoc();
-                        MovementUtilities.moveToLocation(mob, mob.destination, 0);
-                    } else {
-                        mob.destination = MovementUtilities.GetDestinationToCharacter(mob, (AbstractCharacter) mob.getCombatTarget());
-                        MovementUtilities.moveToLocation(mob, mob.destination, mob.getRange());
-                    }
+                } else {
+                    chaseTarget(mob);
                 }
             }
         }
@@ -637,7 +626,7 @@ public class MobileFSM {
             if (System.currentTimeMillis() > aiAgent.deathTime + MBServerStatics.DESPAWN_TIMER_WITH_LOOT) {
                 aiAgent.despawn();
                 //update time of death after mob despawns so respawn time happens after mob despawns.
-                if(aiAgent.deathTime != 0) {
+                if (aiAgent.deathTime != 0) {
                     aiAgent.setDeathTime(System.currentTimeMillis());
                 }
                 respawn(aiAgent);
@@ -650,7 +639,7 @@ public class MobileFSM {
                 if (System.currentTimeMillis() > aiAgent.deathTime + MBServerStatics.DESPAWN_TIMER_ONCE_LOOTED) {
                     aiAgent.despawn();
                     //update time of death after mob despawns so respawn time happens after mob despawns.
-                    if(aiAgent.deathTime != 0) {
+                    if (aiAgent.deathTime != 0) {
                         aiAgent.setDeathTime(System.currentTimeMillis());
                     }
                     respawn(aiAgent);
@@ -660,7 +649,7 @@ public class MobileFSM {
                 if (System.currentTimeMillis() > aiAgent.deathTime + MBServerStatics.DESPAWN_TIMER) {
                     aiAgent.despawn();
                     //update time of death after mob despawns so respawn time happens after mob despawns.
-                    if(aiAgent.deathTime != 0) {
+                    if (aiAgent.deathTime != 0) {
                         aiAgent.setDeathTime(System.currentTimeMillis());
                     }
                     respawn(aiAgent);
@@ -733,6 +722,18 @@ public class MobileFSM {
         if (System.currentTimeMillis() > aiAgent.deathTime + spawnTime) {
             aiAgent.respawn();
             aiAgent.setCombatTarget(null);
+        }
+    }
+    private static void chaseTarget(Mob mob) {
+        mob.updateMovementState();
+        if (CombatUtilities.inRange2D(mob, mob.getCombatTarget(), mob.getRange()) == false) {
+            if (mob.getRange() > 15) {
+                mob.destination = mob.getCombatTarget().getLoc();
+                MovementUtilities.moveToLocation(mob, mob.destination, 0);
+            } else {
+                mob.destination = MovementUtilities.GetDestinationToCharacter(mob, (AbstractCharacter) mob.getCombatTarget());
+                MovementUtilities.moveToLocation(mob, mob.destination, mob.getRange());
+            }
         }
     }
 }
