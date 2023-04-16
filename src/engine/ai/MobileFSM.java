@@ -569,10 +569,6 @@ public class MobileFSM {
         if (mob == null || mob.BehaviourType == MobBehaviourType.None) {
             return;
         }
-        //add default behaviour type
-            if(mob.BehaviourType == null){
-                mob.BehaviourType = MobBehaviourType.Simple;
-            }
         if (mob.isAlive() == false) {
             //no need to continue if mob is dead, check for respawn and move on
             CheckForRespawn(mob);
