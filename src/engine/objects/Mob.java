@@ -250,6 +250,7 @@ public class Mob extends AbstractIntelligenceAgent {
                     this.spawnTime = 60 * 15;
                     this.isPlayerGuard = true;
                     this.nameOverride = contract.getName();
+                    this.BehaviourType = MobileFSM.MobBehaviourType.GuardCaptain;
                 }
 
             int guildID = rs.getInt("mob_guildUID");

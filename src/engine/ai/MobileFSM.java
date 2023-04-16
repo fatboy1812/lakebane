@@ -394,7 +394,7 @@ public class MobileFSM {
             DispatchMessage.sendToAllInRange(mob, rwss);
         }
         //guard captains inherit barracks patrol points dynamically
-        if(mob.isPlayerGuard() && mob.getContract() != null){
+        if (mob.contract != null && NPC.ISGuardCaptain(mob.contract.getContractID())) {
             Building barracks = mob.building;
             if(barracks != null && barracks.patrolPoints != null && barracks.getPatrolPoints().isEmpty() == false) {
                 mob.patrolPoints = barracks.patrolPoints;
@@ -679,39 +679,7 @@ public class MobileFSM {
     private static void CheckMobMovement(Mob mob) {
         mob.updateLocation();
         if (mob.isPet() == false && mob.isSummonedPet() == false && mob.isNecroPet() == false) {
-            if (mob.getCombatTarget() == null) {
-                //patrol
-                int patrolRandom = ThreadLocalRandom.current().nextInt(1000);
-                if (patrolRandom <= MBServerStatics.AI_PATROL_DIVISOR) {
-                    if (MovementUtilities.canMove(mob) && !mob.isMoving()) {
-                        if (mob.isPlayerGuard()) {
-                            guardPatrol(mob);
-                            return;
-                        }
-                        float patrolRadius = mob.getSpawnRadius();
-
-                        if (patrolRadius > 256)
-                            patrolRadius = 256;
-
-                        if (patrolRadius < 60)
-                            patrolRadius = 60;
-
-                        MovementUtilities.aiMove(mob, Vector3fImmutable.getRandomPointInCircle(mob.getBindLoc(), patrolRadius), true);
-                    }
-                }
-            } else {
-                //chase target
-                mob.updateMovementState();
-                if (CombatUtilities.inRange2D(mob, mob.getCombatTarget(), mob.getRange()) == false) {
-                    if (mob.getRange() > 15) {
-                        mob.destination = mob.getCombatTarget().getLoc();
-                        MovementUtilities.moveToLocation(mob, mob.destination, 0);
-                    } else {
-                        mob.destination = MovementUtilities.GetDestinationToCharacter(mob, (AbstractCharacter) mob.getCombatTarget());
-                        MovementUtilities.moveToLocation(mob, mob.destination, mob.getRange());
-                    }
-                }
-            }
+            patrol(mob);
         } else{
             //pet logic
             if(mob.playerAgroMap.containsKey(mob.getOwner().getObjectUUID()) == false){
