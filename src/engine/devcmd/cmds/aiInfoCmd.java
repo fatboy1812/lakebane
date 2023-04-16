@@ -32,7 +32,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class aiInfoCmd extends AbstractDevCmd {
 
     public aiInfoCmd() {
-        super("info");
+        super("aiinfo");
     }
 
     @Override
