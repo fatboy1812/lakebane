@@ -410,85 +410,6 @@ public class MobileFSM {
             mob.lastPatrolPointIndex += 1;
         }
     }
-    private static void guardPatrol(Mob aiAgent) {
-        if (aiAgent.isCombat() && aiAgent.getCombatTarget() == null) {
-            aiAgent.setCombat(false);
-            UpdateStateMsg rwss = new UpdateStateMsg();
-            rwss.setPlayer(aiAgent);
-            DispatchMessage.sendToAllInRange(aiAgent, rwss);
-        }
-
-        if (aiAgent.npcOwner == null) {
-
-            if (!aiAgent.isWalk() || (aiAgent.isCombat() && aiAgent.getCombatTarget() == null)) {
-                aiAgent.setWalkMode(true);
-                aiAgent.setCombat(false);
-                UpdateStateMsg rwss = new UpdateStateMsg();
-                rwss.setPlayer(aiAgent);
-                DispatchMessage.sendToAllInRange(aiAgent, rwss);
-            }
-            Building barrack = aiAgent.building;
-
-            if (barrack == null) {
-                return;
-            }
-
-            int patrolRandom = ThreadLocalRandom.current().nextInt(1000);
-
-            if (patrolRandom <= 10) {
-                int buildingHitBox = (int) CombatManager.calcHitBox(barrack);
-                if (MovementUtilities.canMove(aiAgent)) {
-                    MovementUtilities.aiMove(aiAgent, MovementUtilities.randomPatrolLocation(aiAgent, aiAgent.getBindLoc(), buildingHitBox * 2), true);
-                }
-            }
-            return;
-
-        }
-
-        if (!aiAgent.isWalk() || (aiAgent.isCombat() && aiAgent.getCombatTarget() == null)) {
-            aiAgent.setWalkMode(true);
-            aiAgent.setCombat(false);
-            UpdateStateMsg rwss = new UpdateStateMsg();
-            rwss.setPlayer(aiAgent);
-            DispatchMessage.sendToAllInRange(aiAgent, rwss);
-
-        }
-
-        Building barrack = ((Mob) aiAgent.npcOwner).building;
-
-        if (barrack == null) {
-            return;
-        }
-
-        if (barrack.getPatrolPoints() == null) {
-            return;
-        }
-
-        if (barrack.getPatrolPoints().isEmpty()) {
-            return;
-        }
-
-        if (aiAgent.isMoving()) {
-            return;
-        }
-
-        int patrolRandom = ThreadLocalRandom.current().nextInt(1000);
-
-        if (patrolRandom <= 10) {
-            if (aiAgent.getPatrolPointIndex() < barrack.getPatrolPoints().size()) {
-                Vector3fImmutable patrolLoc = barrack.getPatrolPoints().get(aiAgent.getPatrolPointIndex());
-                aiAgent.setPatrolPointIndex(aiAgent.getPatrolPointIndex() + 1);
-                if (aiAgent.getPatrolPointIndex() == barrack.getPatrolPoints().size())
-                    aiAgent.setPatrolPointIndex(0);
-
-                if (patrolLoc != null) {
-                    if (MovementUtilities.canMove(aiAgent)) {
-                        MovementUtilities.aiMove(aiAgent, patrolLoc, true);
-                    }
-                }
-            }
-        }
-    }
     public static boolean canCast(Mob mob) {
 
         // Performs validation to determine if a
@@ -645,7 +566,6 @@ public class MobileFSM {
             CheckForAttack(mob);
         }
     }
-
     private static void CheckForAggro(Mob aiAgent) {
         //looks for and sets mobs combatTarget
         if (!aiAgent.isAlive()) {
@@ -815,5 +735,4 @@ public class MobileFSM {
             aiAgent.setCombatTarget(null);
         }
     }
-
 }
