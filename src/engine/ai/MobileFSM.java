@@ -34,7 +34,7 @@ public class MobileFSM {
         PowerHelpeeWimpy(Power, true, false, true, false, false),
         PowerGrouperWimpy(Power, true, false, true, false, false),
         PowerAggro(Power, false, true, true, false, true),
-        PowerAggroHelpe(Power, false, true, true, false, true),
+        PowerAggroHelpee(Power, false, true, true, false, true),
         //Aggro
         Aggro(null, false, true, true, true, false),
         AggroHelpee(Aggro, false, true, true, false, true),
