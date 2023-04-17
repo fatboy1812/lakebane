@@ -22,6 +22,7 @@ import engine.server.MBServerStatics;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
@@ -533,6 +534,11 @@ public class MobileFSM {
         if (mob == null) {
             return;
         }
+        if(mob.BehaviourType.ordinal() == MobBehaviourType.GuardCaptain.ordinal()){
+            //this is a player slotted guard captain
+            GuardCaptainLogic(mob);
+            return;
+        }
         if (mob.isPet() == false && mob.isSummonedPet() == false && mob.isNecroPet() == false) {
             if (mob.isAlive() == false) {
                 //no need to continue if mob is dead, check for respawn and move on
@@ -767,5 +773,80 @@ public class MobileFSM {
                 continue;
             mob.setCombatTarget(aggroMob);
         }
+    }
+    public static void GuardCaptainLogic(Mob mob){
+        if (mob.playerAgroMap.isEmpty()) {
+            //no players loaded, no need to proceed
+            return;
+        }
+        if (mob.isAlive() == false) {
+            //no need to continue if mob is dead, check for respawn and move on
+            CheckForRespawn(mob);
+            return;
+        }
+        CheckToSendMobHome(mob);
+        CheckForPlayerGuardAggro(mob);
+        CheckMobMovement(mob);
+        CheckForAttack(mob);
+
+    }
+    public static void CheckForPlayerGuardAggro(Mob mob) {
+        //looks for and sets mobs combatTarget
+        if (!mob.isAlive()) {
+            return;
+        }
+        ConcurrentHashMap<Integer, Boolean> loadedPlayers = mob.playerAgroMap;
+        for (Entry playerEntry : loadedPlayers.entrySet()) {
+            int playerID = (int) playerEntry.getKey();
+            PlayerCharacter loadedPlayer = PlayerCharacter.getFromCache(playerID);
+            //Player is null, let's remove them from the list.
+            if (loadedPlayer == null) {
+                loadedPlayers.remove(playerID);
+                continue;
+            }
+            //Player is Dead, Mob no longer needs to attempt to aggro. Remove them from aggro map.
+            if (!loadedPlayer.isAlive()) {
+                loadedPlayers.remove(playerID);
+                continue;
+            }
+            //Can't see target, skip aggro.
+            if (!mob.canSee(loadedPlayer)) {
+                continue;
+            }
+            // No aggro for this player
+            if (GuardCanAggro(mob,loadedPlayer) == false)
+                continue;
+            if (MovementUtilities.inRangeToAggro(mob, loadedPlayer)) {
+                mob.setAggroTargetID(playerID);
+                mob.setCombatTarget(loadedPlayer);
+                return;
+            }
+        }
+    }
+    private static Boolean GuardCanAggro(Mob mob, PlayerCharacter target){
+        //first check condemn list for aggro allowed
+        if(ZoneManager.getCityAtLocation(mob.building.getLoc()).getTOL().enforceKOS) {
+            for (Entry<Integer, Condemned> entry : ZoneManager.getCityAtLocation(mob.building.getLoc()).getTOL().getCondemned().entrySet()) {
+                if (entry.getValue().getPlayerUID() == target.getObjectUUID() && entry.getValue().isActive()) {
+                    //target is listed individually
+                    return true;
+                }
+                if(Guild.getGuild(entry.getValue().getGuildUID()) == target.getGuild()){
+                    //target's guild is listed
+                    return true;
+                }
+                if(Guild.getGuild(entry.getValue().getGuildUID()) == target.getGuild().getNation()){
+                    //target's nation is listed
+                    return true;
+                }
+            }
+        }
+        //next check not in same nation or allied guild/nation
+        if(!mob.building.getGuild().getNation().equals(target.getGuild().getNation())) {
+            if (!mob.building.getGuild().getAllyList().contains(target.getGuild()) || !mob.building.getGuild().getAllyList().contains(target.getGuild().getNation())) {
+                return true;
+            }
+        }
+        return false;
     }
 }
