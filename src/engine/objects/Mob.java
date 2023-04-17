@@ -839,6 +839,14 @@ public class Mob extends AbstractIntelligenceAgent {
 
         if (!isPet && !isSiege)
             Mob.mobMapByDBID.put(this.dbID, this);
+        if (this.building != null && this.building.getBlueprint() != null && this.isPlayerGuard()) {
+            int maxSlots = 10;
+            for (int slot = 1; slot < maxSlots + 1; slot++)
+                if (!this.building.getHirelings().containsValue(slot)) {
+                    this.building.getHirelings().put(this, slot);
+                    break;
+                }
+        }
     }
 
     /*
