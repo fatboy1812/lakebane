@@ -2792,4 +2792,66 @@ public class Enum {
 		ADMIN;
 	}
 
+    public enum MobBehaviourType {
+        //Power
+        Power(null, false, true, true, true, false),
+        PowerHelpee(Power, false, true, true, false, true),
+        PowerHelpeeWimpy(Power, true, false, true, false, false),
+        PowerGrouperWimpy(Power, true, false, true, false, false),
+        PowerAggro(Power, false, true, true, false, true),
+        PowerAggroHelpee(Power, false, true, true, false, true),
+        //Aggro
+        Aggro(null, false, true, true, true, false),
+        AggroHelpee(Aggro, false, true, true, false, true),
+        AggroHelpeeWimpy(Aggro, true, false, true, false, false),
+        AggroGrouperWimpy(Aggro, true, false, true, false, false),
+        //Spell
+        Spell(null, false, true, true, true, false),
+        SpellHelpee(Spell, false, true, true, false, true),
+        SpellHelpeeWimpy(Spell, true, false, true, false, false),
+        SpellGrouperWimpy(Spell, true, false, true, false, false),
+        SpellAggro(Spell, false, true, true, false, true),
+        SpellAggroHelpee(Spell, false, true, true, false, true),
+        SpellAggroHelpeeWimpy(Spell, true, false, true, false, false),
+        SpellAggroHelpeeEpic(Spell, false, true, true, false, true),
+        SpellAggroGrouperWimpy(Spell, true, false, true, false, false),
+        //Independent Types
+        SimpleStandingGuard(null, false, false, false, false, false),
+        Pet1(null, false, false, true, false, false),
+        Simple(null, false, false, true, false, false),
+        Helpee(null, false, true, true, false, true),
+        HelpeeWimpy(null, true, false, true, false, false),
+        None(null, false, false, false, false, false),
+        GuardCaptain(null, false, true, true, true, false),
+        GuardMinion(GuardCaptain, false, true, true, false, true),
+		Wanderer(null, false, false, false, false, false),
+		HamletGuard(null, false, false, false, false, false),
+		AggroWanderer(null, false, false, false, false, false);
+
+        private static HashMap<Integer, MobBehaviourType> _behaviourTypes = new HashMap<>();
+        public MobBehaviourType BehaviourHelperType;
+        public boolean isWimpy;
+        public boolean isAgressive;
+        public boolean canRoam;
+        public boolean callsForHelp;
+        public boolean respondsToCallForHelp;
+
+        MobBehaviourType(MobBehaviourType helpeebehaviourType, boolean wimpy, boolean agressive, boolean canroam, boolean callsforhelp, boolean respondstocallforhelp) {
+            this.BehaviourHelperType = helpeebehaviourType;
+            this.isWimpy = wimpy;
+            this.isAgressive = agressive;
+            this.canRoam = canroam;
+            this.callsForHelp = callsforhelp;
+            this.respondsToCallForHelp = respondstocallforhelp;
+        }
+
+		public static MobBehaviourType getByName(String name) {
+			for (MobBehaviourType behaviourType : values()) {
+				if (behaviourType.name().equalsIgnoreCase(name)) {
+					return behaviourType;
+				}
+			}
+			return MobBehaviourType.None;
+		}
+    }
 }

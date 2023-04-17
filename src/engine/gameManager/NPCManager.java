@@ -2,7 +2,6 @@ package engine.gameManager;
 
 import engine.Enum;
 import engine.InterestManagement.WorldGrid;
-import engine.ai.MobileFSM;
 import engine.math.Vector3fImmutable;
 import engine.net.Dispatch;
 import engine.net.DispatchMessage;
@@ -325,7 +324,7 @@ public enum NPCManager {
         mob.deathTime = System.currentTimeMillis();
         mob.spawnTime = 900;
         mob.npcOwner = guardCaptain;
-        mob.BehaviourType = MobileFSM.MobBehaviourType.GuardMinion;
+        mob.BehaviourType = Enum.MobBehaviourType.GuardMinion;
         return mob;
     }
 

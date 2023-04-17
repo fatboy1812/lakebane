@@ -6,6 +6,7 @@
 //      Magicbane Emulator Project © 2013 - 2022
 //                www.magicbane.com
 package engine.ai;
+import engine.Enum;
 import engine.Enum.DispatchChannel;
 import engine.InterestManagement.WorldGrid;
 import engine.ai.utilities.CombatUtilities;
@@ -20,64 +21,12 @@ import engine.powers.ActionsBase;
 import engine.powers.PowersBase;
 import engine.server.MBServerStatics;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 import static engine.math.FastMath.sqr;
 public class MobileFSM {
-    public enum MobBehaviourType {
-        //Power
-        Power(null, false, true, true, true, false),
-        PowerHelpee(Power, false, true, true, false, true),
-        PowerHelpeeWimpy(Power, true, false, true, false, false),
-        PowerGrouperWimpy(Power, true, false, true, false, false),
-        PowerAggro(Power, false, true, true, false, true),
-        PowerAggroHelpee(Power, false, true, true, false, true),
-        //Aggro
-        Aggro(null, false, true, true, true, false),
-        AggroHelpee(Aggro, false, true, true, false, true),
-        AggroHelpeeWimpy(Aggro, true, false, true, false, false),
-        AggroGrouperWimpy(Aggro, true, false, true, false, false),
-        //Spell
-        Spell(null, false, true, true, true, false),
-        SpellHelpee(Spell, false, true, true, false, true),
-        SpellHelpeeWimpy(Spell, true, false, true, false, false),
-        SpellGrouperWimpy(Spell, true, false, true, false, false),
-        SpellAggro(Spell, false, true, true, false, true),
-        SpellAggroHelpee(Spell, false, true, true, false, true),
-        SpellAggroHelpeeWimpy(Spell, true, false, true, false, false),
-        SpellAggroHelpeeEpic(Spell, false, true, true, false, true),
-        SpellAggroGrouperWimpy(Spell, true, false, true, false, false),
-        //Independent Types
-        SimpleStandingGuard(null, false, false, false, false, false),
-        Pet1(null, false, false, true, false, false),
-        Simple(null, false, false, true, false, false),
-        Helpee(null, false, true, true, false, true),
-        HelpeeWimpy(null, true, false, true, false, false),
-        None(null, false, false, false, false, false),
-        GuardCaptain(null, false, true, true, true, false),
-        GuardMinion(GuardCaptain, false, true, true, false, true);
-
-        private static HashMap<Integer, MobBehaviourType> _behaviourTypes = new HashMap<>();
-        public MobBehaviourType BehaviourHelperType;
-        public boolean isWimpy;
-        public boolean isAgressive;
-        public boolean canRoam;
-        public boolean callsForHelp;
-        public boolean respondsToCallForHelp;
-
-        MobBehaviourType(MobBehaviourType helpeebehaviourType, boolean wimpy, boolean agressive, boolean canroam, boolean callsforhelp, boolean respondstocallforhelp) {
-            this.BehaviourHelperType = helpeebehaviourType;
-            this.isWimpy = wimpy;
-            this.isAgressive = agressive;
-            this.canRoam = canroam;
-            this.callsForHelp = callsforhelp;
-            this.respondsToCallForHelp = respondstocallforhelp;
-        }
-    }
 
     private static void mobAttack(Mob aiAgent) {
 
@@ -534,7 +483,7 @@ public class MobileFSM {
         if (mob == null) {
             return;
         }
-        if(mob.BehaviourType.ordinal() == MobBehaviourType.GuardCaptain.ordinal()){
+        if(mob.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardCaptain.ordinal()){
             //this is a player slotted guard captain
             GuardCaptainLogic(mob);
             return;
@@ -553,10 +502,10 @@ public class MobileFSM {
                 return;
             }
             //check for players that can be aggroed if mob is agressive and has no target
-            if (mob.BehaviourType.isAgressive && mob.getCombatTarget() == null && mob.BehaviourType != MobBehaviourType.SimpleStandingGuard) {
+            if (mob.BehaviourType.isAgressive && mob.getCombatTarget() == null && mob.BehaviourType != Enum.MobBehaviourType.SimpleStandingGuard) {
                 //normal aggro
                 CheckForAggro(mob);
-            } else if (mob.BehaviourType == MobBehaviourType.SimpleStandingGuard) {
+            } else if (mob.BehaviourType == Enum.MobBehaviourType.SimpleStandingGuard) {
                 //safehold guard
                 SafeGuardAggro(mob);
             }

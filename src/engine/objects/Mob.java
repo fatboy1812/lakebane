@@ -105,7 +105,7 @@ public class Mob extends AbstractIntelligenceAgent {
 
     public EnumBitSet<MonsterType> notEnemy;
     public EnumBitSet<Enum.MonsterType> enemy;
-    public MobileFSM.MobBehaviourType BehaviourType;
+    public MobBehaviourType BehaviourType;
     public ArrayList<Vector3fImmutable> patrolPoints;
     public int lastPatrolPointIndex = 0;
     public long stopPatrolTime = 0;
@@ -184,7 +184,7 @@ public class Mob extends AbstractIntelligenceAgent {
         this.parentZone = parent;
         this.parentZoneID = (parent != null) ? parent.getObjectUUID() : 0;
         this.ownerUID = owner.getObjectUUID();
-        this.BehaviourType = MobileFSM.MobBehaviourType.Pet1;
+        this.BehaviourType = Enum.MobBehaviourType.Pet1;
         initializeMob(true, false, false);
         clearStatic();
     }
@@ -1996,7 +1996,7 @@ public class Mob extends AbstractIntelligenceAgent {
             }
             this.BehaviourType = this.getMobBase().fsm;
             if(this.isPlayerGuard() && this.contract != null){
-                this.BehaviourType = MobileFSM.MobBehaviourType.GuardCaptain;
+                this.BehaviourType = Enum.MobBehaviourType.GuardCaptain;
             }
         } catch (Exception e) {
             Logger.error(e.getMessage());
