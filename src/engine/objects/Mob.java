@@ -1987,12 +1987,7 @@ public class Mob extends AbstractIntelligenceAgent {
                     this.patrolPoints.add(newPatrolPoint);
                 }
             }
-            if (this.getMobBase().fsm.length() > 1) {
-                this.BehaviourType = MobileFSM.MobBehaviourType.valueOf(getMobBase().fsm);
-            } else {
-                this.BehaviourType = MobileFSM.MobBehaviourType.None;
-                Logger.error(this.getName() + " with UUID: " + this.getObjectUUID() + " failed to load a MobBehaviourType");
-            }
+            this.BehaviourType = MobileFSM.MobBehaviourType.valueOf(getMobBase().fsm);
         } catch (Exception e) {
             Logger.error(e.getMessage());
         }
