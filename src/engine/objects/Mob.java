@@ -298,12 +298,6 @@ public class Mob extends AbstractIntelligenceAgent {
                 this.equipmentSetID = this.contract.getEquipmentSet();
 
             this.nameOverride = rs.getString("mob_name");
-                if (this.getMobBase().fsm.length() > 1) {
-                    this.BehaviourType = MobileFSM.MobBehaviourType.valueOf(rs.getString("fsm"));
-                } else {
-                    this.BehaviourType = MobileFSM.MobBehaviourType.None;
-                    Logger.error(this.getName() + " with UUID: " + this.getObjectUUID() + " failed to load a MobBehaviourType");
-                }
         } catch (Exception e) {
             Logger.error(currentID + "");
         }
@@ -1992,6 +1986,12 @@ public class Mob extends AbstractIntelligenceAgent {
                     Vector3fImmutable newPatrolPoint =  Vector3fImmutable.getRandomPointInCircle(this.getBindLoc(), patrolRadius);
                     this.patrolPoints.add(newPatrolPoint);
                 }
+            }
+            if (this.getMobBase().fsm.length() > 1) {
+                this.BehaviourType = MobileFSM.MobBehaviourType.valueOf(getMobBase().fsm);
+            } else {
+                this.BehaviourType = MobileFSM.MobBehaviourType.None;
+                Logger.error(this.getName() + " with UUID: " + this.getObjectUUID() + " failed to load a MobBehaviourType");
             }
         } catch (Exception e) {
             Logger.error(e.getMessage());
