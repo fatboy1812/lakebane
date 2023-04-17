@@ -7,6 +7,7 @@
 //                www.magicbane.com
 package engine.ai;
 import engine.Enum.DispatchChannel;
+import engine.InterestManagement.WorldGrid;
 import engine.ai.utilities.CombatUtilities;
 import engine.ai.utilities.MovementUtilities;
 import engine.gameManager.*;
@@ -20,6 +21,7 @@ import engine.powers.PowersBase;
 import engine.server.MBServerStatics;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
@@ -75,6 +77,7 @@ public class MobileFSM {
             this.respondsToCallForHelp = respondstocallforhelp;
         }
     }
+
     private static void mobAttack(Mob aiAgent) {
 
         AbstractGameObject target = aiAgent.getCombatTarget();
@@ -110,6 +113,7 @@ public class MobileFSM {
                 handleMobAttackForMob(aiAgent, mob);
         }
     }
+
     private static void petHandleBuildingAttack(Mob aiAgent, Building building) {
 
         int buildingHitBox = (int) CombatManager.calcHitBox(building);
@@ -216,6 +220,7 @@ public class MobileFSM {
             if (MovementUtilities.canMove(aiAgent))
                 MovementUtilities.moveToLocation(aiAgent, building.getLoc(), aiAgent.getRange() + buildingHitBox);
     }
+
     private static void handlePlayerAttackForMob(Mob aiAgent, PlayerCharacter player) {
 
         if (aiAgent.getMobBase().getSeeInvis() < player.getHidden()) {
@@ -304,6 +309,7 @@ public class MobileFSM {
             return;
 
     }
+
     private static void handleMobAttackForMob(Mob aiAgent, Mob mob) {
 
 
@@ -368,6 +374,7 @@ public class MobileFSM {
         if (!MovementUtilities.updateMovementToCharacter(aiAgent, mob))
             return;
     }
+
     private static void patrol(Mob mob) {
         if (mob.isMoving() == true) {
             //early exit for a mob who is already moving to a patrol point
@@ -404,6 +411,7 @@ public class MobileFSM {
             mob.lastPatrolPointIndex += 1;
         }
     }
+
     public static boolean canCast(Mob mob) {
 
         // Performs validation to determine if a
@@ -420,6 +428,7 @@ public class MobileFSM {
 
         return mob.nextCastTime <= System.currentTimeMillis();
     }
+
     public static boolean MobCast(Mob mob) {
 
         // Method picks a random spell from a mobile's list of powers
@@ -496,6 +505,7 @@ public class MobileFSM {
 
         return false;
     }
+
     public static void MobCallForHelp(Mob mob) {
         boolean callGotResponse = false;
         if (mob.nextCallForHelp == 0) {
@@ -518,16 +528,12 @@ public class MobileFSM {
             mob.nextCallForHelp = System.currentTimeMillis() + 60000;
         }
     }
+
     public static void run(Mob mob) {
         if (mob == null) {
             return;
         }
         if (mob.isPet() == false && mob.isSummonedPet() == false && mob.isNecroPet() == false) {
-            //TEST CODE FOR BEHAVIOUR CHANGING START
-            if (mob.BehaviourType == null || mob.BehaviourType.ordinal() == MobBehaviourType.None.ordinal()) {
-                mob.BehaviourType = MobBehaviourType.Simple;
-            }
-            //TEST CODE FOR BEHAVIOUR CHANGING END
             if (mob.isAlive() == false) {
                 //no need to continue if mob is dead, check for respawn and move on
                 CheckForRespawn(mob);
@@ -544,7 +550,7 @@ public class MobileFSM {
             if (mob.BehaviourType.isAgressive && mob.getCombatTarget() == null && mob.BehaviourType != MobBehaviourType.SimpleStandingGuard) {
                 //normal aggro
                 CheckForAggro(mob);
-            } else if(mob.BehaviourType == MobBehaviourType.SimpleStandingGuard){
+            } else if (mob.BehaviourType == MobBehaviourType.SimpleStandingGuard) {
                 //safehold guard
                 SafeGuardAggro(mob);
             }
@@ -561,6 +567,7 @@ public class MobileFSM {
             CheckForAttack(mob);
         }
     }
+
     private static void CheckForAggro(Mob aiAgent) {
         //looks for and sets mobs combatTarget
         if (!aiAgent.isAlive()) {
@@ -594,6 +601,7 @@ public class MobileFSM {
             }
         }
     }
+
     private static void CheckMobMovement(Mob mob) {
         mob.updateLocation();
         if (mob.isPet() == false && mob.isSummonedPet() == false && mob.isNecroPet() == false) {
@@ -620,6 +628,7 @@ public class MobileFSM {
             }
         }
     }
+
     private static void CheckForRespawn(Mob aiAgent) {
         //handles checking for respawn of dead mobs even when no players have mob loaded
         //Despawn Timer with Loot currently in inventory.
@@ -659,6 +668,7 @@ public class MobileFSM {
         }
 
     }
+
     public static void CheckForAttack(Mob mob) {
         //checks if mob can attack based on attack timer and range
         if (mob.isAlive())
@@ -671,6 +681,7 @@ public class MobileFSM {
         }
         mobAttack(mob);
     }
+
     private static void CheckToSendMobHome(Mob mob) {
         if (mob.getLoc().distanceSquared2D(mob.getBindLoc()) > sqr(2000)) {
             PowersBase recall = PowersManager.getPowerByToken(-1994153779);
@@ -679,6 +690,7 @@ public class MobileFSM {
             mob.setCombatTarget(null);
         }
     }
+
     public static void dead(Mob aiAgent) {
         //Despawn Timer with Loot currently in inventory.
         if (aiAgent.getCharItemManager().getInventoryCount() > 0) {
@@ -710,6 +722,7 @@ public class MobileFSM {
             }
         }
     }
+
     private static void respawn(Mob aiAgent) {
 
         if (!aiAgent.canRespawn())
@@ -725,6 +738,7 @@ public class MobileFSM {
             aiAgent.setCombatTarget(null);
         }
     }
+
     private static void chaseTarget(Mob mob) {
         mob.updateMovementState();
         if (CombatUtilities.inRange2D(mob, mob.getCombatTarget(), mob.getRange()) == false) {
@@ -737,9 +751,21 @@ public class MobileFSM {
             }
         }
     }
-    private static void SafeGuardAggro(Mob mob){
-        for(Entry<Integer,Boolean> entry : mob.playerAgroMap.entrySet()){
 
+    private static void SafeGuardAggro(Mob mob) {
+        HashSet<AbstractWorldObject> awoList = WorldGrid.getObjectsInRangePartial(mob, 100, MBServerStatics.MASK_MOB);
+        for (AbstractWorldObject awoMob : awoList) {
+            //dont scan self.
+            if (mob.equals(awoMob))
+                continue;
+
+            Mob aggroMob = (Mob) awoMob;
+            //dont attack other guards
+            if (aggroMob.isGuard())
+                continue;
+            if (mob.getLoc().distanceSquared2D(aggroMob.getLoc()) > sqr(50))
+                continue;
+            mob.setCombatTarget(aggroMob);
         }
     }
 }

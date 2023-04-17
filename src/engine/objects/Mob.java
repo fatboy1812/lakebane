@@ -13,7 +13,6 @@ import engine.Enum;
 import engine.Enum.*;
 import engine.InterestManagement.WorldGrid;
 import engine.ai.MobileFSM;
-import engine.ai.utilities.MovementUtilities;
 import engine.exception.SerializationException;
 import engine.gameManager.*;
 import engine.job.JobContainer;
