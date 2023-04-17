@@ -843,7 +843,6 @@ public class Mob extends AbstractIntelligenceAgent {
             for (int slot = 1; slot < maxSlots + 1; slot++)
                 if (!this.building.getHirelings().containsValue(slot)) {
                     this.building.getHirelings().put(this, slot);
-                    this.BehaviourType = MobileFSM.MobBehaviourType.GuardCaptain;
                     break;
                 }
         }
@@ -1996,6 +1995,9 @@ public class Mob extends AbstractIntelligenceAgent {
                 }
             }
             this.BehaviourType = this.getMobBase().fsm;
+            if(this.isPlayerGuard() && this.contract != null){
+                this.BehaviourType = MobileFSM.MobBehaviourType.GuardCaptain;
+            }
         } catch (Exception e) {
             Logger.error(e.getMessage());
         }
