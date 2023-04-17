@@ -298,13 +298,11 @@ public class Mob extends AbstractIntelligenceAgent {
                 this.equipmentSetID = this.contract.getEquipmentSet();
 
             this.nameOverride = rs.getString("mob_name");
-            try {
                 if (rs.getString("fsm").length() > 1) {
                     this.BehaviourType = MobileFSM.MobBehaviourType.valueOf(rs.getString("fsm"));
+                } else {
+                    this.BehaviourType = MobileFSM.MobBehaviourType.None;
                 }
-            }catch(Exception ex) {
-                this.BehaviourType = MobileFSM.MobBehaviourType.None;
-            }
         } catch (Exception e) {
             Logger.error(currentID + "");
         }
