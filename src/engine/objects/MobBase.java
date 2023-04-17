@@ -11,6 +11,7 @@ package engine.objects;
 
 import ch.claude_martin.enumbitset.EnumBitSet;
 import engine.Enum;
+import engine.ai.MobileFSM;
 import engine.gameManager.DbManager;
 import engine.gameManager.NPCManager;
 import engine.server.MBServerStatics;
@@ -60,7 +61,7 @@ public class MobBase extends AbstractGameObject {
 	private float walkCombat = 0;
 	private float runCombat = 0;
 	public int bootySet;
-	public String fsm = "";
+	public MobileFSM.MobBehaviourType fsm;
 
 	public EnumBitSet<Enum.MonsterType> notEnemy;
 	public EnumBitSet<Enum.MonsterType> enemy;
@@ -89,7 +90,7 @@ public class MobBase extends AbstractGameObject {
 		this.defenseRating = rs.getInt("defense");
 		this.attackRange = rs.getFloat("attackRange");
 		this.bootySet = rs.getInt("bootySet");
-		this.fsm = rs.getString("fsm");
+		this.fsm = MobileFSM.MobBehaviourType.valueOf(rs.getString("fsm"));
 
 		if (MobbaseGoldEntry.MobbaseGoldMap.containsKey(this.loadID)){
 			MobbaseGoldEntry goldEntry = MobbaseGoldEntry.MobbaseGoldMap.get(this.loadID);

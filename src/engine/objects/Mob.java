@@ -1987,7 +1987,7 @@ public class Mob extends AbstractIntelligenceAgent {
                     this.patrolPoints.add(newPatrolPoint);
                 }
             }
-            this.BehaviourType = MobileFSM.MobBehaviourType.valueOf(getMobBase().fsm);
+            this.BehaviourType = this.getMobBase().fsm;
         } catch (Exception e) {
             Logger.error(e.getMessage());
         }
