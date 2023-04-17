@@ -10,7 +10,6 @@
 package engine.db.handlers;
 
 import engine.objects.BootySetEntry;
-import engine.objects.EquipmentSetEntry;
 import engine.objects.ItemBase;
 import org.pmw.tinylog.Logger;
 
@@ -106,49 +105,6 @@ public class dbItemBaseHandler extends dbHandlerBase {
 		} finally {
 			closeCallable();
 		}
-	}
-
-	public HashMap<Integer, ArrayList<EquipmentSetEntry>> LOAD_EQUIPMENT_FOR_NPC_AND_MOBS() {
-
-		HashMap<Integer, ArrayList<EquipmentSetEntry>> equipmentSets;
-		EquipmentSetEntry equipmentSetEntry;
-		int	equipSetID;
-
-		equipmentSets = new HashMap<>();
-		int recordsRead = 0;
-
-		prepareCallable("SELECT * FROM static_npc_equipmentset");
-
-		try {
-			ResultSet rs = executeQuery();
-
-			while (rs.next()) {
-
-				recordsRead++;
-
-				equipSetID = rs.getInt("equipmentSet");
-				equipmentSetEntry = new EquipmentSetEntry(rs);
-
-				if (equipmentSets.get(equipSetID) == null){
-					ArrayList<EquipmentSetEntry> equipList = new ArrayList<>();
-					equipList.add(equipmentSetEntry);
-					equipmentSets.put(equipSetID, equipList);
-				}
-				else{
-					ArrayList<EquipmentSetEntry>equipList = equipmentSets.get(equipSetID);
-					equipList.add(equipmentSetEntry);
-					equipmentSets.put(equipSetID, equipList);
-				}
-			}
-
-			Logger.info("read: " + recordsRead + " cached: " + equipmentSets.size());
-
-		} catch (SQLException e) {
-			Logger.error( e.toString());
-		} finally {
-			closeCallable();
-		}
-		return equipmentSets;
 	}
 
 	public HashMap<Integer, ArrayList<Integer>> LOAD_RUNES_FOR_NPC_AND_MOBS() {

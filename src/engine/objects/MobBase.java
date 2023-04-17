@@ -146,20 +146,20 @@ public class MobBase extends AbstractGameObject {
 
 	public static HashMap<Integer, MobEquipment> loadEquipmentSet(int equipmentSetID){
 
-		ArrayList<EquipmentSetEntry> equipList;
+		ArrayList<BootySetEntry> equipList;
 		HashMap<Integer, MobEquipment> equip = new HashMap<>();
 
 		if (equipmentSetID == 0)
 			return equip;
 
-		equipList = NPCManager._equipmentSetMap.get(equipmentSetID);
+		equipList = NPCManager._bootySetMap.get(equipmentSetID);
 
 		if (equipList == null)
 			return equip;
 
-		for (EquipmentSetEntry equipmentSetEntry : equipList) {
+		for (BootySetEntry equipmentSetEntry : equipList) {
 
-			MobEquipment mobEquipment = new MobEquipment(equipmentSetEntry.itemID, equipmentSetEntry.dropChance);
+			MobEquipment mobEquipment = new MobEquipment(equipmentSetEntry.itemBase, equipmentSetEntry.dropChance);
 			ItemBase itemBase = mobEquipment.getItemBase();
 
 			if (itemBase != null) {
