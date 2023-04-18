@@ -502,21 +502,17 @@ public class MobileFSM {
         }
         if(mob.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardMinion.ordinal()){
             //this is a player slotted guard minion
-            if(mob.isAlive() == false){
+            if(mob.isAlive() == false || mob.despawned){
                 CheckForRespawn(mob);
                 return;
             }
             CheckToSendMobHome(mob);
             if(mob.npcOwner.isAlive() == false){
                 CheckForPlayerGuardAggro(mob);
-                CheckMobMovement(mob);
-                if(mob.getCombatTarget() != null){
-                    CheckForAttack(mob);
-                }
                 return;
             }
+            CheckMobMovement(mob);
             if(mob.getCombatTarget() != null){
-                CheckMobMovement(mob);
                 CheckForAttack(mob);
             }
             return;
