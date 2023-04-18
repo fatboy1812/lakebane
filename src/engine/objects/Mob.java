@@ -297,6 +297,9 @@ public class Mob extends AbstractIntelligenceAgent {
                 this.equipmentSetID = this.contract.getEquipmentSet();
 
             this.nameOverride = rs.getString("mob_name");
+            if(rs.getString("fsm").length() > 1){
+                this.BehaviourType = Enum.MobBehaviourType.valueOf(rs.getString("fsm"));
+            }
         } catch (Exception e) {
             Logger.error(currentID + "");
         }
@@ -1994,7 +1997,9 @@ public class Mob extends AbstractIntelligenceAgent {
                     this.patrolPoints.add(newPatrolPoint);
                 }
             }
-            this.BehaviourType = this.getMobBase().fsm;
+            if(this.BehaviourType == null) {
+                this.BehaviourType = this.getMobBase().fsm;
+            }
             if(this.isPlayerGuard() && this.contract != null){
                 this.BehaviourType = Enum.MobBehaviourType.GuardCaptain;
             }
