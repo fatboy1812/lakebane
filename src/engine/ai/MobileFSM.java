@@ -506,13 +506,8 @@ public class MobileFSM {
                 CheckForRespawn(mob);
                 return;
             }
-            if (mob.getLoc().distanceSquared2D(mob.npcOwner.getLoc()) > sqr(2000)) {
-                MovementManager.translocate(mob,((Mob)mob.npcOwner).building.getLoc(),null);
-                mob.setAggroTargetID(0);
-                mob.setCombatTarget(null);
-            }
+            CheckToSendMobHome(mob);
             if(mob.npcOwner.isAlive() == false){
-                CheckToSendMobHome(mob);
                 CheckForPlayerGuardAggro(mob);
                 CheckMobMovement(mob);
                 if(mob.getCombatTarget() != null){
@@ -599,7 +594,6 @@ public class MobileFSM {
         }
         mob.updateLocation();
         if (mob.isPet() == false && mob.isSummonedPet() == false && mob.isNecroPet() == false) {
-
             if (mob.getCombatTarget() == null) {
                 patrol(mob);
             } else {
@@ -673,6 +667,12 @@ public class MobileFSM {
         mobAttack(mob);
     }
     private static void CheckToSendMobHome(Mob mob) {
+        if(mob.isPlayerGuard() && ZoneManager.getCityAtLocation(mob.getLoc()).equals(mob.getGuild().getOwnedCity()) == false){
+                PowersBase recall = PowersManager.getPowerByToken(-1994153779);
+                PowersManager.useMobPower(mob, mob, recall, 40);
+                mob.setAggroTargetID(0);
+                mob.setCombatTarget(null);
+        }
         if (mob.getLoc().distanceSquared2D(mob.getBindLoc()) > sqr(2000)) {
             PowersBase recall = PowersManager.getPowerByToken(-1994153779);
             PowersManager.useMobPower(mob, mob, recall, 40);

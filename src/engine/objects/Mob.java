@@ -13,6 +13,7 @@ import engine.Enum;
 import engine.Enum.*;
 import engine.InterestManagement.WorldGrid;
 import engine.ai.MobileFSM;
+import engine.ai.utilities.MovementUtilities;
 import engine.exception.SerializationException;
 import engine.gameManager.*;
 import engine.job.JobContainer;
@@ -248,7 +249,7 @@ public class Mob extends AbstractIntelligenceAgent {
                 if (NPC.ISGuardCaptain(contract.getContractID())) {
                     this.spawnTime = 60 * 15;
                     this.isPlayerGuard = true;
-                    this.nameOverride = contract.getName();
+                    this.nameOverride = contract.getName() + " Captain";
                 }
 
             int guildID = rs.getInt("mob_guildUID");
