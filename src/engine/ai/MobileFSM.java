@@ -12,6 +12,8 @@ import engine.InterestManagement.WorldGrid;
 import engine.ai.utilities.CombatUtilities;
 import engine.ai.utilities.MovementUtilities;
 import engine.gameManager.*;
+import engine.math.Vector3f;
+import engine.math.Vector3fImmutable;
 import engine.net.DispatchMessage;
 import engine.net.client.msg.PerformActionMsg;
 import engine.net.client.msg.PowerProjectileMsg;
@@ -27,7 +29,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 import static engine.math.FastMath.sqr;
 public class MobileFSM {
-
     private static void mobAttack(Mob aiAgent) {
 
         AbstractGameObject target = aiAgent.getCombatTarget();
@@ -63,7 +64,6 @@ public class MobileFSM {
                 handleMobAttackForMob(aiAgent, mob);
         }
     }
-
     private static void petHandleBuildingAttack(Mob aiAgent, Building building) {
 
         int buildingHitBox = (int) CombatManager.calcHitBox(building);
@@ -170,7 +170,6 @@ public class MobileFSM {
             if (MovementUtilities.canMove(aiAgent))
                 MovementUtilities.moveToLocation(aiAgent, building.getLoc(), aiAgent.getRange() + buildingHitBox);
     }
-
     private static void handlePlayerAttackForMob(Mob aiAgent, PlayerCharacter player) {
 
         if (aiAgent.getMobBase().getSeeInvis() < player.getHidden()) {
@@ -259,7 +258,6 @@ public class MobileFSM {
             return;
 
     }
-
     private static void handleMobAttackForMob(Mob aiAgent, Mob mob) {
 
 
@@ -324,8 +322,14 @@ public class MobileFSM {
         if (!MovementUtilities.updateMovementToCharacter(aiAgent, mob))
             return;
     }
-
     private static void patrol(Mob mob) {
+        //make sure mob is out of combat stance
+        if (mob.isCombat() && mob.getCombatTarget() == null) {
+            mob.setCombat(false);
+            UpdateStateMsg rwss = new UpdateStateMsg();
+            rwss.setPlayer(mob);
+            DispatchMessage.sendToAllInRange(mob, rwss);
+        }
         if (mob.isMoving() == true) {
             //early exit for a mob who is already moving to a patrol point
             //while mob moving, update lastPatrolTime so that when they stop moving the 10 second timer can begin
@@ -337,13 +341,6 @@ public class MobileFSM {
         if (mob.stopPatrolTime + patrolDelay > System.currentTimeMillis()) {
             //early exit while waiting to patrol again
             return;
-        }
-        //make sure mob is out of combat stance
-        if (mob.isCombat() && mob.getCombatTarget() == null) {
-            mob.setCombat(false);
-            UpdateStateMsg rwss = new UpdateStateMsg();
-            rwss.setPlayer(mob);
-            DispatchMessage.sendToAllInRange(mob, rwss);
         }
         //guard captains inherit barracks patrol points dynamically
         if (mob.contract != null && NPC.ISGuardCaptain(mob.contract.getContractID())) {
@@ -357,11 +354,29 @@ public class MobileFSM {
             if (mob.lastPatrolPointIndex > mob.patrolPoints.size() - 1) {
                 mob.lastPatrolPointIndex = 0;
             }
-            MovementUtilities.aiMove(mob, mob.patrolPoints.get(mob.lastPatrolPointIndex), true);
+            mob.destination = mob.patrolPoints.get(mob.lastPatrolPointIndex);
+            MovementUtilities.aiMove(mob,mob.destination,true);
             mob.lastPatrolPointIndex += 1;
+            if(mob.isPlayerGuard()){
+                for(Entry<Mob,Integer> minion : mob.siegeMinionMap.entrySet()){
+                    //make sure mob is out of combat stance
+                    if (minion.getKey().isCombat() && minion.getKey().getCombatTarget() == null) {
+                        minion.getKey().setCombat(false);
+                        UpdateStateMsg rwss = new UpdateStateMsg();
+                        rwss.setPlayer(minion.getKey());
+                        DispatchMessage.sendToAllInRange(minion.getKey(), rwss);
+                    }
+                    if(MovementUtilities.canMove(minion.getKey())) {
+                        Vector3f minionOffset = Formation.getOffset(2, minion.getValue() + 3);
+                        minion.getKey().updateLocation();
+                        Vector3fImmutable formationPatrolPoint = new Vector3fImmutable(mob.destination.x + minionOffset.x, mob.destination.y,mob.destination.z + minionOffset.z);
+                        //MovementUtilities.moveToLocation(minion.getKey(), formationPatrolPoint, 0);
+                        MovementUtilities.aiMove(minion.getKey(),formationPatrolPoint,true);
+                    }
+                }
+            }
         }
     }
-
     public static boolean canCast(Mob mob) {
 
         // Performs validation to determine if a
@@ -378,7 +393,6 @@ public class MobileFSM {
 
         return mob.nextCastTime <= System.currentTimeMillis();
     }
-
     public static boolean MobCast(Mob mob) {
 
         // Method picks a random spell from a mobile's list of powers
@@ -455,7 +469,6 @@ public class MobileFSM {
 
         return false;
     }
-
     public static void MobCallForHelp(Mob mob) {
         boolean callGotResponse = false;
         if (mob.nextCallForHelp == 0) {
@@ -478,7 +491,6 @@ public class MobileFSM {
             mob.nextCallForHelp = System.currentTimeMillis() + 60000;
         }
     }
-
     public static void run(Mob mob) {
         if (mob == null) {
             return;
@@ -486,6 +498,32 @@ public class MobileFSM {
         if(mob.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardCaptain.ordinal()){
             //this is a player slotted guard captain
             GuardCaptainLogic(mob);
+            return;
+        }
+        if(mob.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardMinion.ordinal()){
+            //this is a player slotted guard minion
+            if(mob.isAlive() == false){
+                CheckForRespawn(mob);
+                return;
+            }
+            if (mob.getLoc().distanceSquared2D(mob.npcOwner.getLoc()) > sqr(2000)) {
+                MovementManager.translocate(mob,((Mob)mob.npcOwner).building.getLoc(),null);
+                mob.setAggroTargetID(0);
+                mob.setCombatTarget(null);
+            }
+            if(mob.npcOwner.isAlive() == false){
+                CheckToSendMobHome(mob);
+                CheckForPlayerGuardAggro(mob);
+                CheckMobMovement(mob);
+                if(mob.getCombatTarget() != null){
+                    CheckForAttack(mob);
+                }
+                return;
+            }
+            if(mob.getCombatTarget() != null){
+                CheckMobMovement(mob);
+                CheckForAttack(mob);
+            }
             return;
         }
         if (mob.isPet() == false && mob.isSummonedPet() == false && mob.isNecroPet() == false) {
@@ -522,7 +560,6 @@ public class MobileFSM {
             CheckForAttack(mob);
         }
     }
-
     private static void CheckForAggro(Mob aiAgent) {
         //looks for and sets mobs combatTarget
         if (!aiAgent.isAlive()) {
@@ -556,8 +593,10 @@ public class MobileFSM {
             }
         }
     }
-
     private static void CheckMobMovement(Mob mob) {
+        if(MovementUtilities.canMove(mob) == false){
+            return;
+        }
         mob.updateLocation();
         if (mob.isPet() == false && mob.isSummonedPet() == false && mob.isNecroPet() == false) {
 
@@ -583,7 +622,6 @@ public class MobileFSM {
             }
         }
     }
-
     private static void CheckForRespawn(Mob aiAgent) {
         //handles checking for respawn of dead mobs even when no players have mob loaded
         //Despawn Timer with Loot currently in inventory.
@@ -623,11 +661,9 @@ public class MobileFSM {
         }
 
     }
-
     public static void CheckForAttack(Mob mob) {
         //checks if mob can attack based on attack timer and range
         if (mob.isAlive())
-            mob.updateLocation();
         if (!mob.isCombat()) {
             mob.setCombat(true);
             UpdateStateMsg rwss = new UpdateStateMsg();
@@ -636,7 +672,6 @@ public class MobileFSM {
         }
         mobAttack(mob);
     }
-
     private static void CheckToSendMobHome(Mob mob) {
         if (mob.getLoc().distanceSquared2D(mob.getBindLoc()) > sqr(2000)) {
             PowersBase recall = PowersManager.getPowerByToken(-1994153779);
@@ -645,7 +680,6 @@ public class MobileFSM {
             mob.setCombatTarget(null);
         }
     }
-
     public static void dead(Mob aiAgent) {
         //Despawn Timer with Loot currently in inventory.
         if (aiAgent.getCharItemManager().getInventoryCount() > 0) {
@@ -677,7 +711,6 @@ public class MobileFSM {
             }
         }
     }
-
     private static void respawn(Mob aiAgent) {
 
         if (!aiAgent.canRespawn())
@@ -693,7 +726,6 @@ public class MobileFSM {
             aiAgent.setCombatTarget(null);
         }
     }
-
     private static void chaseTarget(Mob mob) {
         mob.updateMovementState();
         if (CombatUtilities.inRange2D(mob, mob.getCombatTarget(), mob.getRange()) == false) {
@@ -706,7 +738,6 @@ public class MobileFSM {
             }
         }
     }
-
     private static void SafeGuardAggro(Mob mob) {
         HashSet<AbstractWorldObject> awoList = WorldGrid.getObjectsInRangePartial(mob, 100, MBServerStatics.MASK_MOB);
         for (AbstractWorldObject awoMob : awoList) {
@@ -736,7 +767,9 @@ public class MobileFSM {
         CheckToSendMobHome(mob);
         CheckForPlayerGuardAggro(mob);
         CheckMobMovement(mob);
-        CheckForAttack(mob);
+        if(mob.getCombatTarget() != null) {
+            CheckForAttack(mob);
+        }
 
     }
     public static void CheckForPlayerGuardAggro(Mob mob) {
@@ -768,14 +801,20 @@ public class MobileFSM {
             if (MovementUtilities.inRangeToAggro(mob, loadedPlayer)) {
                 mob.setAggroTargetID(playerID);
                 mob.setCombatTarget(loadedPlayer);
+                if(mob.contract != null) {
+                    for (Entry<Mob, Integer> minion : mob.siegeMinionMap.entrySet()) {
+                        minion.getKey().setAggroTargetID(playerID);
+                        minion.getKey().setCombatTarget(loadedPlayer);
+                    }
+                }
                 return;
             }
         }
     }
     private static Boolean GuardCanAggro(Mob mob, PlayerCharacter target){
         //first check condemn list for aggro allowed
-        if(ZoneManager.getCityAtLocation(mob.building.getLoc()).getTOL().enforceKOS) {
-            for (Entry<Integer, Condemned> entry : ZoneManager.getCityAtLocation(mob.building.getLoc()).getTOL().getCondemned().entrySet()) {
+        if(ZoneManager.getCityAtLocation(mob.getLoc()).getTOL().enforceKOS) {
+            for (Entry<Integer, Condemned> entry : ZoneManager.getCityAtLocation(mob.getLoc()).getTOL().getCondemned().entrySet()) {
                 if (entry.getValue().getPlayerUID() == target.getObjectUUID() && entry.getValue().isActive()) {
                     //target is listed individually
                     return true;
@@ -791,8 +830,8 @@ public class MobileFSM {
             }
         }
         //next check not in same nation or allied guild/nation
-        if(!mob.building.getGuild().getNation().equals(target.getGuild().getNation())) {
-            if (!mob.building.getGuild().getAllyList().contains(target.getGuild()) || !mob.building.getGuild().getAllyList().contains(target.getGuild().getNation())) {
+        if(!mob.getGuild().getNation().equals(target.getGuild().getNation())) {
+            if (!mob.getGuild().getAllyList().contains(target.getGuild()) || !mob.getGuild().getAllyList().contains(target.getGuild().getNation())) {
                 return true;
             }
         }
