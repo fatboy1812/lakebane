@@ -502,29 +502,12 @@ public class MobileFSM {
         }
         if(mob.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardMinion.ordinal()){
             //this is a player slotted guard minion
-            if(mob.despawned){
-                if(System.currentTimeMillis() > mob.deathTime + (mob.spawnTime * 1000)){
-                    if(mob.getEquipmentSetID() != ((Mob)mob.npcOwner).getEquipmentSetID()){
-                        mob.equipmentSetID = ((Mob)mob.npcOwner).getEquipmentSetID();
-                        mob.runAfterLoad();
-                    }
-                    mob.respawn();
-                }
-                return;
-            }
-            if(mob.isAlive() == false){
-                CheckForRespawn(mob);
-                return;
-            }
-            CheckToSendMobHome(mob);
-            if(mob.npcOwner.isAlive() == false){
-                CheckForPlayerGuardAggro(mob);
-                return;
-            }
-            CheckMobMovement(mob);
-            if(mob.getCombatTarget() != null){
-                CheckForAttack(mob);
-            }
+            GuardMinionLogic(mob);
+            return;
+        }
+        if(mob.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardWallArcher.ordinal()){
+            //this is a player slotted guard minion
+            GuardWallArcherLogic(mob);
             return;
         }
         if (mob.isPet() == false && mob.isSummonedPet() == false && mob.isNecroPet() == false) {
@@ -782,6 +765,44 @@ public class MobileFSM {
             CheckForAttack(mob);
         }
 
+    }
+    public static void GuardMinionLogic(Mob mob){
+        if(mob.despawned){
+            if(System.currentTimeMillis() > mob.deathTime + (mob.spawnTime * 1000)){
+                if(mob.getEquipmentSetID() != ((Mob)mob.npcOwner).getEquipmentSetID()){
+                    mob.equipmentSetID = ((Mob)mob.npcOwner).getEquipmentSetID();
+                    mob.runAfterLoad();
+                }
+                mob.respawn();
+            }
+            return;
+        }
+        if(mob.isAlive() == false){
+            CheckForRespawn(mob);
+            return;
+        }
+        CheckToSendMobHome(mob);
+        if(mob.npcOwner.isAlive() == false){
+            CheckForPlayerGuardAggro(mob);
+            return;
+        }
+        CheckMobMovement(mob);
+        if(mob.getCombatTarget() != null){
+            CheckForAttack(mob);
+        }
+    }
+    public static void GuardWallArcherLogic(Mob mob){
+        if(mob.isAlive() == false){
+            CheckForRespawn(mob);
+            return;
+        }
+        if(mob.npcOwner.isAlive() == false){
+            CheckForPlayerGuardAggro(mob);
+            return;
+        }
+        if(mob.getCombatTarget() != null){
+            CheckForAttack(mob);
+        }
     }
     public static void CheckForPlayerGuardAggro(Mob mob) {
         //looks for and sets mobs combatTarget
