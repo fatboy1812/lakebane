@@ -468,19 +468,6 @@ public enum BuildingManager {
 
         Mob mob = null;
         NPC npc = null;
-
-        if (NPC.ISGuardCaptain(contractID.getContractID())) {
-
-            mob = Mob.createMob( contractID.getMobbaseID(), NpcLoc, contractOwner.getGuild(), true, zone, building, contractID.getContractID());
-
-            if (mob == null)
-                return false;
-
-            mob.setRank(rank);
-            mob.setPlayerGuard(true);
-            mob.setParentZone(zone);
-            return true;
-        }
         if (NPC.ISWallArcher(contractID.getContractID())) {
 
             mob = Mob.createMob( contractID.getMobbaseID(), NpcLoc, contractOwner.getGuild(), true, zone, building, contractID.getContractID());
@@ -492,6 +479,18 @@ public enum BuildingManager {
             mob.setPlayerGuard(true);
             mob.setParentZone(zone);
             mob.BehaviourType = Enum.MobBehaviourType.GuardWallArcher;
+            return true;
+        }
+        if (NPC.ISGuardCaptain(contractID.getContractID())) {
+
+            mob = Mob.createMob( contractID.getMobbaseID(), NpcLoc, contractOwner.getGuild(), true, zone, building, contractID.getContractID());
+
+            if (mob == null)
+                return false;
+
+            mob.setRank(rank);
+            mob.setPlayerGuard(true);
+            mob.setParentZone(zone);
             return true;
         }
         npc = NPC.createNPC( pirateName, contractID.getObjectUUID(), NpcLoc, contractOwner.getGuild(), false, zone, (short) rank, false, building);
