@@ -295,6 +295,25 @@ public class NPC extends AbstractCharacter {
 
 	}
 
+	public static boolean ISWallArcher(int contractID) {
+		//838, 950, 1051, 1181, 1251, 1351, 1451, 1501, 1526, 1551, 980101,
+		switch(contractID) {
+			case 838:
+			case 950:
+			case 1051:
+			case 1181:
+			case 1251:
+			case 1351:
+			case 1451:
+			case 150:
+			case 1526:
+			case 1551:
+			case 980101:
+				return true;
+		}
+		return false;
+	}
+
 	//This method restarts an upgrade timer when a building is loaded from the database.
 	// Submit upgrade job for this building based upon it's current upgradeDateTime
 

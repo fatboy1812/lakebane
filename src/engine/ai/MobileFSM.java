@@ -502,7 +502,17 @@ public class MobileFSM {
         }
         if(mob.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardMinion.ordinal()){
             //this is a player slotted guard minion
-            if(mob.isAlive() == false || mob.despawned){
+            if(mob.despawned){
+                if(System.currentTimeMillis() > mob.deathTime + (mob.spawnTime * 1000)){
+                    if(mob.getEquipmentSetID() != ((Mob)mob.npcOwner).getEquipmentSetID()){
+                        mob.equipmentSetID = ((Mob)mob.npcOwner).getEquipmentSetID();
+                        mob.runAfterLoad();
+                    }
+                    mob.respawn();
+                }
+                return;
+            }
+            if(mob.isAlive() == false){
                 CheckForRespawn(mob);
                 return;
             }
@@ -663,11 +673,16 @@ public class MobileFSM {
         mobAttack(mob);
     }
     private static void CheckToSendMobHome(Mob mob) {
-        if(mob.isPlayerGuard() && ZoneManager.getCityAtLocation(mob.getLoc()).equals(mob.getGuild().getOwnedCity()) == false){
+
+
+        if(mob.isPlayerGuard()){
+            City current = ZoneManager.getCityAtLocation(mob.getLoc());
+            if(current == null || current.equals(mob.getGuild().getOwnedCity()) == false) {
                 PowersBase recall = PowersManager.getPowerByToken(-1994153779);
                 PowersManager.useMobPower(mob, mob, recall, 40);
                 mob.setAggroTargetID(0);
                 mob.setCombatTarget(null);
+            }
         }
         if (mob.getLoc().distanceSquared2D(mob.getBindLoc()) > sqr(2000)) {
             PowersBase recall = PowersManager.getPowerByToken(-1994153779);

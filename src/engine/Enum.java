@@ -2824,6 +2824,7 @@ public class Enum {
         None(null, false, false, false, false, false),
         GuardCaptain(null, false, true, true, true, false),
         GuardMinion(GuardCaptain, false, true, true, false, true),
+		GuardWallArcher(null, false, true, false, false, false),
 		Wanderer(null, false, false, false, false, false),
 		HamletGuard(null, false, false, false, false, false),
 		AggroWanderer(null, false, false, false, false, false);

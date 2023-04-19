@@ -319,8 +319,11 @@ public enum NPCManager {
         slot += guardCaptain.siegeMinionMap.size() + 1;
 
         guardCaptain.siegeMinionMap.put(mob, slot);
-        mob.setInBuildingLoc(guardCaptain.building, guardCaptain);
-        mob.setBindLoc(loc.add(mob.inBuildingLoc));
+        //mob.setInBuildingLoc(guardCaptain.building, guardCaptain);
+        //mob.setBindLoc(loc.add(mob.inBuildingLoc));
+        mob.setLoc(guardCaptain.building.getLoc());
+        mob.setLastRegion(AbstractWorldObject.GetRegionByWorldObject(mob));
+        mob.setBindLoc(guardCaptain.building.getStuckLocation());
         mob.deathTime = System.currentTimeMillis();
         mob.spawnTime = 900;
         mob.npcOwner = guardCaptain;
