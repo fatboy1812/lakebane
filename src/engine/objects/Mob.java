@@ -2002,7 +2002,11 @@ public class Mob extends AbstractIntelligenceAgent {
                 this.BehaviourType = this.getMobBase().fsm;
             }
             if(this.isPlayerGuard() && this.contract != null){
-                this.BehaviourType = Enum.MobBehaviourType.GuardCaptain;
+                if(NPC.ISWallArcher(this.getContract().getContractID())){
+                    this.BehaviourType = MobBehaviourType.GuardWallArcher;
+                } else {
+                    this.BehaviourType = Enum.MobBehaviourType.GuardCaptain;
+                }
             }
         } catch (Exception e) {
             Logger.error(e.getMessage());

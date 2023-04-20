@@ -319,7 +319,7 @@ public enum NPCManager {
         slot += guardCaptain.siegeMinionMap.size() + 1;
 
         guardCaptain.siegeMinionMap.put(mob, slot);
-        //mob.setInBuildingLoc(guardCaptain.building, guardCaptain);
+        mob.setInBuildingLoc(guardCaptain.building, guardCaptain);
         //mob.setBindLoc(loc.add(mob.inBuildingLoc));
         mob.setLoc(guardCaptain.building.getLoc());
         mob.setLastRegion(AbstractWorldObject.GetRegionByWorldObject(mob));
