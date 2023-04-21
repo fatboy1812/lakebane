@@ -368,6 +368,9 @@ public class MobileFSM {
             case Pet1:
                 PetLogic(mob);
                 break;
+            case HamletGuard:
+                HamletGuardLogic(mob);
+                break;
             default:
                 DefaultLogic(mob);
                 break;
@@ -606,10 +609,19 @@ public class MobileFSM {
             CheckForAttack(mob);
         }
     }
+    private static void HamletGuardLogic(Mob mob){
+        if (mob.getCombatTarget() == null) {
+            //safehold guard
+            SafeGuardAggro(mob);
+            if(mob.getCombatTarget() != null){
+                CheckForAttack(mob);
+            }
+        }
+    }
     private static void DefaultLogic(Mob mob){
         //check for players that can be aggroed if mob is agressive and has no target
         if (mob.BehaviourType.isAgressive && mob.getCombatTarget() == null) {
-            if (mob.BehaviourType == Enum.MobBehaviourType.SimpleStandingGuard) {
+            if (mob.BehaviourType == Enum.MobBehaviourType.HamletGuard) {
                 //safehold guard
                 SafeGuardAggro(mob);
             } else {

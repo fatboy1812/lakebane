@@ -2826,7 +2826,7 @@ public class Enum {
         GuardMinion(GuardCaptain, false, true, true, false, true),
 		GuardWallArcher(null, false, true, false, false, false),
 		Wanderer(null, false, false, false, false, false),
-		HamletGuard(null, false, false, false, false, false),
+		HamletGuard(null, false, true, false, false, false),
 		AggroWanderer(null, false, false, false, false, false);
 
         private static HashMap<Integer, MobBehaviourType> _behaviourTypes = new HashMap<>();
