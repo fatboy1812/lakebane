@@ -37,6 +37,9 @@ public class MobileFSM {
             mob.setCombatTarget(null);
             return;
         }
+        if(CombatUtilities.inRangeToAttack(mob,target) == false){
+            return;
+        }
         switch (target.getObjectType()) {
             case PlayerCharacter:
                 PlayerCharacter targetPlayer = (PlayerCharacter) target;
@@ -418,7 +421,7 @@ public class MobileFSM {
             return;
         }
         mob.updateLocation();
-        if (mob.isPet() == false && mob.isSummonedPet() == false && mob.isNecroPet() == false) {
+        if (mob.BehaviourType != Enum.MobBehaviourType.Pet1) {
             if (mob.getCombatTarget() == null) {
                 Patrol(mob);
             } else {
@@ -429,14 +432,15 @@ public class MobileFSM {
             if (mob.playerAgroMap.containsKey(mob.getOwner().getObjectUUID()) == false) {
                 //mob no longer has its owner loaded, translocate pet to owner
                 MovementManager.translocate(mob, mob.getOwner().getLoc(), null);
+                return;
             }
             if (mob.getCombatTarget() == null) {
                 //move back to owner
-                if(CombatUtilities.inRange2D(mob,mob.getOwner(),11)) {
+                if(CombatUtilities.inRange2D(mob,mob.getOwner(),6)) {
                     return;
                 }
                     mob.destination = mob.getOwner().getLoc();
-                    MovementUtilities.moveToLocation(mob, mob.destination, 10);
+                    MovementUtilities.moveToLocation(mob, mob.destination, 5);
             } else{
                 chaseTarget(mob);
             }
