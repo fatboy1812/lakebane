@@ -30,7 +30,11 @@ import java.util.concurrent.ThreadLocalRandom;
 import static engine.math.FastMath.sqr;
 public class MobileFSM {
     private static void AttackTarget(Mob mob, AbstractWorldObject target) {
-        if(target == null || mob == null){
+        if(mob == null){
+            return;
+        }
+        if(target == null){
+            mob.setCombatTarget(null);
             return;
         }
         switch (target.getObjectType()) {
@@ -426,14 +430,15 @@ public class MobileFSM {
                 //mob no longer has its owner loaded, translocate pet to owner
                 MovementManager.translocate(mob, mob.getOwner().getLoc(), null);
             }
-            if (mob.getCombatTarget() == null || mob.combatTarget.isAlive() == false) {
+            if (mob.getCombatTarget() == null) {
                 //move back to owner
-                if (CombatUtilities.inRange2D(mob, mob.getOwner(), 10) == false) {
-                    mob.destination = mob.getOwner().getLoc();
-                    MovementUtilities.moveToLocation(mob, mob.destination, 5);
-                } else {
-                    chaseTarget(mob);
+                if(CombatUtilities.inRange2D(mob,mob.getOwner(),11)) {
+                    return;
                 }
+                    mob.destination = mob.getOwner().getLoc();
+                    MovementUtilities.moveToLocation(mob, mob.destination, 10);
+            } else{
+                chaseTarget(mob);
             }
         }
     }
@@ -464,7 +469,6 @@ public class MobileFSM {
         }
         if (System.currentTimeMillis() > aiAgent.deathTime + (aiAgent.spawnTime * 1000)) {
             aiAgent.respawn();
-            aiAgent.setCombatTarget(null);
         }
     }
     public static void CheckForAttack(Mob mob) {
@@ -534,8 +538,6 @@ public class MobileFSM {
     }
     private static void chaseTarget(Mob mob) {
         mob.updateMovementState();
-        if (CombatUtilities.inRangeToAttack2D(mob, mob.getCombatTarget()))
-            return;
         if (CombatUtilities.inRange2D(mob, mob.getCombatTarget(), mob.getRange()) == false) {
             if (mob.getRange() > 15) {
                 mob.destination = mob.getCombatTarget().getLoc();
@@ -602,6 +604,9 @@ public class MobileFSM {
         }
     }
     private static void PetLogic(Mob mob){
+        if(mob.getCombatTarget() != null && mob.getCombatTarget().isAlive() == false){
+            mob.setCombatTarget(null);
+        }
         if(MovementUtilities.canMove(mob)){
             CheckMobMovement(mob);
         }
