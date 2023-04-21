@@ -807,9 +807,9 @@ public class Mob extends AbstractIntelligenceAgent {
             if (!isPet && this.contract == null) {
                 this.level = (short) this.mobBase.getLevel();
             }
-
-        } else
-            this.level = 1;
+            else
+                this.level = 1;
+        }
 
         //set bonuses
         this.bonuses = new PlayerBonuses(this);
