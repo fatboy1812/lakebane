@@ -1196,7 +1196,6 @@ public class Mob extends AbstractIntelligenceAgent {
             if (this.isSiege) {
                 this.deathTime = System.currentTimeMillis();
                 //this.state = STATE.Dead;
-                MobileFSM.dead(this);
                 try {
                     this.clearEffects();
                 } catch (Exception e) {
@@ -1239,12 +1238,6 @@ public class Mob extends AbstractIntelligenceAgent {
                 WorldGrid.RemoveWorldObject(this);
 
                 DbManager.removeFromCache(this);
-
-                // YEAH BONUS CODE!  THANKS UNNAMED ASSHOLE!
-                //WorldServer.removeObject(this);
-                //WorldGrid.INSTANCE.removeWorldObject(this);
-                //owner.getPet().disableIntelligence();
-
                 PlayerCharacter petOwner = this.getOwner();
 
                 if (petOwner != null) {
@@ -1257,11 +1250,6 @@ public class Mob extends AbstractIntelligenceAgent {
             } else {
 
                 //cleanup effects
-
-                this.deathTime = System.currentTimeMillis();
-                //this.state = STATE.Dead;
-                MobileFSM.dead(this);
-
                 playerAgroMap.clear();
 
                 if (!this.isPlayerGuard && this.equip != null) {
@@ -2008,6 +1996,7 @@ public class Mob extends AbstractIntelligenceAgent {
                     this.BehaviourType = Enum.MobBehaviourType.GuardCaptain;
                 }
             }
+            this.deathTime = 0;
         } catch (Exception e) {
             Logger.error(e.getMessage());
         }

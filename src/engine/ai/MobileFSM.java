@@ -33,7 +33,7 @@ public class MobileFSM {
         if(mob == null){
             return;
         }
-        if(target == null){
+        if(target == null || target.isAlive() == false){
             mob.setCombatTarget(null);
             return;
         }
@@ -449,12 +449,14 @@ public class MobileFSM {
     private static void CheckForRespawn(Mob aiAgent) {
         if (aiAgent.deathTime == 0) {
             aiAgent.setDeathTime(System.currentTimeMillis());
+            return;
         }
         //handles checking for respawn of dead mobs even when no players have mob loaded
         //Despawn Timer with Loot currently in inventory.
         if (aiAgent.getCharItemManager().getInventoryCount() > 0) {
             if (System.currentTimeMillis() > aiAgent.deathTime + MBServerStatics.DESPAWN_TIMER_WITH_LOOT) {
                 aiAgent.despawn();
+                return;
             }
             //No items in inventory.
         } else {
@@ -462,16 +464,18 @@ public class MobileFSM {
             if (aiAgent.isHasLoot()) {
                 if (System.currentTimeMillis() > aiAgent.deathTime + MBServerStatics.DESPAWN_TIMER_ONCE_LOOTED) {
                     aiAgent.despawn();
+                    return;
                 }
                 //Mob never had Loot.
             } else {
                 if (System.currentTimeMillis() > aiAgent.deathTime + MBServerStatics.DESPAWN_TIMER) {
                     aiAgent.despawn();
-                    //update time of death after mob despawns so respawn time happens after mob despawns.
+                    return;
                 }
             }
         }
         if (System.currentTimeMillis() > aiAgent.deathTime + (aiAgent.spawnTime * 1000)) {
+            aiAgent.despawn();
             aiAgent.respawn();
         }
     }
@@ -507,37 +511,6 @@ public class MobileFSM {
             PowersManager.useMobPower(mob, mob, recall, 40);
             mob.setAggroTargetID(0);
             mob.setCombatTarget(null);
-        }
-    }
-    public static void dead(Mob aiAgent) {
-        //Despawn Timer with Loot currently in inventory.
-        if (aiAgent.getCharItemManager().getInventoryCount() > 0) {
-            if (System.currentTimeMillis() > aiAgent.deathTime + MBServerStatics.DESPAWN_TIMER_WITH_LOOT) {
-                aiAgent.despawn();
-                //update time of death after mob despawns so respawn time happens after mob despawns.
-                aiAgent.setDeathTime(System.currentTimeMillis());
-                //aiAgent.state = STATE.Respawn;
-            }
-
-            //No items in inventory.
-        } else {
-            //Mob's Loot has been looted.
-            if (aiAgent.isHasLoot()) {
-                if (System.currentTimeMillis() > aiAgent.deathTime + MBServerStatics.DESPAWN_TIMER_ONCE_LOOTED) {
-                    aiAgent.despawn();
-                    //update time of death after mob despawns so respawn time happens after mob despawns.
-                    aiAgent.setDeathTime(System.currentTimeMillis());
-                    //aiAgent.state = STATE.Respawn;
-                }
-                //Mob never had Loot.
-            } else {
-                if (System.currentTimeMillis() > aiAgent.deathTime + MBServerStatics.DESPAWN_TIMER) {
-                    aiAgent.despawn();
-                    //update time of death after mob despawns so respawn time happens after mob despawns.
-                    aiAgent.setDeathTime(System.currentTimeMillis());
-                    //aiAgent.state = STATE.Respawn;
-                }
-            }
         }
     }
     private static void chaseTarget(Mob mob) {
