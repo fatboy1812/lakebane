@@ -453,30 +453,30 @@ public class MobileFSM {
         }
         //handles checking for respawn of dead mobs even when no players have mob loaded
         //Despawn Timer with Loot currently in inventory.
-        if (aiAgent.getCharItemManager().getInventoryCount() > 0) {
-            if (System.currentTimeMillis() > aiAgent.deathTime + MBServerStatics.DESPAWN_TIMER_WITH_LOOT) {
-                aiAgent.despawn();
-                return;
-            }
-            //No items in inventory.
-        } else {
-            //Mob's Loot has been looted.
-            if (aiAgent.isHasLoot()) {
-                if (System.currentTimeMillis() > aiAgent.deathTime + MBServerStatics.DESPAWN_TIMER_ONCE_LOOTED) {
+        if(aiAgent.despawned == false) {
+            if (aiAgent.getCharItemManager().getInventoryCount() > 0) {
+                if (System.currentTimeMillis() > aiAgent.deathTime + MBServerStatics.DESPAWN_TIMER_WITH_LOOT) {
                     aiAgent.despawn();
-                    return;
+                    aiAgent.deathTime = System.currentTimeMillis();
                 }
-                //Mob never had Loot.
+                //No items in inventory.
             } else {
-                if (System.currentTimeMillis() > aiAgent.deathTime + MBServerStatics.DESPAWN_TIMER) {
-                    aiAgent.despawn();
-                    return;
+                //Mob's Loot has been looted.
+                if (aiAgent.isHasLoot()) {
+                    if (System.currentTimeMillis() > aiAgent.deathTime + MBServerStatics.DESPAWN_TIMER_ONCE_LOOTED) {
+                        aiAgent.despawn();
+                        aiAgent.deathTime = System.currentTimeMillis();
+                    }
+                    //Mob never had Loot.
+                } else {
+                    if (System.currentTimeMillis() > aiAgent.deathTime + MBServerStatics.DESPAWN_TIMER) {
+                        aiAgent.despawn();
+                        aiAgent.deathTime = System.currentTimeMillis();
+                    }
                 }
             }
-        }
-        if (System.currentTimeMillis() > aiAgent.deathTime + (aiAgent.spawnTime * 1000)) {
-            aiAgent.despawn();
-            aiAgent.respawn();
+        }else if (System.currentTimeMillis() > aiAgent.deathTime + (aiAgent.spawnTime * 1000)) {
+                aiAgent.respawn();
         }
     }
     public static void CheckForAttack(Mob mob) {

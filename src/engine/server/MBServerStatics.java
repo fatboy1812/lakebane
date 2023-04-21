@@ -679,7 +679,7 @@ public class MBServerStatics {
 	public static final int LEVEL_CON_WHITE = 7;
 	public static final int RESPAWN_TIMER = 90 * 1000;
 	public static final int DESPAWN_TIMER = 12 * 1000;
-	public static final int DESPAWN_TIMER_WITH_LOOT = 90 * 1000;
+	public static final int DESPAWN_TIMER_WITH_LOOT = 60 * 1000;
 	public static final int DESPAWN_TIMER_ONCE_LOOTED = 5 * 1000;
 	public static final int MAX_COMBAT_HITBOX_RADIUS = 80;
 	public static final int PROC_CHANCE = 5; // %chance to proc
