@@ -185,6 +185,9 @@ public class RemoveObjectCmd extends AbstractDevCmd {
 		DbManager.BuildingQueries.DELETE_FROM_DATABASE(building);
 		DbManager.removeFromCache(building);
 		zone.zoneBuildingSet.remove(building);
+		if(building.getBlueprint() != null && building.getBlueprint().getBuildingGroup().equals(BuildingGroup.BARRACK)){
+			building.RemoveFromBarracksList();
+		}
 		WorldGrid.RemoveWorldObject(building);
 		WorldGrid.removeObject(building, pc);
 

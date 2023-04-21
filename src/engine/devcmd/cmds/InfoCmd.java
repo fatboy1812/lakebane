@@ -473,10 +473,13 @@ public class InfoCmd extends AbstractDevCmd {
 				output += "BuildingID : " + targetMob.getRegion().parentBuildingID;
 				output += "building level : " + targetMob.getRegion().level;
 				output += "building room : " + targetMob.getRegion().room;
-			}else if(targetMob.building != null) {
-				output += newline;
-				output += "BuildingID : " + targetMob.building;
-				output += "In BuildingLoc : " + targetMob.inBuildingLoc;
+			}
+			if(targetMob.building != null) {
+				output += "Building Name: " + targetMob.building.getName() + newline;
+				output += "BuildingID : " + targetMob.building + newline;
+				output += "Bind Loc : " + targetMob.getBindLoc() + newline;
+				output += "Curr Loc : " + targetMob.getLoc() + newline;
+				output += "InBuildingLoc : " + targetMob.inBuildingLoc + newline;
 			}else{
 				output += newline;
 				output += "No building found.";

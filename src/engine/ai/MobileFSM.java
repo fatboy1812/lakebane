@@ -29,300 +29,150 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 import static engine.math.FastMath.sqr;
 public class MobileFSM {
-    private static void mobAttack(Mob aiAgent) {
-
-        AbstractGameObject target = aiAgent.getCombatTarget();
-        if (target == null) {
+    private static void AttackTarget(Mob mob, AbstractWorldObject target) {
+        if(target == null || mob == null){
             return;
         }
         switch (target.getObjectType()) {
             case PlayerCharacter:
-                PlayerCharacter player = (PlayerCharacter) target;
-                if (!player.isActive()) {
-                    aiAgent.setCombatTarget(null);
-                    CheckMobMovement(aiAgent);
-                    return;
-                }
-                if (aiAgent.isNecroPet() && player.inSafeZone()) {
-                    aiAgent.setCombatTarget(null);
-                    return;
-                }
-                if (canCast(aiAgent) == true) {
-                    if (MobCast(aiAgent) == false) {
-                        handlePlayerAttackForMob(aiAgent, player);
+                PlayerCharacter targetPlayer = (PlayerCharacter) target;
+                if (canCast(mob) == true) {
+                    if (MobCast(mob) == false) {
+                        AttackPlayer(mob, targetPlayer);
                     }
                 } else {
-                    handlePlayerAttackForMob(aiAgent, player);
+                    AttackPlayer(mob, targetPlayer);
                 }
                 break;
             case Building:
-                Building building = (Building) target;
-                petHandleBuildingAttack(aiAgent, building);
+                Building targetBuilding = (Building) target;
+                AttackBuilding(mob, targetBuilding);
                 break;
             case Mob:
-                Mob mob = (Mob) target;
-                handleMobAttackForMob(aiAgent, mob);
+                Mob targetMob = (Mob) target;
+                AttackMob(mob,targetMob);
+                break;
         }
     }
-    private static void petHandleBuildingAttack(Mob aiAgent, Building building) {
-
-        int buildingHitBox = (int) CombatManager.calcHitBox(building);
-
-        if (building.getRank() == -1) {
-            aiAgent.setCombatTarget(null);
+    public static void AttackPlayer(Mob mob, PlayerCharacter target){
+        if (mob.getMobBase().getSeeInvis() < target.getHidden() || !target.isAlive()) {
+            mob.setCombatTarget(null);
             return;
         }
-
-        if (!building.isVulnerable()) {
-            aiAgent.setCombatTarget(null);
+        if (mob.BehaviourType.callsForHelp) {
+            MobCallForHelp(mob);
+        }
+        if (!MovementUtilities.inRangeDropAggro(mob, target)) {
+            mob.setAggroTargetID(0);
+            mob.setCombatTarget(null);
             return;
         }
-
-        if (BuildingManager.getBuildingFromCache(building.getObjectUUID()) == null) {
-            aiAgent.setCombatTarget(null);
-            return;
-        }
-
-        if (building.getParentZone() != null && building.getParentZone().isPlayerCity()) {
-
-            for (Mob mob : building.getParentZone().zoneMobSet) {
-
-                if (!mob.isPlayerGuard())
-                    continue;
-
-                if (mob.getCombatTarget() != null)
-                    continue;
-
-                if (mob.getGuild() != null && building.getGuild() != null)
-                    if (!Guild.sameGuild(mob.getGuild().getNation(), building.getGuild().getNation()))
-                        continue;
-
-                mob.setCombatTarget(aiAgent);
-            }
-        }
-
-        if (CombatUtilities.inRangeToAttack(aiAgent, building)) {
-            //not time to attack yet.
-
-            if (!CombatUtilities.RunAIRandom())
+        if (CombatUtilities.inRange2D(mob, target, mob.getRange())) {
+            //no weapons, default mob attack speed 3 seconds.
+            if (System.currentTimeMillis() < mob.getLastAttackTime())
                 return;
-
-            if (System.currentTimeMillis() < aiAgent.getLastAttackTime())
-                return;
-
-            if (aiAgent.getRange() >= 30 && aiAgent.isMoving())
-                return;
-
-            //reset attack animation
-            if (aiAgent.isSiege())
-                MovementManager.sendRWSSMsg(aiAgent);
-
-            //			Fire siege balls
-            //			 TODO: Fix animations not following stone
-
-            //no weapons, defualt mob attack speed 3 seconds.
-            ItemBase mainHand = aiAgent.getWeaponItemBase(true);
-            ItemBase offHand = aiAgent.getWeaponItemBase(false);
-
-            if (mainHand == null && offHand == null) {
-
-                CombatUtilities.combatCycle(aiAgent, building, true, null);
-                int delay = 3000;
-
-                if (aiAgent.isSiege())
-                    delay = 15000;
-
-                aiAgent.setLastAttackTime(System.currentTimeMillis() + delay);
-            } else
-                //TODO set offhand attack time.
-                if (aiAgent.getWeaponItemBase(true) != null) {
-
-                    int attackDelay = 3000;
-
-                    if (aiAgent.isSiege())
-                        attackDelay = 15000;
-
-                    CombatUtilities.combatCycle(aiAgent, building, true, aiAgent.getWeaponItemBase(true));
-                    aiAgent.setLastAttackTime(System.currentTimeMillis() + attackDelay);
-
-                } else if (aiAgent.getWeaponItemBase(false) != null) {
-
-                    int attackDelay = 3000;
-
-                    if (aiAgent.isSiege())
-                        attackDelay = 15000;
-
-                    CombatUtilities.combatCycle(aiAgent, building, false, aiAgent.getWeaponItemBase(false));
-                    aiAgent.setLastAttackTime(System.currentTimeMillis() + attackDelay);
-                }
-
-            if (aiAgent.isSiege()) {
-                PowerProjectileMsg ppm = new PowerProjectileMsg(aiAgent, building);
-                ppm.setRange(50);
-                DispatchMessage.dispatchMsgToInterestArea(aiAgent, ppm, DispatchChannel.SECONDARY, MBServerStatics.CHARACTER_LOAD_RANGE, false, false);
-            }
-            return;
-        }
-
-        //Outside of attack Range, Move to players predicted loc.
-
-        if (!aiAgent.isMoving())
-            if (MovementUtilities.canMove(aiAgent))
-                MovementUtilities.moveToLocation(aiAgent, building.getLoc(), aiAgent.getRange() + buildingHitBox);
-    }
-    private static void handlePlayerAttackForMob(Mob aiAgent, PlayerCharacter player) {
-
-        if (aiAgent.getMobBase().getSeeInvis() < player.getHidden()) {
-            aiAgent.setCombatTarget(null);
-            return;
-        }
-
-        if (!player.isAlive()) {
-            aiAgent.setCombatTarget(null);
-            return;
-        }
-
-        if (aiAgent.BehaviourType.callsForHelp) {
-            MobCallForHelp(aiAgent);
-        }
-        if (!MovementUtilities.inRangeDropAggro(aiAgent, player)) {
-            aiAgent.setAggroTargetID(0);
-            aiAgent.setCombatTarget(null);
-            MovementUtilities.moveToLocation(aiAgent, aiAgent.getTrueBindLoc(), 0);
-            return;
-        }
-        if (CombatUtilities.inRange2D(aiAgent, player, aiAgent.getRange())) {
-
-            //no weapons, defualt mob attack speed 3 seconds.
-
-            if (System.currentTimeMillis() < aiAgent.getLastAttackTime())
-                return;
-
-            //if (!CombatUtilities.RunAIRandom())
-            //    return;
-
             // ranged mobs cant attack while running. skip until they finally stop.
-            //if (aiAgent.getRange() >= 30 && aiAgent.isMoving())
-            if (aiAgent.isMoving())
+            if (mob.isMoving())
                 return;
-
             // add timer for last attack.
-            //	player.setTimeStamp("LastCombatPlayer", System.currentTimeMillis());
-            ItemBase mainHand = aiAgent.getWeaponItemBase(true);
-            ItemBase offHand = aiAgent.getWeaponItemBase(false);
-
+            ItemBase mainHand = mob.getWeaponItemBase(true);
+            ItemBase offHand = mob.getWeaponItemBase(false);
             if (mainHand == null && offHand == null) {
-
-                CombatUtilities.combatCycle(aiAgent, player, true, null);
+                CombatUtilities.combatCycle(mob, target, true, null);
                 int delay = 3000;
-
-                if (aiAgent.isSiege())
+                if (mob.isSiege())
                     delay = 11000;
-
-                aiAgent.setLastAttackTime(System.currentTimeMillis() + delay);
-
-            } else
-                //TODO set offhand attack time.
-                if (aiAgent.getWeaponItemBase(true) != null) {
-
-                    int delay = 3000;
-
-                    if (aiAgent.isSiege())
-                        delay = 11000;
-
-                    CombatUtilities.combatCycle(aiAgent, player, true, aiAgent.getWeaponItemBase(true));
-                    aiAgent.setLastAttackTime(System.currentTimeMillis() + delay);
-                } else if (aiAgent.getWeaponItemBase(false) != null) {
-
-                    int attackDelay = 3000;
-
-                    if (aiAgent.isSiege())
-                        attackDelay = 11000;
-                    if (aiAgent.BehaviourType.callsForHelp) {
-                        MobCallForHelp(aiAgent);
-                    }
-                    CombatUtilities.combatCycle(aiAgent, player, false, aiAgent.getWeaponItemBase(false));
-                    aiAgent.setLastAttackTime(System.currentTimeMillis() + attackDelay);
-                }
-            return;
-        }
-
-        if (!MovementUtilities.updateMovementToCharacter(aiAgent, player))
-            return;
-
-        if (!MovementUtilities.canMove(aiAgent))
-            return;
-
-        //this stops mobs from attempting to move while they are underneath a player.
-        if (CombatUtilities.inRangeToAttack2D(aiAgent, player))
-            return;
-
-    }
-    private static void handleMobAttackForMob(Mob aiAgent, Mob mob) {
-
-
-        if (!mob.isAlive()) {
-            aiAgent.setCombatTarget(null);
-            return;
-        }
-
-        if (CombatUtilities.inRangeToAttack(aiAgent, mob)) {
-            //not time to attack yet.
-            if (System.currentTimeMillis() < aiAgent.getLastAttackTime()) {
-                return;
+                mob.setLastAttackTime(System.currentTimeMillis() + delay);
+            } else if (mob.getWeaponItemBase(true) != null) {
+                int delay = 3000;
+                if (mob.isSiege())
+                    delay = 11000;
+                CombatUtilities.combatCycle(mob, target, true, mob.getWeaponItemBase(true));
+                mob.setLastAttackTime(System.currentTimeMillis() + delay);
+            } else if (mob.getWeaponItemBase(false) != null) {
+                int attackDelay = 3000;
+                if (mob.isSiege())
+                    attackDelay = 11000;
+                CombatUtilities.combatCycle(mob, target, false, mob.getWeaponItemBase(false));
+                mob.setLastAttackTime(System.currentTimeMillis() + attackDelay);
             }
-
-            if (!CombatUtilities.RunAIRandom())
-                return;
-
-            if (aiAgent.getRange() >= 30 && aiAgent.isMoving())
-                return;
-            //no weapons, defualt mob attack speed 3 seconds.
-            ItemBase mainHand = aiAgent.getWeaponItemBase(true);
-            ItemBase offHand = aiAgent.getWeaponItemBase(false);
-
-            if (mainHand == null && offHand == null) {
-
-                CombatUtilities.combatCycle(aiAgent, mob, true, null);
-                int delay = 3000;
-
-                if (aiAgent.isSiege())
-                    delay = 11000;
-
-                aiAgent.setLastAttackTime(System.currentTimeMillis() + delay);
-            } else
-                //TODO set offhand attack time.
-                if (aiAgent.getWeaponItemBase(true) != null) {
-
-                    int attackDelay = 3000;
-
-                    if (aiAgent.isSiege())
-                        attackDelay = 11000;
-
-                    CombatUtilities.combatCycle(aiAgent, mob, true, aiAgent.getWeaponItemBase(true));
-                    aiAgent.setLastAttackTime(System.currentTimeMillis() + attackDelay);
-
-                } else if (aiAgent.getWeaponItemBase(false) != null) {
-
-                    int attackDelay = 3000;
-
-                    if (aiAgent.isSiege())
-                        attackDelay = 11000;
-
-                    CombatUtilities.combatCycle(aiAgent, mob, false, aiAgent.getWeaponItemBase(false));
-                    aiAgent.setLastAttackTime(System.currentTimeMillis() + attackDelay);
-                }
             return;
         }
-
-        //use this so mobs dont continue to try to move if they are underneath a flying target. only use 2D range check.
-        if (CombatUtilities.inRangeToAttack2D(aiAgent, mob))
-            return;
-
-        if (!MovementUtilities.updateMovementToCharacter(aiAgent, mob))
-            return;
     }
-    private static void patrol(Mob mob) {
+    public static void AttackBuilding(Mob mob, Building target){
+        if (target.getRank() == -1 || !target.isVulnerable() || BuildingManager.getBuildingFromCache(target.getObjectUUID()) == null) {
+            mob.setCombatTarget(null);
+            return;
+        }
+        City playercity = ZoneManager.getCityAtLocation(mob.getLoc());
+        if(playercity != null) {
+            for (Building barracks : playercity.cityBarracks) {
+                for(AbstractCharacter guardCaptain : barracks.getHirelings().keySet()){
+                    if(guardCaptain.getCombatTarget() == null){
+                        guardCaptain.setCombatTarget(mob);
+                    }
+                }
+            }
+        }
+        if (mob.isSiege())
+            MovementManager.sendRWSSMsg(mob);
+        ItemBase mainHand = mob.getWeaponItemBase(true);
+        ItemBase offHand = mob.getWeaponItemBase(false);
+        if (mainHand == null && offHand == null) {
+            CombatUtilities.combatCycle(mob, target, true, null);
+            int delay = 3000;
+            if (mob.isSiege())
+                delay = 15000;
+            mob.setLastAttackTime(System.currentTimeMillis() + delay);
+        } else
+        if (mob.getWeaponItemBase(true) != null) {
+            int attackDelay = 3000;
+            if (mob.isSiege())
+                attackDelay = 15000;
+            CombatUtilities.combatCycle(mob, target, true, mob.getWeaponItemBase(true));
+            mob.setLastAttackTime(System.currentTimeMillis() + attackDelay);
+        } else if (mob.getWeaponItemBase(false) != null) {
+            int attackDelay = 3000;
+            if (mob.isSiege())
+                attackDelay = 15000;
+            CombatUtilities.combatCycle(mob, target, false, mob.getWeaponItemBase(false));
+            mob.setLastAttackTime(System.currentTimeMillis() + attackDelay);
+        }
+        if (mob.isSiege()) {
+            PowerProjectileMsg ppm = new PowerProjectileMsg(mob, target);
+            ppm.setRange(50);
+            DispatchMessage.dispatchMsgToInterestArea(mob, ppm, DispatchChannel.SECONDARY, MBServerStatics.CHARACTER_LOAD_RANGE, false, false);
+        }
+    }
+    public static void AttackMob(Mob mob, Mob target){
+        if (mob.getRange() >= 30 && mob.isMoving())
+            return;
+        //no weapons, default mob attack speed 3 seconds.
+        ItemBase mainHand = mob.getWeaponItemBase(true);
+        ItemBase offHand = mob.getWeaponItemBase(false);
+        if (mainHand == null && offHand == null) {
+            CombatUtilities.combatCycle(mob, target, true, null);
+            int delay = 3000;
+            if (mob.isSiege())
+                delay = 11000;
+            mob.setLastAttackTime(System.currentTimeMillis() + delay);
+        } else
+        if (mob.getWeaponItemBase(true) != null) {
+            int attackDelay = 3000;
+            if (mob.isSiege())
+                attackDelay = 11000;
+            CombatUtilities.combatCycle(mob, target, true, mob.getWeaponItemBase(true));
+            mob.setLastAttackTime(System.currentTimeMillis() + attackDelay);
+        } else if (mob.getWeaponItemBase(false) != null) {
+            int attackDelay = 3000;
+            if (mob.isSiege())
+                attackDelay = 11000;
+            CombatUtilities.combatCycle(mob, target, false, mob.getWeaponItemBase(false));
+            mob.setLastAttackTime(System.currentTimeMillis() + attackDelay);
+        }
+        return;
+    }
+    private static void Patrol(Mob mob) {
         //make sure mob is out of combat stance
         if (mob.isCombat() && mob.getCombatTarget() == null) {
             mob.setCombat(false);
@@ -495,53 +345,32 @@ public class MobileFSM {
         if (mob == null) {
             return;
         }
-        if(mob.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardCaptain.ordinal()){
-            //this is a player slotted guard captain
-            GuardCaptainLogic(mob);
+        if (mob.isAlive() == false) {
+            //no need to continue if mob is dead, check for respawn and move on
+            CheckForRespawn(mob);
             return;
         }
-        if(mob.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardMinion.ordinal()){
-            //this is a player slotted guard minion
-            GuardMinionLogic(mob);
+        if (mob.playerAgroMap.isEmpty()) {
+            //no players loaded, no need to proceed
             return;
         }
-        if(mob.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardWallArcher.ordinal()){
-            //this is a player slotted guard minion
-            GuardWallArcherLogic(mob);
-            return;
-        }
-        if (mob.isPet() == false && mob.isSummonedPet() == false && mob.isNecroPet() == false) {
-            if (mob.isAlive() == false) {
-                //no need to continue if mob is dead, check for respawn and move on
-                CheckForRespawn(mob);
-                return;
-            }
-            //check to see if mob has wandered too far from his bind loc
-            CheckToSendMobHome(mob);
-            //check to see if players have mob loaded
-            if (mob.playerAgroMap.isEmpty()) {
-                //no players loaded, no need to proceed
-                return;
-            }
-            //check for players that can be aggroed if mob is agressive and has no target
-            if (mob.BehaviourType.isAgressive && mob.getCombatTarget() == null && mob.BehaviourType != Enum.MobBehaviourType.SimpleStandingGuard) {
-                //normal aggro
-                CheckForAggro(mob);
-            } else if (mob.BehaviourType == Enum.MobBehaviourType.SimpleStandingGuard) {
-                //safehold guard
-                SafeGuardAggro(mob);
-            }
-            //check if mob can move for patrol or moving to target
-            if (mob.BehaviourType.canRoam) {
-                CheckMobMovement(mob);
-            }
-            //check if mob can attack if it isn't wimpy
-            if (!mob.BehaviourType.isWimpy && !mob.isMoving() && mob.combatTarget != null) {
-                CheckForAttack(mob);
-            }
-        } else {
-            CheckMobMovement(mob);
-            CheckForAttack(mob);
+        CheckToSendMobHome(mob);
+        switch(mob.BehaviourType){
+            case GuardCaptain:
+                GuardCaptainLogic(mob);
+                break;
+            case GuardMinion:
+                GuardMinionLogic(mob);
+                break;
+            case GuardWallArcher:
+                GuardWallArcherLogic(mob);
+                break;
+            case Pet1:
+                PetLogic(mob);
+                break;
+            default:
+                DefaultLogic(mob);
+                break;
         }
     }
     private static void CheckForAggro(Mob aiAgent) {
@@ -584,7 +413,7 @@ public class MobileFSM {
         mob.updateLocation();
         if (mob.isPet() == false && mob.isSummonedPet() == false && mob.isNecroPet() == false) {
             if (mob.getCombatTarget() == null) {
-                patrol(mob);
+                Patrol(mob);
             } else {
                 chaseTarget(mob);
             }
@@ -606,54 +435,49 @@ public class MobileFSM {
         }
     }
     private static void CheckForRespawn(Mob aiAgent) {
+        if (aiAgent.deathTime == 0) {
+            aiAgent.setDeathTime(System.currentTimeMillis());
+        }
         //handles checking for respawn of dead mobs even when no players have mob loaded
         //Despawn Timer with Loot currently in inventory.
         if (aiAgent.getCharItemManager().getInventoryCount() > 0) {
             if (System.currentTimeMillis() > aiAgent.deathTime + MBServerStatics.DESPAWN_TIMER_WITH_LOOT) {
                 aiAgent.despawn();
-                //update time of death after mob despawns so respawn time happens after mob despawns.
-                if (aiAgent.deathTime != 0) {
-                    aiAgent.setDeathTime(System.currentTimeMillis());
-                }
-                respawn(aiAgent);
             }
-
             //No items in inventory.
         } else {
             //Mob's Loot has been looted.
             if (aiAgent.isHasLoot()) {
                 if (System.currentTimeMillis() > aiAgent.deathTime + MBServerStatics.DESPAWN_TIMER_ONCE_LOOTED) {
                     aiAgent.despawn();
-                    //update time of death after mob despawns so respawn time happens after mob despawns.
-                    if (aiAgent.deathTime != 0) {
-                        aiAgent.setDeathTime(System.currentTimeMillis());
-                    }
-                    respawn(aiAgent);
                 }
                 //Mob never had Loot.
             } else {
                 if (System.currentTimeMillis() > aiAgent.deathTime + MBServerStatics.DESPAWN_TIMER) {
                     aiAgent.despawn();
                     //update time of death after mob despawns so respawn time happens after mob despawns.
-                    if (aiAgent.deathTime != 0) {
-                        aiAgent.setDeathTime(System.currentTimeMillis());
-                    }
-                    respawn(aiAgent);
                 }
             }
         }
-
+        if (System.currentTimeMillis() > aiAgent.deathTime + (aiAgent.spawnTime * 1000)) {
+            aiAgent.respawn();
+            aiAgent.setCombatTarget(null);
+        }
     }
     public static void CheckForAttack(Mob mob) {
         //checks if mob can attack based on attack timer and range
-        if (mob.isAlive())
+        if (mob.isAlive() == false){
+            return;
+        }
         if (!mob.isCombat()) {
             mob.setCombat(true);
             UpdateStateMsg rwss = new UpdateStateMsg();
             rwss.setPlayer(mob);
             DispatchMessage.sendToAllInRange(mob, rwss);
         }
-        mobAttack(mob);
+        if(System.currentTimeMillis() > mob.getLastAttackTime()) {
+            AttackTarget(mob, mob.getCombatTarget());
+        }
     }
     private static void CheckToSendMobHome(Mob mob) {
 
@@ -705,23 +529,10 @@ public class MobileFSM {
             }
         }
     }
-    private static void respawn(Mob aiAgent) {
-
-        if (!aiAgent.canRespawn())
-            return;
-
-        long spawnTime = aiAgent.getSpawnTime();
-
-        if (aiAgent.isPlayerGuard() && aiAgent.npcOwner != null && !aiAgent.npcOwner.isAlive())
-            return;
-
-        if (System.currentTimeMillis() > aiAgent.deathTime + spawnTime) {
-            aiAgent.respawn();
-            aiAgent.setCombatTarget(null);
-        }
-    }
     private static void chaseTarget(Mob mob) {
         mob.updateMovementState();
+        if (CombatUtilities.inRangeToAttack2D(mob, mob.getCombatTarget()))
+            return;
         if (CombatUtilities.inRange2D(mob, mob.getCombatTarget(), mob.getRange()) == false) {
             if (mob.getRange() > 15) {
                 mob.destination = mob.getCombatTarget().getLoc();
@@ -749,17 +560,9 @@ public class MobileFSM {
         }
     }
     public static void GuardCaptainLogic(Mob mob){
-        if (mob.playerAgroMap.isEmpty()) {
-            //no players loaded, no need to proceed
-            return;
+        if(mob.getCombatTarget() == null) {
+            CheckForPlayerGuardAggro(mob);
         }
-        if (mob.isAlive() == false) {
-            //no need to continue if mob is dead, check for respawn and move on
-            CheckForRespawn(mob);
-            return;
-        }
-        CheckToSendMobHome(mob);
-        CheckForPlayerGuardAggro(mob);
         CheckMobMovement(mob);
         if(mob.getCombatTarget() != null) {
             CheckForAttack(mob);
@@ -777,12 +580,7 @@ public class MobileFSM {
             }
             return;
         }
-        if(mob.isAlive() == false){
-            CheckForRespawn(mob);
-            return;
-        }
-        CheckToSendMobHome(mob);
-        if(mob.npcOwner.isAlive() == false){
+        if(mob.npcOwner.isAlive() == false && mob.getCombatTarget() == null){
             CheckForPlayerGuardAggro(mob);
             return;
         }
@@ -792,15 +590,39 @@ public class MobileFSM {
         }
     }
     public static void GuardWallArcherLogic(Mob mob){
-        if(mob.isAlive() == false){
-            CheckForRespawn(mob);
-            return;
-        }
-        if(mob.npcOwner.isAlive() == false){
+        if(mob.getCombatTarget() == null){
             CheckForPlayerGuardAggro(mob);
             return;
         }
         if(mob.getCombatTarget() != null){
+            CheckForAttack(mob);
+        }
+    }
+    private static void PetLogic(Mob mob){
+        if(MovementUtilities.canMove(mob)){
+            CheckMobMovement(mob);
+        }
+        if(mob.getCombatTarget() != null) {
+            CheckForAttack(mob);
+        }
+    }
+    private static void DefaultLogic(Mob mob){
+        //check for players that can be aggroed if mob is agressive and has no target
+        if (mob.BehaviourType.isAgressive && mob.getCombatTarget() == null) {
+            if (mob.BehaviourType == Enum.MobBehaviourType.SimpleStandingGuard) {
+                //safehold guard
+                SafeGuardAggro(mob);
+            } else {
+                //normal aggro
+                CheckForAggro(mob);
+            }
+        }
+        //check if mob can move for patrol or moving to target
+        if (mob.BehaviourType.canRoam) {
+            CheckMobMovement(mob);
+        }
+        //check if mob can attack if it isn't wimpy
+        if (!mob.BehaviourType.isWimpy && !mob.isMoving() && mob.combatTarget != null) {
             CheckForAttack(mob);
         }
     }

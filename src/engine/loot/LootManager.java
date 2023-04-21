@@ -71,11 +71,11 @@ public class LootManager {
         }
     }
     private static void RunBootySet(ArrayList<BootySetEntry> entries, Mob mob, float multiplier, boolean inHotzone, boolean fromDeath) {
-
         for (BootySetEntry bse : entries) {
+            int roll = ThreadLocalRandom.current().nextInt(101);
             switch (bse.bootyType) {
                 case "GOLD":
-                    if (ThreadLocalRandom.current().nextInt(100) <= (bse.dropChance * multiplier) || fromDeath) {
+                    if (roll > (bse.dropChance * multiplier) || fromDeath) {
                         //early exit, failed to hit minimum chance roll OR booty was generated from mob's death
                         break;
                     }
@@ -87,7 +87,7 @@ public class LootManager {
                     }
                     break;
                 case "LOOT":
-                    if (ThreadLocalRandom.current().nextInt(100) <= (bse.dropChance * multiplier) || fromDeath) {
+                    if (roll > (bse.dropChance * multiplier) || fromDeath) {
                         //early exit, failed to hit minimum chance roll OR booty was generated from mob's death
                         break;
                     }
@@ -111,7 +111,7 @@ public class LootManager {
 
                     break;
                 case "EQUIP":
-                    if (ThreadLocalRandom.current().nextInt(100) <= (bse.dropChance * multiplier) || !fromDeath) {
+                    if (roll > (bse.dropChance * multiplier) && fromDeath) {
                         //early exit, failed to hit minimum chance roll OR booty wasn't generated from mob's death
                         break;
                     }

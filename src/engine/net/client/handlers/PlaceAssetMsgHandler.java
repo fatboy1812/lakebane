@@ -879,6 +879,9 @@ public class PlaceAssetMsgHandler extends AbstractClientMsgHandler {
 						WorldGrid.RemoveWorldObject(building);
 						WorldGrid.removeObject(building);
 						building.getParentZone().getParent().zoneBuildingSet.remove(building);
+						if(building.getBlueprint() != null && building.getBlueprint().getBuildingGroup().equals(BuildingGroup.BARRACK)){
+							building.RemoveFromBarracksList();
+						}
 						continue;
 					}
 					// remove gold from walls already placed before returning.
@@ -1338,6 +1341,9 @@ public class PlaceAssetMsgHandler extends AbstractClientMsgHandler {
 					WorldGrid.RemoveWorldObject(building);
 					WorldGrid.removeObject(building);
 					building.getParentZone().zoneBuildingSet.remove(building);
+					if(building.getBlueprint() != null && building.getBlueprint().getBuildingGroup().equals(BuildingGroup.BARRACK)){
+						building.RemoveFromBarracksList();
+					}
 					continue;
 				}
 

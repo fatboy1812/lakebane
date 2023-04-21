@@ -1343,7 +1343,7 @@ public class Mob extends AbstractIntelligenceAgent {
     }
 
     public boolean canRespawn() {
-        return System.currentTimeMillis() > this.deathTime;
+        return System.currentTimeMillis() > this.deathTime + (spawnTime * 1000);
     }
 
     @Override

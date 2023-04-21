@@ -91,6 +91,7 @@ public class City extends AbstractWorldObject {
 
 	public volatile boolean protectionEnforced = true;
 	private String hash;
+	public ArrayList<Building>cityBarracks;
 
 	/**
 	 * ResultSet Constructor

@@ -99,7 +99,9 @@ public class DestroyBuildingHandler extends AbstractClientMsgHandler {
 		WorldGrid.RemoveWorldObject(building);
 		WorldGrid.removeObject(building);
 		building.getParentZone().zoneBuildingSet.remove(building);
-
+		if(building.getBlueprint() != null && building.getBlueprint().getBuildingGroup().equals(BuildingGroup.BARRACK)){
+			building.RemoveFromBarracksList();
+		}
 		return true;
 	}
 

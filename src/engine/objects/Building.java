@@ -707,42 +707,30 @@ public class Building extends AbstractWorldObject {
 			if (this.parentZone != null) {
 
 				this.parentZone.zoneBuildingSet.remove(this);
+				if(this.getBlueprint() != null && this.getBlueprint().getBuildingGroup().equals(BuildingGroup.BARRACK)){
+					this.RemoveFromBarracksList();
+				}
 				zone.zoneBuildingSet.add(this);
 
 			} else
 				zone.zoneBuildingSet.add(this);
-		else if (this.parentZone != null)
+		else if (this.parentZone != null) {
 			this.parentZone.zoneBuildingSet.remove(this);
-
+			if(this.getBlueprint() != null && this.getBlueprint().getBuildingGroup().equals(BuildingGroup.BARRACK)){
+				this.RemoveFromBarracksList();
+			}
+		}
 		if (this.parentZone == null) {
 			this.parentZone = zone;
 			this.setLoc(new Vector3fImmutable(this.statLat + zone.absX, this.statAlt + zone.absY, this.statLon + zone.absZ));
 		} else
 			this.parentZone = zone;
+		if(this.getBlueprint() != null && this.getBlueprint().getBuildingGroup().equals(BuildingGroup.BARRACK)){
+			AddToBarracksList();
+		}
 	}
 
 	//Sets the relative position to a parent zone
-
-	public final void setRelPos(Zone zone, float locX, float locY, float locZ) {
-
-		//update ZoneManager's zone building list
-
-		if (zone != null)
-			if (this.parentZone != null) {
-				if (zone.getObjectUUID() != this.parentZone.getObjectUUID()) {
-					this.parentZone.zoneBuildingSet.remove(this);
-					zone.zoneBuildingSet.add(this);
-				}
-			} else
-				zone.zoneBuildingSet.add(this);
-		else if (this.parentZone != null)
-			this.parentZone.zoneBuildingSet.remove(this);
-
-		this.statLat = locX;
-		this.statAlt = locY;
-		this.statLon = locZ;
-		this.parentZone = zone;
-	}
 
 	public float getStatLat() {
 		return statLat;
@@ -1756,5 +1744,14 @@ public class Building extends AbstractWorldObject {
 		if (this.taxAmount == 0)
 			return false;
 		return this.taxDateTime != null;
+	}
+	public void AddToBarracksList(){
+		City playerCity = ZoneManager.getCityAtLocation(this.loc);
+		if(playerCity != null){
+			playerCity.cityBarracks.add(this);
+		}
+	}
+	public void RemoveFromBarracksList(){
+
 	}
 }
