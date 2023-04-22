@@ -950,6 +950,9 @@ public class Mob extends AbstractIntelligenceAgent {
             this.setLoc(buildingWorldLoc);
             this.endLoc = buildingWorldLoc;
             this.stopMovement(endLoc);
+            if(this.building.getBlueprint().isWallPiece()) {
+                MovementManager.translocate(this, new Vector3fImmutable(this.building.getLoc().x, this.npcOwner.getLoc().y, this.building.getLoc().z), this.region);
+            }
             return;
         }
 

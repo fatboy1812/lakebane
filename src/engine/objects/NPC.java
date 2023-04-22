@@ -1458,7 +1458,7 @@ public class NPC extends AbstractCharacter {
 
 		mob.setObjectTypeMask(MBServerStatics.MASK_MOB | mob.getTypeMasks());
 
-		// mob.setMob();
+		//mob.setMob();
 		mob.setSiege(true);
 		mob.setParentZone(parent);
 
@@ -1478,7 +1478,8 @@ public class NPC extends AbstractCharacter {
 		
 		mob.setSpawnTime(10);
 		mob.setNpcOwner(this);
-		mob.region = AbstractWorldObject.GetRegionByWorldObject(mob);
+		mob.BehaviourType = MobBehaviourType.Pet1;
+		mob.BehaviourType.canRoam = false;
 		return mob;
 	}
 

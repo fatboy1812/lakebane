@@ -115,6 +115,9 @@ public class CombatUtilities {
 			DispatchMessage.sendToAllInRange(agent,msg);
 	}
 	public static void swingIsDamage(Mob agent, AbstractWorldObject target, float damage, int animation){
+		if(agent.isSiege() == true){
+			damage = ThreadLocalRandom.current().nextInt(1000) + 1500;
+		}
 		float trueDamage = damage;
 		//target = agent.getCombatTarget();
 		if (!target.isAlive())

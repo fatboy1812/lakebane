@@ -113,10 +113,10 @@ public class MobileFSM {
         }
         City playercity = ZoneManager.getCityAtLocation(mob.getLoc());
         if(playercity != null) {
-            for (Building barracks : playercity.cityBarracks) {
-                for(AbstractCharacter guardCaptain : barracks.getHirelings().keySet()){
-                    if(guardCaptain.getCombatTarget() == null){
-                        guardCaptain.setCombatTarget(mob);
+            for (Mob guard : playercity.getParent().zoneMobSet) {
+                if (guard.BehaviourType != null && guard.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardCaptain.ordinal()) {
+                    if (guard.getCombatTarget() == null && guard.getGuild().equals(mob.getGuild()) == false) {
+                        guard.setCombatTarget(mob);
                     }
                 }
             }
@@ -584,7 +584,7 @@ public class MobileFSM {
         if(mob.getCombatTarget() != null && mob.getCombatTarget().isAlive() == false){
             mob.setCombatTarget(null);
         }
-        if(MovementUtilities.canMove(mob)){
+        if(MovementUtilities.canMove(mob) && mob.BehaviourType.canRoam){
             CheckMobMovement(mob);
         }
         if(mob.getCombatTarget() != null) {
