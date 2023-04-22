@@ -1718,10 +1718,12 @@ public class Mob extends AbstractIntelligenceAgent {
             Logger.error("Null equipset returned for uuid " + currentID);
             this.equip = new HashMap<>(0);
         }
-
         // Combine mobbase and mob aggro arrays into one bitvector
-        this.notEnemy.addAll(this.getMobBase().notEnemy);
-        this.enemy.addAll(this.getMobBase().enemy);
+        if(this.getMobBase().notEnemy.size() > 0)
+            this.notEnemy.addAll(this.getMobBase().notEnemy);
+
+        if(this.getMobBase().enemy.size() > 0)
+            this.enemy.addAll(this.getMobBase().enemy);
 
         try {
             NPCManager.applyRuneSetEffects(this);
