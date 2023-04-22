@@ -1720,7 +1720,6 @@ public class Mob extends AbstractIntelligenceAgent {
         }
 
         // Combine mobbase and mob aggro arrays into one bitvector
-        EnumBitSet<Enum.MonsterType> notEnemyTester = this.getMobBase().notEnemy;
         this.notEnemy.addAll(this.getMobBase().notEnemy);
         this.enemy.addAll(this.getMobBase().enemy);
 
