@@ -109,9 +109,14 @@ public class MobBase extends AbstractGameObject {
 			}
 
 		this.flags = EnumBitSet.asEnumBitSet(rs.getLong("flags"), Enum.MobFlagType.class);
-
-		this.notEnemy = EnumBitSet.asEnumBitSet(rs.getLong("notEnemy"), Enum.MonsterType.class);
-		this.enemy = EnumBitSet.asEnumBitSet(rs.getLong("enemy"), Enum.MonsterType.class);
+		if(rs.getLong("notEnemy") == 0)
+			this.notEnemy = EnumBitSet.noneOf(Enum.MonsterType.class);
+		 else
+			this.notEnemy = EnumBitSet.asEnumBitSet(rs.getLong("notEnemy"), Enum.MonsterType.class);
+		if(rs.getLong("enemy") == 0)
+			this.enemy = EnumBitSet.noneOf(Enum.MonsterType.class);
+		else
+			this.enemy = EnumBitSet.asEnumBitSet(rs.getLong("enemy"), Enum.MonsterType.class);
 
 		this.seeInvis = rs.getInt("seeInvis");
 		this.scale = rs.getFloat("scale");
