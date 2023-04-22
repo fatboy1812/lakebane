@@ -148,7 +148,7 @@ public class MinionTrainingMsgHandler extends AbstractClientMsgHandler {
 						if (mobBase == 0)
 							return true;
 
-						Mob toCreate = npc.createSiegeMob(mobBase, npc.getGuild(), zone, b.getLoc(), (short) 1);
+						Mob toCreate = Mob.createSiegeMob(npc,mobBase, npc.getGuild(), zone, b.getLoc(), (short) 1);
 
 						if (toCreate == null)
 							return true;
@@ -280,7 +280,7 @@ public class MinionTrainingMsgHandler extends AbstractClientMsgHandler {
 						if (!DbManager.MobQueries.ADD_TO_GUARDS(npc.getObjectUUID(), mobBase, pirateName, npc.getSiegeMinionMap().size() + 1))
 							return true;
 
-						Mob toCreate = NPCManager.createGuardMob(npc, npc.getGuild(), zone, b.getLoc(), npc.getLevel(),pirateName);
+						Mob toCreate = Mob.createGuardMob(npc, npc.getGuild(), zone, b.getLoc(), npc.getLevel(),pirateName);
 
 						if (toCreate == null)
 							return true;

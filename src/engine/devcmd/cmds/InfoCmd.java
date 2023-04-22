@@ -463,7 +463,7 @@ public class InfoCmd extends AbstractDevCmd {
 			output += newline;
 			output += "Speed : " + targetMob.getSpeed();
 			output += newline;
-			output += "EquipSet: " + targetMob.getEquipmentSetID();
+			output += "EquipSet: " + targetMob.equipmentSetID;
 			output += newline;
 			output += "Parent Zone LoadNum : " + targetMob.getParentZone().getLoadNum();
 			output += newline;

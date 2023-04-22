@@ -554,10 +554,6 @@ public class MobileFSM {
     public static void GuardMinionLogic(Mob mob){
         if(mob.despawned){
             if(System.currentTimeMillis() > mob.deathTime + (mob.spawnTime * 1000)){
-                if(mob.getEquipmentSetID() != ((Mob)mob.npcOwner).getEquipmentSetID()){
-                    mob.equipmentSetID = ((Mob)mob.npcOwner).getEquipmentSetID();
-                    mob.runAfterLoad();
-                }
                 mob.respawn();
             }
             return;

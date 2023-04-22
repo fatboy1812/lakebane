@@ -29,6 +29,7 @@ import engine.net.client.msg.ErrorPopupMsg;
 import engine.net.client.msg.ManageCityAssetsMsg;
 import engine.net.client.msg.PetMsg;
 import engine.net.client.msg.PlaceAssetMsg;
+import engine.powers.EffectsBase;
 import engine.server.MBServerStatics;
 import org.joda.time.DateTime;
 import org.pmw.tinylog.Logger;
@@ -719,7 +720,9 @@ public class Mob extends AbstractIntelligenceAgent {
             if (!isPet && this.contract == null) this.level = (short) this.mobBase.getLevel();
             else this.level = 1;
         }
-
+        if (this.building != null && this.contract != null) {
+            slotMobInBuilding(); // picks first available free slot
+        }
         //set bonuses
         this.bonuses = new PlayerBonuses(this);
 
@@ -1913,10 +1916,6 @@ public class Mob extends AbstractIntelligenceAgent {
         return lastRegion;
     }
 
-    public void setLastRegion(Regions lastRegion) {
-        this.lastRegion = lastRegion;
-    }
-
     public boolean isLootSync() {
         return lootSync;
     }
@@ -1927,10 +1926,6 @@ public class Mob extends AbstractIntelligenceAgent {
 
     public HashMap<Integer, MobEquipment> getEquip() {
         return equip;
-    }
-
-    public int getEquipmentSetID() {
-        return equipmentSetID;
     }
 
     public String getNameOverride() {
@@ -2091,5 +2086,192 @@ public class Mob extends AbstractIntelligenceAgent {
                     this.setOwner(null);
             }
         }
+    }
+    private void slotMobInBuilding() {
+        int maxSlots = 10;
+
+        for (int slot = 1; slot < maxSlots + 1; slot++)
+            if (!this.building.getHirelings().containsValue(slot)) {
+                this.building.getHirelings().put(this, slot);
+                break;
+            }
+    }
+    public static synchronized Mob createGuardMob(Mob guardCaptain, Guild guild, Zone parent, Vector3fImmutable loc, short level, String pirateName) {
+
+        MobBase minionMobBase;
+        Mob mob;
+        int maxSlots = 1;
+
+        switch (guardCaptain.getRank()) {
+            case 1:
+            case 2:
+                maxSlots = 1;
+                break;
+            case 3:
+                maxSlots = 2;
+                break;
+            case 4:
+            case 5:
+                maxSlots = 3;
+                break;
+            case 6:
+                maxSlots = 4;
+                break;
+            case 7:
+                maxSlots = 5;
+                break;
+            default:
+                maxSlots = 1;
+
+        }
+
+        if (guardCaptain.siegeMinionMap.size() == maxSlots)
+            return null;
+
+        minionMobBase = guardCaptain.mobBase;
+
+        if (minionMobBase == null)
+            return null;
+
+        mob = new Mob(minionMobBase, guild, parent, level, new Vector3fImmutable(1, 1, 1), 0, true);
+        mob.setLevel(level);
+        if(guardCaptain.equipmentSetID != 0)
+            mob.equipmentSetID = guardCaptain.equipmentSetID;
+
+        mob.runAfterLoad();
+        mob.despawned = true;
+        //grab equipment and name from minionbase.
+        if (guardCaptain.contract != null) {
+            Enum.MinionType minionType = Enum.MinionType.ContractToMinionMap.get(guardCaptain.contract.getContractID());
+            if (minionType != null) {
+                String rank = "";
+
+                if (guardCaptain.getRank() < 3)
+                    rank = MBServerStatics.JUNIOR;
+                else if (guardCaptain.getRank() < 6)
+                    rank = "";
+                else if (guardCaptain.getRank() == 6)
+                    rank = MBServerStatics.VETERAN;
+                else
+                    rank = MBServerStatics.ELITE;
+
+                if (rank.isEmpty())
+                    mob.nameOverride = pirateName + " " + minionType.getRace() + " " + minionType.getName();
+                else
+                    mob.nameOverride = pirateName + " " + minionType.getRace() + " " + rank + " " + minionType.getName();
+            }
+        }
+
+        if (parent != null)
+            mob.setRelPos(parent, loc.x - parent.absX, loc.y - parent.absY, loc.z - parent.absZ);
+
+        mob.setObjectTypeMask(MBServerStatics.MASK_MOB | mob.getTypeMasks());
+
+        // mob.setMob();
+        mob.isPlayerGuard = true;
+        mob.setParentZone(parent);
+        DbManager.addToCache(mob);
+
+
+
+        RuneBase guardRune = RuneBase.getRuneBase(252621);
+
+        for (MobBaseEffects mbe : guardRune.getEffectsList()) {
+
+            EffectsBase eb = PowersManager.getEffectByToken(mbe.getToken());
+
+            if (eb == null) {
+                Logger.info("EffectsBase Null for Token " + mbe.getToken());
+                continue;
+            }
+
+            //check to upgrade effects if needed.
+            if (mob.effects.containsKey(Integer.toString(eb.getUUID()))) {
+                if (mbe.getReqLvl() > (int) mob.level) {
+                    continue;
+                }
+
+                Effect eff = mob.effects.get(Integer.toString(eb.getUUID()));
+
+                if (eff == null)
+                    continue;
+
+                //Current effect is a higher rank, dont apply.
+                if (eff.getTrains() > mbe.getRank())
+                    continue;
+
+                //new effect is of a higher rank. remove old effect and apply new one.
+                eff.cancelJob();
+                mob.addEffectNoTimer(Integer.toString(eb.getUUID()), eb, mbe.getRank(), true);
+            } else {
+
+                if (mbe.getReqLvl() > (int) mob.level)
+                    continue;
+
+                mob.addEffectNoTimer(Integer.toString(eb.getUUID()), eb, mbe.getRank(), true);
+            }
+        }
+
+        int slot = 0;
+        slot += guardCaptain.siegeMinionMap.size() + 1;
+
+        guardCaptain.siegeMinionMap.put(mob, slot);
+        mob.setInBuildingLoc(guardCaptain.building, guardCaptain);
+        Vector3fImmutable buildingWorldLoc = ZoneManager.convertLocalToWorld(guardCaptain.building, mob.inBuildingLoc);
+        mob.setBindLoc(buildingWorldLoc);
+        mob.setLoc(buildingWorldLoc);
+        mob.deathTime = System.currentTimeMillis();
+        mob.spawnTime = 900;
+        mob.npcOwner = guardCaptain;
+        mob.BehaviourType = Enum.MobBehaviourType.GuardMinion;
+
+        return mob;
+    }
+    public static synchronized Mob createSiegeMob(NPC owner, int loadID, Guild guild, Zone parent, Vector3fImmutable loc, short level) {
+
+        MobBase minionMobBase;
+        Mob mob;
+
+        if (owner.getSiegeMinionMap().size() == 3)
+            return null;
+
+        minionMobBase = MobBase.getMobBase(loadID);
+
+        if (minionMobBase == null)
+            return null;
+
+        mob = new Mob(minionMobBase, guild, parent, level,new Vector3fImmutable(1,1,1), 0,false);
+        mob.runAfterLoad();
+        mob.despawned = true;
+        DbManager.addToCache(mob);
+
+        if (parent != null)
+            mob.setRelPos(parent, loc.x - parent.absX, loc.y - parent.absY, loc.z - parent.absZ);
+
+        mob.setObjectTypeMask(MBServerStatics.MASK_MOB | mob.getTypeMasks());
+
+        //mob.setMob();
+        mob.setSiege(true);
+        mob.setParentZone(parent);
+
+        int slot = 0;
+
+        if (!owner.getSiegeMinionMap().containsValue(1))
+            slot = 1;
+        else if (!owner.getSiegeMinionMap().containsValue(2))
+            slot = 2;
+
+        owner.getSiegeMinionMap().put(mob, slot);
+        mob.setInBuildingLoc(owner.building, owner);
+
+        Vector3fImmutable buildingWorldLoc = ZoneManager.convertLocalToWorld(owner.building, mob.inBuildingLoc);
+        mob.setBindLoc(buildingWorldLoc);
+        mob.setLoc(buildingWorldLoc);
+
+        mob.setSpawnTime(10);
+        mob.setNpcOwner(owner);
+        mob.BehaviourType = MobBehaviourType.Pet1;
+        mob.BehaviourType.canRoam = false;
+        return mob;
     }
 }

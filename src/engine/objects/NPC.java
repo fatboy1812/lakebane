@@ -1435,53 +1435,7 @@ public class NPC extends AbstractCharacter {
 
 	}
 
-	public synchronized Mob createSiegeMob(int loadID, Guild guild, Zone parent, Vector3fImmutable loc, short level) {
 
-		MobBase minionMobBase;
-		Mob mob;
-
-		if (siegeMinionMap.size() == 3)
-			return null;
-
-		minionMobBase = MobBase.getMobBase(loadID);
-
-		if (minionMobBase == null)
-			return null;
-
-		mob = new Mob(minionMobBase, guild, parent, level,new Vector3fImmutable(1,1,1), 0,false);
-		mob.runAfterLoad();
-		mob.despawned = true;
-		DbManager.addToCache(mob);
-
-		if (parent != null)
-			mob.setRelPos(parent, loc.x - parent.absX, loc.y - parent.absY, loc.z - parent.absZ);
-
-		mob.setObjectTypeMask(MBServerStatics.MASK_MOB | mob.getTypeMasks());
-
-		//mob.setMob();
-		mob.setSiege(true);
-		mob.setParentZone(parent);
-
-		int slot = 0;
-
-		if (!siegeMinionMap.containsValue(1))
-			slot = 1;
-		else if (!siegeMinionMap.containsValue(2))
-			slot = 2;
-
-		siegeMinionMap.put(mob, slot);
-		mob.setInBuildingLoc(this.building, this);
-
-		Vector3fImmutable buildingWorldLoc = ZoneManager.convertLocalToWorld(this.building, mob.inBuildingLoc);
-		mob.setBindLoc(buildingWorldLoc);
-		mob.setLoc(buildingWorldLoc);
-		
-		mob.setSpawnTime(10);
-		mob.setNpcOwner(this);
-		mob.BehaviourType = MobBehaviourType.Pet1;
-		mob.BehaviourType.canRoam = false;
-		return mob;
-	}
 
 	public int getUpgradeCost() {
 

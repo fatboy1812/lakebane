@@ -114,7 +114,7 @@ public class dbMobHandler extends dbHandlerBase {
 			while (rs.next()) {
 				int mobBaseID = rs.getInt("mobBaseID");
 				String name = rs.getString("name");
-				Mob toCreate = NPCManager.createGuardMob(captain, captain.getGuild(), captain.getParentZone(), captain.building.getLoc(), captain.getLevel(),name);
+				Mob toCreate = Mob.createGuardMob(captain, captain.getGuild(), captain.getParentZone(), captain.building.getLoc(), captain.getLevel(),name);
 				if (toCreate == null)
 					return;
 
