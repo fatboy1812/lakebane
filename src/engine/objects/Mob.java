@@ -8,15 +8,13 @@
 
 
 package engine.objects;
+
 import ch.claude_martin.enumbitset.EnumBitSet;
 import engine.Enum;
 import engine.Enum.*;
 import engine.InterestManagement.WorldGrid;
-import engine.ai.MobileFSM;
-import engine.ai.utilities.MovementUtilities;
 import engine.exception.SerializationException;
 import engine.gameManager.*;
-import engine.job.JobContainer;
 import engine.job.JobScheduler;
 import engine.jobs.DeferredPowerJob;
 import engine.jobs.UpgradeNPCJob;
@@ -34,6 +32,7 @@ import engine.net.client.msg.PlaceAssetMsg;
 import engine.server.MBServerStatics;
 import org.joda.time.DateTime;
 import org.pmw.tinylog.Logger;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -42,18 +41,19 @@ import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+
 import static engine.net.client.msg.ErrorPopupMsg.sendErrorPopup;
 
 public class Mob extends AbstractIntelligenceAgent {
 
     private static final ReentrantReadWriteLock createLock = new ReentrantReadWriteLock();
+    private static final ConcurrentHashMap<Integer, Mob> mobMapByDBID = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_LOW);
     // Variables NOT to be stored in db
     private static int staticID = 0;
-    private static final ConcurrentHashMap<Integer, Mob> mobMapByDBID = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_LOW);
-    private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
-
     //mob specific
     public final ConcurrentHashMap<Integer, Boolean> playerAgroMap = new ConcurrentHashMap<>();
+    public final ConcurrentHashMap<Mob, Integer> siegeMinionMap = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_LOW);
+    private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
     public long nextCastTime = 0;
     public long nextCallForHelp = 0;
     public ReentrantReadWriteLock minionLock = new ReentrantReadWriteLock();
@@ -61,64 +61,57 @@ public class Mob extends AbstractIntelligenceAgent {
     public Vector3fImmutable destination = Vector3fImmutable.ZERO;
     public Vector3fImmutable localLoc = Vector3fImmutable.ZERO;
     public HashMap<Integer, Integer> mobPowers;
-    protected int dbID; //the database ID
-    protected int loadID;
-    protected boolean isMob;
     public MobBase mobBase;
-    protected float spawnRadius;
     public int spawnTime;
-    //used by static mobs
-    protected int parentZoneID;
     public Zone parentZone;
-    protected float statLat;
-    protected float statLon;
-    protected float statAlt;
     public Building building;
     public Contract contract;
-    private int currentID;
-    private int ownerUID = 0; //only used by pets
     public boolean hasLoot = false;
-    private AbstractWorldObject fearedObject = null;
-    private int buildingID;
-    private boolean isSiege = false;
     public boolean isPlayerGuard = false;
-    private long timeToSpawnSiege;
     public AbstractCharacter npcOwner;
     public Vector3fImmutable inBuildingLoc = null;
-    private boolean noAggro = false;
-    private int aggroTargetID = 0;
-    private boolean walkingHome = true;
-    private long lastAttackTime = 0;
     public long deathTime = 0;
-    public final ConcurrentHashMap<Mob, Integer> siegeMinionMap = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_LOW);
-    private int patrolPointIndex = 0;
-    private int lastMobPowerToken = 0;
-    private HashMap<Integer, MobEquipment> equip = null;
     public String nameOverride = "";
-    private Regions lastRegion = null;
-    private long despawnTime = 0;
-    private DeferredPowerJob weaponPower;
-    private DateTime upgradeDateTime = null;
-    private boolean lootSync = false;
     public int equipmentSetID = 0;
     public int runeSet = 0;
     public int bootySet = 0;
-
     public EnumBitSet<MonsterType> notEnemy;
     public EnumBitSet<Enum.MonsterType> enemy;
     public MobBehaviourType BehaviourType;
     public ArrayList<Vector3fImmutable> patrolPoints;
     public int lastPatrolPointIndex = 0;
     public long stopPatrolTime = 0;
+    protected int dbID; //the database ID
+    protected int loadID;
+    protected boolean isMob;
+    protected float spawnRadius;
+    //used by static mobs
+    protected int parentZoneID;
+    protected float statLat;
+    protected float statLon;
+    protected float statAlt;
+    private int currentID;
+    private int ownerUID = 0; //only used by pets
+    private AbstractWorldObject fearedObject = null;
+    private int buildingID;
+    private boolean isSiege = false;
+    private long timeToSpawnSiege;
+    private boolean noAggro = false;
+    private int aggroTargetID = 0;
+    private boolean walkingHome = true;
+    private long lastAttackTime = 0;
+    private int lastMobPowerToken = 0;
+    private HashMap<Integer, MobEquipment> equip = null;
+    private Regions lastRegion = null;
+    private DeferredPowerJob weaponPower;
+    private DateTime upgradeDateTime = null;
+    private boolean lootSync = false;
+
     /**
      * No Id Constructor
      */
-    public Mob(String firstName, String lastName, short statStrCurrent, short statDexCurrent, short statConCurrent,
-               short statIntCurrent, short statSpiCurrent, short level, int exp, boolean sit, boolean walk, boolean combat, Vector3fImmutable bindLoc,
-               Vector3fImmutable currentLoc, Vector3fImmutable faceDir, short healthCurrent, short manaCurrent, short stamCurrent, Guild guild,
-               byte runningTrains, int npcType, boolean isMob, Zone parent, Building building, int contractID) {
-        super(firstName, lastName, statStrCurrent, statDexCurrent, statConCurrent, statIntCurrent, statSpiCurrent, level, exp, sit,
-                walk, combat, bindLoc, currentLoc, faceDir, healthCurrent, manaCurrent, stamCurrent, guild, runningTrains);
+    public Mob(String firstName, String lastName, short statStrCurrent, short statDexCurrent, short statConCurrent, short statIntCurrent, short statSpiCurrent, short level, int exp, boolean sit, boolean walk, boolean combat, Vector3fImmutable bindLoc, Vector3fImmutable currentLoc, Vector3fImmutable faceDir, short healthCurrent, short manaCurrent, short stamCurrent, Guild guild, byte runningTrains, int npcType, boolean isMob, Zone parent, Building building, int contractID) {
+        super(firstName, lastName, statStrCurrent, statDexCurrent, statConCurrent, statIntCurrent, statSpiCurrent, level, exp, sit, walk, combat, bindLoc, currentLoc, faceDir, healthCurrent, manaCurrent, stamCurrent, guild, runningTrains);
 
         this.dbID = MBServerStatics.NO_DB_ROW_ASSIGNED_YET;
         //this.state = STATE.Idle;
@@ -130,17 +123,13 @@ public class Mob extends AbstractIntelligenceAgent {
         this.parentZoneID = (parent != null) ? parent.getObjectUUID() : 0;
         this.building = building;
 
-        if (building != null)
-            this.buildingID = building.getObjectUUID();
+        if (building != null) this.buildingID = building.getObjectUUID();
         else this.buildingID = 0;
 
-        if (contractID == 0)
-            this.contract = null;
-        else
-            this.contract = DbManager.ContractQueries.GET_CONTRACT(contractID);
+        if (contractID == 0) this.contract = null;
+        else this.contract = DbManager.ContractQueries.GET_CONTRACT(contractID);
 
-        if (this.contract != null)
-            this.level = 10;
+        if (this.contract != null) this.level = 10;
 
         clearStatic();
     }
@@ -148,21 +137,15 @@ public class Mob extends AbstractIntelligenceAgent {
     /**
      * Normal Constructor
      */
-    public Mob(String firstName, String lastName, short statStrCurrent, short statDexCurrent, short statConCurrent,
-               short statIntCurrent, short statSpiCurrent, short level, int exp, boolean sit, boolean walk, boolean combat, Vector3fImmutable bindLoc,
-               Vector3fImmutable currentLoc, Vector3fImmutable faceDir, short healthCurrent, short manaCurrent, short stamCurrent, Guild guild,
-               byte runningTrains, int npcType, boolean isMob, Zone parent, int newUUID, Building building, int contractID) {
-        super(firstName, lastName, statStrCurrent, statDexCurrent, statConCurrent, statIntCurrent, statSpiCurrent, level, exp, sit,
-                walk, combat, bindLoc, currentLoc, faceDir, healthCurrent, manaCurrent, stamCurrent, guild, runningTrains, newUUID);
+    public Mob(String firstName, String lastName, short statStrCurrent, short statDexCurrent, short statConCurrent, short statIntCurrent, short statSpiCurrent, short level, int exp, boolean sit, boolean walk, boolean combat, Vector3fImmutable bindLoc, Vector3fImmutable currentLoc, Vector3fImmutable faceDir, short healthCurrent, short manaCurrent, short stamCurrent, Guild guild, byte runningTrains, int npcType, boolean isMob, Zone parent, int newUUID, Building building, int contractID) {
+        super(firstName, lastName, statStrCurrent, statDexCurrent, statConCurrent, statIntCurrent, statSpiCurrent, level, exp, sit, walk, combat, bindLoc, currentLoc, faceDir, healthCurrent, manaCurrent, stamCurrent, guild, runningTrains, newUUID);
         //this.state = STATE.Idle;
         this.dbID = newUUID;
         this.loadID = npcType;
         this.isMob = isMob;
 
-        if (contractID == 0)
-            this.contract = null;
-        else
-            this.contract = DbManager.ContractQueries.GET_CONTRACT(contractID);
+        if (contractID == 0) this.contract = null;
+        else this.contract = DbManager.ContractQueries.GET_CONTRACT(contractID);
 
         this.mobBase = MobBase.getMobBase(loadID);
         this.parentZone = parent;
@@ -240,48 +223,38 @@ public class Mob extends AbstractIntelligenceAgent {
 
             int contractID = rs.getInt("mob_contractID");
 
-            if (contractID == 0)
-                this.contract = null;
-            else
-                this.contract = DbManager.ContractQueries.GET_CONTRACT(contractID);
+            if (contractID == 0) this.contract = null;
+            else this.contract = DbManager.ContractQueries.GET_CONTRACT(contractID);
 
-            if (this.contract != null)
-                if (NPC.ISGuardCaptain(contract.getContractID())) {
-                    this.spawnTime = 60 * 15;
-                    this.isPlayerGuard = true;
-                    this.nameOverride = contract.getName() + " Captain";
-                }
+            if (this.contract != null) if (NPC.ISGuardCaptain(contract.getContractID())) {
+                this.spawnTime = 60 * 15;
+                this.isPlayerGuard = true;
+                this.nameOverride = contract.getName() + " Captain";
+            }
 
             int guildID = rs.getInt("mob_guildUID");
 
 
-             if (this.building != null)
-                this.guild = this.building.getGuild();
-            else
-                this.guild = Guild.getGuild(guildID);
+            if (this.building != null) this.guild = this.building.getGuild();
+            else this.guild = Guild.getGuild(guildID);
 
-            if (this.guild == null)
-                this.guild = Guild.getErrantGuild();
+            if (this.guild == null) this.guild = Guild.getErrantGuild();
 
             java.util.Date sqlDateTime;
             sqlDateTime = rs.getTimestamp("upgradeDate");
 
-            if (sqlDateTime != null)
-                upgradeDateTime = new DateTime(sqlDateTime);
-            else
-                upgradeDateTime = null;
+            if (sqlDateTime != null) upgradeDateTime = new DateTime(sqlDateTime);
+            else upgradeDateTime = null;
 
             // Submit upgrade job if NPC is currently set to rank.
 
-            if (this.upgradeDateTime != null)
-                Mob.submitUpgradeJob(this);
+            if (this.upgradeDateTime != null) Mob.submitUpgradeJob(this);
 
             this.mobBase = MobBase.getMobBase(loadID);
 
             this.setObjectTypeMask(MBServerStatics.MASK_MOB | this.getTypeMasks());
 
-            if (this.mobBase != null && this.spawnTime == 0)
-                this.spawnTime = this.mobBase.getSpawnTime();
+            if (this.mobBase != null && this.spawnTime == 0) this.spawnTime = this.mobBase.getSpawnTime();
 
             this.bindLoc = new Vector3fImmutable(this.statLat, this.statAlt, this.statLon);
 
@@ -294,13 +267,10 @@ public class Mob extends AbstractIntelligenceAgent {
             this.notEnemy = EnumBitSet.asEnumBitSet(rs.getLong("notEnemy"), Enum.MonsterType.class);
             this.enemy = EnumBitSet.asEnumBitSet(rs.getLong("enemy"), Enum.MonsterType.class);
 
-            if (this.contract != null)
-                this.equipmentSetID = this.contract.getEquipmentSet();
+            if (this.contract != null) this.equipmentSetID = this.contract.getEquipmentSet();
 
             this.nameOverride = rs.getString("mob_name");
-            if(rs.getString("fsm").length() > 1){
-                this.BehaviourType = Enum.MobBehaviourType.valueOf(rs.getString("fsm"));
-            }
+            if (rs.getString("fsm").length() > 1) this.BehaviourType = MobBehaviourType.valueOf(rs.getString("fsm"));
         } catch (Exception e) {
             Logger.error(currentID + "");
         }
@@ -313,21 +283,15 @@ public class Mob extends AbstractIntelligenceAgent {
 
     }
 
-    public static void __serializeForClientMsg(Mob mob, ByteBufferWriter writer) throws SerializationException {
-    }
-
-    public static void serializeMobForClientMsgOtherPlayer(Mob mob, ByteBufferWriter writer, boolean hideAsciiLastName)
-            throws SerializationException {
+    public static void serializeMobForClientMsgOtherPlayer(Mob mob, ByteBufferWriter writer) throws SerializationException {
         Mob.serializeForClientMsgOtherPlayer(mob, writer);
     }
 
-    public static void serializeForClientMsgOtherPlayer(Mob mob, ByteBufferWriter writer)
-            throws SerializationException {
+    public static void serializeForClientMsgOtherPlayer(Mob mob, ByteBufferWriter writer) throws SerializationException {
         writer.putInt(0);
         writer.putInt(0);
 
         int tid = (mob.mobBase != null) ? mob.mobBase.getLoadID() : 0;
-        int classID = MobBase.GetClassType(mob.mobBase.getObjectUUID());
         if (mob.isPet()) {
             writer.putInt(2);
             writer.putInt(3);
@@ -346,19 +310,14 @@ public class Mob extends AbstractIntelligenceAgent {
             writer.putInt(3);
             serializeRune(mob, writer, 3, GameObjectType.NPCClassRuneTwo.ordinal(), MobBase.GetClassType(mob.getMobBaseID())); //warrior class
             serializeRune(mob, writer, 5, GameObjectType.NPCClassRuneThree.ordinal(), 252621); //guard rune
-        } else {
-
-            writer.putInt(1);
-        }
+        } else writer.putInt(1);
 
         //Generate Race Rune
         writer.putInt(1);
         writer.putInt(0);
 
-        if (mob.mobBase != null)
-            writer.putInt(mob.mobBase.getLoadID());
-        else
-            writer.putInt(mob.loadID);
+        if (mob.mobBase != null) writer.putInt(mob.mobBase.getLoadID());
+        else writer.putInt(mob.loadID);
 
         writer.putInt(mob.getObjectType().ordinal());
         writer.putInt(mob.currentID);
@@ -385,7 +344,6 @@ public class Mob extends AbstractIntelligenceAgent {
 
         }
 
-
         writer.putInt(0);
         writer.putInt(0);
         writer.putInt(0);
@@ -406,27 +364,25 @@ public class Mob extends AbstractIntelligenceAgent {
         }
 
         //Believe this is spawn loc, ignore for now
+
         writer.putVector3f(mob.getLoc());
 
         //Rotation
+
         writer.putFloat(mob.getRot().y);
 
         //Inventory Stuff
+
         writer.putInt(0);
 
         // get a copy of the equipped items.
-
 
         if (mob.equip != null) {
 
             writer.putInt(mob.equip.size());
 
-            for (MobEquipment me : mob.equip.values()) {
-                MobEquipment.serializeForClientMsg(me, writer);
-            }
-        } else {
-            writer.putInt(0);
-        }
+            for (MobEquipment me : mob.equip.values()) MobEquipment.serializeForClientMsg(me, writer);
+        } else writer.putInt(0);
 
         writer.putInt(mob.getRank());
         writer.putInt(mob.getLevel());
@@ -448,13 +404,10 @@ public class Mob extends AbstractIntelligenceAgent {
             writer.putLong(0);
             writer.putLong(0);
 
-            if (mob.contract != null)
-                writer.putInt(mob.contract.getIconID());
-            else
-                writer.putInt(0); //npc icon ID
+            if (mob.contract != null) writer.putInt(mob.contract.getIconID());
+            else writer.putInt(0); //npc icon ID
 
-        } else
-            writer.put((byte) 0);
+        } else writer.put((byte) 0);
 
 
         if (mob.npcOwner != null) {
@@ -464,8 +417,7 @@ public class Mob extends AbstractIntelligenceAgent {
             writer.putInt(mob.npcOwner.getObjectType().ordinal());
             writer.putInt(mob.npcOwner.getObjectUUID());
             writer.putInt(8);
-        } else
-            writer.put((byte) 0);
+        } else writer.put((byte) 0);
 
         if (mob.isPet()) {
 
@@ -478,9 +430,7 @@ public class Mob extends AbstractIntelligenceAgent {
                 writer.putInt(0); //ownerType
                 writer.putInt(0); //ownerID
             }
-        } else {
-            writer.put((byte) 0);
-        }
+        } else writer.put((byte) 0);
         writer.putInt(0);
         writer.putInt(0);
         writer.putInt(0);
@@ -499,8 +449,6 @@ public class Mob extends AbstractIntelligenceAgent {
 
         writer.put((byte) 0);
         Guild._serializeForClientMsg(mob.getGuild(), writer);
-        //		writer.putInt(0);
-        //		writer.putInt(0);
         if (mob.mobBase != null && mob.mobBase.getObjectUUID() == 100570) {
             writer.putInt(2);
             writer.putInt(0x00008A2E);
@@ -508,11 +456,8 @@ public class Mob extends AbstractIntelligenceAgent {
         } else if (mob.isSiege) {
             writer.putInt(1);
             writer.putInt(74620179);
-        } else
-            writer.putInt(0);
+        } else writer.putInt(0);
 
-        //		writer.putInt(1);
-        //		writer.putInt(0); //0xAC13C5E9 - alternate textures
         writer.putInt(0); //0xB8400300
         writer.putInt(0);
 
@@ -528,8 +473,7 @@ public class Mob extends AbstractIntelligenceAgent {
 
         //DON't LOAD EFFECTS FOR DEAD MOBS.
 
-        if (!mob.isAlive())
-            writer.putInt(0);
+        if (!mob.isAlive()) writer.putInt(0);
         else {
             int indexPosition = writer.position();
             writer.putInt(0); //placeholder for item cnt
@@ -537,10 +481,8 @@ public class Mob extends AbstractIntelligenceAgent {
 
             //	Logger.info("",""+ mob.getEffects().size());
             for (Effect eff : mob.getEffects().values()) {
-                if (eff.isStatic())
-                    continue;
-                if (!eff.serializeForLoad(writer))
-                    continue;
+                if (eff.isStatic()) continue;
+                if (!eff.serializeForLoad(writer)) continue;
                 ++total;
             }
 
@@ -605,18 +547,13 @@ public class Mob extends AbstractIntelligenceAgent {
 
     public static Mob createMob(int loadID, Vector3fImmutable spawn, Guild guild, boolean isMob, Zone parent, Building building, int contractID) {
 
-        Mob mobWithoutID = new Mob("", "", (short) 0, (short) 0, (short) 0, (short) 0,
-                (short) 0, (short) 1, 0, false, false, false, spawn, spawn, Vector3fImmutable.ZERO,
-                (short) 1, (short) 1, (short) 1, guild, (byte) 0, loadID, isMob, parent, building, contractID);
+        Mob mobWithoutID = new Mob("", "", (short) 0, (short) 0, (short) 0, (short) 0, (short) 0, (short) 1, 0, false, false, false, spawn, spawn, Vector3fImmutable.ZERO, (short) 1, (short) 1, (short) 1, guild, (byte) 0, loadID, isMob, parent, building, contractID);
 
-        if (parent != null) {
+        if (parent != null)
             mobWithoutID.setRelPos(parent, spawn.x - parent.absX, spawn.y - parent.absY, spawn.z - parent.absZ);
-        }
 
 
-        if (mobWithoutID.mobBase == null) {
-            return null;
-        }
+        if (mobWithoutID.mobBase == null) return null;
         Mob mob;
         try {
             mob = DbManager.MobQueries.ADD_MOB(mobWithoutID, isMob);
@@ -633,22 +570,16 @@ public class Mob extends AbstractIntelligenceAgent {
     public static Mob createPet(int loadID, Guild guild, Zone parent, PlayerCharacter owner, short level) {
         MobBase mobBase = MobBase.getMobBase(loadID);
         Mob mob = null;
-        if (mobBase == null || owner == null) {
-            return null;
-        }
+        if (mobBase == null || owner == null) return null;
         createLock.writeLock().lock();
         level += 20;
         try {
             mob = new Mob(mobBase, guild, parent, level, owner, 0);
-            if (mob.mobBase == null) {
-                return null;
-            }
+            if (mob.mobBase == null) return null;
             mob.runAfterLoad();
 
             Vector3fImmutable loc = owner.getLoc();
-            if (parent != null) {
-                mob.setRelPos(parent, loc.x - parent.absX, loc.y - parent.absY, loc.z - parent.absZ);
-            }
+            if (parent != null) mob.setRelPos(parent, loc.x - parent.absX, loc.y - parent.absY, loc.z - parent.absZ);
             DbManager.addToCache(mob);
             mob.setPet(owner, true);
             mob.setWalkMode(false);
@@ -671,12 +602,10 @@ public class Mob extends AbstractIntelligenceAgent {
 
     public static Mob getMob(int id) {
 
-        if (id == 0)
-            return null;
+        if (id == 0) return null;
 
         Mob mob = (Mob) DbManager.getFromCache(GameObjectType.Mob, id);
-        if (mob != null)
-            return mob;
+        if (mob != null) return mob;
         return DbManager.MobQueries.GET_MOB(id);
     }
 
@@ -687,16 +616,13 @@ public class Mob extends AbstractIntelligenceAgent {
     }
 
     public static Mob getFromCacheDBID(int id) {
-        if (Mob.mobMapByDBID.containsKey(id)) {
-            return Mob.mobMapByDBID.get(id);
-        }
+        if (Mob.mobMapByDBID.containsKey(id)) return Mob.mobMapByDBID.get(id);
         return null;
     }
 
     private static float getModifiedAmount(CharacterSkill skill) {
 
-        if (skill == null)
-            return 0f;
+        if (skill == null) return 0f;
 
         return skill.getModifiedAmount();
     }
@@ -709,24 +635,18 @@ public class Mob extends AbstractIntelligenceAgent {
             Mob mob = (Mob) awo;
 
             //Mob is not attacking anyone, skip.
-            if (mob.getCombatTarget() == null)
-                continue;
+            if (mob.getCombatTarget() == null) continue;
 
             //Mob not attacking target's target, let's not be failmu and skip this target.
-            if (mob.getCombatTarget() != target)
-                continue;
+            if (mob.getCombatTarget() != target) continue;
 
             //target is mob's combat target, LETS GO.
-            if (source.getHateValue() > target.getHateValue()) {
-                mob.setCombatTarget(source);
-                //MobileFSM.setAggro(mob, source.getObjectUUID());
-            }
+            //MobileFSM.setAggro(mob, source.getObjectUUID());
+            if (source.getHateValue() > target.getHateValue()) mob.setCombatTarget(source);
         }
     }
 
     public static void submitUpgradeJob(Mob mob) {
-
-        JobContainer jc;
 
         if (mob.getUpgradeDateTime() == null) {
             Logger.error("Failed to get Upgrade Date");
@@ -736,17 +656,14 @@ public class Mob extends AbstractIntelligenceAgent {
         // Submit upgrade job for future date or current instant
 
         if (mob.getUpgradeDateTime().isAfter(DateTime.now()))
-            jc = JobScheduler.getInstance().scheduleJob(new UpgradeNPCJob(mob),
-                    mob.getUpgradeDateTime().getMillis());
-        else
-            JobScheduler.getInstance().scheduleJob(new UpgradeNPCJob(mob), 0);
+            JobScheduler.getInstance().scheduleJob(new UpgradeNPCJob(mob), mob.getUpgradeDateTime().getMillis());
+        else JobScheduler.getInstance().scheduleJob(new UpgradeNPCJob(mob), 0);
 
     }
 
     public static int getUpgradeTime(Mob mob) {
 
-        if (mob.getRank() < 7)
-            return (mob.getRank() * 8);
+        if (mob.getRank() < 7) return (mob.getRank() * 8);
 
         return 0;
     }
@@ -757,8 +674,7 @@ public class Mob extends AbstractIntelligenceAgent {
 
         upgradeCost = Integer.MAX_VALUE;
 
-        if (mob.getRank() < 7)
-            return (mob.getRank() * 100650) + 21450;
+        if (mob.getRank() < 7) return (mob.getRank() * 100650) + 21450;
 
         return upgradeCost;
     }
@@ -774,8 +690,7 @@ public class Mob extends AbstractIntelligenceAgent {
 
     private void clearStatic() {
 
-        if (this.parentZone != null)
-            this.parentZone.zoneMobSet.remove(this);
+        if (this.parentZone != null) this.parentZone.zoneMobSet.remove(this);
 
         this.parentZone = null;
         this.statLat = 0f;
@@ -795,20 +710,14 @@ public class Mob extends AbstractIntelligenceAgent {
             this.mana.set(this.manaMax);
             this.stamina.set(this.staminaMax);
 
-            if (!this.nameOverride.isEmpty())
-                this.firstName = this.nameOverride;
-            else
-                this.firstName = this.mobBase.getFirstName();
+            if (!this.nameOverride.isEmpty()) this.firstName = this.nameOverride;
+            else this.firstName = this.mobBase.getFirstName();
             if (isPet) {
                 this.setObjectTypeMask(MBServerStatics.MASK_PET | this.getTypeMasks());
-                if (ConfigManager.serverType.equals(ServerType.LOGINSERVER))
-                    this.setLoc(this.getLoc());
+                if (ConfigManager.serverType.equals(ServerType.LOGINSERVER)) this.setLoc(this.getLoc());
             }
-            if (!isPet && this.contract == null) {
-                this.level = (short) this.mobBase.getLevel();
-            }
-            else
-                this.level = 1;
+            if (!isPet && this.contract == null) this.level = (short) this.mobBase.getLevel();
+            else this.level = 1;
         }
 
         //set bonuses
@@ -822,7 +731,6 @@ public class Mob extends AbstractIntelligenceAgent {
         this.minDamageHandTwo = 1;
         this.maxDamageHandTwo = 4;
         this.atrHandOne = 300;
-        this.atrHandOne = 300;
         this.defenseRating = (short) this.mobBase.getDefenseRating();
         this.isActive = true;
 
@@ -830,18 +738,14 @@ public class Mob extends AbstractIntelligenceAgent {
 
         //load AI for general mobs.
 
-        if (isPet || isSiege || (isGuard && this.contract == null))
-            this.currentID = (--Mob.staticID);
-        else
-            this.currentID = this.dbID;
+        if (isPet || isSiege || (isGuard && this.contract == null)) this.currentID = (--Mob.staticID);
+        else this.currentID = this.dbID;
 
-        if (!isPet && !isSiege && !this.isPlayerGuard)
-            loadInventory();
+        if (!isPet && !isSiege && !this.isPlayerGuard) loadInventory();
 
         //store mobs by Database ID
 
-        if (!isPet && !isSiege)
-            Mob.mobMapByDBID.put(this.dbID, this);
+        if (!isPet && !isSiege) Mob.mobMapByDBID.put(this.dbID, this);
         if (this.building != null && this.building.getBlueprint() != null && this.isPlayerGuard()) {
             int maxSlots = 10;
             for (int slot = 1; slot < maxSlots + 1; slot++)
@@ -891,10 +795,8 @@ public class Mob extends AbstractIntelligenceAgent {
 
     public int getSpawnTime() {
 
-        if (this.spawnTime == 0)
-            return MBServerStatics.RESPAWN_TIMER;
-        else
-            return this.spawnTime * 1000;
+        if (this.spawnTime == 0) return MBServerStatics.RESPAWN_TIMER;
+        else return this.spawnTime * 1000;
     }
 
     public void setSpawnTime(int value) {
@@ -907,10 +809,8 @@ public class Mob extends AbstractIntelligenceAgent {
     }
 
     public String getSpawnTimeAsString() {
-        if (this.spawnTime == 0)
-            return MBServerStatics.DEFAULT_SPAWN_TIME_MS / 1000 + " seconds (Default)";
-        else
-            return this.spawnTime + " seconds";
+        if (this.spawnTime == 0) return MBServerStatics.DEFAULT_SPAWN_TIME_MS / 1000 + " seconds (Default)";
+        else return this.spawnTime + " seconds";
 
     }
 
@@ -921,8 +821,7 @@ public class Mob extends AbstractIntelligenceAgent {
 
     public int getMobBaseID() {
 
-        if (this.mobBase != null)
-            return this.mobBase.getObjectUUID();
+        if (this.mobBase != null) return this.mobBase.getObjectUUID();
 
         return 0;
     }
@@ -937,36 +836,36 @@ public class Mob extends AbstractIntelligenceAgent {
 
     public void setParentZone(Zone zone) {
 
-        if (this.parentZone == null){
+        if (this.parentZone == null) {
             zone.zoneMobSet.add(this);
             this.parentZone = zone;
         }
 
-        if ( this.building != null) {
+        if (this.building != null) {
 
-            Vector3fImmutable localLoc = new Vector3fImmutable(this.statLat,this.statAlt,this.statLon);
+            Vector3fImmutable localLoc = new Vector3fImmutable(this.statLat, this.statAlt, this.statLon);
             Vector3fImmutable buildingWorldLoc = ZoneManager.convertLocalToWorld(this.building, localLoc);
             this.setBindLoc(buildingWorldLoc);
             this.setLoc(buildingWorldLoc);
             this.endLoc = buildingWorldLoc;
             this.stopMovement(endLoc);
-            if(this.building.getBlueprint().isWallPiece()) {
+
+            if (this.building.getBlueprintUUID() != 0 && this.building.getBlueprint().isWallPiece())
                 MovementManager.translocate(this, new Vector3fImmutable(this.building.getLoc().x, this.npcOwner.getLoc().y, this.building.getLoc().z), this.region);
-            }
+
             return;
         }
 
-            Vector3fImmutable localLoc = new Vector3fImmutable(this.statLat + zone.absX, this.statAlt + zone.absY, this.statLon + zone.absZ);
-            this.setBindLoc(localLoc);
-            this.setLoc(localLoc);
-            this.endLoc = localLoc;
-            this.stopMovement(endLoc);
-        }
+        Vector3fImmutable localLoc = new Vector3fImmutable(this.statLat + zone.absX, this.statAlt + zone.absY, this.statLon + zone.absZ);
+        this.setBindLoc(localLoc);
+        this.setLoc(localLoc);
+        this.endLoc = localLoc;
+        this.stopMovement(endLoc);
+    }
 
     public int getParentZoneID() {
 
-        if (this.parentZone != null)
-            return this.parentZone.getObjectUUID();
+        if (this.parentZone != null) return this.parentZone.getObjectUUID();
 
         return 0;
     }
@@ -974,8 +873,7 @@ public class Mob extends AbstractIntelligenceAgent {
     @Override
     public int getGuildUUID() {
 
-        if (this.guild == null)
-            return 0;
+        if (this.guild == null) return 0;
 
         return this.guild.getObjectUUID();
     }
@@ -983,21 +881,17 @@ public class Mob extends AbstractIntelligenceAgent {
     @Override
     public PlayerCharacter getOwner() {
 
-        if (!this.isPet())
-            return null;
+        if (!this.isPet()) return null;
 
-        if (this.ownerUID == 0)
-            return null;
+        if (this.ownerUID == 0) return null;
 
         return PlayerCharacter.getFromCache(this.ownerUID);
     }
 
     public void setOwner(PlayerCharacter value) {
 
-        if (value == null)
-            this.ownerUID = 0;
-        else
-            this.ownerUID = value.getObjectUUID();
+        if (value == null) this.ownerUID = 0;
+        else this.ownerUID = value.getObjectUUID();
     }
 
     @Override
@@ -1012,8 +906,7 @@ public class Mob extends AbstractIntelligenceAgent {
     @Override
     public Vector3fImmutable getBindLoc() {
 
-        if (this.isPet() && !this.isSiege)
-            return this.getOwner() != null ? this.getOwner().getLoc() : this.getLoc();
+        if (this.isPet() && !this.isSiege) return this.getOwner() != null ? this.getOwner().getLoc() : this.getLoc();
         return this.bindLoc;
     }
 
@@ -1061,47 +954,33 @@ public class Mob extends AbstractIntelligenceAgent {
             // get rune and effect bonuses
             bonus *= (1 + this.bonuses.getFloatPercentAll(ModType.Speed, SourceType.None));
 
-        if (this.isPlayerGuard) {
-            switch (this.mobBase.getLoadID()) {
-                case 2111:
-                    if (this.isWalk())
-                        if (this.isCombat())
-                            return Enum.Guards.HumanArcher.getWalkCombatSpeed() * bonus;
-                        else return Enum.Guards.HumanArcher.getWalkSpeed() * bonus;
-                    else
-                        return Enum.Guards.HumanArcher.getRunSpeed() * bonus;
+        if (this.isPlayerGuard) switch (this.mobBase.getLoadID()) {
+            case 2111:
+                if (this.isWalk()) if (this.isCombat()) return Guards.HumanArcher.getWalkCombatSpeed() * bonus;
+                else return Guards.HumanArcher.getWalkSpeed() * bonus;
+                else return Guards.HumanArcher.getRunSpeed() * bonus;
 
-                case 14103:
-                    if (this.isWalk())
-                        if (this.isCombat())
-                            return Enum.Guards.UndeadArcher.getWalkCombatSpeed() * bonus;
-                        else return Enum.Guards.UndeadArcher.getWalkSpeed() * bonus;
-                    else
-                        return Enum.Guards.UndeadArcher.getRunSpeed() * bonus;
-            }
+            case 14103:
+                if (this.isWalk())
+                    if (this.isCombat()) return Guards.UndeadArcher.getWalkCombatSpeed() * bonus;
+                    else return Guards.UndeadArcher.getWalkSpeed() * bonus;
+                else return Guards.UndeadArcher.getRunSpeed() * bonus;
         }
         //return combat speeds
-        if (this.isCombat()) {
-            if (this.isWalk()) {
-                if (this.mobBase.getWalkCombat() <= 0)
-                    return MBServerStatics.MOB_SPEED_WALKCOMBAT * bonus;
-                return this.mobBase.getWalkCombat() * bonus;
-            } else {
-                if (this.mobBase.getRunCombat() <= 0)
-                    return MBServerStatics.MOB_SPEED_RUNCOMBAT * bonus;
-                return this.mobBase.getRunCombat() * bonus;
-            }
-            //not combat return normal speeds
+        //not combat return normal speeds
+        if (this.isCombat()) if (this.isWalk()) {
+            if (this.mobBase.getWalkCombat() <= 0) return MBServerStatics.MOB_SPEED_WALKCOMBAT * bonus;
+            return this.mobBase.getWalkCombat() * bonus;
         } else {
-            if (this.isWalk()) {
-                if (this.mobBase.getWalk() <= 0)
-                    return MBServerStatics.MOB_SPEED_WALK * bonus;
-                return this.mobBase.getWalk() * bonus;
-            } else {
-                if (this.mobBase.getRun() <= 0)
-                    return MBServerStatics.MOB_SPEED_RUN * bonus;
-                return this.mobBase.getRun() * bonus;
-            }
+            if (this.mobBase.getRunCombat() <= 0) return MBServerStatics.MOB_SPEED_RUNCOMBAT * bonus;
+            return this.mobBase.getRunCombat() * bonus;
+        }
+        else if (this.isWalk()) {
+            if (this.mobBase.getWalk() <= 0) return MBServerStatics.MOB_SPEED_WALK * bonus;
+            return this.mobBase.getWalk() * bonus;
+        } else {
+            if (this.mobBase.getRun() <= 0) return MBServerStatics.MOB_SPEED_RUN * bonus;
+            return this.mobBase.getRun() * bonus;
         }
 
     }
@@ -1121,32 +1000,26 @@ public class Mob extends AbstractIntelligenceAgent {
 
         this.stopMovement(this.getMovementLoc());
 
-        if (attacker != null) {
+        if (attacker != null) if (attacker.getObjectType() == GameObjectType.PlayerCharacter) {
+            Group g = GroupManager.getGroup((PlayerCharacter) attacker);
 
-            if (attacker.getObjectType() == GameObjectType.PlayerCharacter) {
-                Group g = GroupManager.getGroup((PlayerCharacter) attacker);
+            // Give XP, now handled inside the Experience Object
+            if (!this.isPet() && !this.isNecroPet() && !this.isSummonedPet() && !this.isPlayerGuard)
+                Experience.doExperience((PlayerCharacter) attacker, this, g);
+        } else if (attacker.getObjectType().equals(GameObjectType.Mob)) {
+            Mob mobAttacker = (Mob) attacker;
 
-                // Give XP, now handled inside the Experience Object
-                if (!this.isPet() && !this.isNecroPet() && !this.isSummonedPet() && !this.isPlayerGuard)
-                    Experience.doExperience((PlayerCharacter) attacker, this, g);
-            } else if (attacker.getObjectType().equals(GameObjectType.Mob)) {
-                Mob mobAttacker = (Mob) attacker;
+            if (mobAttacker.isPet()) {
 
-                if (mobAttacker.isPet()) {
+                PlayerCharacter owner = mobAttacker.getOwner();
 
-                    PlayerCharacter owner = mobAttacker.getOwner();
+                if (owner != null)
+                    if (!this.isPet() && !this.isNecroPet() && !this.isSummonedPet() && !this.isPlayerGuard) {
+                        Group g = GroupManager.getGroup(owner);
 
-                    if (owner != null) {
-
-                        if (!this.isPet() && !this.isNecroPet() && !this.isSummonedPet() && !this.isPlayerGuard) {
-                            Group g = GroupManager.getGroup(owner);
-
-                            // Give XP, now handled inside the Experience Object
-                            Experience.doExperience(owner, this, g);
-                        }
-
+                        // Give XP, now handled inside the Experience Object
+                        Experience.doExperience(owner, this, g);
                     }
-                }
             }
         }
         killCleanup();
@@ -1154,11 +1027,7 @@ public class Mob extends AbstractIntelligenceAgent {
 
     public void updateLocation() {
 
-        if (!this.isMoving())
-            return;
-
-        //if (state == STATE.Disabled)
-        //    return;
+        if (!this.isMoving()) return;
 
         if (this.isAlive() == false || this.getBonuses().getBool(ModType.Stunned, SourceType.None) || this.getBonuses().getBool(ModType.CannotMove, SourceType.None)) {
             //Target is stunned or rooted. Don't move
@@ -1229,8 +1098,7 @@ public class Mob extends AbstractIntelligenceAgent {
                 this.combatTarget = null;
                 this.hasLoot = false;
 
-                if (this.parentZone != null)
-                    this.parentZone.zoneMobSet.remove(this);
+                if (this.parentZone != null) this.parentZone.zoneMobSet.remove(this);
 
                 try {
                     this.clearEffects();
@@ -1255,9 +1123,7 @@ public class Mob extends AbstractIntelligenceAgent {
                 //cleanup effects
                 playerAgroMap.clear();
 
-                if (!this.isPlayerGuard && this.equip != null) {
-                    LootManager.GenerateMobLoot(this, true);
-                }
+                if (!this.isPlayerGuard && this.equip != null) LootManager.GenerateMobLoot(this, true);
 
             }
             try {
@@ -1292,7 +1158,6 @@ public class Mob extends AbstractIntelligenceAgent {
         this.isAlive.set(true);
         this.deathTime = 0;
         this.lastBindLoc = this.bindLoc;
-        this.bindLoc = this.lastBindLoc;
         this.setLoc(this.lastBindLoc);
         this.stopMovement(this.lastBindLoc);
         NPCManager.applyRuneSetEffects(this);
@@ -1300,8 +1165,7 @@ public class Mob extends AbstractIntelligenceAgent {
 
         this.setHealth(this.healthMax);
 
-        if (!this.isSiege && !this.isPlayerGuard && contract == null)
-            loadInventory();
+        if (!this.isSiege && !this.isPlayerGuard && contract == null) loadInventory();
 
     }
 
@@ -1309,11 +1173,8 @@ public class Mob extends AbstractIntelligenceAgent {
 
         this.despawned = true;
 
-        //WorldServer.removeObject(this);
         WorldGrid.RemoveWorldObject(this);
         this.charItemManager.clearInventory();
-        this.despawnTime = System.currentTimeMillis();
-        //		this.setLoc(Vector3fImmutable.ZERO);
     }
 
     //Sets the relative position to a parent zone
@@ -1321,8 +1182,7 @@ public class Mob extends AbstractIntelligenceAgent {
 
         //update mob zone map
 
-        if (this.parentZone != null)
-            this.parentZone.zoneMobSet.remove(this);
+        if (this.parentZone != null) this.parentZone.zoneMobSet.remove(this);
 
         zone.zoneMobSet.add(this);
 
@@ -1333,10 +1193,6 @@ public class Mob extends AbstractIntelligenceAgent {
         this.setBindLoc(new Vector3fImmutable(this.statLat + zone.absX, this.statAlt + zone.absY, this.statLon + zone.absZ));
     }
 
-    public boolean canRespawn() {
-        return System.currentTimeMillis() > this.deathTime + (spawnTime * 1000);
-    }
-
     @Override
     public boolean canBeLooted() {
         return !this.isAlive();
@@ -1344,8 +1200,7 @@ public class Mob extends AbstractIntelligenceAgent {
 
     public int getTypeMasks() {
 
-        if (this.mobBase == null)
-            return 0;
+        if (this.mobBase == null) return 0;
 
         return this.mobBase.getTypeMasks();
     }
@@ -1356,35 +1211,14 @@ public class Mob extends AbstractIntelligenceAgent {
      */
     public void loadInventory() {
 
-        if (!MBServerStatics.ENABLE_MOB_LOOT)
-            return;
+        if (!MBServerStatics.ENABLE_MOB_LOOT) return;
 
         this.charItemManager.clearInventory();
         this.charItemManager.clearEquip();
 
-        if (isPlayerGuard)
-            return;
+        if (isPlayerGuard) return;
 
         LootManager.GenerateMobLoot(this, false);
-    }
-
-    private int getLootTable() {
-
-        if (this.mobBase == null)
-            return 0;
-
-        return this.mobBase.getLootTable();
-    }
-
-    /**
-     * Sets the quantity of gold in the inventory. Calling this multiple times
-     * will overwrite the gold amount.
-     *
-     * @param quantity Quantity of gold.
-     */
-    private void addGoldToInventory(int quantity) {
-        MobLoot gold = new MobLoot(this, quantity);
-        this.charItemManager.addItemToInventory(gold);
     }
 
     @Override
@@ -1392,13 +1226,8 @@ public class Mob extends AbstractIntelligenceAgent {
         //		DbManager.MobQueries.updateDatabase(this);
     }
 
-    public int removeFromDatabase() {
-        return DbManager.MobQueries.DELETE_MOB(this);
-    }
-
     public void refresh() {
-        if (this.isAlive())
-            WorldGrid.updateObject(this);
+        if (this.isAlive()) WorldGrid.updateObject(this);
     }
 
     public void recalculateStats() {
@@ -1424,51 +1253,46 @@ public class Mob extends AbstractIntelligenceAgent {
     }
 
     public void calculateMaxHealthManaStamina() {
-        float h = 1f;
-        float m = 0f;
-        float s = 0f;
+        float h;
+        float m;
+        float s;
 
         h = this.mobBase.getHealthMax();
         m = this.statSpiCurrent;
         s = this.statConCurrent;
 
         // Apply any bonuses from runes and effects
+
         if (this.bonuses != null) {
             h += this.bonuses.getFloat(ModType.HealthFull, SourceType.None);
             m += this.bonuses.getFloat(ModType.ManaFull, SourceType.None);
             s += this.bonuses.getFloat(ModType.StaminaFull, SourceType.None);
 
             //apply effects percent modifiers. DO THIS LAST!
+
             h *= (1 + this.bonuses.getFloatPercentAll(ModType.HealthFull, SourceType.None));
             m *= (1 + this.bonuses.getFloatPercentAll(ModType.ManaFull, SourceType.None));
             s *= (1 + this.bonuses.getFloatPercentAll(ModType.StaminaFull, SourceType.None));
         }
 
         // Set max health, mana and stamina
-        if (h > 0)
-            this.healthMax = h;
-        else
-            this.healthMax = 1;
 
-        if (m > -1)
-            this.manaMax = m;
-        else
-            this.manaMax = 0;
+        if (h > 0) this.healthMax = h;
+        else this.healthMax = 1;
 
-        if (s > -1)
-            this.staminaMax = s;
-        else
-            this.staminaMax = 0;
+        if (m > -1) this.manaMax = m;
+        else this.manaMax = 0;
+
+        if (s > -1) this.staminaMax = s;
+        else this.staminaMax = 0;
 
         // Update health, mana and stamina if needed
-        if (this.getHealth() > this.healthMax)
-            this.setHealth(this.healthMax);
 
-        if (this.mana.get() > this.manaMax)
-            this.mana.set(this.manaMax);
+        if (this.getHealth() > this.healthMax) this.setHealth(this.healthMax);
 
-        if (this.stamina.get() > this.staminaMax)
-            this.stamina.set(staminaMax);
+        if (this.mana.get() > this.manaMax) this.mana.set(this.manaMax);
+
+        if (this.stamina.get() > this.staminaMax) this.stamina.set(staminaMax);
 
     }
 
@@ -1483,8 +1307,7 @@ public class Mob extends AbstractIntelligenceAgent {
         }
 
         try {
-            calculateAtrDamageForWeapon(
-                    this.equip.get(MBServerStatics.SLOT_MAINHAND), true, this.equip.get(MBServerStatics.SLOT_OFFHAND));
+            calculateAtrDamageForWeapon(this.equip.get(MBServerStatics.SLOT_MAINHAND), true);
         } catch (Exception e) {
 
             this.atrHandOne = (short) this.mobBase.getAttackRating();
@@ -1496,7 +1319,7 @@ public class Mob extends AbstractIntelligenceAgent {
         }
 
         try {
-            calculateAtrDamageForWeapon(this.equip.get(MBServerStatics.SLOT_OFFHAND), false, this.equip.get(MBServerStatics.SLOT_MAINHAND));
+            calculateAtrDamageForWeapon(this.equip.get(MBServerStatics.SLOT_OFFHAND), false);
 
         } catch (Exception e) {
 
@@ -1519,11 +1342,15 @@ public class Mob extends AbstractIntelligenceAgent {
             defense += getArmorDefense(equip.get(MBServerStatics.SLOT_FEET));
             defense += getWeaponDefense(equip);
 
+            // TODO add error log here
             if (this.bonuses != null) {
+
                 // add any bonuses
+
                 defense += (short) this.bonuses.getFloat(ModType.DCV, SourceType.None);
 
-                // Finally multiply any percent modifiers. DO THIS LAST!
+                // Finally, multiply any percent modifiers. DO THIS LAST!
+
                 float pos_Bonus = 1 + this.bonuses.getFloatPercentPositive(ModType.DCV, SourceType.None);
 
 
@@ -1535,10 +1362,7 @@ public class Mob extends AbstractIntelligenceAgent {
                 defense = (short) (defense * (1 + neg_Bonus));
 
 
-            } else {
-                // TODO add error log here
-                Logger.error("Error: missing bonuses");
-            }
+            } else Logger.error("Error: missing bonuses");
 
             defense = (defense < 1) ? 1 : defense;
             this.defenseRating = (short) (defense + 0.5f);
@@ -1550,24 +1374,22 @@ public class Mob extends AbstractIntelligenceAgent {
     }
 
     private float getWeaponDefense(HashMap<Integer, MobEquipment> equipped) {
+
         MobEquipment weapon = equipped.get(MBServerStatics.SLOT_MAINHAND);
         ItemBase wb = null;
         CharacterSkill skill, mastery;
         float val = 0;
         boolean unarmed = false;
+
         if (weapon == null) {
             weapon = equipped.get(MBServerStatics.SLOT_OFFHAND);
 
-            if (weapon == null)
-                unarmed = true;
-            else
-                wb = weapon.getItemBase();
+            if (weapon == null) unarmed = true;
+            else wb = weapon.getItemBase();
 
-        } else
-            wb = weapon.getItemBase();
+        } else wb = weapon.getItemBase();
 
-        if (wb == null)
-            unarmed = true;
+        if (wb == null) unarmed = true;
 
         if (unarmed) {
             skill = null;
@@ -1577,24 +1399,20 @@ public class Mob extends AbstractIntelligenceAgent {
             mastery = this.skills.get(wb.getMastery());
         }
 
-        if (skill != null)
-            val += (int) skill.getModifiedAmount() / 2f;
+        if (skill != null) val += (int) skill.getModifiedAmount() / 2f;
 
-        if (mastery != null)
-            val += (int) mastery.getModifiedAmount() / 2f;
+        if (mastery != null) val += (int) mastery.getModifiedAmount() / 2f;
 
         return val;
     }
 
     private float getShieldDefense(MobEquipment shield) {
 
-        if (shield == null)
-            return 0;
+        if (shield == null) return 0;
 
         ItemBase ab = shield.getItemBase();
 
-        if (ab == null || !ab.isShield())
-            return 0;
+        if (ab == null || !ab.isShield()) return 0;
 
         CharacterSkill blockSkill = this.skills.get("Block");
         float skillMod;
@@ -1602,42 +1420,32 @@ public class Mob extends AbstractIntelligenceAgent {
         if (blockSkill == null) {
             skillMod = CharacterSkill.getQuickMastery(this, "Block");
 
-            if (skillMod == 0f)
-                return 0;
+            if (skillMod == 0f) return 0;
 
-        } else
-            skillMod = blockSkill.getModifiedAmount();
-
-        //			// Only fighters and healers can block
-        //			if (this.baseClass != null && (this.baseClass.getUUID() == 2500 || this.baseClass.getUUID() == 2501))
-        //				this.bonuses.setBool("Block", true);
+        } else skillMod = blockSkill.getModifiedAmount();
 
         float def = ab.getDefense();
+
         //apply item defense bonuses
-        // float val = ((float)ab.getDefense()) * (1 + (skillMod / 100));
+
         return (def * (1 + ((int) skillMod / 100f)));
     }
 
     private float getArmorDefense(MobEquipment armor) {
 
-        if (armor == null)
-            return 0;
+        if (armor == null) return 0;
 
         ItemBase ib = armor.getItemBase();
 
-        if (ib == null)
-            return 0;
+        if (ib == null) return 0;
 
-        if (!ib.getType().equals(ItemType.ARMOR))
-            return 0;
+        if (!ib.getType().equals(ItemType.ARMOR)) return 0;
 
-        if (ib.getSkillRequired().isEmpty())
-            return ib.getDefense();
+        if (ib.getSkillRequired().isEmpty()) return ib.getDefense();
 
         CharacterSkill armorSkill = this.skills.get(ib.getSkillRequired());
 
-        if (armorSkill == null)
-            return ib.getDefense();
+        if (armorSkill == null) return ib.getDefense();
 
         float def = ib.getDefense();
 
@@ -1646,7 +1454,7 @@ public class Mob extends AbstractIntelligenceAgent {
         return (def * (1 + ((int) armorSkill.getModifiedAmount() / 50f)));
     }
 
-    private void calculateAtrDamageForWeapon(MobEquipment weapon, boolean mainHand, MobEquipment otherHand) {
+    private void calculateAtrDamageForWeapon(MobEquipment weapon, boolean mainHand) {
 
         int baseStrength = 0;
 
@@ -1654,26 +1462,24 @@ public class Mob extends AbstractIntelligenceAgent {
         float mastDam;
 
         // make sure weapon exists
+
         boolean noWeapon = false;
         ItemBase wb = null;
 
         if (weapon == null)
             noWeapon = true;
+
         else {
 
             ItemBase ib = weapon.getItemBase();
 
-            if (ib == null)
-                noWeapon = true;
-            else {
-
-                if (ib.getType().equals(ItemType.WEAPON) == false) {
-                    defaultAtrAndDamage(mainHand);
-                    return;
-                } else
-                    wb = ib;
-            }
+            if (ib == null) noWeapon = true;
+            else if (ib.getType().equals(ItemType.WEAPON) == false) {
+                defaultAtrAndDamage(mainHand);
+                return;
+            } else wb = ib;
         }
+
         float min, max;
         float speed = 20f;
         boolean strBased = false;
@@ -1682,36 +1488,28 @@ public class Mob extends AbstractIntelligenceAgent {
 
         if (noWeapon) {
 
-            if (mainHand)
-                this.rangeHandOne = this.mobBase.getAttackRange();
-            else
-                this.rangeHandTwo = -1; // set to do not attack
+            if (mainHand) this.rangeHandOne = this.mobBase.getAttackRange();
+            else this.rangeHandTwo = -1; // set to do not attack
 
             skillPercentage = getModifiedAmount(this.skills.get("Unarmed Combat"));
             masteryPercentage = getModifiedAmount(this.skills.get("Unarmed Combat Mastery"));
 
-            if (masteryPercentage == 0f)
-                mastDam = CharacterSkill.getQuickMastery(this, "Unarmed Combat Mastery");
-            else
-                mastDam = masteryPercentage;
+            if (masteryPercentage == 0f) mastDam = CharacterSkill.getQuickMastery(this, "Unarmed Combat Mastery");
+            else mastDam = masteryPercentage;
 
             // TODO Correct these
             min = this.mobBase.getMinDmg();
             max = this.mobBase.getMaxDmg();
         } else {
 
-            if (mainHand)
-                this.rangeHandOne = weapon.getItemBase().getRange() * (1 + (baseStrength / 600));
-            else
-                this.rangeHandTwo = weapon.getItemBase().getRange() * (1 + (baseStrength / 600));
+            if (mainHand) this.rangeHandOne = weapon.getItemBase().getRange() * (1 + (baseStrength / 600));
+            else this.rangeHandTwo = weapon.getItemBase().getRange() * (1 + (baseStrength / 600));
 
             skillPercentage = getModifiedAmount(this.skills.get(wb.getSkillRequired()));
             masteryPercentage = getModifiedAmount(this.skills.get(wb.getMastery()));
 
-            if (masteryPercentage == 0f)
-                mastDam = 0f;
-            else
-                mastDam = masteryPercentage;
+            if (masteryPercentage == 0f) mastDam = 0f;
+            else mastDam = masteryPercentage;
 
             min = wb.getMinDamage();
             max = wb.getMaxDamage();
@@ -1721,33 +1519,22 @@ public class Mob extends AbstractIntelligenceAgent {
         // calculate atr
         float atr = this.mobBase.getAttackRating();
 
-        //atr += ((int) skillPercentage * 4f); //<-round down skill% -
-        //atr += ((int) masteryPercentage * 3f);
-
-        if (this.statStrCurrent > this.statDexCurrent)
-            atr += statStrCurrent / 2;
-        else
-            atr += statDexCurrent / 2;
+        if (this.statStrCurrent > this.statDexCurrent) atr += statStrCurrent / 2;
+        else atr += statDexCurrent / 2;
 
         // add in any bonuses to atr
+
         if (this.bonuses != null) {
-            // Add any base bonuses
             atr += this.bonuses.getFloat(ModType.OCV, SourceType.None);
 
             // Finally use any multipliers. DO THIS LAST!
             float pos_Bonus = 1 + this.bonuses.getFloatPercentPositive(ModType.OCV, SourceType.None);
 
-
             atr *= pos_Bonus;
-
-            // next precise
-
-//			atr *= (1 + ((float) this.bonuses.getShort("rune.Attack") / 100));
 
             //and negative percent modifiers
             //TODO DO DEBUFFS AFTER?? wILL TEst when finished
             float neg_Bonus = this.bonuses.getFloatPercentNegative(ModType.OCV, SourceType.None);
-
 
             atr *= (1 + neg_Bonus);
         }
@@ -1755,28 +1542,25 @@ public class Mob extends AbstractIntelligenceAgent {
         atr = (atr < 1) ? 1 : atr;
 
         // set atr
-        if (mainHand)
-            this.atrHandOne = (short) (atr + 0.5f);
-        else
-            this.atrHandTwo = (short) (atr + 0.5f);
+
+        if (mainHand) this.atrHandOne = (short) (atr + 0.5f);
+        else this.atrHandTwo = (short) (atr + 0.5f);
 
         //calculate speed
 
-        if (wb != null)
-            speed = wb.getSpeed();
-        else
-            speed = 20f; //unarmed attack speed
+        if (wb != null) speed = wb.getSpeed();
+        else speed = 20f; //unarmed attack speed
 
         if (this.bonuses != null && this.bonuses.getFloat(ModType.AttackDelay, SourceType.None) != 0f) //add effects speed bonus
             speed *= (1 + this.bonuses.getFloatPercentAll(ModType.AttackDelay, SourceType.None));
 
-        if (speed < 10)
-            speed = 10;
+        if (speed < 10) speed = 10;
 
         //add min/max damage bonuses for weapon  **REMOVED
 
         //if duel wielding, cut damage by 30%
         // calculate damage
+
         float minDamage;
         float maxDamage;
         float pri = (strBased) ? (float) this.statStrCurrent : (float) this.statDexCurrent;
@@ -1787,7 +1571,6 @@ public class Mob extends AbstractIntelligenceAgent {
 
         minDamage = (float) ((int) (minDamage + 0.5f)); //round to nearest decimal
         maxDamage = (float) ((int) (maxDamage + 0.5f)); //round to nearest decimal
-        //	Logger.info("MobCalculateDamage", "Mob with ID "+ this.getObjectUUID() +   " and MOBBASE with ID " + this.getMobBaseID() + " returned " + minDamage + "/" + maxDamage + " modified Damage.");
 
         //add Base damage last.
         float minDamageMod = this.mobBase.getDamageMin();
@@ -1797,6 +1580,7 @@ public class Mob extends AbstractIntelligenceAgent {
         maxDamage += maxDamageMod;
 
         // add in any bonuses to damage
+
         if (this.bonuses != null) {
             // Add any base bonuses
             minDamage += this.bonuses.getFloat(ModType.MinDamage, SourceType.None);
@@ -1808,6 +1592,7 @@ public class Mob extends AbstractIntelligenceAgent {
         }
 
         // set damages
+
         if (mainHand) {
             this.minDamageHandOne = (short) minDamage;
             this.maxDamageHandOne = (short) maxDamage;
@@ -1839,18 +1624,11 @@ public class Mob extends AbstractIntelligenceAgent {
     public void setInBuildingLoc(Building inBuilding, AbstractCharacter ac) {
 
         Mob mob = null;
-
         NPC npc = null;
 
+        if (ac.getObjectType().equals(GameObjectType.Mob)) mob = (Mob) ac;
 
-        if (ac.getObjectType().equals(GameObjectType.Mob))
-            mob = (Mob) ac;
-
-        else if (ac.getObjectType().equals(GameObjectType.NPC))
-            npc = (NPC) ac;
-
-        // *** Refactor : Need to take a look at this, make sure
-        // npc's are loaded in correct spots.
+        else if (ac.getObjectType().equals(GameObjectType.NPC)) npc = (NPC) ac;
 
         BuildingModelBase buildingModel = BuildingModelBase.getModelBase(inBuilding.getMeshUUID());
 
@@ -1858,24 +1636,20 @@ public class Mob extends AbstractIntelligenceAgent {
 
         if (buildingModel != null) {
 
-
             int putSlot = -1;
-            BuildingLocation buildingLocation = null;
+            BuildingLocation buildingLocation;
 
             //-1 slot means no slot available in building.
 
             if (npc != null) {
-                if (npc.getSiegeMinionMap().containsKey(this))
-                    putSlot = npc.getSiegeMinionMap().get(this);
+                if (npc.getSiegeMinionMap().containsKey(this)) putSlot = npc.getSiegeMinionMap().get(this);
             } else if (mob != null)
-                if (mob.getSiegeMinionMap().containsKey(this))
-                    putSlot = mob.getSiegeMinionMap().get(this);
+                if (mob.getSiegeMinionMap().containsKey(this)) putSlot = mob.getSiegeMinionMap().get(this);
 
             int count = 0;
 
             for (BuildingLocation slotLoc : buildingModel.getLocations())
-                if (slotLoc.getType() == 6)
-                    count++;
+                if (slotLoc.getType() == 6) count++;
 
             buildingLocation = buildingModel.getSlotLocation((count) - putSlot);
 
@@ -1890,46 +1664,34 @@ public class Mob extends AbstractIntelligenceAgent {
 
     public ItemBase getWeaponItemBase(boolean mainHand) {
 
-        if (this.equipmentSetID != 0) {
-
+        if (this.equipmentSetID != 0)
             if (equip != null) {
-                MobEquipment me = null;
+            MobEquipment me;
 
-                if (mainHand)
-                    me = equip.get(1); //mainHand
-                else
-                    me = equip.get(2); //offHand
+            if (mainHand) me = equip.get(1); //mainHand
+            else me = equip.get(2); //offHand
 
-                if (me != null) {
+            if (me != null) {
 
-                    ItemBase ib = me.getItemBase();
+                ItemBase ib = me.getItemBase();
 
-                    if (ib != null)
-                        return ib;
+                if (ib != null)
+                    return ib;
 
-                }
             }
         }
         MobBase mb = this.mobBase;
 
-        if (mb != null) {
+        if (mb != null) if (equip != null) {
 
-            if (equip != null) {
+            MobEquipment me;
 
-                MobEquipment me = null;
+            if (mainHand)
+                me = equip.get(1); //mainHand
+            else me = equip.get(2); //offHand
 
-                if (mainHand)
-                    me = equip.get(1); //mainHand
-                else
-                    me = equip.get(2); //offHand
-
-                if (me != null) {
-
-                    ItemBase ib = me.getItemBase();
-
-					return ib;
-                }
-            }
+            if (me != null)
+                return me.getItemBase();
         }
         return null;
     }
@@ -1938,67 +1700,60 @@ public class Mob extends AbstractIntelligenceAgent {
     public void runAfterLoad() {
 
         try {
-            if (this.equipmentSetID != 0)
-                this.equip = MobBase.loadEquipmentSet(this.equipmentSetID);
-            else
-                this.equip = new HashMap<>();
+            if (this.equipmentSetID != 0) this.equip = MobBase.loadEquipmentSet(this.equipmentSetID);
+            else this.equip = new HashMap<>();
 
         } catch (Exception e) {
             Logger.error(e.getMessage());
         }
-        mobPowers = new HashMap<Integer, Integer>();
-        //mobPowers = DbManager.MobBaseQueries.LOAD_STATIC_POWERS(this.getMobBaseID());
-        if (PowersManager.AllMobPowers.containsKey(this.getMobBaseID()) == true) {
+        mobPowers = new HashMap<>();
+
+        if (PowersManager.AllMobPowers.containsKey(this.getMobBaseID()) == true)
             mobPowers = PowersManager.AllMobPowers.get(this.getMobBaseID());
-        }
+
         if (this.equip == null) {
             Logger.error("Null equipset returned for uuid " + currentID);
             this.equip = new HashMap<>(0);
         }
 
         // Combine mobbase and mob aggro arrays into one bitvector
-        try {
-            this.notEnemy.addAll(this.getMobBase().notEnemy);
-            this.enemy.addAll(this.getMobBase().enemy);
-        }
-        catch(Exception ex){
 
-        }
+        this.notEnemy.addAll(this.getMobBase().notEnemy);
+        this.enemy.addAll(this.getMobBase().enemy);
+
         try {
             NPCManager.applyRuneSetEffects(this);
             recalculateStats();
             this.setHealth(this.healthMax);
 
             // Set bounds for this mobile
+
             Bounds mobBounds = Bounds.borrow();
             mobBounds.setBounds(this.getLoc());
             this.setBounds(mobBounds);
+
             //assign 5 random patrol points for regular mobs
-            if(!this.isGuard() && !this.isPlayerGuard() && !this.isPet() && !this.isNecroPet() && !this.isSummonedPet() && !this.isCharmedPet()){
+
+            if (!this.isGuard() && !this.isPlayerGuard() && !this.isPet() && !this.isNecroPet() && !this.isSummonedPet() && !this.isCharmedPet()) {
                 this.patrolPoints = new ArrayList<>();
-                for(int i = 0; i < 5; ++i){
+                for (int i = 0; i < 5; ++i) {
                     float patrolRadius = this.getSpawnRadius();
 
-                    if (patrolRadius > 256)
-                        patrolRadius = 256;
+                    if (patrolRadius > 256) patrolRadius = 256;
 
-                    if (patrolRadius < 60)
-                        patrolRadius = 60;
+                    if (patrolRadius < 60) patrolRadius = 60;
 
-                    Vector3fImmutable newPatrolPoint =  Vector3fImmutable.getRandomPointInCircle(this.getBindLoc(), patrolRadius);
+                    Vector3fImmutable newPatrolPoint = Vector3fImmutable.getRandomPointInCircle(this.getBindLoc(), patrolRadius);
                     this.patrolPoints.add(newPatrolPoint);
                 }
             }
-            if(this.BehaviourType == null) {
+            if (this.BehaviourType == null)
                 this.BehaviourType = this.getMobBase().fsm;
-            }
-            if(this.isPlayerGuard() && this.contract != null){
-                if(NPC.ISWallArcher(this.getContract().getContractID())){
-                    this.BehaviourType = MobBehaviourType.GuardWallArcher;
-                } else {
-                    this.BehaviourType = Enum.MobBehaviourType.GuardCaptain;
-                }
-            }
+
+            if (this.isPlayerGuard() && this.contract != null) if (NPC.ISWallArcher(this.getContract().getContractID()))
+                this.BehaviourType = MobBehaviourType.GuardWallArcher;
+            else this.BehaviourType = MobBehaviourType.GuardCaptain;
+
             this.deathTime = 0;
         } catch (Exception e) {
             Logger.error(e.getMessage());
@@ -2048,27 +1803,20 @@ public class Mob extends AbstractIntelligenceAgent {
 
     public void handleDirectAggro(AbstractCharacter ac) {
 
-        if (ac.getObjectType().equals(GameObjectType.PlayerCharacter) == false)
-            return;
+        if (ac.getObjectType().equals(GameObjectType.PlayerCharacter) == false) return;
 
         PlayerCharacter player = (PlayerCharacter) ac;
 
         if (this.getCombatTarget() == null) {
-            //MobileFSM.setAggro(this, player.getObjectUUID());
             this.combatTarget = ac;
             return;
         }
 
-        if (player.getObjectUUID() == this.getCombatTarget().getObjectUUID())
-            return;
+        if (player.getObjectUUID() == this.getCombatTarget().getObjectUUID()) return;
 
-        if (this.getCombatTarget().getObjectType() == GameObjectType.PlayerCharacter) {
-
-            if (ac.getHateValue() > ((PlayerCharacter) this.getCombatTarget()).getHateValue()) {
+        if (this.getCombatTarget().getObjectType() == GameObjectType.PlayerCharacter)
+            if (ac.getHateValue() > ((PlayerCharacter) this.getCombatTarget()).getHateValue())
                 this.setCombatTarget(player);
-                //MobileFSM.setAggro(this, player.getObjectUUID());
-            }
-        }
     }
 
     public void setRank(int newRank) {
@@ -2083,29 +1831,16 @@ public class Mob extends AbstractIntelligenceAgent {
         return this.upgradeDateTime != null;
     }
 
-    public boolean isNoAggro() {
-        return noAggro;
-    }
 
     public void setNoAggro(boolean noAggro) {
         this.noAggro = noAggro;
     }
 
-    public int getAggroTargetID() {
-        return aggroTargetID;
-    }
 
     public void setAggroTargetID(int aggroTargetID) {
         this.aggroTargetID = aggroTargetID;
     }
 
-    public boolean isWalkingHome() {
-        return walkingHome;
-    }
-
-    public void setWalkingHome(boolean walkingHome) {
-        this.walkingHome = walkingHome;
-    }
 
     public long getLastAttackTime() {
         return lastAttackTime;
@@ -2162,12 +1897,8 @@ public class Mob extends AbstractIntelligenceAgent {
         this.isPlayerGuard = isPlayerGuard;
     }
 
-    public int getPatrolPointIndex() {
-        return patrolPointIndex;
-    }
 
     public void setPatrolPointIndex(int patrolPointIndex) {
-        this.patrolPointIndex = patrolPointIndex;
     }
 
     public int getLastMobPowerToken() {
@@ -2212,22 +1943,17 @@ public class Mob extends AbstractIntelligenceAgent {
 
         try {
 
-            building = this.building;
-
             // Cannot upgrade an npc not within a building
 
-            if (building == null)
-                return;
+            if (building == null) return;
 
             // Cannot upgrade an npc at max rank
 
-            if (this.getRank() == 7)
-                return;
+            if (this.getRank() == 7) return;
 
             // Cannot upgrade an npc who is currently ranking
 
-            if (this.isRanking())
-                return;
+            if (this.isRanking()) return;
 
             int rankCost = Mob.getUpgradeCost(this);
 
@@ -2240,9 +1966,7 @@ public class Mob extends AbstractIntelligenceAgent {
 
             try {
 
-                if (!building.transferGold(-rankCost, false)) {
-                    return;
-                }
+                if (!building.transferGold(-rankCost, false)) return;
 
                 DateTime dateToUpgrade = DateTime.now().plusHours(Mob.getUpgradeTime(this));
                 Mob.setUpgradeDateTime(this, dateToUpgrade);
@@ -2264,7 +1988,6 @@ public class Mob extends AbstractIntelligenceAgent {
 
     public void processRedeedMob(ClientConnection origin) {
 
-        // Member variable declaration
         PlayerCharacter player;
         Contract contract;
         CharacterItemManager itemMan;
@@ -2278,14 +2001,12 @@ public class Mob extends AbstractIntelligenceAgent {
             player = SessionManager.getPlayerCharacter(origin);
             itemMan = player.getCharItemManager();
 
-
             contract = this.getContract();
 
             if (!player.getCharItemManager().hasRoomInventory((short) 1)) {
                 ErrorPopupMsg.sendErrorPopup(player, 21);
                 return;
             }
-
 
             if (!building.getHirelings().containsKey(this))
                 return;
@@ -2306,9 +2027,7 @@ public class Mob extends AbstractIntelligenceAgent {
 
             boolean itemWorked = false;
 
-            item = new Item(itemBase, player.getObjectUUID(), OwnerType.PlayerCharacter, (byte) ((byte) this.getRank() - 1), (byte) ((byte) this.getRank() - 1),
-                    (short) 1, (short) 1, true, false, Enum.ItemContainerType.INVENTORY, (byte) 0,
-                    new ArrayList<>(), "");
+            item = new Item(itemBase, player.getObjectUUID(), OwnerType.PlayerCharacter, (byte) ((byte) this.getRank() - 1), (byte) ((byte) this.getRank() - 1), (short) 1, (short) 1, true, false, Enum.ItemContainerType.INVENTORY, (byte) 0, new ArrayList<>(), "");
             item.setNumOfItems(1);
             item.containerType = Enum.ItemContainerType.INVENTORY;
 
@@ -2318,6 +2037,7 @@ public class Mob extends AbstractIntelligenceAgent {
             } catch (Exception e) {
                 Logger.error(e);
             }
+
             if (itemWorked) {
                 itemMan.addItemToInventory(item);
                 itemMan.updateInventory();
@@ -2329,13 +2049,11 @@ public class Mob extends AbstractIntelligenceAgent {
             mca.setTargetID(building.getObjectUUID());
             origin.sendMsg(mca);
 
-
         } catch (Exception e) {
             Logger.error(e);
         } finally {
             this.lock.writeLock().unlock();
         }
-
     }
 
     public void dismiss() {
@@ -2346,22 +2064,20 @@ public class Mob extends AbstractIntelligenceAgent {
 
                 WorldGrid.RemoveWorldObject(this);
                 DbManager.removeFromCache(this);
-                if (this.getObjectType() == GameObjectType.Mob) {
-                    //this.state = STATE.Disabled;
-                    if (this.getParentZone() != null)
-                        this.getParentZone().zoneMobSet.remove(this);
-                }
+
+                if (this.getObjectType() == GameObjectType.Mob)
+                    if (this.getParentZone() != null) this.getParentZone().zoneMobSet.remove(this);
 
             } else { //revert charmed pet
                 this.setMob();
                 this.setCombatTarget(null);
-                //				if (this.isAlive())
-                //					WorldServer.updateObject(this);
             }
             //clear owner
+
             PlayerCharacter owner = this.getOwner();
 
             //close pet window
+
             if (owner != null) {
                 Mob pet = owner.getPet();
                 PetMsg pm = new PetMsg(5, null);
@@ -2369,14 +2085,11 @@ public class Mob extends AbstractIntelligenceAgent {
                 DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
 
                 if (pet != null && pet.getObjectUUID() == this.getObjectUUID())
-                    owner.setPet(null);
+                owner.setPet(null);
 
                 if (this.getObjectType().equals(GameObjectType.Mob))
                     this.setOwner(null);
             }
-
-
         }
     }
-
 }

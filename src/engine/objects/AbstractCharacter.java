@@ -1338,7 +1338,7 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
 			PlayerCharacter.serializePlayerForClientMsgOtherPlayer((PlayerCharacter)abstractCharacter, writer, asciiLastName);
 			break;
 		case Mob:
-			Mob.serializeMobForClientMsgOtherPlayer((Mob)abstractCharacter, writer,asciiLastName);
+			Mob.serializeMobForClientMsgOtherPlayer((Mob)abstractCharacter, writer);
 			break;
 		case NPC:
 			NPC.serializeNpcForClientMsgOtherPlayer((NPC)abstractCharacter, writer, asciiLastName);
