@@ -552,7 +552,7 @@ public class MobileFSM {
 
     }
     public static void GuardMinionLogic(Mob mob){
-        if(mob.despawned){
+        if(mob.despawned || mob.isAlive() == false){
             if(System.currentTimeMillis() > mob.deathTime + (mob.spawnTime * 1000)){
                 mob.respawn();
             }
