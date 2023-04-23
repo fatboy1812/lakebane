@@ -9,7 +9,6 @@
 
 package engine.db.handlers;
 
-import engine.gameManager.NPCManager;
 import engine.objects.Mob;
 import engine.objects.Zone;
 import engine.server.MBServerStatics;
@@ -27,9 +26,9 @@ public class dbMobHandler extends dbHandlerBase {
 		this.localObjectType = engine.Enum.GameObjectType.valueOf(this.localClass.getSimpleName());
 	}
 
-	public Mob ADD_MOB(Mob toAdd, boolean isMob)
+	public Mob ADD_MOB(Mob toAdd)
 			 {
-		prepareCallable("CALL `mob_CREATE`(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
+		prepareCallable("CALL `mob_CREATE`(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
 		setLong(1, toAdd.getParentZoneID());
 		setInt(2, toAdd.getMobBaseID());
 		setInt(3, toAdd.getGuildUUID());
@@ -45,6 +44,7 @@ public class dbMobHandler extends dbHandlerBase {
 			setInt(10, 0);
 		setInt(11, toAdd.getBuildingID());
 		setInt(12, toAdd.getLevel());
+		setString(13, toAdd.getFirstName());
 		int objectUUID = (int) getUUID();
 		if (objectUUID > 0)
 			return GET_MOB(objectUUID);

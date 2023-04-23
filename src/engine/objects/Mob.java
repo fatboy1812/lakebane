@@ -126,10 +126,10 @@ public class Mob extends AbstractIntelligenceAgent {
         if (building != null) this.buildingID = building.getObjectUUID();
         else this.buildingID = 0;
 
-        if (contractID == 0) this.contract = null;
-        else this.contract = DbManager.ContractQueries.GET_CONTRACT(contractID);
-
-        if (this.contract != null) this.level = 10;
+        if (contractID == 0)
+            this.contract = null;
+        else
+            this.contract = DbManager.ContractQueries.GET_CONTRACT(contractID);
 
         clearStatic();
     }
@@ -223,8 +223,10 @@ public class Mob extends AbstractIntelligenceAgent {
 
             int contractID = rs.getInt("mob_contractID");
 
-            if (contractID == 0) this.contract = null;
-            else this.contract = DbManager.ContractQueries.GET_CONTRACT(contractID);
+            if (contractID == 0)
+                this.contract = null;
+            else
+                this.contract = DbManager.ContractQueries.GET_CONTRACT(contractID);
 
             if (this.contract != null) if (NPC.ISGuardCaptain(contract.getContractID())) {
                 this.spawnTime = 60 * 15;
@@ -235,15 +237,18 @@ public class Mob extends AbstractIntelligenceAgent {
             int guildID = rs.getInt("mob_guildUID");
 
 
-            if (this.building != null) this.guild = this.building.getGuild();
-            else this.guild = Guild.getGuild(guildID);
+            if (this.building != null)
+                this.guild = this.building.getGuild();
+            else
+                this.guild = Guild.getGuild(guildID);
 
             if (this.guild == null) this.guild = Guild.getErrantGuild();
 
             java.util.Date sqlDateTime;
             sqlDateTime = rs.getTimestamp("upgradeDate");
 
-            if (sqlDateTime != null) upgradeDateTime = new DateTime(sqlDateTime);
+            if (sqlDateTime != null)
+                upgradeDateTime = new DateTime(sqlDateTime);
             else upgradeDateTime = null;
 
             // Submit upgrade job if NPC is currently set to rank.
@@ -254,23 +259,30 @@ public class Mob extends AbstractIntelligenceAgent {
 
             this.setObjectTypeMask(MBServerStatics.MASK_MOB | this.getTypeMasks());
 
-            if (this.mobBase != null && this.spawnTime == 0) this.spawnTime = this.mobBase.getSpawnTime();
+            if (this.mobBase != null && this.spawnTime == 0)
+                this.spawnTime = this.mobBase.getSpawnTime();
 
             this.bindLoc = new Vector3fImmutable(this.statLat, this.statAlt, this.statLon);
 
             this.setParentZone(ZoneManager.getZoneByUUID(this.parentZoneID));
 
-            this.equipmentSetID = rs.getInt("equipmentSet");
             this.runeSet = rs.getInt("runeSet");
             this.bootySet = rs.getInt("bootySet");
 
             this.notEnemy = EnumBitSet.asEnumBitSet(rs.getLong("notEnemy"), Enum.MonsterType.class);
             this.enemy = EnumBitSet.asEnumBitSet(rs.getLong("enemy"), Enum.MonsterType.class);
 
-            if (this.contract != null) this.equipmentSetID = this.contract.getEquipmentSet();
+            if (this.contract != null) {
+                this.equipmentSetID = this.contract.getEquipmentSet();
+                this.nameOverride = rs.getString("npc_name") + " the " + this.getContract().getName();
+            } else {
+                this.equipmentSetID = rs.getInt("equipmentSet");
+                this.nameOverride = rs.getString("mob_name");
+            }
 
-            this.nameOverride = rs.getString("mob_name");
-            if (rs.getString("fsm").length() > 1) this.BehaviourType = MobBehaviourType.valueOf(rs.getString("fsm"));
+            if (rs.getString("fsm").length() > 1)
+                this.BehaviourType = MobBehaviourType.valueOf(rs.getString("fsm"));
+
         } catch (Exception e) {
             Logger.error(currentID + "");
         }
@@ -503,16 +515,20 @@ public class Mob extends AbstractIntelligenceAgent {
 
     public static Mob createMob(int loadID, Vector3fImmutable spawn, Guild guild, boolean isMob, Zone parent, Building building, int contractID, String pirateName, int rank) {
 
-        Mob mobWithoutID = new Mob("", "", (short) 0, (short) 0, (short) 0, (short) 0, (short) 0, (short) 1, 0, false, false, false, spawn, spawn, Vector3fImmutable.ZERO, (short) 1, (short) 1, (short) 1, guild, (byte) 0, loadID, isMob, parent, building, contractID);
+        Mob mobWithoutID = new Mob(pirateName, "", (short) 0, (short) 0, (short) 0, (short) 0, (short) 0, (short) 1, 0, false, false, false, spawn, spawn, Vector3fImmutable.ZERO, (short) 1, (short) 1, (short) 1, guild, (byte) 0, loadID, isMob, parent, building, contractID);
 
         if (parent != null)
             mobWithoutID.setRelPos(parent, spawn.x - parent.absX, spawn.y - parent.absY, spawn.z - parent.absZ);
 
+        if (mobWithoutID.mobBase == null)
+            return null;
 
-        if (mobWithoutID.mobBase == null) return null;
+        mobWithoutID.level = (short) (rank * 10);
+
         Mob mob;
+
         try {
-            mob = DbManager.MobQueries.ADD_MOB(mobWithoutID, isMob);
+            mob = DbManager.MobQueries.ADD_MOB(mobWithoutID);
             mob.setObjectTypeMask(MBServerStatics.MASK_MOB | mob.getTypeMasks());
             mob.setMob();
             mob.setParentZone(parent);
@@ -522,7 +538,6 @@ public class Mob extends AbstractIntelligenceAgent {
             mob.setLoc(buildingWorldLoc);
             mob.region = AbstractWorldObject.GetRegionByWorldObject(mob);
             MovementManager.translocate(mob, buildingWorldLoc, mob.region);
-            mob.nameOverride = NPC.getPirateName(mob.getMobBaseID()) + " the " + mob.getContract().getName();
             mob.runAfterLoad();
         } catch (Exception e) {
             Logger.error("SQLException:" + e.getMessage());
