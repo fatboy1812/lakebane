@@ -512,7 +512,7 @@ public class Mob extends AbstractIntelligenceAgent {
         writer.putInt(mob.currentID);
     }
 
-    public static Mob createMob(int loadID, Vector3fImmutable spawn, Guild guild, boolean isMob, Zone parent, Building building, int contractID, String pirateName, int rank) {
+    public static Mob createMob(int loadID, Vector3fImmutable spawn, Guild guild, boolean isMob, Zone parent, Building building, int contractID, String pirateName, int level) {
 
         Mob mobWithoutID = new Mob(pirateName, "", (short) 0, (short) 0, (short) 0, (short) 0, (short) 0, (short) 1, 0, false, false, false, spawn, spawn, Vector3fImmutable.ZERO, (short) 1, (short) 1, (short) 1, guild, (byte) 0, loadID, isMob, parent, building, contractID);
 
@@ -522,7 +522,7 @@ public class Mob extends AbstractIntelligenceAgent {
         if (mobWithoutID.mobBase == null)
             return null;
 
-        mobWithoutID.level = (short) (rank * 10);
+        mobWithoutID.level = (short) level;
 
         Mob mob;
 

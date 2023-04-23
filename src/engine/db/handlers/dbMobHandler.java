@@ -51,29 +51,7 @@ public class dbMobHandler extends dbHandlerBase {
 		return null;
 	}
 
-	public Mob ADD_SIEGE_MOB(Mob toAdd, boolean isMob)
-			 {
-		prepareCallable("CALL `mob_SIEGECREATE`(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
-		setLong(1, toAdd.getParentZoneID());
-		setInt(2, toAdd.getMobBaseID());
-		setInt(3, toAdd.getGuildUUID());
-		setFloat(4, toAdd.getSpawnX());
-		setFloat(5, toAdd.getSpawnY());
-		setFloat(6, toAdd.getSpawnZ());
-		setInt(7,0);
-		setFloat(8, toAdd.getSpawnRadius());
-		setInt(9, toAdd.getTrueSpawnTime());
-		setInt(10, toAdd.getBuildingID());
-
-		int objectUUID = (int) getUUID();
-		if (objectUUID > 0)
-			return GET_MOB(objectUUID);
-		return null;
-	}
-
 	public boolean updateUpgradeTime(Mob mob, DateTime upgradeDateTime) {
-
-
 
 		try {
 

@@ -466,11 +466,12 @@ public enum BuildingManager {
             rank = item.getChargesRemaining() * 10;
         else rank = 10;
 
-        Mob mob = null;
-        NPC npc = null;
+        Mob mob;
+        NPC npc;
+
         if (NPC.ISWallArcher(contractID.getContractID())) {
 
-            mob = Mob.createMob( contractID.getMobbaseID(), NpcLoc, contractOwner.getGuild(), true, zone, building, contractID.getContractID(), pirateName, rank);
+            mob = Mob.createMob( contractID.getMobbaseID(), NpcLoc, contractOwner.getGuild(), true, zone, building, contractID.getContractID(), pirateName, rank * 10);
 
             if (mob == null)
                 return false;
