@@ -274,9 +274,10 @@ public class ManageCityAssetsMsg extends ClientNetMsg {
 				writer.putInt(npcHire.getObjectUUID());
 				if (npcHire.getObjectType() == GameObjectType.NPC)
 					writer.putString(((NPC)npcHire).getContract().getName());
-				else
-					writer.putString(((Mob)npcHire).getContract().getName());
-					//writer.putString("Guard Captain");
+				 else
+					writer.putString("Guard Captain");
+
+
 				writer.putString(npcHire.getName());
 				writer.putInt(1);
 				writer.putInt(Blueprint.getNpcMaintCost(npcHire.getRank()));
@@ -692,11 +693,23 @@ public class ManageCityAssetsMsg extends ClientNetMsg {
 						writer.putInt(((Mob)npcHire).getDBID());
 					else
 						writer.putInt(npcHire.getObjectUUID());
-					if (npcHire.getObjectType() == GameObjectType.NPC)
-						writer.putString(((NPC)npcHire).getContract().getName());
-					else
-						writer.putString("Guard Captain");
-					writer.putString(npcHire.getName());
+					if (npcHire.getObjectType() == GameObjectType.NPC) {
+						writer.putString(((NPC) npcHire).getContract().getName());
+						if (((NPC) npcHire).getNameOverride().length() > 0) {
+							writer.putString(((Mob) npcHire).getNameOverride());
+						} else {
+							writer.putString(npcHire.getName());
+						}
+					}
+					else if (npcHire.getObjectType() == GameObjectType.Mob) {
+						writer.putString(((Mob) npcHire).getContract().getName());
+						if (((Mob) npcHire).getNameOverride().length() > 0) {
+							writer.putString(((Mob) npcHire).getNameOverride());
+						} else {
+							writer.putString(npcHire.getName());
+						}
+					}else
+						writer.putString("Error: Nothing Here");
 					writer.putInt(npcHire.getRank());
 					writer.putInt(Blueprint.getNpcMaintCost(npcHire.getRank()));
 					if (npcHire.getObjectType() == GameObjectType.NPC)
