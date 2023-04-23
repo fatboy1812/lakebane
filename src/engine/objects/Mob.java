@@ -228,13 +228,12 @@ public class Mob extends AbstractIntelligenceAgent {
             else
                 this.contract = DbManager.ContractQueries.GET_CONTRACT(contractID);
 
-            if (this.contract != null) if (NPC.ISGuardCaptain(contract.getContractID())) {
+            if (this.contract != null && NPC.ISGuardCaptain(contract.getContractID())) {
                 this.spawnTime = 60 * 15;
                 this.isPlayerGuard = true;
             }
 
             int guildID = rs.getInt("mob_guildUID");
-
 
             if (this.building != null)
                 this.guild = this.building.getGuild();
@@ -283,7 +282,7 @@ public class Mob extends AbstractIntelligenceAgent {
                 this.BehaviourType = MobBehaviourType.valueOf(rs.getString("fsm"));
 
         } catch (Exception e) {
-            Logger.error(currentID + "");
+            Logger.error(e + " " + this.dbID );
         }
 
         try {
