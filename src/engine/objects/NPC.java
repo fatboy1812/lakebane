@@ -280,7 +280,7 @@ public class NPC extends AbstractCharacter {
 
 
 
-			this.nameOverride = rs.getString("npc_name");
+			this.nameOverride = rs.getString("npc_name") + " the " + this.getContract().getName();
 
 		}catch(Exception e){
 			Logger.error(e);

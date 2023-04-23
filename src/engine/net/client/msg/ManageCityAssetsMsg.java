@@ -695,11 +695,7 @@ public class ManageCityAssetsMsg extends ClientNetMsg {
 						writer.putInt(npcHire.getObjectUUID());
 					if (npcHire.getObjectType() == GameObjectType.NPC) {
 						writer.putString(((NPC) npcHire).getContract().getName());
-						if (((NPC) npcHire).getNameOverride().length() > 0) {
-							writer.putString(((Mob) npcHire).getNameOverride());
-						} else {
-							writer.putString(npcHire.getName());
-						}
+						writer.putString(npcHire.getName());
 					}
 					else if (npcHire.getObjectType() == GameObjectType.Mob) {
 						writer.putString(((Mob) npcHire).getContract().getName());
