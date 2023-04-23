@@ -273,7 +273,7 @@ public class Mob extends AbstractIntelligenceAgent {
 
             if (this.contract != null) {
                 this.equipmentSetID = this.contract.getEquipmentSet();
-                this.nameOverride = rs.getString("npc_name") + " the " + this.getContract().getName();
+                this.nameOverride = rs.getString("mob_name") + " the " + this.getContract().getName();
             } else {
                 this.equipmentSetID = rs.getInt("equipmentSet");
                 this.nameOverride = rs.getString("mob_name");
