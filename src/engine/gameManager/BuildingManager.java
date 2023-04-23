@@ -477,7 +477,8 @@ public enum BuildingManager {
 
             mob.setRank(rank);
             mob.setPlayerGuard(true);
-            mob.setParentZone(zone);
+            mob.BehaviourType = Enum.MobBehaviourType.GuardWallArcher;
+            MovementManager.translocate(mob,mob.getBindLoc(),mob.getRegion());
             return true;
         }
         if (NPC.ISGuardCaptain(contractID.getContractID())) {

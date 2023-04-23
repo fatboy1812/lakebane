@@ -501,51 +501,6 @@ public class Mob extends AbstractIntelligenceAgent {
         writer.putInt(objectType);
         writer.putInt(mob.currentID);
     }
-
-    /**
-     * Generate a random quantity of gold for this mob.
-     *
-     * @return Quantity of gold
-     */
-    public static int randomGoldAmount(Mob mob) {
-
-        // percentage chance to drop gold
-
-        //R8 mobs have 100% gold drop.
-        if (mob.getLevel() < 80)
-            if ((ThreadLocalRandom.current().nextDouble() * 100d) > MBServerStatics.GOLD_DROP_PERCENTAGE_CHANCE)
-                return 0;
-
-
-        int level = mob.getLevel();
-        level = Math.max(level, 0);
-        level = Math.min(level, 50);
-
-        double minGold;
-        double maxGold;
-
-        if (mob.mobBase != null) {
-            minGold = mob.mobBase.getMinGold();
-            maxGold = mob.mobBase.getMaxGold();
-        } else {
-            minGold = MBServerStatics.GOLD_DROP_MINIMUM_PER_MOB_LEVEL[level];
-            maxGold = MBServerStatics.GOLD_DROP_MAXIMUM_PER_MOB_LEVEL[level];
-        }
-
-        double gold = (ThreadLocalRandom.current().nextDouble() * (maxGold - minGold) + minGold);
-
-        //server specific gold multiplier
-
-        gold *= Float.parseFloat(ConfigManager.MB_NORMAL_DROP_RATE.getValue());
-
-        //modify for hotzone
-
-        if (ZoneManager.inHotZone(mob.getLoc()))
-            gold *= Float.parseFloat(ConfigManager.MB_HOTZONE_DROP_RATE.getValue());
-
-        return (int) gold;
-    }
-
     public static Mob createMob(int loadID, Vector3fImmutable spawn, Guild guild, boolean isMob, Zone parent, Building building, int contractID) {
 
         Mob mobWithoutID = new Mob("", "", (short) 0, (short) 0, (short) 0, (short) 0, (short) 0, (short) 1, 0, false, false, false, spawn, spawn, Vector3fImmutable.ZERO, (short) 1, (short) 1, (short) 1, guild, (byte) 0, loadID, isMob, parent, building, contractID);
@@ -561,10 +516,19 @@ public class Mob extends AbstractIntelligenceAgent {
             mob.setObjectTypeMask(MBServerStatics.MASK_MOB | mob.getTypeMasks());
             mob.setMob();
             mob.setParentZone(parent);
+            mob.setInBuildingLoc(building, mob);
+            Vector3fImmutable buildingWorldLoc = ZoneManager.convertLocalToWorld(building, mob.inBuildingLoc);
+            mob.setBindLoc(buildingWorldLoc);
+            mob.setLoc(buildingWorldLoc);
+            mob.region = AbstractWorldObject.GetRegionByWorldObject(mob);
+            MovementManager.translocate(mob,buildingWorldLoc,mob.region);
+            mob.nameOverride = NPC.getPirateName(mob.getMobBaseID()) + " the " + mob.getContract().getName();
+            mob.runAfterLoad();
         } catch (Exception e) {
             Logger.error("SQLException:" + e.getMessage());
             mob = null;
         }
+
         return mob;
     }
 
@@ -853,7 +817,7 @@ public class Mob extends AbstractIntelligenceAgent {
             this.endLoc = buildingWorldLoc;
             this.stopMovement(endLoc);
 
-            if (this.building.getBlueprintUUID() != 0 && this.building.getBlueprint().isWallPiece())
+            if (this.building.getBlueprintUUID() != 0 && this.building.getBlueprint().isWallPiece() && this.contract == null)
                 MovementManager.translocate(this, new Vector3fImmutable(this.building.getLoc().x, this.npcOwner.getLoc().y, this.building.getLoc().z), this.region);
 
             return;
@@ -1646,9 +1610,11 @@ public class Mob extends AbstractIntelligenceAgent {
 
             if (npc != null) {
                 if (npc.getSiegeMinionMap().containsKey(this)) putSlot = npc.getSiegeMinionMap().get(this);
-            } else if (mob != null)
-                if (mob.getSiegeMinionMap().containsKey(this)) putSlot = mob.getSiegeMinionMap().get(this);
-
+            } else if (mob != null) {
+                //if (mob.getSiegeMinionMap().containsKey(this)) putSlot = mob.getSiegeMinionMap().get(this);
+                int hirelings = mob.building.getHirelings().size();
+                putSlot = hirelings;
+            }
             int count = 0;
 
             for (BuildingLocation slotLoc : buildingModel.getLocations())

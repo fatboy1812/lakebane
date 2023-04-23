@@ -352,6 +352,16 @@ public class MobileFSM {
         if (mob == null) {
             return;
         }
+        if(mob.despawned == true && mob.getMobBase().getLoadID() == 13171){
+            //trebuchet spawn handler
+            CheckForRespawn(mob);
+            return;
+        }
+        if(mob.despawned == true && mob.isPlayerGuard == true){
+            //override for guards
+            CheckForRespawn(mob);
+            return;
+        }
         if (mob.isAlive() == false) {
             //no need to continue if mob is dead, check for respawn and move on
             CheckForRespawn(mob);
@@ -362,6 +372,7 @@ public class MobileFSM {
             return;
         }
         CheckToSendMobHome(mob);
+        mob.updateLocation();
         switch(mob.BehaviourType){
             case GuardCaptain:
                 GuardCaptainLogic(mob);
@@ -484,6 +495,16 @@ public class MobileFSM {
         if (mob.isAlive() == false){
             return;
         }
+        if(MovementUtilities.inRangeDropAggro(mob,(PlayerCharacter)mob.getCombatTarget()) == false){
+            mob.setCombatTarget(null);
+            if (mob.isCombat()) {
+                mob.setCombat(false);
+                UpdateStateMsg rwss = new UpdateStateMsg();
+                rwss.setPlayer(mob);
+                DispatchMessage.sendToAllInRange(mob, rwss);
+            }
+            return;
+        }
         if (!mob.isCombat()) {
             mob.setCombat(true);
             UpdateStateMsg rwss = new UpdateStateMsg();
@@ -580,6 +601,7 @@ public class MobileFSM {
         if(mob.getCombatTarget() != null && mob.getCombatTarget().isAlive() == false){
             mob.setCombatTarget(null);
         }
+
         if(MovementUtilities.canMove(mob) && mob.BehaviourType.canRoam){
             CheckMobMovement(mob);
         }
