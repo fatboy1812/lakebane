@@ -2793,6 +2793,7 @@ public class Enum {
 	}
 
     public enum MobBehaviourType {
+		None(null, false, false, false, false, false),
         //Power
         Power(null, false, true, true, true, false),
         PowerHelpee(Power, false, true, true, false, true),
@@ -2821,7 +2822,6 @@ public class Enum {
         Simple(null, false, false, true, false, false),
         Helpee(null, false, true, true, false, true),
         HelpeeWimpy(null, true, false, true, false, false),
-        None(null, false, false, false, false, false),
         GuardCaptain(null, false, true, true, true, false),
         GuardMinion(GuardCaptain, false, true, true, false, true),
 		GuardWallArcher(null, false, true, false, false, false),
@@ -2846,13 +2846,5 @@ public class Enum {
             this.respondsToCallForHelp = respondstocallforhelp;
         }
 
-		public static MobBehaviourType getByName(String name) {
-			for (MobBehaviourType behaviourType : values()) {
-				if (behaviourType.name().equalsIgnoreCase(name)) {
-					return behaviourType;
-				}
-			}
-			return MobBehaviourType.None;
-		}
     }
 }

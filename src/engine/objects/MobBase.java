@@ -89,7 +89,8 @@ public class MobBase extends AbstractGameObject {
 		this.defenseRating = rs.getInt("defense");
 		this.attackRange = rs.getFloat("attackRange");
 		this.bootySet = rs.getInt("bootySet");
-		this.fsm = Enum.MobBehaviourType.getByName(rs.getString("fsm"));
+
+		this.fsm = Enum.MobBehaviourType.valueOf(rs.getString("fsm"));
 
 		if (MobbaseGoldEntry.MobbaseGoldMap.containsKey(this.loadID)){
 			MobbaseGoldEntry goldEntry = MobbaseGoldEntry.MobbaseGoldMap.get(this.loadID);
