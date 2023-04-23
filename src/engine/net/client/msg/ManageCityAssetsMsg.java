@@ -275,7 +275,8 @@ public class ManageCityAssetsMsg extends ClientNetMsg {
 				if (npcHire.getObjectType() == GameObjectType.NPC)
 					writer.putString(((NPC)npcHire).getContract().getName());
 				else
-					writer.putString("Guard Captain");
+					writer.putString(((Mob)npcHire).getContract().getName());
+					//writer.putString("Guard Captain");
 				writer.putString(npcHire.getName());
 				writer.putInt(1);
 				writer.putInt(Blueprint.getNpcMaintCost(npcHire.getRank()));
