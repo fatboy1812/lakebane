@@ -675,6 +675,9 @@ public class ManageNPCMsg extends ClientNetMsg {
 						maxSlots = 1;
 
 					}
+					if(NPC.ISGuardCaptain(mobA.getContract().getContractID()) == false){
+						maxSlots =0;
+					}
 					writer.putInt(0); //anything other than 0 seems to mess up the client
 					writer.putInt(targetType);
 					writer.putInt(targetID);
