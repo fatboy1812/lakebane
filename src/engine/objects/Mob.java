@@ -24,9 +24,6 @@ import engine.math.Vector3fImmutable;
 import engine.net.ByteBufferWriter;
 import engine.net.Dispatch;
 import engine.net.DispatchMessage;
-import engine.net.client.ClientConnection;
-import engine.net.client.msg.ErrorPopupMsg;
-import engine.net.client.msg.ManageCityAssetsMsg;
 import engine.net.client.msg.PetMsg;
 import engine.net.client.msg.PlaceAssetMsg;
 import engine.powers.EffectsBase;
@@ -53,7 +50,7 @@ public class Mob extends AbstractIntelligenceAgent {
     //mob specific
     public final ConcurrentHashMap<Integer, Boolean> playerAgroMap = new ConcurrentHashMap<>();
     public final ConcurrentHashMap<Mob, Integer> siegeMinionMap = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_LOW);
-    private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
+    public final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
     public long nextCastTime = 0;
     public long nextCallForHelp = 0;
     public ReentrantReadWriteLock minionLock = new ReentrantReadWriteLock();
@@ -2142,76 +2139,6 @@ public class Mob extends AbstractIntelligenceAgent {
             Logger.error(e);
         } finally {
             lock.writeLock().unlock();
-        }
-    }
-
-    public void processRedeedMob(ClientConnection origin) {
-
-        PlayerCharacter player;
-        Contract contract;
-        CharacterItemManager itemMan;
-        ItemBase itemBase;
-        Item item;
-
-        this.lock.writeLock().lock();
-
-        try {
-
-            player = SessionManager.getPlayerCharacter(origin);
-            itemMan = player.getCharItemManager();
-
-            contract = this.getContract();
-
-            if (!player.getCharItemManager().hasRoomInventory((short) 1)) {
-                ErrorPopupMsg.sendErrorPopup(player, 21);
-                return;
-            }
-
-            if (!building.getHirelings().containsKey(this))
-                return;
-
-            if (!NPCManager.removeMobileFromBuilding(this, building)) {
-                PlaceAssetMsg.sendPlaceAssetError(player.getClientConnection(), 1, "A Serious error has occurred. Please post details for to ensure transaction integrity");
-                return;
-            }
-
-            building.getHirelings().remove(this);
-
-            itemBase = ItemBase.getItemBase(contract.getContractID());
-
-            if (itemBase == null) {
-                Logger.error("Could not find Contract for npc: " + this.getObjectUUID());
-                return;
-            }
-
-            boolean itemWorked = false;
-
-            item = new Item(itemBase, player.getObjectUUID(), OwnerType.PlayerCharacter, (byte) ((byte) this.getRank() - 1), (byte) ((byte) this.getRank() - 1), (short) 1, (short) 1, true, false, Enum.ItemContainerType.INVENTORY, (byte) 0, new ArrayList<>(), "");
-            item.setNumOfItems(1);
-            item.containerType = Enum.ItemContainerType.INVENTORY;
-
-            try {
-                item = DbManager.ItemQueries.ADD_ITEM(item);
-                itemWorked = true;
-            } catch (Exception e) {
-                Logger.error(e);
-            }
-
-            if (itemWorked) {
-                itemMan.addItemToInventory(item);
-                itemMan.updateInventory();
-            }
-
-            ManageCityAssetsMsg mca = new ManageCityAssetsMsg();
-            mca.actionType = NPC.SVR_CLOSE_WINDOW;
-            mca.setTargetType(building.getObjectType().ordinal());
-            mca.setTargetID(building.getObjectUUID());
-            origin.sendMsg(mca);
-
-        } catch (Exception e) {
-            Logger.error(e);
-        } finally {
-            this.lock.writeLock().unlock();
         }
     }
 

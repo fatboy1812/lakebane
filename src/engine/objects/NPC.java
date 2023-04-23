@@ -53,7 +53,7 @@ public class NPC extends AbstractCharacter {
 	protected boolean isMob;
 	protected MobBase mobBase;
 	protected String name;
-	protected Building building;
+	public Building building;
 	protected Contract contract;
 	protected int dbID;
 	protected int currentID;
@@ -99,10 +99,6 @@ public class NPC extends AbstractCharacter {
 
 	public Vector3fImmutable inBuildingLoc = Vector3fImmutable.ZERO;
 	private int repairCost = 5;
-
-	public int classID = 0;
-	public int professionID = 0;
-	public int extraRune = 0;
 	public int extraRune2 = 0;
 
 
@@ -1716,7 +1712,7 @@ public class NPC extends AbstractCharacter {
 		}
 	}
 	
-	public void processRedeedNPC( ClientConnection origin) {
+	public static void processRedeedNPC(NPC npc, Building building, ClientConnection origin) {
 
 		// Member variable declaration
 		PlayerCharacter player;
@@ -1725,7 +1721,7 @@ public class NPC extends AbstractCharacter {
 		ItemBase itemBase;
 		Item item;
 
-		this.lock.writeLock().lock();
+		npc.lock.writeLock().lock();
 		
 		try{
 			
@@ -1735,7 +1731,7 @@ public class NPC extends AbstractCharacter {
 		player = SessionManager.getPlayerCharacter(origin);
 		itemMan = player.getCharItemManager();
 
-			contract = this.getContract();
+			contract = npc.getContract();
 
 			if (!player.getCharItemManager().hasRoomInventory((short)1)){
 				ErrorPopupMsg.sendErrorPopup(player, 21);
@@ -1743,26 +1739,26 @@ public class NPC extends AbstractCharacter {
 			}
 
 
-			if (!building.getHirelings().containsKey(this))
+			if (!building.getHirelings().containsKey(npc))
 				return;
 
-			if (!this.remove()) {
+			if (!npc.remove()) {
 				PlaceAssetMsg.sendPlaceAssetError(player.getClientConnection(), 1, "A Serious error has occurred. Please post details for to ensure transaction integrity");
 				return;
 			}
 
-			building.getHirelings().remove(this);
+			building.getHirelings().remove(npc);
 
 			itemBase = ItemBase.getItemBase(contract.getContractID());
 
 			if (itemBase == null) {
-				Logger.error("Could not find Contract for npc: " + this.getObjectUUID());
+				Logger.error("Could not find Contract for npc: " + npc.getObjectUUID());
 				return;
 			}
 
 			boolean itemWorked = false;
 
-			item = new Item( itemBase, player.getObjectUUID(), OwnerType.PlayerCharacter, (byte) ((byte) this.getRank() - 1), (byte) ((byte) this.getRank() - 1),
+			item = new Item( itemBase, player.getObjectUUID(), OwnerType.PlayerCharacter, (byte) ((byte) npc.getRank() - 1), (byte) ((byte) npc.getRank() - 1),
 					(short) 1, (short) 1, true, false,  Enum.ItemContainerType.INVENTORY, (byte) 0,
                     new ArrayList<>(),"");
 			item.setNumOfItems(1);
@@ -1788,7 +1784,7 @@ public class NPC extends AbstractCharacter {
 		}catch(Exception e){
 			Logger.error(e);
 		}finally{
-			this.lock.writeLock().unlock();
+			npc.lock.writeLock().unlock();
 		}
 
 	}
