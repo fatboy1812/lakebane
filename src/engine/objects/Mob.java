@@ -868,16 +868,20 @@ public class Mob extends AbstractIntelligenceAgent {
 
             if (!this.nameOverride.isEmpty()) this.firstName = this.nameOverride;
             else this.firstName = this.mobBase.getFirstName();
+
             if (isPet) {
                 this.setObjectTypeMask(MBServerStatics.MASK_PET | this.getTypeMasks());
-                if (ConfigManager.serverType.equals(ServerType.LOGINSERVER)) this.setLoc(this.getLoc());
+                if (ConfigManager.serverType.equals(ServerType.LOGINSERVER))
+                    this.setLoc(this.getLoc());
             }
-            if (!isPet && this.contract == null) this.level = (short) this.mobBase.getLevel();
-            else this.level = 1;
+
+            if (this.contract == null)
+                this.level = (short) this.mobBase.getLevel();
         }
-        if (this.building != null && this.contract != null) {
+
+        if (this.building != null && this.contract != null)
             slotMobInBuilding(); // picks first available free slot
-        }
+
         //set bonuses
         this.bonuses = new PlayerBonuses(this);
 
@@ -896,10 +900,12 @@ public class Mob extends AbstractIntelligenceAgent {
 
         //load AI for general mobs.
 
-        if (isPet || isSiege || (isGuard && this.contract == null)) this.currentID = (--Mob.staticID);
+        if (isPet || isSiege || (isGuard && this.contract == null))
+            this.currentID = (--Mob.staticID);
         else this.currentID = this.dbID;
 
-        if (!isPet && !isSiege && !this.isPlayerGuard) loadInventory();
+        if (!isPet && !isSiege && !this.isPlayerGuard)
+            loadInventory();
 
         //store mobs by Database ID
 
@@ -967,7 +973,8 @@ public class Mob extends AbstractIntelligenceAgent {
     }
 
     public String getSpawnTimeAsString() {
-        if (this.spawnTime == 0) return MBServerStatics.DEFAULT_SPAWN_TIME_MS / 1000 + " seconds (Default)";
+        if (this.spawnTime == 0)
+            return MBServerStatics.DEFAULT_SPAWN_TIME_MS / 1000 + " seconds (Default)";
         else return this.spawnTime + " seconds";
 
     }
@@ -979,7 +986,8 @@ public class Mob extends AbstractIntelligenceAgent {
 
     public int getMobBaseID() {
 
-        if (this.mobBase != null) return this.mobBase.getObjectUUID();
+        if (this.mobBase != null)
+            return this.mobBase.getObjectUUID();
 
         return 0;
     }
