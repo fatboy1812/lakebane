@@ -81,7 +81,7 @@ public class ActivateNPCMsgHandler extends AbstractClientMsgHandler {
 
 			Vector3fImmutable NpcLoc = new Vector3fImmutable(building.getLoc());
 
-			Item contractItem = Item.getFromCache(msg.getUnknown04());
+			Item contractItem = Item.getFromCache(msg.getContractItem());
 
 			if (contractItem == null)
 				return false;

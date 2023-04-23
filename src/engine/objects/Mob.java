@@ -2139,8 +2139,6 @@ public class Mob extends AbstractIntelligenceAgent {
         mob.setParentZone(parent);
         DbManager.addToCache(mob);
 
-
-
         RuneBase guardRune = RuneBase.getRuneBase(252621);
 
         for (MobBaseEffects mbe : guardRune.getEffectsList()) {

@@ -26,7 +26,7 @@ public class ActivateNPCMessage extends ClientNetMsg {
     private int unknown02;
     private int buildingUUID;
     private int unknown03;
-    private int unknown04;
+    private int contractItem;
     private int unknown05;
     private int size;
 
@@ -93,7 +93,7 @@ public class ActivateNPCMessage extends ClientNetMsg {
         reader.getInt(); // Object Type Padding
         buildingUUID = reader.getInt();
         unknown03 = reader.getInt();
-        unknown04 = reader.getInt();
+        contractItem = reader.getInt();
         unknown05 = reader.getInt();
 
     }
@@ -116,8 +116,8 @@ public class ActivateNPCMessage extends ClientNetMsg {
         return unknown03;
     }
 
-    public int getUnknown04() {
-        return unknown04;
+    public int getContractItem() {
+        return contractItem;
     }
 
     public int getUnknown05() {
@@ -144,8 +144,8 @@ public class ActivateNPCMessage extends ClientNetMsg {
         this.unknown03 = unknown03;
     }
 
-    public void setUnknown04(int unknown04) {
-        this.unknown04 = unknown04;
+    public void setContractItem(int contractItem) {
+        this.contractItem = contractItem;
     }
 
     public void setUnknown05(int unknown05) {
