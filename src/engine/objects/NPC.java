@@ -278,8 +278,6 @@ public class NPC extends AbstractCharacter {
 			this.buildingLevel = (rs.getInt("npc_buildingLevel"));
 			this.setParentZone(ZoneManager.getZoneByUUID(this.parentZoneID));
 
-
-
 			this.nameOverride = rs.getString("npc_name") + " the " + this.getContract().getName();
 
 		}catch(Exception e){
