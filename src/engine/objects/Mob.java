@@ -231,7 +231,6 @@ public class Mob extends AbstractIntelligenceAgent {
             if (this.contract != null) if (NPC.ISGuardCaptain(contract.getContractID())) {
                 this.spawnTime = 60 * 15;
                 this.isPlayerGuard = true;
-                this.nameOverride = contract.getName() + " Captain";
             }
 
             int guildID = rs.getInt("mob_guildUID");
