@@ -157,6 +157,7 @@ public class Blueprint {
 		case WALLCORNER:
 		case SMALLGATE:
 		case WALLSTAIRS:
+		case WALLSTRAIGHTTOWER:
 			return true;
 		default:
 			break;
