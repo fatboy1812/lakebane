@@ -464,7 +464,7 @@ public class MobileFSM {
                 mob.setCombatTarget(null);
             }
         }
-        if (mob.getLoc().distanceSquared2D(mob.getBindLoc()) > sqr(2000)) {
+        if(MovementUtilities.inRangeOfBindLocation(mob) == false) {
             PowersBase recall = PowersManager.getPowerByToken(-1994153779);
             PowersManager.useMobPower(mob, mob, recall, 40);
             mob.setCombatTarget(null);

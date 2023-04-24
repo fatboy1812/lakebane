@@ -1270,7 +1270,8 @@ public class Mob extends AbstractIntelligenceAgent {
                 //cleanup effects
                 playerAgroMap.clear();
 
-                if (!this.isPlayerGuard && this.equip != null) LootManager.GenerateMobLoot(this, true);
+                if (!this.isPlayerGuard && this.equip != null)
+                    LootManager.GenerateMobLoot(this, true);
 
             }
             try {

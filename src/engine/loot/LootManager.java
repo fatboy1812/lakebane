@@ -71,11 +71,27 @@ public class LootManager {
         }
     }
     private static void RunBootySet(ArrayList<BootySetEntry> entries, Mob mob, float multiplier, boolean inHotzone, boolean fromDeath) {
+        if(fromDeath){
+            //do equipment here
+            if (mob.getEquip() != null){
+                for (MobEquipment me : mob.getEquip().values()){
+                    if (me.getDropChance() == 0)
+                        continue;
+                    float equipmentRoll = ThreadLocalRandom.current().nextFloat();
+                    float dropChance = me.getDropChance();
+                    if (equipmentRoll < dropChance){
+                        MobLoot ml = new MobLoot(mob, me.getItemBase(), false);
+                        mob.getCharItemManager().addItemToInventory(ml);
+                    }
+                }
+            }
+            return;
+        }
         for (BootySetEntry bse : entries) {
-            int roll = ThreadLocalRandom.current().nextInt(101);
+            int roll = ThreadLocalRandom.current().nextInt(100);
             switch (bse.bootyType) {
                 case "GOLD":
-                    if (roll > (bse.dropChance * multiplier) || fromDeath) {
+                    if (roll > (bse.dropChance * multiplier)) {
                         //early exit, failed to hit minimum chance roll OR booty was generated from mob's death
                         break;
                     }
@@ -87,7 +103,7 @@ public class LootManager {
                     }
                     break;
                 case "LOOT":
-                    if (roll > (bse.dropChance * multiplier) || fromDeath) {
+                    if (roll > (bse.dropChance * multiplier)) {
                         //early exit, failed to hit minimum chance roll OR booty was generated from mob's death
                         break;
                     }
@@ -110,16 +126,6 @@ public class LootManager {
                         mob.getCharItemManager().addItemToInventory(disc);
 
                     break;
-                case "EQUIP":
-                    if (roll > (bse.dropChance * multiplier) && fromDeath) {
-                        //early exit, failed to hit minimum chance roll OR booty wasn't generated from mob's death
-                        break;
-                    }
-                    MobLoot equipToAdd = new MobLoot(mob, ItemBase.getItemBase(bse.itemBase), true);
-                    if (equipToAdd != null) {
-                        mob.getCharItemManager().addItemToInventory(equipToAdd);
-                    }
-                    break;
             }
         }
     }
@@ -128,7 +134,7 @@ public class LootManager {
             return null;
         }
         MobLoot outItem;
-        int roll = new Random().nextInt(100);
+        int roll = new Random().nextInt(101);
         GenTableRow selectedRow = generalItemTables.get(genTableID).getRowForRange(roll);
         if(selectedRow == null) {
         return null;
