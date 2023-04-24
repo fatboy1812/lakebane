@@ -94,7 +94,7 @@ public class NPC extends AbstractCharacter {
 	private String nameOverride = "";
 	private int equipmentSetID = 0;
 	public int runeSetID = 0;
-	private int slot;
+	public int slot;
 	private Regions region = null;
 
 	public Vector3fImmutable inBuildingLoc = Vector3fImmutable.ZERO;
