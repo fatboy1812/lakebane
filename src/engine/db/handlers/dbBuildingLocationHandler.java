@@ -20,8 +20,17 @@ public class dbBuildingLocationHandler extends dbHandlerBase {
         this.localObjectType = engine.Enum.GameObjectType.valueOf(this.localClass.getSimpleName());
 	}
 
+	public ArrayList<BuildingLocation> LOAD_BUILDING_LOCATIONS() {
+		prepareCallable("select * from static_building_location " +
+				"where type = 6 or type = 8 " +
+				"GROUP BY buildingID, slot " +
+				"ORDER BY buildingID, slot ASC;");
+		return getObjectList();
+	}
+
 	public ArrayList<BuildingLocation> LOAD_ALL_BUILDING_LOCATIONS() {
 		prepareCallable("SELECT * FROM `static_building_location`;");
 		return getObjectList();
 	}
+
 }

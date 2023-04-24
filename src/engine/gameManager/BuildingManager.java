@@ -25,11 +25,16 @@ import org.pmw.tinylog.Logger;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
 public enum BuildingManager {
 
     BUILDINGMANAGER;
+
+    public static HashMap<Integer, ArrayList<BuildingLocation>> _stuckLocations;
+    public static HashMap<Integer, ArrayList<BuildingLocation>> _slotLocations;
 
     public static boolean playerCanManage(PlayerCharacter player, Building building) {
 

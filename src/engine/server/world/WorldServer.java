@@ -338,6 +338,7 @@ public class WorldServer {
 
 		Logger.info("Loading building mountpoint data.");
 		BuildingLocation.loadAllLocations();
+		BuildingLocation.loadBuildingLocations();
 
 		// Starting before loading of structures/guilds/characters
 		// so the database connections are available to write

@@ -9,12 +9,16 @@
 
 package engine.objects;
 
+import engine.gameManager.BuildingManager;
 import engine.gameManager.DbManager;
 import engine.math.Vector3fImmutable;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
 
 
@@ -122,6 +126,35 @@ public class BuildingLocation extends AbstractGameObject {
 	public void updateDatabase() {
 	}
 
+	public static void loadBuildingLocations() {
+
+		ArrayList<BuildingLocation> buildingLocations = DbManager.BuildingLocationQueries.LOAD_ALL_BUILDING_LOCATIONS();
+		HashMap<Integer, ArrayList<BuildingLocation>> locationCollection = new HashMap<>();
+
+		// Only slot locations and stuck locations are currently loaded.
+
+		for (BuildingLocation buildingLocation : buildingLocations) {
+
+			switch (buildingLocation.type) {
+				case 6:
+					locationCollection = BuildingManager._slotLocations;
+					break;
+				case 8:
+					locationCollection = BuildingManager._stuckLocations;
+					break;
+			}
+
+			// Add location to the collection in BuildingManager
+
+			if (locationCollection.containsKey(buildingLocation.buildingUUID))
+				locationCollection.get(buildingLocation.buildingUUID).add(buildingLocation);
+				else {
+				locationCollection.put(buildingLocation.buildingUUID, new ArrayList<>());
+				locationCollection.get(buildingLocation.buildingUUID).add(buildingLocation);
+				}
+
+		}
+	}
 
 	public static void loadAllLocations() {
 		ArrayList<BuildingLocation> bls = DbManager.BuildingLocationQueries.LOAD_ALL_BUILDING_LOCATIONS();
