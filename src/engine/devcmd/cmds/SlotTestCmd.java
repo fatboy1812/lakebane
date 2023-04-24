@@ -15,6 +15,7 @@ import engine.devcmd.AbstractDevCmd;
 import engine.gameManager.BuildingManager;
 import engine.gameManager.ChatManager;
 import engine.objects.*;
+import javafx.collections.ModifiableObservableListBase;
 
 public class SlotTestCmd extends AbstractDevCmd {
 
@@ -48,8 +49,20 @@ public class SlotTestCmd extends AbstractDevCmd {
 
 			for (AbstractCharacter hireling : building.getHirelings().keySet()) {
 
+				NPC npc;
+				Mob mob;
+
 				outString += "\r\n" + hireling.getName() + " slot " + building.getHirelings().get(hireling);
-				outString += "\r\n" + "location " + hireling.getLoc();
+
+				if (hireling.getObjectType().equals(GameObjectType.NPC)) {
+					npc = (NPC) hireling;
+					outString += "\r\n" + "location " + npc.inBuildingLoc.toString();
+					continue;
+				}
+
+				mob = (Mob) hireling;
+
+				outString += "\r\n" + "location " + mob.inBuildingLoc.toString();
 			}
 		}
 
