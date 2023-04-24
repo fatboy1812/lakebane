@@ -53,7 +53,7 @@ public class SlotTestCmd extends AbstractDevCmd {
 
 				outString += "\r\n" + hireling.getName() + " slot " + building.getHirelings().get(hireling);
 
-				if (hireling.getObjectType().equals(GameObjectType.NPC)) {
+		/*		if (hireling.getObjectType().equals(GameObjectType.NPC)) {
 					npc = (NPC) hireling;
 					outString += "\r\n" + "location " + npc.inBuildingLoc.toString();
 					continue;
@@ -62,6 +62,7 @@ public class SlotTestCmd extends AbstractDevCmd {
 				mob = (Mob) hireling;
 
 				outString += "\r\n" + "location " + mob.inBuildingLoc.toString();
+		*/
 			}
 		}
 
