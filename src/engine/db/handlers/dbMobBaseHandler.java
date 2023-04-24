@@ -80,14 +80,6 @@ public class dbMobBaseHandler extends dbHandlerBase {
 
 	}
 
-	public boolean UPDATE_FLAGS(int mobBaseID, long flags) {
-		prepareCallable("UPDATE `static_npc_mobbase` SET `flags` = ? WHERE `ID` = ?");
-		setLong(1, flags);
-		setInt(2, mobBaseID);
-		return (executeUpdate() > 0);
-
-	}
-
 	public HashMap<Integer, Integer> LOAD_STATIC_POWERS(int mobBaseUUID) {
 		HashMap<Integer, Integer> powersList = new HashMap<>();
 		prepareCallable("SELECT * FROM `static_npc_mobbase_powers` WHERE `mobbaseUUID`=?");
@@ -105,28 +97,6 @@ public class dbMobBaseHandler extends dbHandlerBase {
 			closeCallable();
 		}
 		return powersList;
-
-	}
-
-	public ArrayList<MobBaseEffects> LOAD_STATIC_EFFECTS(int mobBaseUUID) {
-		ArrayList<MobBaseEffects> effectsList = new ArrayList<>();
-
-		prepareCallable("SELECT * FROM `static_npc_mobbase_effects` WHERE `mobbaseUUID` = ?");
-		setInt(1, mobBaseUUID);
-
-		try {
-			ResultSet rs = executeQuery();
-			while (rs.next()) {
-				MobBaseEffects mbs = new MobBaseEffects(rs);
-				effectsList.add(mbs);
-			}
-			rs.close();
-		} catch (SQLException e) {
-			Logger.error( e.getMessage());
-		} finally {
-			closeCallable();
-		}
-		return effectsList;
 
 	}
 
@@ -182,48 +152,11 @@ public class dbMobBaseHandler extends dbHandlerBase {
 		return (executeUpdate() > 0);
 	}
 
-	public boolean ADD_MOBBASE_RUNE(int mobBaseUUID, int runeID) {
-		prepareCallable("INSERT INTO `static_npc_mobbase_runes` (`mobbaseUUID`, `runeID`) VALUES (?, ?);");
-		setInt(1, mobBaseUUID);
-		setInt(2, runeID);
-		return (executeUpdate() > 0);
-	}
-
 	public boolean RENAME_MOBBASE(int ID, String newName) {
 		prepareCallable("UPDATE `static_npc_mobbase` SET `name`=? WHERE `ID`=?;");
 		setString(1, newName);
 		setInt(2, ID);
 		return (executeUpdate() > 0);
-	}
-
-
-	public void LOAD_ALL_MOBBASE_LOOT(int mobBaseID) {
-
-		if (mobBaseID == 0)
-			return;
-		ArrayList<MobLootBase> mobLootList = new ArrayList<>();
-		prepareCallable("SELECT * FROM `static_mob_loottable` WHERE `mobBaseID` = ?");
-		setInt(1,mobBaseID);
-
-		try {
-			ResultSet rs = executeQuery();
-
-			//shrines cached in rs for easy cache on creation.
-			while (rs.next()) {
-
-				MobLootBase mobLootBase = new MobLootBase(rs);
-				mobLootList.add(mobLootBase);
-
-			}
-
-			MobLootBase.MobLootSet.put(mobBaseID, mobLootList);
-
-		} catch (SQLException e) {
-			Logger.error( e.getErrorCode() + ' ' + e.getMessage(), e);
-		} finally {
-			closeCallable();
-		}
-
 	}
 
 	public void LOAD_ALL_MOBBASE_SPEEDS(MobBase mobBase) {
@@ -232,7 +165,7 @@ public class dbMobBaseHandler extends dbHandlerBase {
 			return;
 		ArrayList<MobLootBase> mobLootList = new ArrayList<>();
 		prepareCallable("SELECT * FROM `static_npc_mobbase_race` WHERE `mobbaseID` = ?");
-		setInt(1,mobBase.getLoadID());
+		setInt(1, mobBase.getLoadID());
 
 		try {
 			ResultSet rs = executeQuery();
@@ -252,40 +185,5 @@ public class dbMobBaseHandler extends dbHandlerBase {
 		} finally {
 			closeCallable();
 		}
-
-	}
-
-	public HashMap<Integer, MobbaseGoldEntry> LOAD_GOLD_FOR_MOBBASE() {
-
-		HashMap<Integer, MobbaseGoldEntry> goldSets;
-		MobbaseGoldEntry goldSetEntry;
-		int	mobbaseID;
-
-		goldSets = new HashMap<>();
-		int recordsRead = 0;
-
-		prepareCallable("SELECT * FROM static_npc_mobbase_gold");
-
-		try {
-			ResultSet rs = executeQuery();
-
-			while (rs.next()) {
-
-				recordsRead++;
-
-				mobbaseID = rs.getInt("mobbaseID");
-				goldSetEntry = new MobbaseGoldEntry(rs);
-				goldSets.put(mobbaseID, goldSetEntry);
-
-			}
-
-			Logger.info("read: " + recordsRead + " cached: " + goldSets.size());
-
-		} catch (SQLException e) {
-			Logger.error(e.getErrorCode() + ' ' + e.getMessage(), e);
-		} finally {
-			closeCallable();
-		}
-		return goldSets;
 	}
 }

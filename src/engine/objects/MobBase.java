@@ -31,15 +31,9 @@ public class MobBase extends AbstractGameObject {
 	private float damageMin;
 	private float damageMax;
 	private float hitBoxRadius;
-	private final int lootTable;
 	private final float scale;
-
-	private int minGold;
-	private int maxGold;
-
 	private EnumBitSet<Enum.MobFlagType> flags;
 	private int mask;
-
 	private int goldMod;
 	private int seeInvis;
 	private int spawnTime = 0;
@@ -47,12 +41,9 @@ public class MobBase extends AbstractGameObject {
 	private int atr = 0;
 	private float minDmg = 0;
 	private float maxDmg = 0;
-	private ArrayList<MobBaseEffects> raceEffectsList;
 	private float attackRange;
 	private boolean isNecroPet = false;
-
 	private MobBaseStats mobBaseStats;
-	private ArrayList<RuneBase> runes;
 	private HashMap<Integer, Integer> staticPowers;
 
 	private float walk = 0;
@@ -75,12 +66,12 @@ public class MobBase extends AbstractGameObject {
 
 		this.firstName = rs.getString("name");
 		this.level = rs.getByte("level");
-		this.lootTable = rs.getInt("lootTableID");
 
 		this.goldMod = rs.getInt("goldMod");
 		this.spawnTime = rs.getInt("spawnTime");
 
 		LevelDefault levelDefault = LevelDefault.getLevelDefault(this.level);
+
 		this.healthMax = rs.getInt("health");
 		this.damageMin = rs.getFloat("minDmg");
 		this.damageMax = rs.getFloat("maxDmg");
@@ -92,26 +83,9 @@ public class MobBase extends AbstractGameObject {
 
 		this.fsm = Enum.MobBehaviourType.valueOf(rs.getString("fsm"));
 
-		if (MobbaseGoldEntry.MobbaseGoldMap.containsKey(this.loadID)){
-			MobbaseGoldEntry goldEntry = MobbaseGoldEntry.MobbaseGoldMap.get(this.loadID);
-
-			if (goldEntry != null){
-				this.minGold = goldEntry.getMin();
-				this.maxGold = goldEntry.getMax();
-			}
-		}
-		else
-			if (levelDefault != null) {
-				this.minGold = (levelDefault.goldMin * this.goldMod / 100);
-				this.maxGold = (levelDefault.goldMax * this.goldMod / 100);
-			} else {
-				this.minGold = 10;
-				this.maxGold = 30;
-			}
-
-			this.flags = EnumBitSet.asEnumBitSet(rs.getLong("flags"), Enum.MobFlagType.class);
-			this.notEnemy = EnumBitSet.asEnumBitSet(rs.getLong("notEnemy"), Enum.MonsterType.class);
-			this.enemy = EnumBitSet.asEnumBitSet(rs.getLong("enemy"), Enum.MonsterType.class);
+		this.flags = EnumBitSet.asEnumBitSet(rs.getLong("flags"), Enum.MobFlagType.class);
+		this.notEnemy = EnumBitSet.asEnumBitSet(rs.getLong("notEnemy"), Enum.MonsterType.class);
+		this.enemy = EnumBitSet.asEnumBitSet(rs.getLong("enemy"), Enum.MonsterType.class);
 
 		this.seeInvis = rs.getInt("seeInvis");
 		this.scale = rs.getFloat("scale");
@@ -137,9 +111,7 @@ public class MobBase extends AbstractGameObject {
 		if (Enum.MobFlagType.RAT.elementOf(this.flags))
 			this.mask += MBServerStatics.MASK_RAT;
 
-		this.raceEffectsList = DbManager.MobBaseQueries.LOAD_STATIC_EFFECTS(this.loadID);
 		this.mobBaseStats = DbManager.MobBaseQueries.LOAD_STATS(this.loadID);
-		DbManager.MobBaseQueries.LOAD_ALL_MOBBASE_LOOT(this.loadID);
 		DbManager.MobBaseQueries.LOAD_ALL_MOBBASE_SPEEDS(this);
 
 	}
@@ -174,14 +146,6 @@ public class MobBase extends AbstractGameObject {
 		return equip;
 	}
 
-	public HashMap<Integer, Integer> getStaticPowers() {
-		return staticPowers;
-	}
-
-	public void updateStaticEffects() {
-		this.raceEffectsList = DbManager.MobBaseQueries.LOAD_STATIC_EFFECTS(this.getObjectUUID());
-	}
-
 	public void updatePowers() {
 		this.staticPowers = DbManager.MobBaseQueries.LOAD_STATIC_POWERS(this.getObjectUUID());
 	}
@@ -209,10 +173,6 @@ public class MobBase extends AbstractGameObject {
 		return this.level;
 	}
 
-	public int getLootTable() {
-		return this.lootTable;
-	}
-
 	public float getHealthMax() {
 		return this.healthMax;
 	}
@@ -233,20 +193,9 @@ public class MobBase extends AbstractGameObject {
 		return this.defenseRating;
 	}
 
-	public int getMinGold() {
-		return this.minGold;
-	}
-
-	public int getMaxGold() {
-		return this.maxGold;
-	}
 
 	public EnumBitSet<Enum.MobFlagType> getFlags() {
 		return this.flags;
-	}
-
-	public int getGoldMod() {
-		return this.goldMod;
 	}
 
 	public float getScale() {
@@ -264,8 +213,6 @@ public class MobBase extends AbstractGameObject {
 	public int getSpawnTime() {
 		return this.spawnTime;
 	}
-
-
 
 	/*
 	 * Database
@@ -322,20 +269,6 @@ public class MobBase extends AbstractGameObject {
 
 	public void setDefense(int defense) {
 		this.defense = defense;
-	}
-
-	/**
-	 * @return the raceEffectsList
-	 */
-	public ArrayList<MobBaseEffects> getRaceEffectsList() {
-		return raceEffectsList;
-	}
-
-	/**
-	 * @return the runes
-	 */
-	public ArrayList<RuneBase> getRunes() {
-		return runes;
 	}
 
 	public float getAttackRange() {

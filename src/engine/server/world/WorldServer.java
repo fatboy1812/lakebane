@@ -288,13 +288,6 @@ public class WorldServer {
 		Logger.info("Loading Mobile Booty Sets");
 		NPCManager.LoadAllBootySets();
 
-		Logger.info("Loading Gold Loot for Mobbases");
-		MobbaseGoldEntry.LoadMobbaseGold();
-
-		//load lootTable
-		//Logger.info("Loading Loot Tables");
-		//LootTable.populateLootTables();
-
 		// Load new loot system
 		Logger.info("Loading New Loot Tables");
 		LootManager.loadLootData();
