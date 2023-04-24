@@ -180,6 +180,7 @@ public class PlaceAssetMsgHandler extends AbstractClientMsgHandler {
 				case SMALLGATE:
 				case ARTYTOWER:
 				case WALLSTAIRS:
+				case WALLSTRAIGHTTOWER:
 					buildingCreated = placeCityWalls(playerCharacter, origin, msg);
 					close = false;
 					break;
