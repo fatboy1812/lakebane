@@ -34,8 +34,8 @@ public enum BuildingManager {
 
     BUILDINGMANAGER;
 
-    public static HashMap<Integer, ArrayList<BuildingLocation>> _stuckLocations;
-    public static HashMap<Integer, ArrayList<BuildingLocation>> _slotLocations;
+    public static HashMap<Integer, ArrayList<BuildingLocation>> _stuckLocations = new HashMap<>();
+    public static HashMap<Integer, ArrayList<BuildingLocation>> _slotLocations = new HashMap<>();
 
     public static int getAvailableSlot(Building building) {
 
