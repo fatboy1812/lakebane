@@ -149,6 +149,7 @@ public enum DevCmdManager {
 		DevCmdManager.registerDevCmd(new SetMaintCmd());
 		DevCmdManager.registerDevCmd(new ApplyBonusCmd());
 		DevCmdManager.registerDevCmd(new AuditFailedItemsCmd());
+		DevCmdManager.registerDevCmd(new SlotTestCmd());
 
 	}
 
