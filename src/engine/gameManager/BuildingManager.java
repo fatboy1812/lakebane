@@ -450,7 +450,7 @@ public enum BuildingManager {
 
     }
 
-    public static synchronized boolean addHireling(Building building, PlayerCharacter contractOwner, Vector3fImmutable NpcLoc, Zone zone, Contract contractID, Item item) {
+    public static synchronized boolean addHireling(Building building, PlayerCharacter contractOwner, Vector3fImmutable NpcLoc, Zone zone, Contract contract, Item item) {
 
         int rank = 1;
 
@@ -460,7 +460,7 @@ public enum BuildingManager {
         if (building.getBlueprint().getMaxSlots() == building.getHirelings().size())
             return false;
 
-        String pirateName = NPC.getPirateName(contractID.getMobbaseID());
+        String pirateName = NPC.getPirateName(contract.getMobbaseID());
 
         if (item.getChargesRemaining() > 0)
             rank = item.getChargesRemaining() * 10;
@@ -469,9 +469,9 @@ public enum BuildingManager {
         Mob mob;
         NPC npc;
 
-        if (NPC.ISWallArcher(contractID.getContractID())) {
+        if (NPC.ISWallArcher(contract)) {
 
-            mob = Mob.createMob( contractID.getMobbaseID(), NpcLoc, contractOwner.getGuild(), true, zone, building, contractID.getContractID(), pirateName, rank * 10);
+            mob = Mob.createMob( contract.getMobbaseID(), NpcLoc, contractOwner.getGuild(), true, zone, building, contract.getContractID(), pirateName, rank * 10);
 
             if (mob == null)
                 return false;
@@ -482,9 +482,9 @@ public enum BuildingManager {
             MovementManager.translocate(mob,mob.getBindLoc(),mob.getRegion());
             return true;
         }
-        if (NPC.ISGuardCaptain(contractID.getContractID())) {
+        if (NPC.ISGuardCaptain(contract.getContractID())) {
 
-            mob = Mob.createMob( contractID.getMobbaseID(), NpcLoc, contractOwner.getGuild(), true, zone, building, contractID.getContractID(), pirateName, rank);
+            mob = Mob.createMob( contract.getMobbaseID(), NpcLoc, contractOwner.getGuild(), true, zone, building, contract.getContractID(), pirateName, rank);
 
             if (mob == null)
                 return false;
@@ -494,7 +494,7 @@ public enum BuildingManager {
             mob.setParentZone(zone);
             return true;
         }
-        npc = NPC.createNPC( pirateName, contractID.getObjectUUID(), NpcLoc, contractOwner.getGuild(), false, zone, (short) rank, false, building);
+        npc = NPC.createNPC( pirateName, contract.getObjectUUID(), NpcLoc, contractOwner.getGuild(), false, zone, (short) rank, false, building);
 
         if (npc == null)
             return false;

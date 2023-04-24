@@ -1903,7 +1903,7 @@ public class Mob extends AbstractIntelligenceAgent {
             if (this.BehaviourType == null)
                 this.BehaviourType = this.getMobBase().fsm;
 
-            if (this.isPlayerGuard() && this.contract != null) if (NPC.ISWallArcher(this.getContract().getContractID()))
+            if (this.isPlayerGuard() && this.contract != null) if (NPC.ISWallArcher(this.getContract()))
                 this.BehaviourType = MobBehaviourType.GuardWallArcher;
             else this.BehaviourType = MobBehaviourType.GuardCaptain;
 

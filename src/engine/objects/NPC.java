@@ -289,23 +289,15 @@ public class NPC extends AbstractCharacter {
 
 	}
 
-	public static boolean ISWallArcher(int contractID) {
+	public static boolean ISWallArcher(Contract contract) {
+
+		if (contract == null)
+			return  false;
+
 		//838, 950, 1051, 1181, 1251, 1351, 1451, 1501, 1526, 1551, 980101,
-		switch(contractID) {
-			case 838:
-			case 950:
-			case 1051:
-			case 1181:
-			case 1251:
-			case 1351:
-			case 1451:
-			case 150:
-			case 1526:
-			case 1551:
-			case 980101:
-				return true;
-		}
-		return false;
+
+		return contract.getAllowedBuildings().contains(BuildingGroup.WALLCORNER) ||
+				contract.getAllowedBuildings().contains(BuildingGroup.WALLSTRAIGHTTOWER);
 	}
 
 	//This method restarts an upgrade timer when a building is loaded from the database.
