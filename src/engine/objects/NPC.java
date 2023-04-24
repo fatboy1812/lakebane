@@ -377,7 +377,6 @@ public class NPC extends AbstractCharacter {
 		this.minDamageHandTwo = 1;
 		this.maxDamageHandTwo = 4;
 		this.atrHandOne = 300;
-		this.atrHandOne = 300;
 		this.defenseRating = 200;
 		this.isActive = true;
 
@@ -484,10 +483,6 @@ public class NPC extends AbstractCharacter {
 	 * Serialization
 	 */
 
-	public static void __serializeForClientMsg(NPC npc,ByteBufferWriter writer) throws SerializationException {
-	}
-
-
 	public static void serializeNpcForClientMsgOtherPlayer(NPC npc,ByteBufferWriter writer, boolean hideAsciiLastName)
 			throws SerializationException {
 		serializeForClientMsgOtherPlayer(npc,writer);
@@ -538,10 +533,8 @@ public class NPC extends AbstractCharacter {
 		if (classID != 0)
 			cnt++;
 		
-				if (extraRune != 0 && extraRune != contractID) {
-					cnt++;
-				}
-
+		if (extraRune != 0 && extraRune != contractID)
+			cnt++;
 
 		writer.putInt(cnt);
 
@@ -561,9 +554,9 @@ public class NPC extends AbstractCharacter {
 		writer.putInt(5);
 		writer.putInt(0);
 
-		if (npc.contract != null) {
+		if (npc.contract != null)
 			writer.putInt(contractID);
-		}else
+		else
 			writer.putInt(2500);
 
 		writer.putInt(GameObjectType.NPCClassRune.ordinal());
@@ -597,14 +590,6 @@ public class NPC extends AbstractCharacter {
 		if (isArcher) {
 			cnt = serializeExtraRune(npc,252654, cnt, writer);
 		}
-
-		//		if (extraRune != 0 && extraRune != contractID) {
-		//			writer.putInt(3);
-		//			writer.putInt(0);
-		//			writer.putInt(extraRune);
-		//			writer.putInt(GameObjectType.NPCExtraRune.ordinal());
-		//			writer.putInt(npc.getObjectUUID());
-		//		}
 
 		//Shopkeeper
 		writer.putInt(5);
@@ -648,20 +633,18 @@ public class NPC extends AbstractCharacter {
 		writer.putInt(0);
 		writer.putInt(0);
 		writer.putInt(0);
-		//writer.putInt(0); wHy do i see 4 in recording?
 
 		writer.put((byte) 0);
 		writer.putInt(npc.getObjectType().ordinal());
 		writer.putInt(npc.currentID);
-		//		writer.putLong(npc.getCompositeID());
 
 		writer.putFloat(1.0f);
 		writer.putFloat(1.0f);
 		writer.putFloat(1.0f);
 
-		if (npc.region != null){
+		if (npc.region != null)
 			writer.putVector3f(npc.inBuildingLoc);
-		}else{
+		else{
 			writer.putFloat(npc.getLoc().getX());
 			writer.putFloat(npc.getLoc().getY());
 			writer.putFloat(npc.getLoc().getZ());
@@ -718,9 +701,8 @@ public class NPC extends AbstractCharacter {
 				writer.putInt(val);
 			}
 
-		} else {
+		} else
 			writer.putInt(0);
-		}
 
 		writer.put((byte) 1);
 
@@ -734,28 +716,25 @@ public class NPC extends AbstractCharacter {
 			writer.putLong(0);
 		}
 
-		if (npc.contract != null) {
+		if (npc.contract != null)
 			writer.putInt(npc.contract.getIconID());
-		} else {
+		else
 			writer.putInt(0); //npc icon ID
-		}
-		//		for (int i=0;i<5;i++)
-		//			writer.putInt(0);
+
 		writer.putInt(0);
 		writer.putShort((short)0);
 
-		
 		if (npc.contract != null && npc.contract.isTrainer()) {
 			writer.putInt(classID);
 		} else {
 			writer.putInt(0);
 		}
 
-		if (npc.contract != null && npc.contract.isTrainer()) {
+		if (npc.contract != null && npc.contract.isTrainer())
 			writer.putInt(classID);
-		} else {
+		 else
 			writer.putInt(0);
-		}
+
 		writer.putInt(0);
 		writer.putInt(0);
 
@@ -767,14 +746,10 @@ public class NPC extends AbstractCharacter {
 
 		//Pull guild info from building if linked to one
 
-
-
 		Guild.serializeForClientMsg(npc.guild,writer, null, true);
-
 
 		writer.putInt(1);
 		writer.putInt(0x8A2E);
-		//		writer.putInt((npc.contract != null) ? npc.contract.getContractID() : 0x8A2E);
 		writer.putInt(0);
 		writer.putInt(0);
 
@@ -794,10 +769,9 @@ public class NPC extends AbstractCharacter {
 
 		for (Mob toRemove : this.siegeMinionMap.keySet()) {
 
-
 			try {
 				toRemove.clearEffects();
-			}catch(Exception e){
+			} catch(Exception e){
 				Logger.error( e.getMessage());
 			}
 
@@ -826,11 +800,11 @@ public class NPC extends AbstractCharacter {
 		writer.putInt(5);
 		writer.putInt(0);
 		writer.putInt(runeID);
-		if (cnt == 0) {
+		if (cnt == 0)
 			writer.putInt(GameObjectType.NPCClassRuneTwo.ordinal());
-		} else {
+		 else
 			writer.putInt(GameObjectType.NPCClassRuneThree.ordinal());
-		}
+
 		writer.putInt(npc.currentID);
 		return cnt + 1;
 	}
@@ -838,11 +812,11 @@ public class NPC extends AbstractCharacter {
 
 	@Override
 	public float getSpeed() {
-		if (this.isWalk()) {
+
+		if (this.isWalk())
 			return MBServerStatics.WALKSPEED;
-		} else {
+		 else
 			return MBServerStatics.RUNSPEED;
-		}
 	}
 
 	@Override
@@ -869,9 +843,8 @@ public class NPC extends AbstractCharacter {
 
 		//Orphan inventory so it can be looted
 		//if (!this.inSafeZone)
-		if (this.charItemManager != null) {
+		if (this.charItemManager != null)
 			this.charItemManager.orphanInventory();
-		}
 
 		//TODO Send death message if needed
 		//Question? How would a mob die to water?
@@ -894,9 +867,10 @@ public class NPC extends AbstractCharacter {
 	}
 
 	public int getParentZoneID() {
-		if (this.parentZone != null) {
+
+		if (this.parentZone != null)
 			return this.parentZone.getObjectUUID();
-		}
+
 		return 0;
 	}
 
@@ -929,8 +903,7 @@ public class NPC extends AbstractCharacter {
 		if (!this.parentZone.isPlayerCity())
 			this.sellPercent = 1;
 
-
-		if (this.building != null){
+		if (this.building != null) {
 
 			BuildingModelBase buildingModel = BuildingModelBase.getModelBase(this.building.getMeshUUID());
 
@@ -954,12 +927,8 @@ public class NPC extends AbstractCharacter {
 					this.setRot(new Vector3f(buildingLocation.getRot()));
 				}
 
-				else{
-					//only log if npc has been loaded in building.
-					if (this.building.getHirelings().containsKey(this) && putSlot != -1) {
+				else if (this.building.getHirelings().containsKey(this) && putSlot != -1)
 						Logger.error("could not slot npc : " + currentID + " in slot " + putSlot + " for building Mesh " + this.building.getMeshUUID());
-					}
-				}
 			}
 			
 			Vector3fImmutable buildingWorldLoc = ZoneManager.convertLocalToWorld(this.building, slotLocation);
