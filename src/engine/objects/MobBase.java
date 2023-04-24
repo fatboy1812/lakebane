@@ -44,7 +44,6 @@ public class MobBase extends AbstractGameObject {
 	private float attackRange;
 	private boolean isNecroPet = false;
 	private MobBaseStats mobBaseStats;
-	private HashMap<Integer, Integer> staticPowers;
 
 	private float walk = 0;
 	private float run = 0;
@@ -70,8 +69,6 @@ public class MobBase extends AbstractGameObject {
 		this.goldMod = rs.getInt("goldMod");
 		this.spawnTime = rs.getInt("spawnTime");
 
-		LevelDefault levelDefault = LevelDefault.getLevelDefault(this.level);
-
 		this.healthMax = rs.getInt("health");
 		this.damageMin = rs.getFloat("minDmg");
 		this.damageMax = rs.getFloat("maxDmg");
@@ -92,9 +89,8 @@ public class MobBase extends AbstractGameObject {
 		this.hitBoxRadius = 5f;
 		this.mask = 0;
 
-		if (this.getObjectUUID() == 12021 || this.getObjectUUID() == 12022) {
+		if (this.getObjectUUID() == 12021 || this.getObjectUUID() == 12022)
 			this.isNecroPet = true;
-		}
 
 		if (Enum.MobFlagType.HUMANOID.elementOf(this.flags))
 			this.mask += MBServerStatics.MASK_HUMANOID;
@@ -144,10 +140,6 @@ public class MobBase extends AbstractGameObject {
 		}
 
 		return equip;
-	}
-
-	public void updatePowers() {
-		this.staticPowers = DbManager.MobBaseQueries.LOAD_STATIC_POWERS(this.getObjectUUID());
 	}
 
 	public void updateSpeeds(float walk, float walkCombat,float run, float runCombat){

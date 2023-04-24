@@ -144,14 +144,6 @@ public class dbMobBaseHandler extends dbHandlerBase {
 
 	}
 
-	public boolean ADD_MOBBASE_POWER(int mobBaseUUID, int token, int rank) {
-		prepareCallable("INSERT INTO `static_npc_mobbase_powers` (`mobbaseUUID`, `token`, `rank`) VALUES (?, ?, ?);");
-		setInt(1, mobBaseUUID);
-		setInt(2, token);
-		setInt(3, rank);
-		return (executeUpdate() > 0);
-	}
-
 	public boolean RENAME_MOBBASE(int ID, String newName) {
 		prepareCallable("UPDATE `static_npc_mobbase` SET `name`=? WHERE `ID`=?;");
 		setString(1, newName);

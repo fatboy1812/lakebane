@@ -126,7 +126,6 @@ public enum DevCmdManager {
 		DevCmdManager.registerDevCmd(new ShowOffsetCmd());
 		DevCmdManager.registerDevCmd(new RealmInfoCmd());
 		DevCmdManager.registerDevCmd(new RebootCmd());
-		DevCmdManager.registerDevCmd(new AddMobPowerCmd());
 		DevCmdManager.registerDevCmd(new SetMineTypeCmd());
 		DevCmdManager.registerDevCmd(new SetMineExpansion());
 		DevCmdManager.registerDevCmd(new SetForceRenameCityCmd());
