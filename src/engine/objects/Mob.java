@@ -2151,7 +2151,6 @@ public class Mob extends AbstractIntelligenceAgent {
             }
         }
     }
-
     private void slotMobInBuilding() {
         int maxSlots = 10;
 
