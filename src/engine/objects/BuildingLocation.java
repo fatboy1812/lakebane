@@ -128,7 +128,7 @@ public class BuildingLocation extends AbstractGameObject {
 
 	public static void loadBuildingLocations() {
 
-		ArrayList<BuildingLocation> buildingLocations = DbManager.BuildingLocationQueries.LOAD_ALL_BUILDING_LOCATIONS();
+		ArrayList<BuildingLocation> buildingLocations = DbManager.BuildingLocationQueries.LOAD_BUILDING_LOCATIONS();
 		HashMap<Integer, ArrayList<BuildingLocation>> locationCollection = new HashMap<>();
 
 		// Only slot locations and stuck locations are currently loaded.
