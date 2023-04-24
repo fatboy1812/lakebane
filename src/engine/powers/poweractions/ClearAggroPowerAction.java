@@ -30,7 +30,7 @@ public class ClearAggroPowerAction extends AbstractPowerAction {
 	@Override
 	protected void _startAction(AbstractCharacter source, AbstractWorldObject awo, Vector3fImmutable targetLoc, int trains, ActionsBase ab, PowersBase pb) {
 		if (awo != null && awo.getObjectType() == GameObjectType.Mob){
-			((Mob)awo).setNoAggro(true);
+			((Mob)awo).setCombatTarget(null);
         }
 
 

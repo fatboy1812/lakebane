@@ -36,6 +36,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -93,9 +94,6 @@ public class Mob extends AbstractIntelligenceAgent {
     private int buildingID;
     private boolean isSiege = false;
     private long timeToSpawnSiege;
-    private boolean noAggro = false;
-    private int aggroTargetID = 0;
-    private final boolean walkingHome = true;
     private long lastAttackTime = 0;
     private int lastMobPowerToken = 0;
     private HashMap<Integer, MobEquipment> equip = null;
@@ -569,12 +567,6 @@ public class Mob extends AbstractIntelligenceAgent {
         return mob;
     }
 
-    public static int nextStaticID() {
-        int id = Mob.staticID;
-        Mob.staticID++;
-        return id;
-    }
-
     public static Mob getMob(int id) {
 
         if (id == 0) return null;
@@ -667,13 +659,9 @@ public class Mob extends AbstractIntelligenceAgent {
 
         MobBase minionMobBase;
         Mob mob;
-        int maxSlots = 1;
+        int maxSlots;
 
         switch (guardCaptain.getRank()) {
-            case 1:
-            case 2:
-                maxSlots = 1;
-                break;
             case 3:
                 maxSlots = 2;
                 break;
@@ -687,6 +675,8 @@ public class Mob extends AbstractIntelligenceAgent {
             case 7:
                 maxSlots = 5;
                 break;
+            case 1:
+            case 2:
             default:
                 maxSlots = 1;
 
@@ -711,7 +701,7 @@ public class Mob extends AbstractIntelligenceAgent {
         if (guardCaptain.contract != null) {
             Enum.MinionType minionType = Enum.MinionType.ContractToMinionMap.get(guardCaptain.contract.getContractID());
             if (minionType != null) {
-                String rank = "";
+                String rank;
 
                 if (guardCaptain.getRank() < 3)
                     rank = MBServerStatics.JUNIOR;
@@ -952,12 +942,6 @@ public class Mob extends AbstractIntelligenceAgent {
 
     public float getSpawnRadius() {
         return this.spawnRadius;
-    }
-
-    public int getSpawnTime() {
-
-        if (this.spawnTime == 0) return MBServerStatics.RESPAWN_TIMER;
-        else return this.spawnTime * 1000;
     }
 
     public void setSpawnTime(int value) {
@@ -1644,7 +1628,7 @@ public class Mob extends AbstractIntelligenceAgent {
         }
 
         float min, max;
-        float speed = 20f;
+        float speed;
         boolean strBased = false;
 
         // get skill percentages and min and max damage for weapons
@@ -1810,9 +1794,9 @@ public class Mob extends AbstractIntelligenceAgent {
                 if (npc.getSiegeMinionMap().containsKey(this))
                     putSlot = npc.getSiegeMinionMap().get(this);
             } else if (mob != null) {
-                //if (mob.getSiegeMinionMap().containsKey(this)) putSlot = mob.getSiegeMinionMap().get(this);
-                int hirelings = mob.building.getHirelings().size();
-                putSlot = hirelings;
+                if (mob.building.getHirelings().containsKey(this))
+                 putSlot = mob.building.getHirelings().get(this);
+                //putSlot = mob.building.getHirelings().size();
             }
             int count = 0;
 
@@ -1999,14 +1983,6 @@ public class Mob extends AbstractIntelligenceAgent {
         return this.upgradeDateTime != null;
     }
 
-    public void setNoAggro(boolean noAggro) {
-        this.noAggro = noAggro;
-    }
-
-    public void setAggroTargetID(int aggroTargetID) {
-        this.aggroTargetID = aggroTargetID;
-    }
-
     public long getLastAttackTime() {
         return lastAttackTime;
     }
@@ -2073,9 +2049,6 @@ public class Mob extends AbstractIntelligenceAgent {
         this.lastMobPowerToken = lastMobPowerToken;
     }
 
-    public Regions getLastRegion() {
-        return lastRegion;
-    }
 
     public boolean isLootSync() {
         return lootSync;

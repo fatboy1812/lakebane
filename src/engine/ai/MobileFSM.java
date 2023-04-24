@@ -70,7 +70,6 @@ public class MobileFSM {
             MobCallForHelp(mob);
         }
         if (!MovementUtilities.inRangeDropAggro(mob, target)) {
-            mob.setAggroTargetID(0);
             mob.setCombatTarget(null);
             return;
         }
@@ -421,7 +420,6 @@ public class MobileFSM {
             if (aiAgent.notEnemy.contains(loadedPlayer.getRace().getRaceType()))
                 continue;
             if (MovementUtilities.inRangeToAggro(aiAgent, loadedPlayer)) {
-                aiAgent.setAggroTargetID(playerID);
                 aiAgent.setCombatTarget(loadedPlayer);
                 return;
             }
@@ -523,14 +521,12 @@ public class MobileFSM {
             if(current == null || current.equals(mob.getGuild().getOwnedCity()) == false) {
                 PowersBase recall = PowersManager.getPowerByToken(-1994153779);
                 PowersManager.useMobPower(mob, mob, recall, 40);
-                mob.setAggroTargetID(0);
                 mob.setCombatTarget(null);
             }
         }
         if (mob.getLoc().distanceSquared2D(mob.getBindLoc()) > sqr(2000)) {
             PowersBase recall = PowersManager.getPowerByToken(-1994153779);
             PowersManager.useMobPower(mob, mob, recall, 40);
-            mob.setAggroTargetID(0);
             mob.setCombatTarget(null);
         }
     }
@@ -665,11 +661,9 @@ public class MobileFSM {
             if (GuardCanAggro(mob,loadedPlayer) == false)
                 continue;
             if (MovementUtilities.inRangeToAggro(mob, loadedPlayer)) {
-                mob.setAggroTargetID(playerID);
                 mob.setCombatTarget(loadedPlayer);
                 if(mob.contract != null) {
                     for (Entry<Mob, Integer> minion : mob.siegeMinionMap.entrySet()) {
-                        minion.getKey().setAggroTargetID(playerID);
                         minion.getKey().setCombatTarget(loadedPlayer);
                     }
                 }

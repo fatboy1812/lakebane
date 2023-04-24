@@ -39,7 +39,6 @@ public enum NPCManager {
 
         if (NPCManager._runeSetMap.get(mob.runeSet).contains(252623)) {
             mob.isPlayerGuard = true;
-            mob.setNoAggro(true);
         }
 
         // Only captains have contracts
