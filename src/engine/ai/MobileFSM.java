@@ -299,7 +299,7 @@ public class MobileFSM {
             //wait 60 seconds to call for help again
             mob.nextCallForHelp = System.currentTimeMillis() + 60000;
     }
-    public static void run(Mob mob) {
+    public static void DetermineAction(Mob mob) {
         if (mob == null)
             return;
         if (mob.despawned && mob.getMobBase().getLoadID() == 13171) {

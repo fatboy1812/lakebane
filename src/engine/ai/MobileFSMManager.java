@@ -89,7 +89,7 @@ public class MobileFSMManager {
 
 						try {
 							if (mob != null)
-								MobileFSM.run(mob);
+								MobileFSM.DetermineAction(mob);
 						} catch (Exception e) {
 							Logger.error(e);
 							e.printStackTrace();
