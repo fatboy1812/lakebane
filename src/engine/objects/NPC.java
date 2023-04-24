@@ -359,15 +359,8 @@ public class NPC extends AbstractCharacter {
 		// For some reason the npc is created and initialized twice when
 		// createMobWithNoID() is called.
 
-		if (this.building != null) {
-
-			// Artillery Tower Captains use a hardcoded slot not first available
-
-			if (this.contract != null && this.contract.getContractID() == 842)
-				this.building.getHirelings().put(this, 2);
-			else
+		if (this.building != null)
 				slotNPCinBuilding(); // picks first available free slot
-		}
 
 		//TODO set these correctly later
 		this.rangeHandOne = 8;
@@ -937,7 +930,6 @@ public class NPC extends AbstractCharacter {
 
 			this.region = BuildingManager.GetRegion(this.building, buildingWorldLoc.x, buildingWorldLoc.y, buildingWorldLoc.z);
 
-
 			if (this.region != null){
 				
 				this.buildingFloor = region.getRoom();
@@ -956,8 +948,8 @@ public class NPC extends AbstractCharacter {
 			this.setBindLoc(new Vector3fImmutable(this.statLat + zone.absX, this.statAlt + zone.absY, this.statLon + zone.absZ));
 			if (ConfigManager.serverType.equals(ServerType.WORLDSERVER))
 				this.setLoc(new Vector3fImmutable(this.statLat + zone.absX, this.statAlt + zone.absY, this.statLon + zone.absZ));
-
 		}
+
 		//create npc profits 
 		if (this.parentZone != null){
 			if (this.parentZone.isPlayerCity())
@@ -966,8 +958,6 @@ public class NPC extends AbstractCharacter {
 		}
 
 	}
-
-
 
 	@Override
 	public  Vector3fImmutable getLoc() {
