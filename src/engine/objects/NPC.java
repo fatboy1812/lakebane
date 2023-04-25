@@ -192,9 +192,7 @@ public class NPC extends AbstractCharacter {
 			else
 				this.loadID = 2011; //default to human
 
-			int mobBaseOverride = rs.getInt("npc_raceID");
-
-			this.loadID = mobBaseOverride;
+			this.loadID = rs.getInt("npc_raceID");
 
 			this.mobBase = MobBase.getMobBase(this.loadID);
 			this.level = rs.getByte("npc_level");
