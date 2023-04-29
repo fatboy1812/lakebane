@@ -500,6 +500,11 @@ public class Mob extends AbstractIntelligenceAgent {
 
         mobWithoutID.level = (short) level;
 
+        // NPC in a Building derives position from slot
+
+        if (mobWithoutID.building != null)
+            mobWithoutID.bindLoc = Vector3fImmutable.ZERO;
+
         Mob mob;
 
         try {
@@ -1592,8 +1597,8 @@ public class Mob extends AbstractIntelligenceAgent {
             max = this.mobBase.getMaxDmg();
         } else {
 
-            if (mainHand) this.rangeHandOne = weapon.getItemBase().getRange() * (1 + (baseStrength / 600));
-            else this.rangeHandTwo = weapon.getItemBase().getRange() * (1 + (baseStrength / 600));
+            if (mainHand) this.rangeHandOne = weapon.getItemBase().getRange() * (1 + (baseStrength / 600.0f));
+            else this.rangeHandTwo = weapon.getItemBase().getRange() * (1 + (baseStrength / 600.0f));
 
             skillPercentage = getModifiedAmount(this.skills.get(wb.getSkillRequired()));
             masteryPercentage = getModifiedAmount(this.skills.get(wb.getMastery()));
@@ -1609,8 +1614,8 @@ public class Mob extends AbstractIntelligenceAgent {
         // calculate atr
         float atr = this.mobBase.getAttackRating();
 
-        if (this.statStrCurrent > this.statDexCurrent) atr += statStrCurrent / 2;
-        else atr += statDexCurrent / 2;
+        if (this.statStrCurrent > this.statDexCurrent) atr += statStrCurrent * .5;
+        else atr += statDexCurrent * .5;
 
         // add in any bonuses to atr
 
@@ -1755,7 +1760,7 @@ public class Mob extends AbstractIntelligenceAgent {
         }
         mobPowers = new HashMap<>();
 
-        if (PowersManager.AllMobPowers.containsKey(this.getMobBaseID()) == true)
+        if (PowersManager.AllMobPowers.containsKey(this.getMobBaseID()))
             mobPowers = PowersManager.AllMobPowers.get(this.getMobBaseID());
 
         if (this.equip == null) {
@@ -1848,7 +1853,8 @@ public class Mob extends AbstractIntelligenceAgent {
 
     public void handleDirectAggro(AbstractCharacter ac) {
 
-        if (ac.getObjectType().equals(GameObjectType.PlayerCharacter) == false) return;
+        if (!ac.getObjectType().equals(GameObjectType.PlayerCharacter))
+            return;
 
         PlayerCharacter player = (PlayerCharacter) ac;
 
@@ -1857,7 +1863,8 @@ public class Mob extends AbstractIntelligenceAgent {
             return;
         }
 
-        if (player.getObjectUUID() == this.getCombatTarget().getObjectUUID()) return;
+        if (player.getObjectUUID() == this.getCombatTarget().getObjectUUID())
+            return;
 
         if (this.getCombatTarget().getObjectType() == GameObjectType.PlayerCharacter)
             if (ac.getHateValue() > ((PlayerCharacter) this.getCombatTarget()).getHateValue())
