@@ -359,6 +359,9 @@ public class NPC extends AbstractCharacter {
 		this.bindLoc = this.parentZone.getLoc().add(this.bindLoc);
 		this.loc = new Vector3fImmutable(bindLoc);
 
+		if (this.parentZoneID == 41365)
+			this.loc = new Vector3fImmutable(bindLoc);
+
 		// Handle NPCs within buildings
 
 		if (this.building != null) {
