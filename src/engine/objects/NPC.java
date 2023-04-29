@@ -336,7 +336,8 @@ public class NPC extends AbstractCharacter {
 	private void initializeNPC() {
 
 		int slot;
-		Vector3fImmutable slotLocation = Vector3fImmutable.ZERO;
+		Vector3fImmutable slotLocation;
+
 		if (ConfigManager.serverType.equals(ServerType.LOGINSERVER))
 			return;
 
@@ -357,9 +358,6 @@ public class NPC extends AbstractCharacter {
 		this.bindLoc = new Vector3fImmutable(this.statLat, this.statAlt, this.statLon);
 		this.bindLoc = this.parentZone.getLoc().add(this.bindLoc);
 		this.loc = new Vector3fImmutable(bindLoc);
-
-		if (this.parentZoneID == 41365)
-			this.loc = new Vector3fImmutable(bindLoc);
 
 		// Handle NPCs within buildings
 
