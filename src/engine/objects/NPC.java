@@ -358,6 +358,7 @@ public class NPC extends AbstractCharacter {
 		this.parentZone.zoneNPCSet.add(this);
 
 		// Setup location for this NPC
+
 		this.bindLoc = new Vector3fImmutable(this.statLat, this.statAlt, this.statLon);
 		this.bindLoc = this.parentZone.getLoc().add(this.bindLoc);
 		this.loc = new Vector3fImmutable(bindLoc);
@@ -366,6 +367,9 @@ public class NPC extends AbstractCharacter {
 
 		if (this.building != null) {
 
+			// Get next available slot for this NPC and use it
+			// to add the NPC to the building's hireling list
+
 			slot = BuildingManager.getAvailableSlot(building);
 
 			if (slot == -1)
@@ -373,11 +377,16 @@ public class NPC extends AbstractCharacter {
 
 			building.getHirelings().put(this, slot);
 
+			// Override bind and location for  this npc derived
+			// from BuildingManager slot location data.
+
 			slotLocation = BuildingManager.getSlotLocation(building, slot);
 
 			this.bindLoc = building.getLoc().add(slotLocation);
 			this.loc = building.getLoc().add(slotLocation);
-			;
+
+			// Configure region and floor/level for this NPC
+
 			this.region = BuildingManager.GetRegion(this.building, slotLocation.x, slotLocation.y, slotLocation.z);
 
 			if (this.region != null) {
