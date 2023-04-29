@@ -217,19 +217,6 @@ public class NPC extends AbstractCharacter {
 			this.statAlt = rs.getFloat("npc_spawnY");
 			this.statLon = rs.getFloat("npc_spawnZ");
 
-			if (this.contract != null) {
-				this.symbol = this.contract.getIconID();
-				this.modTypeTable = this.contract.getNPCModTypeTable();
-				this.modSuffixTable = this.contract.getNpcModSuffixTable();
-				this.itemModTable = this.contract.getItemModTable();
-				int VID = this.contract.getVendorID();
-
-				if (VID != 0)
-					this.vendorID = VID;
-				else
-					this.vendorID = 1; //no vendor items
-			}
-
 			int guildID = rs.getInt("npc_guildID");
 
 				if (this.building != null)
@@ -384,6 +371,19 @@ public class NPC extends AbstractCharacter {
 			// Configure region and floor/level for this NPC
 
 			this.region = BuildingManager.GetRegion(this.building, bindLoc.x, bindLoc.y, bindLoc.z);
+		}
+
+		if (this.contract != null) {
+			this.symbol = this.contract.getIconID();
+			this.modTypeTable = this.contract.getNPCModTypeTable();
+			this.modSuffixTable = this.contract.getNpcModSuffixTable();
+			this.itemModTable = this.contract.getItemModTable();
+			int VID = this.contract.getVendorID();
+
+			if (VID != 0)
+				this.vendorID = VID;
+			else
+				this.vendorID = 1; //no vendor items
 		}
 
 		if (this.mobBase != null) {
