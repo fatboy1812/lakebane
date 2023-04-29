@@ -387,7 +387,7 @@ public class NPC extends AbstractCharacter {
 
 			// Configure region and floor/level for this NPC
 
-			this.region = BuildingManager.GetRegion(this.building, slotLocation.x, slotLocation.y, slotLocation.z);
+			this.region = BuildingManager.GetRegion(this.building, bindLoc.x, bindLoc.y, bindLoc.z);
 
 			if (this.region != null) {
 				this.buildingFloor = region.getRoom();

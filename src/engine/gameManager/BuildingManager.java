@@ -513,7 +513,7 @@ public enum BuildingManager {
         }
         if (NPC.ISGuardCaptain(contract.getContractID())) {
 
-            mob = Mob.createMob( contract.getMobbaseID(), NpcLoc, contractOwner.getGuild(), true, zone, building, contract.getContractID(), pirateName, rank);
+            mob = Mob.createMob(contract.getMobbaseID(), NpcLoc, contractOwner.getGuild(), true, zone, building, contract.getContractID(), pirateName, rank);
 
             if (mob == null)
                 return false;
@@ -523,6 +523,12 @@ public enum BuildingManager {
             mob.setParentZone(zone);
             return true;
         }
+
+        // NPC in a Building derives position from slot
+
+        if (building != null)
+            NpcLoc = Vector3fImmutable.ZERO;
+
         npc = NPC.createNPC(pirateName, contract.getObjectUUID(), NpcLoc, contractOwner.getGuild(), false, zone, (short) rank, false, building);
 
         if (npc == null)
