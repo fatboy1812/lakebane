@@ -825,17 +825,19 @@ public class Mob extends AbstractIntelligenceAgent {
 
         if (this.building != null) {
 
-            // Mobiles inside buildings are offset from it not the zone
+            if (this.contract == null) {
 
-            this.bindLoc = new Vector3fImmutable(this.statLat, this.statAlt, this.statLon);
-            this.bindLoc = this.building.getLoc().add(this.bindLoc);
-            this.loc = new Vector3fImmutable(bindLoc);
-            this.endLoc = new Vector3fImmutable(bindLoc);
+                // Mobiles inside buildings are offset from it not the zone
 
-            if (this.contract != null) {
+                this.bindLoc = new Vector3fImmutable(this.statLat, this.statAlt, this.statLon);
+                this.bindLoc = this.building.getLoc().add(this.bindLoc);
+                this.loc = new Vector3fImmutable(bindLoc);
+                this.endLoc = new Vector3fImmutable(bindLoc);
+
+            } else {
 
                 // Get next available slot for this Mobile and then
-                //  add it to the building's hireling list
+                // add it to the building's hireling list
 
                 slot = BuildingManager.getAvailableSlot(building);
 
@@ -844,8 +846,8 @@ public class Mob extends AbstractIntelligenceAgent {
 
                 building.getHirelings().put(this, slot);
 
-                // Override bind and location for this Mobile derived
-                // from BuildingManager slot location data.
+                // Override bind and location for this contracted Mobile
+                // derived from BuildingManager slot location data.
 
                 slotLocation = BuildingManager.getSlotLocation(building, slot);
 
