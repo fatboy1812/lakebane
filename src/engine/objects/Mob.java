@@ -36,7 +36,6 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -101,8 +100,6 @@ public class Mob extends AbstractIntelligenceAgent {
     private DeferredPowerJob weaponPower;
     private DateTime upgradeDateTime = null;
     private boolean lootSync = false;
-
-    public int slot = -1;
 
     /**
      * No Id Constructor
@@ -277,8 +274,6 @@ public class Mob extends AbstractIntelligenceAgent {
 
             if (rs.getString("fsm").length() > 1)
                 this.BehaviourType = MobBehaviourType.valueOf(rs.getString("fsm"));
-
-            this.slot = rs.getInt("slot");
 
         } catch (Exception e) {
             Logger.error(e + " " + this.dbID );

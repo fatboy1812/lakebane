@@ -94,7 +94,6 @@ public class NPC extends AbstractCharacter {
 	private String nameOverride = "";
 	private int equipmentSetID = 0;
 	public int runeSetID = 0;
-	public int slot = -1;
 	private Regions region = null;
 
 	public Vector3fImmutable inBuildingLoc = Vector3fImmutable.ZERO;
@@ -223,8 +222,6 @@ public class NPC extends AbstractCharacter {
 			this.statLat = rs.getFloat("npc_spawnX");
 			this.statAlt = rs.getFloat("npc_spawnY");
 			this.statLon = rs.getFloat("npc_spawnZ");
-
-			this.slot = rs.getInt("npc_slot");
 
 			if (this.contract != null) {
 				this.symbol = this.contract.getIconID();
@@ -909,10 +906,7 @@ public class NPC extends AbstractCharacter {
 				BuildingLocation buildingLocation = null;
 
 				//-1 slot means no slot available in building.
-				if (this.slot != -1)
-					putSlot = this.slot;
-				else
-					putSlot = NPC.getBuildingSlot(this);
+				putSlot = NPC.getBuildingSlot(this);
 				
 				buildingLocation = buildingModel.getSlotLocation(putSlot);
 
@@ -1556,7 +1550,6 @@ public class NPC extends AbstractCharacter {
 		if (!DbManager.NPCQueries.UPDATE_SLOT(npc, slot))
 			return false;
 
-		npc.slot = slot;
 		return true;
 	}
 

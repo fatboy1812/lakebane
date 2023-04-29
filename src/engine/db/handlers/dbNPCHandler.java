@@ -27,7 +27,7 @@ public class dbNPCHandler extends dbHandlerBase {
 	}
 
 	public NPC ADD_NPC(NPC toAdd, boolean isMob) {
-		prepareCallable("CALL `npc_CREATE`(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
+		prepareCallable("CALL `npc_CREATE`(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
 		setLong(1, toAdd.getParentZoneID());
 		setString(2, toAdd.getName());
 		setInt(3, toAdd.getContractID());
@@ -43,7 +43,6 @@ public class dbNPCHandler extends dbHandlerBase {
 		} else {
 			setInt(11, 0);
 		}
-		setInt(12, toAdd.slot);
 
 		int objectUUID = (int) getUUID();
 		if (objectUUID > 0) {

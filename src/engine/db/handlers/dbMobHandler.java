@@ -28,8 +28,8 @@ public class dbMobHandler extends dbHandlerBase {
 
 	public Mob ADD_MOB(Mob toAdd)
 			 {
-		prepareCallable("CALL `mob_CREATE`(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
-		setLong(1, toAdd.getParentZoneID());
+		prepareCallable("CALL `mob_CREATE`(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
+				 setLong(1, toAdd.getParentZoneID());
 		setInt(2, toAdd.getMobBaseID());
 		setInt(3, toAdd.getGuildUUID());
 		setFloat(4, toAdd.getSpawnX());
@@ -45,7 +45,6 @@ public class dbMobHandler extends dbHandlerBase {
 		setInt(11, toAdd.getBuildingID());
 		setInt(12, toAdd.getLevel());
 		setString(13, toAdd.getFirstName());
-		setInt(14, toAdd.slot);
 		int objectUUID = (int) getUUID();
 		if (objectUUID > 0)
 			return GET_MOB(objectUUID);
@@ -141,17 +140,6 @@ public class dbMobHandler extends dbHandlerBase {
 		return getLargeObjectList();
 	}
 
-	public ArrayList<Mob> GET_ALL_MOBS_FOR_BUILDING(int buildingID) {
-		prepareCallable("SELECT * FROM `obj_mob` WHERE `mob_buildingID` = ?");
-		setInt(1, buildingID);
-		return getObjectList();
-	}
-
-	public ArrayList<Mob> GET_ALL_MOBS() {
-		prepareCallable("SELECT `obj_mob`.*, `object`.`parent` FROM `object` INNER JOIN `obj_mob` ON `obj_mob`.`UID` = `object`.`UID`;");
-		return getObjectList();
-	}
-
 	public Mob GET_MOB(final int objectUUID) {
 		prepareCallable("SELECT `obj_mob`.*, `object`.`parent` FROM `object` INNER JOIN `obj_mob` ON `obj_mob`.`UID` = `object`.`UID` WHERE `object`.`UID` = ?;");
 		setLong(1, objectUUID);
@@ -166,13 +154,6 @@ public class dbMobHandler extends dbHandlerBase {
 		setFloat(4, locZ);
 		setLong(5, mobID);
 		return executeUpdate();
-	}
-
-	public boolean UPDATE_MOB_BUILDING(int buildingID, int mobID) {
-		prepareCallable("UPDATE `object` INNER JOIN `obj_mob` On `object`.`UID` = `obj_mob`.`UID` SET  `obj_mob`.`mob_buildingID`=? WHERE `obj_mob`.`UID`=?;");
-		setInt(1, buildingID);
-		setInt(2, mobID);
-		return (executeUpdate() > 0);
 	}
 
 	public String SET_PROPERTY(final Mob m, String name, Object new_value) {
