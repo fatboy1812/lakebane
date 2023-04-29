@@ -74,7 +74,7 @@ public class LoadCharacterMsg extends ClientNetMsg {
 			NPC npc = (NPC) absChar;
 
 
-			if (npc.getRegion() != null) {
+			if (npc.building != null) {
 				writer.putInt(npc.getRegion().getLevel());
 				writer.putInt(npc.getRegion().getRoom());
 			} else {
