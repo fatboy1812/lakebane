@@ -672,10 +672,10 @@ public class NPC extends AbstractCharacter {
 		writer.putFloat(1.0f);
 		writer.putFloat(1.0f);
 
-		writer.putFloat(npc.getLoc().getX());
-		writer.putFloat(npc.getLoc().getY());
-		writer.putFloat(npc.getLoc().getZ());
-
+		if (npc.region != null)
+			writer.putVector3f(ZoneManager.convertWorldToLocal(npc.building, npc.getLoc()));
+		else
+			writer.putVector3f(npc.getLoc());
 
 		//Rotation
 		float radians = (float) Math.asin(npc.getRot().y) * 2;
