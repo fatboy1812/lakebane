@@ -360,7 +360,7 @@ public class NPC extends AbstractCharacter {
 		// Setup location for this NPC
 		this.bindLoc = new Vector3fImmutable(this.statLat, this.statAlt, this.statLon);
 		this.bindLoc = this.parentZone.getLoc().add(this.bindLoc);
-		this.loc = bindLoc;
+		this.loc = new Vector3fImmutable(bindLoc);
 
 		// Handle NPCs within buildings
 
