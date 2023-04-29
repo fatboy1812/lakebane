@@ -804,7 +804,8 @@ public class Mob extends AbstractIntelligenceAgent {
         int slot;
         Vector3fImmutable slotLocation;
 
-        if (ConfigManager.serverType.equals(ServerType.LOGINSERVER)) return;
+        if (ConfigManager.serverType.equals(ServerType.LOGINSERVER))
+            return;
 
         // Configure parent zone adding this NPC to the
         // zone collection
@@ -822,27 +823,39 @@ public class Mob extends AbstractIntelligenceAgent {
 
         // Handle Mobiles within buildings
 
-        if (this.building != null && this.contract != null) {
+        if (this.building != null) {
 
-            // Get next available slot for this Mobile and then
-            //  add it to the building's hireling list
+            // Mobiles inside buildings are offset from it not the zone
 
-            slot = BuildingManager.getAvailableSlot(building);
+            this.bindLoc = new Vector3fImmutable(this.statLat, this.statAlt, this.statLon);
+            this.bindLoc = this.building.getLoc().add(this.bindLoc);
+            this.loc = new Vector3fImmutable(bindLoc);
+            this.endLoc = new Vector3fImmutable(bindLoc);
 
-            if (slot == -1) Logger.error("No available slot for Mobile: " + this.getObjectUUID());
+            if (this.contract != null) {
 
-            building.getHirelings().put(this, slot);
+                // Get next available slot for this Mobile and then
+                //  add it to the building's hireling list
 
-            // Override bind and location for  this npc derived
-            // from BuildingManager slot location data.
+                slot = BuildingManager.getAvailableSlot(building);
 
-            slotLocation = BuildingManager.getSlotLocation(building, slot);
+                if (slot == -1)
+                    Logger.error("No available slot for Mobile: " + this.getObjectUUID());
 
-            this.bindLoc = building.getLoc().add(slotLocation);
-            this.loc = building.getLoc().add(slotLocation);
-            this.endLoc = bindLoc;
+                building.getHirelings().put(this, slot);
 
-            // Configure region and floor/level for this Mobile
+                // Override bind and location for this Mobile derived
+                // from BuildingManager slot location data.
+
+                slotLocation = BuildingManager.getSlotLocation(building, slot);
+
+                this.bindLoc = building.getLoc().add(slotLocation);
+                this.loc = building.getLoc().add(slotLocation);
+                this.endLoc = bindLoc;
+
+            }
+
+            // Configure building region and floor/level for this Mobile
 
             this.region = BuildingManager.GetRegion(this.building, bindLoc.x, bindLoc.y, bindLoc.z);
         }
@@ -856,15 +869,16 @@ public class Mob extends AbstractIntelligenceAgent {
             this.mana.set(this.manaMax);
             this.stamina.set(this.staminaMax);
 
-            if (!this.nameOverride.isEmpty()) this.firstName = this.nameOverride;
-            else this.firstName = this.mobBase.getFirstName();
+            if (!this.nameOverride.isEmpty())
+                this.firstName = this.nameOverride;
+            else
+                this.firstName = this.mobBase.getFirstName();
 
-            if (isPet) {
+            if (isPet)
                 this.setObjectTypeMask(MBServerStatics.MASK_PET | this.getTypeMasks());
-                if (ConfigManager.serverType.equals(ServerType.LOGINSERVER)) this.setLoc(this.getLoc());
-            }
 
-            if (this.contract == null) this.level = (short) this.mobBase.getLevel();
+            if (this.contract == null)
+                this.level = (short) this.mobBase.getLevel();
         }
 
         //set bonuses
