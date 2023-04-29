@@ -47,6 +47,21 @@ public enum BuildingManager {
         return -1;
     }
 
+    public static Vector3fImmutable getSlotLocation(Building building, int slot) {
+
+        if (slot == -1)
+            return Vector3fImmutable.ZERO;
+
+        BuildingLocation buildingLocation;
+        buildingLocation = _slotLocations.get(building.meshUUID).get(slot);
+
+        if (buildingLocation == null) {
+            Logger.error("Invalid slot for building: " + building.getObjectUUID());
+        }
+
+        return buildingLocation.getLoc();
+    }
+
     public static boolean playerCanManage(PlayerCharacter player, Building building) {
 
         if (player == null)
