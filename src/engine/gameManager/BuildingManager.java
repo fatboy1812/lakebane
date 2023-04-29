@@ -27,7 +27,6 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
 public enum BuildingManager {
@@ -41,9 +40,9 @@ public enum BuildingManager {
 
         int numOfSlots = _slotLocations.get(building.meshUUID).size();
 
-        for (int i = 1; i < numOfSlots; i++) {
+        for (int i = 1; i <= numOfSlots; i++) {
             if (!building.getHirelings().containsValue(i))
-            return i;
+                return i;
         }
         return -1;
     }
