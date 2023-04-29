@@ -565,7 +565,6 @@ public class WorldServer {
 					try {
 						n.setObjectTypeMask(MBServerStatics.MASK_NPC);
 						n.setLoc(n.getLoc());
-						n.setParentZone(zone);
 					} catch (Exception e) {
 						Logger.error( n.getObjectUUID() + " returned an Error Message :" + e.getMessage());
 					}

@@ -265,8 +265,6 @@ public class NPC extends AbstractCharacter {
 			this.buildingFloor = (rs.getInt("npc_buildingFloor"));
 			this.buildingLevel = (rs.getInt("npc_buildingLevel"));
 
-			this.setParentZone(ZoneManager.getZoneByUUID(this.parentZoneID));
-
 			if (this.contract != null)
 				this.nameOverride = rs.getString("npc_name") + " the " + this.getContract().getName();
 			else
@@ -342,6 +340,48 @@ public class NPC extends AbstractCharacter {
 
 	private void initializeNPC() {
 
+		int slot;
+		Vector3fImmutable slotLocation = Vector3fImmutable.ZERO;
+		if (ConfigManager.serverType.equals(ServerType.LOGINSERVER))
+			return;
+
+		// NPC Guild owners have no contract
+
+		if (this.contract == null)
+			return;
+
+		// Configure parent zone adding this NPC to the
+		// zone collection
+
+		this.parentZone = ZoneManager.getZoneByUUID(this.parentZoneID);
+		this.parentZone.zoneNPCSet.remove(this);
+		this.parentZone.zoneNPCSet.add(this);
+
+		// Add this npc to the hireling list.
+		// if slotted within a building
+
+		if (this.building != null) {
+
+			slot = BuildingManager.getAvailableSlot(building);
+
+			if (slot == -1)
+				Logger.error("No available slot for NPC: " + this.getObjectUUID());
+
+			building.getHirelings().put(this, slot);
+
+			this.bindLoc = BuildingManager.getSlotLocation(building, slot);
+			this.loc = BuildingManager.getSlotLocation(building, slot);
+			this.region = BuildingManager.GetRegion(this.building, bindLoc.x, bindLoc.y, bindLoc.z);
+
+			if (this.region != null) {
+				this.buildingFloor = region.getRoom();
+				this.buildingLevel = region.getLevel();
+			} else {
+				this.buildingFloor = -1;
+				this.buildingLevel = -1;
+			}
+		}
+
 		if (this.mobBase != null) {
 			this.healthMax = this.mobBase.getHealthMax();
 			this.manaMax = 0;
@@ -351,12 +391,9 @@ public class NPC extends AbstractCharacter {
 			this.stamina.set(this.staminaMax);
 		}
 
-		// Add this npc to building hireling list if not there yet.
-		// For some reason the npc is created and initialized twice when
-		// createMobWithNoID() is called.
-
-		if (this.building != null)
-				slotNPCinBuilding(); // picks first available free slot
+		if (this.parentZone.isPlayerCity())
+			if (NPC.GetNPCProfits(this) == null)
+				NPCProfits.CreateProfits(this);
 
 		//TODO set these correctly later
 		this.rangeHandOne = 8;
@@ -372,15 +409,6 @@ public class NPC extends AbstractCharacter {
 		this.charItemManager.load();
 	}
 
-	private void slotNPCinBuilding() {
-		int maxSlots = 10;
-
-		for (int slot = 1; slot < maxSlots + 1; slot++)
-			if (!this.building.getHirelings().containsValue(slot)) {
-				this.building.getHirelings().put(this, slot);
-				break;
-		}
-	}
 
 	public static NPC getFromCache(int id) {
 		return (NPC) DbManager.getFromCache(GameObjectType.NPC, id);
@@ -389,9 +417,6 @@ public class NPC extends AbstractCharacter {
 	/*
 	 * Getters
 	 */
-	public int getLoadID() {
-		return loadID;
-	}
 
 	public boolean isMob() {
 		return this.isMob;
@@ -860,91 +885,6 @@ public class NPC extends AbstractCharacter {
 		return 0;
 	}
 
-	public void setParentZone(Zone zone) {
-		
-		if (ConfigManager.serverType.equals(ServerType.LOGINSERVER)) 
-			return;
-		
-		if (this.contract == null)
-			return;
-		
-		//update ZoneManager's zone mpc set
-		
-		if (zone != null) {
-			if (this.parentZone != null) {
-				if (zone.getObjectUUID() != this.parentZone.getObjectUUID()) {
-					this.parentZone.zoneNPCSet.remove(this);
-					zone.zoneNPCSet.add(this);
-				}
-			} else {
-				zone.zoneNPCSet.add(this);
-			}
-		} else if (this.parentZone != null) {
-			this.parentZone.zoneNPCSet.remove(this);
-		}
-
-		if (this.parentZone == null)
-			this.parentZone = zone;
-
-		if (!this.parentZone.isPlayerCity())
-			this.sellPercent = 1;
-
-		if (this.building != null) {
-
-			BuildingModelBase buildingModel = BuildingModelBase.getModelBase(this.building.getMeshUUID());
-
-			Vector3fImmutable slotLocation = Vector3fImmutable.ZERO;
-
-			if (buildingModel != null){
-				
-				int putSlot;
-				BuildingLocation buildingLocation = null;
-
-				//-1 slot means no slot available in building.
-				putSlot = NPC.getBuildingSlot(this);
-				
-				buildingLocation = buildingModel.getSlotLocation(putSlot);
-
-				if (buildingLocation != null){
-					slotLocation = buildingLocation.getLoc();
-					this.setRot(new Vector3f(buildingLocation.getRot()));
-				}
-
-				else if (this.building.getHirelings().containsKey(this) && putSlot != -1)
-						Logger.error("could not slot npc : " + currentID + " in slot " + putSlot + " for building Mesh " + this.building.getMeshUUID());
-			}
-			
-			Vector3fImmutable buildingWorldLoc = ZoneManager.convertLocalToWorld(this.building, slotLocation);
-
-			//Set floor and level here after building World Location.
-
-			this.region = BuildingManager.GetRegion(this.building, buildingWorldLoc.x, buildingWorldLoc.y, buildingWorldLoc.z);
-
-			if (this.region != null){
-				this.buildingFloor = region.getRoom();
-				this.buildingLevel = region.getLevel();
-			}else{
-				this.buildingFloor = -1;
-				this.buildingLevel = -1;
-			}
-			this.setBindLoc(new Vector3fImmutable(buildingWorldLoc.x, buildingWorldLoc.y, buildingWorldLoc.z));
-			if (ConfigManager.serverType.equals(ServerType.WORLDSERVER))
-				this.setLoc(new Vector3fImmutable(buildingWorldLoc.x, buildingWorldLoc.y, buildingWorldLoc.z));
-
-		}else{
-			this.setBindLoc(new Vector3fImmutable(this.statLat + zone.absX, this.statAlt + zone.absY, this.statLon + zone.absZ));
-			if (ConfigManager.serverType.equals(ServerType.WORLDSERVER))
-				this.setLoc(new Vector3fImmutable(this.statLat + zone.absX, this.statAlt + zone.absY, this.statLon + zone.absZ));
-		}
-
-		//create npc profits 
-		if (this.parentZone != null){
-			if (this.parentZone.isPlayerCity())
-				if (NPC.GetNPCProfits(this) == null)
-					NPCProfits.CreateProfits(this);
-		}
-
-	}
 
 	@Override
 	public  Vector3fImmutable getLoc() {

@@ -135,7 +135,6 @@ public enum DevCmdManager {
 		DevCmdManager.registerDevCmd(new MBDropCmd());
 		DevCmdManager.registerDevCmd(new AuditHeightMapCmd());
 		DevCmdManager.registerDevCmd(new UnloadFurnitureCmd());
-		DevCmdManager.registerDevCmd(new SetNPCSlotCmd());
 		DevCmdManager.registerDevCmd(new SetNpcEquipSetCmd());
 		DevCmdManager.registerDevCmd(new SetBuildingAltitudeCmd());
 		DevCmdManager.registerDevCmd(new ResetLevelCmd());

@@ -472,9 +472,7 @@ public enum BuildingManager {
         if (npc == null)
             return false;
 
-
         npc.setBuilding(building);
-        npc.setParentZone(zone);
         WorldGrid.addObject(npc, contractOwner);
 
         return true;
@@ -529,16 +527,6 @@ public enum BuildingManager {
 
         if (npc == null)
             return false;
-
-        npc.setBindLoc(NpcLoc.x - zone.getAbsX(), NpcLoc.y - zone.getAbsY(), NpcLoc.z - zone.getAbsZ());
-
-        npc.setBuilding(building);
-        npc.setParentZone(zone);
-
-        if (NPC.GetNPCProfits(npc) == null)
-            NPCProfits.CreateProfits(npc);
-
-        WorldGrid.addObject(npc, contractOwner);
 
         return true;
     }
