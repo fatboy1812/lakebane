@@ -975,9 +975,7 @@ public class NPC extends AbstractCharacter {
 		return !this.isAlive();
 	}
 
-	// *** Refactor : this has a useInit flag that can be removed
-
-	public static NPC createNPC(String name, int contractID, Vector3fImmutable spawn, Guild guild, boolean isMob, Zone parent, short level, boolean useInit, Building building) {
+	public static NPC createNPC(String name, int contractID, Vector3fImmutable spawn, Guild guild, boolean isMob, Zone parent, short level, Building building) {
 
 		NPC npcWithoutID = new NPC(name, (short) 0, (short) 0, (short) 0, (short) 0,
 				(short) 0, (short) 1, 0, false, false, false, spawn, spawn, Vector3fImmutable.ZERO,

@@ -83,7 +83,7 @@ public class AddNPCCmd extends AbstractDevCmd {
 			}
 
 		NPC npc = NPC.createNPC(name, contractID,
-				pc.getLoc(), null, true, zone, (short)level, true, null);
+				pc.getLoc(), null, true, zone, (short) level, null);
 
 		if (npc != null) {
 			WorldGrid.addObject(npc, pc);
