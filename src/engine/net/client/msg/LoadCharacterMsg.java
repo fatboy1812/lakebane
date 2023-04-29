@@ -71,14 +71,13 @@ public class LoadCharacterMsg extends ClientNetMsg {
 	protected void _serialize(ByteBufferWriter writer) throws SerializationException {
 
 		if (absChar != null && absChar.getObjectType() == GameObjectType.NPC) {
-			NPC npc = (NPC)absChar;
+			NPC npc = (NPC) absChar;
 
 
-
-			if (npc.getBuilding() != null){
-				writer.putInt(npc.getBuildingLevel());
-				writer.putInt(npc.getBuildingFloor());
-			}else{
+			if (npc.getRegion() != null) {
+				writer.putInt(npc.getRegion().getLevel());
+				writer.putInt(npc.getRegion().getRoom());
+			} else {
 				writer.putInt(-1);
 				writer.putInt(-1);
 			}

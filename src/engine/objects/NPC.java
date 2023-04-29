@@ -85,8 +85,7 @@ public class NPC extends AbstractCharacter {
 	private int parentZoneID;
 
 	public ArrayList<ProducedItem> forgedItems = new ArrayList<>();
-	private int buildingLevel;
-	private int buildingFloor;
+
 	public HashMap<Integer, MobEquipment> equip = null;
 	private String nameOverride = "";
 	private int equipmentSetID = 0;
@@ -262,9 +261,6 @@ public class NPC extends AbstractCharacter {
 			if (this.upgradeDateTime != null)
 				submitUpgradeJob();
 
-			this.buildingFloor = (rs.getInt("npc_buildingFloor"));
-			this.buildingLevel = (rs.getInt("npc_buildingLevel"));
-
 			if (this.contract != null)
 				this.nameOverride = rs.getString("npc_name") + " the " + this.getContract().getName();
 			else
@@ -388,14 +384,6 @@ public class NPC extends AbstractCharacter {
 			// Configure region and floor/level for this NPC
 
 			this.region = BuildingManager.GetRegion(this.building, bindLoc.x, bindLoc.y, bindLoc.z);
-
-			if (this.region != null) {
-				this.buildingFloor = region.getRoom();
-				this.buildingLevel = region.getLevel();
-			} else {
-				this.buildingFloor = -1;
-				this.buildingLevel = -1;
-			}
 		}
 
 		if (this.mobBase != null) {
@@ -1454,14 +1442,6 @@ public class NPC extends AbstractCharacter {
 			Logger.error( e.getMessage());
 		}
 		return true;
-	}
-
-	public int getBuildingLevel() {
-		return buildingLevel;
-	}
-
-	public int getBuildingFloor() {
-		return buildingFloor;
 	}
 
 	public HashMap<Integer, MobEquipment> getEquip() {
