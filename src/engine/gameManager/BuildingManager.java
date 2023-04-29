@@ -53,7 +53,7 @@ public enum BuildingManager {
             return Vector3fImmutable.ZERO;
 
         BuildingLocation buildingLocation;
-        buildingLocation = _slotLocations.get(building.meshUUID).get(slot);
+        buildingLocation = _slotLocations.get(building.meshUUID).get(slot - 1); // array index
 
         if (buildingLocation == null) {
             Logger.error("Invalid slot for building: " + building.getObjectUUID());
