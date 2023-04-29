@@ -1448,26 +1448,6 @@ public class NPC extends AbstractCharacter {
 		return equip;
 	}
 
-	public static int getBuildingSlot(NPC npc){
-		int slot = -1;
-
-		if (npc.building == null)
-			return -1;
-
-		BuildingModelBase buildingModel = BuildingModelBase.getModelBase(npc.building.getMeshUUID());
-
-		if (buildingModel == null)
-			return -1;
-
-		if (npc.building.getHirelings().containsKey(npc))
-			slot =  (npc.building.getHirelings().get(npc));
-
-		if (buildingModel.getNPCLocation(slot) == null)
-			return -1;
-
-		return slot;
-	}
-
 	public int getEquipmentSetID() {
 		return equipmentSetID;
 	}

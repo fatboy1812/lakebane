@@ -16,10 +16,7 @@ import engine.math.Vector3fImmutable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.List;
-import java.util.concurrent.ConcurrentHashMap;
 
 
 public class BuildingLocation extends AbstractGameObject {
@@ -156,21 +153,4 @@ public class BuildingLocation extends AbstractGameObject {
 		}
 	}
 
-	public static void loadAllLocations() {
-		ArrayList<BuildingLocation> bls = DbManager.BuildingLocationQueries.LOAD_ALL_BUILDING_LOCATIONS();
-		ConcurrentHashMap<Integer, BuildingModelBase> mbs = BuildingModelBase.getModelBases();
-		for (BuildingLocation bl : bls) {
-			int modelID = bl.buildingUUID;
-			BuildingModelBase mb = null;
-			if (!mbs.containsKey(modelID)) {
-				mb = new BuildingModelBase(modelID);
-				mbs.put(modelID, mb);
-			} else
-				mb = mbs.get(modelID);
-			mb.addLocation(bl);
-
-			if (bl.type == 6)
-				mb.addSlotLocation(bl);
-		}
-	}
 }

@@ -42,6 +42,7 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -1273,24 +1274,20 @@ public class Building extends AbstractWorldObject {
 	}
 
 	public Vector3fImmutable getStuckLocation() {
+		Vector3fImmutable stuckLocation;
+		ArrayList<BuildingLocation> stuckLocations;
 
-		BuildingModelBase bmb = BuildingModelBase.getModelBase(this.meshUUID);
-		Vector3fImmutable convertLoc = null;
+		stuckLocations = BuildingManager._stuckLocations.get(this.meshUUID);
 
+		// Sanity check
 
-		if (bmb != null) {
-			BuildingLocation bl = bmb.getStuckLocation();
+		if (stuckLocations == null ||
+				stuckLocations.isEmpty())
+			return this.getLoc();
 
-			if (bl != null){
+		stuckLocation = stuckLocations.get(ThreadLocalRandom.current().nextInt(stuckLocations.size())).getLoc();
 
-				Vector3fImmutable buildingWorldLoc = ZoneManager.convertLocalToWorld(this, bl.getLoc());
-				return buildingWorldLoc;
-			}
-
-
-		}
-
-		return null;
+		return stuckLocation;
 	}
 
 	public boolean isDoorOpen(int doorNumber) {

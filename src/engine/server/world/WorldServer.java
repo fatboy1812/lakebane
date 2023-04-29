@@ -336,8 +336,7 @@ public class WorldServer {
 		Enum.RaceType.initRaceTypeTables();
 		Race.loadAllRaces();
 
-		Logger.info("Loading building mountpoint data.");
-		BuildingLocation.loadAllLocations();
+		Logger.info("Loading building slot/stuck location data.");
 		BuildingLocation.loadBuildingLocations();
 
 		// Starting before loading of structures/guilds/characters

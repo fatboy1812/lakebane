@@ -474,7 +474,6 @@ public class InfoCmd extends AbstractDevCmd {
 				output += "BuildingID : " + targetMob.building + newline;
 				output += "Bind Loc : " + targetMob.getBindLoc() + newline;
 				output += "Curr Loc : " + targetMob.getLoc() + newline;
-				output += "InBuildingLoc : " + targetMob.inBuildingLoc + newline;
 			}else{
 				output += newline;
 				output += "No building found.";

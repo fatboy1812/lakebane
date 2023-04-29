@@ -66,7 +66,6 @@ public class Mob extends AbstractIntelligenceAgent {
     public boolean hasLoot = false;
     public boolean isPlayerGuard = false;
     public AbstractCharacter npcOwner;
-    public Vector3fImmutable inBuildingLoc = null;
     public long deathTime = 0;
     public String nameOverride = "";
     public int equipmentSetID = 0;
@@ -506,14 +505,7 @@ public class Mob extends AbstractIntelligenceAgent {
         try {
             mob = DbManager.MobQueries.ADD_MOB(mobWithoutID);
             mob.setObjectTypeMask(MBServerStatics.MASK_MOB | mob.getTypeMasks());
-            mob.setMob();
-            mob.setInBuildingLoc(building, mob);
-            Vector3fImmutable buildingWorldLoc = ZoneManager.convertLocalToWorld(building, mob.inBuildingLoc);
-            mob.setBindLoc(buildingWorldLoc);
-            mob.setLoc(buildingWorldLoc);
-            mob.region = AbstractWorldObject.GetRegionByWorldObject(mob);
-            MovementManager.translocate(mob, buildingWorldLoc, mob.region);
-            mob.runAfterLoad();
+
         } catch (Exception e) {
             Logger.error("SQLException:" + e.getMessage());
             mob = null;
@@ -737,10 +729,6 @@ public class Mob extends AbstractIntelligenceAgent {
         slot += guardCaptain.siegeMinionMap.size() + 1;
 
         guardCaptain.siegeMinionMap.put(mob, slot);
-        mob.setInBuildingLoc(guardCaptain.building, guardCaptain);
-        Vector3fImmutable buildingWorldLoc = ZoneManager.convertLocalToWorld(guardCaptain.building, mob.inBuildingLoc);
-        mob.setBindLoc(buildingWorldLoc);
-        mob.setLoc(buildingWorldLoc);
         mob.deathTime = System.currentTimeMillis();
         mob.spawnTime = 900;
         mob.npcOwner = guardCaptain;
@@ -776,11 +764,10 @@ public class Mob extends AbstractIntelligenceAgent {
         else if (!owner.getSiegeMinionMap().containsValue(2)) slot = 2;
 
         owner.getSiegeMinionMap().put(mob, slot);
-        mob.setInBuildingLoc(owner.building, owner);
 
-        Vector3fImmutable buildingWorldLoc = ZoneManager.convertLocalToWorld(owner.building, mob.inBuildingLoc);
-        mob.setBindLoc(buildingWorldLoc);
-        mob.setLoc(buildingWorldLoc);
+        // Vector3fImmutable buildingWorldLoc = ZoneManager.convertLocalToWorld(owner.building, mob.inBuildingLoc);
+        // mob.setBindLoc(buildingWorldLoc);
+        // mob.setLoc(buildingWorldLoc);
 
         mob.setSpawnTime(10);
         mob.setNpcOwner(owner);
@@ -1724,45 +1711,7 @@ public class Mob extends AbstractIntelligenceAgent {
         }
     }
 
-    public void setInBuildingLoc(Building inBuilding, AbstractCharacter ac) {
 
-        Mob mob = null;
-        NPC npc = null;
-
-        if (ac.getObjectType().equals(GameObjectType.Mob)) mob = (Mob) ac;
-
-        else if (ac.getObjectType().equals(GameObjectType.NPC)) npc = (NPC) ac;
-
-        BuildingModelBase buildingModel = BuildingModelBase.getModelBase(inBuilding.getMeshUUID());
-
-        Vector3fImmutable slotLocation = Vector3fImmutable.ZERO;
-
-        if (buildingModel != null) {
-
-            int putSlot = -1;
-            BuildingLocation buildingLocation;
-
-            //-1 slot means no slot available in building.
-
-            if (npc != null) {
-                if (npc.getSiegeMinionMap().containsKey(this)) putSlot = npc.getSiegeMinionMap().get(this);
-            } else if (mob != null) {
-                if (mob.building.getHirelings().containsKey(this)) putSlot = mob.building.getHirelings().get(this);
-                //putSlot = mob.building.getHirelings().size();
-            }
-            int count = 0;
-
-            for (BuildingLocation slotLoc : buildingModel.getLocations())
-                if (slotLoc.getType() == 6) count++;
-
-            buildingLocation = buildingModel.getSlotLocation((count) - putSlot);
-
-            if (buildingLocation != null) slotLocation = buildingLocation.getLoc();
-
-        }
-
-        this.inBuildingLoc = slotLocation;
-    }
 
     public ItemBase getWeaponItemBase(boolean mainHand) {
 
