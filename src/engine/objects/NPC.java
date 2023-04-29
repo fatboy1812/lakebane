@@ -90,7 +90,7 @@ public class NPC extends AbstractCharacter {
 	private String nameOverride = "";
 	private int equipmentSetID = 0;
 	public int runeSetID = 0;
-	private Regions region = null;
+	public Regions region = null;
 
 	private int repairCost = 5;
 	public int extraRune2 = 0;
