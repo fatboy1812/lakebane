@@ -543,7 +543,6 @@ public class WorldServer {
 				for (Mob m : mobs) {
 					m.setObjectTypeMask(MBServerStatics.MASK_MOB | m.getTypeMasks());
 					m.setLoc(m.getLoc());
-					m.setParentZone(zone);
 
 				//ADD GUARDS HERE.
 					if (m.building != null && m.building.getBlueprint() != null && m.building.getBlueprint().getBuildingGroup() == BuildingGroup.BARRACK)

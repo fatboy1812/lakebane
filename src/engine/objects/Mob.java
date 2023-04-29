@@ -247,8 +247,6 @@ public class Mob extends AbstractIntelligenceAgent {
 
             this.bindLoc = new Vector3fImmutable(this.statLat, this.statAlt, this.statLon);
 
-            this.setParentZone(ZoneManager.getZoneByUUID(this.parentZoneID));
-
             this.runeSet = rs.getInt("runeSet");
             this.bootySet = rs.getInt("bootySet");
 
@@ -499,9 +497,6 @@ public class Mob extends AbstractIntelligenceAgent {
 
         Mob mobWithoutID = new Mob(pirateName, "", (short) 0, (short) 0, (short) 0, (short) 0, (short) 0, (short) 1, 0, false, false, false, spawn, spawn, Vector3fImmutable.ZERO, (short) 1, (short) 1, (short) 1, guild, (byte) 0, loadID, isMob, parent, building, contractID);
 
-        if (parent != null)
-            mobWithoutID.setRelPos(parent, spawn.x - parent.absX, spawn.y - parent.absY, spawn.z - parent.absZ);
-
         if (mobWithoutID.mobBase == null) return null;
 
         mobWithoutID.level = (short) level;
@@ -512,7 +507,6 @@ public class Mob extends AbstractIntelligenceAgent {
             mob = DbManager.MobQueries.ADD_MOB(mobWithoutID);
             mob.setObjectTypeMask(MBServerStatics.MASK_MOB | mob.getTypeMasks());
             mob.setMob();
-            mob.setParentZone(parent);
             mob.setInBuildingLoc(building, mob);
             Vector3fImmutable buildingWorldLoc = ZoneManager.convertLocalToWorld(building, mob.inBuildingLoc);
             mob.setBindLoc(buildingWorldLoc);
@@ -538,9 +532,7 @@ public class Mob extends AbstractIntelligenceAgent {
             mob = new Mob(mobBase, guild, parent, level, owner, 0);
             if (mob.mobBase == null) return null;
             mob.runAfterLoad();
-
             Vector3fImmutable loc = owner.getLoc();
-            if (parent != null) mob.setRelPos(parent, loc.x - parent.absX, loc.y - parent.absY, loc.z - parent.absZ);
             DbManager.addToCache(mob);
             mob.setPet(owner, true);
             mob.setWalkMode(false);
@@ -700,13 +692,10 @@ public class Mob extends AbstractIntelligenceAgent {
             }
         }
 
-        if (parent != null) mob.setRelPos(parent, loc.x - parent.absX, loc.y - parent.absY, loc.z - parent.absZ);
-
         mob.setObjectTypeMask(MBServerStatics.MASK_MOB | mob.getTypeMasks());
 
         // mob.setMob();
         mob.isPlayerGuard = true;
-        mob.setParentZone(parent);
         DbManager.addToCache(mob);
 
         RuneBase guardRune = RuneBase.getRuneBase(252621);
@@ -776,13 +765,10 @@ public class Mob extends AbstractIntelligenceAgent {
         mob.despawned = true;
         DbManager.addToCache(mob);
 
-        if (parent != null) mob.setRelPos(parent, loc.x - parent.absX, loc.y - parent.absY, loc.z - parent.absZ);
-
         mob.setObjectTypeMask(MBServerStatics.MASK_MOB | mob.getTypeMasks());
 
         //mob.setMob();
         mob.setSiege(true);
-        mob.setParentZone(parent);
 
         int slot = 0;
 
@@ -980,35 +966,6 @@ public class Mob extends AbstractIntelligenceAgent {
 
     public Zone getParentZone() {
         return this.parentZone;
-    }
-
-    public void setParentZone(Zone zone) {
-
-        if (this.parentZone == null) {
-            zone.zoneMobSet.add(this);
-            this.parentZone = zone;
-        }
-
-        if (this.building != null) {
-
-            Vector3fImmutable localLoc = new Vector3fImmutable(this.statLat, this.statAlt, this.statLon);
-            Vector3fImmutable buildingWorldLoc = ZoneManager.convertLocalToWorld(this.building, localLoc);
-            this.setBindLoc(buildingWorldLoc);
-            this.setLoc(buildingWorldLoc);
-            this.endLoc = buildingWorldLoc;
-            this.stopMovement(endLoc);
-
-            if (this.building.getBlueprintUUID() != 0 && this.building.getBlueprint().isWallPiece() && this.contract == null)
-                MovementManager.translocate(this, new Vector3fImmutable(this.building.getLoc().x, this.npcOwner.getLoc().y, this.building.getLoc().z), this.region);
-
-            return;
-        }
-
-        Vector3fImmutable localLoc = new Vector3fImmutable(this.statLat + zone.absX, this.statAlt + zone.absY, this.statLon + zone.absZ);
-        this.setBindLoc(localLoc);
-        this.setLoc(localLoc);
-        this.endLoc = localLoc;
-        this.stopMovement(endLoc);
     }
 
     public int getParentZoneID() {
@@ -1322,22 +1279,6 @@ public class Mob extends AbstractIntelligenceAgent {
 
         WorldGrid.RemoveWorldObject(this);
         this.charItemManager.clearInventory();
-    }
-
-    //Sets the relative position to a parent zone
-    public void setRelPos(Zone zone, float locX, float locY, float locZ) {
-
-        //update mob zone map
-
-        if (this.parentZone != null) this.parentZone.zoneMobSet.remove(this);
-
-        zone.zoneMobSet.add(this);
-
-        this.statLat = locX;
-        this.statAlt = locY;
-        this.statLon = locZ;
-        this.parentZone = zone;
-        this.setBindLoc(new Vector3fImmutable(this.statLat + zone.absX, this.statAlt + zone.absY, this.statLon + zone.absZ));
     }
 
     @Override

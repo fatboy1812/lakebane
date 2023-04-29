@@ -520,7 +520,6 @@ public enum BuildingManager {
 
             mob.setRank(rank);
             mob.setPlayerGuard(true);
-            mob.setParentZone(zone);
             return true;
         }
 
