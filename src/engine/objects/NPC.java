@@ -357,6 +357,11 @@ public class NPC extends AbstractCharacter {
 		this.parentZone.zoneNPCSet.remove(this);
 		this.parentZone.zoneNPCSet.add(this);
 
+		// Setup location for this NPC
+
+		this.bindLoc = this.building.getLoc().add(this.bindLoc);
+		this.loc = bindLoc;
+
 		// Add this npc to the hireling list.
 		// if slotted within a building
 
