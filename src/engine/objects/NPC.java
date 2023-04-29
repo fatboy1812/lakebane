@@ -341,7 +341,7 @@ public class NPC extends AbstractCharacter {
 	private void initializeNPC() {
 
 		int slot;
-		Vector3fImmutable bindLocation = Vector3fImmutable.ZERO;
+		Vector3fImmutable slotLocation = Vector3fImmutable.ZERO;
 		if (ConfigManager.serverType.equals(ServerType.LOGINSERVER))
 			return;
 
@@ -362,8 +362,7 @@ public class NPC extends AbstractCharacter {
 		this.bindLoc = this.parentZone.getLoc().add(this.bindLoc);
 		this.loc = bindLoc;
 
-		// Add this npc to the hireling list.
-		// if slotted within a building
+		// Handle NPCs within buildings
 
 		if (this.building != null) {
 
@@ -374,9 +373,12 @@ public class NPC extends AbstractCharacter {
 
 			building.getHirelings().put(this, slot);
 
-			this.bindLoc = BuildingManager.getSlotLocation(building, slot);
-			this.loc = BuildingManager.getSlotLocation(building, slot);
-			this.region = BuildingManager.GetRegion(this.building, bindLoc.x, bindLoc.y, bindLoc.z);
+			slotLocation = BuildingManager.getSlotLocation(building, slot);
+
+			this.bindLoc = building.getLoc().add(slotLocation);
+			this.loc = building.getLoc().add(slotLocation);
+			;
+			this.region = BuildingManager.GetRegion(this.building, slotLocation.x, slotLocation.y, slotLocation.z);
 
 			if (this.region != null) {
 				this.buildingFloor = region.getRoom();
