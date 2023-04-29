@@ -43,9 +43,6 @@ import static engine.objects.MobBase.loadEquipmentSet;
 
 public class NPC extends AbstractCharacter {
 
-	//This is called every 10 minutes to remove items from static npc inventory to make room to buy more.
-	private static int NUM_ITEMS_TO_JUNK = 30;
-
 	// Used for thread safety
 	public final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
 
@@ -96,7 +93,6 @@ public class NPC extends AbstractCharacter {
 	public int runeSetID = 0;
 	private Regions region = null;
 
-	public Vector3fImmutable inBuildingLoc = Vector3fImmutable.ZERO;
 	private int repairCost = 5;
 	public int extraRune2 = 0;
 
@@ -265,8 +261,10 @@ public class NPC extends AbstractCharacter {
 
 			if (this.upgradeDateTime != null)
 				submitUpgradeJob();
+
 			this.buildingFloor = (rs.getInt("npc_buildingFloor"));
 			this.buildingLevel = (rs.getInt("npc_buildingLevel"));
+
 			this.setParentZone(ZoneManager.getZoneByUUID(this.parentZoneID));
 
 			if (this.contract != null)
@@ -633,13 +631,10 @@ public class NPC extends AbstractCharacter {
 		writer.putFloat(1.0f);
 		writer.putFloat(1.0f);
 
-		if (npc.region != null)
-			writer.putVector3f(npc.inBuildingLoc);
-		else{
-			writer.putFloat(npc.getLoc().getX());
-			writer.putFloat(npc.getLoc().getY());
-			writer.putFloat(npc.getLoc().getZ());
-		}
+		writer.putFloat(npc.getLoc().getX());
+		writer.putFloat(npc.getLoc().getY());
+		writer.putFloat(npc.getLoc().getZ());
+
 
 		//Rotation
 		float radians = (float) Math.asin(npc.getRot().y) * 2;
@@ -926,11 +921,8 @@ public class NPC extends AbstractCharacter {
 			this.region = BuildingManager.GetRegion(this.building, buildingWorldLoc.x, buildingWorldLoc.y, buildingWorldLoc.z);
 
 			if (this.region != null){
-				
 				this.buildingFloor = region.getRoom();
 				this.buildingLevel = region.getLevel();
-				this.inBuildingLoc = ZoneManager.convertWorldToLocal(building, this.getLoc());
-
 			}else{
 				this.buildingFloor = -1;
 				this.buildingLevel = -1;

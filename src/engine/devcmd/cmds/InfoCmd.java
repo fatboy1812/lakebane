@@ -399,16 +399,11 @@ public class InfoCmd extends AbstractDevCmd {
 			}else if(targetNPC.getBuilding() != null) {
 				output += newline;
 				output += "Building : " + targetNPC.getBuilding();
-				output += "In BuildingLoc : " + targetNPC.inBuildingLoc;
 			}else{
 				output += newline;
 				output += "No building found.";
 			}
-				
-			
-			
 			break;
-
 		case Mob:
 			Mob targetMob = (Mob) target;
 			output += "databaseID: " + targetMob.getDBID() + newline;
