@@ -4,7 +4,6 @@ import engine.Enum;
 import engine.Enum.ItemType;
 import engine.exception.MsgSendException;
 import engine.gameManager.*;
-import engine.math.Vector3fImmutable;
 import engine.net.Dispatch;
 import engine.net.DispatchMessage;
 import engine.net.client.ClientConnection;
@@ -79,8 +78,6 @@ public class ActivateNPCMsgHandler extends AbstractClientMsgHandler {
 			if (building.getBlueprint().getMaxSlots() == building.getHirelings().size())
 				return false;
 
-			Vector3fImmutable NpcLoc = new Vector3fImmutable(building.getLoc());
-
 			Item contractItem = Item.getFromCache(msg.getContractItem());
 
 			if (contractItem == null)
@@ -93,7 +90,7 @@ public class ActivateNPCMsgHandler extends AbstractClientMsgHandler {
 
 			itemMan = player.getCharItemManager();
 
-			zone = ZoneManager.findSmallestZone(NpcLoc);
+			zone = ZoneManager.findSmallestZone(building.getLoc());
 
 			if (zone == null)
 				return false;
@@ -108,7 +105,7 @@ public class ActivateNPCMsgHandler extends AbstractClientMsgHandler {
 			if (contract.canSlotinBuilding(building) == false)
 				return false;
 
-			if (!BuildingManager.addHireling(building, player, NpcLoc, zone, contract, contractItem))
+			if (!BuildingManager.addHireling(building, player, zone, contract, contractItem))
 				return false;
 
 			itemMan.delete(contractItem);

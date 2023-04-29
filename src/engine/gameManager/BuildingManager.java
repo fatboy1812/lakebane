@@ -479,7 +479,7 @@ public enum BuildingManager {
 
     }
 
-    public static synchronized boolean addHireling(Building building, PlayerCharacter contractOwner, Vector3fImmutable NpcLoc, Zone zone, Contract contract, Item item) {
+    public static synchronized boolean addHireling(Building building, PlayerCharacter contractOwner, Zone zone, Contract contract, Item item) {
 
         int rank = 1;
 
@@ -500,7 +500,7 @@ public enum BuildingManager {
 
         if (NPC.ISWallArcher(contract)) {
 
-            mob = Mob.createMob( contract.getMobbaseID(), NpcLoc, contractOwner.getGuild(), true, zone, building, contract.getContractID(), pirateName, rank * 10);
+            mob = Mob.createMob(contract.getMobbaseID(), Vector3fImmutable.ZERO, contractOwner.getGuild(), true, zone, building, contract.getContractID(), pirateName, rank * 10);
 
             if (mob == null)
                 return false;
@@ -511,9 +511,10 @@ public enum BuildingManager {
             MovementManager.translocate(mob, mob.getBindLoc(), mob.region);
             return true;
         }
+
         if (NPC.ISGuardCaptain(contract.getContractID())) {
 
-            mob = Mob.createMob(contract.getMobbaseID(), NpcLoc, contractOwner.getGuild(), true, zone, building, contract.getContractID(), pirateName, rank);
+            mob = Mob.createMob(contract.getMobbaseID(), Vector3fImmutable.ZERO, contractOwner.getGuild(), true, zone, building, contract.getContractID(), pirateName, rank);
 
             if (mob == null)
                 return false;
@@ -523,12 +524,7 @@ public enum BuildingManager {
             return true;
         }
 
-        // NPC in a Building derives position from slot
-
-        if (building != null)
-            NpcLoc = Vector3fImmutable.ZERO;
-
-        npc = NPC.createNPC(pirateName, contract.getObjectUUID(), NpcLoc, contractOwner.getGuild(), false, zone, (short) rank, false, building);
+        npc = NPC.createNPC(pirateName, contract.getObjectUUID(), Vector3fImmutable.ZERO, contractOwner.getGuild(), false, zone, (short) rank, false, building);
 
         if (npc == null)
             return false;
