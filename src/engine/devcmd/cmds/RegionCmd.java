@@ -27,18 +27,18 @@ public class RegionCmd extends AbstractDevCmd {
 			AbstractGameObject target) {
 
 
-	if (pc.getRegion() == null){
-		this.throwbackInfo(pc, "No Region Found.");
-		return;
-	}
+        if (pc.region == null) {
+			this.throwbackInfo(pc, "No Region Found.");
+			return;
+		}
 	
 	
 	  String newLine = System.getProperty("line.separator");
 	  String result = "";
-	  result+=(pc.getRegion().getClass().getSimpleName());
-	    result+=( " {" );
+		result += (pc.region.getClass().getSimpleName());
+		result += (" {");
 	    result+=(newLine);
-	 Field[] fields = pc.getRegion().getClass().getDeclaredFields();
+		Field[] fields = pc.region.getClass().getDeclaredFields();
 
 	  //print field names paired with their values
 	  for ( Field field : fields  ) {
@@ -51,7 +51,7 @@ public class RegionCmd extends AbstractDevCmd {
 	      result+=( field.getName());
 	      result+=(": ");
 	      //requires access to private field:
-	      result+=( field.get(pc.getRegion()).toString());
+			result += (field.get(pc.region).toString());
 	    } catch ( IllegalAccessException ex ) {
 	      System.out.println(ex);
 	    }

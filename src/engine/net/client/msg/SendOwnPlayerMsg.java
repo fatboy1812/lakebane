@@ -74,18 +74,18 @@ public class SendOwnPlayerMsg extends ClientNetMsg {
 	 */
 	@Override
 	protected void _serialize(ByteBufferWriter writer) {
-		
-		Regions region = this.ch.getRegion();
+
+		Regions region = this.ch.region;
 		//region loading seralization. serialzes building level and floor. -1 = not in building.
-		if (region == null){
+		if (region == null) {
 			writer.putInt(-1);
 			writer.putInt(-1);
-		}else{
+		} else {
 			Building regionBuilding = Regions.GetBuildingForRegion(region);
-			if (regionBuilding == null){
+			if (regionBuilding == null) {
 				writer.putInt(-1);
 				writer.putInt(-1);
-			}else{
+			} else {
 				writer.putInt(region.getLevel());
 				writer.putInt(region.getRoom());
 			}

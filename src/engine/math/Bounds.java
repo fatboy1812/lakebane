@@ -358,7 +358,7 @@ public class Bounds {
 						
 
 						//player is inside building region, skip collision check. we only do collision from the outside. 
-						if (player.getRegion() != null && player.getRegion().parentBuildingID == building.getObjectUUID())
+                        if (player.region != null && player.region.parentBuildingID == building.getObjectUUID())
 							continue;
 						if (building.getBounds().colliders == null)
 							continue;
@@ -366,7 +366,7 @@ public class Bounds {
 						for (Colliders collider: building.getBounds().colliders) {
 							
 							//links are what link together buildings, allow players to run through them only if they are in a building already.
-							if (collider.isLink() && player.getRegion() != null)
+							if (collider.isLink() && player.region != null)
 								continue;
 							if (collider.getDoorID() != 0 && building.isDoorOpen(collider.getDoorID()))
 								continue;

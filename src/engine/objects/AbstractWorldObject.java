@@ -60,7 +60,7 @@ public abstract class AbstractWorldObject extends AbstractGameObject {
 	protected GridObjectType gridObjectType;
 	
 	protected float altitude = 0;
-	protected Regions region;
+	public Regions region;
 	protected boolean movingUp = false;
 	public Regions landingRegion = null;
 	public Vector3fImmutable lastLoc = Vector3fImmutable.ZERO;
@@ -606,10 +606,6 @@ public abstract class AbstractWorldObject extends AbstractGameObject {
 
 	public GridObjectType getGridObjectType() {
 		return gridObjectType;
-	}
-
-	public Regions getRegion() {
-		return region;
 	}
 
 

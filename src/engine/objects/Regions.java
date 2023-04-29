@@ -216,42 +216,42 @@ public class Regions  {
 	
 	public static boolean CanEnterRegion(AbstractWorldObject worldObject, Regions toEnter){
 
-        if (worldObject.getRegion() == null)
+		if (worldObject.region == null)
 			if (toEnter.level == 0 || toEnter.room == -1 || toEnter.exit)
 				return true;
 			else
 				return false;
-		
-		if (worldObject.getRegion().equals(toEnter))
+
+		if (worldObject.region.equals(toEnter))
 			return true;
 
-        if (worldObject.getRegion().level == toEnter.level)
+		if (worldObject.region.level == toEnter.level)
 			return true;
-		
+
 		//next region is stairs, if they are on the same level as stairs or 1 up, world object can enter.
-        if (toEnter.stairs)
-			if (worldObject.getRegion().level == toEnter.level || toEnter.level - 1 == worldObject.getRegion().level)
+		if (toEnter.stairs)
+			if (worldObject.region.level == toEnter.level || toEnter.level - 1 == worldObject.region.level)
 				return true;
-		if (worldObject.getRegion().stairs){
-			
+		if (worldObject.region.stairs) {
+
 			boolean movingUp = false;
-			
+
 			boolean movingDown = false;
-			float yLerp = worldObject.getRegion().lerpY(worldObject);
-			
-			if (yLerp == (worldObject.getRegion().highLerp.y))
+			float yLerp = worldObject.region.lerpY(worldObject);
+
+			if (yLerp == (worldObject.region.highLerp.y))
 				movingUp = true;
-			else if (yLerp == (worldObject.getRegion().lowLerp.y))
-					movingDown = true;
+			else if (yLerp == (worldObject.region.lowLerp.y))
+				movingDown = true;
 			//Stairs are always considered on the bottom floor.
 
 
-            if (movingUp){
-                if(toEnter.level == worldObject.getRegion().level + 1)
-				return true;
-			}else if (movingDown)
-			 if (toEnter.level == worldObject.getRegion().level)
-				return true;
+			if (movingUp) {
+				if (toEnter.level == worldObject.region.level + 1)
+					return true;
+			} else if (movingDown)
+				if (toEnter.level == worldObject.region.level)
+					return true;
 			
 		}
 		

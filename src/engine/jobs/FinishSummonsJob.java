@@ -55,14 +55,14 @@ public class FinishSummonsJob extends AbstractScheduleJob {
 			return;
 		}
 
-		if (this.target.getBonuses() != null && this.target.getBonuses().getBool(ModType.BlockedPowerType, SourceType.SUMMON)){
+		if (this.target.getBonuses() != null && this.target.getBonuses().getBool(ModType.BlockedPowerType, SourceType.SUMMON)) {
 			ErrorPopupMsg.sendErrorMsg(this.target, "You have been blocked from receiving summons!");
 			ErrorPopupMsg.sendErrorMsg(this.source, "Target is blocked from receiving summons!");
 			return;
 		}
 
-		if (this.source.getRegion() != null)
-			this.target.setRegion(this.source.getRegion());
+		if (this.source.region != null)
+			this.target.setRegion(this.source.region);
 		//teleport target to source
 		target.teleport(source.getLoc());
 	}

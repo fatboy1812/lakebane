@@ -390,16 +390,16 @@ public class InfoCmd extends AbstractDevCmd {
 				output += "Parent Zone LoadNum : " + targetNPC.getParentZone().getLoadNum();
 
 			}
-			
-			if (targetNPC.getRegion() != null){
+
+			if (targetNPC.region != null) {
 				output += newline;
-				output += "BuildingID : " + targetNPC.getRegion().parentBuildingID;
-				output += "building level : " + targetNPC.getRegion().level;
-				output += "building room : " + targetNPC.getRegion().room;
-			}else if(targetNPC.getBuilding() != null) {
+				output += "BuildingID : " + targetNPC.region.parentBuildingID;
+				output += "building level : " + targetNPC.region.level;
+				output += "building room : " + targetNPC.region.room;
+			} else if (targetNPC.getBuilding() != null) {
 				output += newline;
 				output += "Building : " + targetNPC.getBuilding();
-			}else{
+			} else {
 				output += newline;
 				output += "No building found.";
 			}
@@ -463,13 +463,13 @@ public class InfoCmd extends AbstractDevCmd {
 			output += "Parent Zone LoadNum : " + targetMob.getParentZone().getLoadNum();
 			output += newline;
 			output += "isMoving : " + targetMob.isMoving();
-			if (targetMob.getRegion() != null){
+			if (targetMob.region != null) {
 				output += newline;
-				output += "BuildingID : " + targetMob.getRegion().parentBuildingID;
-				output += "building level : " + targetMob.getRegion().level;
-				output += "building room : " + targetMob.getRegion().room;
+				output += "BuildingID : " + targetMob.region.parentBuildingID;
+				output += "building level : " + targetMob.region.level;
+				output += "building room : " + targetMob.region.room;
 			}
-			if(targetMob.building != null) {
+			if (targetMob.building != null) {
 				output += "Building Name: " + targetMob.building.getName() + newline;
 				output += "BuildingID : " + targetMob.building + newline;
 				output += "Bind Loc : " + targetMob.getBindLoc() + newline;

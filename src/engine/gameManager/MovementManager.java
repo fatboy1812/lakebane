@@ -168,24 +168,24 @@ public enum MovementManager {
 			toMove.setInBuilding(-1);
 			msg.setStartCoord(toMove.getLoc());
 		}
-		
+
 		//make sure we set the correct player.
 		msg.setSourceType(toMove.getObjectType().ordinal());
 		msg.setSourceID(toMove.getObjectUUID());
-		
+
 		//if player in region, modify location to local location of building. set target to building.
-		if (toMove.getRegion() != null){
-			Building regionBuilding = Regions.GetBuildingForRegion(toMove.getRegion());
-			if (regionBuilding != null){
-				msg.setStartCoord(ZoneManager.convertWorldToLocal(Regions.GetBuildingForRegion(toMove.getRegion()), toMove.getLoc()));
+		if (toMove.region != null) {
+			Building regionBuilding = Regions.GetBuildingForRegion(toMove.region);
+			if (regionBuilding != null) {
+				msg.setStartCoord(ZoneManager.convertWorldToLocal(Regions.GetBuildingForRegion(toMove.region), toMove.getLoc()));
 				msg.setEndCoord(ZoneManager.convertWorldToLocal(regionBuilding, endLocation));
-				msg.setInBuilding(toMove.getRegion().level);
-				msg.setUnknown01(toMove.getRegion().room);
+				msg.setInBuilding(toMove.region.level);
+				msg.setUnknown01(toMove.region.room);
 				msg.setTargetType(GameObjectType.Building.ordinal());
 				msg.setTargetID(regionBuilding.getObjectUUID());
 			}
-			
-		}else{
+
+		} else {
 			toMove.setInBuildingID(0);
 			toMove.setInFloorID(-1);
 			toMove.setInBuilding(-1);

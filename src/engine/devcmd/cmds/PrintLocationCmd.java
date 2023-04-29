@@ -40,14 +40,14 @@ public class PrintLocationCmd extends AbstractDevCmd {
 			throwbackInfo(pc, "Lat: " + tar.getLoc().getX());
 			throwbackInfo(pc, "Lon: " + -tar.getLoc().getZ());
 			throwbackInfo(pc, "Alt: " + tar.getLoc().getY());
-			if (pc.getRegion() != null) {
-				this.throwbackInfo(pc, "Player Region Slope Position : " + Regions.SlopeLerpPercent(pc, pc.getRegion()));
-				this.throwbackInfo(pc, "Region Slope Magnitude : " + Regions.GetMagnitudeOfRegionSlope(pc.getRegion()));
-				this.throwbackInfo(pc, "Player Region Slope Magnitude : " + Regions.GetMagnitudeOfPlayerOnRegionSlope(pc.getRegion(), pc));
-			}else{
+			if (pc.region != null) {
+				this.throwbackInfo(pc, "Player Region Slope Position : " + Regions.SlopeLerpPercent(pc, pc.region));
+				this.throwbackInfo(pc, "Region Slope Magnitude : " + Regions.GetMagnitudeOfRegionSlope(pc.region));
+				this.throwbackInfo(pc, "Player Region Slope Magnitude : " + Regions.GetMagnitudeOfPlayerOnRegionSlope(pc.region, pc));
+			} else {
 				this.throwbackInfo(pc, "No Region Found for player.");
 			}
-			
+
 		} else {
 			throwbackInfo(pc, "Server location for " + tar.getFirstName()
 			+ " not found");

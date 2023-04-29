@@ -42,21 +42,20 @@ public class TeleportToPointMsg extends ClientNetMsg {
 		if (targetID != 0){
 			this.targetType = GameObjectType.Building.ordinal();
 			this.targetUUID = (int) targetID;
-		}else{
+		} else {
 			this.targetType = 0;
 			this.targetUUID = 0;
 		}
-		
-		
+
 
 		this.unknown01 = unknown01;
 		this.unknown02 = unknown02;
-		
-		if (ago.getRegion() != null){
+
+		if (ago.region != null) {
 			this.targetType = GameObjectType.Building.ordinal();
-			this.targetUUID = ago.getRegion().parentBuildingID;
-			this.unknown01 = ago.getRegion().level;
-			this.unknown02 = ago.getRegion().room;
+			this.targetUUID = ago.region.parentBuildingID;
+			this.unknown01 = ago.region.level;
+			this.unknown02 = ago.region.room;
 		}
 	}
 

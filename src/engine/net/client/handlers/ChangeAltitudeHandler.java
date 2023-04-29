@@ -44,7 +44,7 @@ public class ChangeAltitudeHandler extends AbstractClientMsgHandler {
 		
 		if (pc.isSwimming())
 			return false;
-		if (pc.getRegion() != null && !pc.getRegion().isOutside())
+		if (pc.region != null && !pc.region.isOutside())
 			return false;
 		
 
@@ -79,7 +79,7 @@ public class ChangeAltitudeHandler extends AbstractClientMsgHandler {
 
 			pc.landingRegion = null;
 			if (pc.getAltitude() == 0){
-				Regions upRegion = pc.getRegion();
+				Regions upRegion = pc.region;
 				if (upRegion != null){
 					float startAlt = 0;
 					Building regionBuilding = Regions.GetBuildingForRegion(upRegion);

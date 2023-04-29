@@ -621,16 +621,16 @@ public class WorldServer {
 		playerCharacter.stopMovement(playerCharacter.getLoc());
 		UpdateStateMsg updateStateMsg = new UpdateStateMsg();
 		updateStateMsg.setPlayer(playerCharacter);
-	
+
 		updateStateMsg.setActivity(5);
 		DispatchMessage.dispatchMsgToInterestArea(playerCharacter, updateStateMsg, DispatchChannel.PRIMARY, MBServerStatics.CHARACTER_LOAD_RANGE, false, false);
-		
-		if (playerCharacter.getRegion() != null)
-			if (PlayerCharacter.CanBindToBuilding(playerCharacter, playerCharacter.getRegion().parentBuildingID))
-				playerCharacter.bindBuilding = playerCharacter.getRegion().parentBuildingID;
+
+		if (playerCharacter.region != null)
+			if (PlayerCharacter.CanBindToBuilding(playerCharacter, playerCharacter.region.parentBuildingID))
+				playerCharacter.bindBuilding = playerCharacter.region.parentBuildingID;
 			else
 				playerCharacter.bindBuilding = 0;
-		
+
 		playerCharacter.getLoadedObjects().clear();
 		playerCharacter.getLoadedStaticObjects().clear();
 

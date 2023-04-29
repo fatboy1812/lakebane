@@ -2054,17 +2054,17 @@ public class PlayerCharacter extends AbstractCharacter {
 		writer.putInt(playerCharacter.getHeadlightsAsInt());
 
 
-		if (playerCharacter.getRegion() != null && !loginData){
-			Building building = Regions.GetBuildingForRegion(playerCharacter.getRegion());
-			
-			if (building == null){
+		if (playerCharacter.region != null && !loginData) {
+			Building building = Regions.GetBuildingForRegion(playerCharacter.region);
+
+			if (building == null) {
 				writer.putInt(0);
 				writer.putInt(0);
-			}else{
+			} else {
 				writer.putInt(GameObjectType.Building.ordinal());
 				writer.putInt(building.getObjectUUID());
 			}
-		
+
 		}
 		else{
 			writer.putInt(0);

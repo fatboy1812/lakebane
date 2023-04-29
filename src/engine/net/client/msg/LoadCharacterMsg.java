@@ -74,8 +74,8 @@ public class LoadCharacterMsg extends ClientNetMsg {
 			NPC npc = (NPC) absChar;
 
 			if (npc.region != null) {
-				writer.putInt(npc.getRegion().getLevel());
-				writer.putInt(npc.getRegion().getRoom());
+				writer.putInt(npc.region.getLevel());
+				writer.putInt(npc.region.getRoom());
 			} else {
 				writer.putInt(-1);
 				writer.putInt(-1);
@@ -85,7 +85,7 @@ public class LoadCharacterMsg extends ClientNetMsg {
 		} else if (absChar != null) {
 		
 		if (absChar.getObjectType().equals(GameObjectType.PlayerCharacter)) {
-			Regions region = absChar.getRegion();
+			Regions region = absChar.region;
 
 			if (region == null) {
 				writer.putInt(-1);
@@ -102,7 +102,7 @@ public class LoadCharacterMsg extends ClientNetMsg {
 			}
 		}
 			else if (absChar.getObjectType().equals(GameObjectType.Mob)){
-				Regions region = absChar.getRegion();
+			Regions region = absChar.region;
 
 				if (region == null){
 					writer.putInt(-1);
