@@ -523,10 +523,12 @@ public enum BuildingManager {
             mob.setParentZone(zone);
             return true;
         }
-        npc = NPC.createNPC( pirateName, contract.getObjectUUID(), NpcLoc, contractOwner.getGuild(), false, zone, (short) rank, false, building);
+        npc = NPC.createNPC(pirateName, contract.getObjectUUID(), NpcLoc, contractOwner.getGuild(), false, zone, (short) rank, false, building);
 
         if (npc == null)
             return false;
+
+        WorldGrid.addObject(npc, contractOwner);
 
         return true;
     }
