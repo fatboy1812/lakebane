@@ -190,17 +190,9 @@ public class NPC extends AbstractCharacter {
 			this.mobBase = MobBase.getMobBase(this.loadID);
 			this.level = rs.getByte("npc_level");
 			this.isMob = false;
+
 			int buildingID = rs.getInt("npc_buildingID");
-
-			try{
-				this.building = BuildingManager.getBuilding(buildingID);
-
-			}catch(Exception e){
-				this.building = null;
-				Logger.error( e.getMessage());
-			}
-
-			this.name = rs.getString("npc_name");
+			this.building = BuildingManager.getBuilding(buildingID);
 
 			// Most objects from the cache have a default buy
 			// percentage of 100% which was a dupe source due
@@ -247,10 +239,15 @@ public class NPC extends AbstractCharacter {
 			if (this.upgradeDateTime != null)
 				submitUpgradeJob();
 
-			if (this.contract != null)
+			this.name = rs.getString("npc_name");
+
+			// Zone cache can override contract name
+
+			if (this.nameOverride.isEmpty())
 				this.nameOverride = rs.getString("npc_name") + " the " + this.getContract().getName();
 			else
 				this.nameOverride = rs.getString("npc_name");
+
 
 		}catch(Exception e){
 			Logger.error(e);
