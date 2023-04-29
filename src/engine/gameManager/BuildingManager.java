@@ -505,10 +505,8 @@ public enum BuildingManager {
             if (mob == null)
                 return false;
 
-            mob.setRank(rank);
-            mob.setPlayerGuard(true);
-            mob.BehaviourType = Enum.MobBehaviourType.GuardWallArcher;
-            MovementManager.translocate(mob, mob.getBindLoc(), mob.region);
+            WorldGrid.addObject(mob, contractOwner);
+
             return true;
         }
 
@@ -519,8 +517,8 @@ public enum BuildingManager {
             if (mob == null)
                 return false;
 
-            mob.setRank(rank);
-            mob.setPlayerGuard(true);
+            WorldGrid.addObject(mob, contractOwner);
+
             return true;
         }
 
