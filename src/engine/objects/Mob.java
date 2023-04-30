@@ -255,6 +255,9 @@ public class Mob extends AbstractIntelligenceAgent {
             this.notEnemy = EnumBitSet.asEnumBitSet(rs.getLong("notEnemy"), Enum.MonsterType.class);
             this.enemy = EnumBitSet.asEnumBitSet(rs.getLong("enemy"), Enum.MonsterType.class);
             this.firstName = rs.getString("mob_name");
+            if(this.firstName.isEmpty()){
+                this.firstName = this.mobBase.getFirstName();
+            }
             if (this.contract != null) {
                 this.equipmentSetID = this.contract.getEquipmentSet();
                 this.lastName = this.getContract().getName();
