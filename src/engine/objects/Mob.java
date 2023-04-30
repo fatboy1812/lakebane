@@ -1285,7 +1285,6 @@ public class Mob extends AbstractIntelligenceAgent {
 
     public void respawn() {
         //Commenting out Mob ID rotation.
-
         this.despawned = false;
         this.playerAgroMap.clear();
         this.setCombatTarget(null);
@@ -1304,7 +1303,7 @@ public class Mob extends AbstractIntelligenceAgent {
         this.recalculateStats();
 
         this.setHealth(this.healthMax);
-
+        this.region = BuildingManager.GetRegion(this.building, bindLoc.x, bindLoc.y, bindLoc.z);
         if (!this.isSiege && !this.isPlayerGuard && contract == null) loadInventory();
 
     }
