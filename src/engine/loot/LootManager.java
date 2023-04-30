@@ -60,13 +60,15 @@ public class LootManager {
             RunBootySet(NPCManager._bootySetMap.get(mob.bootySet), mob, multiplier, inHotzone, fromDeath);
         }
         //lastly, check mobs inventory for godly or disc runes to send a server announcement
-        for (Item it : mob.getInventory()) {
-            ItemBase ib = it.getItemBase();
-            if (ib.isDiscRune() || ib.getName().toLowerCase().contains("of the gods")) {
-                ChatSystemMsg chatMsg = new ChatSystemMsg(null, mob.getName() + " in " + mob.getParentZone().getName() + " has found the " + ib.getName() + ". Are you tough enough to take it?");
-                chatMsg.setMessageType(10);
-                chatMsg.setChannel(Enum.ChatChannelType.SYSTEM.getChannelID());
-                DispatchMessage.dispatchMsgToAll(chatMsg);
+        if(!fromDeath) {
+            for (Item it : mob.getInventory()) {
+                ItemBase ib = it.getItemBase();
+                if (ib.isDiscRune() || ib.getName().toLowerCase().contains("of the gods")) {
+                    ChatSystemMsg chatMsg = new ChatSystemMsg(null, mob.getName() + " in " + mob.getParentZone().getName() + " has found the " + ib.getName() + ". Are you tough enough to take it?");
+                    chatMsg.setMessageType(10);
+                    chatMsg.setChannel(Enum.ChatChannelType.SYSTEM.getChannelID());
+                    DispatchMessage.dispatchMsgToAll(chatMsg);
+                }
             }
         }
     }
@@ -79,7 +81,7 @@ public class LootManager {
                         continue;
                     float equipmentRoll = ThreadLocalRandom.current().nextFloat();
                     float dropChance = me.getDropChance();
-                    if (equipmentRoll < dropChance){
+                    if (equipmentRoll < dropChance * multiplier){
                         MobLoot ml = new MobLoot(mob, me.getItemBase(), false);
                         mob.getCharItemManager().addItemToInventory(ml);
                     }
