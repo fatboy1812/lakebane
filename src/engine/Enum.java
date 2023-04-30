@@ -2636,8 +2636,9 @@ public class Enum {
 		TEMPLEGUARD(1575,1652, MinionClass.MELEE,"Guard","Temple"),
 		TEMPLEMAGE(1577, 1656, MinionClass.MAGE,"Confessor","Temple"),
 		UNDEADGUARD(980100,1674,MinionClass.MELEE,"Guard","Undead"),
-		UNDEADMAGE(980102,1675,MinionClass.MAGE,"Adept","Undead");
-		
+		UNDEADMAGE(980102,1675,MinionClass.MAGE,"Adept","Undead"),
+		WEREWOLFGUARD(980111,0,MinionClass.MELEE,"Guard","Werewolf"),
+		WEREBEARGUARD(980110,0,MinionClass.MELEE,"Guard","Werebear");
 		private final int captainContractID;
 		private final int equipSetID;
 		private final MinionClass minionClass;

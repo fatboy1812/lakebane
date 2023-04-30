@@ -707,7 +707,8 @@ public class Mob extends AbstractIntelligenceAgent {
                 else if (guardCaptain.getRank() == 6) rank = MBServerStatics.VETERAN;
                 else rank = MBServerStatics.ELITE;
 
-
+                mob.firstName = NPC.getPirateName(mob.getMobBaseID());
+                mob.lastName = rank + " " + minionType.getRace() + " " + minionType.name();
             }
         }
 
@@ -715,6 +716,7 @@ public class Mob extends AbstractIntelligenceAgent {
 
         // mob.setMob();
         mob.isPlayerGuard = true;
+
         DbManager.addToCache(mob);
 
         RuneBase guardRune = RuneBase.getRuneBase(252621);
