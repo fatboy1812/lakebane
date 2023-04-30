@@ -9,15 +9,15 @@
 
 package engine.net.client.msg;
 
-import engine.Enum;
-import engine.Enum.GameObjectType;
 import engine.exception.SerializationException;
 import engine.net.AbstractConnection;
 import engine.net.AbstractNetMsg;
 import engine.net.ByteBufferReader;
 import engine.net.ByteBufferWriter;
 import engine.net.client.Protocol;
-import engine.objects.*;
+import engine.objects.AbstractCharacter;
+import engine.objects.Corpse;
+import engine.objects.NPC;
 
 public class LoadCharacterMsg extends ClientNetMsg {
 
@@ -70,7 +70,7 @@ public class LoadCharacterMsg extends ClientNetMsg {
 	@Override
 	protected void _serialize(ByteBufferWriter writer) throws SerializationException {
 
-		if (absChar != null && absChar.getObjectType() == GameObjectType.NPC) {
+		if (absChar != null) {
 			NPC npc = (NPC) absChar;
 
 			if (npc.region != null) {
@@ -81,66 +81,11 @@ public class LoadCharacterMsg extends ClientNetMsg {
 				writer.putInt(-1);
 			}
 
-
-		} else if (absChar != null) {
-		
-		if (absChar.getObjectType().equals(GameObjectType.PlayerCharacter)) {
-			Regions region = absChar.region;
-
-			if (region == null) {
-				writer.putInt(-1);
-				writer.putInt(-1);
-			} else {
-				Building regionBuilding = Regions.GetBuildingForRegion(region);
-				if (regionBuilding == null) {
-					writer.putInt(-1);
-					writer.putInt(-1);
-				} else {
-					writer.putInt(region.getLevel());
-					writer.putInt(region.getRoom());
-				}
-			}
-		}
-			else if (absChar.getObjectType().equals(GameObjectType.Mob)){
-			Regions region = absChar.region;
-
-				if (region == null){
-					writer.putInt(-1);
-					writer.putInt(-1);
-				}else{
-					Building regionBuilding = Regions.GetBuildingForRegion(region);
-					if (regionBuilding == null){
-						writer.putInt(-1);
-						writer.putInt(-1);
-					}else{
-						writer.putInt(region.getLevel());
-						writer.putInt(region.getRoom());
-					}
-				}
-			//TODO below is Mob Region Serialization, not implemented. default to -1, which is ground.
-		}else {
-
-			Mob mobile = (Mob) absChar;
-
-			if (mobile.building != null &&
-					mobile.building.getBlueprint() != null) {
-
-				Blueprint blueprint = mobile.building.getBlueprint();
-
-				if (blueprint.getBuildingGroup().equals(Enum.BuildingGroup.ARTYTOWER)) {
-					writer.putInt(-0);
-					writer.putInt(-0);
-					return;
-				}
-			}
-			writer.putInt(-1);
-			writer.putInt(-1);
-		}
-
 		} else if (corpse != null){
 			writer.putInt(-1);
 			writer.putInt(-1);
 		}
+
 		if (corpse != null) {
 			writer.putInt(Float.floatToIntBits(corpse.getLoc().getX()));
 			writer.putInt(Float.floatToIntBits(corpse.getLoc().getY()));
