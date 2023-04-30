@@ -762,7 +762,8 @@ public class Mob extends AbstractIntelligenceAgent {
         mob.spawnTime = 900;
         mob.npcOwner = guardCaptain;
         mob.BehaviourType = Enum.MobBehaviourType.GuardMinion;
-
+        //add mob to zone set of captain
+        guardCaptain.getParentZone().zoneMobSet.add(mob);
         return mob;
     }
 
@@ -916,7 +917,10 @@ public class Mob extends AbstractIntelligenceAgent {
         this.charItemManager.load();
 
         //load AI for general mobs.
-        if(this.contract != null && NPC.ISWallArcher(this.contract)) this.BehaviourType = MobBehaviourType.GuardWallArcher;
+        if(this.contract != null && NPC.ISWallArcher(this.contract)){
+            this.BehaviourType = MobBehaviourType.GuardWallArcher;
+            this.isPlayerGuard = true;
+        }
         if (isPet || isSiege || (isGuard && this.contract == null)) this.currentID = (--Mob.staticID);
         else this.currentID = this.dbID;
 
