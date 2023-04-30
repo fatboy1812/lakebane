@@ -171,9 +171,6 @@ public class NPC extends AbstractCharacter {
 			this.setObjectTypeMask(MBServerStatics.MASK_NPC);
 			int contractID = rs.getInt("npc_contractID");
 
-			if (currentID == 15551)
-				this.runeSetID = 11;
-
 			this.parentZoneID = rs.getInt("parent");
 
 			this.gridObjectType = GridObjectType.STATIC;
