@@ -394,7 +394,6 @@ public class InfoCmd extends AbstractDevCmd {
 			if (targetNPC.region != null) {
 				output += newline;
 				output += "Region found: " + "Building : " + targetNPC.region.parentBuildingID + newline;
-				;
 				output += "building level : " + targetNPC.region.level + newline;
 				output += "building room : " + targetNPC.region.room + newline;
 			} else {
