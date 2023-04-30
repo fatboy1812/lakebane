@@ -17,7 +17,6 @@ import engine.net.ByteBufferWriter;
 import engine.net.client.Protocol;
 import engine.objects.AbstractCharacter;
 import engine.objects.Corpse;
-import engine.objects.NPC;
 
 public class LoadCharacterMsg extends ClientNetMsg {
 
@@ -71,11 +70,10 @@ public class LoadCharacterMsg extends ClientNetMsg {
 	protected void _serialize(ByteBufferWriter writer) throws SerializationException {
 
 		if (absChar != null) {
-			NPC npc = (NPC) absChar;
 
-			if (npc.region != null) {
-				writer.putInt(npc.region.getLevel());
-				writer.putInt(npc.region.getRoom());
+			if (absChar.region != null) {
+				writer.putInt(absChar.region.getLevel());
+				writer.putInt(absChar.region.getRoom());
 			} else {
 				writer.putInt(-1);
 				writer.putInt(-1);
