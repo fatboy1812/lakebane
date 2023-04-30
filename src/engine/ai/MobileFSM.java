@@ -384,12 +384,15 @@ public class MobileFSM {
             return;
         mob.updateLocation();
         if (mob.BehaviourType != Enum.MobBehaviourType.Pet1) {
-            if(mob.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardMinion.ordinal() && ((Mob)mob.npcOwner).despawned == true)
-                return;
-            if (mob.getCombatTarget() == null)
+            if (mob.getCombatTarget() == null) {
+                if (mob.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardMinion.ordinal() && (mob.npcOwner).isAlive()) {
+                    return;
+                }
                 Patrol(mob);
-            else
+            }
+            else {
                 chaseTarget(mob);
+            }
         } else {
             //pet logic
             if (!mob.playerAgroMap.containsKey(mob.getOwner().getObjectUUID())) {
