@@ -231,7 +231,8 @@ public class Mob extends AbstractIntelligenceAgent {
             java.util.Date sqlDateTime;
             sqlDateTime = rs.getTimestamp("upgradeDate");
 
-            if (sqlDateTime != null) upgradeDateTime = new DateTime(sqlDateTime);
+            if (sqlDateTime != null)
+                upgradeDateTime = new DateTime(sqlDateTime);
             else upgradeDateTime = null;
 
             // Submit upgrade job if NPC is currently set to rank.
@@ -242,7 +243,8 @@ public class Mob extends AbstractIntelligenceAgent {
 
             this.setObjectTypeMask(MBServerStatics.MASK_MOB | this.getTypeMasks());
 
-            if (this.mobBase != null && this.spawnTime == 0) this.spawnTime = this.mobBase.getSpawnTime();
+            if (this.mobBase != null && this.spawnTime == 0)
+                this.spawnTime = this.mobBase.getSpawnTime();
 
             this.bindLoc = new Vector3fImmutable(this.statLat, this.statAlt, this.statLon);
 
@@ -254,7 +256,7 @@ public class Mob extends AbstractIntelligenceAgent {
 
             if (this.contract != null) {
                 this.equipmentSetID = this.contract.getEquipmentSet();
-                this.nameOverride = rs.getString("mob_name") + " the " + this.getContract().getName();
+                this.nameOverride = this.getContract().getName();
             } else {
                 this.equipmentSetID = rs.getInt("equipmentSet");
                 this.nameOverride = rs.getString("mob_name");

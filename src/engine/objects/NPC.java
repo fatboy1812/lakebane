@@ -240,7 +240,7 @@ public class NPC extends AbstractCharacter {
 			if (this.upgradeDateTime != null)
 				submitUpgradeJob();
 
-			this.name = rs.getString("npc_name");
+			this.name = this.contract.getName();
 			this.nameOverride = rs.getString("npc_name");
 
 		}catch(Exception e){
