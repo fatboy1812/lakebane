@@ -500,10 +500,17 @@ public class Mob extends AbstractIntelligenceAgent {
 
         mobWithoutID.level = (short) level;
 
+        // Parent zone is required by dbhandler.  Can likely
+        // refactor that out and just use the id.
+
+        mobWithoutID.parentZone = parent;
+        mobWithoutID.parentZoneID = parent.getObjectUUID();
+
         // NPC in a Building derives position from slot
 
         if (mobWithoutID.building != null)
             mobWithoutID.bindLoc = Vector3fImmutable.ZERO;
+        ;
 
         Mob mob;
 
