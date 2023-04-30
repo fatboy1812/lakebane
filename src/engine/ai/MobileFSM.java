@@ -385,9 +385,9 @@ public class MobileFSM {
         mob.updateLocation();
         if (mob.BehaviourType != Enum.MobBehaviourType.Pet1) {
             if (mob.getCombatTarget() == null) {
-                if (mob.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardMinion.ordinal() && (mob.npcOwner).isAlive()) {
+                if (mob.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardMinion.ordinal())
                     return;
-                }
+
                 Patrol(mob);
             }
             else {

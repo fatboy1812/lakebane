@@ -120,7 +120,9 @@ public class Mob extends AbstractIntelligenceAgent {
 
         if (contractID == 0) this.contract = null;
         else this.contract = DbManager.ContractQueries.GET_CONTRACT(contractID);
-
+        if(building != null && building.getOwner()!= null){
+            this.lastName = "the " + contract.getName();
+        }
         clearStatic();
     }
 
@@ -253,13 +255,13 @@ public class Mob extends AbstractIntelligenceAgent {
 
             this.notEnemy = EnumBitSet.asEnumBitSet(rs.getLong("notEnemy"), Enum.MonsterType.class);
             this.enemy = EnumBitSet.asEnumBitSet(rs.getLong("enemy"), Enum.MonsterType.class);
-
+            this.firstName = rs.getString("mob_name");
             if (this.contract != null) {
                 this.equipmentSetID = this.contract.getEquipmentSet();
-                this.nameOverride = this.getContract().getName();
+                this.lastName = this.getContract().getName();
             } else {
                 this.equipmentSetID = rs.getInt("equipmentSet");
-                this.nameOverride = rs.getString("mob_name");
+
             }
 
             if (rs.getString("fsm").length() > 1) this.BehaviourType = MobBehaviourType.valueOf(rs.getString("fsm"));
@@ -328,14 +330,11 @@ public class Mob extends AbstractIntelligenceAgent {
         writer.putInt(0xFF665EC3); //Spi
         writer.putInt(0);
 
-        if (!mob.nameOverride.isEmpty()) {
-            writer.putString(mob.nameOverride);
-            writer.putInt(0);
-        } else {
+
             writer.putString(mob.firstName);
             writer.putString(mob.lastName);
 
-        }
+
 
         writer.putInt(0);
         writer.putInt(0);
@@ -706,10 +705,7 @@ public class Mob extends AbstractIntelligenceAgent {
                 else if (guardCaptain.getRank() == 6) rank = MBServerStatics.VETERAN;
                 else rank = MBServerStatics.ELITE;
 
-                if (rank.isEmpty())
-                    mob.nameOverride = pirateName + " " + minionType.getRace() + " " + minionType.getName();
-                else
-                    mob.nameOverride = pirateName + " " + minionType.getRace() + " " + rank + " " + minionType.getName();
+
             }
         }
 
@@ -887,11 +883,6 @@ public class Mob extends AbstractIntelligenceAgent {
             this.setHealth(this.healthMax);
             this.mana.set(this.manaMax);
             this.stamina.set(this.staminaMax);
-
-            if (!this.nameOverride.isEmpty())
-                this.firstName = this.nameOverride;
-            else
-                this.firstName = this.mobBase.getFirstName();
 
             if (isPet)
                 this.setObjectTypeMask(MBServerStatics.MASK_PET | this.getTypeMasks());
@@ -1990,7 +1981,7 @@ public class Mob extends AbstractIntelligenceAgent {
     }
 
     public String getNameOverride() {
-        return nameOverride;
+        return firstName + "  " + lastName;
     }
 
     public void processUpgradeMob(PlayerCharacter player) {
