@@ -240,14 +240,7 @@ public class NPC extends AbstractCharacter {
 				submitUpgradeJob();
 
 			this.name = rs.getString("npc_name");
-
-			// Zone cache can override contract name
-
-			if (this.nameOverride.isEmpty())
-				this.nameOverride = rs.getString("npc_name") + " the " + this.getContract().getName();
-			else
-				this.nameOverride = rs.getString("npc_name");
-
+			this.nameOverride = rs.getString("npc_name");
 
 		}catch(Exception e){
 			Logger.error(e);
