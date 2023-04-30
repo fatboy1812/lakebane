@@ -393,10 +393,16 @@ public class InfoCmd extends AbstractDevCmd {
 
 			if (targetNPC.region != null) {
 				output += newline;
-				output += "BuildingID : " + targetNPC.region.parentBuildingID;
-				output += "building level : " + targetNPC.region.level;
-				output += "building room : " + targetNPC.region.room;
-			} else if (targetNPC.getBuilding() != null) {
+				output += "Region found: " + "Building : " + targetNPC.region.parentBuildingID + newline;
+				;
+				output += "building level : " + targetNPC.region.level + newline;
+				output += "building room : " + targetNPC.region.room + newline;
+			} else {
+				output += newline;
+				output += "No region was found.";
+			}
+
+			if (targetNPC.getBuilding() != null) {
 				output += newline;
 				output += "Building : " + targetNPC.getBuilding();
 			} else {
@@ -404,9 +410,9 @@ public class InfoCmd extends AbstractDevCmd {
 				output += "No building found.";
 			}
 			break;
-		case Mob:
-			Mob targetMob = (Mob) target;
-			output += "databaseID: " + targetMob.getDBID() + newline;
+			case Mob:
+				Mob targetMob = (Mob) target;
+				output += "databaseID: " + targetMob.getDBID() + newline;
 			output += "Name: " + targetMob.getName();
 			output += newline;
 			output += StringUtils.addWS("Level: " + targetMob.getLevel(), 20);
