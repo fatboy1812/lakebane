@@ -916,7 +916,7 @@ public class Mob extends AbstractIntelligenceAgent {
         this.charItemManager.load();
 
         //load AI for general mobs.
-
+        if(this.contract != null && NPC.ISWallArcher(this.contract)) this.BehaviourType = MobBehaviourType.GuardWallArcher;
         if (isPet || isSiege || (isGuard && this.contract == null)) this.currentID = (--Mob.staticID);
         else this.currentID = this.dbID;
 
