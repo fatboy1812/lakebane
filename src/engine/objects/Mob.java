@@ -67,7 +67,6 @@ public class Mob extends AbstractIntelligenceAgent {
     public boolean isPlayerGuard = false;
     public AbstractCharacter npcOwner;
     public long deathTime = 0;
-    public String nameOverride = "";
     public int equipmentSetID = 0;
     public int runeSet = 0;
     public int bootySet = 0;
