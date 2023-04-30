@@ -391,12 +391,20 @@ public class Mob extends AbstractIntelligenceAgent {
         writer.putInt(2); //Unknown
         writer.putInt(1); //Unknown - Headlights?
         writer.putInt(0);
-        writer.putInt(0);
-        writer.putInt(0);
+
+        if (mob.building != null && mob.region != null) {
+            writer.putInt(mob.building.getObjectType().ordinal());
+            writer.putInt(mob.building.getObjectUUID());
+        } else {
+            writer.putInt(0); //<-Building Object Type
+            writer.putInt(0); //<-Building Object ID
+        }
+
         writer.put((byte) 0);
         writer.put((byte) 0);
         writer.put((byte) 0);
-        writer.putInt(0);
+
+        writer.putInt(0); // NPC menu options
 
         if (mob.contract != null && mob.npcOwner == null) {
             writer.put((byte) 1);
@@ -407,7 +415,6 @@ public class Mob extends AbstractIntelligenceAgent {
             else writer.putInt(0); //npc icon ID
 
         } else writer.put((byte) 0);
-
 
         if (mob.npcOwner != null) {
             writer.put((byte) 1);
