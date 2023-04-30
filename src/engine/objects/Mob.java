@@ -354,9 +354,12 @@ public class Mob extends AbstractIntelligenceAgent {
             writer.putFloat(1.0f);
         }
 
-        //Believe this is spawn loc, ignore for now
+        // Location serialization matches NPC
 
-        writer.putVector3f(mob.getLoc());
+        if (mob.region != null)
+            writer.putVector3f(ZoneManager.convertWorldToLocal(mob.building, mob.getLoc()));
+        else
+            writer.putVector3f(mob.getLoc());
 
         //Rotation
 
