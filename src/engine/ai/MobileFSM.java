@@ -199,7 +199,7 @@ public class MobileFSM {
             mob.destination = mob.patrolPoints.get(mob.lastPatrolPointIndex);
             MovementUtilities.aiMove(mob, mob.destination, true);
             mob.lastPatrolPointIndex += 1;
-            if (mob.isPlayerGuard()) {
+            if (mob.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardCaptain.ordinal()) {
                 for (Entry<Mob, Integer> minion : mob.siegeMinionMap.entrySet()) {
                     //make sure mob is out of combat stance
                     if (minion.getKey().isCombat() && minion.getKey().getCombatTarget() == null) {
@@ -320,6 +320,12 @@ public class MobileFSM {
         if (mob.playerAgroMap.isEmpty())
             //no players loaded, no need to proceed
             return;
+        if (mob.isCombat() && mob.getCombatTarget() == null) {
+            mob.setCombat(false);
+            UpdateStateMsg rwss = new UpdateStateMsg();
+            rwss.setPlayer(mob);
+            DispatchMessage.sendToAllInRange(mob, rwss);
+        }
         CheckToSendMobHome(mob);
         mob.updateLocation();
         switch (mob.BehaviourType) {
@@ -378,10 +384,16 @@ public class MobileFSM {
             return;
         mob.updateLocation();
         if (mob.BehaviourType != Enum.MobBehaviourType.Pet1) {
-            if (mob.getCombatTarget() == null)
+            if (mob.getCombatTarget() == null) {
+                if (mob.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardMinion.ordinal()) {
+                    if (mob.npcOwner.isAlive() == true) {
+                        return;
+                    }
+                }
                 Patrol(mob);
-            else
+            }else {
                 chaseTarget(mob);
+            }
         } else {
             //pet logic
             if (!mob.playerAgroMap.containsKey(mob.getOwner().getObjectUUID())) {
@@ -505,11 +517,6 @@ public class MobileFSM {
             CheckForAttack(mob);
     }
     public static void GuardMinionLogic(Mob mob) {
-        if (mob.despawned || !mob.isAlive()) {
-            if (System.currentTimeMillis() > mob.deathTime + (mob.spawnTime * 1000))
-                mob.respawn();
-            return;
-        }
         if (!mob.npcOwner.isAlive() && mob.getCombatTarget() == null) {
             CheckForPlayerGuardAggro(mob);
             return;

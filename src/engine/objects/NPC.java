@@ -87,7 +87,6 @@ public class NPC extends AbstractCharacter {
 	public ArrayList<ProducedItem> forgedItems = new ArrayList<>();
 
 	public HashMap<Integer, MobEquipment> equip = null;
-	private String nameOverride = "";
 	private int equipmentSetID = 0;
 	public int runeSetID = 0;
 
@@ -240,8 +239,10 @@ public class NPC extends AbstractCharacter {
 			if (this.upgradeDateTime != null)
 				submitUpgradeJob();
 
-			this.name = this.contract.getName();
-			this.nameOverride = rs.getString("npc_name");
+			this.name = rs.getString("npc_name");
+			if(this.building != null && this.building.getOwner().getObjectType().equals(GameObjectType.PlayerCharacter)){
+				this.name += " the " + this.contract.getName();
+			}
 
 		}catch(Exception e){
 			Logger.error(e);
@@ -620,23 +621,8 @@ public class NPC extends AbstractCharacter {
 		writer.putInt(0xFF665EC3); //Spi
 		writer.putInt(0);
 
-		if (!npc.nameOverride.isEmpty()){
-			writer.putString(npc.nameOverride);
-			writer.putInt(0);
-		}else
-			if (npc.contract != null) {
-
-				if (npc.contract.isTrainer()) {
-					writer.putString(npc.name + ", " + npc.contract.getName());
-					writer.putString("");
-				} else {
-					writer.putString(npc.name);
-					writer.putString(npc.contract.getName());
-				}
-			} else {
-				writer.putString(npc.name);
-				writer.putString("");
-			}
+		writer.putString(npc.name);
+		writer.putString("");
 
 		writer.putInt(0);
 		writer.putInt(0);
@@ -1473,7 +1459,7 @@ public class NPC extends AbstractCharacter {
 	}
 
 	public String getNameOverride() {
-		return nameOverride;
+		return name;
 	}
 
 	public static NPCProfits GetNPCProfits(NPC npc){

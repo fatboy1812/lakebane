@@ -297,7 +297,7 @@ public enum BuildingManager {
             for (AbstractCharacter slottedNPC : building.getHirelings().keySet()) {
 
                 if (slottedNPC.getObjectType() == Enum.GameObjectType.NPC)
-                    ((NPC) slottedNPC).remove();
+                    ((NPC)slottedNPC).remove();
                 else if (slottedNPC.getObjectType() == Enum.GameObjectType.Mob)
                     NPCManager.removeMobileFromBuilding(((Mob) slottedNPC), building);
             }
@@ -475,7 +475,7 @@ public enum BuildingManager {
 
         NPC npc = null;
 
-        npc = NPC.createNPC(pirateName, NpcID.getObjectUUID(), NpcLoc, null, false, zone, (short) rank, building);
+        npc = NPC.createNPC(pirateName, NpcID.getObjectUUID(), NpcLoc, null, false, zone, (short)rank, building);
 
         if (npc == null)
             return false;
@@ -508,7 +508,7 @@ public enum BuildingManager {
 
         if (NPC.ISWallArcher(contract)) {
 
-            mob = Mob.createMob(contract.getMobbaseID(), Vector3fImmutable.ZERO, contractOwner.getGuild(), true, zone, building, contract.getContractID(), pirateName, rank * 10);
+            mob = Mob.createMob(contract.getMobbaseID(), Vector3fImmutable.ZERO, contractOwner.getGuild(), true, zone, building, contract.getContractID(), pirateName, rank);
 
             if (mob == null)
                 return false;
