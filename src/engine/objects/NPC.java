@@ -646,7 +646,7 @@ public class NPC extends AbstractCharacter {
 			writer.putVector3f(npc.getLoc());
 
 		//Rotation
-		float radians = (float) Math.asin(npc.getRot().y) * 2;
+		float radians = (float) Math.acos(npc.getRot().y) * 2;
 
 		if (npc.building != null)
 			if (npc.building.getBounds() != null && npc.building.getBounds().getQuaternion() != null)

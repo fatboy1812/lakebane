@@ -378,7 +378,7 @@ public class Mob extends AbstractIntelligenceAgent {
             writer.putVector3f(mob.getLoc());
 
         //Rotation
-        float radians = (float) Math.asin(mob.getRot().y) * 2;
+        float radians = (float) Math.acos(mob.getRot().y) * 2;
 
         if (mob.building != null)
             if (mob.building.getBounds() != null && mob.building.getBounds().getQuaternion() != null)
