@@ -2,17 +2,16 @@ package engine.gameManager;
 
 import engine.Enum;
 import engine.InterestManagement.WorldGrid;
-import engine.math.Vector3fImmutable;
 import engine.net.Dispatch;
 import engine.net.DispatchMessage;
 import engine.net.client.msg.PetMsg;
 import engine.objects.*;
 import engine.powers.EffectsBase;
-import engine.server.MBServerStatics;
 import org.pmw.tinylog.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.ThreadLocalRandom;
 
 public enum NPCManager {
 
@@ -270,5 +269,30 @@ public enum NPCManager {
         WorldGrid.RemoveWorldObject(mobile);
         WorldGrid.removeObject(mobile);
         return true;
+    }
+
+    public static void loadAllPirateNames() {
+
+        DbManager.NPCQueries.LOAD_PIRATE_NAMES();
+    }
+
+    public static String getPirateName(int mobBaseID) {
+
+        ArrayList<String> nameList = null;
+
+        // If we cannot find name for this mobbase then
+        // fallback to human male
+
+        if (NPC._pirateNames.containsKey(mobBaseID))
+            nameList = NPC._pirateNames.get(mobBaseID);
+        else
+            nameList = NPC._pirateNames.get(2111);
+
+        if (nameList == null) {
+            Logger.error("Null name list for 2111!");
+        }
+
+        return nameList.get(ThreadLocalRandom.current().nextInt(nameList.size()));
+
     }
 }

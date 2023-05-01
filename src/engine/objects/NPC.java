@@ -35,7 +35,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import static engine.net.client.msg.ErrorPopupMsg.sendErrorPopup;
@@ -1263,33 +1262,6 @@ public class NPC extends AbstractCharacter {
 		WorldGrid.removeObject(this);
 		return true;
 	}
-
-	public static void loadAllPirateNames() {
-
-		DbManager.NPCQueries.LOAD_PIRATE_NAMES();
-	}
-
-	public static String getPirateName(int mobBaseID) {
-
-		ArrayList<String> nameList = null;
-
-		// If we cannot find name for this mobbase then
-		// fallback to human male
-
-		if (_pirateNames.containsKey(mobBaseID))
-			nameList = _pirateNames.get(mobBaseID);
-		else
-			nameList = _pirateNames.get(2111);
-
-		if (nameList == null) {
-			Logger.error("Null name list for 2111!");
-		}
-
-		return nameList.get(ThreadLocalRandom.current().nextInt(nameList.size()));
-
-	}
-
-
 
 	public int getUpgradeCost() {
 

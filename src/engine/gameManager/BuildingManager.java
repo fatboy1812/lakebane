@@ -471,7 +471,7 @@ public enum BuildingManager {
 
     public static final synchronized boolean addHirelingForWorld(Building building, PlayerCharacter contractOwner, Vector3fImmutable NpcLoc, Zone zone, Contract NpcID, int rank) {
 
-        String pirateName = NPC.getPirateName(NpcID.getMobbaseID());
+        String pirateName = NPCManager.getPirateName(NpcID.getMobbaseID());
 
         NPC npc = null;
 
@@ -497,7 +497,7 @@ public enum BuildingManager {
         if (building.getBlueprint().getMaxSlots() == building.getHirelings().size())
             return false;
 
-        String pirateName = NPC.getPirateName(contract.getMobbaseID());
+        String pirateName = NPCManager.getPirateName(contract.getMobbaseID());
 
         if (item.getChargesRemaining() > 0)
             rank = item.getChargesRemaining() * 10;

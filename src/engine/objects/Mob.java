@@ -752,7 +752,7 @@ public class Mob extends AbstractIntelligenceAgent {
                 else
                     rank = MBServerStatics.ELITE;
 
-                mob.firstName = NPC.getPirateName(mob.getMobBaseID());
+                mob.firstName = NPCManager.getPirateName(mob.getMobBaseID());
                 mob.lastName = rank + " " + minionType.getRace() + " " + minionType.getName();
             }
         }

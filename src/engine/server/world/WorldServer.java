@@ -382,7 +382,7 @@ public class WorldServer {
 		Runegate.loadAllRunegates();
 
 		Logger.info("Loading Pirate Names.");
-		NPC.loadAllPirateNames();
+		NPCManager.loadAllPirateNames();
 
 		Logger.info("Loading Max Skills for Trainers");
 		DbManager.SkillsBaseQueries.LOAD_ALL_MAX_SKILLS_FOR_CONTRACT();

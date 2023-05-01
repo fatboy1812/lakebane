@@ -275,7 +275,7 @@ public class MinionTrainingMsgHandler extends AbstractClientMsgHandler {
 						if (mobBase == 0)
 							return true;
 
-						String pirateName = NPC.getPirateName(mobBase);
+						String pirateName = NPCManager.getPirateName(mobBase);
 
 						if (!DbManager.MobQueries.ADD_TO_GUARDS(npc.getObjectUUID(), mobBase, pirateName, npc.getSiegeMinionMap().size() + 1))
 							return true;

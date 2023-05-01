@@ -12,10 +12,7 @@ package engine.devcmd.cmds;
 import engine.Enum.GameObjectType;
 import engine.InterestManagement.WorldGrid;
 import engine.devcmd.AbstractDevCmd;
-import engine.gameManager.BuildingManager;
-import engine.gameManager.ChatManager;
-import engine.gameManager.DbManager;
-import engine.gameManager.ZoneManager;
+import engine.gameManager.*;
 import engine.objects.*;
 import org.pmw.tinylog.Logger;
 
@@ -66,7 +63,7 @@ public class AddNPCCmd extends AbstractDevCmd {
 
 		// Pick a random name
 		if (name.isEmpty())
-			name = NPC.getPirateName(contract.getMobbaseID());
+			name = NPCManager.getPirateName(contract.getMobbaseID());
 
 		Zone zone = ZoneManager.findSmallestZone(pc.getLoc());
 
