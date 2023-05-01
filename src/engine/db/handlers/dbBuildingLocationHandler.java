@@ -24,7 +24,7 @@ public class dbBuildingLocationHandler extends dbHandlerBase {
 		prepareCallable("select * from static_building_location " +
 				"where type = 6 or type = 8 " +
 				"GROUP BY buildingID, slot " +
-				"ORDER BY buildingID, slot ASC;");
+				"ORDER BY buildingID, slot DESC;");
 		return getObjectList();
 	}
 
