@@ -349,6 +349,9 @@ public class WorldServer {
 		Logger.info("Loading Minion Bases.");
 		MinionType.InitializeMinions();
 
+		Logger.info("Loading Pirate Names.");
+		NPCManager.loadAllPirateNames();
+
 		Logger.info("Loading Support Types");
 		SupportMsgType.InitializeSupportMsgType();
 
@@ -380,9 +383,6 @@ public class WorldServer {
 
 		Logger.info("Loading Runegate data.");
 		Runegate.loadAllRunegates();
-
-		Logger.info("Loading Pirate Names.");
-		NPCManager.loadAllPirateNames();
 
 		Logger.info("Loading Max Skills for Trainers");
 		DbManager.SkillsBaseQueries.LOAD_ALL_MAX_SKILLS_FOR_CONTRACT();
