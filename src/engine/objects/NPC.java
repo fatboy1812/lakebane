@@ -361,7 +361,12 @@ public class NPC extends AbstractCharacter {
 			slotLocation = BuildingManager.getSlotLocation(building, slot);
 
 			this.bindLoc = building.getLoc().add(slotLocation);
-			this.loc = building.getLoc().add(slotLocation);
+
+			// Rotate slot position by the building rotation
+
+			Vector3fImmutable.rotateAroundPoint(building.getLoc(), this.bindLoc, -building.getBounds().getQuaternion().angleY);
+
+			this.loc = new Vector3fImmutable(bindLoc);
 
 			// Configure region and floor/level for this NPC
 
