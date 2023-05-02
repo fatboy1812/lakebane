@@ -65,7 +65,6 @@ public class Mob extends AbstractIntelligenceAgent {
     public int spawnTime;
     public Zone parentZone;
     public Building building;
-    public Contract contract;
     public boolean hasLoot = false;
     public boolean isPlayerGuard = false;
     public AbstractCharacter npcOwner;

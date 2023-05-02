@@ -52,7 +52,7 @@ public class NPC extends AbstractCharacter {
 	protected MobBase mobBase;
 	protected String name;
 	public Building building;
-	protected Contract contract;
+
 	protected int dbID;
 	protected int currentID;
 	private DateTime upgradeDateTime = null;

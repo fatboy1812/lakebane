@@ -51,7 +51,7 @@ public enum BuildingManager {
 
         for (int i = 1; i <= numOfSlots; i++) {
 
-            // Slot two is reserved on Arty towers for the trebuchet
+            // Slot one is reserved on Arty towers for the trebuchet
 
             if (i == 1 &&
                     building.getBlueprint() != null &&

@@ -117,9 +117,10 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
 	private long lastHateUpdate = 0;
 	private boolean collided = false;
 	protected Regions lastRegion = null;
-	
+
 	protected boolean movingUp = false;
-	
+	public Contract contract;
+
 
 	/**
 	 * No Id Constructor

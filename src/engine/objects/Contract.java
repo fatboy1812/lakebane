@@ -254,10 +254,16 @@ public class Contract extends AbstractGameObject {
 		 if (this.allowedBuildings.size() == 0)
 			 return false;
 
+		 // Restrict arty towers to a single captain
+
+		 if (this.getContractID() == 842) // Tower Arty Captain
+			 for (AbstractCharacter hireling : building.getHirelings().keySet())
+				 if (hireling.contract.getContractID() == 842)
+					 return false;
+
 		 // Binary match
 		 return (building.getBlueprint().getBuildingGroup().elementOf(this.allowedBuildings));
-
-     }
+	 }
 
 	public int getEquipmentSet() {
 		return equipmentSet;

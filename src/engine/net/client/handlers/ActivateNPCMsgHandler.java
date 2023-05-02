@@ -49,9 +49,12 @@ public class ActivateNPCMsgHandler extends AbstractClientMsgHandler {
 
 		for (Item hirelings : player.getInventory()) {
 			if (hirelings.getItemBase().getType().equals(ItemType.CONTRACT)) {
+
 				contract = DbManager.ContractQueries.GET_CONTRACT(hirelings.getItemBase().getUUID());
+
 				if (contract == null)
 					continue;
+
 				if (contract.canSlotinBuilding(building))
 					ItemLists.add(hirelings);
 			}
