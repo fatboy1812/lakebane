@@ -929,7 +929,7 @@ public class Mob extends AbstractIntelligenceAgent {
             this.loc = new Vector3fImmutable(bindLoc);
             this.endLoc = new Vector3fImmutable(bindLoc);
 
-            // Rotate mobile's rotation by the building's rotation
+            // Rotate mobile rotation by the building's rotation
 
             slotRotation = new Quaternion().fromAngles(0, acos(this.getRot().y) * 2, 0);
             slotRotation = slotRotation.mult(building.getBounds().getQuaternion());

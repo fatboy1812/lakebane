@@ -38,6 +38,7 @@ import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import static engine.math.FastMath.acos;
 import static engine.net.client.msg.ErrorPopupMsg.sendErrorPopup;
 import static engine.objects.MobBase.loadEquipmentSet;
 
@@ -373,6 +374,12 @@ public class NPC extends AbstractCharacter {
 			// Rotate NPC by slot rotation
 
 			slotRotation = BuildingManager.getSlotLocation(building, slot).getRotation();
+			this.setRot(new Vector3f(0, slotRotation.y, 0));
+
+			// Rotate NPC rotation by the building's rotation
+
+			slotRotation = new Quaternion().fromAngles(0, acos(this.getRot().y) * 2, 0);
+			slotRotation = slotRotation.mult(building.getBounds().getQuaternion());
 			this.setRot(new Vector3f(0, slotRotation.y, 0));
 
 			// Configure region and floor/level for this NPC
