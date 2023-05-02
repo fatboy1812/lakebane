@@ -50,6 +50,14 @@ public enum BuildingManager {
         int numOfSlots = _slotLocations.get(building.meshUUID).size();
 
         for (int i = 1; i <= numOfSlots; i++) {
+
+            // Slot two is reserved on Arty towers for the trebuchet
+
+            if (i == 2 &&
+                    building.getBlueprint() != null &&
+                    building.getBlueprint().getBuildingGroup().equals(BuildingGroup.ARTYTOWER))
+                continue;
+
             if (!building.getHirelings().containsValue(i))
                 return i;
         }

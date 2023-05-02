@@ -356,12 +356,6 @@ public class NPC extends AbstractCharacter {
 			if (slot == -1)
 				Logger.error("No available slot for NPC: " + this.getObjectUUID());
 
-			// Slot one is reserved on Arty towers for the trebuchet
-
-			if (building.getBlueprint() != null &&
-					building.getBlueprint().getBuildingGroup().equals(BuildingGroup.ARTYTOWER))
-				slot = slot + 1;
-
 			building.getHirelings().put(this, slot);
 
 			// Override bind and location for  this npc derived
