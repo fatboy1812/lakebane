@@ -931,7 +931,7 @@ public class Mob extends AbstractIntelligenceAgent {
 
             // Rotate mobile's rotation by the building's rotation
 
-            slotRotation = new Quaternion().fromAngles(0, acos(this.getRot().y), 0);
+            slotRotation = new Quaternion().fromAngles(0, acos(this.getRot().y) * 2, 0);
             slotRotation = slotRotation.mult(building.getBounds().getQuaternion());
             this.setRot(new Vector3f(0, slotRotation.y, 0));
 
