@@ -41,6 +41,7 @@ import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import static engine.math.FastMath.acos;
 import static engine.net.client.msg.ErrorPopupMsg.sendErrorPopup;
 
 public class Mob extends AbstractIntelligenceAgent {
@@ -927,6 +928,12 @@ public class Mob extends AbstractIntelligenceAgent {
 
             this.loc = new Vector3fImmutable(bindLoc);
             this.endLoc = new Vector3fImmutable(bindLoc);
+
+            // Rotate mobile's rotation by the building's rotation
+
+            slotRotation = new Quaternion().fromAngles(0, acos(this.getRot().y), 0);
+            slotRotation = slotRotation.mult(building.getBounds().getQuaternion());
+            this.setRot(new Vector3f(0, slotRotation.y, 0));
 
             // Configure building region and floor/level for this Mobile
 
