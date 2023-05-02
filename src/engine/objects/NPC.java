@@ -1403,14 +1403,6 @@ public class NPC extends AbstractCharacter {
 		return equipmentSetID;
 	}
 
-	public static boolean UpdateSlot(NPC npc,int slot){
-
-		if (!DbManager.NPCQueries.UPDATE_SLOT(npc, slot))
-			return false;
-
-		return true;
-	}
-
 	public static boolean UpdateEquipSetID(NPC npc, int equipSetID){
 
 		if (!NPCManager._bootySetMap.containsKey(equipSetID))
