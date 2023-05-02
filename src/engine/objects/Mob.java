@@ -896,8 +896,6 @@ public class Mob extends AbstractIntelligenceAgent {
 
                 this.bindLoc = new Vector3fImmutable(this.statLat, this.statAlt, this.statLon);
                 this.bindLoc = this.building.getLoc().add(this.bindLoc);
-                this.loc = new Vector3fImmutable(bindLoc);
-                this.endLoc = new Vector3fImmutable(bindLoc);
 
             } else {
 
@@ -918,15 +916,14 @@ public class Mob extends AbstractIntelligenceAgent {
 
                 this.bindLoc = building.getLoc().add(slotLocation);
 
-                // Rotate slot position by the building rotation
-
-                Vector3fImmutable.rotateAroundPoint(building.getLoc(), this.bindLoc, -building.getBounds().getQuaternion().angleY);
-
-                this.loc = new Vector3fImmutable(bindLoc);
-                this.endLoc = new Vector3fImmutable(bindLoc);
-                ;
-
             }
+
+            // Rotate slot position by the building rotation
+
+            this.bindLoc = Vector3fImmutable.rotateAroundPoint(building.getLoc(), this.bindLoc, -building.getBounds().getQuaternion().angleY);
+
+            this.loc = new Vector3fImmutable(bindLoc);
+            this.endLoc = new Vector3fImmutable(bindLoc);
 
             // Configure building region and floor/level for this Mobile
 
