@@ -53,7 +53,7 @@ public enum BuildingManager {
 
             // Slot two is reserved on Arty towers for the trebuchet
 
-            if (i == 2 &&
+            if (i == 1 &&
                     building.getBlueprint() != null &&
                     building.getBlueprint().getBuildingGroup().equals(BuildingGroup.ARTYTOWER))
                 continue;
