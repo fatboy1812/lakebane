@@ -920,7 +920,7 @@ public class Mob extends AbstractIntelligenceAgent {
 
             // Rotate slot position by the building rotation
 
-            this.bindLoc = Vector3fImmutable.rotateAroundPoint(building.getLoc(), this.bindLoc, -building.getBounds().getQuaternion().angleY);
+            this.bindLoc = Vector3fImmutable.rotateAroundPoint(building.getLoc(), this.bindLoc, building.getBounds().getQuaternion().angleY);
 
             this.loc = new Vector3fImmutable(bindLoc);
             this.endLoc = new Vector3fImmutable(bindLoc);
