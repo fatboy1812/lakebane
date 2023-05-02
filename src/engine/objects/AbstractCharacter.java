@@ -1301,20 +1301,6 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
 			locationLock.writeLock().unlock();
 		}
 	}
-	
-	
-	public void teleportToObject(final AbstractWorldObject worldObject) {
-		locationLock.writeLock().lock();
-		try{
-			MovementManager.translocateToObject(this, worldObject);
-		}catch(Exception e){
-			Logger.error(e);
-		}finally{
-			locationLock.writeLock().unlock();
-		}
-	}
-
-
 
 	/*
 	 * Serializing
