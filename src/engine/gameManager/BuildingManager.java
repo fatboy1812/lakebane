@@ -56,19 +56,20 @@ public enum BuildingManager {
         return -1;
     }
 
-    public static Vector3fImmutable getSlotLocation(Building building, int slot) {
+    public static BuildingLocation getSlotLocation(Building building, int slot) {
+
+        BuildingLocation buildingLocation = new BuildingLocation();
 
         if (slot == -1)
-            return Vector3fImmutable.ZERO;
+            return buildingLocation;
 
-        BuildingLocation buildingLocation;
         buildingLocation = _slotLocations.get(building.meshUUID).get(slot - 1); // array index
 
         if (buildingLocation == null) {
             Logger.error("Invalid slot for building: " + building.getObjectUUID());
         }
 
-        return buildingLocation.getLocation();
+        return buildingLocation;
     }
 
     public static Quaternion getSlotRotation(Building building, int slot) {

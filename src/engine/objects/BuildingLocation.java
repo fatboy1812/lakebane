@@ -30,6 +30,16 @@ public class BuildingLocation extends AbstractGameObject {
 	private final Quaternion rotation;
 
 
+	public BuildingLocation() {
+
+		this.buildingUUID = 0;
+		this.type = 0;
+		this.slot = 0;
+		this.unknown = 0;
+		this.location = Vector3fImmutable.ZERO;
+		this.rotation = new Quaternion();
+	}
+
 	/**
 	 * ResultSet Constructor
 	 */

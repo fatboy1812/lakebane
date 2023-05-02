@@ -20,6 +20,8 @@ import engine.jobs.DeferredPowerJob;
 import engine.jobs.UpgradeNPCJob;
 import engine.loot.LootManager;
 import engine.math.Bounds;
+import engine.math.Quaternion;
+import engine.math.Vector3f;
 import engine.math.Vector3fImmutable;
 import engine.net.ByteBufferWriter;
 import engine.net.Dispatch;
@@ -863,6 +865,7 @@ public class Mob extends AbstractIntelligenceAgent {
 
         int slot;
         Vector3fImmutable slotLocation;
+        Quaternion slotRotation;
 
         if (ConfigManager.serverType.equals(ServerType.LOGINSERVER))
             return;
@@ -907,9 +910,14 @@ public class Mob extends AbstractIntelligenceAgent {
                 // Override bind and location for this contracted Mobile
                 // derived from BuildingManager slot location data.
 
-                slotLocation = BuildingManager.getSlotLocation(building, slot);
+                slotLocation = BuildingManager.getSlotLocation(building, slot).getLocation();
 
                 this.bindLoc = building.getLoc().add(slotLocation);
+
+                // Rotate MOB by slot rotation
+
+                slotRotation = BuildingManager.getSlotLocation(building, slot).getRotation();
+                this.setRot(new Vector3f(0, slotRotation.y, 0));
 
             }
 
