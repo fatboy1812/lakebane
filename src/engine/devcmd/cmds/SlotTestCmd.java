@@ -37,7 +37,7 @@ public class SlotTestCmd extends AbstractDevCmd {
 		Building building = (Building)target;
 
 		for (BuildingLocation buildingLocation : BuildingManager._slotLocations.get(building.meshUUID))
-			outString += buildingLocation.getSlot() + buildingLocation.getLoc().toString() + "\r\n";
+			outString += buildingLocation.getSlot() + buildingLocation.getLocation().toString() + "\r\n";
 
 		outString += "\r\nNeext Available Slot: " + BuildingManager.getAvailableSlot(building);
 
