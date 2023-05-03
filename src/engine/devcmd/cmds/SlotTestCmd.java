@@ -14,6 +14,7 @@ import engine.Enum.GameObjectType;
 import engine.devcmd.AbstractDevCmd;
 import engine.gameManager.BuildingManager;
 import engine.gameManager.ChatManager;
+import engine.math.Vector3fImmutable;
 import engine.objects.*;
 
 import java.util.ArrayList;
@@ -47,6 +48,20 @@ public class SlotTestCmd extends AbstractDevCmd {
 			return;
 		}
 
+		// Goto slot location
+
+		if (args.length == 1) {
+
+			int slot = Integer.parseInt(args[0]);
+			Vector3fImmutable slotPosition;
+			BuildingLocation slotLocation = BuildingManager._slotLocations.get(building.meshUUID).get(slot);
+			slotPosition = slotLocation.getLocation();
+			slotPosition = Vector3fImmutable.rotateAroundPoint(building.getLoc(), slotPosition, building.getBounds().getQuaternion().angleY);
+			playerCharacter.teleport(slotPosition);
+			return;
+		}
+
+
 		for (BuildingLocation buildingLocation : BuildingManager._slotLocations.get(building.meshUUID))
 			outString += buildingLocation.getSlot() + buildingLocation.getLocation().toString() + "\r\n";
 
@@ -73,7 +88,7 @@ public class SlotTestCmd extends AbstractDevCmd {
 
 	@Override
 	protected String _getUsageString() {
-		return "./slottest <target builing>";
+		return "./slottest <target builing> n";
 
 	}
 
