@@ -356,9 +356,6 @@ public class NPC extends AbstractCharacter {
 			if (slot == -1)
 				Logger.error("No available slot for NPC: " + this.getObjectUUID());
 
-			if (this.contract.getContractID() == 839) // Arty Captains are hardcoded to slot 4
-				slot = 4;
-
 			building.getHirelings().put(this, slot);
 
 			// Override bind and location for  this npc derived
