@@ -55,7 +55,7 @@ public class SlotTestCmd extends AbstractDevCmd {
 			int slot = Integer.parseInt(args[0]);
 			Vector3fImmutable slotPosition;
 			BuildingLocation slotLocation = BuildingManager._slotLocations.get(building.meshUUID).get(slot);
-			slotPosition = slotLocation.getLocation();
+			slotPosition = building.getLoc().add(slotLocation.getLocation());
 			slotPosition = Vector3fImmutable.rotateAroundPoint(building.getLoc(), slotPosition, building.getBounds().getQuaternion().angleY);
 			playerCharacter.teleport(slotPosition);
 			return;
