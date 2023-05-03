@@ -50,7 +50,7 @@ public class SlotTestCmd extends AbstractDevCmd {
 
 		// Goto slot location
 
-		if (args.length == 1) {
+		if (args[0].isEmpty() == false) {
 
 			int slot = Integer.parseInt(args[0]);
 			Vector3fImmutable slotLocation;
