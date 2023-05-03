@@ -16,6 +16,8 @@ import engine.gameManager.BuildingManager;
 import engine.gameManager.ChatManager;
 import engine.objects.*;
 
+import java.util.ArrayList;
+
 public class SlotTestCmd extends AbstractDevCmd {
 
 	public SlotTestCmd() {
@@ -26,6 +28,7 @@ public class SlotTestCmd extends AbstractDevCmd {
 	protected void _doCmd(PlayerCharacter playerCharacter, String[] args,
 			AbstractGameObject target) {
 
+		ArrayList<BuildingLocation> buildingLocations;
 		String outString = "Available Slots\r\n";
 
 		if (target == null)
@@ -34,36 +37,29 @@ public class SlotTestCmd extends AbstractDevCmd {
 		if (target.getObjectType() != GameObjectType.Building)
 			return;
 
-		Building building = (Building)target;
+		Building building = (Building) target;
+
+		buildingLocations = BuildingManager._slotLocations.get(building.meshUUID);
+
+		if (buildingLocations == null) {
+			outString = "No slot information for mesh: " + building.meshUUID;
+			ChatManager.chatSystemInfo(playerCharacter, outString);
+			return;
+		}
 
 		for (BuildingLocation buildingLocation : BuildingManager._slotLocations.get(building.meshUUID))
 			outString += buildingLocation.getSlot() + buildingLocation.getLocation().toString() + "\r\n";
 
-		outString += "\r\nNeext Available Slot: " + BuildingManager.getAvailableSlot(building);
+		outString += "\r\nNext Available Slot: " + BuildingManager.getAvailableSlot(building);
 
 		if (building.getHirelings().isEmpty() == false) {
 
 			outString += "\r\n\r\n";
-			outString += "Hirelings List: name / slot / floor";
+			outString += "Hirelings List:";
 
-			for (AbstractCharacter hireling : building.getHirelings().keySet()) {
+			for (AbstractCharacter hireling : building.getHirelings().keySet())
+				outString += "\r\n" + hireling.getName() + " slot : " + building.getHirelings().get(hireling);
 
-				NPC npc;
-				Mob mob;
-
-				outString += "\r\n" + hireling.getName() + " slot " + building.getHirelings().get(hireling);
-
-		/*		if (hireling.getObjectType().equals(GameObjectType.NPC)) {
-					npc = (NPC) hireling;
-					outString += "\r\n" + "location " + npc.inBuildingLoc.toString();
-					continue;
-				}
-
-				mob = (Mob) hireling;
-
-				outString += "\r\n" + "location " + mob.inBuildingLoc.toString();
-		*/
-			}
 		}
 
 		ChatManager.chatSystemInfo(playerCharacter,outString);
@@ -72,12 +68,12 @@ public class SlotTestCmd extends AbstractDevCmd {
 
 	@Override
 	protected String _getHelpString() {
-		return "Temporarily Changes SubRace";
+		return "Displays slot information for building";
 	}
 
 	@Override
 	protected String _getUsageString() {
-		return "' /setBuildingCollidables add/remove 'add creates a collision line.' needs 4 integers. startX, endX, startY, endY";
+		return "./slottest <target builing>";
 
 	}
 
