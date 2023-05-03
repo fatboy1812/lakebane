@@ -246,20 +246,13 @@ public class Contract extends AbstractGameObject {
 		 if (building == null)
 			 return false;
 
-		 // Can't slot in anything but a blueprintted building
+		 // Can't slot in anything but a blueprinted building
 		 if (building.getBlueprintUUID() == 0)
 			 return false;
 
 		 // No buildings no slotting
 		 if (this.allowedBuildings.size() == 0)
 			 return false;
-
-		 // Restrict arty towers to a single captain
-
-		 if (this.getContractID() == 842) // Tower Arty Captain
-			 for (AbstractCharacter hireling : building.getHirelings().keySet())
-				 if (hireling.contract.getContractID() == 842)
-					 return false;
 
 		 // Binary match
 		 return (building.getBlueprint().getBuildingGroup().elementOf(this.allowedBuildings));
