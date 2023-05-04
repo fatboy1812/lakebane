@@ -193,10 +193,12 @@ public class MobileFSM {
         }
         if (MovementUtilities.canMove(mob)) {
             //get the next index of the patrol point from the patrolPoints list
-            if (mob.lastPatrolPointIndex > mob.patrolPoints.size() - 1) {
+            if(mob.patrolPoints.isEmpty()) {
+                mob.destination = randomGuardPatrolPoint(mob);
+            } else  if (mob.lastPatrolPointIndex > mob.patrolPoints.size() - 1) {
                 mob.lastPatrolPointIndex = 0;
+                mob.destination = mob.patrolPoints.get(mob.lastPatrolPointIndex);
             }
-            mob.destination = mob.patrolPoints.get(mob.lastPatrolPointIndex);
             MovementUtilities.aiMove(mob, mob.destination, true);
             mob.lastPatrolPointIndex += 1;
             if (mob.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardCaptain.ordinal()) {
@@ -616,5 +618,11 @@ public class MobileFSM {
         if (!mob.getGuild().getNation().equals(target.getGuild().getNation()))
             return !mob.getGuild().getAllyList().contains(target.getGuild()) || !mob.getGuild().getAllyList().contains(target.getGuild().getNation());
         return false;
+    }
+    public static Vector3fImmutable randomGuardPatrolPoint(Mob mob){
+        float xPoint = ThreadLocalRandom.current().nextInt(1200) - 600;
+        float zPoint = ThreadLocalRandom.current().nextInt(1200) - 600;
+        Vector3fImmutable TreePos = mob.getGuild().getOwnedCity().getLoc();
+        return new Vector3fImmutable(TreePos.x + xPoint,TreePos.y,TreePos.z + zPoint);
     }
 }
