@@ -188,18 +188,20 @@ public class MobileFSM {
         //guard captains inherit barracks patrol points dynamically
         if (mob.contract != null && NPC.ISGuardCaptain(mob.contract.getContractID())) {
             Building barracks = mob.building;
-            if (barracks != null && barracks.patrolPoints != null && !barracks.getPatrolPoints().isEmpty())
+            if (barracks != null && barracks.patrolPoints != null && !barracks.getPatrolPoints().isEmpty()) {
                 mob.patrolPoints = barracks.patrolPoints;
+                if(mob.lastPatrolPointIndex > mob.patrolPoints.size() - 1) {
+                    mob.lastPatrolPointIndex = 0;
+                    mob.destination = mob.patrolPoints.get(mob.lastPatrolPointIndex);
+                    mob.lastPatrolPointIndex += 1;
+                }
+            } else{
+                    mob.destination = randomGuardPatrolPoint(mob);
+                }
         }
         if (MovementUtilities.canMove(mob)) {
             //get the next index of the patrol point from the patrolPoints list
-            if(mob.patrolPoints.isEmpty()) {
-                mob.destination = randomGuardPatrolPoint(mob);
-            } else  if (mob.lastPatrolPointIndex > mob.patrolPoints.size() - 1) {
-                mob.lastPatrolPointIndex = 0;
-                mob.destination = mob.patrolPoints.get(mob.lastPatrolPointIndex);
-                mob.lastPatrolPointIndex += 1;
-            }
+
             MovementUtilities.aiMove(mob, mob.destination, true);
             if (mob.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardCaptain.ordinal()) {
                 for (Entry<Mob, Integer> minion : mob.siegeMinionMap.entrySet()) {
@@ -474,10 +476,17 @@ public class MobileFSM {
     private static void CheckToSendMobHome(Mob mob) {
         if (mob.isPlayerGuard()) {
             City current = ZoneManager.getCityAtLocation(mob.getLoc());
-            if (current == null || current.equals(mob.getGuild().getOwnedCity()) == false) {
+            if (current == null || current.equals(mob.getGuild().getOwnedCity()) == false || mob.playerAgroMap.isEmpty()) {
                 PowersBase recall = PowersManager.getPowerByToken(-1994153779);
                 PowersManager.useMobPower(mob, mob, recall, 40);
                 mob.setCombatTarget(null);
+                if(mob.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardCaptain.ordinal()){
+                    //guard captain pulls his minions home with him
+                    for (Entry<Mob, Integer> minion : mob.siegeMinionMap.entrySet()) {
+                        PowersManager.useMobPower(minion.getKey(), minion.getKey(), recall, 40);
+                        minion.getKey().setCombatTarget(null);
+                    }
+                }
             }
         }
         if(MovementUtilities.inRangeOfBindLocation(mob) == false) {
@@ -622,8 +631,8 @@ public class MobileFSM {
         return false;
     }
     public static Vector3fImmutable randomGuardPatrolPoint(Mob mob){
-        float xPoint = ThreadLocalRandom.current().nextInt(1200) - 600;
-        float zPoint = ThreadLocalRandom.current().nextInt(1200) - 600;
+        float xPoint = ThreadLocalRandom.current().nextInt(400) - 200;
+        float zPoint = ThreadLocalRandom.current().nextInt(400) - 200;
         Vector3fImmutable TreePos = mob.getGuild().getOwnedCity().getLoc();
         return new Vector3fImmutable(TreePos.x + xPoint,TreePos.y,TreePos.z + zPoint);
     }
