@@ -661,7 +661,7 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
 		//TODO who the fuck wrote changeHeightJob. FIX THIS.
 
 
-		if (this.endLoc.equals(Vector3fImmutable.ZERO))
+		if (this.endLoc.equals(Vector3fImmutable.ZERO) || this.endLoc.equals(this.bindLoc))
 			return false;
 		
 		if (this.takeOffTime != 0)
