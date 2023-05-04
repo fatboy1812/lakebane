@@ -186,41 +186,21 @@ public class MobileFSM {
             //early exit while waiting to patrol again
             return;
         //guard captains inherit barracks patrol points dynamically
-        if (mob.contract != null && NPC.ISGuardCaptain(mob.contract.getContractID())) {
+        if (mob.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardCaptain.ordinal()) {
             Building barracks = mob.building;
             if (barracks != null && barracks.patrolPoints != null && !barracks.getPatrolPoints().isEmpty()) {
                 mob.patrolPoints = barracks.patrolPoints;
-                if(mob.lastPatrolPointIndex > mob.patrolPoints.size() - 1) {
-                    mob.lastPatrolPointIndex = 0;
-                    mob.destination = mob.patrolPoints.get(mob.lastPatrolPointIndex);
-                    mob.lastPatrolPointIndex += 1;
-                }
             } else{
-                    mob.destination = randomGuardPatrolPoint(mob);
-                }
-        }
-        if (MovementUtilities.canMove(mob)) {
-            //get the next index of the patrol point from the patrolPoints list
-
-            MovementUtilities.aiMove(mob, mob.destination, true);
-            if (mob.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardCaptain.ordinal()) {
-                for (Entry<Mob, Integer> minion : mob.siegeMinionMap.entrySet()) {
-                    //make sure mob is out of combat stance
-                    if (minion.getKey().isCombat() && minion.getKey().getCombatTarget() == null) {
-                        minion.getKey().setCombat(false);
-                        UpdateStateMsg rwss = new UpdateStateMsg();
-                        rwss.setPlayer(minion.getKey());
-                        DispatchMessage.sendToAllInRange(minion.getKey(), rwss);
-                    }
-                    if (MovementUtilities.canMove(minion.getKey())) {
-                        Vector3f minionOffset = Formation.getOffset(2, minion.getValue() + 3);
-                        minion.getKey().updateLocation();
-                        Vector3fImmutable formationPatrolPoint = new Vector3fImmutable(mob.destination.x + minionOffset.x, mob.destination.y, mob.destination.z + minionOffset.z);
-                        MovementUtilities.aiMove(minion.getKey(), formationPatrolPoint, true);
-                    }
-                }
+                randomGuardPatrolPoint(mob);
+                return;
             }
         }
+            if (mob.lastPatrolPointIndex > mob.patrolPoints.size() - 1) {
+                mob.lastPatrolPointIndex = 0;
+                mob.destination = mob.patrolPoints.get(mob.lastPatrolPointIndex);
+                mob.lastPatrolPointIndex += 1;
+            }
+        MovementUtilities.aiMove(mob, mob.destination, true);
     }
     public static boolean canCast(Mob mob) {
         // Performs validation to determine if a
@@ -630,10 +610,28 @@ public class MobileFSM {
             return !mob.getGuild().getAllyList().contains(target.getGuild()) || !mob.getGuild().getAllyList().contains(target.getGuild().getNation());
         return false;
     }
-    public static Vector3fImmutable randomGuardPatrolPoint(Mob mob){
+    public static void randomGuardPatrolPoint(Mob mob){
         float xPoint = ThreadLocalRandom.current().nextInt(400) - 200;
         float zPoint = ThreadLocalRandom.current().nextInt(400) - 200;
         Vector3fImmutable TreePos = mob.getGuild().getOwnedCity().getLoc();
-        return new Vector3fImmutable(TreePos.x + xPoint,TreePos.y,TreePos.z + zPoint);
+        mob.destination = new Vector3fImmutable(TreePos.x + xPoint,TreePos.y,TreePos.z + zPoint);
+        MovementUtilities.aiMove(mob, mob.destination, true);
+        if (mob.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardCaptain.ordinal()) {
+            for (Entry<Mob, Integer> minion : mob.siegeMinionMap.entrySet()) {
+                //make sure mob is out of combat stance
+                if (minion.getKey().isCombat() && minion.getKey().getCombatTarget() == null) {
+                    minion.getKey().setCombat(false);
+                    UpdateStateMsg rwss = new UpdateStateMsg();
+                    rwss.setPlayer(minion.getKey());
+                    DispatchMessage.sendToAllInRange(minion.getKey(), rwss);
+                }
+                if (MovementUtilities.canMove(minion.getKey())) {
+                    Vector3f minionOffset = Formation.getOffset(2, minion.getValue() + 3);
+                    minion.getKey().updateLocation();
+                    Vector3fImmutable formationPatrolPoint = new Vector3fImmutable(mob.destination.x + minionOffset.x, mob.destination.y, mob.destination.z + minionOffset.z);
+                    MovementUtilities.aiMove(minion.getKey(), formationPatrolPoint, true);
+                }
+            }
+        }
     }
 }
