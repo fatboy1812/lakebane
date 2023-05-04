@@ -619,17 +619,19 @@ public class MobileFSM {
         if (mob.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardCaptain.ordinal()) {
             for (Entry<Mob, Integer> minion : mob.siegeMinionMap.entrySet()) {
                 //make sure mob is out of combat stance
-                if (minion.getKey().isCombat() && minion.getKey().getCombatTarget() == null) {
-                    minion.getKey().setCombat(false);
-                    UpdateStateMsg rwss = new UpdateStateMsg();
-                    rwss.setPlayer(minion.getKey());
-                    DispatchMessage.sendToAllInRange(minion.getKey(), rwss);
-                }
-                if (MovementUtilities.canMove(minion.getKey())) {
-                    Vector3f minionOffset = Formation.getOffset(2, minion.getValue() + 3);
-                    minion.getKey().updateLocation();
-                    Vector3fImmutable formationPatrolPoint = new Vector3fImmutable(mob.destination.x + minionOffset.x, mob.destination.y, mob.destination.z + minionOffset.z);
-                    MovementUtilities.aiMove(minion.getKey(), formationPatrolPoint, true);
+                if (minion.getKey().despawned == false) {
+                    if (minion.getKey().isCombat() && minion.getKey().getCombatTarget() == null) {
+                        minion.getKey().setCombat(false);
+                        UpdateStateMsg rwss = new UpdateStateMsg();
+                        rwss.setPlayer(minion.getKey());
+                        DispatchMessage.sendToAllInRange(minion.getKey(), rwss);
+                    }
+                    if (MovementUtilities.canMove(minion.getKey())) {
+                        Vector3f minionOffset = Formation.getOffset(2, minion.getValue() + 3);
+                        minion.getKey().updateLocation();
+                        Vector3fImmutable formationPatrolPoint = new Vector3fImmutable(mob.destination.x + minionOffset.x, mob.destination.y, mob.destination.z + minionOffset.z);
+                        MovementUtilities.aiMove(minion.getKey(), formationPatrolPoint, true);
+                    }
                 }
             }
         }
