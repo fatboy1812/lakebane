@@ -198,9 +198,9 @@ public class MobileFSM {
             } else  if (mob.lastPatrolPointIndex > mob.patrolPoints.size() - 1) {
                 mob.lastPatrolPointIndex = 0;
                 mob.destination = mob.patrolPoints.get(mob.lastPatrolPointIndex);
+                mob.lastPatrolPointIndex += 1;
             }
             MovementUtilities.aiMove(mob, mob.destination, true);
-            mob.lastPatrolPointIndex += 1;
             if (mob.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardCaptain.ordinal()) {
                 for (Entry<Mob, Integer> minion : mob.siegeMinionMap.entrySet()) {
                     //make sure mob is out of combat stance
@@ -312,6 +312,8 @@ public class MobileFSM {
         if (mob.despawned && mob.isPlayerGuard) {
             //override for guards
             CheckForRespawn(mob);
+            //check to send mob home for player guards to prevent exploit of dragging guards away and then teleporting
+            CheckToSendMobHome(mob);
             return;
         }
         if (!mob.isAlive()) {
