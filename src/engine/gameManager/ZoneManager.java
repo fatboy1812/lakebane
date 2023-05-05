@@ -424,7 +424,7 @@ public enum ZoneManager {
 
             city = City.getCity(zone.getPlayerCityUUID());
 
-            if (worldLoc.isInsideCircle(city.getLoc(), Enum.CityBoundsType.SIEGE.extents))
+            if (worldLoc.isInsideCircle(city.getLoc(), Enum.CityBoundsType.ZONE.extents))
                 return city;
         }
 
@@ -449,10 +449,9 @@ public enum ZoneManager {
 
 
         treeBounds = Bounds.borrow();
-        treeBounds.setBounds(new Vector2f(positionX, positionZ), new Vector2f(Enum.CityBoundsType.SIEGE.extents, Enum.CityBoundsType.SIEGE.extents), 0.0f);
+        treeBounds.setBounds(new Vector2f(positionX, positionZ), new Vector2f(Enum.CityBoundsType.ZONE.extents, Enum.CityBoundsType.ZONE.extents), 0.0f);
 
         zoneList = currentZone.getNodes();
-
 
         for (Zone zone : zoneList) {
 

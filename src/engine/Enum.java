@@ -2269,14 +2269,13 @@ public class Enum {
 
 	public enum CityBoundsType {
 
-		GRID(512),
-		ZONE(576),
-		SIEGE(1040);
+		GRID(640),
+		ZONE(875);
 
 		public final float extents;
 
 		CityBoundsType(float extents) {
-		this.extents = extents;
+			this.extents = extents;
 		}
 	}
 

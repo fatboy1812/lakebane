@@ -53,9 +53,9 @@ public class MovementUtilities {
 						
 						//Guards recall distance = 814.
 						if (tol != null){
-							if (agent.getLoc().distanceSquared2D(tol.getLoc()) > sqr(Enum.CityBoundsType.SIEGE.extents)) {
-					                return false;
-					            }
+							if (agent.getLoc().distanceSquared2D(tol.getLoc()) > sqr(Enum.CityBoundsType.ZONE.extents)) {
+								return false;
+							}
 						}
 						
 					}
