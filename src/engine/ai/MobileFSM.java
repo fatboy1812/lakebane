@@ -38,6 +38,11 @@ public class MobileFSM {
         }
         if (!CombatUtilities.inRangeToAttack(mob, target))
             return;
+        if(mob.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardCaptain.ordinal()){
+            if(!GuardCanAggro(mob, (PlayerCharacter)mob.getCombatTarget())){
+                mob.setCombatTarget(null);
+            }
+        }
         switch (target.getObjectType()) {
             case PlayerCharacter:
                 PlayerCharacter targetPlayer = (PlayerCharacter) target;
@@ -540,6 +545,9 @@ public class MobileFSM {
             CheckForPlayerGuardAggro(mob);
             return;
         }
+        if(mob.npcOwner.getCombatTarget() != null){
+            mob.setCombatTarget(mob.npcOwner.getCombatTarget());
+        }
         CheckMobMovement(mob);
         if (mob.getCombatTarget() != null)
             CheckForAttack(mob);
@@ -617,8 +625,24 @@ public class MobileFSM {
         }
     }
     private static Boolean GuardCanAggro(Mob mob, PlayerCharacter target) {
-        //first check condemn list for aggro allowed
-        if (ZoneManager.getCityAtLocation(mob.getLoc()).getTOL().enforceKOS) {
+        if (mob.getGuild().getNation().equals(target.getGuild().getNation()))
+            return false;
+        //first check condemn list for aggro allowed (allies button is checked)
+        if (ZoneManager.getCityAtLocation(mob.getLoc()).getTOL().reverseKOS) {
+            for (Entry<Integer, Condemned> entry : ZoneManager.getCityAtLocation(mob.getLoc()).getTOL().getCondemned().entrySet()) {
+                if (entry.getValue().getPlayerUID() == target.getObjectUUID() && entry.getValue().isActive())
+                    //target is listed individually
+                    return false;
+                if (Guild.getGuild(entry.getValue().getGuildUID()) == target.getGuild())
+                    //target's guild is listed
+                    return false;
+                if (Guild.getGuild(entry.getValue().getGuildUID()) == target.getGuild().getNation())
+                    //target's nation is listed
+                    return false;
+            }
+            return true;
+        } else{
+            //allies button is not checked
             for (Entry<Integer, Condemned> entry : ZoneManager.getCityAtLocation(mob.getLoc()).getTOL().getCondemned().entrySet()) {
                 if (entry.getValue().getPlayerUID() == target.getObjectUUID() && entry.getValue().isActive())
                     //target is listed individually
@@ -631,12 +655,20 @@ public class MobileFSM {
                     return true;
             }
         }
-        //next check not in same nation or allied guild/nation
-        if (!mob.getGuild().getNation().equals(target.getGuild().getNation()))
-            return !mob.getGuild().getAllyList().contains(target.getGuild()) || !mob.getGuild().getAllyList().contains(target.getGuild().getNation());
         return false;
     }
     public static void randomGuardPatrolPoint(Mob mob){
+        if (mob.isMoving() == true) {
+            //early exit for a mob who is already moving to a patrol point
+            //while mob moving, update lastPatrolTime so that when they stop moving the 10 second timer can begin
+            mob.stopPatrolTime = System.currentTimeMillis();
+            return;
+        }
+        //wait between 10 and 15 seconds after reaching patrol point before moving
+        int patrolDelay = ThreadLocalRandom.current().nextInt(10000) + 5000;
+        if (mob.stopPatrolTime + patrolDelay > System.currentTimeMillis())
+            //early exit while waiting to patrol again
+            return;
         float xPoint = ThreadLocalRandom.current().nextInt(400) - 200;
         float zPoint = ThreadLocalRandom.current().nextInt(400) - 200;
         Vector3fImmutable TreePos = mob.getGuild().getOwnedCity().getLoc();
