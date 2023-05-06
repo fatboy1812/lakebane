@@ -421,10 +421,15 @@ public class InfoCmd extends AbstractDevCmd {
 			else
 				output += "RaceID: " + targetMob.getLoadID();
 			output += newline;
-			output += "notEnemy: " + targetMob.notEnemy.toString();
-			output += newline;
-			output += "enemy: " + targetMob.enemy.toString();
-			output += newline;
+			try {
+				output += "notEnemy: " + targetMob.notEnemy.toString();
+				output += newline;
+				output += "enemy: " + targetMob.enemy.toString();
+				output += newline;
+			}
+			catch(Exception ex){
+				//who cares its info
+			}
 			output += "Spawn: (" + targetMob.getBindLoc().getX();
 			output += ", " + targetMob.getBindLoc().getY();
 			output += ", " + targetMob.getBindLoc().getZ() + ')';
@@ -465,7 +470,11 @@ public class InfoCmd extends AbstractDevCmd {
 			output += newline;
 			output += "EquipSet: " + targetMob.equipmentSetID;
 			output += newline;
-			output += "Parent Zone LoadNum : " + targetMob.getParentZone().getLoadNum();
+			try {
+				output += "Parent Zone LoadNum : " + targetMob.getParentZone().getLoadNum();
+			} catch(Exception ex){
+				//who cares
+			}
 			output += newline;
 			output += "isMoving : " + targetMob.isMoving();
 			if (targetMob.region != null) {

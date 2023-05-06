@@ -201,6 +201,25 @@ public class MobileFSM {
         mob.destination = mob.patrolPoints.get(mob.lastPatrolPointIndex);
         mob.lastPatrolPointIndex += 1;
         MovementUtilities.aiMove(mob, mob.destination, true);
+        if(mob.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardCaptain.ordinal()){
+            for (Entry<Mob, Integer> minion : mob.siegeMinionMap.entrySet()) {
+                //make sure mob is out of combat stance
+                if (minion.getKey().despawned == false) {
+                    if (minion.getKey().isCombat() && minion.getKey().getCombatTarget() == null) {
+                        minion.getKey().setCombat(false);
+                        UpdateStateMsg rwss = new UpdateStateMsg();
+                        rwss.setPlayer(minion.getKey());
+                        DispatchMessage.sendToAllInRange(minion.getKey(), rwss);
+                    }
+                    if (MovementUtilities.canMove(minion.getKey())) {
+                        Vector3f minionOffset = Formation.getOffset(2, minion.getValue() + 3);
+                        minion.getKey().updateLocation();
+                        Vector3fImmutable formationPatrolPoint = new Vector3fImmutable(mob.destination.x + minionOffset.x, mob.destination.y, mob.destination.z + minionOffset.z);
+                        MovementUtilities.aiMove(minion.getKey(), formationPatrolPoint, true);
+                    }
+                }
+            }
+        }
     }
     public static boolean canCast(Mob mob) {
         // Performs validation to determine if a
@@ -386,9 +405,8 @@ public class MobileFSM {
                     chaseTarget(mob);
                 break;
             case GuardMinion:
-                if (!mob.npcOwner.isAlive()) {
+                if (!mob.npcOwner.isAlive() || ((Mob)mob.npcOwner).despawned)
                     randomGuardPatrolPoint(mob);
-                }
                 break;
             default:
                 if (mob.getCombatTarget() == null) {
@@ -464,7 +482,7 @@ public class MobileFSM {
                 PowersBase recall = PowersManager.getPowerByToken(-1994153779);
                 PowersManager.useMobPower(mob, mob, recall, 40);
                 mob.setCombatTarget(null);
-                if(mob.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardCaptain.ordinal()){
+                if(mob.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardCaptain.ordinal() && mob.isAlive()){
                     //guard captain pulls his minions home with him
                     for (Entry<Mob, Integer> minion : mob.siegeMinionMap.entrySet()) {
                         PowersManager.useMobPower(minion.getKey(), minion.getKey(), recall, 40);
@@ -473,7 +491,7 @@ public class MobileFSM {
                 }
             }
         }
-        if(MovementUtilities.inRangeOfBindLocation(mob) == false) {
+         else if(MovementUtilities.inRangeOfBindLocation(mob) == false) {
             PowersBase recall = PowersManager.getPowerByToken(-1994153779);
             PowersManager.useMobPower(mob, mob, recall, 40);
             mob.setCombatTarget(null);
@@ -481,6 +499,10 @@ public class MobileFSM {
     }
     private static void chaseTarget(Mob mob) {
         mob.updateMovementState();
+        if(mob.playerAgroMap.containsKey(mob.getCombatTarget().getObjectUUID()) == false){
+            mob.setCombatTarget(null);
+            return;
+        }
         if (CombatUtilities.inRange2D(mob, mob.getCombatTarget(), mob.getRange()) == false) {
             if (mob.getRange() > 15) {
                 mob.destination = mob.getCombatTarget().getLoc();
@@ -620,7 +642,7 @@ public class MobileFSM {
         Vector3fImmutable TreePos = mob.getGuild().getOwnedCity().getLoc();
         mob.destination = new Vector3fImmutable(TreePos.x + xPoint,TreePos.y,TreePos.z + zPoint);
         MovementUtilities.aiMove(mob, mob.destination, true);
-        if (mob.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardCaptain.ordinal()) {
+        if(mob.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardCaptain.ordinal()){
             for (Entry<Mob, Integer> minion : mob.siegeMinionMap.entrySet()) {
                 //make sure mob is out of combat stance
                 if (minion.getKey().despawned == false) {
