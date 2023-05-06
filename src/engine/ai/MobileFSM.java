@@ -174,7 +174,7 @@ public class MobileFSM {
             rwss.setPlayer(mob);
             DispatchMessage.sendToAllInRange(mob, rwss);
         }
-        if (mob.isMoving()) {
+        if (mob.isMoving() == true) {
             //early exit for a mob who is already moving to a patrol point
             //while mob moving, update lastPatrolTime so that when they stop moving the 10 second timer can begin
             mob.stopPatrolTime = System.currentTimeMillis();
@@ -197,9 +197,9 @@ public class MobileFSM {
         }
             if (mob.lastPatrolPointIndex > mob.patrolPoints.size() - 1) {
                 mob.lastPatrolPointIndex = 0;
-                mob.destination = mob.patrolPoints.get(mob.lastPatrolPointIndex);
-                mob.lastPatrolPointIndex += 1;
             }
+        mob.destination = mob.patrolPoints.get(mob.lastPatrolPointIndex);
+        mob.lastPatrolPointIndex += 1;
         MovementUtilities.aiMove(mob, mob.destination, true);
     }
     public static boolean canCast(Mob mob) {
@@ -366,35 +366,39 @@ public class MobileFSM {
         }
     }
     private static void CheckMobMovement(Mob mob) {
+        mob.updateLocation();
         if (!MovementUtilities.canMove(mob))
             return;
-        mob.updateLocation();
-        if (mob.BehaviourType != Enum.MobBehaviourType.Pet1) {
-            if (mob.getCombatTarget() == null) {
-                if (mob.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardMinion.ordinal()) {
-                    if (mob.npcOwner.isAlive() == true) {
-                        return;
-                    }
-                }
-                Patrol(mob);
-            }else {
-                chaseTarget(mob);
-            }
-        } else {
-            //pet logic
-            if (!mob.playerAgroMap.containsKey(mob.getOwner().getObjectUUID())) {
-                //mob no longer has its owner loaded, translocate pet to owner
-                MovementManager.translocate(mob, mob.getOwner().getLoc(), null);
-                return;
-            }
-            if (mob.getCombatTarget() == null) {
-                //move back to owner
-                if (CombatUtilities.inRange2D(mob, mob.getOwner(), 6))
+        switch(mob.BehaviourType){
+            case Pet1:
+                if (!mob.playerAgroMap.containsKey(mob.getOwner().getObjectUUID())) {
+                    //mob no longer has its owner loaded, translocate pet to owner
+                    MovementManager.translocate(mob, mob.getOwner().getLoc(), null);
                     return;
-                mob.destination = mob.getOwner().getLoc();
-                MovementUtilities.moveToLocation(mob, mob.destination, 5);
-            } else
-                chaseTarget(mob);
+                }
+                if (mob.getCombatTarget() == null) {
+                    //move back to owner
+                    if (CombatUtilities.inRange2D(mob, mob.getOwner(), 6))
+                        return;
+                    mob.destination = mob.getOwner().getLoc();
+                    MovementUtilities.moveToLocation(mob, mob.destination, 5);
+                } else
+                    chaseTarget(mob);
+                break;
+            case GuardMinion:
+                if (!mob.npcOwner.isAlive()) {
+                    randomGuardPatrolPoint(mob);
+                }
+                break;
+            default:
+                if (mob.getCombatTarget() == null) {
+                    if(!mob.isMoving()) {
+                        Patrol(mob);
+                    }
+                }else {
+                    chaseTarget(mob);
+                }
+                break;
         }
     }
     private static void CheckForRespawn(Mob aiAgent) {
