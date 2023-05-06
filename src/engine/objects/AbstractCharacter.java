@@ -117,9 +117,10 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
 	private long lastHateUpdate = 0;
 	private boolean collided = false;
 	protected Regions lastRegion = null;
-	
+
 	protected boolean movingUp = false;
-	
+	public Contract contract;
+
 
 	/**
 	 * No Id Constructor
@@ -1301,20 +1302,6 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
 			locationLock.writeLock().unlock();
 		}
 	}
-	
-	
-	public void teleportToObject(final AbstractWorldObject worldObject) {
-		locationLock.writeLock().lock();
-		try{
-			MovementManager.translocateToObject(this, worldObject);
-		}catch(Exception e){
-			Logger.error(e);
-		}finally{
-			locationLock.writeLock().unlock();
-		}
-	}
-
-
 
 	/*
 	 * Serializing

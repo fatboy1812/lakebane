@@ -20,6 +20,8 @@ import engine.jobs.DeferredPowerJob;
 import engine.jobs.UpgradeNPCJob;
 import engine.loot.LootManager;
 import engine.math.Bounds;
+import engine.math.Quaternion;
+import engine.math.Vector3f;
 import engine.math.Vector3fImmutable;
 import engine.net.ByteBufferWriter;
 import engine.net.Dispatch;
@@ -39,6 +41,7 @@ import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import static engine.math.FastMath.acos;
 import static engine.net.client.msg.ErrorPopupMsg.sendErrorPopup;
 
 public class Mob extends AbstractIntelligenceAgent {
@@ -62,7 +65,6 @@ public class Mob extends AbstractIntelligenceAgent {
     public int spawnTime;
     public Zone parentZone;
     public Building building;
-    public Contract contract;
     public boolean hasLoot = false;
     public boolean isPlayerGuard = false;
     public AbstractCharacter npcOwner;
@@ -265,16 +267,16 @@ public class Mob extends AbstractIntelligenceAgent {
             this.notEnemy = EnumBitSet.asEnumBitSet(rs.getLong("notEnemy"), Enum.MonsterType.class);
             this.enemy = EnumBitSet.asEnumBitSet(rs.getLong("enemy"), Enum.MonsterType.class);
             this.firstName = rs.getString("mob_name");
-            if (this.firstName.isEmpty()) {
+
+            if (this.firstName.isEmpty())
                 this.firstName = this.mobBase.getFirstName();
-            }
+
             if (this.contract != null) {
                 this.equipmentSetID = this.contract.getEquipmentSet();
                 this.lastName = this.getContract().getName();
-            } else {
+            } else
                 this.equipmentSetID = rs.getInt("equipmentSet");
 
-            }
 
             if (rs.getString("fsm").length() > 1)
                 this.BehaviourType = MobBehaviourType.valueOf(rs.getString("fsm"));
@@ -370,11 +372,6 @@ public class Mob extends AbstractIntelligenceAgent {
             writer.putFloat(1.0f);
         }
 
-        // Location serialization matches NPC
-
-        if (mob.region != null)
-            writer.putVector3f(ZoneManager.convertWorldToLocal(mob.building, mob.getLoc()));
-        else
             writer.putVector3f(mob.getLoc());
 
         //Rotation
@@ -868,6 +865,7 @@ public class Mob extends AbstractIntelligenceAgent {
 
         int slot;
         Vector3fImmutable slotLocation;
+        Quaternion slotRotation;
 
         if (ConfigManager.serverType.equals(ServerType.LOGINSERVER))
             return;
@@ -896,8 +894,6 @@ public class Mob extends AbstractIntelligenceAgent {
 
                 this.bindLoc = new Vector3fImmutable(this.statLat, this.statAlt, this.statLon);
                 this.bindLoc = this.building.getLoc().add(this.bindLoc);
-                this.loc = new Vector3fImmutable(bindLoc);
-                this.endLoc = new Vector3fImmutable(bindLoc);
 
             } else {
 
@@ -914,13 +910,29 @@ public class Mob extends AbstractIntelligenceAgent {
                 // Override bind and location for this contracted Mobile
                 // derived from BuildingManager slot location data.
 
-                slotLocation = BuildingManager.getSlotLocation(building, slot);
+                slotLocation = BuildingManager.getSlotLocation(building, slot).getLocation();
 
                 this.bindLoc = building.getLoc().add(slotLocation);
-                this.loc = building.getLoc().add(slotLocation);
-                this.endLoc = bindLoc;
+
+                // Rotate MOB by slot rotation
+
+                slotRotation = BuildingManager.getSlotLocation(building, slot).getRotation();
+                this.setRot(new Vector3f(0, slotRotation.y, 0));
 
             }
+
+            // Rotate slot position by the building rotation
+
+            this.bindLoc = Vector3fImmutable.rotateAroundPoint(building.getLoc(), this.bindLoc, building.getBounds().getQuaternion().angleY);
+
+            this.loc = new Vector3fImmutable(bindLoc);
+            this.endLoc = new Vector3fImmutable(bindLoc);
+
+            // Rotate mobile rotation by the building's rotation
+
+            slotRotation = new Quaternion().fromAngles(0, acos(this.getRot().y) * 2, 0);
+            slotRotation = slotRotation.mult(building.getBounds().getQuaternion());
+            this.setRot(new Vector3f(0, slotRotation.y, 0));
 
             // Configure building region and floor/level for this Mobile
 

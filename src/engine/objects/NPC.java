@@ -18,6 +18,7 @@ import engine.job.JobContainer;
 import engine.job.JobScheduler;
 import engine.jobs.UpgradeNPCJob;
 import engine.math.Bounds;
+import engine.math.Quaternion;
 import engine.math.Vector3f;
 import engine.math.Vector3fImmutable;
 import engine.net.ByteBufferWriter;
@@ -37,6 +38,7 @@ import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import static engine.math.FastMath.acos;
 import static engine.net.client.msg.ErrorPopupMsg.sendErrorPopup;
 import static engine.objects.MobBase.loadEquipmentSet;
 
@@ -50,7 +52,7 @@ public class NPC extends AbstractCharacter {
 	protected MobBase mobBase;
 	protected String name;
 	public Building building;
-	protected Contract contract;
+
 	protected int dbID;
 	protected int currentID;
 	private DateTime upgradeDateTime = null;
@@ -319,6 +321,7 @@ public class NPC extends AbstractCharacter {
 
 		int slot;
 		Vector3fImmutable slotLocation;
+		Quaternion slotRotation;
 
 		if (ConfigManager.serverType.equals(ServerType.LOGINSERVER))
 			return;
@@ -358,10 +361,26 @@ public class NPC extends AbstractCharacter {
 			// Override bind and location for  this npc derived
 			// from BuildingManager slot location data.
 
-			slotLocation = BuildingManager.getSlotLocation(building, slot);
+			slotLocation = BuildingManager.getSlotLocation(building, slot).getLocation();
 
 			this.bindLoc = building.getLoc().add(slotLocation);
-			this.loc = building.getLoc().add(slotLocation);
+
+			// Rotate slot position by the building rotation
+
+			this.bindLoc = Vector3fImmutable.rotateAroundPoint(building.getLoc(), this.bindLoc, building.getBounds().getQuaternion().angleY);
+
+			this.loc = new Vector3fImmutable(bindLoc);
+
+			// Rotate NPC by slot rotation
+
+			slotRotation = BuildingManager.getSlotLocation(building, slot).getRotation();
+			this.setRot(new Vector3f(0, slotRotation.y, 0));
+
+			// Rotate NPC rotation by the building's rotation
+
+			slotRotation = new Quaternion().fromAngles(0, acos(this.getRot().y) * 2, 0);
+			slotRotation = slotRotation.mult(building.getBounds().getQuaternion());
+			this.setRot(new Vector3f(0, slotRotation.y, 0));
 
 			// Configure region and floor/level for this NPC
 

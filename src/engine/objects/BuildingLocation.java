@@ -11,6 +11,7 @@ package engine.objects;
 
 import engine.gameManager.BuildingManager;
 import engine.gameManager.DbManager;
+import engine.math.Quaternion;
 import engine.math.Vector3fImmutable;
 
 import java.sql.ResultSet;
@@ -25,10 +26,19 @@ public class BuildingLocation extends AbstractGameObject {
 	private final int type;
 	private final int slot;
 	private final int unknown;
-	private final Vector3fImmutable loc;
-	private final Vector3fImmutable rot;
-	private final float w;
+	private final Vector3fImmutable location;
+	private final Quaternion rotation;
 
+
+	public BuildingLocation() {
+
+		this.buildingUUID = 0;
+		this.type = 0;
+		this.slot = 0;
+		this.unknown = 0;
+		this.location = Vector3fImmutable.ZERO;
+		this.rotation = new Quaternion();
+	}
 
 	/**
 	 * ResultSet Constructor
@@ -39,9 +49,8 @@ public class BuildingLocation extends AbstractGameObject {
 		this.type = rs.getInt("type");
 		this.slot = rs.getInt("slot");
 		this.unknown = rs.getInt("unknown");
-		this.loc = new Vector3fImmutable(rs.getFloat("locX"), rs.getFloat("locY"), rs.getFloat("locZ"));
-		this.rot = new Vector3fImmutable(rs.getFloat("rotX"), rs.getFloat("rotY"), rs.getFloat("rotZ"));
-		this.w = rs.getFloat("w");
+		this.location = new Vector3fImmutable(rs.getFloat("locX"), rs.getFloat("locY"), rs.getFloat("locZ"));
+		this.rotation = new Quaternion(rs.getFloat("rotX"), rs.getFloat("rotY"), rs.getFloat("rotZ"), rs.getFloat("w"));
 	}
 
 	/*
@@ -50,24 +59,6 @@ public class BuildingLocation extends AbstractGameObject {
 
 	public int getBuildingUUID() {
 		return this.buildingUUID;
-	}
-
-	public Vector3fImmutable rotatedLoc() {
-		Vector3fImmutable convertLoc = null;
-
-
-		double rotY = 2.0 * Math.asin(this.rot.y);
-
-
-		// handle building rotation
-
-		convertLoc = new Vector3fImmutable(
-				(float) ((loc.z * Math.sin(rotY)) + (loc.x * Math.cos(rotY))),
-				loc.y,
-				(float) ((loc.z * Math.cos(rotY)) - (loc.x * Math.sin(rotY))));
-
-		return convertLoc;
-
 	}
 
 	public int getType() {
@@ -83,42 +74,22 @@ public class BuildingLocation extends AbstractGameObject {
 	}
 
 	public float getLocX() {
-		return this.loc.x;
+		return this.location.x;
 	}
 
 	public float getLocY() {
-		return this.loc.y;
+		return this.location.y;
 	}
 
-	public float getLocZ() {
-		return this.loc.z;
+
+	public Vector3fImmutable getLocation() {
+		return this.location;
 	}
 
-	public float getRotX() {
-		return this.rot.x;
+	public Quaternion getRotation() {
+		return this.rotation;
 	}
 
-	public float getRotY() {
-		return this.rot.y;
-	}
-
-	public float getRotZ() {
-		return this.rot.z;
-	}
-
-	public float getW() {
-		return this.w;
-	}
-
-	public Vector3fImmutable getLoc() {
-		return this.loc;
-	}
-
-	public Vector3fImmutable getRot() {
-		return this.rot;
-	}
-
-	
 	@Override
 	public void updateDatabase() {
 	}
@@ -141,7 +112,7 @@ public class BuildingLocation extends AbstractGameObject {
 					break;
 			}
 
-			// Add location to the collection in BuildingManager
+			// Add location to collection in BuildingManager
 
 			if (locationCollection.containsKey(buildingLocation.buildingUUID))
 				locationCollection.get(buildingLocation.buildingUUID).add(buildingLocation);

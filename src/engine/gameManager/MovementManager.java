@@ -13,7 +13,6 @@ import engine.Enum.GameObjectType;
 import engine.Enum.ModType;
 import engine.Enum.SourceType;
 import engine.InterestManagement.InterestManager;
-import engine.InterestManagement.WorldGrid;
 import engine.exception.MsgSendException;
 import engine.math.Bounds;
 import engine.math.Vector3f;
@@ -27,7 +26,6 @@ import engine.objects.*;
 import engine.server.MBServerStatics;
 import org.pmw.tinylog.Logger;
 
-import java.util.HashSet;
 import java.util.Set;
 
 import static engine.math.FastMath.sqr;
@@ -491,59 +489,6 @@ public enum MovementManager {
 				DispatchMessage.dispatchMsgToInterestArea(oldLoc, teleporter, msg, DispatchChannel.PRIMARY, MBServerStatics.CHARACTER_LOAD_RANGE, false, false);
 				return;
 			}
-		TeleportToPointMsg msg = new TeleportToPointMsg(teleporter, targetLoc.getX(), targetLoc.getY(), targetLoc.getZ(), 0, -1, -1);
-		//we shouldnt need to send teleport message to new area, as loadjob should pick it up.
-	//	DispatchMessage.dispatchMsgToInterestArea(teleporter, msg, DispatchChannel.PRIMARY, MBServerStatics.CHARACTER_LOAD_RANGE, true, false);
-		DispatchMessage.dispatchMsgToInterestArea(oldLoc, teleporter, msg, DispatchChannel.PRIMARY, MBServerStatics.CHARACTER_LOAD_RANGE, true, false);
-		
-		if (teleporter.getObjectType().equals(GameObjectType.PlayerCharacter))
-		InterestManager.INTERESTMANAGER.HandleLoadForTeleport((PlayerCharacter)teleporter);
-
-	}
-	
-	public static void translocateToObject(AbstractCharacter teleporter, AbstractWorldObject worldObject) {
-
-		Vector3fImmutable targetLoc = teleporter.getLoc();
-
-		Vector3fImmutable oldLoc = new Vector3fImmutable(teleporter.getLoc());
-
-		teleporter.stopMovement(teleporter.getLoc());
-
-			//mobs ignore region sets for now.
-			if (teleporter.getObjectType().equals(GameObjectType.Mob)){
-				teleporter.setInBuildingID(0);
-				teleporter.setInBuilding(-1);
-				teleporter.setInFloorID(-1);
-				TeleportToPointMsg msg = new TeleportToPointMsg(teleporter, targetLoc.getX(), targetLoc.getY(), targetLoc.getZ(), 0, -1, -1);
-				DispatchMessage.dispatchMsgToInterestArea(oldLoc, teleporter, msg, DispatchChannel.PRIMARY, MBServerStatics.CHARACTER_LOAD_RANGE, false, false);
-				return;
-			}
-
-		boolean collide = false;
-		int maxFloor = -1;
-		int buildingID = 0;
-		boolean isGroundLevel = false;
-		HashSet<AbstractWorldObject> buildings = WorldGrid.getObjectsInRangePartial(teleporter, 200, MBServerStatics.MASK_BUILDING);
-		for (AbstractWorldObject awo : buildings) {
-			Building building = (Building) awo;
-			if (collide)
-				break;
-		}
-
-		if (!collide) {
-			teleporter.setInBuildingID(0);
-			teleporter.setInBuilding(-1);
-			teleporter.setInFloorID(-1);
-		} else {
-			if (isGroundLevel) {
-				teleporter.setInBuilding(0);
-				teleporter.setInFloorID(-1);
-			} else {
-				teleporter.setInBuilding(maxFloor - 1);
-				teleporter.setInFloorID(0);
-			}
-		}
-
 		TeleportToPointMsg msg = new TeleportToPointMsg(teleporter, targetLoc.getX(), targetLoc.getY(), targetLoc.getZ(), 0, -1, -1);
 		//we shouldnt need to send teleport message to new area, as loadjob should pick it up.
 	//	DispatchMessage.dispatchMsgToInterestArea(teleporter, msg, DispatchChannel.PRIMARY, MBServerStatics.CHARACTER_LOAD_RANGE, true, false);

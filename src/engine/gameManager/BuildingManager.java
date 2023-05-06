@@ -18,6 +18,7 @@ import engine.job.JobContainer;
 import engine.job.JobScheduler;
 import engine.jobs.UpgradeBuildingJob;
 import engine.math.Bounds;
+import engine.math.Quaternion;
 import engine.math.Vector3fImmutable;
 import engine.net.client.msg.ErrorPopupMsg;
 import engine.objects.*;
@@ -49,25 +50,42 @@ public enum BuildingManager {
         int numOfSlots = _slotLocations.get(building.meshUUID).size();
 
         for (int i = 1; i <= numOfSlots; i++) {
+
             if (!building.getHirelings().containsValue(i))
                 return i;
         }
         return -1;
     }
 
-    public static Vector3fImmutable getSlotLocation(Building building, int slot) {
+    public static BuildingLocation getSlotLocation(Building building, int slot) {
+
+        BuildingLocation buildingLocation = new BuildingLocation();
 
         if (slot == -1)
-            return Vector3fImmutable.ZERO;
+            return buildingLocation;
 
-        BuildingLocation buildingLocation;
         buildingLocation = _slotLocations.get(building.meshUUID).get(slot - 1); // array index
 
         if (buildingLocation == null) {
             Logger.error("Invalid slot for building: " + building.getObjectUUID());
         }
 
-        return buildingLocation.getLoc();
+        return buildingLocation;
+    }
+
+    public static Quaternion getSlotRotation(Building building, int slot) {
+
+        if (slot == -1)
+            return new Quaternion();
+
+        BuildingLocation buildingLocation;
+        buildingLocation = _slotLocations.get(building.meshUUID).get(slot - 1); // array index
+
+        if (buildingLocation == null) {
+            Logger.error("Invalid slot rotation for building: " + building.getObjectUUID());
+        }
+
+        return buildingLocation.getRotation();
     }
 
     public static boolean playerCanManage(PlayerCharacter player, Building building) {

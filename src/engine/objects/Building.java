@@ -474,7 +474,8 @@ public class Building extends AbstractWorldObject {
 
 		for (Building building : city.getParent().zoneBuildingSet) {
 
-			//dont add -1 rank buildings.
+			//don't add -1 rank buildings.
+
 			if (building.rank <= 0)
 				continue;
 			if (building.getBlueprint() != null && building.getBlueprint().getBuildingGroup() == BuildingGroup.SPIRE)
@@ -552,8 +553,6 @@ public class Building extends AbstractWorldObject {
 			City.lastCityUpdate = System.currentTimeMillis();
 			return;
 		}
-
-		// Handling of exploding TOL's
 
 		// Must remove a bane before considering destruction of a TOL
 
@@ -671,10 +670,6 @@ public class Building extends AbstractWorldObject {
 
 	public final float getw() {
 		return this.w;
-	}
-
-	public final void setMeshScale(Vector3f value) {
-		this.meshScale = value;
 	}
 
 	public final Vector3f getMeshScale() {
@@ -1049,7 +1044,9 @@ public class Building extends AbstractWorldObject {
 	public final void rebuildMine(){
 		this.setRank(1);
 		this.meshUUID = this.getBlueprint().getMeshForRank(this.rank);
+
 		// New rank mean new max hitpoints.
+
 		this.healthMax = this.getBlueprint().getMaxHealth(this.rank);
 		this.setCurrentHitPoints(this.healthMax);
 		this.getBounds().setBounds(this);
@@ -1076,8 +1073,6 @@ public class Building extends AbstractWorldObject {
 			this.parentZone.zoneBuildingSet.add(this);
 
 			// Submit upgrade job if building is currently set to rank.
-
-		
 
 			try {
 				DbObjectType objectType = DbManager.BuildingQueries.GET_UID_ENUM(this.ownerUUID);
@@ -1142,6 +1137,7 @@ public class Building extends AbstractWorldObject {
 			
 			//create a new list for children if the building is not a child. children list default is null.
 			//TODO Remove Furniture/Child buildings from building class and move them into a seperate class.
+
 			if (this.parentBuildingID == 0)
 				this.children = new ArrayList<>();
 
@@ -1150,7 +1146,9 @@ public class Building extends AbstractWorldObject {
 				
 				if (parent != null){
 					parent.children.add(this);
+
 					//add furniture to region cache. floor and level are reversed in database, //TODO Fix
+
 					Regions region = BuildingManager.GetRegion(parent, this.level,this.floor, this.getLoc().x, this.getLoc().z);
 				if (region != null)
 					Regions.FurnitureRegionMap.put(this.getObjectUUID(), region);
@@ -1160,28 +1158,6 @@ public class Building extends AbstractWorldObject {
 			
 			if (this.upgradeDateTime != null)
 				BuildingManager.submitUpgradeJob(this);
-
-			// Run Once move buildings
-			// 64 / -64 to align with pads
-
-			// Don't move furniture
-/*
-			if (parentBuildingID != 0)
-				return;
-
-			// Don't move buildings not on a city zone
-			// or buildings that are in npc owned city
-
-			City city = getCity();
-
-			if (city == null)
-				return;
-
-			if (city.getIsNpcOwned() == 1)
-				return;
-
-			PullCmd.MoveBuilding(this, null, getLoc().add(new Vector3fImmutable(0, 0, 0)), getParentZone());
-*/
 
 		}catch (Exception e){
 			e.printStackTrace();
@@ -1196,21 +1172,8 @@ public class Building extends AbstractWorldObject {
 		else
 			newOwnerID = newOwner.getObjectUUID();
 
-		// ***BONUS CODE BELOW!
-		/*
-        if (newOwner == null) {
-            this.ownerIsNPC = false;
-            this.ownerUUID = 0;
-        } else if (newOwner instanceof PlayerCharacter) {
-            this.ownerIsNPC = false;
-            this.ownerUUID = newOwner.getObjectUUID();
-        } else {
-            this.ownerIsNPC = true;
-            this.ownerUUID = newOwner.getObjectUUID();
-        }
-		 */
-
 		try {
+
 			// Save new owner to database
 
 			if (!DbManager.BuildingQueries.updateBuildingOwner(this, newOwnerID))
@@ -1285,7 +1248,7 @@ public class Building extends AbstractWorldObject {
 				stuckLocations.isEmpty())
 			return this.getLoc();
 
-		stuckLocation = stuckLocations.get(ThreadLocalRandom.current().nextInt(stuckLocations.size())).getLoc();
+		stuckLocation = stuckLocations.get(ThreadLocalRandom.current().nextInt(stuckLocations.size())).getLocation();
 
 		return stuckLocation;
 	}
@@ -1316,6 +1279,7 @@ public class Building extends AbstractWorldObject {
 
 		// Can't have an invalid door number
 		// Log error?
+
 		if (doorNumber < 1 || doorNumber > 16)
 			return false;
 
@@ -1342,10 +1306,6 @@ public class Building extends AbstractWorldObject {
 			return DbManager.BuildingQueries.UPDATE_DOOR_LOCK(this.getObjectUUID(), this.doorState);
 		else
 			return true;
-	}
-
-	public int getDoorstate(){
-		return this.doorState;
 	}
 
 	public void updateEffects() {

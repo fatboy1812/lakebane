@@ -246,7 +246,7 @@ public class Contract extends AbstractGameObject {
 		 if (building == null)
 			 return false;
 
-		 // Can't slot in anything but a blueprintted building
+		 // Can't slot in anything but a blueprinted building
 		 if (building.getBlueprintUUID() == 0)
 			 return false;
 
@@ -256,8 +256,7 @@ public class Contract extends AbstractGameObject {
 
 		 // Binary match
 		 return (building.getBlueprint().getBuildingGroup().elementOf(this.allowedBuildings));
-
-     }
+	 }
 
 	public int getEquipmentSet() {
 		return equipmentSet;

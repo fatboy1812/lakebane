@@ -368,11 +368,11 @@ public class PlaceAssetMsgHandler extends AbstractClientMsgHandler {
 			return false;
 		}
 
-		//cannot place on grid until bane is live
+		// Attackers cannot place on grid until bane is live
 
-		if(bane.getSiegePhase() != SiegePhase.WAR &&
-				serverCity.isLocationOnCityGrid(buildingList.getLoc()) == true)
-		{
+		if (bane.getSiegePhase() != SiegePhase.WAR &&
+				player.getGuild().equals(serverCity.getBane().getOwner().getGuild()) &&
+				serverCity.isLocationOnCityGrid(buildingList.getLoc())) {
 			PlaceAssetMsg.sendPlaceAssetError(origin, 53, player.getName()); // Buildings of war cannot be placed around a city grid unless there is an active bane
 			return false;
 		}
