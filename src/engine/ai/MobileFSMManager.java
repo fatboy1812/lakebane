@@ -91,7 +91,7 @@ public class MobileFSMManager {
 							if (mob != null)
 								MobileFSM.DetermineAction(mob);
 						} catch (Exception e) {
-							Logger.error(e);
+							Logger.error("Mob: " + mob.getName() + " UUID: " + mob.getObjectUUID() + " ERROR: " + e);
 							e.printStackTrace();
 						}
 					}

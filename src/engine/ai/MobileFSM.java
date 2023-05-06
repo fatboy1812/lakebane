@@ -336,8 +336,8 @@ public class MobileFSM {
             rwss.setPlayer(mob);
             DispatchMessage.sendToAllInRange(mob, rwss);
         }
-        CheckToSendMobHome(mob);
         mob.updateLocation();
+        CheckToSendMobHome(mob);
         switch (mob.BehaviourType) {
             case GuardCaptain:
                 GuardCaptainLogic(mob);
@@ -390,7 +390,6 @@ public class MobileFSM {
         }
     }
     private static void CheckMobMovement(Mob mob) {
-        mob.updateLocation();
         if (!MovementUtilities.canMove(mob))
             return;
         switch(mob.BehaviourType){
@@ -412,6 +411,11 @@ public class MobileFSM {
             case GuardMinion:
                 if (!mob.npcOwner.isAlive() || ((Mob)mob.npcOwner).despawned)
                     randomGuardPatrolPoint(mob);
+                else{
+                    if(mob.getCombatTarget() != null){
+                        chaseTarget(mob);
+                    }
+                }
                 break;
             default:
                 if (mob.getCombatTarget() == null) {
@@ -481,7 +485,7 @@ public class MobileFSM {
             AttackTarget(mob, mob.getCombatTarget());
     }
     private static void CheckToSendMobHome(Mob mob) {
-        if (mob.isPlayerGuard()) {
+        if (mob.isPlayerGuard() && !mob.despawned) {
             City current = ZoneManager.getCityAtLocation(mob.getLoc());
             if (current == null || current.equals(mob.getGuild().getOwnedCity()) == false || mob.playerAgroMap.isEmpty()) {
                 PowersBase recall = PowersManager.getPowerByToken(-1994153779);
