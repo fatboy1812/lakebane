@@ -38,11 +38,6 @@ public class MobileFSM {
         }
         if (!CombatUtilities.inRangeToAttack(mob, target))
             return;
-        if(mob.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardCaptain.ordinal()){
-            if(!GuardCanAggro(mob, (PlayerCharacter)mob.getCombatTarget())){
-                mob.setCombatTarget(null);
-            }
-        }
         switch (target.getObjectType()) {
             case PlayerCharacter:
                 PlayerCharacter targetPlayer = (PlayerCharacter) target;
