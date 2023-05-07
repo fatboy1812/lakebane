@@ -715,9 +715,15 @@ public class MobileFSM {
     }
     public static AbstractWorldObject ChangeTargetFromHateValue(Mob mob){
         float CurrentHateValue = 0;
+        if(mob.getCombatTarget() != null && mob.getCombatTarget().getObjectType().equals(Enum.GameObjectType.PlayerCharacter)){
+            CurrentHateValue = ((PlayerCharacter)mob.getCombatTarget()).getHateValue();
+        }
         AbstractWorldObject mostHatedTarget = null;
         for (Entry playerEntry : mob.playerAgroMap.entrySet()) {
             PlayerCharacter potentialTarget = PlayerCharacter.getFromCache((int)playerEntry.getKey());
+            if(potentialTarget.equals(mob.getCombatTarget())){
+                continue;
+            }
             if(potentialTarget != null && potentialTarget.getHateValue() > CurrentHateValue){
                 CurrentHateValue = potentialTarget.getHateValue();
                 mostHatedTarget = potentialTarget;
