@@ -100,13 +100,13 @@ public enum CombatManager {
 
 	}
 
-	public static void AttackTarget(PlayerCharacter pc, AbstractWorldObject target) {
+	public static void AttackTarget(PlayerCharacter playerCharacter, AbstractWorldObject target) {
 
 		boolean swingOffhand = false;
 
 		//check my weapon can I do an offhand attack
-		Item weaponOff = pc.getCharItemManager().getEquipped().get(MBServerStatics.SLOT_OFFHAND);
-		Item weaponMain = pc.getCharItemManager().getEquipped().get(MBServerStatics.SLOT_MAINHAND);
+		Item weaponOff = playerCharacter.getCharItemManager().getEquipped().get(MBServerStatics.SLOT_OFFHAND);
+		Item weaponMain = playerCharacter.getCharItemManager().getEquipped().get(MBServerStatics.SLOT_MAINHAND);
 
 		// if you carry something in the offhand thats a weapon you get to swing it
 		if (weaponOff != null) {
@@ -120,10 +120,10 @@ public enum CombatManager {
 		}
 
 		//we always swing our mainhand if we are not on timer
-		JobContainer main = pc.getTimers().get("Attack" + MBServerStatics.SLOT_MAINHAND);
+		JobContainer main = playerCharacter.getTimers().get("Attack" + MBServerStatics.SLOT_MAINHAND);
 		if (main == null) {
 			// no timers on the mainhand, lets submit a job to swing
-			CombatManager.createTimer(pc, MBServerStatics.SLOT_MAINHAND, 1, true); // attack in 0.1 of a second
+			CombatManager.createTimer(playerCharacter, MBServerStatics.SLOT_MAINHAND, 1, true); // attack in 0.1 of a second
 		}
 
 		if (swingOffhand) {
@@ -131,19 +131,14 @@ public enum CombatManager {
             only swing offhand if we have a weapon in it or are unarmed in both hands
             and no timers running
 			 */
-			JobContainer off = pc.getTimers().get("Attack" + MBServerStatics.SLOT_OFFHAND);
+			JobContainer off = playerCharacter.getTimers().get("Attack" + MBServerStatics.SLOT_OFFHAND);
 			if (off == null) {
-				CombatManager.createTimer(pc, MBServerStatics.SLOT_OFFHAND, 1, true); // attack in 0.1 of a second
+				CombatManager.createTimer(playerCharacter, MBServerStatics.SLOT_OFFHAND, 1, true); // attack in 0.1 of a second
 			}
 		}
-		City playerCity = ZoneManager.getCityAtLocation(pc.getLoc());
-		if( playerCity != null)
-			for(Building barracks : playerCity.cityBarracks)
-				for(Map.Entry<AbstractCharacter,Integer> entry : barracks.getHirelings().entrySet())
-					if(entry.getKey().getCombatTarget() == null){
-						if(MobileFSM.GuardCanAggro((Mob) entry.getKey(),pc))
-							entry.getKey().setCombatTarget(pc);
-		}
+		City playerCity = ZoneManager.getCityAtLocation(playerCharacter.getLoc());
+		if( playerCity != null && playerCity.getGuild().getNation().equals(playerCharacter.getGuild().getNation()) == false && playerCity.cityOutlaws.contains(playerCharacter.getObjectUUID()) == false)
+			playerCity.cityOutlaws.add(playerCharacter.getObjectUUID());
 	}
 
 	public static void setAttackTarget(PetAttackMsg msg, ClientConnection origin) throws MsgSendException {

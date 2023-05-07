@@ -92,6 +92,7 @@ public class City extends AbstractWorldObject {
 	public volatile boolean protectionEnforced = true;
 	private String hash;
 	public ArrayList<Building>cityBarracks;
+	public ArrayList<Integer> cityOutlaws;
 
 	/**
 	 * ResultSet Constructor
@@ -1080,7 +1081,8 @@ public class City extends AbstractWorldObject {
 			// so store it in a temporary collection
 
 			toRemove.add(playerUUID);
-
+			if(cityOutlaws.contains(playerUUID))
+				cityOutlaws.remove(playerUUID);
 			// ***For debugging
 			// Logger.info("PlayerMemory for ", this.getCityName() + ": " + _playerMemory.size());
 		}

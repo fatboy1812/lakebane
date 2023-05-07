@@ -315,6 +315,9 @@ public class MobileFSM {
             if(mob.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardMinion.ordinal()){
                 if(mob.npcOwner.isAlive() == false || ((Mob)mob.npcOwner).despawned == true){
                     //minions don't respawn while guard captain is dead
+                    if(mob.isAlive() == false){
+                        mob.deathTime = System.currentTimeMillis();
+                    }
                     return;
                 }
             }
@@ -582,13 +585,20 @@ public class MobileFSM {
     }
     private static void DefaultLogic(Mob mob) {
         //check for players that can be aggroed if mob is agressive and has no target
-        if (mob.BehaviourType.isAgressive && mob.getCombatTarget() == null) {
-            if (mob.BehaviourType == Enum.MobBehaviourType.HamletGuard)
-                //safehold guard
-                SafeGuardAggro(mob);
-             else
-                //normal aggro
-                CheckForAggro(mob);
+        if (mob.BehaviourType.isAgressive) {
+            AbstractWorldObject newTarget = ChangeTargetFromHateValue(mob);
+            if (newTarget != null) {
+                mob.setCombatTarget(newTarget);
+            } else {
+                if (mob.getCombatTarget() == null) {
+                    if (mob.BehaviourType == Enum.MobBehaviourType.HamletGuard)
+                        //safehold guard
+                        SafeGuardAggro(mob);
+                    else
+                        //normal aggro
+                        CheckForAggro(mob);
+                }
+            }
         }
         //check if mob can move for patrol or moving to target
         if (mob.BehaviourType.canRoam)
@@ -630,6 +640,9 @@ public class MobileFSM {
     public static Boolean GuardCanAggro(Mob mob, PlayerCharacter target) {
         if (mob.getGuild().getNation().equals(target.getGuild().getNation()))
             return false;
+        if(mob.building.getCity().cityOutlaws.contains(target.getObjectUUID()) == true){
+            return true;
+        }
         //first check condemn list for aggro allowed (allies button is checked)
         if (ZoneManager.getCityAtLocation(mob.getLoc()).getTOL().reverseKOS) {
             for (Entry<Integer, Condemned> entry : ZoneManager.getCityAtLocation(mob.getLoc()).getTOL().getCondemned().entrySet()) {
@@ -696,5 +709,16 @@ public class MobileFSM {
                 }
             }
         }
+    }
+    public static AbstractWorldObject ChangeTargetFromHateValue(Mob mob){
+        float CurrentHateValue = 0;
+        AbstractWorldObject mostHatedTarget = null;
+        for (Entry playerEntry : mob.playerAgroMap.entrySet()) {
+            if(((AbstractCharacter)playerEntry.getKey()).getHateValue() > CurrentHateValue){
+                CurrentHateValue = ((AbstractCharacter)playerEntry.getKey()).getHateValue();
+                mostHatedTarget = PlayerCharacter.getFromCache((int)playerEntry.getKey());
+            }
+        }
+        return mostHatedTarget;
     }
 }
