@@ -719,8 +719,8 @@ public class MobileFSM {
         for (Entry playerEntry : mob.playerAgroMap.entrySet()) {
             PlayerCharacter potentialTarget = PlayerCharacter.getFromCache((int)playerEntry.getKey());
             if(potentialTarget != null && potentialTarget.getHateValue() > CurrentHateValue){
-                CurrentHateValue = ((AbstractCharacter)playerEntry.getKey()).getHateValue();
-                mostHatedTarget = PlayerCharacter.getFromCache((int)playerEntry.getKey());
+                CurrentHateValue = potentialTarget.getHateValue();
+                mostHatedTarget = potentialTarget;
             }
         }
         return mostHatedTarget;
