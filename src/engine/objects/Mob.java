@@ -803,8 +803,8 @@ public class Mob extends AbstractIntelligenceAgent {
 
         guardCaptain.siegeMinionMap.put(mob, slot);
         mob.deathTime = System.currentTimeMillis();
-        mob.spawnTime = 900;
         mob.npcOwner = guardCaptain;
+        mob.spawnTime = (int)(-2.500 * guardCaptain.building.getRank() + 22.5);
         mob.BehaviourType = Enum.MobBehaviourType.GuardMinion;
         //add mob to zone set of captain
         guardCaptain.getParentZone().zoneMobSet.add(mob);
@@ -1303,7 +1303,9 @@ public class Mob extends AbstractIntelligenceAgent {
                 this.playerAgroMap.clear();
 
                 this.timeToSpawnSiege = System.currentTimeMillis() + 60 * 15 * 1000;
-
+                if(this.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardMinion.ordinal()) {
+                    this.spawnTime = (int) (-2.500 * ((Mob) this.npcOwner).building.getRank() + 22.5);
+                }
                 if (this.isPet()) {
 
                     PlayerCharacter petOwner = this.getOwner();
