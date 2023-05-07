@@ -271,24 +271,6 @@ public enum ZoneManager {
         return true;
     }
 
-    /**
-     * Gets a MacroZone by name.
-     *
-     * @param inputName MacroZone name to search for
-     * @return Zone of the MacroZone, or Null
-     */
-
-    public static Zone findMacroZoneByName(String inputName) {
-        synchronized (ZoneManager.macroZones) {
-            for (Zone zone : ZoneManager.macroZones) {
-                String zoneName = zone.getName();
-                if (zoneName.equalsIgnoreCase(inputName))
-                    return zone;
-            }
-        }
-        return null;
-    }
-
     // Converts world coordinates to coordinates local to a given zone.
 
     public static Vector3fImmutable worldToLocal(Vector3fImmutable worldVector,
@@ -353,10 +335,11 @@ public enum ZoneManager {
 
         // convert from SB rotation value to radians
 
-
         if (building.getBounds().getQuaternion() == null)
             return building.getLoc();
+
         Vector3fImmutable rotatedLocal = Vector3fImmutable.rotateAroundPoint(Vector3fImmutable.ZERO, localPos, building.getBounds().getQuaternion());
+
         // handle building rotation
         // handle building translation
 
@@ -371,6 +354,7 @@ public enum ZoneManager {
 
 
         Vector3f rotatedLocal = Vector3f.rotateAroundPoint(Vector3f.ZERO, localPos, bounds.getQuaternion());
+
         // handle building rotation
         // handle building translation
 
@@ -380,7 +364,6 @@ public enum ZoneManager {
     public static Vector3fImmutable convertWorldToLocal(Building building, Vector3fImmutable WorldPos) {
         Vector3fImmutable convertLoc = Vector3fImmutable.rotateAroundPoint(building.getLoc(), WorldPos, -building.getBounds().getQuaternion().angleY);
 
-
         convertLoc = convertLoc.subtract(building.getLoc());
 
         // convert from SB rotation value to radians
@@ -389,14 +372,8 @@ public enum ZoneManager {
 
     }
 
-    public static Vector3fImmutable convertNPCLoc(Building building, Vector3fImmutable npcLoc) {
-
-        return Vector3fImmutable.rotateAroundPoint(Vector3fImmutable.ZERO, npcLoc, -building.getBounds().getQuaternion().angleY);
-
-    }
-
     // Method returns a city if the given location is within
-    // a city siege radius.
+    // a city zone.
 
     public static City getCityAtLocation(Vector3fImmutable worldLoc) {
 
@@ -408,25 +385,6 @@ public enum ZoneManager {
 
         if (currentZone.isPlayerCity())
             return City.getCity(currentZone.getPlayerCityUUID());
-
-        // Not currently on a city grid.  Test nearby cities
-        // to see if we are on one of their seige bounds.
-
-        zoneList = currentZone.getNodes();
-
-        for (Zone zone : zoneList) {
-
-            if (zone == currentZone)
-                continue;
-
-            if (zone.isPlayerCity() == false)
-                continue;
-
-            city = City.getCity(zone.getPlayerCityUUID());
-
-            if (worldLoc.isInsideCircle(city.getLoc(), Enum.CityBoundsType.ZONE.extents))
-                return city;
-        }
 
         return null;
     }

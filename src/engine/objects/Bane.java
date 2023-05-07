@@ -135,15 +135,14 @@ public final class Bane {
             return false;
         }
 
-        // Cannot place banestones underwater;
+        // Cannot place banestone underwater;
 
         if (HeightMap.isLocUnderwater(player.getLoc())) {
             PlaceAssetMsg.sendPlaceAssetError(origin, 6, ""); // Cannot place underwater
             return false;
         }
 
-        //  figure out which city we're standing on
-        //  must be within a city's seige Bounds
+        //  figure out which city zone we are standing on.
 
         targetCity = ZoneManager.getCityAtLocation(player.getLoc());
 

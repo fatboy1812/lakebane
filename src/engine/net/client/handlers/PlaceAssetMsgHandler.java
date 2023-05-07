@@ -346,11 +346,6 @@ public class PlaceAssetMsgHandler extends AbstractClientMsgHandler {
 			return false;
 		}
 
-		// Set the server zone to the city zone in order to account for being inside
-		// the siege bounds buffer area
-
-		serverZone = serverCity.getParent();
-
 		// Must belong to either attacker or defenders.
 
 		if ((player.getGuild().equals(serverCity.getBane().getOwner().getGuild()) == false)
