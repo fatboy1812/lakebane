@@ -584,6 +584,9 @@ public class MobileFSM {
         }
     }
     private static void DefaultLogic(Mob mob) {
+        if(mob.getObjectUUID() == 40548){
+            int thing = 0;
+        }
         //check for players that can be aggroed if mob is agressive and has no target
         if (mob.BehaviourType.isAgressive) {
             AbstractWorldObject newTarget = ChangeTargetFromHateValue(mob);
@@ -714,7 +717,8 @@ public class MobileFSM {
         float CurrentHateValue = 0;
         AbstractWorldObject mostHatedTarget = null;
         for (Entry playerEntry : mob.playerAgroMap.entrySet()) {
-            if(((AbstractCharacter)playerEntry.getKey()).getHateValue() > CurrentHateValue){
+            PlayerCharacter potentialTarget = PlayerCharacter.getFromCache((int)playerEntry.getKey());
+            if(potentialTarget != null && potentialTarget.getHateValue() > CurrentHateValue){
                 CurrentHateValue = ((AbstractCharacter)playerEntry.getKey()).getHateValue();
                 mostHatedTarget = PlayerCharacter.getFromCache((int)playerEntry.getKey());
             }
