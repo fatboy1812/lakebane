@@ -975,6 +975,7 @@ public class Mob extends AbstractIntelligenceAgent {
         if (this.contract != null && NPC.ISWallArcher(this.contract)) {
             this.BehaviourType = MobBehaviourType.GuardWallArcher;
             this.isPlayerGuard = true;
+            this.spawnTime = 450;
         }
         if (isPet || isSiege || (isGuard && this.contract == null))
             this.currentID = (--Mob.staticID);
@@ -1979,10 +1980,14 @@ public class Mob extends AbstractIntelligenceAgent {
                 this.BehaviourType = this.getMobBase().fsm;
 
             if (this.isPlayerGuard() && this.contract != null)
-                if (NPC.ISWallArcher(this.getContract()))
+                if (NPC.ISWallArcher(this.getContract())) {
                     this.BehaviourType = MobBehaviourType.GuardWallArcher;
-                else
+                    this.spawnTime = 450;
+                }
+                else {
                     this.BehaviourType = MobBehaviourType.GuardCaptain;
+                    this.spawnTime = 900;
+                }
 
             this.deathTime = 0;
         } catch (Exception e) {
