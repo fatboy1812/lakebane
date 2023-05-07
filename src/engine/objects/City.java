@@ -1081,8 +1081,6 @@ public class City extends AbstractWorldObject {
 			// so store it in a temporary collection
 
 			toRemove.add(playerUUID);
-			if(cityOutlaws.contains(playerUUID))
-				cityOutlaws.remove(playerUUID);
 			// ***For debugging
 			// Logger.info("PlayerMemory for ", this.getCityName() + ": " + _playerMemory.size());
 		}
@@ -1090,6 +1088,10 @@ public class City extends AbstractWorldObject {
 		// Remove players from city memory
 
 		_playerMemory.removeAll(toRemove);
+		for(Integer removalUUID : toRemove){
+			if(this.cityOutlaws.contains(removalUUID))
+				this.cityOutlaws.remove(removalUUID);
+		}
 	}
 
 	public int getWarehouseBuildingID() {
