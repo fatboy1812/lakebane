@@ -315,7 +315,7 @@ public class MobileFSM {
             if(mob.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardMinion.ordinal()){
                 if(mob.npcOwner.isAlive() == false || ((Mob)mob.npcOwner).despawned == true){
                     //minions don't respawn while guard captain is dead
-                    if(mob.isAlive() == false){
+                    if(mob.isAlive() == false) {
                         mob.deathTime = System.currentTimeMillis();
                         return;
                     }
@@ -551,7 +551,6 @@ public class MobileFSM {
     public static void GuardMinionLogic(Mob mob) {
         if (!mob.npcOwner.isAlive() && mob.getCombatTarget() == null) {
             CheckForPlayerGuardAggro(mob);
-            return;
         }
         if(mob.npcOwner.getCombatTarget() != null)
             mob.setCombatTarget(mob.npcOwner.getCombatTarget());
@@ -643,7 +642,11 @@ public class MobileFSM {
     public static Boolean GuardCanAggro(Mob mob, PlayerCharacter target) {
         if (mob.getGuild().getNation().equals(target.getGuild().getNation()))
             return false;
-        if(mob.building.getCity().cityOutlaws.contains(target.getObjectUUID()) == true){
+        if (mob.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardMinion.ordinal()) {
+            if(((Mob)mob.npcOwner).building.getCity().cityOutlaws.contains(target.getObjectUUID()) == true){
+                return true;
+            }
+        } else if(mob.building.getCity().cityOutlaws.contains(target.getObjectUUID()) == true){
             return true;
         }
         //first check condemn list for aggro allowed (allies button is checked)

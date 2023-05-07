@@ -804,7 +804,7 @@ public class Mob extends AbstractIntelligenceAgent {
         guardCaptain.siegeMinionMap.put(mob, slot);
         mob.deathTime = System.currentTimeMillis();
         mob.npcOwner = guardCaptain;
-        mob.spawnTime = (int)(-2.500 * guardCaptain.building.getRank() + 22.5);
+        mob.spawnTime = (int)(-2.500 * guardCaptain.building.getRank() + 22.5) * 60;
         mob.BehaviourType = Enum.MobBehaviourType.GuardMinion;
         //add mob to zone set of captain
         guardCaptain.getParentZone().zoneMobSet.add(mob);
@@ -1305,7 +1305,7 @@ public class Mob extends AbstractIntelligenceAgent {
 
                 this.timeToSpawnSiege = System.currentTimeMillis() + 60 * 15 * 1000;
                 if(this.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardMinion.ordinal()) {
-                    this.spawnTime = (int) (-2.500 * ((Mob) this.npcOwner).building.getRank() + 22.5);
+                    this.spawnTime = (int) (-2.500 * ((Mob) this.npcOwner).building.getRank() + 22.5) * 60;
                 }
                 if (this.isPet()) {
 
@@ -1391,9 +1391,9 @@ public class Mob extends AbstractIntelligenceAgent {
         this.stopMovement(this.lastBindLoc);
         NPCManager.applyRuneSetEffects(this);
         this.recalculateStats();
-
         this.setHealth(this.healthMax);
         this.region = BuildingManager.GetRegion(this.building, bindLoc.x, bindLoc.y, bindLoc.z);
+        MovementManager.translocate(this,this.bindLoc, this.region);
         if (!this.isSiege && !this.isPlayerGuard && contract == null)
             loadInventory();
 
