@@ -317,8 +317,8 @@ public class MobileFSM {
                     //minions don't respawn while guard captain is dead
                     if(mob.isAlive() == false){
                         mob.deathTime = System.currentTimeMillis();
+                        return;
                     }
-                    return;
                 }
             }
             CheckForRespawn(mob);
