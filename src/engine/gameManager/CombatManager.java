@@ -9,6 +9,7 @@
 package engine.gameManager;
 
 import engine.Enum.*;
+import engine.ai.MobileFSM;
 import engine.exception.MsgSendException;
 import engine.job.JobContainer;
 import engine.job.JobScheduler;
@@ -27,6 +28,7 @@ import engine.server.MBServerStatics;
 import org.pmw.tinylog.Logger;
 
 import java.util.HashSet;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -133,6 +135,14 @@ public enum CombatManager {
 			if (off == null) {
 				CombatManager.createTimer(pc, MBServerStatics.SLOT_OFFHAND, 1, true); // attack in 0.1 of a second
 			}
+		}
+		City playerCity = ZoneManager.getCityAtLocation(pc.getLoc());
+		if( playerCity != null)
+			for(Building barracks : playerCity.cityBarracks)
+				for(Map.Entry<AbstractCharacter,Integer> entry : barracks.getHirelings().entrySet())
+					if(entry.getKey().getCombatTarget() == null){
+						if(MobileFSM.GuardCanAggro((Mob) entry.getKey(),pc))
+							entry.getKey().setCombatTarget(pc);
 		}
 	}
 

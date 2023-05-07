@@ -550,9 +550,10 @@ public class MobileFSM {
             CheckForPlayerGuardAggro(mob);
             return;
         }
-        if(mob.npcOwner.getCombatTarget() != null){
+        if(mob.npcOwner.getCombatTarget() != null)
             mob.setCombatTarget(mob.npcOwner.getCombatTarget());
-        }
+         else
+            mob.setCombatTarget(null);
         CheckMobMovement(mob);
         if (mob.getCombatTarget() != null)
             CheckForAttack(mob);
@@ -622,14 +623,11 @@ public class MobileFSM {
                 continue;
             if (MovementUtilities.inRangeToAggro(mob, loadedPlayer)) {
                 mob.setCombatTarget(loadedPlayer);
-                if (mob.contract != null)
-                    for (Entry<Mob, Integer> minion : mob.siegeMinionMap.entrySet())
-                        minion.getKey().setCombatTarget(loadedPlayer);
                 return;
             }
         }
     }
-    private static Boolean GuardCanAggro(Mob mob, PlayerCharacter target) {
+    public static Boolean GuardCanAggro(Mob mob, PlayerCharacter target) {
         if (mob.getGuild().getNation().equals(target.getGuild().getNation()))
             return false;
         //first check condemn list for aggro allowed (allies button is checked)
