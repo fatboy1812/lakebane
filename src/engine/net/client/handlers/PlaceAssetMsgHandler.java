@@ -924,28 +924,6 @@ public class PlaceAssetMsgHandler extends AbstractClientMsgHandler {
 		DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.SECONDARY);
 	}
 
-	// Method deletes one item from the player's inventory
-	// based on the mesh UUID the deed/seed spawns
-
-	private static void removeDeedByMeshUUID(PlayerCharacter player, int meshUUID) {
-
-		CharacterItemManager inventoryManager;
-		ArrayList<Item> itemList;
-
-		inventoryManager = player.getCharItemManager();
-		itemList = player.getInventory();
-
-		for (Item inventoryItem : itemList) {
-			if (inventoryItem.getItemBase().getUseID() == meshUUID) {
-				inventoryManager.delete(inventoryItem);
-
-				inventoryManager.updateInventory();
-				return;
-			}
-
-		}
-	}
-
 	// Method validates the location we have selected for our new city
 
 	private static boolean validateTreeOfLifePlacement(PlayerCharacter playerCharacter, Realm serverRealm, Zone serverZone,

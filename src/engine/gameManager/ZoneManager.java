@@ -407,7 +407,7 @@ public enum ZoneManager {
 
 
         treeBounds = Bounds.borrow();
-        treeBounds.setBounds(new Vector2f(positionX, positionZ), new Vector2f(Enum.CityBoundsType.ZONE.extents, Enum.CityBoundsType.ZONE.extents), 0.0f);
+        treeBounds.setBounds(new Vector2f(positionX, positionZ), new Vector2f(Enum.CityBoundsType.PLACEMENT.extents, Enum.CityBoundsType.PLACEMENT.extents), 0.0f);
 
         zoneList = currentZone.getNodes();
 
