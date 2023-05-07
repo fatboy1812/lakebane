@@ -317,6 +317,12 @@ public class MobileFSM {
         }
         if (mob.despawned && mob.isPlayerGuard) {
             //override for guards
+            if(mob.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardMinion.ordinal()){
+                if(mob.npcOwner.isAlive() == false || ((Mob)mob.npcOwner).despawned == true){
+                    //minions don't respawn while guard captain is dead
+                    return;
+                }
+            }
             CheckForRespawn(mob);
             //check to send mob home for player guards to prevent exploit of dragging guards away and then teleporting
             CheckToSendMobHome(mob);
