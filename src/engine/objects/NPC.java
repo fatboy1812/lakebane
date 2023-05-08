@@ -246,7 +246,7 @@ public class NPC extends AbstractCharacter {
 
 			if (this.building != null &&
 					this.building.getOwner() != null &&
-					this.building.getOwner().getObjectType().equals(GameObjectType.PlayerCharacter))
+					this.building.getOwner().guild != null)
 				this.name += " the " + this.contract.getName();
 
 		}catch(Exception e){
