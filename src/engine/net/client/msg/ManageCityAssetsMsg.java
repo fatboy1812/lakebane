@@ -744,8 +744,9 @@ public class ManageCityAssetsMsg extends ClientNetMsg {
 
 					if (!npcHire.isAlive()){
 						writer.put((byte) 1); // 1 SHOWs respawning
-						writer.putInt(10); // Seconds in respawn.
-						writer.putInt(20);
+						int respawnRemaining = (int)(((Mob)npcHire).deathTime + ((Mob)npcHire).spawnTime * 1000 - System.currentTimeMillis()) / 1000;
+						writer.putInt(respawnRemaining); // Seconds in respawn remaining.
+						writer.putInt(((Mob)npcHire).spawnTime); // max seconds for respawn
 					}
 					else
 						writer.put((byte)0);
