@@ -242,11 +242,11 @@ public class NPC extends AbstractCharacter {
 
 			this.name = rs.getString("npc_name");
 
-			// Name override for player owned npcs
+			// Name override for npc
+			// with an owner.
 
-			if (this.building != null &&
-					this.building.getOwner() != null &&
-					this.building.getOwner().guild != null)
+			if (this.guild != null &&
+					!this.guild.isEmptyGuild())
 				this.name += " the " + this.contract.getName();
 
 		}catch(Exception e){
