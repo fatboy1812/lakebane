@@ -276,14 +276,14 @@ public class Building extends AbstractWorldObject {
 		if (this.getBlueprint() != null && this.getBlueprint().isSiegeEquip() && this.protectionState.equals(ProtectionState.PROTECTED)){
 			if (this.getGuild() != null){
 				if (this.getGuild().getOwnedCity() != null){
-					if (this.getLoc().isInsideCircle(this.getGuild().getOwnedCity().getLoc(), Enum.CityBoundsType.SIEGE.extents))
+					if (this.getLoc().isInsideCircle(this.getGuild().getOwnedCity().getLoc(), CityBoundsType.ZONE.extents))
 						return this.getGuild().getOwnedCity();
 				}else{
 					Bane bane = Bane.getBaneByAttackerGuild(this.getGuild());
 					
 					if (bane != null){
 						if (bane.getCity() != null){
-							if (this.getLoc().isInsideCircle(bane.getCity().getLoc(), Enum.CityBoundsType.SIEGE.extents))
+							if (this.getLoc().isInsideCircle(bane.getCity().getLoc(), CityBoundsType.ZONE.extents))
 								return bane.getCity();
 						}
 					}

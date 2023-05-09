@@ -26,13 +26,20 @@ public class Portal {
 	private long lastActive = 0;
 
 	public Portal(Building sourceGate, PortalType portalType, Building targetGate) {
+		Vector3fImmutable tmpLocation;
 
 		this.active = false;
 		this.sourceGate = sourceGate;
 		this.targetGate = targetGate;
 		this.portalType = portalType;
 
-		this.portalLocation = sourceGate.getLoc().add(new Vector3fImmutable(portalType.offset.x, 6, portalType.offset.y));
+		tmpLocation = sourceGate.getLoc().add(new Vector3fImmutable(portalType.offset.x, 6, portalType.offset.y));
+
+		// Rotate portal by gate rotation
+
+		tmpLocation = Vector3fImmutable.rotateAroundPoint(sourceGate.getLoc(), tmpLocation, sourceGate.getBounds().getQuaternion().angleY);
+
+		this.portalLocation = tmpLocation;
 	}
 
 	public boolean isActive() {

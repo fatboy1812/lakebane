@@ -204,7 +204,10 @@ public class RemoveObjectCmd extends AbstractDevCmd {
 			return;
 		}
 
+		// Remove npc from hirelings list.
 
+		if (npc.building != null)
+			npc.building.getHirelings().remove(npc);
 
 		for (Mob mob : npc.getSiegeMinionMap().keySet()) {
 			WorldGrid.RemoveWorldObject(mob);
@@ -225,6 +228,7 @@ public class RemoveObjectCmd extends AbstractDevCmd {
 	private void removeMob(PlayerCharacter pc, Mob mob) {
 
 		Zone currentZone = ZoneManager.findSmallestZone(pc.getLoc());
+
 		if (currentZone == null) {
 			this.throwbackError(pc, "Could not locate zone for player.");
 			return;
@@ -235,8 +239,13 @@ public class RemoveObjectCmd extends AbstractDevCmd {
 			return;
 		}
 
-		mob.setLoc(Vector3fImmutable.ZERO);	//Move it off the plane..
-		mob.setBindLoc(Vector3fImmutable.ZERO);	//Reset the bind loc..
+		// Remove npc from hirelings list.
+
+		if (mob.building != null)
+			mob.building.getHirelings().remove(mob);
+
+		mob.setLoc(Vector3fImmutable.ZERO);    //Move it off the plane..
+		mob.setBindLoc(Vector3fImmutable.ZERO);    //Reset the bind loc..
 		//mob.setHealth(-1, pc); //Kill it!
 
 		DbManager.MobQueries.DELETE_MOB(mob);

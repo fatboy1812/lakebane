@@ -346,11 +346,6 @@ public class PlaceAssetMsgHandler extends AbstractClientMsgHandler {
 			return false;
 		}
 
-		// Set the server zone to the city zone in order to account for being inside
-		// the siege bounds buffer area
-
-		serverZone = serverCity.getParent();
-
 		// Must belong to either attacker or defenders.
 
 		if ((player.getGuild().equals(serverCity.getBane().getOwner().getGuild()) == false)
@@ -427,7 +422,7 @@ public class PlaceAssetMsgHandler extends AbstractClientMsgHandler {
 				if (!building.getBlueprint().isSiegeEquip())
 					continue;
 
-			if (!building.getLoc().isInsideCircle(serverCity.getLoc(), Enum.CityBoundsType.SIEGE.extents))
+			if (!building.getLoc().isInsideCircle(serverCity.getLoc(), CityBoundsType.ZONE.extents))
 				continue;
 
 			if (building.getGuild() == null)
@@ -927,28 +922,6 @@ public class PlaceAssetMsgHandler extends AbstractClientMsgHandler {
 		pam.setActionType(4);
 		Dispatch dispatch = Dispatch.borrow(origin.getPlayerCharacter(), pam);
 		DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.SECONDARY);
-	}
-
-	// Method deletes one item from the player's inventory
-	// based on the mesh UUID the deed/seed spawns
-
-	private static void removeDeedByMeshUUID(PlayerCharacter player, int meshUUID) {
-
-		CharacterItemManager inventoryManager;
-		ArrayList<Item> itemList;
-
-		inventoryManager = player.getCharItemManager();
-		itemList = player.getInventory();
-
-		for (Item inventoryItem : itemList) {
-			if (inventoryItem.getItemBase().getUseID() == meshUUID) {
-				inventoryManager.delete(inventoryItem);
-
-				inventoryManager.updateInventory();
-				return;
-			}
-
-		}
 	}
 
 	// Method validates the location we have selected for our new city

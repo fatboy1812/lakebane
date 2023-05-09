@@ -184,9 +184,12 @@ public class NPC extends AbstractCharacter {
 			if (this.contract != null)
 				this.loadID = this.contract.getMobbaseID();
 			else
-				this.loadID = 2011; //default to human
+				this.loadID = rs.getInt("npc_raceID");
 
-			this.loadID = rs.getInt("npc_raceID");
+			// Default to human male
+
+			if (loadID == 0)
+				loadID = 2100;
 
 			this.mobBase = MobBase.getMobBase(this.loadID);
 			this.level = rs.getByte("npc_level");
@@ -242,11 +245,11 @@ public class NPC extends AbstractCharacter {
 
 			this.name = rs.getString("npc_name");
 
-			// Name override for player owned npcs
+			// Name override for npc
+			// with an owner.
 
-			if (this.building != null &&
-					this.building.getOwner() != null &&
-					this.building.getOwner().getObjectType().equals(GameObjectType.PlayerCharacter))
+			if (this.guild != null &&
+					!this.guild.isEmptyGuild())
 				this.name += " the " + this.contract.getName();
 
 		}catch(Exception e){

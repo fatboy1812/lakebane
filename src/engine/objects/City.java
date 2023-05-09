@@ -943,7 +943,7 @@ public class City extends AbstractWorldObject {
 
 	public boolean isLocationWithinSiegeBounds(Vector3fImmutable insideLoc) {
 
-		return insideLoc.isInsideCircle(this.getLoc(), CityBoundsType.SIEGE.extents);
+		return insideLoc.isInsideCircle(this.getLoc(), CityBoundsType.ZONE.extents);
 
 	}
 
@@ -1001,9 +1001,9 @@ public class City extends AbstractWorldObject {
 		HashSet<Integer> currentMemory;
 		PlayerCharacter player;
 
-		// Gather current list of players within a distance defined by the seige bounds
+		// Gather current list of players within the zone bounds
 
-		currentPlayers = WorldGrid.getObjectsInRangePartial(this.location, CityBoundsType.SIEGE.extents, MBServerStatics.MASK_PLAYER);
+		currentPlayers = WorldGrid.getObjectsInRangePartial(this.location, CityBoundsType.ZONE.extents, MBServerStatics.MASK_PLAYER);
 		currentMemory = new HashSet<>();
 
 		for (AbstractWorldObject playerObject : currentPlayers) {
