@@ -331,7 +331,7 @@ public class MobileFSM {
             CheckForRespawn(mob);
             return;
         }
-        if (mob.playerAgroMap.isEmpty())
+        if (mob.playerAgroMap.isEmpty() && mob.isPlayerGuard == false)
             //no players loaded, no need to proceed
             return;
         if (mob.isCombat() && mob.getCombatTarget() == null) {
