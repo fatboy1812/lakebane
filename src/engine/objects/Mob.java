@@ -806,8 +806,6 @@ public class Mob extends AbstractIntelligenceAgent {
         mob.npcOwner = guardCaptain;
         mob.spawnTime = (int)(-2.500 * guardCaptain.building.getRank() + 22.5) * 60;
         mob.BehaviourType = Enum.MobBehaviourType.GuardMinion;
-        //add mob to zone set of captain
-        guardCaptain.getParentZone().zoneMobSet.add(mob);
         return mob;
     }
 

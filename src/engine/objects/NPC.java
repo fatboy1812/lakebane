@@ -984,9 +984,6 @@ public class NPC extends AbstractCharacter {
 				(short) 1, (short) 1, (short) 1, guild, (byte) 0, 0, isMob, building, contractID, parent);
 
 		npcWithoutID.setLevel(level);
-		if (parent != null) {
-			npcWithoutID.setRelPos(parent, spawn.x - parent.absX, spawn.y - parent.absY, spawn.z - parent.absZ);
-		}
 
 		if (npcWithoutID.mobBase == null) {
 			return null;
