@@ -918,10 +918,10 @@ public class NPC extends AbstractCharacter {
 			if (this.parentZone != null) {
 				if (zone.getObjectUUID() != this.parentZone.getObjectUUID()) {
 					this.parentZone.zoneNPCSet.remove(this);
-					zone.zoneNPCSet.add(this);
+					//zone.zoneNPCSet.add(this);
 				}
 			} else {
-				zone.zoneNPCSet.add(this);
+				//zone.zoneNPCSet.add(this);
 			}
 		} else if (this.parentZone != null) {
 			this.parentZone.zoneNPCSet.remove(this);
@@ -987,6 +987,9 @@ public class NPC extends AbstractCharacter {
 
 		if (npcWithoutID.mobBase == null) {
 			return null;
+		}
+		if (parent != null) {
+			npcWithoutID.setRelPos(parent, spawn.x - parent.absX, spawn.y - parent.absY, spawn.z - parent.absZ);
 		}
 		NPC npc;
 		try {

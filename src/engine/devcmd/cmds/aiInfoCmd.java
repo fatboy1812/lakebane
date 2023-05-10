@@ -94,12 +94,13 @@ public class aiInfoCmd extends AbstractDevCmd {
             } else{
                 output += "BehaviourType: NULL" + newline;
             }
+            output += "Aggro Range: " + mob.getAggroRange() + newline;
             output += "Player Aggro Map Size: " + mob.playerAgroMap.size() + newline;
             if(mob.playerAgroMap.size() > 0){
                 output += "Players Loaded:" + newline;
             }
             for(Map.Entry<Integer,Boolean> entry : mob.playerAgroMap.entrySet()){
-                output += "Player ID: " + entry.getKey() + " In Range To Aggro: " + entry.getValue() + newline;
+                output += "Player ID: " + entry.getKey() + " Is Safemode: " + entry.getValue() + newline;
             }
         }
         throwbackInfo(pc, output);
