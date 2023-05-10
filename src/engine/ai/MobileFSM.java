@@ -385,7 +385,9 @@ public class MobileFSM {
             if (!aiAgent.canSee(loadedPlayer))
                 continue;
             // No aggro for this race type
-            if (aiAgent.notEnemy.contains(loadedPlayer.getRace().getRaceType()))
+            if (aiAgent.notEnemy.contains(loadedPlayer.getRace().getRaceType().getMonsterType()))
+                continue;
+            if(!aiAgent.enemy.contains(loadedPlayer.getRace().getRaceType().getMonsterType()))
                 continue;
             if (MovementUtilities.inRangeToAggro(aiAgent, loadedPlayer)) {
                 aiAgent.setCombatTarget(loadedPlayer);
