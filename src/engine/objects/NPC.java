@@ -41,6 +41,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 import static engine.math.FastMath.acos;
 import static engine.net.client.msg.ErrorPopupMsg.sendErrorPopup;
 import static engine.objects.MobBase.loadEquipmentSet;
+import static engine.util.StringUtils.wordCount;
 
 public class NPC extends AbstractCharacter {
 
@@ -181,15 +182,12 @@ public class NPC extends AbstractCharacter {
 			if (this.equipmentSetID == 0 && this.contract != null)
 				this.equipmentSetID = this.contract.equipmentSet;
 
-			if (this.contract != null)
-				this.loadID = this.contract.getMobbaseID();
-			else
-				this.loadID = rs.getInt("npc_raceID");
+			this.loadID = rs.getInt("npc_raceID");
 
-			// Default to human male
+			// Default to contract load ID
 
 			if (loadID == 0)
-				loadID = 2100;
+				loadID = this.contract.getMobbaseID();
 
 			this.mobBase = MobBase.getMobBase(this.loadID);
 			this.level = rs.getByte("npc_level");
@@ -246,10 +244,8 @@ public class NPC extends AbstractCharacter {
 			this.name = rs.getString("npc_name");
 
 			// Name override for npc
-			// with an owner.
 
-			if (this.guild != null &&
-					!this.guild.isEmptyGuild())
+			if (wordCount(this.name) < 2)
 				this.name += " the " + this.contract.getName();
 
 		}catch(Exception e){

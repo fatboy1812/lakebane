@@ -136,15 +136,27 @@ public class StringUtils {
 			}
                 
 		}
-                
-                return outString;
+
+		return outString;
+
+	}
+
+	public static String truncate(String input, int length) {
+		if (input != null && input.length() > length)
+			input = input.substring(0, length);
+		return input;
+	}
+
+	public static int wordCount(String input) {
+
+		String workString = input.trim();
+
+		if (workString.isEmpty())
+			return 0;
+
+		return workString.split("\\s+").length;
+
+	}
 
 }
-         
-public static String truncate(String input, int length) {
-  if (input != null && input.length() > length)
-    input = input.substring(0, length);
-  return input;
-}
-   
-}
+
