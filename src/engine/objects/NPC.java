@@ -256,7 +256,7 @@ public class NPC extends AbstractCharacter {
 		try{
 			initializeNPC();
 		}catch(Exception e){
-			Logger.error( e.toString());
+			Logger.error("NPC: " + this.dbID + " :" + e);
 		}
 
 	}
