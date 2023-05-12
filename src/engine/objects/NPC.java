@@ -245,7 +245,7 @@ public class NPC extends AbstractCharacter {
 
 			// Name override for npc
 
-			if (wordCount(this.name) < 2)
+			if (wordCount(this.name) < 2 && this.contract != null)
 				this.name += " the " + this.contract.getName();
 
 		}catch(Exception e){
