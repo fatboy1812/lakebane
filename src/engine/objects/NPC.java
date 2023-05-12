@@ -249,7 +249,7 @@ public class NPC extends AbstractCharacter {
 				this.name += " the " + this.contract.getName();
 
 		}catch(Exception e){
-			Logger.error(e);
+			Logger.error("NPC: " + this.dbID + " :" + e);
 			e.printStackTrace();
 		}
 
