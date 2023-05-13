@@ -6,7 +6,7 @@
 //      Magicbane Emulator Project © 2013 - 2022
 //                www.magicbane.com
 
- package engine.jobs;
+package engine.jobs;
 
 import engine.InterestManagement.WorldGrid;
 import engine.job.AbstractScheduleJob;
@@ -22,98 +22,60 @@ import java.util.HashSet;
 
 public class StuckJob extends AbstractScheduleJob {
 
-	private final PlayerCharacter player;
+    private final PlayerCharacter player;
 
-	public StuckJob(PlayerCharacter player) {
-		super();
-		this.player = player;
-	}
+    public StuckJob(PlayerCharacter player) {
+        super();
+        this.player = player;
+    }
 
-	@Override
-	protected void doJob() {
-        
+    @Override
+    protected void doJob() {
+
         Vector3fImmutable stuckLoc;
-        Building stuckBuilding = null;
- 
+        Building building = null;
+
         if (player == null)
             return;
-        
+
         if (player.getClientConnection() == null)
             return;
-        
-        HashSet<AbstractWorldObject>awoList = WorldGrid.getObjectsInRangePartial(player, 150, MBServerStatics.MASK_BUILDING);
-       
-        for (AbstractWorldObject awo:awoList){
 
-        	Building toStuckOutOf = (Building)awo;
+        HashSet<AbstractWorldObject> awoList = WorldGrid.getObjectsInRangePartial(player, 150, MBServerStatics.MASK_BUILDING);
 
-        	if (toStuckOutOf.getStuckLocation() == null)
-        		continue;
+        for (AbstractWorldObject awo : awoList) {
 
-        	if (Bounds.collide(player.getLoc(), toStuckOutOf)){
-        		stuckBuilding = toStuckOutOf;
-        		break;
-        		
-        	}
+            Building buildingEntry = (Building) awo;
+
+            if (buildingEntry.getStuckLocation() == null)
+                continue;
+
+            if (Bounds.collide(player.getLoc(), buildingEntry)) {
+                building = buildingEntry;
+                break;
+
+            }
         }
 
-        //Could not find closest building get stuck location of nearest building.
-        
-        if (stuckBuilding == null){
+        if (building == null) {
             ErrorPopupMsg.sendErrorMsg(player, "Unable to find desired location");
-    	return;
-        } else
-        	stuckLoc = stuckBuilding.getStuckLocation();
-        
-        if (stuckLoc == null){
+            return;
+        }
+
+        stuckLoc = building.getStuckLocation();
+
+        if (stuckLoc == null) {
             ErrorPopupMsg.sendErrorMsg(player, "Unable to find desired location");
-        	return;
-        }
-        	
-        
-        player.teleport(stuckLoc);
-        
-        
-        	
-        
-        // Needs to be re-written with stuck locations
-        // Disabled for now.
- 
-        
-        /*
-        
-        // Cannot have a null zone or player
-        
-        if (this.player == null)
             return;
-        
-        if (ZoneManager.findSmallestZone(player.getLoc()) == null)
-            return;
-        
-        // If player is on a citygrid make sure the stuck direction
-        // is facing away from the tree
-        
-        if ((ZoneManager.findSmallestZone(player.getLoc()).isNPCCity()) ||
-            (ZoneManager.findSmallestZone(player.getLoc()).isPlayerCity())) {
-           
-            zoneVector = player.getLoc().subtract(ZoneManager.findSmallestZone(player.getLoc()).getLoc());
-            zoneVector = zoneVector.normalize();
-            
-            if (zoneVector.dot(player.getFaceDir()) > 0)
-               return;
-           
         }
- 
-        player.teleport(player.getLoc().add(player.getFaceDir().mult(34)));
-*/
-	}
 
-	@Override
-	protected void _cancelJob() {
-	}
+        player.teleport(building.getLoc().add(stuckLoc));
 
-	private void sendTrackArrow(float rotation) {
-	}
+    }
+
+    @Override
+    protected void _cancelJob() {
+    }
 
 }
 
