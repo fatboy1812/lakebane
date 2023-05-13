@@ -1249,6 +1249,7 @@ public class Building extends AbstractWorldObject {
 			return this.getLoc();
 
 		stuckLocation = stuckLocations.get(ThreadLocalRandom.current().nextInt(stuckLocations.size())).getLocation();
+		stuckLocation = this.getLoc().add(stuckLocation);
 
 		return stuckLocation;
 	}
