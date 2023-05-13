@@ -291,6 +291,8 @@ public class WorldServer {
 		// Load new loot system
 		Logger.info("Loading New Loot Tables");
 		LootManager.loadLootData();
+		//load old loot system (still needed for rolling for now)
+		LootTable.populateLootTables();
 		RuneBaseAttribute.LoadAllAttributes();
 		RuneBase.LoadAllRuneBases();
 		BaseClass.LoadAllBaseClasses();
