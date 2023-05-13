@@ -69,7 +69,7 @@ public class StuckJob extends AbstractScheduleJob {
             return;
         }
 
-        player.teleport(building.getLoc().add(stuckLoc));
+        player.teleport(stuckLoc);
 
     }
 
