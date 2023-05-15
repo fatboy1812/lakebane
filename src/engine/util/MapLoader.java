@@ -49,8 +49,8 @@ public enum MapLoader {
 
         for (int i = 0; i < MBServerStatics.SPATIAL_HASH_BUCKETSY; i++) {
             for (int j = 0; j < MBServerStatics.SPATIAL_HASH_BUCKETSX; j++) {
-				try {
-                    Color pixelColor = new Color(image.getRGB(j, i));
+
+                Color pixelColor = new Color(image.getRGB(j, i));
                     realmUUID = RealmMap.getRealmIDByColor(pixelColor);
 
                     realmMap[j][i] = realmUUID;
@@ -59,12 +59,9 @@ public enum MapLoader {
                     if (realmUUID != 0)
                         realmsWritten++;
 
-                }catch (Exception e){
-					Logger.error("Error while processing realm map" + e);
-				}
-
             }
         }
+
         timeToLoad = System.currentTimeMillis() - timeToLoad;
 
         Logger.info( bytesRead + "Realm imageMNap pixels processed in " + timeToLoad / 1000 + " seconds");
