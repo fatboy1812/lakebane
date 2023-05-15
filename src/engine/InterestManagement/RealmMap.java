@@ -37,11 +37,13 @@ public enum RealmMap {
     // a player is currently located within.
 
     public static int[][] _realmImageMap;
-    private static final HashMap<Integer, Integer> _rgbToIDMap = new HashMap<>();
+    private static final HashMap<Color, Integer> _rgbToIDMap = new HashMap<>();
 
-    public static int getRealmIDByRGB(int realmRGB) {
+    public static int getRealmIDByColor(Color color) {
 
-        return _rgbToIDMap.get(realmRGB);
+        int realmID = _rgbToIDMap.get(color);
+
+        return realmID;
 
     }
 
@@ -60,7 +62,7 @@ public enum RealmMap {
     }
 
     public static void addToColorMap(Color color, int realmID) {
-        _rgbToIDMap.put(color.getRGB(), realmID);
+        _rgbToIDMap.put(color, realmID);
     }
 
     public static Realm getRealmForCity(City city) {

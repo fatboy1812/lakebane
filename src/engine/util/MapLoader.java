@@ -50,16 +50,16 @@ public enum MapLoader {
         for (int i = 0; i < MBServerStatics.SPATIAL_HASH_BUCKETSY; i++) {
             for (int j = 0; j < MBServerStatics.SPATIAL_HASH_BUCKETSX; j++) {
 				try {
-					int rgb = image.getRGB(j, i);
-					realmUUID = RealmMap.getRealmIDByRGB(rgb);
-                
-                realmMap[j][i] = realmUUID;
-                bytesRead++;
+                    Color pixelColor = new Color(image.getRGB(j, i));
+                    realmUUID = RealmMap.getRealmIDByColor(pixelColor);
 
-                if (realmUUID != 0)
-                    realmsWritten++;
+                    realmMap[j][i] = realmUUID;
+                    bytesRead++;
 
-				}catch (Exception e){
+                    if (realmUUID != 0)
+                        realmsWritten++;
+
+                }catch (Exception e){
 					continue;
 				}
 
