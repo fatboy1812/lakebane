@@ -41,9 +41,7 @@ public enum RealmMap {
 
     public static int getRealmIDByColor(Color color) {
 
-        int realmID = _rgbToIDMap.get(color);
-
-        return realmID;
+        return _rgbToIDMap.getOrDefault(color, 0);
 
     }
 

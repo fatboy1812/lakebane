@@ -60,9 +60,8 @@ public enum MapLoader {
                         realmsWritten++;
 
                 }catch (Exception e){
-					continue;
+					Logger.error("Error while processing realm map" + e);
 				}
-
 
             }
         }
