@@ -64,7 +64,7 @@ public enum MapLoader {
 
         timeToLoad = System.currentTimeMillis() - timeToLoad;
 
-        Logger.info(bytesRead + " pixels processed in " + timeToLoad / 1000 + " seconds");
+        Logger.info(bytesRead + " pixels processed in " + timeToLoad + " milis");
         Logger.info(realmsWritten + " realm pixels written ");
         return realmMap;
     }
