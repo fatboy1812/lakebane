@@ -54,17 +54,18 @@ public enum MapLoader {
                     realmUUID = RealmMap.getRealmIDByColor(pixelColor);
 
                     realmMap[j][i] = realmUUID;
-                    bytesRead++;
+                bytesRead++;
 
-                    if (realmUUID != 0)
-                        realmsWritten++;
+                if (realmUUID != 0)
+                    realmsWritten++;
 
             }
         }
 
         timeToLoad = System.currentTimeMillis() - timeToLoad;
 
-        Logger.info( bytesRead + "Realm imageMNap pixels processed in " + timeToLoad / 1000 + " seconds");
+        Logger.info(bytesRead + " pixels processed in " + timeToLoad / 1000 + " seconds");
+        Logger.info(realmsWritten + " realm pixels written ");
         return realmMap;
     }
 
