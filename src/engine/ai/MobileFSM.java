@@ -331,7 +331,7 @@ public class MobileFSM {
             CheckForRespawn(mob);
             return;
         }
-        if (mob.playerAgroMap.isEmpty() && mob.isPlayerGuard == false)
+        if (mob.playerAgroMap.isEmpty())
             //no players loaded, no need to proceed
             return;
         if (mob.isCombat() && mob.getCombatTarget() == null) {
@@ -492,21 +492,19 @@ public class MobileFSM {
         if (mob.isPlayerGuard() && !mob.despawned) {
             City current = ZoneManager.getCityAtLocation(mob.getLoc());
             if (current == null || current.equals(mob.getGuild().getOwnedCity()) == false || mob.playerAgroMap.isEmpty()) {
-                PowersBase recall = PowersManager.getPowerByToken(-1994153779);
-                PowersManager.useMobPower(mob, mob, recall, 40);
+                MovementManager.translocate(mob,mob.getBindLoc(),null);
                 mob.setCombatTarget(null);
                 if(mob.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardCaptain.ordinal() && mob.isAlive()){
                     //guard captain pulls his minions home with him
                     for (Entry<Mob, Integer> minion : mob.siegeMinionMap.entrySet()) {
-                        PowersManager.useMobPower(minion.getKey(), minion.getKey(), recall, 40);
+                        MovementManager.translocate(minion.getKey(),mob.getBindLoc(),null);
                         minion.getKey().setCombatTarget(null);
                     }
                 }
             }
         }
          else if(MovementUtilities.inRangeOfBindLocation(mob) == false) {
-            PowersBase recall = PowersManager.getPowerByToken(-1994153779);
-            PowersManager.useMobPower(mob, mob, recall, 40);
+            MovementManager.translocate(mob,mob.getBindLoc(),null);
             mob.setCombatTarget(null);
         }
     }
