@@ -80,8 +80,6 @@ public class dbMobHandler extends dbHandlerBase {
 
 	public void LOAD_PATROL_POINTS(Mob captain) {
 
-
-
 		prepareCallable("SELECT * FROM `dyn_guards` WHERE `captainUID` = ?");
 		setInt(1,captain.getObjectUUID());
 
@@ -89,30 +87,25 @@ public class dbMobHandler extends dbHandlerBase {
 			ResultSet rs = executeQuery();
 
 			//shrines cached in rs for easy cache on creation.
-			while (rs.next()) {
+
+            while (rs.next()) {
 				int mobBaseID = rs.getInt("mobBaseID");
 				String name = rs.getString("name");
 				Mob toCreate = Mob.createGuardMob(captain, captain.getGuild(), captain.getParentZone(), captain.building.getLoc(), captain.getLevel(),name);
 				if (toCreate == null)
 					return;
 
-				//   toCreate.despawn();
 				if (toCreate != null) {
-					
 					toCreate.setTimeToSpawnSiege(System.currentTimeMillis() + MBServerStatics.FIFTEEN_MINUTES);
 					toCreate.setDeathTime(System.currentTimeMillis());
-
                 }
 			}
-
 
 		} catch (SQLException e) {
 			Logger.error( e.toString());
 		} finally {
 			closeCallable();
 		}
-
-
 
 	}
 

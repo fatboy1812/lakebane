@@ -28,9 +28,4 @@ public class dbBuildingLocationHandler extends dbHandlerBase {
 		return getObjectList();
 	}
 
-	public ArrayList<BuildingLocation> LOAD_ALL_BUILDING_LOCATIONS() {
-		prepareCallable("SELECT * FROM `static_building_location`;");
-		return getObjectList();
-	}
-
 }
