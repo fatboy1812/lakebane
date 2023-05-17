@@ -186,11 +186,4 @@ public class dbCityHandler extends dbHandlerBase {
 		return (executeUpdate() > 0);
 	}
 
-	public boolean DELETE_CITY(final City city) {
-
-		prepareCallable("DELETE FROM `object` WHERE `UID` = ? AND `type` = 'city'");
-		setInt(1, city.getObjectUUID());
-		return (executeUpdate() != 0);
-	}
-
 }

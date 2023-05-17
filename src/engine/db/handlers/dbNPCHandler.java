@@ -75,18 +75,6 @@ public class dbNPCHandler extends dbHandlerBase {
 		return getLargeObjectList();
 	}
 
-	public ArrayList<NPC> GET_ALL_NPCS() {
-		prepareCallable("SELECT `obj_npc`.*, `object`.`parent` FROM `object` INNER JOIN `obj_npc` ON `obj_npc`.`UID` = `object`.`UID`;");
-		
-		return getObjectList();
-	}
-
-	public ArrayList<NPC> GET_NPCS_BY_BUILDING(final int buildingID) {
-		prepareCallable("SELECT `obj_npc`.*, `object`.`parent` FROM `obj_npc` INNER JOIN `object` ON `obj_npc`.`UID` = `object`.`UID` WHERE `npc_buildingID` = ? LIMIT 3");
-		setInt(1, buildingID);
-		return getObjectList();
-	}
-
 	public NPC GET_NPC(final int objectUUID) {
 		prepareCallable("SELECT `obj_npc`.*, `object`.`parent` FROM `object` INNER JOIN `obj_npc` ON `obj_npc`.`UID` = `object`.`UID` WHERE `object`.`UID` = ?;");
 		setLong(1, (long) objectUUID);
@@ -142,8 +130,6 @@ public class dbNPCHandler extends dbHandlerBase {
 
 	public boolean updateUpgradeTime(NPC npc, DateTime upgradeDateTime) {
 
-
-
 		try {
 
 			prepareCallable("UPDATE obj_npc SET upgradeDate=? "
@@ -161,27 +147,6 @@ public class dbNPCHandler extends dbHandlerBase {
 			return false;
 		}
 		return true;
-	}
-
-	public boolean UPDATE_BUY_PROFIT(NPC npc,float percent) {
-		prepareCallable("UPDATE `obj_npc` SET `npc_buyPercent`=? WHERE `UID`=?");
-		setFloat(1, percent);
-		setLong(2, npc.getObjectUUID());
-		return (executeUpdate() > 0);
-	}
-
-	public boolean UPDATE_SELL_PROFIT(NPC npc,float percent) {
-		prepareCallable("UPDATE `obj_npc` SET `npc_sellPercent`=? WHERE `UID`=?");
-		setFloat(1, percent);
-		setLong(2, npc.getObjectUUID());
-		return (executeUpdate() > 0);
-	}
-
-	public boolean UPDATE_SLOT(NPC npc,int slot) {
-		prepareCallable("UPDATE `obj_npc` SET `npc_slot`=? WHERE `UID`=?");
-		setFloat(1, slot);
-		setLong(2, npc.getObjectUUID());
-		return (executeUpdate() > 0);
 	}
 
 	public boolean UPDATE_MOBBASE(NPC npc, int mobBaseID) {
