@@ -13,6 +13,7 @@ import engine.Enum;
 import engine.gameManager.DbManager;
 import engine.objects.Building;
 import engine.objects.Portal;
+import org.pmw.tinylog.Logger;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -62,6 +63,7 @@ public class dbRunegateHandler extends dbHandlerBase {
             }
 
         } catch (SQLException e) {
+            Logger.error("Exception while loading runegate portals: " + e);
         } finally {
             closeCallable();
         }
