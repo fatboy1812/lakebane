@@ -16,11 +16,9 @@ import engine.Enum.TaxType;
 import engine.gameManager.DbManager;
 import engine.math.Vector3fImmutable;
 import engine.objects.*;
-import engine.server.MBServerStatics;
 import org.joda.time.DateTime;
 import org.pmw.tinylog.Logger;
 
-import java.awt.geom.Line2D;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
@@ -36,34 +34,6 @@ public class dbBuildingHandler extends dbHandlerBase {
 		this.localObjectType = Enum.GameObjectType.valueOf(this.localClass.getSimpleName());
 	}
 
-	public Building CREATE_BUILDING(Building b) {
-		try {
-			b = this.addBuilding(b);
-			b.setObjectTypeMask(MBServerStatics.MASK_BUILDING);
-		} catch (Exception e) {
-			Logger.error(e);
-			b = null;
-		}
-		return b;
-	}
-
-	/*
-	 *
-	 * @param worldServerID
-	 * @param OwnerUUID
-	 * @param name
-	 * @param meshUUID
-	 * @param meshScale
-	 * @param currentHP
-	 * @param protectionState
-	 * @param currentGold
-	 * @param rank
-	 * @param upgradeDate
-	 * @param blueprintUUID
-	 * @param w
-	 * @param rotY
-	 * @return
-	 */
 	public Building CREATE_BUILDING(int parentZoneID, int OwnerUUID, String name, int meshUUID,
 									Vector3fImmutable location, float meshScale, int currentHP,
 									ProtectionState protectionState, int currentGold, int rank,
@@ -104,9 +74,11 @@ public class dbBuildingHandler extends dbHandlerBase {
 		} catch (Exception e) {
 			Logger.error("CREATE_BUILDING", e.getMessage());
 			return null;
+		} finally {
+			closeCallable();
 		}
-		return toCreate;
 
+		return toCreate;
 	}
 
 	public boolean DELETE_FROM_DATABASE(final Building b) {
@@ -117,11 +89,6 @@ public class dbBuildingHandler extends dbHandlerBase {
 	public ArrayList<Building> GET_ALL_BUILDINGS_FOR_ZONE(Zone zone) {
 		prepareCallable("SELECT `obj_building`.*, `object`.`parent` FROM `object` INNER JOIN `obj_building` ON `obj_building`.`UID` = `object`.`UID` WHERE `object`.`parent` = ?;");
 		setLong(1, zone.getObjectUUID());
-		return getLargeObjectList();
-	}
-
-	public ArrayList<Building> GET_ALL_BUILDINGS() {
-		prepareCallable("SELECT `obj_building`.*, `object`.`parent` FROM `object` INNER JOIN `obj_building` ON `obj_building`.`UID` = `object`.`UID`;");
 		return getLargeObjectList();
 	}
 
@@ -186,53 +153,9 @@ public class dbBuildingHandler extends dbHandlerBase {
 		return executeUpdate();
 	}
 
-	private Building addBuilding(Building toAdd) {
-		prepareCallable("CALL `building_CREATE`(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
-		setLong(1, toAdd.getParentZoneID());
-		setLong(2, toAdd.getOwnerUUID());
-		setString(3, toAdd.getName());
-		setInt(4, toAdd.getMeshUUID());
-		setFloat(5, toAdd.getStatLat());
-		setFloat(6, toAdd.getStatAlt());
-		setFloat(7, toAdd.getStatLon());
-		setFloat(8, toAdd.getMeshScale().x);
-		setInt(9, (int) toAdd.getHealth());
-		setString(10, toAdd.getProtectionState().name());
-		setInt(11, toAdd.getStrongboxValue());
-		setInt(12, toAdd.getRank());
-
-		// Write Joda DateTime to database
-		// *** Refactor : Wrap this logic in our
-		// own override setDateTime() ?
-		if (toAdd.getUpgradeDateTime() != null)
-			setLocalDateTime(13, toAdd.getUpgradeDateTime());
-		else
-			setNULL(13, java.sql.Types.DATE);
-
-		setInt(14, toAdd.getBlueprintUUID());
-		setFloat(15, toAdd.getw());
-		setFloat(16, toAdd.getRot().y);
-
-		int objectUUID = (int) getUUID();
-
-		if (objectUUID > 0)
-			return GET_BUILDINGBYUUID(objectUUID);
-		return null;
-
-	}
-
 	private boolean removeFromBuildings(final Building b) {
 		prepareCallable("DELETE FROM `object` WHERE `UID` = ?");
 		setLong(1, b.getObjectUUID());
-		return (executeUpdate() > 0);
-	}
-
-	public boolean ClaimAsset(final long SetBuildingID, int newowner, int OldOwner) {
-
-		prepareCallable("UPDATE `obj_building` SET `ownerUUID`=? WHERE `UID`=? and `ownerUUID`= ?");
-		setInt(1, newowner);
-		setLong(2, SetBuildingID);
-		setLong(3, OldOwner);
 		return (executeUpdate() > 0);
 	}
 
@@ -460,61 +383,6 @@ public class dbBuildingHandler extends dbHandlerBase {
 		return (executeUpdate() > 0);
 	}
 
-	public boolean ADD_TO_COLLIDE(final long parentUID, final float startX, final float startY, final float endX, final float endY) {
-		prepareCallable("INSERT INTO `static_building_colliders` (`MeshID`, `startX`,`startY`, `endX`, `endY`) VALUES (?,?,?,?,?)");
-		setLong(1, parentUID);
-		setFloat(2, startX);
-		setFloat(3, startY);
-		setFloat(4, endX);
-		setFloat(5, endY);
-		return (executeUpdate() > 0);
-	}
-
-	public ArrayList<Line2D.Float> GET_COLLIDERS(final long meshID) {
-		ArrayList<Line2D.Float> colliders = new ArrayList<>();
-		prepareCallable("SELECT * FROM `static_building_colliders` WHERE `MeshID`=? AND `doorID` =0");
-		setLong(1, meshID);
-		try {
-			ResultSet rs = executeQuery();
-			while (rs.next()) {
-				int startX = rs.getInt("startX");
-				int startY = rs.getInt("startY");
-				int endX = rs.getInt("endX");
-				int endY = rs.getInt("endY");
-				colliders.add(new Line2D.Float(startX,startY,endX,endY));
-			}
-
-			rs.close();
-		} catch (SQLException e) {
-			Logger.error("dbBuildingHandler.GET_COLLIDERS", e);
-		} finally {
-			closeCallable();
-		}
-		return colliders;
-	}
-
-	public ArrayList<Line2D.Float> GET_DOOR_COLLIDERS(final long meshID) {
-		ArrayList<Line2D.Float> colliders = new ArrayList<>();
-		prepareCallable("SELECT * FROM `static_building_colliders` WHERE `MeshID`=? AND `doorID` <> 0");
-		setLong(1, meshID);
-		try {
-			ResultSet rs = executeQuery();
-			while (rs.next()) {
-				int startX = rs.getInt("startX");
-				int startY = rs.getInt("startY");
-				int endX = rs.getInt("endX");
-				int endY = rs.getInt("endY");
-				colliders.add(new Line2D.Float(startX,startY,endX,endY));
-			}
-
-			rs.close();
-		} catch (SQLException e) {
-			Logger.error("dbBuildingHandler.GET_COLLIDERS", e);
-		} finally {
-			closeCallable();
-		}
-		return colliders;
-	}
 	public HashMap<Integer, ArrayList<BuildingRegions>> LOAD_BUILDING_REGIONS() {
 
 		HashMap<Integer, ArrayList<BuildingRegions>> regions;
