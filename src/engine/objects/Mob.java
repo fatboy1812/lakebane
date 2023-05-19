@@ -1989,6 +1989,7 @@ public class Mob extends AbstractIntelligenceAgent {
                 else {
                     this.BehaviourType = MobBehaviourType.GuardCaptain;
                     this.spawnTime = 900;
+                    this.guardedCity = ZoneManager.getCityAtLocation(this.bindLoc);
                 }
 
             this.deathTime = 0;

@@ -310,6 +310,7 @@ public class MobileFSM {
             return;
         else{
             if(mob.isPlayerGuard && mob.guardedCity._playerMemory.size() < 1 && mob.playerAgroMap.isEmpty())
+                //guards use aggro map and players in their local city zone
                 return;
         }
         if (mob.despawned && mob.isPlayerGuard) {
