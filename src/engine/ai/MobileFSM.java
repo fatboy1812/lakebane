@@ -305,10 +305,13 @@ public class MobileFSM {
     public static void DetermineAction(Mob mob) {
         if (mob == null)
             return;
-        if (mob.despawned && mob.getMobBase().getLoadID() == 13171) {
-            //trebuchet spawn handler
-            CheckForRespawn(mob);
+        if (mob.playerAgroMap.isEmpty() && !mob.isPlayerGuard)
+            //no players loaded, no need to proceed
             return;
+        else{
+            if(mob.isPlayerGuard && mob.guardedCity._playerMemory.size() < 1 && mob.playerAgroMap.isEmpty())
+                //guards use aggro map and players in their local city zone
+                return;
         }
         if (mob.despawned && mob.isPlayerGuard) {
             //override for guards
@@ -331,9 +334,6 @@ public class MobileFSM {
             CheckForRespawn(mob);
             return;
         }
-        if (mob.playerAgroMap.isEmpty() && mob.isPlayerGuard == false)
-            //no players loaded, no need to proceed
-            return;
         if (mob.isCombat() && mob.getCombatTarget() == null) {
             mob.setCombat(false);
             UpdateStateMsg rwss = new UpdateStateMsg();
@@ -492,21 +492,19 @@ public class MobileFSM {
         if (mob.isPlayerGuard() && !mob.despawned) {
             City current = ZoneManager.getCityAtLocation(mob.getLoc());
             if (current == null || current.equals(mob.getGuild().getOwnedCity()) == false || mob.playerAgroMap.isEmpty()) {
-                PowersBase recall = PowersManager.getPowerByToken(-1994153779);
-                PowersManager.useMobPower(mob, mob, recall, 40);
+                MovementManager.translocate(mob,mob.getBindLoc(),null);
                 mob.setCombatTarget(null);
                 if(mob.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardCaptain.ordinal() && mob.isAlive()){
                     //guard captain pulls his minions home with him
                     for (Entry<Mob, Integer> minion : mob.siegeMinionMap.entrySet()) {
-                        PowersManager.useMobPower(minion.getKey(), minion.getKey(), recall, 40);
+                        MovementManager.translocate(minion.getKey(),mob.getBindLoc(),null);
                         minion.getKey().setCombatTarget(null);
                     }
                 }
             }
         }
          else if(MovementUtilities.inRangeOfBindLocation(mob) == false) {
-            PowersBase recall = PowersManager.getPowerByToken(-1994153779);
-            PowersManager.useMobPower(mob, mob, recall, 40);
+            MovementManager.translocate(mob,mob.getBindLoc(),null);
             mob.setCombatTarget(null);
         }
     }

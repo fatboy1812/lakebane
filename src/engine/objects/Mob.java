@@ -99,6 +99,7 @@ public class Mob extends AbstractIntelligenceAgent {
     private DeferredPowerJob weaponPower;
     private DateTime upgradeDateTime = null;
     private boolean lootSync = false;
+    public City guardedCity;
 
     /**
      * No Id Constructor
@@ -806,6 +807,7 @@ public class Mob extends AbstractIntelligenceAgent {
         mob.npcOwner = guardCaptain;
         mob.spawnTime = (int)(-2.500 * guardCaptain.building.getRank() + 22.5) * 60;
         mob.BehaviourType = Enum.MobBehaviourType.GuardMinion;
+        mob.guardedCity = guardCaptain.guardedCity;
         mob.parentZone = parent;
         parent.zoneMobSet.add(mob);
         return mob;
@@ -1987,6 +1989,7 @@ public class Mob extends AbstractIntelligenceAgent {
                 else {
                     this.BehaviourType = MobBehaviourType.GuardCaptain;
                     this.spawnTime = 900;
+                    this.guardedCity = ZoneManager.getCityAtLocation(this.bindLoc);
                 }
 
             this.deathTime = 0;
