@@ -305,11 +305,6 @@ public class MobileFSM {
     public static void DetermineAction(Mob mob) {
         if (mob == null)
             return;
-        if (mob.despawned && mob.getMobBase().getLoadID() == 13171) {
-            //trebuchet spawn handler
-            CheckForRespawn(mob);
-            return;
-        }
         if (mob.despawned && mob.isPlayerGuard) {
             //override for guards
             if(mob.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardMinion.ordinal()){
