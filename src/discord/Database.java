@@ -355,7 +355,7 @@ public class Database {
         return discordAccounts;
     }
 
-    public String getPopulationSTring() {
+    public String getPopulationString() {
 
         String popString = "";
 

@@ -36,27 +36,6 @@ public class dbCSSessionHandler extends dbHandlerBase {
         setString(5, machineID);
         return (executeUpdate() != 0);
     }
-	// This method returns population metrics from the database
-
-	public String GET_POPULATION_STRING() {
-
-		String outString = null;
-
-		// Set up call to stored procedure
-		prepareCallable("CALL GET_POPULATION_STRING()");
-
-		try {
-
-			// Evaluate database ordinal and return enum
-			outString = getString("popstring");
-
-		} catch (Exception e) {
-			Logger.error( "Failure in stored procedure:" + e.getMessage());
-		} finally {
-			closeCallable();
-		}
-		return outString;
-	}
 
 	public boolean DELETE_UNUSED_CSSESSION(String secKey) {
 		prepareCallable("DELETE FROM `dyn_session` WHERE `secretKey`=? && `characterID` IS NULL");
