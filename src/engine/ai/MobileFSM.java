@@ -305,6 +305,13 @@ public class MobileFSM {
     public static void DetermineAction(Mob mob) {
         if (mob == null)
             return;
+        if (mob.playerAgroMap.isEmpty() && !mob.isPlayerGuard)
+            //no players loaded, no need to proceed
+            return;
+        else{
+            if(mob.isPlayerGuard && mob.guardedCity._playerMemory.size() < 1 && mob.playerAgroMap.isEmpty())
+                return;
+        }
         if (mob.despawned && mob.isPlayerGuard) {
             //override for guards
             if(mob.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardMinion.ordinal()){
@@ -326,9 +333,6 @@ public class MobileFSM {
             CheckForRespawn(mob);
             return;
         }
-        if (mob.playerAgroMap.isEmpty())
-            //no players loaded, no need to proceed
-            return;
         if (mob.isCombat() && mob.getCombatTarget() == null) {
             mob.setCombat(false);
             UpdateStateMsg rwss = new UpdateStateMsg();

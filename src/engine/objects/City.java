@@ -87,7 +87,7 @@ public class City extends AbstractWorldObject {
 
 	// Players who have entered the city (used for adding and removing affects)
 
-	private final HashSet<Integer> _playerMemory = new HashSet<>();
+	public final HashSet<Integer> _playerMemory = new HashSet<>();
 
 	public volatile boolean protectionEnforced = true;
 	private String hash;
