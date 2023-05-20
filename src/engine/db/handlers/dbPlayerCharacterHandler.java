@@ -76,22 +76,6 @@ public class dbPlayerCharacterHandler extends dbHandlerBase {
 		}
 	}
 
-	public static boolean DELETE_CHARACTER_IGNORE(final PlayerCharacter pc, final ArrayList<Integer> toDelete) {
-
-		return false;
-	}
-
-	public ArrayList<PlayerCharacter> GET_ALL_PLAYERCHARACTERS() {
-		prepareCallable("SELECT * FROM `obj_character`");
-		return getObjectList();
-	}
-
-	public ArrayList<PlayerCharacter> GET_CHARACTERS_FOR_ACCOUNT(final int id, boolean forceFromDB) {
-		prepareCallable("SELECT `obj_character`.*, `object`.`parent` FROM `object` INNER JOIN `obj_character` ON `obj_character`.`UID` = `object`.`UID` WHERE `object`.`parent`=? && `obj_character`.`char_isActive`='1';");
-		setLong(1, (long) id);
-		return getObjectList(10, forceFromDB);
-	}
-
 	public ArrayList<PlayerCharacter> GET_CHARACTERS_FOR_ACCOUNT(final int id) {
 		prepareCallable("SELECT `obj_character`.*, `object`.`parent` FROM `object` INNER JOIN `obj_character` ON `obj_character`.`UID` = `object`.`UID` WHERE `object`.`parent`=? && `obj_character`.`char_isActive`='1';");
 		setLong(1, (long) id);
@@ -111,22 +95,6 @@ public class dbPlayerCharacterHandler extends dbHandlerBase {
 	 * and cached.
 	 *
 	 */
-	public String GET_FIRST_NAME(final int objectUUID) {
-		prepareCallable("SELECT `char_firstname` from `obj_character` WHERE `UID` = ? LIMIT 1");
-		setLong(1, (long) objectUUID);
-		String firstName = "";
-		try {
-			ResultSet rs = executeQuery();
-			if (rs.next()) {
-				firstName = rs.getString("char_firstname");
-			}
-		} catch (SQLException e) {
-			Logger.error( e);
-		} finally {
-			closeCallable();
-		}
-		return firstName;
-	}
 
 	public ConcurrentHashMap<Integer, String> GET_IGNORE_LIST(final int objectUUID, final boolean skipActiveCheck) {
 		ConcurrentHashMap<Integer, String> out = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_LOW);
@@ -163,20 +131,6 @@ public class dbPlayerCharacterHandler extends dbHandlerBase {
 		prepareCallable("SELECT `obj_character`.*, `object`.`parent` FROM `object` INNER JOIN `obj_character` ON `obj_character`.`UID` = `object`.`UID` WHERE `object`.`UID` = ?");
 		setLong(1, (long) objectUUID);
 		return (PlayerCharacter) getObjectSingle(objectUUID);
-	}
-
-	public boolean INSERT_CHARACTER_IGNORE(final PlayerCharacter pc, final ArrayList<Integer> toAdd) {
-		boolean allWorked = true;
-		prepareCallable("INSERT INTO `dyn_character_ignore` (`characterUID`, `ignoringUID`) VALUES (?, ?)");
-		setLong(1, (long) pc.getObjectUUID());
-		for (int id : toAdd) {
-			setLong(2, (long) id);
-			if (executeUpdate(false) == 0) {
-				allWorked = false;
-			}
-		}
-		closeCallable();
-		return allWorked;
 	}
 
 	public boolean IS_CHARACTER_NAME_UNIQUE(final String firstName) {
@@ -243,13 +197,6 @@ public class dbPlayerCharacterHandler extends dbHandlerBase {
 	public boolean UPDATE_GUILD(final PlayerCharacter pc, int guildUUID) {
 		prepareCallable("UPDATE `obj_character` SET `guildUID`=? WHERE `UID` = ?");
 		setInt(1, guildUUID);
-		setLong(2, (long) pc.getObjectUUID());
-		return (executeUpdate() != 0);
-	}
-
-	public boolean UPDATE_CHARACTER_STAT(final PlayerCharacter pc, String stat, short amount) {
-		prepareCallable("UPDATE `obj_character` SET `" + stat + "`=? WHERE `UID`=?");
-		setInt(1, pc.getExp());
 		setLong(2, (long) pc.getObjectUUID());
 		return (executeUpdate() != 0);
 	}

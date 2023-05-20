@@ -297,6 +297,7 @@ public abstract class dbHandlerBase {
 		try {
 			if (rs.next()) {
 				abstractGameObject = localClass.getConstructor(ResultSet.class).newInstance(rs);
+
 				DbManager.addToCache(abstractGameObject);
 			}
 		} catch (Exception e) {
@@ -304,6 +305,33 @@ public abstract class dbHandlerBase {
 		}
 
 		return abstractGameObject;
+	}
+
+	protected <T extends AbstractGameObject> ArrayList<T> getObjectsFromRs(ResultSet rs, int listSize) {
+
+		ArrayList<T> objectList = new ArrayList<>(listSize);
+
+		try {
+			while (rs.next()) {
+
+				int id = rs.getInt(1);
+
+				if (DbManager.inCache(localObjectType, id)) {
+					objectList.add((T) DbManager.getFromCache(localObjectType, id));
+				} else {
+					AbstractGameObject toAdd = localClass.getConstructor(ResultSet.class).newInstance(rs);
+					DbManager.addToCache(toAdd);
+					objectList.add((T) toAdd);
+
+					if (toAdd != null && toAdd instanceof AbstractWorldObject)
+						((AbstractWorldObject) toAdd).runAfterLoad();
+				}
+			}
+		} catch (Exception e) {
+			Logger.error(e);
+		}
+		return objectList;
+
 	}
 
 	protected <T extends AbstractGameObject> AbstractGameObject getObjectSingle(int id) {
