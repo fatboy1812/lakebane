@@ -49,27 +49,27 @@ public class dbCityHandler extends dbHandlerBase {
 		try {
 			boolean work = execute();
 			if (work) {
-				ResultSet rs = this.cs.get().getResultSet();
+				ResultSet rs = this.callableStatement.get().getResultSet();
 				while (rs.next()) {
 					addObject(list, rs);
 				}
 				rs.close();
 			} else {
-				Logger.info("City Placement Failed: " + this.cs.get().toString());
+				Logger.info("City Placement Failed: " + this.callableStatement.get().toString());
 				return list; //city creation failure
 			}
-			while (this.cs.get().getMoreResults()) {
-				ResultSet rs = this.cs.get().getResultSet();
+			while (this.callableStatement.get().getMoreResults()) {
+				ResultSet rs = this.callableStatement.get().getResultSet();
 				while (rs.next()) {
 					addObject(list, rs);
 				}
 				rs.close();
 			}
 		} catch (SQLException e) {
-			Logger.info("City Placement Failed, SQLException: " + this.cs.get().toString() + e.toString());
+			Logger.info("City Placement Failed, SQLException: " + this.callableStatement.get().toString() + e.toString());
 			return list; //city creation failure
 		} catch (UnknownHostException e) {
-			Logger.info("City Placement Failed, UnknownHostException: " + this.cs.get().toString());
+			Logger.info("City Placement Failed, UnknownHostException: " + this.callableStatement.get().toString());
 			return list; //city creation failure
 		} finally {
 			closeCallable();

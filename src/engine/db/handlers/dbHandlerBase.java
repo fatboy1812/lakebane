@@ -30,28 +30,22 @@ public abstract class dbHandlerBase {
 	 */
 	protected Class<? extends AbstractGameObject> localClass = null;
 	protected GameObjectType localObjectType;
-	protected final ThreadLocal<CallableStatement> cs = new ThreadLocal<>();
+	protected final ThreadLocal<CallableStatement> callableStatement = new ThreadLocal<>();
+	protected final ThreadLocal<Connection> connection = new ThreadLocal<>();
 
 	protected final void prepareCallable(final String sql) {
 		try {
-			this.cs.set((CallableStatement) DbManager.getConnection().prepareCall(sql, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY));
+			this.connection.set(DbManager.getConnection());
+			this.callableStatement.set(this.connection.get().prepareCall(sql, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY));
 		} catch (SQLException e) {
 			Logger.error("DbManager.getConn", e);
 			Logger.error("SQL Error number: " + e.getErrorCode());
 		}
 	}
 
-	protected final void setDate(int parameterIndex, Date value) {
-		try {
-			this.cs.get().setDate(parameterIndex, value);
-		} catch (SQLException e) {
-			Logger.error("SQL Error number: " + e.getErrorCode());
-		}
-	}
-
 	protected final void setInt(int parameterIndex, int value) {
 		try {
-			this.cs.get().setInt(parameterIndex, value);
+			this.callableStatement.get().setInt(parameterIndex, value);
 		} catch (SQLException e) {
 			Logger.error("SQL Error number: " + e.getErrorCode());
 		}
@@ -59,7 +53,7 @@ public abstract class dbHandlerBase {
 
 	protected final void setLong(int parameterIndex, long value) {
 		try {
-			this.cs.get().setLong(parameterIndex, value);
+			this.callableStatement.get().setLong(parameterIndex, value);
 		} catch (SQLException e) {
 			Logger.error("SQL Error number: " + e.getErrorCode());
 		}
@@ -67,7 +61,7 @@ public abstract class dbHandlerBase {
 
 	protected final void setFloat(int parameterIndex, float value) {
 		try {
-			this.cs.get().setFloat(parameterIndex, value);
+			this.callableStatement.get().setFloat(parameterIndex, value);
 		} catch (SQLException e) {
 			Logger.error("SQL Error number: " + e.getErrorCode());
 		}
@@ -75,7 +69,7 @@ public abstract class dbHandlerBase {
 
 	protected final void setShort(int parameterIndex, short value) {
 		try {
-			this.cs.get().setShort(parameterIndex, value);
+			this.callableStatement.get().setShort(parameterIndex, value);
 		} catch (SQLException e) {
 			Logger.error("SQL Error number: " + e.getErrorCode());
 		}
@@ -83,15 +77,7 @@ public abstract class dbHandlerBase {
 
 	protected final void setString(int parameterIndex, String value) {
 		try {
-			this.cs.get().setString(parameterIndex, value);
-		} catch (SQLException e) {
-			Logger.error("SQL Error number: " + e.getErrorCode());
-		}
-	}
-
-	protected final void setBytes(int parameterIndex, byte[] value) {
-		try {
-			this.cs.get().setBytes(parameterIndex, value);
+			this.callableStatement.get().setString(parameterIndex, value);
 		} catch (SQLException e) {
 			Logger.error("SQL Error number: " + e.getErrorCode());
 		}
@@ -99,7 +85,7 @@ public abstract class dbHandlerBase {
 
 	protected final void setByte(int parameterIndex, byte value) {
 		try {
-			this.cs.get().setByte(parameterIndex, value);
+			this.callableStatement.get().setByte(parameterIndex, value);
 		} catch (SQLException e) {
 			Logger.error("SQL Error number: " + e.getErrorCode());
 		}
@@ -107,7 +93,7 @@ public abstract class dbHandlerBase {
 
 	protected final void setBoolean(int parameterIndex, boolean value) {
 		try {
-			this.cs.get().setBoolean(parameterIndex, value);
+			this.callableStatement.get().setBoolean(parameterIndex, value);
 		} catch (SQLException e) {
 			Logger.error("SQL Error number: " + e.getErrorCode());
 		}
@@ -115,7 +101,7 @@ public abstract class dbHandlerBase {
 
 	protected final void setNULL(int parameterIndex, int type) {
 		try {
-			this.cs.get().setNull(parameterIndex, type);
+			this.callableStatement.get().setNull(parameterIndex, type);
 		} catch (SQLException e) {
 			Logger.error("SQL Error number: " + e.getErrorCode());
 		}
@@ -124,7 +110,7 @@ public abstract class dbHandlerBase {
 	protected final void setLocalDateTime(int parameterIndex, LocalDateTime localDateTime) {
 
 		try {
-			this.cs.get().setTimestamp(parameterIndex, Timestamp.valueOf(localDateTime));
+			this.callableStatement.get().setTimestamp(parameterIndex, Timestamp.valueOf(localDateTime));
 		} catch (SQLException e) {
 			Logger.error("SQL Error number: " + e.getErrorCode());
 		}
@@ -132,7 +118,7 @@ public abstract class dbHandlerBase {
 
 	protected final void setTimeStamp(int parameterIndex, long time) {
 		try {
-			this.cs.get().setTimestamp(parameterIndex, new java.sql.Timestamp(time));
+			this.callableStatement.get().setTimestamp(parameterIndex, new java.sql.Timestamp(time));
 		} catch (SQLException e) {
 			Logger.error("SQL Error number: " + e.getErrorCode());
 		}
@@ -140,7 +126,7 @@ public abstract class dbHandlerBase {
 
 	protected final boolean execute() {
 		try {
-			return this.cs.get().execute();
+			return this.callableStatement.get().execute();
 		} catch (SQLException e) {
 			Logger.error("SQL Error number: " + e.getErrorCode());
 			logSQLCommand();
@@ -150,7 +136,7 @@ public abstract class dbHandlerBase {
 
 	protected final ResultSet executeQuery() {
 		try {
-			return this.cs.get().executeQuery();
+			return this.callableStatement.get().executeQuery();
 		} catch (SQLException e) {
 			Logger.error("SQL Error number: " + e.getErrorCode());
 			logSQLCommand();
@@ -164,7 +150,7 @@ public abstract class dbHandlerBase {
 
 	protected final int executeUpdate(boolean close) {
 		try {
-			return this.cs.get().executeUpdate();
+			return this.callableStatement.get().executeUpdate();
 		} catch (SQLException e) {
 			Logger.error("SQL Error number: " + e.getErrorCode());
 			logSQLCommand();
@@ -177,7 +163,7 @@ public abstract class dbHandlerBase {
 
 	protected final void logSQLCommand() {
 		try {
-			Logger.error("Failed SQL Command: " + this.cs.get().toString());
+			Logger.error("Failed SQL Command: " + this.callableStatement.get().toString());
 		} catch (Exception e) {
 
 		}
@@ -273,8 +259,8 @@ public abstract class dbHandlerBase {
 	protected final int insertGetUUID() {
 		int key = 0;
 		try {
-			this.cs.get().executeUpdate();
-			ResultSet rs = this.cs.get().getGeneratedKeys();
+			this.callableStatement.get().executeUpdate();
+			ResultSet rs = this.callableStatement.get().getGeneratedKeys();
 			if (rs.next())
 				key = rs.getInt(1);
 		} catch (SQLException e) {
@@ -309,7 +295,7 @@ public abstract class dbHandlerBase {
 
 	protected <T extends AbstractGameObject> AbstractGameObject getObjectSingle(int id, boolean forceFromDB, boolean storeInCache) {
 
-		if (cs.get() == null){
+		if (callableStatement.get() == null) {
 			return null;
 		}
 
@@ -324,9 +310,9 @@ public abstract class dbHandlerBase {
 
 		try {
 			if (MBServerStatics.DB_ENABLE_QUERY_OUTPUT)
-				Logger.info( "[GetObjectList] Executing query:" + cs.get().toString());
+				Logger.info("[GetObjectList] Executing query:" + callableStatement.get().toString());
 
-			ResultSet rs = cs.get().executeQuery();
+			ResultSet rs = callableStatement.get().executeQuery();
 
 			if (rs.next()) {
 				out = localClass.getConstructor(ResultSet.class).newInstance(rs);
@@ -356,8 +342,11 @@ public abstract class dbHandlerBase {
 
 	protected void closeCallable() {
 		try {
-			if (this.cs.get() != null)
-				this.cs.get().close();
+			if (this.callableStatement.get() != null)
+				this.callableStatement.get().close();
+
+			this.connection.get().close();
+
 		} catch (SQLException e) {}
 	}
 
@@ -376,20 +365,20 @@ public abstract class dbHandlerBase {
 
 		ArrayList<T> out = new ArrayList<>(listSize);
 
-		if (this.cs.get() == null)
+		if (this.callableStatement.get() == null)
 			return out;
 
 		try {
 
-			CallableStatement css = this.cs.get();
+			CallableStatement css = this.callableStatement.get();
 
 			if (css != null)
-				query = this.cs.get().toString();
+				query = this.callableStatement.get().toString();
 
 			if (MBServerStatics.DB_ENABLE_QUERY_OUTPUT)
 				Logger.info( "[GetObjectList] Executing query:" + query);
 
-			ResultSet rs = this.cs.get().executeQuery();
+			ResultSet rs = this.callableStatement.get().executeQuery();
 
 			while (rs.next()) {
 
@@ -424,7 +413,7 @@ public abstract class dbHandlerBase {
 	protected HashSet<Integer> getIntegerList(final int columnNumber) {
 
 		if (MBServerStatics.DB_ENABLE_QUERY_OUTPUT)
-			Logger.info("[GetIntegerList] Executing query:" + this.cs.toString());
+			Logger.info("[GetIntegerList] Executing query:" + this.callableStatement.toString());
 
 		HashSet<Integer> out = new HashSet<>();
 

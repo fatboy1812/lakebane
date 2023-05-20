@@ -67,27 +67,27 @@ public class dbShrineHandler extends dbHandlerBase {
         try {
             boolean work = execute();
             if (work) {
-                ResultSet rs = this.cs.get().getResultSet();
+                ResultSet rs = this.callableStatement.get().getResultSet();
                 while (rs.next()) {
                     addObject(list, rs);
                 }
                 rs.close();
             } else {
-                Logger.info("Shrine Creation Failed: " + this.cs.get().toString());
+                Logger.info("Shrine Creation Failed: " + this.callableStatement.get().toString());
                 return list; //city creation failure
             }
-            while (this.cs.get().getMoreResults()) {
-                ResultSet rs = this.cs.get().getResultSet();
+            while (this.callableStatement.get().getMoreResults()) {
+                ResultSet rs = this.callableStatement.get().getResultSet();
                 while (rs.next()) {
                     addObject(list, rs);
                 }
                 rs.close();
             }
         } catch (SQLException e) {
-            Logger.info("Shrine Creation Failed, SQLException: " + this.cs.get().toString() + e.toString());
+            Logger.info("Shrine Creation Failed, SQLException: " + this.callableStatement.get().toString() + e.toString());
             return list; //city creation failure
         } catch (UnknownHostException e) {
-            Logger.info("Shrine Creation Failed, UnknownHostException: " + this.cs.get().toString());
+            Logger.info("Shrine Creation Failed, UnknownHostException: " + this.callableStatement.get().toString());
             return list; //city creation failure
         } finally {
             closeCallable();
