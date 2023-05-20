@@ -35,8 +35,8 @@ public class dbEffectsBaseHandler extends dbHandlerBase {
 			ResultSet rs = prepareStatement.executeQuery();
 
 			while (rs.next()) {
-				EffectsBase toAdd = new EffectsBase(rs);
-				effectList.add(toAdd);
+				EffectsBase effectBase = new EffectsBase(rs);
+				effectList.add(effectBase);
 			}
 		} catch (SQLException e) {
 			Logger.error(e.toString());
