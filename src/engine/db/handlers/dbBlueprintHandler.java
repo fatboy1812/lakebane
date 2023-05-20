@@ -55,7 +55,7 @@ public class dbBlueprintHandler extends dbHandlerBase {
         int recordsRead = 0;
 
         try (Connection connection = DbManager.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `obj_account` WHERE `acct_uname`=?")) {
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM static_building_blueprint")) {
 
             ResultSet rs = preparedStatement.executeQuery();
 
