@@ -298,7 +298,7 @@ public enum DbManager {
 
 		HikariConfig config = new HikariConfig();
 
-		config.setMaximumPoolSize(Runtime.getRuntime().availableProcessors() * 2);
+		config.setMaximumPoolSize(10);
 
 		config.setJdbcUrl("jdbc:mysql://" + ConfigManager.MB_DATABASE_ADDRESS.getValue() +
 				":" + ConfigManager.MB_DATABASE_PORT.getValue() + "/" +
@@ -312,6 +312,6 @@ public enum DbManager {
 
 		connectionPool = new HikariDataSource(config); // setup the connection pool
 
-		Logger.info("Local warehouse database connection configured");
+		Logger.info("Database connection pool configured");
 	}
 }
