@@ -9,8 +9,6 @@
 
 package engine.server.login;
 
-import com.zaxxer.hikari.HikariConfig;
-import com.zaxxer.hikari.HikariDataSource;
 import engine.Enum;
 import engine.gameManager.*;
 import engine.job.JobScheduler;
@@ -52,7 +50,6 @@ public class LoginServer {
     // Instance variables
 
     private VersionInfoMsg versionInfoMessage;
-    public static HikariDataSource connectionPool = null;
     public static int population = 0;
     public static boolean worldServerRunning = false;
     public static boolean loginServerRunning = false;
@@ -172,9 +169,6 @@ public class LoginServer {
         this.versionInfoMessage = new VersionInfoMsg(ConfigManager.MB_MAJOR_VER.getValue(),
                 ConfigManager.MB_MINOR_VER.getValue());
 
-        Logger.info("Initializing Database Pool");
-        initDatabasePool();
-
         Logger.info("Initializing Database layer");
         initDatabaseLayer();
 
@@ -229,12 +223,12 @@ public class LoginServer {
         // Try starting a GOM <-> DB connection.
         try {
 
-            Logger.info("Configuring GameObjectManager to use Database: '"
+            Logger.info("Configuring Magicbane to use Database: '"
                     + ConfigManager.MB_DATABASE_NAME.getValue() + "' on "
                     + ConfigManager.MB_DATABASE_ADDRESS.getValue() + ':'
                     + ConfigManager.MB_DATABASE_PORT.getValue());
 
-            DbManager.configureDatabaseLayer();
+            DbManager.configureConnectionPool();
 
         } catch (Exception e) {
             Logger.error(e.getMessage());
@@ -365,33 +359,12 @@ public class LoginServer {
 
     }
 
-    private void initDatabasePool() {
-
-        HikariConfig config = new HikariConfig();
-
-        config.setMaximumPoolSize(33); // (16 cores 1 spindle)
-
-        config.setJdbcUrl("jdbc:mysql://" + ConfigManager.MB_DATABASE_ADDRESS.getValue() +
-                ":" + ConfigManager.MB_DATABASE_PORT.getValue() + "/" +
-                      ConfigManager.MB_DATABASE_NAME.getValue());
-        config.setUsername(ConfigManager.MB_DATABASE_USER.getValue());
-        config.setPassword(ConfigManager.MB_DATABASE_PASS.getValue());
-        config.addDataSourceProperty("characterEncoding", "utf8");
-        config.addDataSourceProperty("cachePrepStmts", "true");
-        config.addDataSourceProperty("prepStmtCacheSize", "250");
-        config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
-
-        connectionPool = new HikariDataSource(config); // setup the connection pool
-
-        Logger.info("local database connection configured");
-    }
-
     public void invalidateCacheList() {
 
         int objectUUID;
         String objectType;
 
-        try (Connection connection = connectionPool.getConnection();
+        try (Connection connection = DbManager.getConnection();
              PreparedStatement statement = connection.prepareStatement("SELECT * FROM `login_cachelist`");
              ResultSet rs = statement.executeQuery()) {
 
@@ -400,7 +373,7 @@ public class LoginServer {
                 objectUUID = rs.getInt("UID");
                 objectType = rs.getString("type");
 
-                Logger.info("INVALIDATED : " +  objectType + " UUID: " + objectUUID);
+                Logger.info("INVALIDATED : " + objectType + " UUID: " + objectUUID);
 
                 switch (objectType) {
 
@@ -424,7 +397,7 @@ public class LoginServer {
 
         // clear the db table
 
-        try (Connection connection = connectionPool.getConnection();
+        try (Connection connection = DbManager.getConnection();
              PreparedStatement statement = connection.prepareStatement("DELETE FROM `login_cachelist`")) {
 
             statement.execute();
@@ -447,7 +420,7 @@ public class LoginServer {
 
         // query data warehouse for unresolved bane with this character
 
-        try (Connection connection = connectionPool.getConnection();
+        try (Connection connection = DbManager.getConnection();
              PreparedStatement statement = buildQueryActiveBaneStatement(connection, playerCharacter);
              ResultSet rs = statement.executeQuery()) {
 

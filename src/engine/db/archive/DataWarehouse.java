@@ -12,6 +12,7 @@ package engine.db.archive;
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import engine.gameManager.ConfigManager;
+import engine.gameManager.DbManager;
 import engine.util.Hasher;
 import org.pmw.tinylog.Logger;
 
@@ -27,14 +28,13 @@ public class DataWarehouse implements Runnable {
 
     public static final Hasher hasher = new Hasher("Cthulhu Owns Joo");
     private static final LinkedBlockingQueue<DataRecord> recordQueue = new LinkedBlockingQueue<>();
-    public static HikariDataSource connectionPool = null;
     public static HikariDataSource remoteConnectionPool = null;
 
     public DataWarehouse() {
 
         Logger.info("Configuring local Database Connection Pool...");
 
-        configureConnectionPool();
+        DbManager.configureConnectionPool();
 
         // If WarehousePush is disabled
         // then early exit
@@ -72,11 +72,7 @@ public class DataWarehouse implements Runnable {
         String queryString;
         String hashString;
 
-        try {
-            connection = DataWarehouse.connectionPool.getConnection();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        connection = DbManager.getConnection();
 
         if (connection == null) {
             Logger.error("Null connection when writing zone hash.");
@@ -140,11 +136,7 @@ public class DataWarehouse implements Runnable {
         String queryString;
         ResultSet resultSet;
 
-        try {
-            connection = DataWarehouse.connectionPool.getConnection();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        connection = DbManager.getConnection();
 
         if (connection == null) {
             Logger.error("Null connection during char record lookup");
@@ -280,27 +272,6 @@ public class DataWarehouse implements Runnable {
                 } // end switch
             }
         }
-    }
-
-    private static void configureConnectionPool() {
-
-        HikariConfig config = new HikariConfig();
-
-        config.setMaximumPoolSize(10);
-
-        config.setJdbcUrl("jdbc:mysql://" +  ConfigManager.MB_DATABASE_ADDRESS.getValue() +
-                ":" +  ConfigManager.MB_DATABASE_PORT.getValue() + "/" +
-                ConfigManager.MB_DATABASE_NAME.getValue());
-        config.setUsername(ConfigManager.MB_DATABASE_USER.getValue());
-        config.setPassword( ConfigManager.MB_DATABASE_PASS.getValue());
-        config.addDataSourceProperty("characterEncoding", "utf8");
-        config.addDataSourceProperty("cachePrepStmts", "true");
-        config.addDataSourceProperty("prepStmtCacheSize", "250");
-        config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
-
-        connectionPool = new HikariDataSource(config); // setup the connection pool
-
-        Logger.info("Local warehouse database connection configured");
     }
 
     private static void configureRemoteConnectionPool() {

@@ -10,6 +10,7 @@
 package engine.db.archive;
 
 import engine.Enum;
+import engine.gameManager.DbManager;
 import engine.objects.Bane;
 import engine.objects.City;
 import engine.workthreads.WarehousePushThread;
@@ -134,9 +135,9 @@ public class BaneRecord extends DataRecord {
 
 		DateTime outDateTime = null;
 
-		try (Connection connection = DataWarehouse.connectionPool.getConnection();
-				PreparedStatement statement = buildDateTimeQueryStatement(connection, city);
-				ResultSet rs = statement.executeQuery()) {
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement statement = buildDateTimeQueryStatement(connection, city);
+			 ResultSet rs = statement.executeQuery()) {
 
 			while (rs.next()) {
 
@@ -145,7 +146,7 @@ public class BaneRecord extends DataRecord {
 			}
 
 		} catch (SQLException e) {
-			Logger.error( e.toString());
+			Logger.error(e.toString());
 		}
 
 		return outDateTime;
@@ -166,13 +167,13 @@ public class BaneRecord extends DataRecord {
 		if (bane == null)
 			return;
 
-		try (Connection connection = DataWarehouse.connectionPool.getConnection();
-				PreparedStatement statement = buildUpdateLiveDateStatement(connection, bane, dateTime)) {
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement statement = buildUpdateLiveDateStatement(connection, bane, dateTime)) {
 
 			statement.execute();
 
 		} catch (SQLException e) {
-			Logger.error( e.toString());
+			Logger.error(e.toString());
 		}
 	}
 
@@ -203,8 +204,8 @@ public class BaneRecord extends DataRecord {
 
 	public static void updateResolution(Bane bane, RecordEventType eventType) {
 
-		try (Connection connection = DataWarehouse.connectionPool.getConnection();
-				PreparedStatement statement = buildUpdateResolutionStatement(connection, bane, eventType)) {
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement statement = buildUpdateResolutionStatement(connection, bane, eventType)) {
 
 			statement.execute();
 
@@ -223,9 +224,9 @@ public class BaneRecord extends DataRecord {
 		dividerString = "--------------------------------" + newLine;
 		queryString = "CALL `baneHistory`()";
 
-		try (Connection connection = DataWarehouse.connectionPool.getConnection();
-				PreparedStatement statement = connection.prepareCall(queryString);
-				ResultSet rs = statement.executeQuery()) {
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement statement = connection.prepareCall(queryString);
+			 ResultSet rs = statement.executeQuery()) {
 
 			while (rs.next()) {
 
@@ -253,9 +254,9 @@ public class BaneRecord extends DataRecord {
 
 		WarehousePushThread.baneDelta = 0;
 
-		try (Connection localConnection = DataWarehouse.connectionPool.getConnection();
-				PreparedStatement statement = localConnection.prepareStatement(queryString, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE); // Make this an updatable result set as we'll reset the dirty flag as we go along
-				ResultSet rs = statement.executeQuery()) {
+		try (Connection localConnection = DbManager.getConnection();
+			 PreparedStatement statement = localConnection.prepareStatement(queryString, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE); // Make this an updatable result set as we'll reset the dirty flag as we go along
+			 ResultSet rs = statement.executeQuery()) {
 
 			while (rs.next()) {
 
@@ -338,13 +339,13 @@ public class BaneRecord extends DataRecord {
 
 	public void write() {
 
-		try (Connection connection = DataWarehouse.connectionPool.getConnection();
-				PreparedStatement statement = buildBaneInsertStatement(connection)) {
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement statement = buildBaneInsertStatement(connection)) {
 
 			statement.execute();
 
 		} catch (SQLException e) {
-			Logger.error( e.toString());
+			Logger.error(e.toString());
 		}
 
 	}

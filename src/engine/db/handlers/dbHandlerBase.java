@@ -34,7 +34,7 @@ public abstract class dbHandlerBase {
 
 	protected final void prepareCallable(final String sql) {
 		try {
-			this.cs.set((CallableStatement) DbManager.getConn().prepareCall(sql, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY));
+			this.cs.set((CallableStatement) DbManager.getConnection().prepareCall(sql, ResultSet.TYPE_FORWARD_ONLY, ResultSet.CONCUR_READ_ONLY));
 		} catch (SQLException e) {
 			Logger.error("DbManager.getConn", e);
 			Logger.error("SQL Error number: " + e.getErrorCode());

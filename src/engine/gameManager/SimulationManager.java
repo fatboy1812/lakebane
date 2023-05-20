@@ -10,7 +10,6 @@ package engine.gameManager;
 
 import engine.Enum;
 import engine.Enum.GameObjectType;
-import engine.db.archive.DataWarehouse;
 import engine.objects.AbstractGameObject;
 import engine.objects.City;
 import engine.objects.PlayerCharacter;
@@ -58,7 +57,7 @@ public enum SimulationManager {
 
 		String popString = "";
 
-		try (Connection connection = DataWarehouse.connectionPool.getConnection();
+		try (Connection connection = DbManager.getConnection();
 			 PreparedStatement getPopString = connection.prepareStatement("CALL GET_POPULATION_STRING()");) {
 
 			ResultSet rs = getPopString.executeQuery();

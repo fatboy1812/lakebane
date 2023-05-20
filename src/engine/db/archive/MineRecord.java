@@ -10,6 +10,7 @@
 package engine.db.archive;
 
 import engine.Enum;
+import engine.gameManager.DbManager;
 import engine.objects.AbstractCharacter;
 import engine.objects.Mine;
 import engine.objects.PlayerCharacter;
@@ -131,7 +132,7 @@ public class MineRecord extends DataRecord {
 
     public void write() {
 
-        try (Connection connection = DataWarehouse.connectionPool.getConnection();
+        try (Connection connection = DbManager.getConnection();
              PreparedStatement statement = this.buildMineInsertStatement(connection)) {
 
             statement.execute();

@@ -471,7 +471,7 @@ public class WorldServer {
 					+  ConfigManager.MB_DATABASE_ADDRESS.getValue() + ':'
 					+  ConfigManager.MB_DATABASE_PORT.getValue());
 
-			DbManager.configureDatabaseLayer();
+			DbManager.configureConnectionPool();
 
 		} catch (Exception e) {
 			Logger.error(e.getMessage());
