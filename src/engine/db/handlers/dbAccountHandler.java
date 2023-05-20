@@ -17,6 +17,8 @@ import engine.objects.Account;
 import engine.objects.PlayerCharacter;
 import org.pmw.tinylog.Logger;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -28,44 +30,65 @@ public class dbAccountHandler extends dbHandlerBase {
 		this.localObjectType = Enum.GameObjectType.valueOf(this.localClass.getSimpleName());
 	}
 
-	public Account GET_ACCOUNT(int id) {
-		if (id == 0)
+	public Account GET_ACCOUNT(int accountID) {
+
+		Account account;
+
+		if (accountID == 0)
 			return null;
-		Account account = (Account) DbManager.getFromCache(GameObjectType.Account, id);
+
+		account = (Account) DbManager.getFromCache(GameObjectType.Account, accountID);
+
 		if (account != null)
 			return account;
 
-		prepareCallable("SELECT * FROM `obj_account` WHERE `UID`=?");
-		setLong(1, (long) id);
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement accountQuery = connection.prepareStatement("SELECT * FROM `obj_account` WHERE `UID`=?")) {
 
-		Account ac = null;
-		ac = (Account) getObjectSingle(id);
+			accountQuery.setLong(1, accountID);
 
-		if (ac != null)
-			ac.runAfterLoad();
+			ResultSet rs = accountQuery.executeQuery();
+			account = (Account) getObjectFromRs(rs);
 
-		return ac;
+		} catch (SQLException e) {
+			Logger.error(e);
+		}
+
+		if (account != null)
+			account.runAfterLoad();
+
+		return account;
 	}
 
 	public void WRITE_ADMIN_LOG(String adminName, String logEntry) {
 
-		prepareCallable("INSERT INTO dyn_admin_log(`dateTime`, `charName`, `eventString`)"
-				+ " VALUES (?, ?, ?)");
-		setTimeStamp(1, System.currentTimeMillis());
-		setString(2, adminName);
-		setString(3, logEntry);
-		executeUpdate();
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement accountQuery = connection.prepareStatement("INSERT INTO dyn_admin_log(`dateTime`, `charName`, `eventString`)"
+					 + " VALUES (?, ?, ?)")) {
 
+			accountQuery.setTimestamp(1, new java.sql.Timestamp(System.currentTimeMillis()));
+			accountQuery.setString(2, adminName);
+			accountQuery.setString(3, logEntry);
+
+			accountQuery.execute();
+
+		} catch (SQLException e) {
+			Logger.error(e);
+		}
 	}
 
 	public void SET_TRASH(String machineID) {
 
-		prepareCallable("INSERT INTO dyn_trash(`machineID`, `count`)"
-				+ " VALUES (?, 1) ON DUPLICATE KEY UPDATE `count` = `count` + 1;");
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO dyn_trash(`machineID`, `count`)"
+					 + " VALUES (?, 1) ON DUPLICATE KEY UPDATE `count` = `count` + 1;")) {
 
-		setTimeStamp(4, System.currentTimeMillis());
-		setString(1, machineID);
-		executeUpdate();
+			preparedStatement.setString(1, machineID);
+			preparedStatement.execute();
+
+		} catch (SQLException e) {
+			Logger.error(e);
+		}
 
 	}
 
@@ -73,39 +96,47 @@ public class dbAccountHandler extends dbHandlerBase {
 
 		ArrayList<String> machineList = new ArrayList<>();
 
-		prepareCallable("select `machineID` from `dyn_trash`");
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement accountQuery = connection.prepareStatement("select `machineID` from `dyn_trash`")) {
 
-		try {
-			ResultSet rs = executeQuery();
-			while (rs.next()) {
+			ResultSet rs = accountQuery.executeQuery();
+
+			while (rs.next())
 				machineList.add(rs.getString(1));
-			}
+
 		} catch (SQLException e) {
-			Logger.error( e);
-		} finally {
-			closeCallable();
+			Logger.error(e);
 		}
 
 		return machineList;
 	}
 
-	public boolean DELETE_VAULT_FOR_ACCOUNT(final int accountID) {
-		prepareCallable("DELETE FROM `object` WHERE `parent`=? && `type`='item'");
-		setLong(1, (long) accountID);
-		return (executeUpdate() > 0);
+	public void DELETE_VAULT_FOR_ACCOUNT(final int accountID) {
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM `object` WHERE `parent`=? && `type`='item'")) {
+
+			preparedStatement.setLong(1, accountID);
+			preparedStatement.execute();
+
+		} catch (SQLException e) {
+			Logger.error(e);
+		}
+
 	}
 
 	public ArrayList<PlayerCharacter> GET_ALL_CHARS_FOR_MACHINE(String machineID) {
 
 		ArrayList<PlayerCharacter> trashList = new ArrayList<>();
 
-		prepareCallable("select DISTINCT UID from object \n" +
-				"where parent IN (select AccountID from dyn_login_history " +
-		        " WHERE`machineID`=?)");
-		setString(1, machineID);
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement accountQuery = connection.prepareStatement("select DISTINCT UID from object \n" +
+					 "where parent IN (select AccountID from dyn_login_history " +
+					 " WHERE`machineID`=?)")) {
 
-		try {
-			ResultSet rs = executeQuery();
+			accountQuery.setString(1, machineID);
+			ResultSet rs = accountQuery.executeQuery();
+
 			while (rs.next()) {
 
 				PlayerCharacter trashPlayer;
@@ -115,52 +146,75 @@ public class dbAccountHandler extends dbHandlerBase {
 				trashPlayer = PlayerCharacter.getPlayerCharacter(playerID);
 
 				if (trashPlayer == null)
-					continue;;
+					continue;
 
 				if (trashPlayer.isDeleted() == false)
 					trashList.add(trashPlayer);
 			}
+
 		} catch (SQLException e) {
-			Logger.error( e);
-		} finally {
-			closeCallable();
+			Logger.error(e);
 		}
-		return  trashList;
+
+		return trashList;
 	}
 
 	public void CLEAR_TRASH_TABLE() {
-		prepareCallable("DELETE FROM dyn_trash");
-		executeUpdate();
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM dyn_trash")) {
+
+			preparedStatement.execute();
+
+		} catch (SQLException e) {
+			Logger.error(e);
+		}
+
 	}
 
 	public void CREATE_SINGLE(String accountName, String password) {
 
-		prepareCallable("CALL singleAccountCreate(?,?)");
-		setString(1, accountName);
-		setString(2, password);
-		executeUpdate();
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("CALL singleAccountCreate(?,?)")) {
+
+			preparedStatement.setString(1, accountName);
+			preparedStatement.setString(2, password);
+
+			preparedStatement.execute();
+
+		} catch (SQLException e) {
+			Logger.error(e);
+		}
+
 	}
 
 	public Account GET_ACCOUNT(String uname) {
 
+		Account account = null;
+
 		if (Account.AccountsMap.get(uname) != null)
 			return this.GET_ACCOUNT(Account.AccountsMap.get(uname));
 
-		prepareCallable("SELECT * FROM `obj_account` WHERE `acct_uname`=?");
-		setString(1, uname);
-		ArrayList<Account> temp = getObjectList();
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement accountQuery = connection.prepareStatement("SELECT * FROM `obj_account` WHERE `acct_uname`=?")) {
 
-		if (temp.isEmpty())
-			return null;
+			accountQuery.setString(1, uname);
 
-		if (temp.get(0) != null){
-			temp.get(0).runAfterLoad();
+			ResultSet rs = accountQuery.executeQuery();
+			account = (Account) getObjectFromRs(rs);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+		}
+
+		if (account != null) {
+			account.runAfterLoad();
 
 			if (ConfigManager.serverType.equals(Enum.ServerType.LOGINSERVER))
-				Account.AccountsMap.put(uname, temp.get(0).getObjectUUID());
+				Account.AccountsMap.put(uname, account.getObjectUUID());
 
 		}
-		return temp.get(0);
+		return account;
 	}
 
 	public void SET_ACCOUNT_LOGIN(final Account acc, String playerName, final String ip, final String machineID) {
@@ -168,55 +222,61 @@ public class dbAccountHandler extends dbHandlerBase {
 		if (acc.getObjectUUID() == 0 || ip == null || ip.length() == 0)
 			return;
 
-		prepareCallable("INSERT INTO dyn_login_history(`AccountID`, `accountName`, `characterName`, `ip`, `machineID`, `timeStamp`)"
-				+ " VALUES (?, ?, ?, ?, ?, ?)");
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO dyn_login_history(`AccountID`, `accountName`, `characterName`, `ip`, `machineID`, `timeStamp`)"
+					 + " VALUES (?, ?, ?, ?, ?, ?)")) {
 
-		setInt(1, acc.getObjectUUID());
-		setString(2, acc.getUname());
-		setString(3, playerName);
-		setString(4, ip);
-		setString(5, machineID);
-		setTimeStamp(6, System.currentTimeMillis());
-		executeUpdate();
+			preparedStatement.setInt(1, acc.getObjectUUID());
+			preparedStatement.setString(2, acc.getUname());
+			preparedStatement.setString(3, playerName);
+			preparedStatement.setString(4, ip);
+			preparedStatement.setString(5, machineID);
+			preparedStatement.setTimestamp(6, new java.sql.Timestamp(System.currentTimeMillis()));
+
+			preparedStatement.execute();
+
+		} catch (SQLException e) {
+			Logger.error(e);
+		}
+
 	}
-
-	public String SET_PROPERTY(final Account a, String name, Object new_value) {
-		prepareCallable("CALL account_SETPROP(?,?,?)");
-		setLong(1, (long) a.getObjectUUID());
-		setString(2, name);
-		setString(3, String.valueOf(new_value));
-		return getResult();
-	}
-
-	public String SET_PROPERTY(final Account a, String name, Object new_value, Object old_value) {
-		prepareCallable("CALL account_GETSETPROP(?,?,?,?)");
-		setLong(1, (long) a.getObjectUUID());
-		setString(2, name);
-		setString(3, String.valueOf(new_value));
-		setString(4, String.valueOf(old_value));
-		return getResult();
-	}
-
 
 	public void updateDatabase(final Account acc) {
-		prepareCallable("UPDATE `obj_account` SET `acct_passwd`=?, "
-				+ " `acct_lastCharUID`=?, `acct_salt`=?, `discordAccount`=?, " +
-				" status = ? WHERE `UID`=?");
 
-		setString(1, acc.getPasswd());
-		setInt(2, acc.getLastCharIDUsed());
-		setString(3, acc.getSalt());
-		setString(4, acc.discordAccount);
-		setString(5, acc.status.name());
-		setInt(6, acc.getObjectUUID());
-		executeUpdate();
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_account` SET `acct_passwd`=?, "
+					 + " `acct_lastCharUID`=?, `acct_salt`=?, `discordAccount`=?, " +
+					 " status = ? WHERE `UID`=?")) {
+
+			preparedStatement.setString(1, acc.getPasswd());
+			preparedStatement.setInt(2, acc.getLastCharIDUsed());
+			preparedStatement.setString(3, acc.getSalt());
+			preparedStatement.setString(4, acc.discordAccount);
+			preparedStatement.setString(5, acc.status.name());
+			preparedStatement.setInt(6, acc.getObjectUUID());
+
+			preparedStatement.execute();
+
+		} catch (SQLException e) {
+			Logger.error(e);
+		}
+
 	}
 
 	public void INVALIDATE_LOGIN_CACHE(long accountUID, String objectType) {
-		prepareCallable("INSERT IGNORE INTO login_cachelist (`UID`, `type`) VALUES(?,?);");
-		setLong(1, accountUID);
-		setString(2, objectType);
-		executeUpdate();
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("INSERT IGNORE INTO login_cachelist (`UID`, `type`) VALUES(?,?);")) {
+
+			preparedStatement.setLong(1, accountUID);
+			preparedStatement.setString(2, objectType);
+
+			preparedStatement.execute();
+
+		} catch (SQLException e) {
+			Logger.error(e);
+		}
+
 	}
 
 }

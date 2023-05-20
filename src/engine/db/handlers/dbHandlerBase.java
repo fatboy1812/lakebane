@@ -286,7 +286,24 @@ public abstract class dbHandlerBase {
 			String errorMsg = rs.getString("errormsg");
 			Logger.error("SQLError: errorNum: " + errorNum + ", errorMsg: " + errorMsg);
 			logSQLCommand();
-		} catch (SQLException e) {}
+		} catch (SQLException e) {
+		}
+	}
+
+	protected <T extends AbstractGameObject> AbstractGameObject getObjectFromRs(ResultSet rs) {
+
+		AbstractGameObject abstractGameObject = null;
+
+		try {
+			if (rs.next()) {
+				abstractGameObject = localClass.getConstructor(ResultSet.class).newInstance(rs);
+				DbManager.addToCache(abstractGameObject);
+			}
+		} catch (Exception e) {
+			Logger.error(e);
+		}
+
+		return abstractGameObject;
 	}
 
 	protected <T extends AbstractGameObject> AbstractGameObject getObjectSingle(int id) {
