@@ -1,8 +1,11 @@
 package engine.db.handlers;
 
+import engine.gameManager.DbManager;
 import engine.objects.Blueprint;
 import org.pmw.tinylog.Logger;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
@@ -22,10 +25,10 @@ public class dbBlueprintHandler extends dbHandlerBase {
         int doorNum;
         int recordsRead = 0;
 
-        prepareCallable("SELECT * FROM static_building_doors ORDER BY doorMeshUUID ASC");
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM static_building_doors ORDER BY doorMeshUUID ASC")) {
 
-        try {
-            ResultSet rs = executeQuery();
+            ResultSet rs = preparedStatement.executeQuery();
 
             while (rs.next()) {
 
@@ -35,13 +38,11 @@ public class dbBlueprintHandler extends dbHandlerBase {
                 doorInfo.put(doorUUID, doorNum);
             }
 
-            Logger.info( "read: " + recordsRead + " cached: " + doorInfo.size());
-
         } catch (SQLException e) {
-            Logger.error("LoadAllDoorNumbers: " + e.getErrorCode() + ' ' + e.getMessage(), e);
-        } finally {
-            closeCallable();
+            Logger.error(e);
         }
+
+        Logger.info("read: " + recordsRead + " cached: " + doorInfo.size());
         return doorInfo;
     }
 
@@ -53,10 +54,10 @@ public class dbBlueprintHandler extends dbHandlerBase {
         blueprints = new HashMap<>();
         int recordsRead = 0;
 
-        prepareCallable("SELECT * FROM static_building_blueprint");
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `obj_account` WHERE `acct_uname`=?")) {
 
-        try {
-            ResultSet rs = executeQuery();
+            ResultSet rs = preparedStatement.executeQuery();
 
             while (rs.next()) {
 
@@ -74,13 +75,11 @@ public class dbBlueprintHandler extends dbHandlerBase {
 
             }
 
-            Logger.info( "read: " + recordsRead + " cached: " + blueprints.size());
-
         } catch (SQLException e) {
-            Logger.error("LoadAllBlueprints: " + e.getErrorCode() + ' ' + e.getMessage(), e);
-        } finally {
-            closeCallable();
+            Logger.error(e);
         }
+
+        Logger.info("read: " + recordsRead + " cached: " + blueprints.size());
         return blueprints;
     }
 }

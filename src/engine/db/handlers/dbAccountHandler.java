@@ -196,11 +196,11 @@ public class dbAccountHandler extends dbHandlerBase {
 			return this.GET_ACCOUNT(Account.AccountsMap.get(uname));
 
 		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement accountQuery = connection.prepareStatement("SELECT * FROM `obj_account` WHERE `acct_uname`=?")) {
+			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `obj_account` WHERE `acct_uname`=?")) {
 
-			accountQuery.setString(1, uname);
+			preparedStatement.setString(1, uname);
 
-			ResultSet rs = accountQuery.executeQuery();
+			ResultSet rs = preparedStatement.executeQuery();
 			account = (Account) getObjectFromRs(rs);
 
 		} catch (SQLException e) {
