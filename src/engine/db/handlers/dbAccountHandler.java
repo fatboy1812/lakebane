@@ -43,11 +43,11 @@ public class dbAccountHandler extends dbHandlerBase {
 			return account;
 
 		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement accountQuery = connection.prepareStatement("SELECT * FROM `obj_account` WHERE `UID`=?")) {
+			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `obj_account` WHERE `UID`=?")) {
 
-			accountQuery.setLong(1, accountID);
+			preparedStatement.setLong(1, accountID);
 
-			ResultSet rs = accountQuery.executeQuery();
+			ResultSet rs = preparedStatement.executeQuery();
 			account = (Account) getObjectFromRs(rs);
 
 		} catch (SQLException e) {

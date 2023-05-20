@@ -19,6 +19,8 @@ import engine.objects.*;
 import org.joda.time.DateTime;
 import org.pmw.tinylog.Logger;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
@@ -40,25 +42,25 @@ public class dbBuildingHandler extends dbHandlerBase {
 									DateTime upgradeDate, int blueprintUUID, float w, float rotY) {
 
 		Building toCreate = null;
-		try {
 
-			prepareCallable("CALL `building_CREATE`(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,? ,? ,?, ?);");
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("CALL `building_CREATE`(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,? ,? ,?, ?);")) {
 
-			setInt(1, parentZoneID);
-			setInt(2, OwnerUUID);
-			setString(3, name);
-			setInt(4, meshUUID);
-			setFloat(5, location.x);
-			setFloat(6, location.y);
-			setFloat(7, location.z);
-			setFloat(8, meshScale);
-			setInt(9, currentHP);
-			setString(10, protectionState.name());
-			setInt(11, currentGold);
-			setInt(12, rank);
+			preparedStatement.setInt(1, parentZoneID);
+			preparedStatement.setInt(2, OwnerUUID);
+			preparedStatement.setString(3, name);
+			preparedStatement.setInt(4, meshUUID);
+			preparedStatement.setFloat(5, location.x);
+			preparedStatement.setFloat(6, location.y);
+			preparedStatement.setFloat(7, location.z);
+			preparedStatement.setFloat(8, meshScale);
+			preparedStatement.setInt(9, currentHP);
+			preparedStatement.setString(10, protectionState.name());
+			preparedStatement.setInt(11, currentGold);
+			preparedStatement.setInt(12, rank);
 
 			if (upgradeDate != null)
-				setTimeStamp(13, upgradeDate.getMillis());
+				preparedStatement.setTimestamp(13, new java.sql.Timestamp(upgradeDate.getMillis()));
 			else
 				setNULL(13, java.sql.Types.DATE);
 
@@ -66,16 +68,15 @@ public class dbBuildingHandler extends dbHandlerBase {
 			setFloat(15, w);
 			setFloat(16, rotY);
 
-			int objectUUID = (int) getUUID();
+			ResultSet rs = preparedStatement.executeQuery();
+
+			int objectUUID = (int) rs.getLong("UID");
 
 			if (objectUUID > 0)
 				toCreate = GET_BUILDINGBYUUID(objectUUID);
 
-		} catch (Exception e) {
-			Logger.error("CREATE_BUILDING", e.getMessage());
-			return null;
-		} finally {
-			closeCallable();
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
 		}
 
 		return toCreate;
@@ -93,6 +94,7 @@ public class dbBuildingHandler extends dbHandlerBase {
 	}
 
 	public Building GET_BUILDINGBYUUID(int uuid) {
+
 		if (uuid == 0)
 			return null;
 
@@ -101,11 +103,19 @@ public class dbBuildingHandler extends dbHandlerBase {
 		if (building != null)
 			return building;
 
-		prepareCallable("SELECT `obj_building`.*, `object`.`parent` FROM `object` INNER JOIN `obj_building` ON `obj_building`.`UID` = `object`.`UID` WHERE `object`.`UID` = ?;");
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT `obj_building`.*, `object`.`parent` FROM `object` INNER JOIN `obj_building` ON `obj_building`.`UID` = `object`.`UID` WHERE `object`.`UID` = ?;")) {
 
-		setLong(1, (long) uuid);
-		return (Building) getObjectSingle(uuid);
+			preparedStatement.setLong(1, (long) uuid);
 
+			ResultSet rs = preparedStatement.executeQuery();
+			building = (Building) getObjectFromRs(rs);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+		}
+
+		return building;
 	}
 
 	public Building GET_BUILDING_BY_MESH(final int meshID) {
@@ -154,9 +164,19 @@ public class dbBuildingHandler extends dbHandlerBase {
 	}
 
 	private boolean removeFromBuildings(final Building b) {
-		prepareCallable("DELETE FROM `object` WHERE `UID` = ?");
-		setLong(1, b.getObjectUUID());
-		return (executeUpdate() > 0);
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM `object` WHERE `UID` = ?")) {
+
+			preparedStatement.setLong(1, b.getObjectUUID());
+			preparedStatement.execute();
+
+		} catch (SQLException e) {
+			Logger.error(e);
+			return false;
+		}
+
+		return true;
 	}
 
 	public boolean CHANGE_NAME(Building b, String newName) {
