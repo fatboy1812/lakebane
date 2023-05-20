@@ -124,7 +124,7 @@ public enum PowersManager {
 		EffectsBase.getFailConditions(PowersManager.effectsBaseByIDString);
 
 		// Add Modifiers to Effects
-		AbstractEffectModifier.getAllEffectModifiers();
+		dbEffectsBaseHandler.cacheAllEffectModifiers();
 
 		// Add Source Types to Effects
 		PowersManager.addAllSourceTypes();
