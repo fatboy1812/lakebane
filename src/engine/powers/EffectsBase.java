@@ -182,22 +182,6 @@ public class EffectsBase {
 			this.isSuffix = true;
 		// getFailConditions();
 	}
-	
-	
-	public static EffectsBase createNoDbEffectsBase(EffectsBase copyEffect, int newToken, String IDString){
-		EffectsBase cachedEffectsBase = new EffectsBase(copyEffect,newToken,IDString);
-		
-		if (cachedEffectsBase == null)
-			return null;
-		
-		//add to Lists.
-		PowersManager.effectsBaseByIDString.put(cachedEffectsBase.IDString, cachedEffectsBase);
-		PowersManager.effectsBaseByToken.put(cachedEffectsBase.token, cachedEffectsBase);
-		
-		return cachedEffectsBase;
-	}
-
-
 
 	public static ArrayList<EffectsBase> getAllEffectsBase() {
 		PreparedStatementShared ps = null;
