@@ -11,6 +11,7 @@ package engine.gameManager;
 import engine.Enum.*;
 import engine.InterestManagement.HeightMap;
 import engine.InterestManagement.WorldGrid;
+import engine.db.handlers.dbEffectsBaseHandler;
 import engine.job.AbstractJob;
 import engine.job.AbstractScheduleJob;
 import engine.job.JobContainer;
@@ -111,7 +112,7 @@ public enum PowersManager {
 	public static void InitializePowers() {
 
 		// Add EffectsBase
-		ArrayList<EffectsBase> ebList = EffectsBase.getAllEffectsBase();
+		ArrayList<EffectsBase> ebList = dbEffectsBaseHandler.getAllEffectsBase();
 
 		for (EffectsBase eb : ebList) {
 			PowersManager.effectsBaseByToken.put(eb.getToken(), eb);
