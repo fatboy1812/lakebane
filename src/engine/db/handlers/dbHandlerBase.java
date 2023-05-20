@@ -303,31 +303,6 @@ public abstract class dbHandlerBase {
 		} catch (SQLException e) {}
 	}
 
-	protected final void getColumNames(ResultSet rs) throws SQLException {
-		ResultSetMetaData rsmd = rs.getMetaData();
-		int numColumns = rsmd.getColumnCount();
-		String out = "Column names for resultSet: ";
-		for (int i=1; i<numColumns+1; i++)
-			out += i + ": " + rsmd.getColumnName(i) + ", ";
-		Logger.info(out);
-	}
-
-	// Default actions to the objects table, generic to all objects
-	protected final long SET_PARENT(long objUID, long new_value, long old_value) {
-		prepareCallable("CALL object_GETSETPARENT(?,?,?)");
-		setLong(1, objUID);
-		setLong(2, new_value);
-		setLong(3, old_value);
-		return getUUID();
-	}
-
-	// NOTE: CALLING THIS FUNCTION CASCADE DELETES OBJECTS FROM THE DATABASE
-	protected final long REMOVE(long objUID) {
-		prepareCallable("CALL object_PURGECASCADE(?)");
-		setLong(1, objUID);
-		return getUUID();
-	}
-
 	protected <T extends AbstractGameObject> AbstractGameObject getObjectSingle(int id) {
 		return getObjectSingle(id, false, true);
 	}
