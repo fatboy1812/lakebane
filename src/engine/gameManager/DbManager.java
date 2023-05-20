@@ -309,6 +309,7 @@ public enum DbManager {
 		config.addDataSourceProperty("cachePrepStmts", "true");
 		config.addDataSourceProperty("prepStmtCacheSize", "250");
 		config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+		config.addDataSourceProperty("leakDetectionThreshold", "5000");
 
 		connectionPool = new HikariDataSource(config); // setup the connection pool
 
