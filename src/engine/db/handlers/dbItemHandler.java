@@ -69,18 +69,6 @@ public class dbItemHandler extends dbHandlerBase {
 		return null;
 	}
 
-	public boolean DELETE_ITEM(final Item item) {
-		prepareCallable("DELETE FROM `object` WHERE `UID`=? && `type`='item' limit 1");
-		setLong(1, (long) item.getObjectUUID());
-		return (executeUpdate() > 0);
-	}
-
-	public boolean DELETE_ITEM(final int itemUUID) {
-		prepareCallable("DELETE FROM `object` WHERE `UID`=? && `type`='item' limit 1");
-		setLong(1, (long) itemUUID);
-		return (executeUpdate() > 0);
-	}
-
 	public String GET_OWNER(int ownerID) {
 		prepareCallable("SELECT `type` FROM `object` WHERE `UID`=?");
 		setLong(1, (long) ownerID);
