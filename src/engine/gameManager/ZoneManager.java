@@ -9,6 +9,8 @@
 package engine.gameManager;
 
 import engine.Enum;
+import engine.db.archive.CityRecord;
+import engine.db.archive.DataWarehouse;
 import engine.math.Bounds;
 import engine.math.Vector2f;
 import engine.math.Vector3f;
@@ -422,5 +424,32 @@ public enum ZoneManager {
 
         treeBounds.release();
         return validLocation;
+    }
+
+    public static void loadCities(Zone zone) {
+
+        ArrayList<City> cities = DbManager.CityQueries.GET_CITIES_BY_ZONE(zone.getObjectUUID());
+
+        for (City city : cities) {
+
+            city.setParent(zone);
+            city.setObjectTypeMask(MBServerStatics.MASK_CITY);
+            city.setLoc(city.getLoc()); // huh?
+
+//not player city, must be npc city..
+
+            if (!zone.isPlayerCity())
+                zone.setNPCCity(true);
+
+            if ((ConfigManager.serverType.equals(Enum.ServerType.WORLDSERVER)) && (city.getHash() == null)) {
+
+                city.setHash();
+
+                if (DataWarehouse.recordExists(Enum.DataRecordType.CITY, city.getObjectUUID()) == false) {
+                    CityRecord cityRecord = CityRecord.borrow(city, Enum.RecordEventType.CREATE);
+                    DataWarehouse.pushToWarehouse(cityRecord);
+                }
+            }
+        }
     }
 }

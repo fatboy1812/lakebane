@@ -572,7 +572,7 @@ public class WorldServer {
 
 				//Handle cities
 
-				City.loadCities(zone);
+				ZoneManager.loadCities(zone);
 				ZoneManager.populateWorldZones(zone);
 
 			} catch (Exception e) {
