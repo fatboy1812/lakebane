@@ -1,47 +1,43 @@
 package engine.db.handlers;
 
 import engine.InterestManagement.HeightMap;
+import engine.gameManager.DbManager;
 import org.pmw.tinylog.Logger;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class dbHeightMapHandler extends dbHandlerBase {
 
-	public dbHeightMapHandler() {
+    public dbHeightMapHandler() {
 
 
-	}
+    }
 
-	public void LOAD_ALL_HEIGHTMAPS() {
+    public void LOAD_ALL_HEIGHTMAPS() {
 
-		HeightMap thisHeightmap;
+        HeightMap thisHeightmap;
+        HeightMap.heightMapsCreated = 0;
 
-		int recordsRead = 0;
-		int worthlessDupes = 0;
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM static_zone_heightmap INNER JOIN static_zone_size ON static_zone_size.loadNum = static_zone_heightmap.zoneLoadID")) {
 
-		HeightMap.heightMapsCreated = 0;
+            ResultSet rs = preparedStatement.executeQuery();
 
-		prepareCallable("SELECT * FROM static_zone_heightmap INNER JOIN static_zone_size ON static_zone_size.loadNum = static_zone_heightmap.zoneLoadID");
+            while (rs.next()) {
+                thisHeightmap = new HeightMap(rs);
 
-		try {
-			ResultSet rs = executeQuery();
+                if (thisHeightmap.getHeightmapImage() == null) {
+                    Logger.info("Imagemap for " + thisHeightmap.getHeightMapID() + " was null");
+                    continue;
+                }
+            }
 
-			while (rs.next()) {
-
-				recordsRead++;
-				thisHeightmap = new HeightMap(rs);
-
-				if (thisHeightmap.getHeightmapImage() == null) {
-					Logger.info( "Imagemap for " + thisHeightmap.getHeightMapID() + " was null");
-					continue;
-				}
-			}
-		} catch (SQLException e) {
-			Logger.error("LoadAllHeightMaps: " + e.getErrorCode() + ' ' + e.getMessage(), e);
-		} finally {
-			closeCallable();
-		}
-	}
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
+    }
 
 }
