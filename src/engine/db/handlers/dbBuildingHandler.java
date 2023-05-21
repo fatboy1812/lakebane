@@ -96,7 +96,7 @@ public class dbBuildingHandler extends dbHandlerBase {
             preparedStatement.setLong(1, zone.getObjectUUID());
 
             ResultSet rs = preparedStatement.executeQuery();
-            buildings = getObjectsFromRs(rs, 2000);
+            buildings = getObjectsFromRs(rs, 1000);
 
         } catch (SQLException e) {
             Logger.error(e);

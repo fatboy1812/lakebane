@@ -172,7 +172,7 @@ public class dbItemHandler extends dbHandlerBase {
 			preparedStatement.setLong(1, (long) targetId);
 			ResultSet rs = preparedStatement.executeQuery();
 
-			itemList = getObjectsFromRs(rs, 50);
+			itemList = getObjectsFromRs(rs, 10);
 
 		} catch (SQLException e) {
 			Logger.error(e);
