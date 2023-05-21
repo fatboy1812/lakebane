@@ -11,9 +11,9 @@ package engine.db.handlers;
 
 import engine.Enum.ItemContainerType;
 import engine.Enum.ItemType;
-import engine.Enum.OwnerType;
-import engine.objects.*;
-import org.pmw.tinylog.Logger;
+import engine.objects.AbstractCharacter;
+import engine.objects.CharacterItemManager;
+import engine.objects.Item;
 
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -128,15 +128,6 @@ public class dbItemHandler extends dbHandlerBase {
 		return (Item) getObjectSingle(id);
 	}
 
-	public Item GET_GOLD_FOR_PLAYER(final int playerID, final int goldID, int worldID) {
-		prepareCallable("SELECT `obj_item`.*, `object`.`parent`, `object`.`type` FROM `object` INNER JOIN `obj_item` ON `object`.`UID` = `obj_item`.`UID` WHERE `object`.`parent`=? AND `obj_item`.`item_itembaseID`=?;");
-		setInt(1, playerID);
-		setInt(2, goldID);
-		int objectUUID = (int) getUUID();
-		return (Item) getObjectSingle(objectUUID);
-
-	}
-
 	public ArrayList<Item> GET_ITEMS_FOR_ACCOUNT(final int accountId) {
 		prepareCallable("SELECT `obj_item`.*, `object`.`parent`, `object`.`type` FROM `object` INNER JOIN `obj_item` ON `object`.`UID` = `obj_item`.`UID` WHERE `object`.`parent`=?;");
 		setLong(1, (long) accountId);
@@ -152,13 +143,6 @@ public class dbItemHandler extends dbHandlerBase {
 	public ArrayList<Item> GET_ITEMS_FOR_PC(final int id) {
 		prepareCallable("SELECT `obj_item`.*, `object`.`parent`, `object`.`type` FROM `object` INNER JOIN `obj_item` ON `object`.`UID` = `obj_item`.`UID` WHERE `object`.`parent`=?");
 		setLong(1, (long) id);
-		return getLargeObjectList();
-	}
-
-	public ArrayList<Item> GET_ITEMS_FOR_PLAYER_AND_ACCOUNT(final int playerID, final int accountID) {
-		prepareCallable("SELECT `obj_item`.*, `object`.`parent`, `object`.`type` FROM `object` INNER JOIN `obj_item` ON `object`.`UID` = `obj_item`.`UID` WHERE (`object`.`parent`=? OR `object`.`parent`=?)");
-		setLong(1, (long) playerID);
-		setLong(2, (long) accountID);
 		return getLargeObjectList();
 	}
 
@@ -192,35 +176,10 @@ public class dbItemHandler extends dbHandlerBase {
 		return worked;
 	}
 
-	public Item PURCHASE_ITEM_FROM_VENDOR(final PlayerCharacter pc, final ItemBase ib) {
-		Item item = null;
-		byte charges = 0;
-		charges = (byte) ib.getNumCharges();
-		short durability = (short) ib.getDurability();
-
-		Item temp = new Item(ib, pc.getObjectUUID(),
-				OwnerType.PlayerCharacter, charges, charges, durability, durability,
-				true, false,ItemContainerType.INVENTORY, (byte) 0,
-                new ArrayList<>(),"");
-		try {
-			item = this.ADD_ITEM(temp);
-		} catch (Exception e) {
-			Logger.error(e);
-		}
-		return item;
-	}
-
 	public HashSet<Integer> GET_ITEMS_FOR_VENDOR(final int vendorID) {
 		prepareCallable("SELECT ID FROM static_itembase WHERE vendorType = ?");
 		setInt(1, vendorID);
 		return getIntegerList(1);
-	}
-
-	public ArrayList<Item> GET_ITEMS_FOR_VENDOR_FORGING(final int npcID) {
-		prepareCallable("SELECT `obj_item`.*, `object`.`parent` FROM `object` INNER JOIN `obj_item` ON `object`.`UID` = `obj_item`.`UID` WHERE `object`.`parent`=? AND `obj_item`.`item_container` =?");
-		setLong(1, (long) npcID);
-		setString(2, "forge");
-		return getObjectList();
 	}
 
 	public String SET_PROPERTY(final Item i, String name, Object new_value) {
@@ -284,33 +243,6 @@ public class dbItemHandler extends dbHandlerBase {
 
 	}
 
-	//Update an item except ownership
-	public boolean UPDATE_DATABASE(final Item item) {
-		prepareCallable("UPDATE `obj_item` SET `item_itembaseID`=?, `item_chargesRemaining`=?, `item_durabilityCurrent`=?, `item_durabilityMax`=?, `item_numberOfItems`=? WHERE `UID`=?");
-		setInt(1, item.getItemBaseID());
-		setInt(2, item.getChargesRemaining());
-		setInt(3, item.getDurabilityCurrent());
-		setInt(4, item.getDurabilityMax());
-		setInt(5, item.getNumOfItems());
-		setLong(6, (long) item.getObjectUUID());
-		return (executeUpdate() != 0);
-	}
-
-	public boolean UPDATE_ROLL_COMPLETE(final Item item) {
-		prepareCallable("UPDATE `obj_item` SET `item_container` = ?, `item_dateToUpgrade` = ? WHERE `UID` = ?");
-		setString(1, "forge");
-		setLong(2, 0L);
-		setLong(3, (long) item.getObjectUUID());
-		return (executeUpdate() != 0);
-	}
-
-	public boolean SET_DATE_TO_UPGRADE(final Item item, long date) {
-		prepareCallable("UPDATE `obj_item` SET `item_dateToUPGRADE` = ? WHERE `UID` = ?");
-		setLong(1, date);
-		setLong(2, (long) item.getObjectUUID());
-		return (executeUpdate() != 0);
-	}
-
 	public boolean UPDATE_FORGE_TO_INVENTORY(final Item item) {
 		prepareCallable("UPDATE `obj_item` SET `item_container` = ? WHERE `UID` = ? AND `item_container` = 'forge';");
 		setString(1, "inventory");
@@ -346,37 +278,6 @@ public class dbItemHandler extends dbHandlerBase {
 		return (executeUpdate() != 0);
 	}
 
-	/**
-	 * Attempts to update the value of two Gold items simultaneously.
-	 *
-	 * @param value New gold quantity for this item
-	 * @param otherGold Other Gold item being modified
-	 * @param valueOtherGold New quantity of gold for other item
-	 * @return True on success
-	 */
-	public boolean UPDATE_GOLD(Item gold, int value, Item otherGold, int valueOtherGold) {
-
-		if (gold.getItemBase().getType().equals(ItemType.GOLD) == false)
-			return false;
-
-		if (otherGold.getItemBase().getType().equals(ItemType.GOLD) == false)
-			return false;
-
-		int firstOld = gold.getNumOfItems();
-		int secondOld = gold.getNumOfItems();
-
-		prepareCallable("UPDATE `obj_item` SET `item_numberOfItems` = CASE WHEN `UID`=? AND `item_numberOfItems`=? THEN ? WHEN `UID`=? AND `item_numberOfItems`=? THEN ? END WHERE `UID` IN (?, ?);");
-		setLong(1, (long) gold.getObjectUUID());
-		setInt(2, firstOld);
-		setInt(3, value);
-		setLong(4, (long) otherGold.getObjectUUID());
-		setInt(5, secondOld);
-		setInt(6, valueOtherGold);
-		setLong(7, (long) gold.getObjectUUID());
-		setLong(8, (long) otherGold.getObjectUUID());
-		return (executeUpdate() != 0);
-	}
-
 	public boolean UPDATE_REMAINING_CHARGES(final Item item) {
 		prepareCallable("UPDATE `obj_item` SET `item_chargesRemaining` = ? WHERE `UID` = ?");
 		setInt(1, item.getChargesRemaining());
@@ -406,13 +307,5 @@ public class dbItemHandler extends dbHandlerBase {
 		setLong(2, (long) item.getObjectUUID());
 		return (executeUpdate() != 0);
 	}
-
-	public boolean UPDATE_FLAGS(Item item, int flags) {
-		prepareCallable("UPDATE `obj_item` SET `item_flags`=? WHERE `UID` = ?");
-		setInt(1, flags);
-		setLong(2, (long) item.getObjectUUID());
-		return (executeUpdate() != 0);
-	}
-
 
 }
