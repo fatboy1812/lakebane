@@ -11,10 +11,16 @@ package engine.db.handlers;
 
 import engine.Enum.ItemContainerType;
 import engine.Enum.ItemType;
+import engine.gameManager.DbManager;
 import engine.objects.AbstractCharacter;
 import engine.objects.CharacterItemManager;
 import engine.objects.Item;
+import org.pmw.tinylog.Logger;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashSet;
 
@@ -27,52 +33,77 @@ public class dbItemHandler extends dbHandlerBase {
 	}
 
 	public Item ADD_ITEM(Item toAdd) {
-		prepareCallable("CALL `item_CREATE`(?, ?, ?, ?, ?, ?, ?, ?, ?,?);");
-		setInt(1, toAdd.getOwnerID());
-		setInt(2, toAdd.getItemBaseID());
-		setInt(3, toAdd.getChargesRemaining());
-		setInt(4, toAdd.getDurabilityCurrent());
-		setInt(5, toAdd.getDurabilityMax());
-		if (toAdd.getNumOfItems() < 1)
-			setInt(6, 1);
-		else
-			setInt(6, toAdd.getNumOfItems());
 
-		switch (toAdd.containerType) {
-			case INVENTORY:
-				setString(7, "inventory");
-				break;
-			case EQUIPPED:
-				setString(7, "equip");
-				break;
-			case BANK:
-				setString(7, "bank");
-				break;
-			case VAULT:
-				setString(7, "vault");
-				break;
-			case FORGE:
-				setString(7, "forge");
-				break;
-				default:
-					setString(7, "none"); //Shouldn't be here
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("CALL `item_CREATE`(?, ?, ?, ?, ?, ?, ?, ?, ?,?);")) {
+
+			preparedStatement.setInt(1, toAdd.getOwnerID());
+			preparedStatement.setInt(2, toAdd.getItemBaseID());
+			preparedStatement.setInt(3, toAdd.getChargesRemaining());
+			preparedStatement.setInt(4, toAdd.getDurabilityCurrent());
+			preparedStatement.setInt(5, toAdd.getDurabilityMax());
+
+			if (toAdd.getNumOfItems() < 1)
+				preparedStatement.setInt(6, 1);
+			else
+				preparedStatement.setInt(6, toAdd.getNumOfItems());
+
+			switch (toAdd.containerType) {
+				case INVENTORY:
+					preparedStatement.setString(7, "inventory");
 					break;
+				case EQUIPPED:
+					preparedStatement.setString(7, "equip");
+					break;
+				case BANK:
+					preparedStatement.setString(7, "bank");
+					break;
+				case VAULT:
+					preparedStatement.setString(7, "vault");
+					break;
+				case FORGE:
+					preparedStatement.setString(7, "forge");
+					break;
+				default:
+					preparedStatement.setString(7, "none"); //Shouldn't be here
+					break;
+			}
+
+			preparedStatement.setByte(8, toAdd.getEquipSlot());
+			preparedStatement.setInt(9, toAdd.getFlags());
+			preparedStatement.setString(10, toAdd.getCustomName());
+
+			ResultSet rs = preparedStatement.executeQuery();
+
+			int objectUUID = (int) rs.getLong("UID");
+
+			if (objectUUID > 0)
+				return GET_ITEM(objectUUID);
+
+		} catch (SQLException e) {
+			Logger.error(e);
 		}
 
-		setByte(8, toAdd.getEquipSlot());
-		setInt(9, toAdd.getFlags());
-		setString(10, toAdd.getCustomName());
-		int objectUUID = (int) getUUID();
-
-		if (objectUUID > 0)
-			return GET_ITEM(objectUUID);
 		return null;
 	}
 
 	public String GET_OWNER(int ownerID) {
-		prepareCallable("SELECT `type` FROM `object` WHERE `UID`=?");
-		setLong(1, (long) ownerID);
-		return getString("type");
+
+		String ownerType = "";
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT `type` FROM `object` WHERE `UID`=?")) {
+
+			preparedStatement.setInt(1, ownerID);
+
+			ResultSet rs = preparedStatement.executeQuery();
+			ownerType = rs.getString("type");
+
+		} catch (SQLException e) {
+			Logger.error(e);
+		}
+
+		return ownerType;
 	}
 
 	public boolean DO_TRADE(HashSet<Integer> from1, HashSet<Integer> from2,
@@ -81,35 +112,48 @@ public class dbItemHandler extends dbHandlerBase {
 
 		AbstractCharacter ac1 = man1.getOwner();
 		AbstractCharacter ac2 = man2.getOwner();
+
 		if (ac1 == null || ac2 == null || inventoryGold1 == null || inventoryGold2 == null)
 			return false;
 
-		prepareCallable("CALL `item_TRADE`(?, ?, ?, ?, ?, ?, ?, ?)");
-		setString(1, formatTradeString(from1));
-		setLong(2, (long) ac1.getObjectUUID());
-		setString(3, formatTradeString(from2));
-		setLong(4, (long) ac2.getObjectUUID());
-		setInt(5, goldFrom1);
-		setLong(6, (long) inventoryGold1.getObjectUUID());
-		setInt(7, goldFrom2);
-		setLong(8, (long) inventoryGold2.getObjectUUID());
-        return worked();
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("CALL `item_TRADE`(?, ?, ?, ?, ?, ?, ?, ?)")) {
+
+			preparedStatement.setString(1, formatTradeString(from1));
+			preparedStatement.setLong(2, (long) ac1.getObjectUUID());
+			preparedStatement.setString(3, formatTradeString(from2));
+			preparedStatement.setLong(4, (long) ac2.getObjectUUID());
+			preparedStatement.setInt(5, goldFrom1);
+			preparedStatement.setLong(6, (long) inventoryGold1.getObjectUUID());
+			preparedStatement.setInt(7, goldFrom2);
+			preparedStatement.setLong(8, (long) inventoryGold2.getObjectUUID());
+
+			ResultSet rs = preparedStatement.executeQuery();
+
+			return rs.getBoolean("result");
+
+		} catch (SQLException e) {
+			Logger.error(e);
+			return false;
+		}
 	}
 
 	private static String formatTradeString(HashSet<Integer> list) {
 		int size = list.size();
 
 		String ret = "";
+
 		if (size == 0)
 			return ret;
+
 		boolean start = true;
+
 		for (int i : list) {
-			if (start){
+			if (start) {
 				ret += i;
 				start = false;
-			}
-			else
-			ret += "," + i;
+			} else
+				ret += "," + i;
 		}
 		return ret;
 	}
