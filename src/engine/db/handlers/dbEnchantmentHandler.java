@@ -28,7 +28,7 @@ public class dbEnchantmentHandler extends dbHandlerBase {
 		try (Connection connection = DbManager.getConnection();
 			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `dyn_item_enchantment` WHERE `ItemID`=?;")) {
 
-			preparedStatement.setLong(1, (long) id);
+			preparedStatement.setLong(1, id);
 
 			ResultSet rs = preparedStatement.executeQuery();
 
