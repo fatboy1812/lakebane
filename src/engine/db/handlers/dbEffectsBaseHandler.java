@@ -225,6 +225,7 @@ public class dbEffectsBaseHandler extends dbHandlerBase {
 				break;
 			case PassiveDefense:
 				abstractEffectModifier = new PassiveDefenseEffectModifier(rs);
+				break;
 			case PowerCost:
 				abstractEffectModifier = new PowerCostEffectModifier(rs);
 				break;
