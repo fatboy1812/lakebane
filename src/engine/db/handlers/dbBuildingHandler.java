@@ -88,9 +88,22 @@ public class dbBuildingHandler extends dbHandlerBase {
 	}
 
 	public ArrayList<Building> GET_ALL_BUILDINGS_FOR_ZONE(Zone zone) {
-		prepareCallable("SELECT `obj_building`.*, `object`.`parent` FROM `object` INNER JOIN `obj_building` ON `obj_building`.`UID` = `object`.`UID` WHERE `object`.`parent` = ?;");
-		setLong(1, zone.getObjectUUID());
-		return getLargeObjectList();
+
+		ArrayList<Building> buildings = new ArrayList<>();
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT `obj_building`.*, `object`.`parent` FROM `object` INNER JOIN `obj_building` ON `obj_building`.`UID` = `object`.`UID` WHERE `object`.`parent` = ?;")) {
+
+			preparedStatement.setLong(1, zone.getObjectUUID());
+
+			ResultSet rs = preparedStatement.executeQuery();
+			buildings = getObjectsFromRs(rs, 2000);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+		}
+
+		return buildings;
 	}
 
 	public Building GET_BUILDINGBYUUID(int uuid) {
@@ -119,48 +132,69 @@ public class dbBuildingHandler extends dbHandlerBase {
 	}
 
 	public Building GET_BUILDING_BY_MESH(final int meshID) {
-		Building toReturn = null;
-		prepareCallable("CALL building_GETBYMESH(?)");
-		setInt(1, meshID);
-		try {
-			ResultSet rs = executeQuery();
+
+		Building building = null;
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("CALL building_GETBYMESH(?)")) {
+
+			preparedStatement.setInt(1, meshID);
+
+			ResultSet rs = preparedStatement.executeQuery();
+
 			if (rs.next())
-				toReturn = new Building(rs);
-			rs.close();
+				building = new Building(rs);
+
 		} catch (SQLException e) {
 			Logger.error("Building", e);
 			return null;
-		} finally {
-			closeCallable();
 		}
-		return toReturn;
+		return building;
 	}
 
 	public String SET_PROPERTY(final Building b, String name, Object new_value) {
-		prepareCallable("CALL building_SETPROP(?,?,?)");
-		setLong(1, b.getObjectUUID());
-		setString(2, name);
-		setString(3, String.valueOf(new_value));
-		return getResult();
-	}
 
-	public String SET_PROPERTY(final Building b, String name, Object new_value, Object old_value) {
-		prepareCallable("CALL building_GETSETPROP(?,?,?,?)");
-		setLong(1, b.getObjectUUID());
-		setString(2, name);
-		setString(3, String.valueOf(new_value));
-		setString(4, String.valueOf(old_value));
-		return getResult();
+		String result = "";
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("CALL building_SETPROP(?,?,?)")) {
+
+			preparedStatement.setLong(1, b.getObjectUUID());
+			preparedStatement.setString(2, name);
+			preparedStatement.setString(3, String.valueOf(new_value));
+
+			ResultSet rs = preparedStatement.executeQuery();
+			result = rs.getString("result");
+			;
+
+		} catch (SQLException e) {
+			Logger.error(e);
+		}
+
+		return result;
 	}
 
 	public int MOVE_BUILDING(long buildingID, long parentID, float locX, float locY, float locZ) {
-		prepareCallable("UPDATE `object` INNER JOIN `obj_building` On `object`.`UID` = `obj_building`.`UID` SET `object`.`parent`=?, `obj_building`.`locationX`=?, `obj_building`.`locationY`=?, `obj_building`.`locationZ`=? WHERE `obj_building`.`UID`=?;");
-		setLong(1, parentID);
-		setFloat(2, locX);
-		setFloat(3, locY);
-		setFloat(4, locZ);
-		setLong(5, buildingID);
-		return executeUpdate();
+
+		int rowCount;
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `object` INNER JOIN `obj_building` On `object`.`UID` = `obj_building`.`UID` SET `object`.`parent`=?, `obj_building`.`locationX`=?, `obj_building`.`locationY`=?, `obj_building`.`locationZ`=? WHERE `obj_building`.`UID`=?;")) {
+
+			preparedStatement.setLong(1, parentID);
+			preparedStatement.setFloat(2, locX);
+			preparedStatement.setFloat(3, locY);
+			preparedStatement.setFloat(4, locZ);
+			preparedStatement.setLong(5, buildingID);
+
+			rowCount = preparedStatement.executeUpdate();
+
+		} catch (SQLException e) {
+			Logger.error(e);
+			return 0;
+		}
+
+		return rowCount;
 	}
 
 	private boolean removeFromBuildings(final Building b) {
@@ -180,85 +214,161 @@ public class dbBuildingHandler extends dbHandlerBase {
 	}
 
 	public boolean CHANGE_NAME(Building b, String newName) {
-		prepareCallable("UPDATE `obj_building` SET `name`=? WHERE `UID`=?");
-		setString(1, newName);
-		setLong(2, b.getObjectUUID());
-		return (executeUpdate() > 0);
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_building` SET `name`=? WHERE `UID`=?")) {
+
+			preparedStatement.setString(1, newName);
+			preparedStatement.setLong(2, b.getObjectUUID());
+
+			return (preparedStatement.executeUpdate() > 0);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+			return false;
+		}
+
 	}
 
 	public boolean SET_RESERVE(Building b, int reserveAmount) {
-		prepareCallable("UPDATE `obj_building` SET `reserve`=? WHERE `UID`=?");
-		setInt(1, reserveAmount);
-		setLong(2, b.getObjectUUID());
-		return (executeUpdate() > 0);
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_building` SET `reserve`=? WHERE `UID`=?")) {
+
+			preparedStatement.setInt(1, reserveAmount);
+			preparedStatement.setLong(2, b.getObjectUUID());
+
+			return (preparedStatement.executeUpdate() > 0);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+			return false;
+		}
+
 	}
 
 	//CAS update to rank
 	public boolean CHANGE_RANK(final long buildingID, int newRank) {
-		prepareCallable("UPDATE `obj_building` SET `rank`=? WHERE `UID`=?");
-		setInt(1, newRank);
-		setLong(2, buildingID);
-		return (executeUpdate() > 0);
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_building` SET `rank`=? WHERE `UID`=?")) {
+
+			preparedStatement.setInt(1, newRank);
+			preparedStatement.setLong(2, buildingID);
+
+			return (preparedStatement.executeUpdate() > 0);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+			return false;
+		}
+
 	}
 
 	public boolean UPDATE_BUILDING_HEALTH(final long buildingID, int NewHealth) {
-		prepareCallable("UPDATE `obj_building` SET `currentHP`=? WHERE `UID`=?");
-		setInt(1, NewHealth);
-		setLong(2, buildingID);
-		return (executeUpdate() > 0);
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_building` SET `currentHP`=? WHERE `UID`=?")) {
+
+			preparedStatement.setInt(1, NewHealth);
+			preparedStatement.setLong(2, buildingID);
+
+			return (preparedStatement.executeUpdate() > 0);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+			return false;
+		}
+
 	}
 
 	public boolean UPDATE_BUILDING_ALTITUDE(final long buildingID, float newAltitude) {
-		prepareCallable("UPDATE `obj_building` SET `locationY`=? WHERE `UID`=?");
-		setFloat(1, newAltitude);
-		setLong(2, buildingID);
-		return (executeUpdate() > 0);
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_building` SET `locationY`=? WHERE `UID`=?")) {
+
+			preparedStatement.setFloat(1, newAltitude);
+			preparedStatement.setLong(2, buildingID);
+
+			return (preparedStatement.executeUpdate() > 0);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+			return false;
+		}
+
 	}
 
 	public boolean UPDATE_PROTECTIONSTATE(final long buildingUUID, ProtectionState protectionState) {
 
-		try {
-			prepareCallable("UPDATE `obj_building` SET `protectionState`=? WHERE `UID`=?");
-			setString(1, protectionState.name());
-			setLong(2, buildingUUID);
-			return (executeUpdate() > 0);
-		} catch (Exception e) {
-			Logger.error(e.toString());
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_building` SET `protectionState`=? WHERE `UID`=?")) {
+
+			preparedStatement.setString(1, protectionState.name());
+			preparedStatement.setLong(2, buildingUUID);
+
+			return (preparedStatement.executeUpdate() > 0);
+
+		} catch (SQLException e) {
+			Logger.error(e);
 			return false;
 		}
+
 	}
 
 	public boolean UPDATE_DOOR_LOCK(final int buildingUUID, int doorFlags) {
 
-		try {
-			prepareCallable("UPDATE obj_building SET doorState = ? WHERE UID = ?");
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE obj_building SET doorState = ? WHERE UID = ?")) {
 
-			setInt(1, doorFlags);
-			setInt(2, buildingUUID);
+			preparedStatement.setInt(1, doorFlags);
+			preparedStatement.setInt(2, buildingUUID);
 
-			executeUpdate();
-			return true;
-		} catch (Exception e) {
+			return (preparedStatement.executeUpdate() > 0);
+
+		} catch (SQLException e) {
+			Logger.error(e);
 			return false;
 		}
+
 	}
 
 	public boolean ADD_TO_FRIENDS_LIST(final long buildingID, final long friendID, final long guildID, final int friendType) {
-		prepareCallable("INSERT INTO `dyn_building_friends` (`buildingUID`, `playerUID`,`guildUID`, `friendType`) VALUES (?,?,?,?)");
-		setLong(1, buildingID);
-		setLong(2, friendID);
-		setLong(3, guildID);
-		setInt(4, friendType);
-		return (executeUpdate() > 0);
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO `dyn_building_friends` (`buildingUID`, `playerUID`,`guildUID`, `friendType`) VALUES (?,?,?,?)")) {
+
+			preparedStatement.setLong(1, buildingID);
+			preparedStatement.setLong(2, friendID);
+			preparedStatement.setLong(3, guildID);
+			preparedStatement.setInt(4, friendType);
+
+			return (preparedStatement.executeUpdate() > 0);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+			return false;
+		}
+
 	}
 
 	public boolean REMOVE_FROM_FRIENDS_LIST(final long buildingID, long friendID, long guildID, int friendType) {
-		prepareCallable("DELETE FROM `dyn_building_friends` WHERE `buildingUID`=? AND `playerUID`=? AND `guildUID` =? AND `friendType` = ?");
-		setLong(1, buildingID);
-		setLong(2, friendID);
-		setLong(3,guildID);
-		setInt(4, friendType);
-		return (executeUpdate() > 0);
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM `dyn_building_friends` WHERE `buildingUID`=? AND `playerUID`=? AND `guildUID` =? AND `friendType` = ?")) {
+
+			preparedStatement.setLong(1, buildingID);
+			preparedStatement.setLong(2, friendID);
+			preparedStatement.setLong(3, guildID);
+			preparedStatement.setInt(4, friendType);
+
+			return (preparedStatement.executeUpdate() > 0);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+			return false;
+		}
+
 	}
 
 	public boolean REMOVE_FROM_CONDEMNED_LIST(final long buildingID, long friendID, long guildID, int friendType) {
