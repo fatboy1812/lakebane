@@ -165,7 +165,7 @@ public class dbBuildingHandler extends dbHandlerBase {
 
 			ResultSet rs = preparedStatement.executeQuery();
 			result = rs.getString("result");
-			;
+
 
 		} catch (SQLException e) {
 			Logger.error(e);
@@ -372,30 +372,65 @@ public class dbBuildingHandler extends dbHandlerBase {
 	}
 
 	public boolean REMOVE_FROM_CONDEMNED_LIST(final long buildingID, long friendID, long guildID, int friendType) {
-		prepareCallable("DELETE FROM `dyn_building_condemned` WHERE `buildingUID`=? AND `playerUID`=? AND `guildUID` =? AND `friendType` = ?");
-		setLong(1, buildingID);
-		setLong(2, friendID);
-		setLong(3,guildID);
-		setInt(4, friendType);
-		return (executeUpdate() > 0);
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM `dyn_building_condemned` WHERE `buildingUID`=? AND `playerUID`=? AND `guildUID` =? AND `friendType` = ?")) {
+
+			preparedStatement.setLong(1, buildingID);
+			preparedStatement.setLong(2, friendID);
+			preparedStatement.setLong(3, guildID);
+			preparedStatement.setInt(4, friendType);
+
+			return (preparedStatement.executeUpdate() > 0);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+			return false;
+		}
+
 	}
 
 	public void CLEAR_FRIENDS_LIST(final long buildingID) {
-		prepareCallable("DELETE FROM `dyn_building_friends` WHERE `buildingUID`=?");
-		setLong(1, buildingID);
-		executeUpdate();
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM `dyn_building_friends` WHERE `buildingUID`=?")) {
+
+			preparedStatement.setLong(1, buildingID);
+			preparedStatement.execute();
+
+		} catch (SQLException e) {
+			Logger.error(e);
+		}
+
 	}
 
 	public void CLEAR_CONDEMNED_LIST(final long buildingID) {
-		prepareCallable("DELETE FROM `dyn_building_condemned` WHERE `buildingUID`=?");
-		setLong(1, buildingID);
-		executeUpdate();
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM `dyn_building_condemned` WHERE `buildingUID`=?")) {
+
+			preparedStatement.setLong(1, buildingID);
+			preparedStatement.execute();
+
+		} catch (SQLException e) {
+			Logger.error(e);
+		}
+
 	}
 
 	public boolean CLEAR_PATROL(final long buildingID) {
-		prepareCallable("DELETE FROM `dyn_building_patrol_points` WHERE `buildingUID`=?");
-		setLong(1, buildingID);
-		return (executeUpdate() > 0);
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM `dyn_building_patrol_points` WHERE `buildingUID`=?")) {
+
+			preparedStatement.setLong(1, buildingID);
+			return (preparedStatement.executeUpdate() > 0);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+			return false;
+		}
+
 	}
 
 	public void LOAD_ALL_FRIENDS_FOR_BUILDING(Building building) {
@@ -403,30 +438,27 @@ public class dbBuildingHandler extends dbHandlerBase {
 		if (building == null)
 			return;
 
-		prepareCallable("SELECT * FROM `dyn_building_friends` WHERE `buildingUID` = ?");
-		setInt(1,building.getObjectUUID());
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `dyn_building_friends` WHERE `buildingUID` = ?")) {
 
-		try {
-			ResultSet rs = executeQuery();
+			preparedStatement.setInt(1, building.getObjectUUID());
+			ResultSet rs = preparedStatement.executeQuery();
 
-			//shrines cached in rs for easy cache on creation.
 			while (rs.next()) {
 				BuildingFriends friend = new BuildingFriends(rs);
-				switch(friend.getFriendType()){
-				case 7:
-					building.getFriends().put(friend.getPlayerUID(), friend);
-					break;
-				case 8:
-				case 9:
-					building.getFriends().put(friend.getGuildUID(), friend);
-					break;
+				switch (friend.getFriendType()) {
+					case 7:
+						building.getFriends().put(friend.getPlayerUID(), friend);
+						break;
+					case 8:
+					case 9:
+						building.getFriends().put(friend.getGuildUID(), friend);
+						break;
 				}
 			}
 
 		} catch (SQLException e) {
-			Logger.error("LOAD friends for building: " + e.getErrorCode() + ' ' + e.getMessage(), e);
-		} finally {
-			closeCallable();
+			Logger.error(e);
 		}
 
 	}
