@@ -1062,7 +1062,6 @@ public float getBonusPercent(ModType modType, SourceType sourceType) {
 			this.magicValue =  this.getItemBase().getBaseValue() + calcMagicValue();
 			return;
 		}
-		
 
 		ConcurrentHashMap<String, Integer> enchantList = DbManager.EnchantmentQueries.GET_ENCHANTMENTS_FOR_ITEM(this.getObjectUUID());
 
