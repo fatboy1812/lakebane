@@ -63,14 +63,14 @@ public class dbAccountHandler extends dbHandlerBase {
 	public void WRITE_ADMIN_LOG(String adminName, String logEntry) {
 
 		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement accountQuery = connection.prepareStatement("INSERT INTO dyn_admin_log(`dateTime`, `charName`, `eventString`)"
+			 PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO dyn_admin_log(`dateTime`, `charName`, `eventString`)"
 					 + " VALUES (?, ?, ?)")) {
 
-			accountQuery.setTimestamp(1, new java.sql.Timestamp(System.currentTimeMillis()));
-			accountQuery.setString(2, adminName);
-			accountQuery.setString(3, logEntry);
+			preparedStatement.setTimestamp(1, new java.sql.Timestamp(System.currentTimeMillis()));
+			preparedStatement.setString(2, adminName);
+			preparedStatement.setString(3, logEntry);
 
-			accountQuery.execute();
+			preparedStatement.execute();
 
 		} catch (SQLException e) {
 			Logger.error(e);
@@ -97,9 +97,9 @@ public class dbAccountHandler extends dbHandlerBase {
 		ArrayList<String> machineList = new ArrayList<>();
 
 		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement accountQuery = connection.prepareStatement("select `machineID` from `dyn_trash`")) {
+			 PreparedStatement preparedStatement = connection.prepareStatement("select `machineID` from `dyn_trash`")) {
 
-			ResultSet rs = accountQuery.executeQuery();
+			ResultSet rs = preparedStatement.executeQuery();
 
 			while (rs.next())
 				machineList.add(rs.getString(1));
@@ -130,12 +130,12 @@ public class dbAccountHandler extends dbHandlerBase {
 		ArrayList<PlayerCharacter> trashList = new ArrayList<>();
 
 		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement accountQuery = connection.prepareStatement("select DISTINCT UID from object \n" +
+			 PreparedStatement preparedStatement = connection.prepareStatement("select DISTINCT UID from object \n" +
 					 "where parent IN (select AccountID from dyn_login_history " +
 					 " WHERE`machineID`=?)")) {
 
-			accountQuery.setString(1, machineID);
-			ResultSet rs = accountQuery.executeQuery();
+			preparedStatement.setString(1, machineID);
+			ResultSet rs = preparedStatement.executeQuery();
 
 			while (rs.next()) {
 
