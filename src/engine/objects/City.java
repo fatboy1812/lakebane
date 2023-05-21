@@ -34,7 +34,6 @@ import engine.workthreads.DestroyCityThread;
 import engine.workthreads.TransferCityThread;
 import org.pmw.tinylog.Logger;
 
-import java.net.UnknownHostException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
@@ -98,9 +97,9 @@ public class City extends AbstractWorldObject {
 	 * ResultSet Constructor
 	 */
 
-	public City(ResultSet rs) throws SQLException, UnknownHostException {
+	public City(ResultSet rs) throws SQLException {
 		super(rs);
-		try{
+		try {
 			this.cityName = rs.getString("name");
 			this.motto = rs.getString("motto");
 			this.isNpc = rs.getByte("isNpc");
