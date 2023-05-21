@@ -94,7 +94,7 @@ public class dbItemBaseHandler extends dbHandlerBase {
 			Logger.error(e);
 		}
 
-		Logger.info("read: " + recordsRead + "cached: " + ItemBase.getUUIDCache().size());
+		Logger.info("read: " + recordsRead + " cached: " + ItemBase.getUUIDCache().size());
 	}
 
 	public HashMap<Integer, ArrayList<Integer>> LOAD_RUNES_FOR_NPC_AND_MOBS() {
