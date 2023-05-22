@@ -9,12 +9,15 @@
 
 package engine.db.handlers;
 
+import engine.gameManager.DbManager;
 import engine.objects.Mob;
 import engine.objects.Zone;
 import engine.server.MBServerStatics;
 import org.joda.time.DateTime;
 import org.pmw.tinylog.Logger;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -26,87 +29,106 @@ public class dbMobHandler extends dbHandlerBase {
 		this.localObjectType = engine.Enum.GameObjectType.valueOf(this.localClass.getSimpleName());
 	}
 
-	public Mob ADD_MOB(Mob toAdd)
-			 {
-		prepareCallable("CALL `mob_CREATE`(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
-				 setLong(1, toAdd.getParentZoneID());
-		setInt(2, toAdd.getMobBaseID());
-		setInt(3, toAdd.getGuildUUID());
-		setFloat(4, toAdd.getSpawnX());
-		setFloat(5, toAdd.getSpawnY());
-		setFloat(6, toAdd.getSpawnZ());
-		setInt(7, 0);
-		setFloat(8, toAdd.getSpawnRadius());
-		setInt(9, toAdd.getTrueSpawnTime());
-		if (toAdd.getContract() != null)
-			setInt(10, toAdd.getContract().getContractID());
-		else
-			setInt(10, 0);
-		setInt(11, toAdd.getBuildingID());
-		setInt(12, toAdd.getLevel());
-		setString(13, toAdd.getFirstName());
-		int objectUUID = (int) getUUID();
-		if (objectUUID > 0)
-			return GET_MOB(objectUUID);
-		return null;
+	public Mob ADD_MOB(Mob toAdd) {
+
+		Mob mobile = null;
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("CALL `mob_CREATE`(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);")) {
+
+			preparedStatement.setLong(1, toAdd.getParentZoneID());
+			preparedStatement.setInt(2, toAdd.getMobBaseID());
+			preparedStatement.setInt(3, toAdd.getGuildUUID());
+			preparedStatement.setFloat(4, toAdd.getSpawnX());
+			preparedStatement.setFloat(5, toAdd.getSpawnY());
+			preparedStatement.setFloat(6, toAdd.getSpawnZ());
+			preparedStatement.setInt(7, 0);
+			preparedStatement.setFloat(8, toAdd.getSpawnRadius());
+			preparedStatement.setInt(9, toAdd.getTrueSpawnTime());
+
+			if (toAdd.getContract() != null)
+				preparedStatement.setInt(10, toAdd.getContract().getContractID());
+			else
+				preparedStatement.setInt(10, 0);
+
+			preparedStatement.setInt(11, toAdd.getBuildingID());
+			preparedStatement.setInt(12, toAdd.getLevel());
+			preparedStatement.setString(13, toAdd.getFirstName());
+
+			ResultSet rs = preparedStatement.executeQuery();
+
+			int objectUUID = (int) rs.getLong("UID");
+
+			if (objectUUID > 0)
+				mobile = GET_MOB(objectUUID);
+
+		} catch (SQLException e) {
+			throw new RuntimeException(e);
+		}
+		return mobile;
 	}
 
 	public boolean updateUpgradeTime(Mob mob, DateTime upgradeDateTime) {
 
-		try {
-
-			prepareCallable("UPDATE obj_mob SET upgradeDate=? "
-					+ "WHERE UID = ?");
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE obj_mob SET upgradeDate=? "
+					 + "WHERE UID = ?")) {
 
 			if (upgradeDateTime == null)
-				setNULL(1, java.sql.Types.DATE);
+				preparedStatement.setNull(1, java.sql.Types.DATE);
 			else
-				setTimeStamp(1, upgradeDateTime.getMillis());
+				preparedStatement.setTimestamp(1, new java.sql.Timestamp(upgradeDateTime.getMillis()));
 
-			setInt(2, mob.getObjectUUID());
-			executeUpdate();
-		} catch (Exception e) {
-			Logger.error("Mob.updateUpgradeTime", "UUID: " + mob.getObjectUUID());
-			return false;
+			preparedStatement.setInt(2, mob.getObjectUUID());
+
+			preparedStatement.execute();
+			return true;
+		} catch (SQLException e) {
+			Logger.error(e);
 		}
-		return true;
+		return false;
 	}
 
 	public int DELETE_MOB(final Mob mob) {
-		prepareCallable("DELETE FROM `object` WHERE `UID` = ?");
-		setLong(1, mob.getDBID());
-		return executeUpdate();
+
+		int row_count = 0;
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM `object` WHERE `UID` = ?")) {
+
+			preparedStatement.setLong(1, mob.getDBID());
+			row_count = preparedStatement.executeUpdate();
+
+		} catch (SQLException e) {
+			Logger.error(e);
+
+		}
+		return row_count;
 	}
 
 	public void LOAD_PATROL_POINTS(Mob captain) {
 
-		prepareCallable("SELECT * FROM `dyn_guards` WHERE `captainUID` = ?");
-		setInt(1,captain.getObjectUUID());
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `dyn_guards` WHERE `captainUID` = ?")) {
 
-		try {
-			ResultSet rs = executeQuery();
+			preparedStatement.setInt(1, captain.getObjectUUID());
+			ResultSet rs = preparedStatement.executeQuery();
 
-			//shrines cached in rs for easy cache on creation.
-
-            while (rs.next()) {
-				int mobBaseID = rs.getInt("mobBaseID");
+			while (rs.next()) {
 				String name = rs.getString("name");
-				Mob toCreate = Mob.createGuardMob(captain, captain.getGuild(), captain.getParentZone(), captain.building.getLoc(), captain.getLevel(),name);
+				Mob toCreate = Mob.createGuardMob(captain, captain.getGuild(), captain.getParentZone(), captain.building.getLoc(), captain.getLevel(), name);
+
 				if (toCreate == null)
 					return;
 
 				if (toCreate != null) {
 					toCreate.setTimeToSpawnSiege(System.currentTimeMillis() + MBServerStatics.FIFTEEN_MINUTES);
 					toCreate.setDeathTime(System.currentTimeMillis());
-                }
+				}
 			}
 
 		} catch (SQLException e) {
-			Logger.error( e.toString());
-		} finally {
-			closeCallable();
+			Logger.error(e);
 		}
-
 	}
 
 	public boolean ADD_TO_GUARDS(final long captainUID, final int mobBaseID, final String name, final int slot) {
@@ -122,7 +144,7 @@ public class dbMobHandler extends dbHandlerBase {
 		prepareCallable("DELETE FROM `dyn_guards` WHERE `captainUID`=? AND `mobBaseID`=? AND `slot` =?");
 		setLong(1, captainUID);
 		setInt(2, mobBaseID);
-		setInt(3,slot);
+		setInt(3, slot);
 		return (executeUpdate() > 0);
 	}
 
