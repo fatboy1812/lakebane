@@ -9,9 +9,12 @@
 
 package engine.db.handlers;
 
+import engine.gameManager.DbManager;
 import engine.objects.PromotionClass;
 import org.pmw.tinylog.Logger;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -24,31 +27,59 @@ public class dbPromotionClassHandler extends dbHandlerBase {
     }
 
     public ArrayList<Integer> GET_ALLOWED_RUNES(final PromotionClass pc) {
-        ArrayList<Integer> runes = new ArrayList<>();
-        prepareCallable("SELECT * FROM `static_rune_promotionrunereq` WHERE `promoID`=?");
-        setInt(1, pc.getObjectUUID());
-        try {
-            ResultSet rs = executeQuery();
-            while (rs.next()) {
-                runes.add(rs.getInt("runereqID"));
-            }
+
+        ArrayList<Integer> runeList = new ArrayList<>();
+
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `static_rune_promotionrunereq` WHERE `promoID`=?")) {
+
+            preparedStatement.setInt(1, pc.getObjectUUID());
+
+            ResultSet rs = preparedStatement.executeQuery();
+
+            while (rs.next())
+                runeList.add(rs.getInt("runereqID"));
+
         } catch (SQLException e) {
-            Logger.error("Failed to retrieve Allowed Runes for PromotionClass " + pc.getObjectUUID() + ". Error number: " + e.getErrorCode(), e);
-            return null;
-        } finally {
-            closeCallable();
+            Logger.error(e);
+
         }
-        return runes;
+        return runeList;
     }
 
     public PromotionClass GET_PROMOTION_CLASS(final int objectUUID) {
-        prepareCallable("SELECT * FROM `static_rune_promotion` WHERE `ID` = ?");
-        setInt(1, objectUUID);
-        return (PromotionClass) getObjectSingle(objectUUID);
+
+        PromotionClass promotionClass = null;
+
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `static_rune_promotion` WHERE `ID` = ?")) {
+
+            preparedStatement.setInt(1, objectUUID);
+
+            ResultSet rs = preparedStatement.executeQuery();
+            promotionClass = (PromotionClass) getObjectFromRs(rs);
+
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
+
+        return promotionClass;
     }
     
     public ArrayList<PromotionClass> GET_ALL_PROMOTIONS() {
-		prepareCallable("SELECT * FROM `static_rune_promotion`");
-		return getObjectList();
-	}
+
+        ArrayList<PromotionClass> promotionList = new ArrayList<>();
+
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `static_rune_promotion`")) {
+
+            ResultSet rs = preparedStatement.executeQuery();
+            promotionList = getObjectsFromRs(rs, 30);
+
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
+
+        return promotionList;
+    }
 }
