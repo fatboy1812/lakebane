@@ -14,7 +14,6 @@ import engine.gameManager.DbManager;
 import engine.objects.MobBase;
 import engine.objects.MobBaseEffects;
 import engine.objects.MobBaseStats;
-import engine.objects.MobLootBase;
 import engine.server.MBServerStatics;
 import org.pmw.tinylog.Logger;
 
@@ -59,14 +58,28 @@ public class dbMobBaseHandler extends dbHandlerBase {
 
 
 	public ArrayList<MobBase> GET_ALL_MOBBASES() {
-		prepareCallable("SELECT * FROM `static_npc_mobbase`;");
-		return  getObjectList();
+
+		ArrayList<MobBase> mobbaseList = new ArrayList<>();
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `static_npc_mobbase`;")) {
+
+			ResultSet rs = preparedStatement.executeQuery();
+			mobbaseList = getObjectsFromRs(rs, 1000);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+		}
+		return mobbaseList;
 	}
 
 	public void SET_AI_DEFAULTS() {
-		prepareCallable("SELECT * FROM `static_ai_defaults`");
-		try {
-			ResultSet rs = executeQuery();
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `static_ai_defaults`")) {
+
+			ResultSet rs = preparedStatement.executeQuery();
+
 			while (rs.next()) {
 				MBServerStatics.AI_BASE_AGGRO_RANGE = rs.getInt("aggro_range");
 				MBServerStatics.AI_PATROL_DIVISOR = rs.getInt("patrol_chance");
@@ -75,109 +88,101 @@ public class dbMobBaseHandler extends dbHandlerBase {
 				MBServerStatics.AI_RECALL_RANGE = rs.getInt("recall_range");
 				MBServerStatics.AI_PET_HEEL_DISTANCE = rs.getInt("pet_heel_distance");
 			}
-			rs.close();
 		} catch (SQLException e) {
-			Logger.error( e.getMessage());
-		} finally {
-			closeCallable();
+			Logger.error(e);
 		}
-
 	}
 
 	public boolean UPDATE_AI_DEFAULTS() {
-		prepareCallable("UPDATE `static_ai_defaults` SET `aggro_range` = ?,`patrol_chance`= ?,`drop_aggro_range`= ?,`cast_chance`= ?,`recall_range`= ? WHERE `ID` = 1");
-		setInt(1, MBServerStatics.AI_BASE_AGGRO_RANGE);
-		setInt(2, MBServerStatics.AI_PATROL_DIVISOR);
-		setInt(3, MBServerStatics.AI_DROP_AGGRO_RANGE);
-		setInt(4, MBServerStatics.AI_POWER_DIVISOR);
-		setInt(5, MBServerStatics.AI_RECALL_RANGE);
-		return (executeUpdate() > 0);
 
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `static_ai_defaults` SET `aggro_range` = ?,`patrol_chance`= ?,`drop_aggro_range`= ?,`cast_chance`= ?,`recall_range`= ? WHERE `ID` = 1")) {
+
+			preparedStatement.setInt(1, MBServerStatics.AI_BASE_AGGRO_RANGE);
+			preparedStatement.setInt(2, MBServerStatics.AI_PATROL_DIVISOR);
+			preparedStatement.setInt(3, MBServerStatics.AI_DROP_AGGRO_RANGE);
+			preparedStatement.setInt(4, MBServerStatics.AI_POWER_DIVISOR);
+			preparedStatement.setInt(5, MBServerStatics.AI_RECALL_RANGE);
+
+			return (preparedStatement.executeUpdate() > 0);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+			return false;
+		}
 	}
 
 	public HashMap<Integer, Integer> LOAD_STATIC_POWERS(int mobBaseUUID) {
-		HashMap<Integer, Integer> powersList = new HashMap<>();
-		prepareCallable("SELECT * FROM `static_npc_mobbase_powers` WHERE `mobbaseUUID`=?");
-		setInt(1, mobBaseUUID);
-		try {
-			ResultSet rs = executeQuery();
-			while (rs.next()) {
 
+		HashMap<Integer, Integer> powersList = new HashMap<>();
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `static_npc_mobbase_powers` WHERE `mobbaseUUID`=?")) {
+
+			preparedStatement.setInt(1, mobBaseUUID);
+			ResultSet rs = preparedStatement.executeQuery();
+
+			while (rs.next())
 				powersList.put(rs.getInt("token"), rs.getInt("rank"));
-			}
-			rs.close();
+
 		} catch (SQLException e) {
-			Logger.error( e.getMessage());
-		} finally {
-			closeCallable();
+			Logger.error(e);
 		}
 		return powersList;
-
 	}
 
 	public ArrayList<MobBaseEffects> GET_RUNEBASE_EFFECTS(int runeID) {
+
 		ArrayList<MobBaseEffects> effectsList = new ArrayList<>();
-		prepareCallable("SELECT * FROM `static_npc_mobbase_effects` WHERE `mobbaseUUID` = ?");
-		setInt(1, runeID);
 
-		try {
-			ResultSet rs = executeQuery();
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `static_npc_mobbase_effects` WHERE `mobbaseUUID` = ?")) {
+
+			preparedStatement.setInt(1, runeID);
+			ResultSet rs = preparedStatement.executeQuery();
+
 			while (rs.next()) {
-
 				MobBaseEffects mbs = new MobBaseEffects(rs);
 				effectsList.add(mbs);
 			}
-			rs.close();
+
 		} catch (SQLException e) {
-			Logger.error (e.getMessage());
-		} finally {
-			closeCallable();
+			Logger.error(e);
 		}
 
 		return effectsList;
-
 	}
 
 	public MobBaseStats LOAD_STATS(int mobBaseUUID) {
-		MobBaseStats mbs = MobBaseStats.GetGenericStats();
 
-		prepareCallable("SELECT * FROM `static_npc_mobbase_stats` WHERE `mobbaseUUID` = ?");
-		setInt(1, mobBaseUUID);
-		try {
-			ResultSet rs = executeQuery();
-			while (rs.next()) {
+		MobBaseStats mobBaseStats = MobBaseStats.GetGenericStats();
 
-				mbs = new MobBaseStats(rs);
-			}
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `static_npc_mobbase_stats` WHERE `mobbaseUUID` = ?")) {
+
+			preparedStatement.setInt(1, mobBaseUUID);
+			ResultSet rs = preparedStatement.executeQuery();
+
+			while (rs.next())
+				mobBaseStats = new MobBaseStats(rs);
 
 		} catch (SQLException e) {
-			Logger.error(e.getErrorCode() + ' ' + e.getMessage(), e);
-		} finally {
-			closeCallable();
+			Logger.error(e);
 		}
-		return mbs;
-
-	}
-
-	public boolean RENAME_MOBBASE(int ID, String newName) {
-		prepareCallable("UPDATE `static_npc_mobbase` SET `name`=? WHERE `ID`=?;");
-		setString(1, newName);
-		setInt(2, ID);
-		return (executeUpdate() > 0);
+		return mobBaseStats;
 	}
 
 	public void LOAD_ALL_MOBBASE_SPEEDS(MobBase mobBase) {
 
 		if (mobBase.getLoadID() == 0)
 			return;
-		ArrayList<MobLootBase> mobLootList = new ArrayList<>();
-		prepareCallable("SELECT * FROM `static_npc_mobbase_race` WHERE `mobbaseID` = ?");
-		setInt(1, mobBase.getLoadID());
 
-		try {
-			ResultSet rs = executeQuery();
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `static_npc_mobbase_race` WHERE `mobbaseID` = ?")) {
 
-			//shrines cached in rs for easy cache on creation.
+			preparedStatement.setInt(1, mobBase.getLoadID());
+			ResultSet rs = preparedStatement.executeQuery();
+
 			while (rs.next()) {
 				float walk = rs.getFloat("walkStandard");
 				float walkCombat = rs.getFloat("walkCombat");
@@ -186,11 +191,8 @@ public class dbMobBaseHandler extends dbHandlerBase {
 				mobBase.updateSpeeds(walk, walkCombat, run, runCombat);
 			}
 
-
 		} catch (SQLException e) {
-			Logger.error(e.getErrorCode() + ' ' + e.getMessage(), e);
-		} finally {
-			closeCallable();
+			Logger.error(e);
 		}
 	}
 }
