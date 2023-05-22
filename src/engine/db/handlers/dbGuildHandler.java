@@ -214,39 +214,89 @@ public class dbGuildHandler extends dbHandlerBase {
 	}
 
 	public ArrayList<Guild> GET_GUILD_KOS_GUILD(final int id) {
-		prepareCallable("SELECT g.* FROM `obj_guild` g, `dyn_guild_guildkoslist` l "
-				+ "WHERE l.KOSGuildID = g.UID && l.GuildID = ?");
-		setLong(1, (long) id);
-		return getObjectList();
+
+		ArrayList<Guild> guildList = null;
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT g.* FROM `obj_guild` g, `dyn_guild_guildkoslist` l "
+					 + "WHERE l.KOSGuildID = g.UID && l.GuildID = ?")) {
+
+			preparedStatement.setLong(1, id);
+
+			ResultSet rs = preparedStatement.executeQuery();
+			guildList = getObjectsFromRs(rs, 20);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+		}
+
+		return guildList;
 	}
 
 	public ArrayList<Guild> GET_SUB_GUILDS(final int guildID) {
-		prepareCallable("SELECT `obj_guild`.*, `object`.`parent` FROM `object` INNER JOIN `obj_guild` ON `obj_guild`.`UID` = `object`.`UID` WHERE `object`.`parent` = ?;");
-		setInt(1, guildID);
-		return getObjectList();
+
+		ArrayList<Guild> guildList = null;
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT `obj_guild`.*, `object`.`parent` FROM `object` INNER JOIN `obj_guild` ON `obj_guild`.`UID` = `object`.`UID` WHERE `object`.`parent` = ?;")) {
+
+			preparedStatement.setInt(1, guildID);
+
+			ResultSet rs = preparedStatement.executeQuery();
+			guildList = getObjectsFromRs(rs, 20);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+		}
+
+		return guildList;
 	}
 
-
 	public Guild GET_GUILD(int id) {
+
 		Guild guild = (Guild) DbManager.getFromCache(Enum.GameObjectType.Guild, id);
+
 		if (guild != null)
 			return guild;
+
 		if (id == 0)
 			return Guild.getErrantGuild();
-		prepareCallable("SELECT `obj_guild`.*, `object`.`parent` FROM `obj_guild` INNER JOIN `object` ON `object`.`UID` = `obj_guild`.`UID` WHERE `object`.`UID`=?");
-		setLong(1, (long) id);
-		return (Guild) getObjectSingle(id);
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT `obj_guild`.*, `object`.`parent` FROM `obj_guild` INNER JOIN `object` ON `object`.`UID` = `obj_guild`.`UID` WHERE `object`.`UID`=?")) {
+
+			preparedStatement.setLong(1, id);
+
+			ResultSet rs = preparedStatement.executeQuery();
+			guild = (Guild) getObjectFromRs(rs);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+		}
+		return guild;
+
 	}
 	
 	public ArrayList<Guild> GET_ALL_GUILDS() {
-		
-		prepareCallable("SELECT `obj_guild`.*, `object`.`parent` FROM `obj_guild` INNER JOIN `object` ON `object`.`UID` = `obj_guild`.`UID`");
-		
-		return getObjectList();
+
+		ArrayList<Guild> guildList = null;
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT `obj_guild`.*, `object`.`parent` FROM `obj_guild` INNER JOIN `object` ON `object`.`UID` = `obj_guild`.`UID`")) {
+
+			ResultSet rs = preparedStatement.executeQuery();
+			guildList = getObjectsFromRs(rs, 20);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+		}
+		return guildList;
 	}
 
 	public boolean IS_CREST_UNIQUE(final GuildTag gt) {
+
 		boolean valid = false;
+
 		if (gt.backgroundColor01 == gt.backgroundColor02) {
 			//both background colors the same, ignore backgroundDesign
 			prepareCallable("SELECT `name` FROM `obj_guild` WHERE `backgroundColor01`=? && `backgroundColor02`=? && `symbolColor`=? && `symbol`=?;");
@@ -274,23 +324,6 @@ public class dbGuildHandler extends dbHandlerBase {
 		return valid;
 	}
 
-	public String SET_PROPERTY(final Guild g, String name, Object new_value) {
-		prepareCallable("CALL guild_SETPROP(?,?,?)");
-		setLong(1, (long) g.getObjectUUID());
-		setString(2, name);
-		setString(3, String.valueOf(new_value));
-		return getResult();
-	}
-
-	public String SET_PROPERTY(final Guild g, String name, Object new_value, Object old_value) {
-		prepareCallable("CALL guild_GETSETPROP(?,?,?,?)");
-		setLong(1, (long) g.getObjectUUID());
-		setString(2, name);
-		setString(3, String.valueOf(new_value));
-		setString(4, String.valueOf(old_value));
-		return getResult();
-	}
-
 	public boolean SET_GUILD_OWNED_CITY(int guildID, int cityID) {
 		prepareCallable("UPDATE `obj_guild` SET `ownedCity`=? WHERE `UID`=?");
 		setLong(1, (long) cityID);
@@ -304,7 +337,6 @@ public class dbGuildHandler extends dbHandlerBase {
 		setLong(2, (long) guildID);
 		return (executeUpdate() > 0);
 	}
-
 
 	public boolean IS_NAME_UNIQUE(final String name) {
 		boolean valid = false;
