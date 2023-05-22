@@ -215,24 +215,51 @@ public class dbNPCHandler extends dbHandlerBase {
     }
 
     public boolean UPDATE_MOBBASE(NPC npc, int mobBaseID) {
-        prepareCallable("UPDATE `obj_npc` SET `npc_raceID`=? WHERE `UID`=?");
-        setLong(1, mobBaseID);
-        setLong(2, npc.getObjectUUID());
-        return (executeUpdate() > 0);
+
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_npc` SET `npc_raceID`=? WHERE `UID`=?")) {
+
+            preparedStatement.setLong(1, mobBaseID);
+            preparedStatement.setLong(2, npc.getObjectUUID());
+
+            return (preparedStatement.executeUpdate() > 0);
+
+        } catch (SQLException e) {
+            Logger.error(e);
+            return false;
+        }
     }
 
     public boolean UPDATE_EQUIPSET(NPC npc, int equipSetID) {
-        prepareCallable("UPDATE `obj_npc` SET `equipsetID`=? WHERE `UID`=?");
-        setInt(1, equipSetID);
-        setLong(2, npc.getObjectUUID());
-        return (executeUpdate() > 0);
+
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_npc` SET `equipsetID`=? WHERE `UID`=?")) {
+
+            preparedStatement.setInt(1, equipSetID);
+            preparedStatement.setLong(2, npc.getObjectUUID());
+
+            return (preparedStatement.executeUpdate() > 0);
+
+        } catch (SQLException e) {
+            Logger.error(e);
+            return false;
+        }
     }
 
     public boolean UPDATE_NAME(NPC npc, String name) {
-        prepareCallable("UPDATE `obj_npc` SET `npc_name`=? WHERE `UID`=?");
-        setString(1, name);
-        setLong(2, npc.getObjectUUID());
-        return (executeUpdate() > 0);
+
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_npc` SET `npc_name`=? WHERE `UID`=?")) {
+
+            preparedStatement.setString(1, name);
+            preparedStatement.setLong(2, npc.getObjectUUID());
+
+            return (preparedStatement.executeUpdate() > 0);
+
+        } catch (SQLException e) {
+            Logger.error(e);
+            return false;
+        }
     }
 
     public void LOAD_PIRATE_NAMES() {
@@ -241,10 +268,10 @@ public class dbNPCHandler extends dbHandlerBase {
         int mobBase;
         int recordsRead = 0;
 
-        prepareCallable("SELECT * FROM static_piratenames");
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM static_piratenames")) {
 
-        try {
-            ResultSet rs = executeQuery();
+            ResultSet rs = preparedStatement.executeQuery();
 
             while (rs.next()) {
 
@@ -254,24 +281,20 @@ public class dbNPCHandler extends dbHandlerBase {
 
                 // Handle new mobbbase entries
 
-                if (NPC._pirateNames.get(mobBase) == null) {
+                if (NPC._pirateNames.get(mobBase) == null)
                     NPC._pirateNames.putIfAbsent(mobBase, new ArrayList<>());
-                }
 
                 // Insert name into proper arraylist
 
                 NPC._pirateNames.get(mobBase).add(pirateName);
-
             }
 
-            Logger.info("names read: " + recordsRead + " for "
-                    + NPC._pirateNames.size() + " mobBases");
-
         } catch (SQLException e) {
-            Logger.error(e.getErrorCode() + ' ' + e.getMessage(), e);
-        } finally {
-            closeCallable();
+            Logger.error(e);
         }
+
+        Logger.info("names read: " + recordsRead + " for "
+                + NPC._pirateNames.size() + " mobBases");
     }
 
 
