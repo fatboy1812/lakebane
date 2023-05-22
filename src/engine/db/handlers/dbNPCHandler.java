@@ -11,7 +11,10 @@ package engine.db.handlers;
 
 import engine.Enum.ProfitType;
 import engine.gameManager.DbManager;
-import engine.objects.*;
+import engine.objects.NPC;
+import engine.objects.NPCProfits;
+import engine.objects.ProducedItem;
+import engine.objects.Zone;
 import org.joda.time.DateTime;
 import org.pmw.tinylog.Logger;
 
@@ -20,7 +23,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class dbNPCHandler extends dbHandlerBase {
 
@@ -297,52 +299,94 @@ public class dbNPCHandler extends dbHandlerBase {
                 + NPC._pirateNames.size() + " mobBases");
     }
 
-
     public boolean ADD_TO_PRODUCTION_LIST(final long ID, final long npcUID, final long itemBaseID, DateTime dateTime, String prefix, String suffix, String name, boolean isRandom, int playerID) {
-        prepareCallable("INSERT INTO `dyn_npc_production` (`ID`,`npcUID`, `itemBaseID`,`dateToUpgrade`, `isRandom`, `prefix`, `suffix`, `name`,`playerID`) VALUES (?,?,?,?,?,?,?,?,?)");
-        setLong(1, ID);
-        setLong(2, npcUID);
-        setLong(3, itemBaseID);
-        setTimeStamp(4, dateTime.getMillis());
-        setBoolean(5, isRandom);
-        setString(6, prefix);
-        setString(7, suffix);
-        setString(8, name);
-        setInt(9, playerID);
-        return (executeUpdate() > 0);
+
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO `dyn_npc_production` (`ID`,`npcUID`, `itemBaseID`,`dateToUpgrade`, `isRandom`, `prefix`, `suffix`, `name`,`playerID`) VALUES (?,?,?,?,?,?,?,?,?)")) {
+
+            preparedStatement.setLong(1, ID);
+            preparedStatement.setLong(2, npcUID);
+            preparedStatement.setLong(3, itemBaseID);
+            preparedStatement.setTimestamp(4, new java.sql.Timestamp(dateTime.getMillis()));
+            preparedStatement.setBoolean(5, isRandom);
+            preparedStatement.setString(6, prefix);
+            preparedStatement.setString(7, suffix);
+            preparedStatement.setString(8, name);
+            preparedStatement.setInt(9, playerID);
+
+            return (preparedStatement.executeUpdate() > 0);
+
+        } catch (SQLException e) {
+            Logger.error(e);
+            return false;
+        }
     }
 
     public boolean REMOVE_FROM_PRODUCTION_LIST(final long ID, final long npcUID) {
-        prepareCallable("DELETE FROM `dyn_npc_production` WHERE `ID`=? AND `npcUID`=?;");
-        setLong(1, ID);
-        setLong(2, npcUID);
-        return (executeUpdate() > 0);
+
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM `dyn_npc_production` WHERE `ID`=? AND `npcUID`=?;")) {
+
+            preparedStatement.setLong(1, ID);
+            preparedStatement.setLong(2, npcUID);
+
+            return (preparedStatement.executeUpdate() > 0);
+
+        } catch (SQLException e) {
+            Logger.error(e);
+            return false;
+        }
     }
 
     public boolean UPDATE_ITEM_TO_INVENTORY(final long ID, final long npcUID) {
-        prepareCallable("UPDATE `dyn_npc_production` SET `inForge`=? WHERE `ID`=? AND `npcUID`=?;");
-        setByte(1, (byte) 0);
-        setLong(2, ID);
-        setLong(3, npcUID);
-        return (executeUpdate() > 0);
+
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `dyn_npc_production` SET `inForge`=? WHERE `ID`=? AND `npcUID`=?;")) {
+
+            preparedStatement.setByte(1, (byte) 0);
+            preparedStatement.setLong(2, ID);
+            preparedStatement.setLong(3, npcUID);
+
+            return (preparedStatement.executeUpdate() > 0);
+
+        } catch (SQLException e) {
+            Logger.error(e);
+            return false;
+        }
     }
 
     public boolean UPDATE_ITEM_PRICE(final long ID, final long npcUID, int value) {
-        prepareCallable("UPDATE `dyn_npc_production` SET `value`=? WHERE `ID`=? AND `npcUID`=?;");
-        setInt(1, value);
-        setLong(2, ID);
-        setLong(3, npcUID);
 
-        return (executeUpdate() > 0);
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `dyn_npc_production` SET `value`=? WHERE `ID`=? AND `npcUID`=?;")) {
+
+            preparedStatement.setInt(1, value);
+            preparedStatement.setLong(2, ID);
+            preparedStatement.setLong(3, npcUID);
+
+            return (preparedStatement.executeUpdate() > 0);
+
+        } catch (SQLException e) {
+            Logger.error(e);
+            return false;
+        }
     }
 
     public boolean UPDATE_ITEM_ID(final long ID, final long npcUID, final long value) {
-        prepareCallable("UPDATE `dyn_npc_production` SET `ID`=? WHERE `ID`=? AND `npcUID`=? LIMIT 1;");
-        setLong(1, value);
-        setLong(2, ID);
-        setLong(3, npcUID);
 
-        return (executeUpdate() > 0);
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `dyn_npc_production` SET `ID`=? WHERE `ID`=? AND `npcUID`=? LIMIT 1;")) {
+
+            preparedStatement.setLong(1, value);
+            preparedStatement.setLong(2, ID);
+            preparedStatement.setLong(3, npcUID);
+
+            return (preparedStatement.executeUpdate() > 0);
+
+        } catch (SQLException e) {
+            Logger.error(e);
+            return false;
+        }
     }
 
     public void LOAD_ALL_ITEMS_TO_PRODUCE(NPC npc) {
@@ -350,60 +394,68 @@ public class dbNPCHandler extends dbHandlerBase {
         if (npc == null)
             return;
 
-        prepareCallable("SELECT * FROM `dyn_npc_production` WHERE `npcUID` = ?");
-        setInt(1, npc.getObjectUUID());
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `dyn_npc_production` WHERE `npcUID` = ?")) {
 
-        try {
-            ResultSet rs = executeQuery();
+            preparedStatement.setInt(1, npc.getObjectUUID());
+            ResultSet rs = preparedStatement.executeQuery();
 
-            //shrines cached in rs for easy cache on creation.
             while (rs.next()) {
                 ProducedItem producedItem = new ProducedItem(rs);
                 npc.forgedItems.add(producedItem);
             }
 
         } catch (SQLException e) {
-            Logger.error(e.getErrorCode() + ' ' + e.getMessage(), e);
-        } finally {
-            closeCallable();
+            Logger.error(e);
         }
     }
 
     public boolean UPDATE_PROFITS(NPC npc, ProfitType profitType, float value) {
-        prepareCallable("UPDATE `dyn_npc_profits` SET `" + profitType.dbField + "` = ? WHERE `npcUID`=?");
-        setFloat(1, value);
-        setInt(2, npc.getObjectUUID());
-        return (executeUpdate() > 0);
+
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `dyn_npc_profits` SET `" + profitType.dbField + "` = ? WHERE `npcUID`=?")) {
+
+            preparedStatement.setFloat(1, value);
+            preparedStatement.setInt(2, npc.getObjectUUID());
+
+            return (preparedStatement.executeUpdate() > 0);
+
+        } catch (SQLException e) {
+            Logger.error(e);
+            return false;
+        }
     }
 
     public void LOAD_NPC_PROFITS() {
 
-        HashMap<Integer, ArrayList<BuildingRegions>> regions;
         NPCProfits npcProfit;
 
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM dyn_npc_profits")) {
 
-        prepareCallable("SELECT * FROM dyn_npc_profits");
-
-        try {
-            ResultSet rs = executeQuery();
+            ResultSet rs = preparedStatement.executeQuery();
 
             while (rs.next()) {
-
-
                 npcProfit = new NPCProfits(rs);
                 NPCProfits.ProfitCache.put(npcProfit.npcUID, npcProfit);
             }
 
         } catch (SQLException e) {
-            Logger.error(": " + e.getErrorCode() + ' ' + e.getMessage(), e);
-        } finally {
-            closeCallable();
+            Logger.error(e);
         }
     }
 
     public boolean CREATE_PROFITS(NPC npc) {
-        prepareCallable("INSERT INTO `dyn_npc_profits` (`npcUID`) VALUES (?)");
-        setLong(1, npc.getObjectUUID());
-        return (executeUpdate() > 0);
+
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO `dyn_npc_profits` (`npcUID`) VALUES (?)")) {
+
+            preparedStatement.setLong(1, npc.getObjectUUID());
+            return (preparedStatement.executeUpdate() > 0);
+
+        } catch (SQLException e) {
+            Logger.error(e);
+            return false;
+        }
     }
 }
