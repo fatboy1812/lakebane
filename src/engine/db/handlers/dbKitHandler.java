@@ -9,8 +9,14 @@
 
 package engine.db.handlers;
 
+import engine.gameManager.DbManager;
 import engine.objects.Kit;
+import org.pmw.tinylog.Logger;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class dbKitHandler extends dbHandlerBase {
@@ -21,8 +27,19 @@ public class dbKitHandler extends dbHandlerBase {
 	}
 
 	public ArrayList<Kit> GET_ALL_KITS() {
-		prepareCallable("SELECT * FROM `static_rune_validkit`");
 
-		return getObjectList();
+		ArrayList<Kit> kitList = new ArrayList<>();
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `static_rune_validkit`")) {
+
+			ResultSet rs = preparedStatement.executeQuery();
+			kitList = getObjectsFromRs(rs, 20);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+		}
+
+		return kitList;
 	}
 }
