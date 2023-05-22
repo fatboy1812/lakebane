@@ -542,62 +542,115 @@ public class dbGuildHandler extends dbHandlerBase {
 	//               It's not like this shit ever changes.
 
 	public boolean updateDatabase(final Guild g) {
-		prepareCallable("UPDATE `obj_guild` SET `name`=?, `backgroundColor01`=?, `backgroundColor02`=?, `symbolColor`=?, `backgroundDesign`=?, `symbol`=?, `charter`=?, `motd`=?, `icMotd`=?, `nationMotd`=?, `leaderUID`=? WHERE `UID`=?");
-		setString(1, g.getName());
-		setInt(2, g.getGuildTag().backgroundColor01);
-		setInt(3, g.getGuildTag().backgroundColor02);
-		setInt(4, g.getGuildTag().symbolColor);
-		setInt(5, g.getGuildTag().backgroundDesign);
-		setInt(6, g.getGuildTag().symbol);
-		setInt(7, g.getCharter());
-		setString(8, g.getMOTD());
-		setString(9, g.getICMOTD());
-		setString(10, "");
-		setInt(11, g.getGuildLeaderUUID());
-		setLong(12, (long) g.getObjectUUID());
-		return (executeUpdate() != 0);
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_guild` SET `name`=?, `backgroundColor01`=?, `backgroundColor02`=?, `symbolColor`=?, `backgroundDesign`=?, `symbol`=?, `charter`=?, `motd`=?, `icMotd`=?, `nationMotd`=?, `leaderUID`=? WHERE `UID`=?")) {
+
+			preparedStatement.setString(1, g.getName());
+			preparedStatement.setInt(2, g.getGuildTag().backgroundColor01);
+			preparedStatement.setInt(3, g.getGuildTag().backgroundColor02);
+			preparedStatement.setInt(4, g.getGuildTag().symbolColor);
+			preparedStatement.setInt(5, g.getGuildTag().backgroundDesign);
+			preparedStatement.setInt(6, g.getGuildTag().symbol);
+			preparedStatement.setInt(7, g.getCharter());
+			preparedStatement.setString(8, g.getMOTD());
+			preparedStatement.setString(9, g.getICMOTD());
+			preparedStatement.setString(10, "");
+			preparedStatement.setInt(11, g.getGuildLeaderUUID());
+			preparedStatement.setLong(12, (long) g.getObjectUUID());
+
+			return (preparedStatement.executeUpdate() > 0);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+			return false;
+		}
 	}
+
 	public boolean ADD_TO_ALLIANCE_LIST(final long sourceGuildID, final long targetGuildID, boolean isRecommended, boolean isAlly, String recommender) {
-		prepareCallable("INSERT INTO `dyn_guild_allianceenemylist` (`GuildID`, `OtherGuildID`,`isRecommended`, `isAlliance`, `recommender`) VALUES (?,?,?,?,?)");
-		setLong(1, sourceGuildID);
-		setLong(2, targetGuildID);
-		setBoolean(3, isRecommended);
-		setBoolean(4, isAlly);
-		setString(5, recommender);
-		return (executeUpdate() > 0);
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO `dyn_guild_allianceenemylist` (`GuildID`, `OtherGuildID`,`isRecommended`, `isAlliance`, `recommender`) VALUES (?,?,?,?,?)")) {
+
+			preparedStatement.setLong(1, sourceGuildID);
+			preparedStatement.setLong(2, targetGuildID);
+			preparedStatement.setBoolean(3, isRecommended);
+			preparedStatement.setBoolean(4, isAlly);
+			preparedStatement.setString(5, recommender);
+
+			return (preparedStatement.executeUpdate() > 0);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+			return false;
+		}
 	}
 
 	public boolean REMOVE_FROM_ALLIANCE_LIST(final long sourceGuildID, long targetGuildID) {
-		prepareCallable("DELETE FROM `dyn_guild_allianceenemylist` WHERE `GuildID`=? AND `OtherGuildID`=?");
-		setLong(1, sourceGuildID);
-		setLong(2, targetGuildID);
-		return (executeUpdate() > 0);
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM `dyn_guild_allianceenemylist` WHERE `GuildID`=? AND `OtherGuildID`=?")) {
+
+			preparedStatement.setLong(1, sourceGuildID);
+			preparedStatement.setLong(2, targetGuildID);
+
+			return (preparedStatement.executeUpdate() > 0);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+			return false;
+		}
 	}
 
 	public boolean UPDATE_RECOMMENDED(final long sourceGuildID, long targetGuildID) {
-		prepareCallable("UPDATE `dyn_guild_allianceenemylist` SET `isRecommended` = ? WHERE `GuildID`=? AND `OtherGuildID`=?");
-		setByte(1,(byte)0);
-		setLong(2, sourceGuildID);
-		setLong(3, targetGuildID);
-		return (executeUpdate() > 0);
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `dyn_guild_allianceenemylist` SET `isRecommended` = ? WHERE `GuildID`=? AND `OtherGuildID`=?")) {
+
+			preparedStatement.setLong(1, sourceGuildID);
+			preparedStatement.setLong(2, targetGuildID);
+
+			return (preparedStatement.executeUpdate() > 0);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+			return false;
+		}
 	}
 
 	public boolean UPDATE_ALLIANCE(final long sourceGuildID, long targetGuildID, boolean isAlly) {
-		prepareCallable("UPDATE `dyn_guild_allianceenemylist` SET `isAlliance` = ? WHERE `GuildID`=? AND `OtherGuildID`=?");
-		setBoolean(1,isAlly);
-		setLong(2, sourceGuildID);
-		setLong(3, targetGuildID);
-		return (executeUpdate() > 0);
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `dyn_guild_allianceenemylist` SET `isAlliance` = ? WHERE `GuildID`=? AND `OtherGuildID`=?")) {
+
+			preparedStatement.setLong(1, sourceGuildID);
+			preparedStatement.setLong(2, targetGuildID);
+
+			return (preparedStatement.executeUpdate() > 0);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+			return false;
+		}
 	}
 
 	public boolean UPDATE_ALLIANCE_AND_RECOMMENDED(final long sourceGuildID, long targetGuildID, boolean isAlly) {
-		prepareCallable("UPDATE `dyn_guild_allianceenemylist` SET `isRecommended` = ?, `isAlliance` = ? WHERE `GuildID`=? AND `OtherGuildID`=?");
-		setByte(1,(byte)0);
-		setBoolean(2,isAlly);
-		setLong(3, sourceGuildID);
-		setLong(4, targetGuildID);
 
-		return (executeUpdate() > 0);
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `dyn_guild_allianceenemylist` SET `isRecommended` = ?, `isAlliance` = ? WHERE `GuildID`=? AND `OtherGuildID`=?")) {
+
+			preparedStatement.setByte(1, (byte) 0);
+			preparedStatement.setBoolean(2, isAlly);
+			preparedStatement.setLong(3, sourceGuildID);
+			preparedStatement.setLong(4, targetGuildID);
+
+			return (preparedStatement.executeUpdate() > 0);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+			return false;
+		}
+
 	}
 
 	public void LOAD_ALL_ALLIANCES_FOR_GUILD(Guild guild) {
@@ -605,54 +658,45 @@ public class dbGuildHandler extends dbHandlerBase {
 		if (guild == null)
 			return;
 
-		prepareCallable("SELECT * FROM `dyn_guild_allianceenemylist` WHERE `GuildID` = ?");
-		setInt(1,guild.getObjectUUID());
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `dyn_guild_allianceenemylist` WHERE `GuildID` = ?")) {
 
-		try {
-			ResultSet rs = executeQuery();
+			preparedStatement.setInt(1, guild.getObjectUUID());
+			ResultSet rs = preparedStatement.executeQuery();
 
-			//shrines cached in rs for easy cache on creation.
 			while (rs.next()) {
 				GuildAlliances guildAlliance = new GuildAlliances(rs);
 				guild.guildAlliances.put(guildAlliance.getAllianceGuild(), guildAlliance);
 			}
 
-
 		} catch (SQLException e) {
-			Logger.error( e.getMessage());
-		} finally {
-			closeCallable();
+			Logger.error(e);
 		}
-
 	}
 
-	public void LOAD_GUILD_HISTORY_FOR_PLAYER(PlayerCharacter pc) {
+	public static void LOAD_GUILD_HISTORY_FOR_PLAYER(PlayerCharacter playerCharacter) {
 
-		if (pc == null)
+		if (playerCharacter == null)
 			return;
 
-		prepareCallable("SELECT * FROM `dyn_character_guildhistory` WHERE `CharacterID` = ?");
-		setInt(1,pc.getObjectUUID());
+		ArrayList<GuildHistory> guildList = new ArrayList<>();
 
-		try {
-			ArrayList<GuildHistory> tempList = new ArrayList<>();
-			ResultSet rs = executeQuery();
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `dyn_guild_allianceenemylist` WHERE `GuildID` = ?")) {
 
-			//shrines cached in rs for easy cache on creation.
+			preparedStatement.setInt(1, playerCharacter.getObjectUUID());
+			ResultSet rs = preparedStatement.executeQuery();
+
 			while (rs.next()) {
-				GuildHistory guildHistory = new GuildHistory(rs);
-				tempList.add(guildHistory);
+				GuildHistory guildEntry = new GuildHistory(rs);
+				guildList.add(guildEntry);
 			}
 
-			pc.setGuildHistory(tempList);
-
-
 		} catch (SQLException e) {
-			Logger.error(e.getMessage());
-		} finally {
-			closeCallable();
+			Logger.error(e);
 		}
 
+		playerCharacter.setGuildHistory(guildList);
 	}
 	
 	//TODO uncomment this when finished with guild history warehouse integration
