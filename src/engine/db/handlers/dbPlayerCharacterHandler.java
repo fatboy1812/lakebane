@@ -177,224 +177,397 @@ public class dbPlayerCharacterHandler extends dbHandlerBase {
 		if (objectUUID == 0)
 			return null;
 
-		PlayerCharacter pc = (PlayerCharacter) DbManager.getFromCache(Enum.GameObjectType.PlayerCharacter, objectUUID);
-		if (pc != null)
-			return pc;
-		prepareCallable("SELECT `obj_character`.*, `object`.`parent` FROM `object` INNER JOIN `obj_character` ON `obj_character`.`UID` = `object`.`UID` WHERE `object`.`UID` = ?");
-		setLong(1, (long) objectUUID);
-		return (PlayerCharacter) getObjectSingle(objectUUID);
+		PlayerCharacter playerCharacter = (PlayerCharacter) DbManager.getFromCache(Enum.GameObjectType.PlayerCharacter, objectUUID);
+
+		if (playerCharacter != null)
+			return playerCharacter;
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT `obj_character`.*, `object`.`parent` FROM `object` INNER JOIN `obj_character` ON `obj_character`.`UID` = `object`.`UID` WHERE `object`.`UID` = ?")) {
+
+			preparedStatement.setLong(1, objectUUID);
+
+			ResultSet rs = preparedStatement.executeQuery();
+			playerCharacter = (PlayerCharacter) getObjectFromRs(rs);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+		}
+		;
+		return playerCharacter;
 	}
 
 	public boolean IS_CHARACTER_NAME_UNIQUE(final String firstName) {
+
 		boolean unique = true;
-		prepareCallable("SELECT `char_firstname` FROM `obj_character` WHERE `char_isActive`=1 && `char_firstname`=?");
-		setString(1, firstName);
-		try {
-			ResultSet rs = executeQuery();
-			if (rs.next()) {
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT `char_firstname` FROM `obj_character` WHERE `char_isActive`=1 && `char_firstname`=?")) {
+
+			preparedStatement.setString(1, firstName);
+
+			ResultSet rs = preparedStatement.executeQuery();
+
+			if (rs.next())
 				unique = false;
-			}
-			rs.close();
+
 		} catch (SQLException e) {
-			Logger.error("SQL Error number: " + e.getMessage());
-			unique = false;
-		} finally {
-			closeCallable();
+			Logger.error(e);
 		}
+
 		return unique;
 	}
 
 	public boolean UPDATE_NAME(String oldFirstName, String newFirstName, String newLastName) {
-		prepareCallable("UPDATE `obj_character` SET `char_firstname`=?, `char_lastname`=? WHERE `char_firstname`=? AND `char_isActive`='1'");
-		setString(1, newFirstName);
-		setString(2, newLastName);
-		setString(3, oldFirstName);
-		return (executeUpdate() != 0);
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_character` SET `char_firstname`=?, `char_lastname`=? WHERE `char_firstname`=? AND `char_isActive`='1'")) {
+
+			preparedStatement.setString(1, newFirstName);
+			preparedStatement.setString(2, newLastName);
+			preparedStatement.setString(3, oldFirstName);
+
+			return (preparedStatement.executeUpdate() > 0);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+			return false;
+		}
+
 	}
 
 	public boolean SET_DELETED(final PlayerCharacter pc) {
-		prepareCallable("UPDATE `obj_character` SET `char_isActive`=? WHERE `UID` = ?");
-		setBoolean(1, !pc.isDeleted());
-		setLong(2, (long) pc.getObjectUUID());
-		return (executeUpdate() != 0);
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_character` SET `char_isActive`=? WHERE `UID` = ?")) {
+
+			preparedStatement.setBoolean(1, !pc.isDeleted());
+			preparedStatement.setLong(2, pc.getObjectUUID());
+
+			return (preparedStatement.executeUpdate() > 0);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+			return false;
+		}
 	}
+
 	public boolean SET_ACTIVE(final PlayerCharacter pc, boolean status) {
-		prepareCallable("UPDATE `obj_character` SET `char_isActive`=? WHERE `UID` = ?");
-		setBoolean(1, status);
-		setLong(2, (long) pc.getObjectUUID());
-		return (executeUpdate() != 0);
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_character` SET `char_isActive`=? WHERE `UID` = ?")) {
+
+			preparedStatement.setBoolean(1, status);
+			preparedStatement.setLong(2, (long) pc.getObjectUUID());
+
+			return (preparedStatement.executeUpdate() > 0);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+			return false;
+		}
 	}
+
 	public boolean SET_BIND_BUILDING(final PlayerCharacter pc, int bindBuildingID) {
-		prepareCallable("UPDATE `obj_character` SET `char_bindBuilding`=? WHERE `UID` = ?");
-		setInt(1, bindBuildingID);
-		setLong(2, (long) pc.getObjectUUID());
-		return (executeUpdate() != 0);
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_character` SET `char_bindBuilding`=? WHERE `UID` = ?")) {
+
+			preparedStatement.setInt(1, bindBuildingID);
+			preparedStatement.setLong(2, (long) pc.getObjectUUID());
+
+			return (preparedStatement.executeUpdate() > 0);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+			return false;
+		}
 	}
 
 	public boolean SET_ANNIVERSERY(final PlayerCharacter pc, boolean flag) {
-		prepareCallable("UPDATE `obj_character` SET `anniversery`=? WHERE `UID` = ?");
-		setBoolean(1, flag);
-		setLong(2, (long) pc.getObjectUUID());
-		return (executeUpdate() != 0);
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_character` SET `anniversery`=? WHERE `UID` = ?")) {
+
+			preparedStatement.setBoolean(1, flag);
+			preparedStatement.setLong(2, (long) pc.getObjectUUID());
+
+			return (preparedStatement.executeUpdate() > 0);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+			return false;
+		}
 	}
 
 
 	public boolean UPDATE_CHARACTER_EXPERIENCE(final PlayerCharacter pc) {
-		prepareCallable("UPDATE `obj_character` SET `char_experience`=? WHERE `UID` = ?");
-		setInt(1, pc.getExp());
-		setLong(2, (long) pc.getObjectUUID());
-		return (executeUpdate() != 0);
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_character` SET `char_experience`=? WHERE `UID` = ?")) {
+
+			preparedStatement.setInt(1, pc.getExp());
+			preparedStatement.setLong(2, (long) pc.getObjectUUID());
+
+			return (preparedStatement.executeUpdate() > 0);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+			return false;
+		}
 	}
 	
 	public boolean UPDATE_GUILD(final PlayerCharacter pc, int guildUUID) {
-		prepareCallable("UPDATE `obj_character` SET `guildUID`=? WHERE `UID` = ?");
-		setInt(1, guildUUID);
-		setLong(2, (long) pc.getObjectUUID());
-		return (executeUpdate() != 0);
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_character` SET `guildUID`=? WHERE `UID` = ?")) {
+
+			preparedStatement.setInt(1, guildUUID);
+			preparedStatement.setLong(2, (long) pc.getObjectUUID());
+
+			return (preparedStatement.executeUpdate() > 0);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+			return false;
+		}
 	}
 
 	public boolean UPDATE_CHARACTER_STATS(final PlayerCharacter pc) {
-		prepareCallable("UPDATE `obj_character` SET `char_strMod`=?, `char_dexMod`=?, `char_conMod`=?, `char_intMod`=?, `char_spiMod`=? WHERE `UID`=?");
-		setInt(1, pc.getStrMod());
-		setInt(2, pc.getDexMod());
-		setInt(3, pc.getConMod());
-		setInt(4, pc.getIntMod());
-		setInt(5, pc.getSpiMod());
-		setLong(6, (long) pc.getObjectUUID());
-		return (executeUpdate() != 0);
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_character` SET `char_strMod`=?, `char_dexMod`=?, `char_conMod`=?, `char_intMod`=?, `char_spiMod`=? WHERE `UID`=?")) {
+
+			preparedStatement.setInt(1, pc.getStrMod());
+			preparedStatement.setInt(2, pc.getDexMod());
+			preparedStatement.setInt(3, pc.getConMod());
+			preparedStatement.setInt(4, pc.getIntMod());
+			preparedStatement.setInt(5, pc.getSpiMod());
+			preparedStatement.setLong(6, (long) pc.getObjectUUID());
+
+			return (preparedStatement.executeUpdate() > 0);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+			return false;
+		}
 	}
 
-	public String SET_PROPERTY(final PlayerCharacter c, String name, Object new_value) {
-		prepareCallable("CALL character_SETPROP(?,?,?)");
-		setLong(1, (long) c.getObjectUUID());
-		setString(2, name);
-		setString(3, String.valueOf(new_value));
-		return getResult();
+	public String SET_PROPERTY(final PlayerCharacter playerCharacter, String name, Object new_value) {
+
+		String result = "";
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("CALL character_SETPROP(?,?,?)")) {
+
+			preparedStatement.setLong(1, playerCharacter.getObjectUUID());
+			preparedStatement.setString(2, name);
+			;
+			preparedStatement.setString(3, String.valueOf(new_value));
+
+			ResultSet rs = preparedStatement.executeQuery();
+			result = rs.getString("result");
+
+		} catch (SQLException e) {
+			Logger.error(e);
+		}
+		return result;
 	}
 
-	public String SET_PROPERTY(final PlayerCharacter c, String name, Object new_value, Object old_value) {
-		prepareCallable("CALL character_GETSETPROP(?,?,?,?)");
-		setLong(1, (long) c.getObjectUUID());
-		setString(2, name);
-		setString(3, String.valueOf(new_value));
-		setString(4, String.valueOf(old_value));
-		return getResult();
-	}
-	
 	public boolean SET_PROMOTION_CLASS(PlayerCharacter player, int promotionClassID) {
-		prepareCallable("UPDATE `obj_character` SET `char_promotionClassID`=?  WHERE `UID`=?;");
-		setInt(1,promotionClassID);
-		setInt(2, player.getObjectUUID());
-		return (executeUpdate() != 0);
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_character` SET `char_promotionClassID`=?  WHERE `UID`=?;")) {
+
+			preparedStatement.setInt(1, promotionClassID);
+			preparedStatement.setInt(2, player.getObjectUUID());
+
+			return (preparedStatement.executeUpdate() > 0);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+			return false;
+		}
 	}
 	
 	public boolean SET_INNERCOUNCIL(PlayerCharacter player, boolean isInnerCouncil) {
-		prepareCallable("UPDATE `obj_character` SET `guild_isInnerCouncil`=?  WHERE `UID`=?;");
-		setBoolean(1,isInnerCouncil);
-		setInt(2, player.getObjectUUID());
-		return (executeUpdate() != 0);
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_character` SET `guild_isInnerCouncil`=?  WHERE `UID`=?;")) {
+
+			preparedStatement.setBoolean(1, isInnerCouncil);
+			preparedStatement.setInt(2, player.getObjectUUID());
+
+			return (preparedStatement.executeUpdate() > 0);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+			return false;
+		}
 	}
 	
 	public boolean SET_FULL_MEMBER(PlayerCharacter player, boolean isFullMember) {
-		prepareCallable("UPDATE `obj_character` SET `guild_isFullMember`=?  WHERE `UID`=?;");
-		setBoolean(1,isFullMember);
-		setInt(2, player.getObjectUUID());
-		return (executeUpdate() != 0);
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_character` SET `guild_isFullMember`=?  WHERE `UID`=?;")) {
+
+			preparedStatement.setBoolean(1, isFullMember);
+			preparedStatement.setInt(2, player.getObjectUUID());
+
+			return (preparedStatement.executeUpdate() > 0);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+			return false;
+		}
 	}
 	
 	public boolean SET_TAX_COLLECTOR(PlayerCharacter player, boolean isTaxCollector) {
-		prepareCallable("UPDATE `obj_character` SET `guild_isTaxCollector`=?  WHERE `UID`=?;");
-		setBoolean(1,isTaxCollector);
-		setInt(2, player.getObjectUUID());
-		return (executeUpdate() != 0);
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_character` SET `guild_isTaxCollector`=?  WHERE `UID`=?;")) {
+
+			preparedStatement.setBoolean(1, isTaxCollector);
+			preparedStatement.setInt(2, player.getObjectUUID());
+
+			return (preparedStatement.executeUpdate() > 0);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+			return false;
+		}
 	}
 	
 	public boolean SET_RECRUITER(PlayerCharacter player, boolean isRecruiter) {
-		prepareCallable("UPDATE `obj_character` SET `guild_isRecruiter`=?  WHERE `UID`=?;");
-		setBoolean(1,isRecruiter);
-		setInt(2, player.getObjectUUID());
-		return (executeUpdate() != 0);
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_character` SET `guild_isRecruiter`=?  WHERE `UID`=?;")) {
+
+			preparedStatement.setBoolean(1, isRecruiter);
+			preparedStatement.setInt(2, player.getObjectUUID());
+
+			return (preparedStatement.executeUpdate() > 0);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+			return false;
+		}
 	}
 	
 	public boolean SET_GUILD_TITLE(PlayerCharacter player, int title) {
-		prepareCallable("UPDATE `obj_character` SET `guild_title`=?  WHERE `UID`=?;");
-		setInt(1,title);
-		setInt(2, player.getObjectUUID());
-		return (executeUpdate() != 0);
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_character` SET `guild_title`=?  WHERE `UID`=?;")) {
+
+			preparedStatement.setInt(1, title);
+			preparedStatement.setInt(2, player.getObjectUUID());
+
+			return (preparedStatement.executeUpdate() > 0);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+			return false;
+		}
+	}
+
+	public boolean ADD_FRIEND(int source, long friend) {
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO `dyn_character_friends` (`playerUID`, `friendUID`) VALUES (?, ?)")) {
+
+			preparedStatement.setLong(1, source);
+			preparedStatement.setLong(2, friend);
+
+			return (preparedStatement.executeUpdate() > 0);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+			return false;
+		}
 	}
 	
-	
-	
-	public boolean ADD_FRIEND(int source, long friend){
-		prepareCallable("INSERT INTO `dyn_character_friends` (`playerUID`, `friendUID`) VALUES (?, ?)");
-		setLong(1, (long) source);
-		setLong(2, (long)friend);
-		return (executeUpdate() != 0);
-	}
-	
-	public boolean REMOVE_FRIEND(int source, int friend){
-		prepareCallable("DELETE FROM `dyn_character_friends` WHERE (`playerUID`=?) AND (`friendUID`=?)");
-		setLong(1, (long) source);
-		setLong(2, (long)friend);
-		return (executeUpdate() != 0);
+	public boolean REMOVE_FRIEND(int source, int friend) {
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM `dyn_character_friends` WHERE (`playerUID`=?) AND (`friendUID`=?)")) {
+
+			preparedStatement.setLong(1, source);
+			preparedStatement.setLong(2, friend);
+
+			return (preparedStatement.executeUpdate() > 0);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+			return false;
+		}
 	}
 	
 	public void LOAD_PLAYER_FRIENDS() {
 
 		PlayerFriends playerFriend;
 
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM dyn_character_friends")) {
 
-		prepareCallable("SELECT * FROM dyn_character_friends");
+			ResultSet rs = preparedStatement.executeQuery();
 
-		try {
-			ResultSet rs = executeQuery();
-
-			while (rs.next()) {
+			while (rs.next())
 				playerFriend = new PlayerFriends(rs);
-			}
-
 
 		} catch (SQLException e) {
-			Logger.error("LoadMeshBounds: " + e.getErrorCode() + ' ' + e.getMessage(), e);
-		} finally {
-			closeCallable();
+			Logger.error(e);
+		}
+
+		prepareCallable("SELECT * FROM dyn_character_friends");
+	}
+	
+	public boolean ADD_HERALDY(int source, AbstractWorldObject character) {
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO `dyn_character_heraldy` (`playerUID`, `characterUID`,`characterType`) VALUES (?, ?,?)")) {
+
+			preparedStatement.setLong(1, source);
+			preparedStatement.setLong(2, character.getObjectUUID());
+			preparedStatement.setInt(3, character.getObjectType().ordinal());
+
+			return (preparedStatement.executeUpdate() > 0);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+			return false;
 		}
 	}
 	
-	public boolean ADD_HERALDY(int source, AbstractWorldObject character){
-		prepareCallable("INSERT INTO `dyn_character_heraldy` (`playerUID`, `characterUID`,`characterType`) VALUES (?, ?,?)");
-		setLong(1, (long) source);
-		setLong(2, (long)character.getObjectUUID());
-		setInt(3, character.getObjectType().ordinal());
-		return (executeUpdate() != 0);
-	}
-	
-	public boolean REMOVE_HERALDY(int source, int characterUID){
-		prepareCallable("DELETE FROM `dyn_character_heraldy` WHERE (`playerUID`=?) AND (`characterUID`=?)");
-		setLong(1, (long) source);
-		setLong(2, (long)characterUID);
-		return (executeUpdate() != 0);
+	public boolean REMOVE_HERALDY(int source, int characterUID) {
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM `dyn_character_heraldy` WHERE (`playerUID`=?) AND (`characterUID`=?)")) {
+
+			preparedStatement.setLong(1, source);
+			preparedStatement.setLong(2, characterUID);
+
+			return (preparedStatement.executeUpdate() > 0);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+			return false;
+		}
 	}
 	
 	public void LOAD_HERALDY() {
 
 		Heraldry heraldy;
 
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM dyn_character_heraldy")) {
 
-		prepareCallable("SELECT * FROM dyn_character_heraldy");
+			ResultSet rs = preparedStatement.executeQuery();
 
-		try {
-			ResultSet rs = executeQuery();
-
-			while (rs.next()) {
+			while (rs.next())
 				heraldy = new Heraldry(rs);
-			}
-
 
 		} catch (SQLException e) {
-			Logger.error("LoadHeraldy: " + e.getErrorCode() + ' ' + e.getMessage(), e);
-		} finally {
-			closeCallable();
+			Logger.error(e);
 		}
 	}
 	
