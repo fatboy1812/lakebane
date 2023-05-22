@@ -93,7 +93,6 @@ public enum DevCmdManager {
 		DevCmdManager.registerDevCmd(new GetBankCmd());
 		DevCmdManager.registerDevCmd(new GetVaultCmd());
 		DevCmdManager.registerDevCmd(new CombatMessageCmd());
-		DevCmdManager.registerDevCmd(new RenameMobCmd());
 		DevCmdManager.registerDevCmd(new RenameCmd());
 		DevCmdManager.registerDevCmd(new CreateItemCmd());
 		DevCmdManager.registerDevCmd(new GetMemoryCmd());

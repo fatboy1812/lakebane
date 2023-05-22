@@ -11,10 +11,15 @@ package engine.db.handlers;
 
 import engine.Enum.GameObjectType;
 import engine.gameManager.DbManager;
-import engine.objects.*;
+import engine.objects.MobBase;
+import engine.objects.MobBaseEffects;
+import engine.objects.MobBaseStats;
+import engine.objects.MobLootBase;
 import engine.server.MBServerStatics;
 import org.pmw.tinylog.Logger;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -27,21 +32,31 @@ public class dbMobBaseHandler extends dbHandlerBase {
 		this.localObjectType = engine.Enum.GameObjectType.valueOf(this.localClass.getSimpleName());
 	}
 
-    public MobBase GET_MOBBASE(int id, boolean forceDB) {
-
+	public MobBase GET_MOBBASE(int id) {
 
 		if (id == 0)
 			return null;
 
 		MobBase mobBase = (MobBase) DbManager.getFromCache(GameObjectType.MobBase, id);
 
-		if ( mobBase != null)
+		if (mobBase != null)
 			return mobBase;
 
-		prepareCallable("SELECT * FROM `static_npc_mobbase` WHERE `ID`=?");
-		setInt(1, id);
-		return (MobBase) getObjectSingle(id, forceDB, true);
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `static_npc_mobbase` WHERE `ID`=?")) {
+
+			preparedStatement.setInt(1, id);
+
+			ResultSet rs = preparedStatement.executeQuery();
+			mobBase = (MobBase) getObjectFromRs(rs);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+		}
+
+		return mobBase;
 	}
+
 
 	public ArrayList<MobBase> GET_ALL_MOBBASES() {
 		prepareCallable("SELECT * FROM `static_npc_mobbase`;");

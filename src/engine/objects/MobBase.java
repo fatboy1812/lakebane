@@ -206,20 +206,8 @@ public class MobBase extends AbstractGameObject {
 		return this.spawnTime;
 	}
 
-	/*
-	 * Database
-	 */
 	public static MobBase getMobBase(int id) {
-		return MobBase.getMobBase(id, false);
-	}
-
-	public static MobBase getMobBase(int id, boolean forceDB) {
-		return DbManager.MobBaseQueries.GET_MOBBASE(id, forceDB);
-	}
-
-
-	public static boolean renameMobBase(int ID, String newName) {
-		return DbManager.MobBaseQueries.RENAME_MOBBASE(ID, newName);
+		return DbManager.MobBaseQueries.GET_MOBBASE(id);
 	}
 
 	@Override
