@@ -18,6 +18,8 @@ import engine.objects.PlayerFriends;
 import engine.server.MBServerStatics;
 import org.pmw.tinylog.Logger;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -31,60 +33,106 @@ public class dbPlayerCharacterHandler extends dbHandlerBase {
 	}
 
 	public PlayerCharacter ADD_PLAYER_CHARACTER(final PlayerCharacter toAdd) {
-		if (toAdd.getAccount() == null) {
-			return null;
-		}
-		prepareCallable("CALL `character_CREATE`(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
-		setLong(1, toAdd.getAccount().getObjectUUID());
-		setString(2, toAdd.getFirstName());
-		setString(3, toAdd.getLastName());
-		setInt(4, toAdd.getRace().getRaceRuneID());
-		setInt(5, toAdd.getBaseClass().getObjectUUID());
-		setInt(6, toAdd.getStrMod());
-		setInt(7, toAdd.getDexMod());
-		setInt(8, toAdd.getConMod());
-		setInt(9, toAdd.getIntMod());
-		setInt(10, toAdd.getSpiMod());
-		setInt(11, toAdd.getExp());
-		setInt(12, toAdd.getSkinColor());
-		setInt(13, toAdd.getHairColor());
-		setByte(14, toAdd.getHairStyle());
-		setInt(15, toAdd.getBeardColor());
-		setByte(16, toAdd.getBeardStyle());
 
-		int objectUUID = (int) getUUID();
-		if (objectUUID > 0) {
-			return GET_PLAYER_CHARACTER(objectUUID);
+		PlayerCharacter playerCharacter = null;
+
+		if (toAdd.getAccount() == null)
+			return null;
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("CALL `character_CREATE`(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);")) {
+
+			preparedStatement.setLong(1, toAdd.getAccount().getObjectUUID());
+			preparedStatement.setString(2, toAdd.getFirstName());
+			preparedStatement.setString(3, toAdd.getLastName());
+			preparedStatement.setInt(4, toAdd.getRace().getRaceRuneID());
+			preparedStatement.setInt(5, toAdd.getBaseClass().getObjectUUID());
+			preparedStatement.setInt(6, toAdd.getStrMod());
+			preparedStatement.setInt(7, toAdd.getDexMod());
+			preparedStatement.setInt(8, toAdd.getConMod());
+			preparedStatement.setInt(9, toAdd.getIntMod());
+			preparedStatement.setInt(10, toAdd.getSpiMod());
+			preparedStatement.setInt(11, toAdd.getExp());
+			preparedStatement.setInt(12, toAdd.getSkinColor());
+			preparedStatement.setInt(13, toAdd.getHairColor());
+			preparedStatement.setByte(14, toAdd.getHairStyle());
+			preparedStatement.setInt(15, toAdd.getBeardColor());
+			preparedStatement.setByte(16, toAdd.getBeardStyle());
+
+			ResultSet rs = preparedStatement.executeQuery();
+
+			int objectUUID = (int) rs.getLong("UID");
+
+			if (objectUUID > 0)
+				playerCharacter = GET_PLAYER_CHARACTER(objectUUID);
+
+		} catch (SQLException e) {
+			Logger.error(e);
 		}
-		return null;
+
+		return playerCharacter;
 	}
 
 	public boolean SET_IGNORE_LIST(int sourceID, int targetID, boolean toIgnore, String charName) {
-		if (toIgnore) {
-			//Add to ignore list
-			prepareCallable("INSERT INTO `dyn_character_ignore` (`accountUID`, `ignoringUID`, `characterName`) VALUES (?, ?, ?)");
-			setLong(1, (long) sourceID);
-			setLong(2, (long) targetID);
-			setString(3, charName);
-			return (executeUpdate() > 0);
-		} else {
-			//delete from ignore list
-			prepareCallable("DELETE FROM `dyn_character_ignore` WHERE `accountUID` = ? && `ignoringUID` = ?");
-			setLong(1, (long) sourceID);
-			setLong(2, (long) targetID);
-			return (executeUpdate() > 0);
+
+		String queryString = "";
+
+		if (toIgnore)
+			queryString = "INSERT INTO `dyn_character_ignore` (`accountUID`, `ignoringUID`, `characterName`) VALUES (?, ?, ?)";
+		else
+			queryString = "DELETE FROM `dyn_character_ignore` WHERE `accountUID` = ? && `ignoringUID` = ?";
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+
+			preparedStatement.setLong(1, sourceID);
+			preparedStatement.setLong(2, targetID);
+
+			if (toIgnore)
+				preparedStatement.setString(3, charName);
+
+			return (preparedStatement.executeUpdate() > 0);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+			return false;
 		}
+
 	}
 
 	public ArrayList<PlayerCharacter> GET_CHARACTERS_FOR_ACCOUNT(final int id) {
-		prepareCallable("SELECT `obj_character`.*, `object`.`parent` FROM `object` INNER JOIN `obj_character` ON `obj_character`.`UID` = `object`.`UID` WHERE `object`.`parent`=? && `obj_character`.`char_isActive`='1';");
-		setLong(1, (long) id);
-		return getObjectList();
+
+		ArrayList<PlayerCharacter> characterList = new ArrayList<>();
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT `obj_character`.*, `object`.`parent` FROM `object` INNER JOIN `obj_character` ON `obj_character`.`UID` = `object`.`UID` WHERE `object`.`parent`=? && `obj_character`.`char_isActive`='1';")) {
+
+			preparedStatement.setLong(1, (long) id);
+			ResultSet rs = preparedStatement.executeQuery();
+			characterList = getObjectsFromRs(rs, 10);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+		}
+
+		return characterList;
 	}
 
 	public ArrayList<PlayerCharacter> GET_ALL_CHARACTERS() {
-		prepareCallable("SELECT `obj_character`.*, `object`.`parent` FROM `object` INNER JOIN `obj_character` ON `obj_character`.`UID` = `object`.`UID` WHERE `obj_character`.`char_isActive`='1';");
-		return getObjectList();
+
+		ArrayList<PlayerCharacter> characterList = new ArrayList<>();
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT `obj_character`.*, `object`.`parent` FROM `object` INNER JOIN `obj_character` ON `obj_character`.`UID` = `object`.`UID` WHERE `obj_character`.`char_isActive`='1';")) {
+
+			ResultSet rs = preparedStatement.executeQuery();
+			characterList = getObjectsFromRs(rs, 2000);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+		}
+
+		return characterList;
 	}
 
 	/**
@@ -97,27 +145,31 @@ public class dbPlayerCharacterHandler extends dbHandlerBase {
 	 */
 
 	public ConcurrentHashMap<Integer, String> GET_IGNORE_LIST(final int objectUUID, final boolean skipActiveCheck) {
-		ConcurrentHashMap<Integer, String> out = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_LOW);
-		prepareCallable("SELECT * FROM `dyn_character_ignore` WHERE `accountUID` = ?;");
-		setLong(1, (long) objectUUID);
-		try {
-			ResultSet rs = executeQuery();
+
+		ConcurrentHashMap<Integer, String> ignoreList = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_LOW);
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `dyn_character_ignore` WHERE `accountUID` = ?;")) {
+
+			preparedStatement.setLong(1, objectUUID);
+
+			ResultSet rs = preparedStatement.executeQuery();
+
 			while (rs.next()) {
 				int ignoreCharacterID = rs.getInt("ignoringUID");
-				if (ignoreCharacterID == 0) {
+
+				if (ignoreCharacterID == 0)
 					continue;
-				}
+
 				String name = rs.getString("characterName");
-				out.put(ignoreCharacterID, name);
+				ignoreList.put(ignoreCharacterID, name);
 			}
-			rs.close();
+
 		} catch (SQLException e) {
-			Logger.error("SQL Error number: " + e.getErrorCode());
-			return out; // null to explicitly indicate a problem and prevent data loss
-		} finally {
-			closeCallable();
+			Logger.error(e);
 		}
-		return out;
+
+		return ignoreList;
 	}
 
 	public PlayerCharacter GET_PLAYER_CHARACTER(final int objectUUID) {
