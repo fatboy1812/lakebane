@@ -9,9 +9,12 @@
 
 package engine.db.handlers;
 
+import engine.gameManager.DbManager;
 import engine.objects.Race;
 import org.pmw.tinylog.Logger;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashSet;
@@ -23,33 +26,110 @@ public class dbRaceHandler extends dbHandlerBase {
     }
 
     public HashSet<Integer> BEARD_COLORS_FOR_RACE(final int id) {
-        prepareCallable("SELECT `color` FROM `static_rune_racebeardcolor` WHERE `RaceID` = ?");
-        setInt(1, id);
-        return getIntegerList(1);
+
+        HashSet<Integer> integerSet = new HashSet<>();
+
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT `color` FROM `static_rune_racebeardcolor` WHERE `RaceID` = ?")) {
+
+            preparedStatement.setInt(1, id);
+
+            ResultSet rs = preparedStatement.executeQuery();
+
+            while (rs.next())
+                integerSet.add(rs.getInt(1));
+
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
+
+        return integerSet;
     }
 
     public HashSet<Integer> BEARD_STYLES_FOR_RACE(final int id) {
-        prepareCallable("SELECT `beardStyle` FROM `static_rune_racebeardstyle` WHERE `RaceID` = ?");
-        setInt(1, id);
-        return getIntegerList(1);
+
+        HashSet<Integer> integerSet = new HashSet<>();
+
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT `beardStyle` FROM `static_rune_racebeardstyle` WHERE `RaceID` = ?")) {
+
+            preparedStatement.setInt(1, id);
+
+            ResultSet rs = preparedStatement.executeQuery();
+
+            while (rs.next())
+                integerSet.add(rs.getInt(1));
+
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
+
+        return integerSet;
     }
 
     public HashSet<Integer> HAIR_COLORS_FOR_RACE(final int id) {
-        prepareCallable("SELECT `color` FROM `static_rune_racehaircolor` WHERE `RaceID` = ?");
-        setInt(1, id);
-        return getIntegerList(1);
+
+        HashSet<Integer> integerSet = new HashSet<>();
+
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT `color` FROM `static_rune_racehaircolor` WHERE `RaceID` = ?")) {
+
+            preparedStatement.setInt(1, id);
+
+            ResultSet rs = preparedStatement.executeQuery();
+
+            while (rs.next())
+                integerSet.add(rs.getInt(1));
+
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
+
+        return integerSet;
+
     }
 
     public HashSet<Integer> HAIR_STYLES_FOR_RACE(final int id) {
-        prepareCallable("SELECT `hairStyle` FROM `static_rune_racehairstyle` WHERE `RaceID` = ?");
-        setInt(1, id);
-        return getIntegerList(1);
+
+        HashSet<Integer> integerSet = new HashSet<>();
+
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT `hairStyle` FROM `static_rune_racehairstyle` WHERE `RaceID` = ?")) {
+
+            preparedStatement.setInt(1, id);
+
+            ResultSet rs = preparedStatement.executeQuery();
+
+            while (rs.next())
+                integerSet.add(rs.getInt(1));
+
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
+
+        return integerSet;
+
     }
 
     public HashSet<Integer> SKIN_COLOR_FOR_RACE(final int id) {
-        prepareCallable("SELECT `color` FROM `static_rune_raceskincolor` WHERE `RaceID` = ?");
-        setInt(1, id);
-        return getIntegerList(1);
+
+        HashSet<Integer> integerSet = new HashSet<>();
+
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT `color` FROM `static_rune_raceskincolor` WHERE `RaceID` = ?")) {
+
+            preparedStatement.setInt(1, id);
+
+            ResultSet rs = preparedStatement.executeQuery();
+
+            while (rs.next())
+                integerSet.add(rs.getInt(1));
+
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
+
+        return integerSet;
     }
 
     public ConcurrentHashMap<Integer, Race> LOAD_ALL_RACES() {
@@ -60,10 +140,10 @@ public class dbRaceHandler extends dbHandlerBase {
         races = new ConcurrentHashMap<>();
         int recordsRead = 0;
 
-        prepareCallable("SELECT * FROM static_rune_race");
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM static_rune_race")) {
 
-        try {
-            ResultSet rs = executeQuery();
+            ResultSet rs = preparedStatement.executeQuery();
 
             while (rs.next()) {
 
@@ -73,13 +153,11 @@ public class dbRaceHandler extends dbHandlerBase {
                 races.put(thisRace.getRaceRuneID(), thisRace);
             }
 
-            Logger.info("read: " + recordsRead + " cached: " + races.size());
-
         } catch (SQLException e) {
-            Logger.error( e.toString());
-        } finally {
-            closeCallable();
+            Logger.error(e);
         }
+
+        Logger.info("read: " + recordsRead + " cached: " + races.size());
         return races;
     }
 }
