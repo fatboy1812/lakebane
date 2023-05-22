@@ -15,6 +15,8 @@ import engine.objects.Building;
 import engine.objects.Portal;
 import org.pmw.tinylog.Logger;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -29,17 +31,18 @@ public class dbRunegateHandler extends dbHandlerBase {
 
         ArrayList<Integer> gateList = new ArrayList<>();
 
-        prepareCallable("SELECT DISTINCT `sourceBuilding` FROM `static_runegate_portals`;");
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT DISTINCT `sourceBuilding` FROM `static_runegate_portals`;")) {
 
-        try {
-            ResultSet rs = executeQuery();
-            while (rs.next()) {
+            ResultSet rs = preparedStatement.executeQuery();
+
+            while (rs.next())
                 gateList.add(rs.getInt("sourceBuilding"));
-            }
+
         } catch (SQLException e) {
-        } finally {
-            closeCallable();
+            Logger.error(e);
         }
+
         return gateList;
     }
 
@@ -48,11 +51,12 @@ public class dbRunegateHandler extends dbHandlerBase {
         ArrayList<Portal> portalList = new ArrayList<>();
         Building sourceBuilding = (Building) DbManager.getObject(Enum.GameObjectType.Building, gateUID);
 
-        prepareCallable("SELECT * FROM `static_runegate_portals` WHERE `sourceBuilding` = ?;");
-        setInt(1, gateUID);
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `static_runegate_portals` WHERE `sourceBuilding` = ?;")) {
 
-        try {
-            ResultSet rs = executeQuery();
+            preparedStatement.setInt(1, gateUID);
+
+            ResultSet rs = preparedStatement.executeQuery();
 
             while (rs.next()) {
                 int targetBuildingID = rs.getInt("targetBuilding");
@@ -63,9 +67,7 @@ public class dbRunegateHandler extends dbHandlerBase {
             }
 
         } catch (SQLException e) {
-            Logger.error("Exception while loading runegate portals: " + e);
-        } finally {
-            closeCallable();
+            Logger.error(e);
         }
         return portalList;
     }
