@@ -55,7 +55,6 @@ public class dbRuneBaseEffectHandler extends dbHandlerBase {
 		try (Connection connection = DbManager.getConnection();
 			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `static_rune_baseeffect`;")) {
 
-
 			ResultSet rs = preparedStatement.executeQuery();
 			runeBaseEffectsList = getObjectsFromRs(rs, 250);
 

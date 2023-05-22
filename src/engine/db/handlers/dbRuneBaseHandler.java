@@ -9,14 +9,16 @@
 
 package engine.db.handlers;
 
+import engine.gameManager.DbManager;
 import engine.objects.RuneBase;
 import org.pmw.tinylog.Logger;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 
 public class dbRuneBaseHandler extends dbHandlerBase {
 
@@ -26,66 +28,90 @@ public class dbRuneBaseHandler extends dbHandlerBase {
 	}
 
 	public void GET_RUNE_REQS(final RuneBase rb) {
-		prepareCallable("SELECT * FROM `static_rune_runereq` WHERE `runeID` = ?");
-		setInt(1, rb.getObjectUUID());
-		try {
 
-			ResultSet rs = executeQuery();
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `static_rune_runereq` WHERE `runeID` = ?")) {
+
+			preparedStatement.setInt(1, rb.getObjectUUID());
+
+			ResultSet rs = preparedStatement.executeQuery();
 
 			while (rs.next()) {
 				int type = rs.getInt("type");
 
 				switch (type) {
-				case 1:
-					rb.getRace().put(rs.getInt("requiredRuneID"), rs.getBoolean("isAllowed"));
-					break;
-				case 2:
-					rb.getBaseClass().put(rs.getInt("requiredRuneID"), rs.getBoolean("isAllowed"));
-					break;
-				case 3:
-					rb.getPromotionClass().put(rs.getInt("requiredRuneID"), rs.getBoolean("isAllowed"));
-					break;
-				case 4:
-					rb.getDiscipline().put(rs.getInt("requiredRuneID"), rs.getBoolean("isAllowed"));
-					break;
-				case 5:
-					rb.getOverwrite().add(rs.getInt("requiredRuneID"));
-					break;
-				case 6:
-					rb.setLevelRequired(rs.getInt("requiredRuneID"));
-					break;
+					case 1:
+						rb.getRace().put(rs.getInt("requiredRuneID"), rs.getBoolean("isAllowed"));
+						break;
+					case 2:
+						rb.getBaseClass().put(rs.getInt("requiredRuneID"), rs.getBoolean("isAllowed"));
+						break;
+					case 3:
+						rb.getPromotionClass().put(rs.getInt("requiredRuneID"), rs.getBoolean("isAllowed"));
+						break;
+					case 4:
+						rb.getDiscipline().put(rs.getInt("requiredRuneID"), rs.getBoolean("isAllowed"));
+						break;
+					case 5:
+						rb.getOverwrite().add(rs.getInt("requiredRuneID"));
+						break;
+					case 6:
+						rb.setLevelRequired(rs.getInt("requiredRuneID"));
+						break;
 				}
 			}
-			rs.close();
+
 		} catch (SQLException e) {
-			Logger.error("SQL Error number: " + e.getErrorCode());
-		} finally {
-			closeCallable();
+			Logger.error(e);
 		}
+
 	}
 
 	public RuneBase GET_RUNEBASE(final int id) {
-		prepareCallable("SELECT * FROM `static_rune_runebase` WHERE `ID` = ?");
-		setInt(1, id);
-		return (RuneBase) getObjectSingle(id);
+
+		RuneBase runeBase = null;
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `static_rune_runebase` WHERE `ID` = ?")) {
+
+			preparedStatement.setInt(1, id);
+
+			ResultSet rs = preparedStatement.executeQuery();
+			runeBase = (RuneBase) getObjectFromRs(rs);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+		}
+		return runeBase;
 	}
 
 	public ArrayList<RuneBase> LOAD_ALL_RUNEBASES() {
-		prepareCallable("SELECT * FROM `static_rune_runebase`;");
-		return  getObjectList();
+
+		ArrayList<RuneBase> runeBasesList = new ArrayList<>();
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `static_rune_runebase`;")) {
+
+			ResultSet rs = preparedStatement.executeQuery();
+			runeBasesList = getObjectsFromRs(rs, 1000);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+		}
+
+		return runeBasesList;
 	}
 
 	public HashMap<Integer, ArrayList<Integer>> LOAD_ALLOWED_STARTING_RUNES_FOR_BASECLASS() {
 
-		HashMap<Integer, ArrayList<Integer>> runeSets;
+		HashMap<Integer, ArrayList<Integer>> runeSets = new HashMap<>();
 
-		runeSets = new HashMap<>();
 		int recordsRead = 0;
 
-		prepareCallable("SELECT * FROM static_rune_baseclassrune");
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM static_rune_baseclassrune")) {
 
-		try {
-			ResultSet rs = executeQuery();
+			ResultSet rs = preparedStatement.executeQuery();
 
 			while (rs.next()) {
 
@@ -94,25 +120,23 @@ public class dbRuneBaseHandler extends dbHandlerBase {
 				int baseClassID = rs.getInt("BaseClassesID");
 				int runeBaseID = rs.getInt("RuneBaseID");
 
-				if (runeSets.get(baseClassID) == null){
+				if (runeSets.get(baseClassID) == null) {
 					ArrayList<Integer> runeList = new ArrayList<>();
 					runeList.add(runeBaseID);
 					runeSets.put(baseClassID, runeList);
-				}
-				else{
-					ArrayList<Integer>runeList = runeSets.get(baseClassID);
+				} else {
+					ArrayList<Integer> runeList = runeSets.get(baseClassID);
 					runeList.add(runeBaseID);
 					runeSets.put(baseClassID, runeList);
 				}
 			}
 
-			Logger.info("read: " + recordsRead + " cached: " + runeSets.size());
-
 		} catch (SQLException e) {
-			Logger.error(e.getErrorCode() + ' ' + e.getMessage(), e);
-		} finally {
-			closeCallable();
+			Logger.error(e);
 		}
+
+		Logger.info("read: " + recordsRead + " cached: " + runeSets.size());
+
 		return runeSets;
 	}
 
@@ -123,10 +147,10 @@ public class dbRuneBaseHandler extends dbHandlerBase {
 		runeSets = new HashMap<>();
 		int recordsRead = 0;
 
-		prepareCallable("SELECT * FROM static_rune_racerune");
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM static_rune_racerune")) {
 
-		try {
-			ResultSet rs = executeQuery();
+			ResultSet rs = preparedStatement.executeQuery();
 
 			while (rs.next()) {
 
@@ -135,39 +159,21 @@ public class dbRuneBaseHandler extends dbHandlerBase {
 				int raceID = rs.getInt("RaceID");
 				int runeBaseID = rs.getInt("RuneBaseID");
 
-				if (runeSets.get(raceID) == null){
+				if (runeSets.get(raceID) == null) {
 					ArrayList<Integer> runeList = new ArrayList<>();
 					runeList.add(runeBaseID);
 					runeSets.put(raceID, runeList);
-				}
-				else{
-					ArrayList<Integer>runeList = runeSets.get(raceID);
+				} else {
+					ArrayList<Integer> runeList = runeSets.get(raceID);
 					runeList.add(runeBaseID);
 					runeSets.put(raceID, runeList);
 				}
 			}
-
-			Logger.info( "read: " + recordsRead + " cached: " + runeSets.size());
-
 		} catch (SQLException e) {
-			Logger.error(e.getErrorCode() + ' ' + e.getMessage(), e);
-		} finally {
-			closeCallable();
+			Logger.error(e);
 		}
+
+		Logger.info("read: " + recordsRead + " cached: " + runeSets.size());
 		return runeSets;
-	}
-
-	public ArrayList<RuneBase> GET_RUNEBASE_FOR_BASECLASS(final int id) {
-		prepareCallable("SELECT rb.* FROM static_rune_baseclassrune bcr, static_rune_runebase rb WHERE bcr.RuneBaseID = rb.ID "
-				+ "&& ( bcr.BaseClassesID = 111111 || bcr.BaseClassesID = ? )");
-		setInt(1, id);
-		return getObjectList();
-	}
-
-	public HashSet<RuneBase> GET_RUNEBASE_FOR_RACE(final int id) {
-		prepareCallable("SELECT rb.* FROM static_rune_racerune rr, static_rune_runebase rb"
-				+ " WHERE rr.RuneBaseID = rb.ID && ( rr.RaceID = 111111 || rr.RaceID = ?)");
-		setInt(1, id);
-		return new HashSet<>(getObjectList());
 	}
 }
