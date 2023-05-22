@@ -86,83 +86,132 @@ public class dbNPCHandler extends dbHandlerBase {
     }
 
     public ArrayList<NPC> GET_ALL_NPCS_FOR_ZONE(Zone zone) {
-        prepareCallable("SELECT `obj_npc`.*, `object`.`parent` FROM `object` INNER JOIN `obj_npc` ON `obj_npc`.`UID` = `object`.`UID` WHERE `object`.`parent` = ?;");
-        setLong(1, zone.getObjectUUID());
-        return getLargeObjectList();
+
+        ArrayList<NPC> npcList = new ArrayList<>();
+
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT `obj_npc`.*, `object`.`parent` FROM `object` INNER JOIN `obj_npc` ON `obj_npc`.`UID` = `object`.`UID` WHERE `object`.`parent` = ?;")) {
+
+            preparedStatement.setLong(1, zone.getObjectUUID());
+
+            ResultSet rs = preparedStatement.executeQuery();
+            npcList = getObjectsFromRs(rs, 1000);
+
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
+
+        return npcList;
     }
 
     public NPC GET_NPC(final int objectUUID) {
-        prepareCallable("SELECT `obj_npc`.*, `object`.`parent` FROM `object` INNER JOIN `obj_npc` ON `obj_npc`.`UID` = `object`.`UID` WHERE `object`.`UID` = ?;");
-        setLong(1, objectUUID);
-        return (NPC) getObjectSingle(objectUUID);
+
+        NPC npc = null;
+
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT `obj_npc`.*, `object`.`parent` FROM `object` INNER JOIN `obj_npc` ON `obj_npc`.`UID` = `object`.`UID` WHERE `object`.`UID` = ?;")) {
+
+            preparedStatement.setLong(1, objectUUID);
+
+            ResultSet rs = preparedStatement.executeQuery();
+            npc = (NPC) getObjectFromRs(rs);
+
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
+        return npc;
     }
 
     public int MOVE_NPC(long npcID, long parentID, float locX, float locY, float locZ) {
-        prepareCallable("UPDATE `object` INNER JOIN `obj_npc` On `object`.`UID` = `obj_npc`.`UID` SET `object`.`parent`=?, `obj_npc`.`npc_spawnX`=?, `obj_npc`.`npc_spawnY`=?, `obj_npc`.`npc_spawnZ`=? WHERE `obj_npc`.`UID`=?;");
-        setLong(1, parentID);
-        setFloat(2, locX);
-        setFloat(3, locY);
-        setFloat(4, locZ);
-        setLong(5, npcID);
-        return executeUpdate();
+
+        int rowCount;
+
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `object` INNER JOIN `obj_npc` On `object`.`UID` = `obj_npc`.`UID` SET `object`.`parent`=?, `obj_npc`.`npc_spawnX`=?, `obj_npc`.`npc_spawnY`=?, `obj_npc`.`npc_spawnZ`=? WHERE `obj_npc`.`UID`=?;")) {
+
+            preparedStatement.setLong(1, parentID);
+            preparedStatement.setFloat(2, locX);
+            preparedStatement.setFloat(3, locY);
+            preparedStatement.setFloat(4, locZ);
+            preparedStatement.setLong(5, npcID);
+
+            rowCount = preparedStatement.executeUpdate();
+
+        } catch (SQLException e) {
+            Logger.error(e);
+            return 0;
+        }
+        return rowCount;
     }
 
 
     public String SET_PROPERTY(final NPC n, String name, Object new_value) {
-        prepareCallable("CALL npc_SETPROP(?,?,?)");
-        setLong(1, n.getDBID());
-        setString(2, name);
-        setString(3, String.valueOf(new_value));
-        return getResult();
-    }
 
-    public String SET_PROPERTY(final NPC n, String name, Object new_value, Object old_value) {
-        prepareCallable("CALL npc_GETSETPROP(?,?,?,?)");
-        setLong(1, n.getDBID());
-        setString(2, name);
-        setString(3, String.valueOf(new_value));
-        setString(4, String.valueOf(old_value));
-        return getResult();
+        String result = "";
+
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("CALL npc_SETPROP(?,?,?)")) {
+
+            preparedStatement.setLong(1, n.getDBID());
+            preparedStatement.setString(2, name);
+            preparedStatement.setString(3, String.valueOf(new_value));
+
+            ResultSet rs = preparedStatement.executeQuery();
+            result = rs.getString("result");
+
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
+        return result;
     }
 
     public void updateDatabase(final NPC npc) {
-        prepareCallable("UPDATE obj_npc SET npc_name=?, npc_contractID=?, npc_typeID=?, npc_guildID=?,"
-                + " npc_spawnX=?, npc_spawnY=?, npc_spawnZ=?, npc_level=? ,"
-                + " npc_buyPercent=?, npc_sellPercent=?, npc_buildingID=? WHERE UID = ?");
-        setString(1, npc.getName());
-        setInt(2, (npc.getContract() != null) ? npc.getContract().getObjectUUID() : 0);
-        setInt(3, 0);
-        setInt(4, (npc.getGuild() != null) ? npc.getGuild().getObjectUUID() : 0);
-        setFloat(5, npc.getBindLoc().x);
-        setFloat(6, npc.getBindLoc().y);
-        setFloat(7, npc.getBindLoc().z);
-        setShort(8, npc.getLevel());
-        setFloat(9, npc.getBuyPercent());
-        setFloat(10, npc.getSellPercent());
-        setInt(11, (npc.getBuilding() != null) ? npc.getBuilding().getObjectUUID() : 0);
-        setInt(12, npc.getDBID());
-        executeUpdate();
+
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE obj_npc SET npc_name=?, npc_contractID=?, npc_typeID=?, npc_guildID=?,"
+                     + " npc_spawnX=?, npc_spawnY=?, npc_spawnZ=?, npc_level=? ,"
+                     + " npc_buyPercent=?, npc_sellPercent=?, npc_buildingID=? WHERE UID = ?")) {
+
+            preparedStatement.setString(1, npc.getName());
+            preparedStatement.setInt(2, (npc.getContract() != null) ? npc.getContract().getObjectUUID() : 0);
+            preparedStatement.setInt(3, 0);
+            preparedStatement.setInt(4, (npc.getGuild() != null) ? npc.getGuild().getObjectUUID() : 0);
+            preparedStatement.setFloat(5, npc.getBindLoc().x);
+            preparedStatement.setFloat(6, npc.getBindLoc().y);
+            preparedStatement.setFloat(7, npc.getBindLoc().z);
+            preparedStatement.setShort(8, npc.getLevel());
+            preparedStatement.setFloat(9, npc.getBuyPercent());
+            preparedStatement.setFloat(10, npc.getSellPercent());
+            preparedStatement.setInt(11, (npc.getBuilding() != null) ? npc.getBuilding().getObjectUUID() : 0);
+            preparedStatement.setInt(12, npc.getDBID());
+
+            preparedStatement.executeUpdate();
+
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
     }
 
     public boolean updateUpgradeTime(NPC npc, DateTime upgradeDateTime) {
 
-        try {
-
-            prepareCallable("UPDATE obj_npc SET upgradeDate=? "
-                    + "WHERE UID = ?");
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE obj_npc SET upgradeDate=? "
+                     + "WHERE UID = ?")) {
 
             if (upgradeDateTime == null)
-                setNULL(1, java.sql.Types.DATE);
+                preparedStatement.setNull(1, java.sql.Types.DATE);
             else
-                setTimeStamp(1, upgradeDateTime.getMillis());
+                preparedStatement.setTimestamp(1, new java.sql.Timestamp(upgradeDateTime.getMillis()));
 
-            setInt(2, npc.getObjectUUID());
-            executeUpdate();
-        } catch (Exception e) {
-            Logger.error("UUID: " + npc.getObjectUUID());
-            return false;
+            preparedStatement.setInt(2, npc.getObjectUUID());
+
+            preparedStatement.execute();
+            return true;
+
+        } catch (SQLException e) {
+            Logger.error(e);
         }
-        return true;
+        return false;
     }
 
     public boolean UPDATE_MOBBASE(NPC npc, int mobBaseID) {
