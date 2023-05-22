@@ -112,7 +112,6 @@ public enum DevCmdManager {
 		DevCmdManager.registerDevCmd(new DecachePlayerCmd());
 		DevCmdManager.registerDevCmd(new AuditMobsCmd());
 		DevCmdManager.registerDevCmd(new ChangeNameCmd());
-		DevCmdManager.registerDevCmd(new GuildListCmd());
 		DevCmdManager.registerDevCmd(new SetGuildCmd());
 		DevCmdManager.registerDevCmd(new SetOwnerCmd());
 		DevCmdManager.registerDevCmd(new NetDebugCmd());
