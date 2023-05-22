@@ -40,7 +40,7 @@ public class dbBuildingHandler extends dbHandlerBase {
                                     ProtectionState protectionState, int currentGold, int rank,
                                     DateTime upgradeDate, int blueprintUUID, float w, float rotY) {
 
-        Building toCreate = null;
+        Building building = null;
 
         try (Connection connection = DbManager.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement("CALL `building_CREATE`(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,? ,? ,?, ?);")) {
@@ -72,13 +72,13 @@ public class dbBuildingHandler extends dbHandlerBase {
             int objectUUID = (int) rs.getLong("UID");
 
             if (objectUUID > 0)
-                toCreate = GET_BUILDINGBYUUID(objectUUID);
+                building = GET_BUILDINGBYUUID(objectUUID);
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
 
-        return toCreate;
+        return building;
     }
 
     public boolean DELETE_FROM_DATABASE(final Building b) {
