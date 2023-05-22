@@ -32,10 +32,6 @@ public class DataWarehouse implements Runnable {
 
     public DataWarehouse() {
 
-        Logger.info("Configuring local Database Connection Pool...");
-
-        DbManager.configureConnectionPool();
-
         // If WarehousePush is disabled
         // then early exit
 
@@ -46,7 +42,6 @@ public class DataWarehouse implements Runnable {
 
         Logger.info( "Configuring remote Database Connection Pool...");
         configureRemoteConnectionPool();
-
     }
 
     public static void bootStrap() {
