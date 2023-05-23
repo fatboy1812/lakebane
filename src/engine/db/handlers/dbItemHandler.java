@@ -101,6 +101,7 @@ public class dbItemHandler extends dbHandlerBase {
                 if (objectUUID > 0)
                     return GET_ITEM(objectUUID);
             }
+
         } catch (SQLException e) {
             Logger.error(e);
         }

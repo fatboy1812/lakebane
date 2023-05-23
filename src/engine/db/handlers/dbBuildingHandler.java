@@ -165,8 +165,9 @@ public class dbBuildingHandler extends dbHandlerBase {
             preparedStatement.setString(3, String.valueOf(new_value));
 
             ResultSet rs = preparedStatement.executeQuery();
-            result = rs.getString("result");
 
+            if (rs.next())
+                result = rs.getString("result");
 
         } catch (SQLException e) {
             Logger.error(e);

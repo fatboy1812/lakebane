@@ -62,12 +62,12 @@ public class dbPlayerCharacterHandler extends dbHandlerBase {
             ResultSet rs = preparedStatement.executeQuery();
 
             if (rs.next()) {
-
                 int objectUUID = (int) rs.getLong("UID");
 
                 if (objectUUID > 0)
                     playerCharacter = GET_PLAYER_CHARACTER(objectUUID);
             }
+
         } catch (SQLException e) {
             Logger.error(e);
         }
@@ -362,7 +362,9 @@ public class dbPlayerCharacterHandler extends dbHandlerBase {
             preparedStatement.setString(3, String.valueOf(new_value));
 
             ResultSet rs = preparedStatement.executeQuery();
-            result = rs.getString("result");
+
+            if (rs.next())
+                result = rs.getString("result");
 
         } catch (SQLException e) {
             Logger.error(e);

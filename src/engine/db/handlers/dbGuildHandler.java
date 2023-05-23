@@ -439,6 +439,7 @@ public class dbGuildHandler extends dbHandlerBase {
                 if (objectUUID > 0)
                     guild = GET_GUILD(objectUUID);
             }
+
         } catch (SQLException e) {
             Logger.error(e);
         }

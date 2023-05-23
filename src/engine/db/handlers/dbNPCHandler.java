@@ -62,6 +62,7 @@ public class dbNPCHandler extends dbHandlerBase {
                 if (objectUUID > 0)
                     npc = GET_NPC(objectUUID);
             }
+
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -160,7 +161,9 @@ public class dbNPCHandler extends dbHandlerBase {
             preparedStatement.setString(3, String.valueOf(new_value));
 
             ResultSet rs = preparedStatement.executeQuery();
-            result = rs.getString("result");
+
+            if (rs.next())
+                result = rs.getString("result");
 
         } catch (SQLException e) {
             Logger.error(e);
