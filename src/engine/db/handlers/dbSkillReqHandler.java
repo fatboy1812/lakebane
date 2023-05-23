@@ -9,12 +9,15 @@
 
 package engine.db.handlers;
 
-import engine.objects.PreparedStatementShared;
+import engine.gameManager.DbManager;
 import engine.objects.SkillReq;
 import engine.powers.PowersBase;
 import org.pmw.tinylog.Logger;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -26,36 +29,39 @@ public class dbSkillReqHandler extends dbHandlerBase {
     }
 
     public static ArrayList<PowersBase> getAllPowersBase() {
-        PreparedStatementShared ps = null;
-        ArrayList<PowersBase> out = new ArrayList<>();
-        try {
-            ps = new PreparedStatementShared("SELECT * FROM static_power_powerbase");
-            ResultSet rs = ps.executeQuery();
+
+        ArrayList<PowersBase> powerBaseList = new ArrayList<>();
+
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM static_power_powerbase")) {
+
+            ResultSet rs = preparedStatement.executeQuery();
+
             while (rs.next()) {
                 PowersBase toAdd = new PowersBase(rs);
-                out.add(toAdd);
+                powerBaseList.add(toAdd);
             }
-            rs.close();
-        } catch (Exception e) {
-            Logger.error(e.toString());
-        } finally {
-            ps.release();
+
+        } catch (SQLException e) {
+            Logger.error(e);
         }
-        return out;
+
+        return powerBaseList;
     }
 
     public static void getFailConditions(HashMap<String, PowersBase> powers) {
-        PreparedStatementShared ps = null;
-        try {
-            ps = new PreparedStatementShared("SELECT IDString, type FROM static_power_failcondition where powerOrEffect = 'Power'");
-            ResultSet rs = ps.executeQuery();
-            String type, IDString;
-            PowersBase pb;
+
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT IDString, type FROM static_power_failcondition where powerOrEffect = 'Power'")) {
+
+            ResultSet rs = preparedStatement.executeQuery();
+
             while (rs.next()) {
-                type = rs.getString("type");
-                IDString = rs.getString("IDString");
-                pb = powers.get(IDString);
-                if (pb != null) {
+                String type = rs.getString("type");
+                String IDString = rs.getString("IDString");
+                PowersBase pb = powers.get(IDString);
+
+                if (pb != null)
                     switch (type) {
                         case "CastSpell":
                             pb.cancelOnCastSpell = true;
@@ -64,22 +70,29 @@ public class dbSkillReqHandler extends dbHandlerBase {
                             pb.cancelOnTakeDamage = true;
                             break;
                     }
-                } else {
-                    Logger.error("null power for Grief " + IDString);
-                }
             }
-            rs.close();
-        } catch (Exception e) {
-            Logger.error(e.toString());
-        } finally {
-            ps.release();
+        } catch (SQLException e) {
+            Logger.error(e);
         }
     }
 
     public ArrayList<SkillReq> GET_REQS_FOR_RUNE(final int objectUUID) {
-        prepareCallable("SELECT * FROM `static_skill_skillreq` WHERE `runeID`=?");
-        setInt(1, objectUUID);
-        return getObjectList();
+
+        ArrayList<SkillReq> skillReqsList = new ArrayList<>();
+
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `static_skill_skillreq` WHERE `runeID`=?")) {
+
+            preparedStatement.setInt(1, objectUUID);
+
+            ResultSet rs = preparedStatement.executeQuery();
+            skillReqsList = getObjectsFromRs(rs, 5);
+
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
+
+        return skillReqsList;
     }
 
 }
