@@ -656,7 +656,7 @@ public class dbBuildingHandler extends dbHandlerBase {
             return storedEnum;
 
         try (Connection connection = DbManager.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement("SELECT `type` FROM `object` WHERE `object`.`UID` = n LIMIT 1;")) {
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT `type` FROM `object` WHERE `object`.`UID` = ? LIMIT 1;")) {
 
             preparedStatement.setLong(1, object_UID);
 
@@ -668,7 +668,7 @@ public class dbBuildingHandler extends dbHandlerBase {
             }
 
         } catch (SQLException e) {
-            Logger.error("UID_ENUM Lookup failed for UID: " + object_UID + "type: " + objectType);
+            Logger.error(e);
             return DbObjectType.INVALID;
         }
 
