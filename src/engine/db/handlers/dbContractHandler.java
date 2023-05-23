@@ -39,7 +39,7 @@ public class dbContractHandler extends dbHandlerBase {
 			return null;
 
 		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT `obj_building`.*, `object`.`parent` FROM `object` INNER JOIN `obj_building` ON `obj_building`.`UID` = `object`.`UID` WHERE `object`.`UID` = ?;")) {
+			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `static_npc_contract` WHERE `ID` = ?")) {
 
 			preparedStatement.setInt(1, objectUUID);
 
