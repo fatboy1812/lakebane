@@ -103,8 +103,7 @@ public class dbCSSessionHandler extends dbHandlerBase {
 			ResultSet rs = preparedStatement.executeQuery();
 
 			if (rs.next())
-				css = new CSSession(secKey, DbManager.AccountQueries.GET_ACCOUNT(rs.getInt("accountID")), PlayerCharacter.getPlayerCharacter(rs
-						.getInt("characterID")), getString("machineID"));
+				css = new CSSession(secKey, DbManager.AccountQueries.GET_ACCOUNT(rs.getInt("accountID")), PlayerCharacter.getPlayerCharacter(rs.getInt("characterID")), rs.getString("machineID"));
 
 		} catch (SQLException e) {
 			Logger.error(e);

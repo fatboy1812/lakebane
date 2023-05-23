@@ -69,13 +69,14 @@ public class dbCityHandler extends dbHandlerBase {
             preparedStatement.setFloat(10, W);
             preparedStatement.setTimestamp(11, Timestamp.valueOf(upgradeTime));
 
-            boolean work = execute();
+            boolean work = preparedStatement.execute();
 
             if (work) {
+
                 ResultSet rs = preparedStatement.getResultSet();
-                while (rs.next()) {
+
+                while (rs.next())
                     addObject(objectList, rs);
-                }
                 rs.close();
             } else {
                 Logger.info("City Placement Failed: " + preparedStatement);

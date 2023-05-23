@@ -61,11 +61,11 @@ public class dbBuildingHandler extends dbHandlerBase {
             if (upgradeDate != null)
                 preparedStatement.setTimestamp(13, new java.sql.Timestamp(upgradeDate.getMillis()));
             else
-                setNULL(13, java.sql.Types.DATE);
+                preparedStatement.setNull(13, java.sql.Types.DATE);
 
-            setInt(14, blueprintUUID);
-            setFloat(15, w);
-            setFloat(16, rotY);
+            preparedStatement.setInt(14, blueprintUUID);
+            preparedStatement.setFloat(15, w);
+            preparedStatement.setFloat(16, rotY);
 
             ResultSet rs = preparedStatement.executeQuery();
 
