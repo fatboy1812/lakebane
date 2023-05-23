@@ -408,60 +408,6 @@ public class Zone extends AbstractGameObject {
 		// TODO Auto-generated method stub
 	}
 
-	public Zone findRuinedCityZone(float centerX, float centerY, float centerZ){
-		Bounds cityBounds;
-		cityBounds = Bounds.borrow();
-		Zone RuinedZone = null;
-		cityBounds.setBounds(new Vector2f(centerX, centerZ), new Vector2f(Enum.CityBoundsType.ZONE.extents, Enum.CityBoundsType.ZONE.extents), 0.0f);
-		Zone currentZone = ZoneManager.findSmallestZone(new Vector3fImmutable(centerX, centerY, centerZ));
-		if (currentZone != null)
-			if (this.getObjectUUID() == currentZone.getObjectUUID()){
-
-				if (currentZone.getPlayerCityUUID() != 0){
-					//null player city? skip..
-					if (City.GetCityFromCache(currentZone.getPlayerCityUUID()) == null)
-						RuinedZone = null;
-					else	//no tol? skip...
-						if (City.GetCityFromCache(currentZone.getPlayerCityUUID()).getTOL() == null)
-							RuinedZone = null;
-						else
-							if (City.GetCityFromCache(currentZone.getPlayerCityUUID()).getTOL().getRank() == -1)
-								RuinedZone = currentZone;
-					//Dead tree? skip.
-					cityBounds.release();
-					return RuinedZone;
-				}
-			}
-
-		for (Zone zone : this.getNodes()) {
-
-			if (zone == this)
-				continue;
-
-			if (zone.isContinent() && zone.getPlayerCityUUID() == 0)
-				continue;
-
-			if (zone.getPlayerCityUUID() != 0){
-				//null player city? skip..
-				if (City.GetCityFromCache(zone.getPlayerCityUUID()) == null)
-					continue;
-				//no tol? skip...
-				if (City.GetCityFromCache(zone.getPlayerCityUUID()).getTOL() == null)
-					continue;
-
-				//Dead tree? skip.
-				if (Bounds.collide(zone.bounds, cityBounds, 0.0f)){
-					if (City.GetCityFromCache(zone.getPlayerCityUUID()).getTOL().getRank() == -1){
-						RuinedZone = zone;
-						break;
-					}
-				}
-			}
-		}
-		cityBounds.release();
-		return RuinedZone;
-	}
-
 	public boolean isContinent() {
 
 		if (this.equals(ZoneManager.getSeaFloor()))
