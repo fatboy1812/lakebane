@@ -146,8 +146,8 @@ public class dbBuildingHandler extends dbHandlerBase {
 
         } catch (SQLException e) {
             Logger.error("Building", e);
-            return null;
         }
+
         return building;
     }
 
