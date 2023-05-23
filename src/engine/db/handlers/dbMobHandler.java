@@ -57,11 +57,12 @@ public class dbMobHandler extends dbHandlerBase {
 
             ResultSet rs = preparedStatement.executeQuery();
 
-            int objectUUID = (int) rs.getLong("UID");
+            if (rs.next()) {
+                int objectUUID = (int) rs.getLong("UID");
 
-            if (objectUUID > 0)
-                mobile = GET_MOB(objectUUID);
-
+                if (objectUUID > 0)
+                    mobile = GET_MOB(objectUUID);
+            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

@@ -56,11 +56,12 @@ public class dbNPCHandler extends dbHandlerBase {
 
             ResultSet rs = preparedStatement.executeQuery();
 
-            int objectUUID = (int) rs.getLong("UID");
+            if (rs.next()) {
+                int objectUUID = (int) rs.getLong("UID");
 
-            if (objectUUID > 0)
-                npc = GET_NPC(objectUUID);
-
+                if (objectUUID > 0)
+                    npc = GET_NPC(objectUUID);
+            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

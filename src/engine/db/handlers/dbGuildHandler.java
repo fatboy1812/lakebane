@@ -433,11 +433,12 @@ public class dbGuildHandler extends dbHandlerBase {
 
             ResultSet rs = preparedStatement.executeQuery();
 
-            int objectUUID = (int) rs.getLong("UID");
+            if (rs.next()) {
+                int objectUUID = (int) rs.getLong("UID");
 
-            if (objectUUID > 0)
-                guild = GET_GUILD(objectUUID);
-
+                if (objectUUID > 0)
+                    guild = GET_GUILD(objectUUID);
+            }
         } catch (SQLException e) {
             Logger.error(e);
         }

@@ -61,11 +61,13 @@ public class dbPlayerCharacterHandler extends dbHandlerBase {
 
             ResultSet rs = preparedStatement.executeQuery();
 
-            int objectUUID = (int) rs.getLong("UID");
+            if (rs.next()) {
 
-            if (objectUUID > 0)
-                playerCharacter = GET_PLAYER_CHARACTER(objectUUID);
+                int objectUUID = (int) rs.getLong("UID");
 
+                if (objectUUID > 0)
+                    playerCharacter = GET_PLAYER_CHARACTER(objectUUID);
+            }
         } catch (SQLException e) {
             Logger.error(e);
         }

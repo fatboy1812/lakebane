@@ -95,11 +95,12 @@ public class dbItemHandler extends dbHandlerBase {
 
             ResultSet rs = preparedStatement.executeQuery();
 
-            int objectUUID = (int) rs.getLong("UID");
+            if (rs.next()) {
+                int objectUUID = (int) rs.getLong("UID");
 
-            if (objectUUID > 0)
-                return GET_ITEM(objectUUID);
-
+                if (objectUUID > 0)
+                    return GET_ITEM(objectUUID);
+            }
         } catch (SQLException e) {
             Logger.error(e);
         }

@@ -69,10 +69,12 @@ public class dbBuildingHandler extends dbHandlerBase {
 
             ResultSet rs = preparedStatement.executeQuery();
 
-            int objectUUID = (int) rs.getLong("UID");
+            if (rs.next()) {
+                int objectUUID = (int) rs.getLong("UID");
 
-            if (objectUUID > 0)
-                building = GET_BUILDINGBYUUID(objectUUID);
+                if (objectUUID > 0)
+                    building = GET_BUILDINGBYUUID(objectUUID);
+            }
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
