@@ -307,7 +307,7 @@ public class dbGuildHandler extends dbHandlerBase {
              PreparedStatement preparedStatement = connection.prepareStatement("SELECT `obj_guild`.*, `object`.`parent` FROM `obj_guild` INNER JOIN `object` ON `object`.`UID` = `obj_guild`.`UID`")) {
 
             ResultSet rs = preparedStatement.executeQuery();
-            guildList = getObjectsFromRs(rs, 20);
+            guildList = getObjectsFromRs(rs, 100);
 
         } catch (SQLException e) {
             Logger.error(e);

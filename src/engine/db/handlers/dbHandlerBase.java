@@ -9,7 +9,9 @@
 
 package engine.db.handlers;
 
+import engine.Enum;
 import engine.Enum.GameObjectType;
+import engine.gameManager.ConfigManager;
 import engine.gameManager.DbManager;
 import engine.objects.AbstractGameObject;
 import engine.objects.AbstractWorldObject;
@@ -36,6 +38,13 @@ public abstract class dbHandlerBase {
         } catch (Exception e) {
             Logger.error(e);
         }
+
+        // Only call runAfterLoad() for objects instanced on the world server
+
+        if ((abstractGameObject != null && abstractGameObject instanceof AbstractWorldObject) &&
+                (ConfigManager.serverType.equals(Enum.ServerType.WORLDSERVER) ||
+                        (abstractGameObject.getObjectType() == GameObjectType.Guild)))
+            ((AbstractWorldObject) abstractGameObject).runAfterLoad();
 
         return abstractGameObject;
     }
