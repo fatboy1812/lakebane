@@ -21,27 +21,27 @@ import java.util.ArrayList;
 
 public class dbMenuHandler extends dbHandlerBase {
 
-	public dbMenuHandler() {
-		this.localClass = MenuOption.class;
+    public dbMenuHandler() {
+        this.localClass = MenuOption.class;
         this.localObjectType = engine.Enum.GameObjectType.valueOf(this.localClass.getSimpleName());
-	}
+    }
 
-	public ArrayList<MenuOption> GET_MENU_OPTIONS(final int id) {
+    public ArrayList<MenuOption> GET_MENU_OPTIONS(final int id) {
 
-		ArrayList<MenuOption> menuOptions = new ArrayList<>();
+        ArrayList<MenuOption> menuOptions = new ArrayList<>();
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `static_npc_menuoption` WHERE menuID = ?")) {
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `static_npc_menuoption` WHERE menuID = ?")) {
 
-			preparedStatement.setInt(1, id);
+            preparedStatement.setInt(1, id);
 
-			ResultSet rs = preparedStatement.executeQuery();
-			menuOptions = getObjectsFromRs(rs, 1000);
+            ResultSet rs = preparedStatement.executeQuery();
+            menuOptions = getObjectsFromRs(rs, 1000);
 
-		} catch (SQLException e) {
-			Logger.error(e);
-		}
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
 
-		return menuOptions;
-	}
+        return menuOptions;
+    }
 }

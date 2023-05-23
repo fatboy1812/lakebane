@@ -65,7 +65,7 @@ public class dbPromotionClassHandler extends dbHandlerBase {
 
         return promotionClass;
     }
-    
+
     public ArrayList<PromotionClass> GET_ALL_PROMOTIONS() {
 
         ArrayList<PromotionClass> promotionList = new ArrayList<>();

@@ -25,7 +25,7 @@ import java.util.HashSet;
 
 public class dbEffectsBaseHandler extends dbHandlerBase {
 
-	public dbEffectsBaseHandler() {
+    public dbEffectsBaseHandler() {
 
 	}
 

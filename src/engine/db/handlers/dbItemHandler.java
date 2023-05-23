@@ -27,491 +27,491 @@ import java.util.HashSet;
 
 public class dbItemHandler extends dbHandlerBase {
 
-	public dbItemHandler() {
-		this.localClass = Item.class;
-		this.localObjectType = engine.Enum.GameObjectType.valueOf(this.localClass.getSimpleName());
-	}
-
-	public Item ADD_ITEM(Item toAdd) {
-
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("CALL `item_CREATE`(?, ?, ?, ?, ?, ?, ?, ?, ?,?);")) {
-
-			preparedStatement.setInt(1, toAdd.getOwnerID());
-			preparedStatement.setInt(2, toAdd.getItemBaseID());
-			preparedStatement.setInt(3, toAdd.getChargesRemaining());
-			preparedStatement.setInt(4, toAdd.getDurabilityCurrent());
-			preparedStatement.setInt(5, toAdd.getDurabilityMax());
-
-			if (toAdd.getNumOfItems() < 1)
-				preparedStatement.setInt(6, 1);
-			else
-				preparedStatement.setInt(6, toAdd.getNumOfItems());
-
-			switch (toAdd.containerType) {
-				case INVENTORY:
-					preparedStatement.setString(7, "inventory");
-					break;
-				case EQUIPPED:
-					preparedStatement.setString(7, "equip");
-					break;
-				case BANK:
-					preparedStatement.setString(7, "bank");
-					break;
-				case VAULT:
-					preparedStatement.setString(7, "vault");
-					break;
-				case FORGE:
-					preparedStatement.setString(7, "forge");
-					break;
-				default:
-					preparedStatement.setString(7, "none"); //Shouldn't be here
-					break;
-			}
-
-			preparedStatement.setByte(8, toAdd.getEquipSlot());
-			preparedStatement.setInt(9, toAdd.getFlags());
-			preparedStatement.setString(10, toAdd.getCustomName());
-
-			ResultSet rs = preparedStatement.executeQuery();
+    public dbItemHandler() {
+        this.localClass = Item.class;
+        this.localObjectType = engine.Enum.GameObjectType.valueOf(this.localClass.getSimpleName());
+    }
+
+    private static String formatTradeString(HashSet<Integer> list) {
+        int size = list.size();
+
+        String ret = "";
+
+        if (size == 0)
+            return ret;
+
+        boolean start = true;
+
+        for (int i : list) {
+            if (start) {
+                ret += i;
+                start = false;
+            } else
+                ret += "," + i;
+        }
+        return ret;
+    }
+
+    public Item ADD_ITEM(Item toAdd) {
+
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("CALL `item_CREATE`(?, ?, ?, ?, ?, ?, ?, ?, ?,?);")) {
+
+            preparedStatement.setInt(1, toAdd.getOwnerID());
+            preparedStatement.setInt(2, toAdd.getItemBaseID());
+            preparedStatement.setInt(3, toAdd.getChargesRemaining());
+            preparedStatement.setInt(4, toAdd.getDurabilityCurrent());
+            preparedStatement.setInt(5, toAdd.getDurabilityMax());
+
+            if (toAdd.getNumOfItems() < 1)
+                preparedStatement.setInt(6, 1);
+            else
+                preparedStatement.setInt(6, toAdd.getNumOfItems());
+
+            switch (toAdd.containerType) {
+                case INVENTORY:
+                    preparedStatement.setString(7, "inventory");
+                    break;
+                case EQUIPPED:
+                    preparedStatement.setString(7, "equip");
+                    break;
+                case BANK:
+                    preparedStatement.setString(7, "bank");
+                    break;
+                case VAULT:
+                    preparedStatement.setString(7, "vault");
+                    break;
+                case FORGE:
+                    preparedStatement.setString(7, "forge");
+                    break;
+                default:
+                    preparedStatement.setString(7, "none"); //Shouldn't be here
+                    break;
+            }
 
-			int objectUUID = (int) rs.getLong("UID");
-
-			if (objectUUID > 0)
-				return GET_ITEM(objectUUID);
+            preparedStatement.setByte(8, toAdd.getEquipSlot());
+            preparedStatement.setInt(9, toAdd.getFlags());
+            preparedStatement.setString(10, toAdd.getCustomName());
 
-		} catch (SQLException e) {
-			Logger.error(e);
-		}
+            ResultSet rs = preparedStatement.executeQuery();
 
-		return null;
-	}
+            int objectUUID = (int) rs.getLong("UID");
 
-	public String GET_OWNER(int ownerID) {
+            if (objectUUID > 0)
+                return GET_ITEM(objectUUID);
 
-		String ownerType;
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT `type` FROM `object` WHERE `UID`=?")) {
+        return null;
+    }
 
-			preparedStatement.setInt(1, ownerID);
-			ResultSet rs = preparedStatement.executeQuery();
+    public String GET_OWNER(int ownerID) {
 
-			ownerType = rs.getString("type");
+        String ownerType;
 
-		} catch (SQLException e) {
-			Logger.error(e);
-			return "";
-		}
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT `type` FROM `object` WHERE `UID`=?")) {
 
-		return ownerType;
-	}
+            preparedStatement.setInt(1, ownerID);
+            ResultSet rs = preparedStatement.executeQuery();
 
-	public boolean DO_TRADE(HashSet<Integer> from1, HashSet<Integer> from2,
-			CharacterItemManager man1, CharacterItemManager man2,
-			Item inventoryGold1, Item inventoryGold2, int goldFrom1, int goldFrom2) {
+            ownerType = rs.getString("type");
 
-		AbstractCharacter ac1 = man1.getOwner();
-		AbstractCharacter ac2 = man2.getOwner();
-		boolean worked = false;
+        } catch (SQLException e) {
+            Logger.error(e);
+            return "";
+        }
 
-		if (ac1 == null || ac2 == null || inventoryGold1 == null || inventoryGold2 == null)
-			return false;
+        return ownerType;
+    }
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("CALL `item_TRADE`(?, ?, ?, ?, ?, ?, ?, ?)")) {
+    public boolean DO_TRADE(HashSet<Integer> from1, HashSet<Integer> from2,
+                            CharacterItemManager man1, CharacterItemManager man2,
+                            Item inventoryGold1, Item inventoryGold2, int goldFrom1, int goldFrom2) {
 
-			preparedStatement.setString(1, formatTradeString(from1));
-			preparedStatement.setLong(2, (long) ac1.getObjectUUID());
-			preparedStatement.setString(3, formatTradeString(from2));
-			preparedStatement.setLong(4, (long) ac2.getObjectUUID());
-			preparedStatement.setInt(5, goldFrom1);
-			preparedStatement.setLong(6, (long) inventoryGold1.getObjectUUID());
-			preparedStatement.setInt(7, goldFrom2);
-			preparedStatement.setLong(8, (long) inventoryGold2.getObjectUUID());
+        AbstractCharacter ac1 = man1.getOwner();
+        AbstractCharacter ac2 = man2.getOwner();
+        boolean worked = false;
 
-			ResultSet rs = preparedStatement.executeQuery();
+        if (ac1 == null || ac2 == null || inventoryGold1 == null || inventoryGold2 == null)
+            return false;
 
-			if (rs.next())
-				worked = rs.getBoolean("result");
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("CALL `item_TRADE`(?, ?, ?, ?, ?, ?, ?, ?)")) {
 
-		} catch (SQLException e) {
-			Logger.error(e);
-		}
-		return worked;
-	}
+            preparedStatement.setString(1, formatTradeString(from1));
+            preparedStatement.setLong(2, ac1.getObjectUUID());
+            preparedStatement.setString(3, formatTradeString(from2));
+            preparedStatement.setLong(4, ac2.getObjectUUID());
+            preparedStatement.setInt(5, goldFrom1);
+            preparedStatement.setLong(6, inventoryGold1.getObjectUUID());
+            preparedStatement.setInt(7, goldFrom2);
+            preparedStatement.setLong(8, inventoryGold2.getObjectUUID());
 
-	private static String formatTradeString(HashSet<Integer> list) {
-		int size = list.size();
+            ResultSet rs = preparedStatement.executeQuery();
 
-		String ret = "";
+            if (rs.next())
+                worked = rs.getBoolean("result");
 
-		if (size == 0)
-			return ret;
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
+        return worked;
+    }
 
-		boolean start = true;
+    public ArrayList<Item> GET_EQUIPPED_ITEMS(final int targetId) {
 
-		for (int i : list) {
-			if (start) {
-				ret += i;
-				start = false;
-			} else
-				ret += "," + i;
-		}
-		return ret;
-	}
+        ArrayList<Item> itemList;
 
-	public ArrayList<Item> GET_EQUIPPED_ITEMS(final int targetId) {
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT `obj_item`.*, `object`.`parent`, `object`.`type` FROM `object` INNER JOIN `obj_item` ON `object`.`UID` = `obj_item`.`UID` WHERE `object`.`parent`=? && `obj_item`.`item_container`='equip';")) {
 
-		ArrayList<Item> itemList;
+            preparedStatement.setLong(1, targetId);
+            ResultSet rs = preparedStatement.executeQuery();
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT `obj_item`.*, `object`.`parent`, `object`.`type` FROM `object` INNER JOIN `obj_item` ON `object`.`UID` = `obj_item`.`UID` WHERE `object`.`parent`=? && `obj_item`.`item_container`='equip';")) {
+            itemList = getObjectsFromRs(rs, 10);
 
-			preparedStatement.setLong(1, (long) targetId);
-			ResultSet rs = preparedStatement.executeQuery();
+        } catch (SQLException e) {
+            Logger.error(e);
+            return null;
+        }
 
-			itemList = getObjectsFromRs(rs, 10);
+        return itemList;
+    }
 
-		} catch (SQLException e) {
-			Logger.error(e);
-			return null;
-		}
+    public Item GET_ITEM(final int itemUUID) {
 
-		return itemList;
-	}
+        Item item;
 
-	public Item GET_ITEM(final int itemUUID) {
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT `obj_item`.*, `object`.`parent`, `object`.`type` FROM `object` INNER JOIN `obj_item` ON `object`.`UID` = `obj_item`.`UID` WHERE `object`.`UID`=?;")) {
 
-		Item item;
+            preparedStatement.setLong(1, itemUUID);
+            ResultSet rs = preparedStatement.executeQuery();
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT `obj_item`.*, `object`.`parent`, `object`.`type` FROM `object` INNER JOIN `obj_item` ON `object`.`UID` = `obj_item`.`UID` WHERE `object`.`UID`=?;")) {
+            item = (Item) getObjectFromRs(rs);
 
-			preparedStatement.setLong(1, itemUUID);
-			ResultSet rs = preparedStatement.executeQuery();
+        } catch (SQLException e) {
+            Logger.error(e);
+            return null;
+        }
+        return item;
+    }
 
-			item = (Item) getObjectFromRs(rs);
+    public ArrayList<Item> GET_ITEMS_FOR_ACCOUNT(final int accountId) {
 
-		} catch (SQLException e) {
-			Logger.error(e);
-			return null;
-		}
-		return item;
-	}
+        ArrayList<Item> itemList;
 
-	public ArrayList<Item> GET_ITEMS_FOR_ACCOUNT(final int accountId) {
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT `obj_item`.*, `object`.`parent`, `object`.`type` FROM `object` INNER JOIN `obj_item` ON `object`.`UID` = `obj_item`.`UID` WHERE `object`.`parent`=?;")) {
 
-		ArrayList<Item> itemList;
+            preparedStatement.setLong(1, accountId);
+            ResultSet rs = preparedStatement.executeQuery();
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT `obj_item`.*, `object`.`parent`, `object`.`type` FROM `object` INNER JOIN `obj_item` ON `object`.`UID` = `obj_item`.`UID` WHERE `object`.`parent`=?;")) {
+            itemList = getObjectsFromRs(rs, 100);
 
-			preparedStatement.setLong(1, (long) accountId);
-			ResultSet rs = preparedStatement.executeQuery();
+        } catch (SQLException e) {
+            Logger.error(e);
+            return null;
+        }
+        return itemList;
+    }
 
-			itemList = getObjectsFromRs(rs, 100);
+    public ArrayList<Item> GET_ITEMS_FOR_NPC(final int npcId) {
 
-		} catch (SQLException e) {
-			Logger.error(e);
-			return null;
-		}
-		return itemList;
-	}
+        ArrayList<Item> itemList;
 
-	public ArrayList<Item> GET_ITEMS_FOR_NPC(final int npcId) {
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT `obj_item`.*, `object`.`parent`, `object`.`type` FROM `object` INNER JOIN `obj_item` ON `object`.`UID` = `obj_item`.`UID` WHERE `object`.`parent`=?;")) {
 
-		ArrayList<Item> itemList;
+            preparedStatement.setLong(1, npcId);
+            ResultSet rs = preparedStatement.executeQuery();
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT `obj_item`.*, `object`.`parent`, `object`.`type` FROM `object` INNER JOIN `obj_item` ON `object`.`UID` = `obj_item`.`UID` WHERE `object`.`parent`=?;")) {
+            itemList = getObjectsFromRs(rs, 20);
 
-			preparedStatement.setLong(1, npcId);
-			ResultSet rs = preparedStatement.executeQuery();
+        } catch (SQLException e) {
+            Logger.error(e);
+            return null;
+        }
+        return itemList;
+    }
 
-			itemList = getObjectsFromRs(rs, 20);
+    public ArrayList<Item> GET_ITEMS_FOR_PC(final int id) {
 
-		} catch (SQLException e) {
-			Logger.error(e);
-			return null;
-		}
-		return itemList;
-	}
+        ArrayList<Item> itemList;
 
-	public ArrayList<Item> GET_ITEMS_FOR_PC(final int id) {
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT `obj_item`.*, `object`.`parent`, `object`.`type` FROM `object` INNER JOIN `obj_item` ON `object`.`UID` = `obj_item`.`UID` WHERE `object`.`parent`=?")) {
 
-		ArrayList<Item> itemList;
+            preparedStatement.setLong(1, id);
+            ResultSet rs = preparedStatement.executeQuery();
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT `obj_item`.*, `object`.`parent`, `object`.`type` FROM `object` INNER JOIN `obj_item` ON `object`.`UID` = `obj_item`.`UID` WHERE `object`.`parent`=?")) {
+            itemList = getObjectsFromRs(rs, 100);
 
-			preparedStatement.setLong(1, (long) id);
-			ResultSet rs = preparedStatement.executeQuery();
+        } catch (SQLException e) {
+            Logger.error(e);
+            return null;
+        }
+        return itemList;
+    }
 
-			itemList = getObjectsFromRs(rs, 100);
+    public boolean MOVE_GOLD(final Item from, final Item to, final int amt) {
 
-		} catch (SQLException e) {
-			Logger.error(e);
-			return null;
-		}
-		return itemList;
-	}
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_item` SET `item_numberOfItems` = CASE WHEN `UID`=?  THEN ? WHEN `UID`=? THEN ? END WHERE `UID` IN (?, ?);")) {
 
-	public boolean MOVE_GOLD(final Item from, final Item to, final int amt) {
+            int newFromAmt = from.getNumOfItems() - amt;
+            int newToAmt = to.getNumOfItems() + amt;
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_item` SET `item_numberOfItems` = CASE WHEN `UID`=?  THEN ? WHEN `UID`=? THEN ? END WHERE `UID` IN (?, ?);")) {
+            preparedStatement.setLong(1, from.getObjectUUID());
+            preparedStatement.setInt(2, newFromAmt);
+            preparedStatement.setLong(3, to.getObjectUUID());
+            preparedStatement.setInt(4, newToAmt);
+            preparedStatement.setLong(5, from.getObjectUUID());
+            preparedStatement.setLong(6, to.getObjectUUID());
 
-			int newFromAmt = from.getNumOfItems() - amt;
-			int newToAmt = to.getNumOfItems() + amt;
+            return (preparedStatement.executeUpdate() > 0);
 
-			preparedStatement.setLong(1, (long) from.getObjectUUID());
-			preparedStatement.setInt(2, newFromAmt);
-			preparedStatement.setLong(3, (long) to.getObjectUUID());
-			preparedStatement.setInt(4, newToAmt);
-			preparedStatement.setLong(5, (long) from.getObjectUUID());
-			preparedStatement.setLong(6, (long) to.getObjectUUID());
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
+        return false;
+    }
 
-			return (preparedStatement.executeUpdate() > 0);
+    public boolean ORPHAN_INVENTORY(final HashSet<Item> inventory) {
 
-		} catch (SQLException e) {
-			Logger.error(e);
-		}
-		return false;
-	}
+        boolean worked = true;
 
-	public boolean ORPHAN_INVENTORY(final HashSet<Item> inventory) {
+        for (Item item : inventory) {
 
-		boolean worked = true;
+            if (item.getItemBase().getType().equals(ItemType.GOLD))
+                continue;
 
-		for (Item item : inventory) {
+            try (Connection connection = DbManager.getConnection();
+                 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_item` LEFT JOIN `object` ON `object`.`UID` = `obj_item`.`UID` SET `object`.`parent`=NULL, `obj_item`.`item_container`='none' WHERE `object`.`UID`=?;")) {
 
-			if (item.getItemBase().getType().equals(ItemType.GOLD))
-				continue;
+                preparedStatement.setLong(1, item.getObjectUUID());
+                worked = (preparedStatement.executeUpdate() > 0);
 
-			try (Connection connection = DbManager.getConnection();
-				 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_item` LEFT JOIN `object` ON `object`.`UID` = `obj_item`.`UID` SET `object`.`parent`=NULL, `obj_item`.`item_container`='none' WHERE `object`.`UID`=?;")) {
+                if (worked)
+                    item.zeroItem();
 
-				preparedStatement.setLong(1, (long) item.getObjectUUID());
-				worked = (preparedStatement.executeUpdate() > 0);
+            } catch (SQLException e) {
+                Logger.error(e);
+                return false;
+            }
+        }
+        return worked;
+    }
 
-				if (worked)
-					item.zeroItem();
+    public HashSet<Integer> GET_ITEMS_FOR_VENDOR(final int vendorID) {
 
-			} catch (SQLException e) {
-				Logger.error(e);
-				return false;
-			}
-		}
-		return worked;
-	}
+        HashSet<Integer> itemSet = new HashSet<>();
 
-	public HashSet<Integer> GET_ITEMS_FOR_VENDOR(final int vendorID) {
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT ID FROM static_itembase WHERE vendorType = ?")) {
 
-		HashSet<Integer> itemSet = new HashSet<>();
+            preparedStatement.setInt(1, vendorID);
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT ID FROM static_itembase WHERE vendorType = ?")) {
+            ResultSet rs = preparedStatement.executeQuery();
 
-			preparedStatement.setInt(1, vendorID);
+            while (rs.next())
+                itemSet.add(rs.getInt(1));
 
-			ResultSet rs = preparedStatement.executeQuery();
+        } catch (SQLException e) {
+            Logger.error(e);
+            return itemSet;
+        }
 
-			while (rs.next())
-				itemSet.add(rs.getInt(1));
+        return itemSet;
+    }
 
-		} catch (SQLException e) {
-			Logger.error(e);
-			return itemSet;
-		}
+    //Used to transfer a single item between owners or equip or vault or bank or inventory
+    public boolean UPDATE_OWNER(final Item item, int newOwnerID, boolean ownerNPC, boolean ownerPlayer,
+                                boolean ownerAccount, ItemContainerType containerType, int slot) {
 
-		return itemSet;
-	}
+        boolean worked = false;
 
-	//Used to transfer a single item between owners or equip or vault or bank or inventory
-	public boolean UPDATE_OWNER(final Item item, int newOwnerID, boolean ownerNPC, boolean ownerPlayer,
-			boolean ownerAccount, ItemContainerType containerType, int slot) {
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("CALL `item_TRANSFER_OWNER`(?, ?, ?, ? )")) {
 
-		boolean worked = false;
+            preparedStatement.setLong(1, item.getObjectUUID());
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("CALL `item_TRANSFER_OWNER`(?, ?, ?, ? )")) {
+            if (newOwnerID != 0)
+                preparedStatement.setLong(2, newOwnerID);
+            else
+                preparedStatement.setNull(2, java.sql.Types.BIGINT);
 
-			preparedStatement.setLong(1, item.getObjectUUID());
+            switch (containerType) {
+                case INVENTORY:
+                    preparedStatement.setString(3, "inventory");
+                    break;
+                case EQUIPPED:
+                    preparedStatement.setString(3, "equip");
+                    break;
+                case BANK:
+                    preparedStatement.setString(3, "bank");
+                    break;
+                case VAULT:
+                    preparedStatement.setString(3, "vault");
+                    break;
+                case FORGE:
+                    preparedStatement.setString(3, "forge");
+                    break;
+                default:
+                    preparedStatement.setString(3, "none"); //Shouldn't be here
+                    break;
+            }
+            preparedStatement.setInt(4, slot);
+            ResultSet rs = preparedStatement.executeQuery();
 
-			if (newOwnerID != 0)
-				preparedStatement.setLong(2, newOwnerID);
-			else
-				preparedStatement.setNull(2, java.sql.Types.BIGINT);
+            if (rs.next())
+                worked = rs.getBoolean("result");
 
-			switch (containerType) {
-				case INVENTORY:
-					preparedStatement.setString(3, "inventory");
-					break;
-				case EQUIPPED:
-					preparedStatement.setString(3, "equip");
-					break;
-				case BANK:
-					preparedStatement.setString(3, "bank");
-					break;
-				case VAULT:
-					preparedStatement.setString(3, "vault");
-					break;
-				case FORGE:
-					preparedStatement.setString(3, "forge");
-					break;
-				default:
-					preparedStatement.setString(3, "none"); //Shouldn't be here
-					break;
-			}
-			preparedStatement.setInt(4, slot);
-			ResultSet rs = preparedStatement.executeQuery();
+        } catch (SQLException e) {
+            Logger.error(e);
+            return false;
+        }
+        return worked;
+    }
 
-			if (rs.next())
-				worked = rs.getBoolean("result");
+    public boolean SET_DURABILITY(final Item item, int value) {
 
-		} catch (SQLException e) {
-			Logger.error(e);
-			return false;
-		}
-		return worked;
-	}
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_item` SET `item_durabilityCurrent`=? WHERE `UID`=? AND `item_durabilityCurrent`=?")) {
 
-	public boolean SET_DURABILITY(final Item item, int value) {
+            preparedStatement.setInt(1, value);
+            preparedStatement.setLong(2, item.getObjectUUID());
+            preparedStatement.setInt(3, item.getDurabilityCurrent());
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_item` SET `item_durabilityCurrent`=? WHERE `UID`=? AND `item_durabilityCurrent`=?")) {
+            return (preparedStatement.executeUpdate() > 0);
 
-			preparedStatement.setInt(1, value);
-			preparedStatement.setLong(2, (long) item.getObjectUUID());
-			preparedStatement.setInt(3, (int) item.getDurabilityCurrent());
+        } catch (SQLException e) {
+            Logger.error(e);
+            return false;
+        }
+    }
 
-			return (preparedStatement.executeUpdate() > 0);
+    public boolean UPDATE_FORGE_TO_INVENTORY(final Item item) {
 
-		} catch (SQLException e) {
-			Logger.error(e);
-			return false;
-		}
-	}
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_item` SET `item_container` = ? WHERE `UID` = ? AND `item_container` = 'forge';")) {
 
-	public boolean UPDATE_FORGE_TO_INVENTORY(final Item item) {
+            preparedStatement.setString(1, "inventory");
+            preparedStatement.setLong(2, item.getObjectUUID());
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_item` SET `item_container` = ? WHERE `UID` = ? AND `item_container` = 'forge';")) {
+            return (preparedStatement.executeUpdate() > 0);
 
-			preparedStatement.setString(1, "inventory");
-			preparedStatement.setLong(2, (long) item.getObjectUUID());
+        } catch (SQLException e) {
+            Logger.error(e);
+            return false;
+        }
 
-			return (preparedStatement.executeUpdate() > 0);
+    }
 
-		} catch (SQLException e) {
-			Logger.error(e);
-			return false;
-		}
+    /**
+     * Attempts to update the quantity of this gold item
+     *
+     * @param value New quantity of gold
+     * @return True on success
+     */
+    public boolean UPDATE_GOLD(final Item item, int value) {
+        if (item == null)
+            return false;
+        return UPDATE_GOLD(item, value, item.getNumOfItems());
+    }
 
-	}
+    /**
+     * Attempts to update the quantity of this gold item using CAS
+     *
+     * @return True on success
+     */
+    public boolean UPDATE_GOLD(final Item item, int newValue, int oldValue) {
 
-	/**
-	 * Attempts to update the quantity of this gold item
-	 *
-	 * @param value New quantity of gold
-	 * @return True on success
-	 */
-	public boolean UPDATE_GOLD(final Item item, int value) {
-		if (item == null)
-			return false;
-		return UPDATE_GOLD(item, value, item.getNumOfItems());
-	}
+        if (!item.getItemBase().getType().equals(ItemType.GOLD))
+            return false;
 
-	/**
-	 * Attempts to update the quantity of this gold item using CAS
-	 *
-	 * @return True on success
-	 */
-	public boolean UPDATE_GOLD(final Item item, int newValue, int oldValue) {
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_item` SET `item_numberOfItems`=? WHERE `UID`=?")) {
 
-		if (!item.getItemBase().getType().equals(ItemType.GOLD))
-			return false;
+            preparedStatement.setInt(1, newValue);
+            preparedStatement.setLong(2, item.getObjectUUID());
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_item` SET `item_numberOfItems`=? WHERE `UID`=?")) {
+            return (preparedStatement.executeUpdate() > 0);
 
-			preparedStatement.setInt(1, newValue);
-			preparedStatement.setLong(2, (long) item.getObjectUUID());
+        } catch (SQLException e) {
+            Logger.error(e);
+            return false;
+        }
 
-			return (preparedStatement.executeUpdate() > 0);
+    }
 
-		} catch (SQLException e) {
-			Logger.error(e);
-			return false;
-		}
+    public boolean UPDATE_REMAINING_CHARGES(final Item item) {
 
-	}
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_item` SET `item_chargesRemaining` = ? WHERE `UID` = ?")) {
 
-	public boolean UPDATE_REMAINING_CHARGES(final Item item) {
+            preparedStatement.setInt(1, item.getChargesRemaining());
+            preparedStatement.setLong(2, item.getObjectUUID());
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_item` SET `item_chargesRemaining` = ? WHERE `UID` = ?")) {
+            return (preparedStatement.executeUpdate() > 0);
 
-			preparedStatement.setInt(1, item.getChargesRemaining());
-			preparedStatement.setLong(2, (long) item.getObjectUUID());
+        } catch (SQLException e) {
+            Logger.error(e);
+            return false;
+        }
 
-			return (preparedStatement.executeUpdate() > 0);
+    }
 
-		} catch (SQLException e) {
-			Logger.error(e);
-			return false;
-		}
+    // This is necessary because default number of items is 1.
+    // When we create gold, we want it to start at 0 quantity.
 
-	}
+    public boolean ZERO_ITEM_STACK(Item item) {
 
-	// This is necessary because default number of items is 1.
-	// When we create gold, we want it to start at 0 quantity.
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_item` SET `item_numberOfItems`=0 WHERE `UID` = ?")) {
 
-	public boolean ZERO_ITEM_STACK(Item item) {
+            preparedStatement.setLong(1, item.getObjectUUID());
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_item` SET `item_numberOfItems`=0 WHERE `UID` = ?")) {
+            return (preparedStatement.executeUpdate() > 0);
 
-			preparedStatement.setLong(1, (long) item.getObjectUUID());
+        } catch (SQLException e) {
+            Logger.error(e);
+            return false;
+        }
+    }
 
-			return (preparedStatement.executeUpdate() > 0);
+    public boolean UPDATE_FLAGS(Item item) {
 
-		} catch (SQLException e) {
-			Logger.error(e);
-			return false;
-		}
-	}
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_item` SET `item_flags`=? WHERE `UID` = ?")) {
 
-	public boolean UPDATE_FLAGS(Item item) {
+            preparedStatement.setInt(1, item.getFlags());
+            preparedStatement.setLong(2, item.getObjectUUID());
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_item` SET `item_flags`=? WHERE `UID` = ?")) {
+            return (preparedStatement.executeUpdate() > 0);
 
-			preparedStatement.setInt(1, item.getFlags());
-			preparedStatement.setLong(2, (long) item.getObjectUUID());
+        } catch (SQLException e) {
+            Logger.error(e);
+            return false;
+        }
+    }
 
-			return (preparedStatement.executeUpdate() > 0);
+    public boolean UPDATE_VALUE(Item item, int value) {
 
-		} catch (SQLException e) {
-			Logger.error(e);
-			return false;
-		}
-	}
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_item` SET `item_value`=? WHERE `UID` = ?")) {
 
-	public boolean UPDATE_VALUE(Item item,int value) {
+            preparedStatement.setInt(1, value);
+            preparedStatement.setLong(2, item.getObjectUUID());
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_item` SET `item_value`=? WHERE `UID` = ?")) {
+            return (preparedStatement.executeUpdate() > 0);
 
-			preparedStatement.setInt(1, value);
-			preparedStatement.setLong(2, (long) item.getObjectUUID());
-
-			return (preparedStatement.executeUpdate() > 0);
-
-		} catch (SQLException e) {
-			Logger.error(e);
-			return false;
-		}
-	}
+        } catch (SQLException e) {
+            Logger.error(e);
+            return false;
+        }
+    }
 }

@@ -23,7 +23,7 @@ import java.util.HashMap;
 
 public class dbItemBaseHandler extends dbHandlerBase {
 
-	public dbItemBaseHandler() {
+    public dbItemBaseHandler() {
 
 	}
 

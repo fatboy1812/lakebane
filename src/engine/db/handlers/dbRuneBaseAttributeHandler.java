@@ -21,27 +21,27 @@ import java.util.ArrayList;
 
 public class dbRuneBaseAttributeHandler extends dbHandlerBase {
 
-	public dbRuneBaseAttributeHandler() {
-		this.localClass = RuneBaseAttribute.class;
-		this.localObjectType = engine.Enum.GameObjectType.valueOf(this.localClass.getSimpleName());
-	}
+    public dbRuneBaseAttributeHandler() {
+        this.localClass = RuneBaseAttribute.class;
+        this.localObjectType = engine.Enum.GameObjectType.valueOf(this.localClass.getSimpleName());
+    }
 
-	public ArrayList<RuneBaseAttribute> GET_ATTRIBUTES_FOR_RUNEBASE() {
+    public ArrayList<RuneBaseAttribute> GET_ATTRIBUTES_FOR_RUNEBASE() {
 
-		ArrayList<RuneBaseAttribute> runeBaseAttributesList = new ArrayList<>();
+        ArrayList<RuneBaseAttribute> runeBaseAttributesList = new ArrayList<>();
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `static_rune_runebaseattribute`")) {
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `static_rune_runebaseattribute`")) {
 
-			ResultSet rs = preparedStatement.executeQuery();
-			runeBaseAttributesList = getObjectsFromRs(rs, 10);
+            ResultSet rs = preparedStatement.executeQuery();
+            runeBaseAttributesList = getObjectsFromRs(rs, 10);
 
-		} catch (SQLException e) {
-			Logger.error(e);
-		}
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
 
-		return runeBaseAttributesList;
-	}
+        return runeBaseAttributesList;
+    }
 
 
 }

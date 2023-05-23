@@ -22,679 +22,678 @@ import java.util.ArrayList;
 
 public class dbGuildHandler extends dbHandlerBase {
 
-	public dbGuildHandler() {
-		this.localClass = Guild.class;
-		this.localObjectType = engine.Enum.GameObjectType.valueOf(this.localClass.getSimpleName());
-	}
+    public dbGuildHandler() {
+        this.localClass = Guild.class;
+        this.localObjectType = engine.Enum.GameObjectType.valueOf(this.localClass.getSimpleName());
+    }
 
-	public int BANISH_FROM_GUILD_OFFLINE(final int target, boolean sourceIsGuildLeader) {
+    public static ArrayList<PlayerCharacter> GET_GUILD_BANISHED(final int id) {
 
-		String queryString;
-		int rowCount;
+        return new ArrayList<>();
 
-		// Only a Guild Leader can remove inner council
+        // Bugfix
+        // prepareCallable("SELECT * FROM `obj_character`, `dyn_guild_banishlist` WHERE `obj_character.char_isActive` = 1 AND `dyn_guild_banishlist.CharacterID` = `obj_character.UID` AND `obj_character.GuildID`=?");
 
-		if (sourceIsGuildLeader)
-			queryString = "UPDATE `obj_character` SET `guildUID`=NULL, `guild_isInnerCouncil`=0, `guild_isTaxCollector`=0,"
-					+ " `guild_isRecruiter`=0, `guild_isFullMember`=0, `guild_title`=0 WHERE `UID`=?";
-		else
-			queryString = "UPDATE `obj_character` SET `guildUID`=NULL, `guild_isInnerCouncil`=0, `guild_isTaxCollector`=0,"
-					+ " `guild_isRecruiter`=0, `guild_isFullMember`=0, `guild_title`=0 WHERE `UID`=? && `guild_isInnerCouncil`=0";
+        //prepareCallable("SELECT * FROM `obj_character` `,` `dyn_guild_banishlist` WHERE obj_character.char_isActive = 1 AND dyn_guild_banishlist.CharacterID = obj_character.UID AND dyn_guild_banishlist.GuildID = ?");
+        //setLong(1, (long) id);
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+        //return getObjectList();
+    }
 
-			preparedStatement.setLong(1, target);
-			rowCount = preparedStatement.executeUpdate();
+    public static void LOAD_GUILD_HISTORY_FOR_PLAYER(PlayerCharacter playerCharacter) {
 
-		} catch (SQLException e) {
-			Logger.error(e);
-			return 0;
-		}
+        if (playerCharacter == null)
+            return;
 
-		return rowCount;
-	}
+        ArrayList<GuildHistory> guildList = new ArrayList<>();
 
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `dyn_guild_allianceenemylist` WHERE `GuildID` = ?")) {
 
-	public boolean ADD_TO_BANISHED_FROM_GUILDLIST(int target, long characterID) {
+            preparedStatement.setInt(1, playerCharacter.getObjectUUID());
+            ResultSet rs = preparedStatement.executeQuery();
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO  `dyn_guild_banishlist` (`GuildID`, `CharacterID`) VALUES (?,?)")) {
+            while (rs.next()) {
+                GuildHistory guildEntry = new GuildHistory(rs);
+                guildList.add(guildEntry);
+            }
 
-			preparedStatement.setLong(1, (long) target);
-			preparedStatement.setLong(2, characterID);
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
 
-			return (preparedStatement.executeUpdate() > 0);
+        playerCharacter.setGuildHistory(guildList);
+    }
 
-		} catch (SQLException e) {
-			Logger.error(e);
-		}
-		return false;
-	}
+    public int BANISH_FROM_GUILD_OFFLINE(final int target, boolean sourceIsGuildLeader) {
 
-	public boolean REMOVE_FROM_BANISH_LIST(int target, long characterID) {
+        String queryString;
+        int rowCount;
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM `dyn_guild_banishlist` (`GuildID`, `CharacterID`) VALUES (?,?)")) {
+        // Only a Guild Leader can remove inner council
 
-			preparedStatement.setLong(1, (long) target);
-			preparedStatement.setLong(2, characterID);
+        if (sourceIsGuildLeader)
+            queryString = "UPDATE `obj_character` SET `guildUID`=NULL, `guild_isInnerCouncil`=0, `guild_isTaxCollector`=0,"
+                    + " `guild_isRecruiter`=0, `guild_isFullMember`=0, `guild_title`=0 WHERE `UID`=?";
+        else
+            queryString = "UPDATE `obj_character` SET `guildUID`=NULL, `guild_isInnerCouncil`=0, `guild_isTaxCollector`=0,"
+                    + " `guild_isRecruiter`=0, `guild_isFullMember`=0, `guild_title`=0 WHERE `UID`=? && `guild_isInnerCouncil`=0";
 
-			return (preparedStatement.executeUpdate() > 0);
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
-		} catch (SQLException e) {
-			Logger.error(e);
-		}
-		return false;
-	}
+            preparedStatement.setLong(1, target);
+            rowCount = preparedStatement.executeUpdate();
 
-	public boolean ADD_TO_GUILDHISTORY(int target, PlayerCharacter playerCharacter, DateTime historyDate, GuildHistoryType historyType) {
+        } catch (SQLException e) {
+            Logger.error(e);
+            return 0;
+        }
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO  `dyn_character_guildhistory` (`GuildID`, `CharacterID`, `historyDate`, `historyType`) VALUES (?,?,?,?)")) {
+        return rowCount;
+    }
 
-			preparedStatement.setLong(1, target);
-			preparedStatement.setLong(2, playerCharacter.getObjectUUID());
+    public boolean ADD_TO_BANISHED_FROM_GUILDLIST(int target, long characterID) {
 
-			if (historyDate == null)
-				preparedStatement.setNull(3, java.sql.Types.DATE);
-			else
-				preparedStatement.setTimestamp(3, new Timestamp(historyDate.getMillis()));
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO  `dyn_guild_banishlist` (`GuildID`, `CharacterID`) VALUES (?,?)")) {
 
-			preparedStatement.setString(4, historyType.name());
+            preparedStatement.setLong(1, target);
+            preparedStatement.setLong(2, characterID);
 
-			return (preparedStatement.executeUpdate() > 0);
+            return (preparedStatement.executeUpdate() > 0);
 
-		} catch (SQLException e) {
-			Logger.error(e);
-		}
-		return false;
-	}
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
+        return false;
+    }
 
-	//TODO Need to get this working.
-	public ArrayList<Guild> GET_GUILD_HISTORY_OF_PLAYER(final int id) {
+    public boolean REMOVE_FROM_BANISH_LIST(int target, long characterID) {
 
-		ArrayList<Guild> guildList = null;
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM `dyn_guild_banishlist` (`GuildID`, `CharacterID`) VALUES (?,?)")) {
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT g.* FROM `obj_guild` g, `dyn_character_guildhistory` l WHERE  g.`UID` = l.`GuildID` && l.`CharacterID` = ?")) {
+            preparedStatement.setLong(1, target);
+            preparedStatement.setLong(2, characterID);
 
-			preparedStatement.setLong(1, id);
+            return (preparedStatement.executeUpdate() > 0);
 
-			ResultSet rs = preparedStatement.executeQuery();
-			guildList = getObjectsFromRs(rs, 20);
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
+        return false;
+    }
 
-		} catch (SQLException e) {
-			Logger.error(e);
-		}
+    public boolean ADD_TO_GUILDHISTORY(int target, PlayerCharacter playerCharacter, DateTime historyDate, GuildHistoryType historyType) {
 
-		return guildList;
-	}
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO  `dyn_character_guildhistory` (`GuildID`, `CharacterID`, `historyDate`, `historyType`) VALUES (?,?,?,?)")) {
 
-	public ArrayList<Guild> GET_GUILD_ALLIES(final int id) {
+            preparedStatement.setLong(1, target);
+            preparedStatement.setLong(2, playerCharacter.getObjectUUID());
 
-		ArrayList<Guild> guildList = null;
+            if (historyDate == null)
+                preparedStatement.setNull(3, java.sql.Types.DATE);
+            else
+                preparedStatement.setTimestamp(3, new Timestamp(historyDate.getMillis()));
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT g.* FROM `obj_guild` g, `dyn_guild_allianceenemylist` l "
-					 + "WHERE l.isAlliance = 1 && l.OtherGuildID = g.UID && l.GuildID=?")) {
+            preparedStatement.setString(4, historyType.name());
 
-			preparedStatement.setLong(1, id);
+            return (preparedStatement.executeUpdate() > 0);
 
-			ResultSet rs = preparedStatement.executeQuery();
-			guildList = getObjectsFromRs(rs, 20);
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
+        return false;
+    }
 
-		} catch (SQLException e) {
-			Logger.error(e);
-		}
+    //TODO Need to get this working.
+    public ArrayList<Guild> GET_GUILD_HISTORY_OF_PLAYER(final int id) {
 
-		return guildList;
+        ArrayList<Guild> guildList = null;
 
-	}
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT g.* FROM `obj_guild` g, `dyn_character_guildhistory` l WHERE  g.`UID` = l.`GuildID` && l.`CharacterID` = ?")) {
 
-	public static ArrayList<PlayerCharacter> GET_GUILD_BANISHED(final int id) {
+            preparedStatement.setLong(1, id);
 
-		return new ArrayList<>();
+            ResultSet rs = preparedStatement.executeQuery();
+            guildList = getObjectsFromRs(rs, 20);
 
-		// Bugfix
-		// prepareCallable("SELECT * FROM `obj_character`, `dyn_guild_banishlist` WHERE `obj_character.char_isActive` = 1 AND `dyn_guild_banishlist.CharacterID` = `obj_character.UID` AND `obj_character.GuildID`=?");
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
 
-		//prepareCallable("SELECT * FROM `obj_character` `,` `dyn_guild_banishlist` WHERE obj_character.char_isActive = 1 AND dyn_guild_banishlist.CharacterID = obj_character.UID AND dyn_guild_banishlist.GuildID = ?");
-		//setLong(1, (long) id);
+        return guildList;
+    }
 
-		//return getObjectList();
-	}
+    public ArrayList<Guild> GET_GUILD_ALLIES(final int id) {
 
-	public ArrayList<Guild> GET_GUILD_ENEMIES(final int id) {
+        ArrayList<Guild> guildList = null;
 
-		ArrayList<Guild> guildList = null;
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT g.* FROM `obj_guild` g, `dyn_guild_allianceenemylist` l "
+                     + "WHERE l.isAlliance = 1 && l.OtherGuildID = g.UID && l.GuildID=?")) {
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT g.* FROM `obj_guild` g, `dyn_guild_allianceenemylist` l "
-					 + "WHERE l.isAlliance = 0 && l.OtherGuildID = g.UID && l.GuildID=?")) {
+            preparedStatement.setLong(1, id);
 
-			preparedStatement.setLong(1, id);
+            ResultSet rs = preparedStatement.executeQuery();
+            guildList = getObjectsFromRs(rs, 20);
 
-			ResultSet rs = preparedStatement.executeQuery();
-			guildList = getObjectsFromRs(rs, 20);
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
 
-		} catch (SQLException e) {
-			Logger.error(e);
-		}
+        return guildList;
 
-		return guildList;
+    }
 
-	}
+    public ArrayList<Guild> GET_GUILD_ENEMIES(final int id) {
 
-	public ArrayList<PlayerCharacter> GET_GUILD_KOS_CHARACTER(final int id) {
+        ArrayList<Guild> guildList = null;
 
-		ArrayList<PlayerCharacter> kosList = null;
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT g.* FROM `obj_guild` g, `dyn_guild_allianceenemylist` l "
+                     + "WHERE l.isAlliance = 0 && l.OtherGuildID = g.UID && l.GuildID=?")) {
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT c.* FROM `obj_character` c, `dyn_guild_characterkoslist` l WHERE c.`char_isActive` = 1 && l.`KOSCharacterID` = c.`UID` && l.`GuildID`=?")) {
+            preparedStatement.setLong(1, id);
 
-			preparedStatement.setLong(1, id);
-			ResultSet rs = preparedStatement.executeQuery();
+            ResultSet rs = preparedStatement.executeQuery();
+            guildList = getObjectsFromRs(rs, 20);
 
-			while (rs.next()) {
-				int playerUUID = rs.getInt(1);
-				PlayerCharacter kosPlayer = PlayerCharacter.getPlayerCharacter(playerUUID);
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
 
-				if (kosPlayer != null)
-					kosList.add(kosPlayer);
-			}
+        return guildList;
 
-		} catch (SQLException e) {
-			Logger.error(e);
-		}
+    }
 
-		return kosList;
-	}
+    public ArrayList<PlayerCharacter> GET_GUILD_KOS_CHARACTER(final int id) {
 
-	public ArrayList<Guild> GET_GUILD_KOS_GUILD(final int id) {
+        ArrayList<PlayerCharacter> kosList = null;
 
-		ArrayList<Guild> guildList = null;
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT c.* FROM `obj_character` c, `dyn_guild_characterkoslist` l WHERE c.`char_isActive` = 1 && l.`KOSCharacterID` = c.`UID` && l.`GuildID`=?")) {
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT g.* FROM `obj_guild` g, `dyn_guild_guildkoslist` l "
-					 + "WHERE l.KOSGuildID = g.UID && l.GuildID = ?")) {
+            preparedStatement.setLong(1, id);
+            ResultSet rs = preparedStatement.executeQuery();
 
-			preparedStatement.setLong(1, id);
+            while (rs.next()) {
+                int playerUUID = rs.getInt(1);
+                PlayerCharacter kosPlayer = PlayerCharacter.getPlayerCharacter(playerUUID);
 
-			ResultSet rs = preparedStatement.executeQuery();
-			guildList = getObjectsFromRs(rs, 20);
+                if (kosPlayer != null)
+                    kosList.add(kosPlayer);
+            }
 
-		} catch (SQLException e) {
-			Logger.error(e);
-		}
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
 
-		return guildList;
-	}
+        return kosList;
+    }
 
-	public ArrayList<Guild> GET_SUB_GUILDS(final int guildID) {
+    public ArrayList<Guild> GET_GUILD_KOS_GUILD(final int id) {
 
-		ArrayList<Guild> guildList = null;
+        ArrayList<Guild> guildList = null;
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT `obj_guild`.*, `object`.`parent` FROM `object` INNER JOIN `obj_guild` ON `obj_guild`.`UID` = `object`.`UID` WHERE `object`.`parent` = ?;")) {
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT g.* FROM `obj_guild` g, `dyn_guild_guildkoslist` l "
+                     + "WHERE l.KOSGuildID = g.UID && l.GuildID = ?")) {
 
-			preparedStatement.setInt(1, guildID);
+            preparedStatement.setLong(1, id);
 
-			ResultSet rs = preparedStatement.executeQuery();
-			guildList = getObjectsFromRs(rs, 20);
+            ResultSet rs = preparedStatement.executeQuery();
+            guildList = getObjectsFromRs(rs, 20);
 
-		} catch (SQLException e) {
-			Logger.error(e);
-		}
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
 
-		return guildList;
-	}
+        return guildList;
+    }
 
-	public Guild GET_GUILD(int id) {
+    public ArrayList<Guild> GET_SUB_GUILDS(final int guildID) {
 
-		Guild guild = (Guild) DbManager.getFromCache(Enum.GameObjectType.Guild, id);
+        ArrayList<Guild> guildList = null;
 
-		if (guild != null)
-			return guild;
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT `obj_guild`.*, `object`.`parent` FROM `object` INNER JOIN `obj_guild` ON `obj_guild`.`UID` = `object`.`UID` WHERE `object`.`parent` = ?;")) {
 
-		if (id == 0)
-			return Guild.getErrantGuild();
+            preparedStatement.setInt(1, guildID);
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT `obj_guild`.*, `object`.`parent` FROM `obj_guild` INNER JOIN `object` ON `object`.`UID` = `obj_guild`.`UID` WHERE `object`.`UID`=?")) {
+            ResultSet rs = preparedStatement.executeQuery();
+            guildList = getObjectsFromRs(rs, 20);
 
-			preparedStatement.setLong(1, id);
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
 
-			ResultSet rs = preparedStatement.executeQuery();
-			guild = (Guild) getObjectFromRs(rs);
+        return guildList;
+    }
 
-		} catch (SQLException e) {
-			Logger.error(e);
-		}
-		return guild;
+    public Guild GET_GUILD(int id) {
 
-	}
-	
-	public ArrayList<Guild> GET_ALL_GUILDS() {
+        Guild guild = (Guild) DbManager.getFromCache(Enum.GameObjectType.Guild, id);
 
-		ArrayList<Guild> guildList = null;
+        if (guild != null)
+            return guild;
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT `obj_guild`.*, `object`.`parent` FROM `obj_guild` INNER JOIN `object` ON `object`.`UID` = `obj_guild`.`UID`")) {
+        if (id == 0)
+            return Guild.getErrantGuild();
 
-			ResultSet rs = preparedStatement.executeQuery();
-			guildList = getObjectsFromRs(rs, 20);
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT `obj_guild`.*, `object`.`parent` FROM `obj_guild` INNER JOIN `object` ON `object`.`UID` = `obj_guild`.`UID` WHERE `object`.`UID`=?")) {
 
-		} catch (SQLException e) {
-			Logger.error(e);
-		}
-		return guildList;
-	}
+            preparedStatement.setLong(1, id);
 
-	public boolean IS_CREST_UNIQUE(final GuildTag gt) {
+            ResultSet rs = preparedStatement.executeQuery();
+            guild = (Guild) getObjectFromRs(rs);
 
-		boolean valid = false;
-		String queryString;
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
+        return guild;
 
-		// Ignore bg symbol if bg color is the same as fg color.
+    }
 
-		if (gt.backgroundColor01 == gt.backgroundColor02)
-			queryString = "SELECT `name` FROM `obj_guild` WHERE `backgroundColor01`=? && `backgroundColor02`=? && `symbolColor`=? && `symbol`=?;";
-		else
-			queryString = "SELECT `name` FROM `obj_guild` WHERE `backgroundColor01`=? && `backgroundColor02`=? && `symbolColor`=? && `backgroundDesign`=? && `symbol`=?;";
+    public ArrayList<Guild> GET_ALL_GUILDS() {
 
+        ArrayList<Guild> guildList = null;
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT `obj_guild`.*, `object`.`parent` FROM `obj_guild` INNER JOIN `object` ON `object`.`UID` = `obj_guild`.`UID`")) {
 
-			if (gt.backgroundColor01 == gt.backgroundColor02) {
-				preparedStatement.setInt(1, gt.backgroundColor01);
-				preparedStatement.setInt(2, gt.backgroundColor02);
-				preparedStatement.setInt(3, gt.symbolColor);
-				preparedStatement.setInt(4, gt.symbol);
-			} else {
-				preparedStatement.setInt(1, gt.backgroundColor01);
-				preparedStatement.setInt(2, gt.backgroundColor02);
-				preparedStatement.setInt(3, gt.symbolColor);
-				preparedStatement.setInt(4, gt.backgroundDesign);
-				preparedStatement.setInt(5, gt.symbol);
-			}
+            ResultSet rs = preparedStatement.executeQuery();
+            guildList = getObjectsFromRs(rs, 20);
 
-			ResultSet rs = preparedStatement.executeQuery();
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
+        return guildList;
+    }
 
-			if (!rs.next())
-				valid = true;
+    public boolean IS_CREST_UNIQUE(final GuildTag gt) {
 
-		} catch (SQLException e) {
-			Logger.error(e);
-		}
+        boolean valid = false;
+        String queryString;
 
-		return valid;
-	}
+        // Ignore bg symbol if bg color is the same as fg color.
 
-	public boolean SET_GUILD_OWNED_CITY(int guildID, int cityID) {
+        if (gt.backgroundColor01 == gt.backgroundColor02)
+            queryString = "SELECT `name` FROM `obj_guild` WHERE `backgroundColor01`=? && `backgroundColor02`=? && `symbolColor`=? && `symbol`=?;";
+        else
+            queryString = "SELECT `name` FROM `obj_guild` WHERE `backgroundColor01`=? && `backgroundColor02`=? && `symbolColor`=? && `backgroundDesign`=? && `symbol`=?;";
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_guild` SET `ownedCity`=? WHERE `UID`=?")) {
 
-			preparedStatement.setLong(1, cityID);
-			preparedStatement.setLong(2, guildID);
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(queryString)) {
 
-			return (preparedStatement.executeUpdate() > 0);
+            if (gt.backgroundColor01 == gt.backgroundColor02) {
+                preparedStatement.setInt(1, gt.backgroundColor01);
+                preparedStatement.setInt(2, gt.backgroundColor02);
+                preparedStatement.setInt(3, gt.symbolColor);
+                preparedStatement.setInt(4, gt.symbol);
+            } else {
+                preparedStatement.setInt(1, gt.backgroundColor01);
+                preparedStatement.setInt(2, gt.backgroundColor02);
+                preparedStatement.setInt(3, gt.symbolColor);
+                preparedStatement.setInt(4, gt.backgroundDesign);
+                preparedStatement.setInt(5, gt.symbol);
+            }
 
-		} catch (SQLException e) {
-			Logger.error(e);
-		}
-		return false;
-	}
+            ResultSet rs = preparedStatement.executeQuery();
 
-	public boolean SET_GUILD_LEADER(int objectUUID,int guildID) {
+            if (!rs.next())
+                valid = true;
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_guild` SET `leaderUID`=? WHERE `UID`=?")) {
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
 
-			preparedStatement.setLong(1, objectUUID);
-			preparedStatement.setLong(2, guildID);
+        return valid;
+    }
 
-			return (preparedStatement.executeUpdate() > 0);
+    public boolean SET_GUILD_OWNED_CITY(int guildID, int cityID) {
 
-		} catch (SQLException e) {
-			Logger.error(e);
-		}
-		return false;
-	}
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_guild` SET `ownedCity`=? WHERE `UID`=?")) {
 
-	public boolean IS_NAME_UNIQUE(final String name) {
+            preparedStatement.setLong(1, cityID);
+            preparedStatement.setLong(2, guildID);
 
-		boolean valid = false;
+            return (preparedStatement.executeUpdate() > 0);
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT `name` FROM `obj_guild` WHERE `name`=?;")) {
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
+        return false;
+    }
 
-			preparedStatement.setString(1, name);
-			ResultSet rs = preparedStatement.executeQuery();
+    public boolean SET_GUILD_LEADER(int objectUUID, int guildID) {
 
-			if (!rs.next())
-				valid = true;
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_guild` SET `leaderUID`=? WHERE `UID`=?")) {
 
-		} catch (SQLException e) {
-			Logger.error(e);
-		}
+            preparedStatement.setLong(1, objectUUID);
+            preparedStatement.setLong(2, guildID);
 
-		return valid;
-	}
+            return (preparedStatement.executeUpdate() > 0);
 
-	public Guild SAVE_TO_DATABASE(Guild g) {
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
+        return false;
+    }
 
-		Guild guild = null;
-		GuildTag guildTag = g.getGuildTag();
+    public boolean IS_NAME_UNIQUE(final String name) {
 
-		if (guildTag == null)
-			return null;
+        boolean valid = false;
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("CALL `guild_CREATE`(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT `name` FROM `obj_guild` WHERE `name`=?;")) {
 
-			preparedStatement.setLong(1, MBServerStatics.worldUUID);
-			preparedStatement.setLong(2, g.getGuildLeaderUUID());
-			preparedStatement.setString(3, g.getName());
-			preparedStatement.setInt(4, guildTag.backgroundColor01);
-			preparedStatement.setInt(5, guildTag.backgroundColor02);
-			preparedStatement.setInt(6, guildTag.symbolColor);
-			preparedStatement.setInt(7, guildTag.backgroundDesign);
-			preparedStatement.setInt(8, guildTag.symbol);
-			preparedStatement.setInt(9, g.getCharter());
-			preparedStatement.setString(10, g.getLeadershipType());
-			preparedStatement.setString(11, g.getMotto());
+            preparedStatement.setString(1, name);
+            ResultSet rs = preparedStatement.executeQuery();
 
-			ResultSet rs = preparedStatement.executeQuery();
+            if (!rs.next())
+                valid = true;
 
-			int objectUUID = (int) rs.getLong("UID");
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
 
-			if (objectUUID > 0)
-				guild = GET_GUILD(objectUUID);
+        return valid;
+    }
 
-		} catch (SQLException e) {
-			Logger.error(e);
-		}
-		return guild;
-	}
+    public Guild SAVE_TO_DATABASE(Guild g) {
 
-	public boolean UPDATE_GUILD_RANK_OFFLINE(int target, int newRank, int guildId) {
+        Guild guild = null;
+        GuildTag guildTag = g.getGuildTag();
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_character` SET `guild_title`=? WHERE `UID`=? && `guildUID`=?")) {
+        if (guildTag == null)
+            return null;
 
-			preparedStatement.setInt(1, newRank);
-			preparedStatement.setInt(2, target);
-			preparedStatement.setInt(3, guildId);
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("CALL `guild_CREATE`(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
 
-			return (preparedStatement.executeUpdate() > 0);
+            preparedStatement.setLong(1, MBServerStatics.worldUUID);
+            preparedStatement.setLong(2, g.getGuildLeaderUUID());
+            preparedStatement.setString(3, g.getName());
+            preparedStatement.setInt(4, guildTag.backgroundColor01);
+            preparedStatement.setInt(5, guildTag.backgroundColor02);
+            preparedStatement.setInt(6, guildTag.symbolColor);
+            preparedStatement.setInt(7, guildTag.backgroundDesign);
+            preparedStatement.setInt(8, guildTag.symbol);
+            preparedStatement.setInt(9, g.getCharter());
+            preparedStatement.setString(10, g.getLeadershipType());
+            preparedStatement.setString(11, g.getMotto());
 
-		} catch (SQLException e) {
-			Logger.error(e);
-		}
-		return false;
-	}
+            ResultSet rs = preparedStatement.executeQuery();
 
-	public boolean UPDATE_PARENT(int guildUID, int parentUID) {
+            int objectUUID = (int) rs.getLong("UID");
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `object` SET `parent`=? WHERE `UID`=?")) {
+            if (objectUUID > 0)
+                guild = GET_GUILD(objectUUID);
 
-			preparedStatement.setInt(1, parentUID);
-			preparedStatement.setInt(2, guildUID);
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
+        return guild;
+    }
 
-			return (preparedStatement.executeUpdate() > 0);
+    public boolean UPDATE_GUILD_RANK_OFFLINE(int target, int newRank, int guildId) {
 
-		} catch (SQLException e) {
-			Logger.error(e);
-		}
-		return false;
-	}
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_character` SET `guild_title`=? WHERE `UID`=? && `guildUID`=?")) {
 
-	public int DELETE_GUILD(final Guild guild) {
+            preparedStatement.setInt(1, newRank);
+            preparedStatement.setInt(2, target);
+            preparedStatement.setInt(3, guildId);
 
-		int row_count = 0;
+            return (preparedStatement.executeUpdate() > 0);
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM `object` WHERE `UID` = ?")) {
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
+        return false;
+    }
 
-			preparedStatement.setLong(1, guild.getObjectUUID());
-			row_count = preparedStatement.executeUpdate();
+    public boolean UPDATE_PARENT(int guildUID, int parentUID) {
 
-		} catch (SQLException e) {
-			Logger.error(e);
-		}
-		return row_count;
-	}
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `object` SET `parent`=? WHERE `UID`=?")) {
 
-	public boolean UPDATE_MINETIME(int guildUID, int mineTime) {
+            preparedStatement.setInt(1, parentUID);
+            preparedStatement.setInt(2, guildUID);
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_guild` SET `mineTime`=? WHERE `UID`=?")) {
+            return (preparedStatement.executeUpdate() > 0);
 
-			preparedStatement.setInt(1, mineTime);
-			preparedStatement.setInt(2, guildUID);
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
+        return false;
+    }
 
-			return (preparedStatement.executeUpdate() > 0);
+    public int DELETE_GUILD(final Guild guild) {
 
-		} catch (SQLException e) {
-			Logger.error(e);
-		}
-		return false;
-	}
+        int row_count = 0;
 
-	public int UPDATE_GUILD_STATUS_OFFLINE(int target, boolean isInnerCouncil, boolean isRecruiter, boolean isTaxCollector, int guildId) {
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM `object` WHERE `UID` = ?")) {
 
-		int updateMask = 0;
-		int row_count = 0;
+            preparedStatement.setLong(1, guild.getObjectUUID());
+            row_count = preparedStatement.executeUpdate();
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT `guild_isInnerCouncil`, `guild_isTaxCollector`, `guild_isRecruiter` FROM `obj_character` WHERE `UID`=? && `guildUID`=?")) {
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
+        return row_count;
+    }
 
-			preparedStatement.setLong(1, target);
-			preparedStatement.setLong(2, guildId);
+    public boolean UPDATE_MINETIME(int guildUID, int mineTime) {
 
-			ResultSet rs = preparedStatement.executeQuery();
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_guild` SET `mineTime`=? WHERE `UID`=?")) {
 
-			//If the first query had no results, neither will the second
+            preparedStatement.setInt(1, mineTime);
+            preparedStatement.setInt(2, guildUID);
 
-			//Determine what is different
+            return (preparedStatement.executeUpdate() > 0);
 
-			if (rs.first()) {
-				if (rs.getBoolean("guild_isInnerCouncil") != isInnerCouncil)
-					updateMask |= 4;
-				if (rs.getBoolean("guild_isRecruiter") != isRecruiter)
-					updateMask |= 2;
-				if (rs.getBoolean("guild_isTaxCollector") != isTaxCollector)
-					updateMask |= 1;
-			}
-		} catch (SQLException e) {
-			Logger.error(e);
-		}
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
+        return false;
+    }
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_character` SET `guild_isInnerCouncil`=?, `guild_isTaxCollector`=?, `guild_isRecruiter`=?, `guild_isFullMember`=? WHERE `UID`=? && `guildUID`=?")) {
 
-			preparedStatement.setBoolean(1, isInnerCouncil);
-			preparedStatement.setBoolean(2, isRecruiter);
-			preparedStatement.setBoolean(3, isTaxCollector);
-			preparedStatement.setBoolean(4, ((updateMask > 0))); //If you are becoming an officer, or where an officer, your a full member...
-			preparedStatement.setLong(5, target);
-			preparedStatement.setLong(6, guildId);
+    // *** Refactor: Why are we saving tags/charter in update?
+    //               It's not like this shit ever changes.
 
-			row_count = preparedStatement.executeUpdate();
+    public int UPDATE_GUILD_STATUS_OFFLINE(int target, boolean isInnerCouncil, boolean isRecruiter, boolean isTaxCollector, int guildId) {
 
-		} catch (SQLException e) {
-			Logger.error(e);
-		}
-		return row_count;
-	}
+        int updateMask = 0;
+        int row_count = 0;
 
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT `guild_isInnerCouncil`, `guild_isTaxCollector`, `guild_isRecruiter` FROM `obj_character` WHERE `UID`=? && `guildUID`=?")) {
 
-	// *** Refactor: Why are we saving tags/charter in update?
-	//               It's not like this shit ever changes.
+            preparedStatement.setLong(1, target);
+            preparedStatement.setLong(2, guildId);
 
-	public boolean updateDatabase(final Guild g) {
+            ResultSet rs = preparedStatement.executeQuery();
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_guild` SET `name`=?, `backgroundColor01`=?, `backgroundColor02`=?, `symbolColor`=?, `backgroundDesign`=?, `symbol`=?, `charter`=?, `motd`=?, `icMotd`=?, `nationMotd`=?, `leaderUID`=? WHERE `UID`=?")) {
+            //If the first query had no results, neither will the second
 
-			preparedStatement.setString(1, g.getName());
-			preparedStatement.setInt(2, g.getGuildTag().backgroundColor01);
-			preparedStatement.setInt(3, g.getGuildTag().backgroundColor02);
-			preparedStatement.setInt(4, g.getGuildTag().symbolColor);
-			preparedStatement.setInt(5, g.getGuildTag().backgroundDesign);
-			preparedStatement.setInt(6, g.getGuildTag().symbol);
-			preparedStatement.setInt(7, g.getCharter());
-			preparedStatement.setString(8, g.getMOTD());
-			preparedStatement.setString(9, g.getICMOTD());
-			preparedStatement.setString(10, "");
-			preparedStatement.setInt(11, g.getGuildLeaderUUID());
-			preparedStatement.setLong(12, (long) g.getObjectUUID());
+            //Determine what is different
 
-			return (preparedStatement.executeUpdate() > 0);
+            if (rs.first()) {
+                if (rs.getBoolean("guild_isInnerCouncil") != isInnerCouncil)
+                    updateMask |= 4;
+                if (rs.getBoolean("guild_isRecruiter") != isRecruiter)
+                    updateMask |= 2;
+                if (rs.getBoolean("guild_isTaxCollector") != isTaxCollector)
+                    updateMask |= 1;
+            }
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
 
-		} catch (SQLException e) {
-			Logger.error(e);
-		}
-		return false;
-	}
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_character` SET `guild_isInnerCouncil`=?, `guild_isTaxCollector`=?, `guild_isRecruiter`=?, `guild_isFullMember`=? WHERE `UID`=? && `guildUID`=?")) {
 
-	public boolean ADD_TO_ALLIANCE_LIST(final long sourceGuildID, final long targetGuildID, boolean isRecommended, boolean isAlly, String recommender) {
+            preparedStatement.setBoolean(1, isInnerCouncil);
+            preparedStatement.setBoolean(2, isRecruiter);
+            preparedStatement.setBoolean(3, isTaxCollector);
+            preparedStatement.setBoolean(4, ((updateMask > 0))); //If you are becoming an officer, or where an officer, your a full member...
+            preparedStatement.setLong(5, target);
+            preparedStatement.setLong(6, guildId);
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO `dyn_guild_allianceenemylist` (`GuildID`, `OtherGuildID`,`isRecommended`, `isAlliance`, `recommender`) VALUES (?,?,?,?,?)")) {
+            row_count = preparedStatement.executeUpdate();
 
-			preparedStatement.setLong(1, sourceGuildID);
-			preparedStatement.setLong(2, targetGuildID);
-			preparedStatement.setBoolean(3, isRecommended);
-			preparedStatement.setBoolean(4, isAlly);
-			preparedStatement.setString(5, recommender);
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
+        return row_count;
+    }
 
-			return (preparedStatement.executeUpdate() > 0);
+    public boolean updateDatabase(final Guild g) {
 
-		} catch (SQLException e) {
-			Logger.error(e);
-		}
-		return false;
-	}
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_guild` SET `name`=?, `backgroundColor01`=?, `backgroundColor02`=?, `symbolColor`=?, `backgroundDesign`=?, `symbol`=?, `charter`=?, `motd`=?, `icMotd`=?, `nationMotd`=?, `leaderUID`=? WHERE `UID`=?")) {
 
-	public boolean REMOVE_FROM_ALLIANCE_LIST(final long sourceGuildID, long targetGuildID) {
+            preparedStatement.setString(1, g.getName());
+            preparedStatement.setInt(2, g.getGuildTag().backgroundColor01);
+            preparedStatement.setInt(3, g.getGuildTag().backgroundColor02);
+            preparedStatement.setInt(4, g.getGuildTag().symbolColor);
+            preparedStatement.setInt(5, g.getGuildTag().backgroundDesign);
+            preparedStatement.setInt(6, g.getGuildTag().symbol);
+            preparedStatement.setInt(7, g.getCharter());
+            preparedStatement.setString(8, g.getMOTD());
+            preparedStatement.setString(9, g.getICMOTD());
+            preparedStatement.setString(10, "");
+            preparedStatement.setInt(11, g.getGuildLeaderUUID());
+            preparedStatement.setLong(12, g.getObjectUUID());
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM `dyn_guild_allianceenemylist` WHERE `GuildID`=? AND `OtherGuildID`=?")) {
+            return (preparedStatement.executeUpdate() > 0);
 
-			preparedStatement.setLong(1, sourceGuildID);
-			preparedStatement.setLong(2, targetGuildID);
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
+        return false;
+    }
 
-			return (preparedStatement.executeUpdate() > 0);
+    public boolean ADD_TO_ALLIANCE_LIST(final long sourceGuildID, final long targetGuildID, boolean isRecommended, boolean isAlly, String recommender) {
 
-		} catch (SQLException e) {
-			Logger.error(e);
-		}
-		return false;
-	}
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO `dyn_guild_allianceenemylist` (`GuildID`, `OtherGuildID`,`isRecommended`, `isAlliance`, `recommender`) VALUES (?,?,?,?,?)")) {
 
-	public boolean UPDATE_RECOMMENDED(final long sourceGuildID, long targetGuildID) {
+            preparedStatement.setLong(1, sourceGuildID);
+            preparedStatement.setLong(2, targetGuildID);
+            preparedStatement.setBoolean(3, isRecommended);
+            preparedStatement.setBoolean(4, isAlly);
+            preparedStatement.setString(5, recommender);
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `dyn_guild_allianceenemylist` SET `isRecommended` = ? WHERE `GuildID`=? AND `OtherGuildID`=?")) {
+            return (preparedStatement.executeUpdate() > 0);
 
-			preparedStatement.setLong(1, sourceGuildID);
-			preparedStatement.setLong(2, targetGuildID);
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
+        return false;
+    }
 
-			return (preparedStatement.executeUpdate() > 0);
+    public boolean REMOVE_FROM_ALLIANCE_LIST(final long sourceGuildID, long targetGuildID) {
 
-		} catch (SQLException e) {
-			Logger.error(e);
-			return false;
-		}
-	}
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM `dyn_guild_allianceenemylist` WHERE `GuildID`=? AND `OtherGuildID`=?")) {
 
-	public boolean UPDATE_ALLIANCE(final long sourceGuildID, long targetGuildID, boolean isAlly) {
+            preparedStatement.setLong(1, sourceGuildID);
+            preparedStatement.setLong(2, targetGuildID);
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `dyn_guild_allianceenemylist` SET `isAlliance` = ? WHERE `GuildID`=? AND `OtherGuildID`=?")) {
+            return (preparedStatement.executeUpdate() > 0);
 
-			preparedStatement.setLong(1, sourceGuildID);
-			preparedStatement.setLong(2, targetGuildID);
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
+        return false;
+    }
 
-			return (preparedStatement.executeUpdate() > 0);
+    public boolean UPDATE_RECOMMENDED(final long sourceGuildID, long targetGuildID) {
 
-		} catch (SQLException e) {
-			Logger.error(e);
-			return false;
-		}
-	}
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `dyn_guild_allianceenemylist` SET `isRecommended` = ? WHERE `GuildID`=? AND `OtherGuildID`=?")) {
 
-	public boolean UPDATE_ALLIANCE_AND_RECOMMENDED(final long sourceGuildID, long targetGuildID, boolean isAlly) {
+            preparedStatement.setLong(1, sourceGuildID);
+            preparedStatement.setLong(2, targetGuildID);
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `dyn_guild_allianceenemylist` SET `isRecommended` = ?, `isAlliance` = ? WHERE `GuildID`=? AND `OtherGuildID`=?")) {
+            return (preparedStatement.executeUpdate() > 0);
 
-			preparedStatement.setByte(1, (byte) 0);
-			preparedStatement.setBoolean(2, isAlly);
-			preparedStatement.setLong(3, sourceGuildID);
-			preparedStatement.setLong(4, targetGuildID);
+        } catch (SQLException e) {
+            Logger.error(e);
+            return false;
+        }
+    }
 
-			return (preparedStatement.executeUpdate() > 0);
+    public boolean UPDATE_ALLIANCE(final long sourceGuildID, long targetGuildID, boolean isAlly) {
 
-		} catch (SQLException e) {
-			Logger.error(e);
-			return false;
-		}
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `dyn_guild_allianceenemylist` SET `isAlliance` = ? WHERE `GuildID`=? AND `OtherGuildID`=?")) {
 
-	}
+            preparedStatement.setLong(1, sourceGuildID);
+            preparedStatement.setLong(2, targetGuildID);
 
-	public void LOAD_ALL_ALLIANCES_FOR_GUILD(Guild guild) {
+            return (preparedStatement.executeUpdate() > 0);
 
-		if (guild == null)
-			return;
+        } catch (SQLException e) {
+            Logger.error(e);
+            return false;
+        }
+    }
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `dyn_guild_allianceenemylist` WHERE `GuildID` = ?")) {
+    public boolean UPDATE_ALLIANCE_AND_RECOMMENDED(final long sourceGuildID, long targetGuildID, boolean isAlly) {
 
-			preparedStatement.setInt(1, guild.getObjectUUID());
-			ResultSet rs = preparedStatement.executeQuery();
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `dyn_guild_allianceenemylist` SET `isRecommended` = ?, `isAlliance` = ? WHERE `GuildID`=? AND `OtherGuildID`=?")) {
 
-			while (rs.next()) {
-				GuildAlliances guildAlliance = new GuildAlliances(rs);
-				guild.guildAlliances.put(guildAlliance.getAllianceGuild(), guildAlliance);
-			}
+            preparedStatement.setByte(1, (byte) 0);
+            preparedStatement.setBoolean(2, isAlly);
+            preparedStatement.setLong(3, sourceGuildID);
+            preparedStatement.setLong(4, targetGuildID);
 
-		} catch (SQLException e) {
-			Logger.error(e);
-		}
-	}
+            return (preparedStatement.executeUpdate() > 0);
 
-	public static void LOAD_GUILD_HISTORY_FOR_PLAYER(PlayerCharacter playerCharacter) {
+        } catch (SQLException e) {
+            Logger.error(e);
+            return false;
+        }
 
-		if (playerCharacter == null)
-			return;
+    }
 
-		ArrayList<GuildHistory> guildList = new ArrayList<>();
+    public void LOAD_ALL_ALLIANCES_FOR_GUILD(Guild guild) {
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `dyn_guild_allianceenemylist` WHERE `GuildID` = ?")) {
+        if (guild == null)
+            return;
 
-			preparedStatement.setInt(1, playerCharacter.getObjectUUID());
-			ResultSet rs = preparedStatement.executeQuery();
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `dyn_guild_allianceenemylist` WHERE `GuildID` = ?")) {
 
-			while (rs.next()) {
-				GuildHistory guildEntry = new GuildHistory(rs);
-				guildList.add(guildEntry);
-			}
+            preparedStatement.setInt(1, guild.getObjectUUID());
+            ResultSet rs = preparedStatement.executeQuery();
 
-		} catch (SQLException e) {
-			Logger.error(e);
-		}
+            while (rs.next()) {
+                GuildAlliances guildAlliance = new GuildAlliances(rs);
+                guild.guildAlliances.put(guildAlliance.getAllianceGuild(), guildAlliance);
+            }
 
-		playerCharacter.setGuildHistory(guildList);
-	}
-	
-	//TODO uncomment this when finished with guild history warehouse integration
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
+    }
+
+    //TODO uncomment this when finished with guild history warehouse integration
 //	public HashMap<Integer, GuildRecord> GET_WAREHOUSE_GUILD_HISTORY(){
 //		
 //		HashMap<Integer, GuildRecord> tempMap = new HashMap<>();

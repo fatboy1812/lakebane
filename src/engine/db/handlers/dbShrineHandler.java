@@ -31,10 +31,28 @@ public class dbShrineHandler extends dbHandlerBase {
         this.localObjectType = engine.Enum.GameObjectType.valueOf(this.localClass.getSimpleName());
     }
 
-    public ArrayList<AbstractGameObject> CREATE_SHRINE( int parentZoneID, int OwnerUUID, String name, int meshUUID,
-            Vector3fImmutable location, float meshScale, int currentHP,
-            ProtectionState protectionState, int currentGold, int rank,
-            DateTime upgradeDate, int blueprintUUID, float w, float rotY, String shrineType) {
+    public static void addObject(ArrayList<AbstractGameObject> list, ResultSet rs) throws SQLException {
+
+        String type = rs.getString("type");
+
+        switch (type) {
+            case "building":
+                Building building = new Building(rs);
+                DbManager.addToCache(building);
+                list.add(building);
+                break;
+            case "shrine":
+                Shrine shrine = new Shrine(rs);
+                DbManager.addToCache(shrine);
+                list.add(shrine);
+                break;
+        }
+    }
+
+    public ArrayList<AbstractGameObject> CREATE_SHRINE(int parentZoneID, int OwnerUUID, String name, int meshUUID,
+                                                       Vector3fImmutable location, float meshScale, int currentHP,
+                                                       ProtectionState protectionState, int currentGold, int rank,
+                                                       DateTime upgradeDate, int blueprintUUID, float w, float rotY, String shrineType) {
 
         ArrayList<AbstractGameObject> shrineList = new ArrayList<>();
 
@@ -101,24 +119,6 @@ public class dbShrineHandler extends dbHandlerBase {
             return false;
         }
 
-    }
-
-    public static void addObject(ArrayList<AbstractGameObject> list, ResultSet rs) throws SQLException {
-
-        String type = rs.getString("type");
-
-        switch (type) {
-            case "building":
-                Building building = new Building(rs);
-                DbManager.addToCache(building);
-                list.add(building);
-                break;
-            case "shrine":
-                Shrine shrine = new Shrine(rs);
-                DbManager.addToCache(shrine);
-                list.add(shrine);
-                break;
-        }
     }
 
     public void LOAD_ALL_SHRINES() {

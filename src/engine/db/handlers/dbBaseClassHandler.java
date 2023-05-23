@@ -23,69 +23,69 @@ import java.util.ArrayList;
 
 public class dbBaseClassHandler extends dbHandlerBase {
 
-	public dbBaseClassHandler() {
-		this.localClass = BaseClass.class;
-		this.localObjectType = Enum.GameObjectType.BaseClass;
-	}
+    public dbBaseClassHandler() {
+        this.localClass = BaseClass.class;
+        this.localObjectType = Enum.GameObjectType.BaseClass;
+    }
 
-	public BaseClass GET_BASE_CLASS(final int id) {
+    public BaseClass GET_BASE_CLASS(final int id) {
 
-		if (id == 0)
-			return null;
+        if (id == 0)
+            return null;
 
-		BaseClass baseClass = (BaseClass) DbManager.getFromCache(GameObjectType.BaseClass, id);
+        BaseClass baseClass = (BaseClass) DbManager.getFromCache(GameObjectType.BaseClass, id);
 
-		if (baseClass != null)
-			return baseClass;
+        if (baseClass != null)
+            return baseClass;
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `obj_account` WHERE `UID`=?")) {
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `obj_account` WHERE `UID`=?")) {
 
-			preparedStatement.setLong(1, id);
+            preparedStatement.setLong(1, id);
 
-			ResultSet rs = preparedStatement.executeQuery();
-			baseClass = (BaseClass) getObjectFromRs(rs);
+            ResultSet rs = preparedStatement.executeQuery();
+            baseClass = (BaseClass) getObjectFromRs(rs);
 
-		} catch (SQLException e) {
-			Logger.error(e);
-		}
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
 
-		return baseClass;
-	}
+        return baseClass;
+    }
 
-	public ArrayList<BaseClass> GET_BASECLASS_FOR_RACE(final int id) {
+    public ArrayList<BaseClass> GET_BASECLASS_FOR_RACE(final int id) {
 
-		ArrayList<BaseClass> baseClasses = new ArrayList<>();
+        ArrayList<BaseClass> baseClasses = new ArrayList<>();
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT b.* FROM `static_rune_baseclass` b, `static_rune_racebaseclass` r WHERE b.`ID` = r.`BaseClassID` && r.`RaceID` = ?")) {
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT b.* FROM `static_rune_baseclass` b, `static_rune_racebaseclass` r WHERE b.`ID` = r.`BaseClassID` && r.`RaceID` = ?")) {
 
-			preparedStatement.setInt(1, id);
+            preparedStatement.setInt(1, id);
 
-			ResultSet rs = preparedStatement.executeQuery();
-			baseClasses = getObjectsFromRs(rs, 20);
+            ResultSet rs = preparedStatement.executeQuery();
+            baseClasses = getObjectsFromRs(rs, 20);
 
-		} catch (SQLException e) {
-			Logger.error(e);
-		}
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
 
-		return baseClasses;
-	}
+        return baseClasses;
+    }
 
-	public ArrayList<BaseClass> GET_ALL_BASE_CLASSES() {
+    public ArrayList<BaseClass> GET_ALL_BASE_CLASSES() {
 
-		ArrayList<BaseClass> baseClasses = new ArrayList<>();
+        ArrayList<BaseClass> baseClasses = new ArrayList<>();
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `static_rune_baseclass`;")) {
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `static_rune_baseclass`;")) {
 
-			ResultSet rs = preparedStatement.executeQuery();
-			baseClasses = getObjectsFromRs(rs, 20);
+            ResultSet rs = preparedStatement.executeQuery();
+            baseClasses = getObjectsFromRs(rs, 20);
 
-		} catch (SQLException e) {
-			Logger.error(e);
-		}
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
 
-		return baseClasses;
-	}
+        return baseClasses;
+    }
 }

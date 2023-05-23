@@ -21,27 +21,27 @@ import java.util.ArrayList;
 
 public class dbEffectsResourceCostHandler extends dbHandlerBase {
 
-	public dbEffectsResourceCostHandler() {
-		this.localClass = EffectsResourceCosts.class;
+    public dbEffectsResourceCostHandler() {
+        this.localClass = EffectsResourceCosts.class;
         this.localObjectType = engine.Enum.GameObjectType.valueOf(this.localClass.getSimpleName());
-	}
-	
-	public ArrayList<EffectsResourceCosts> GET_ALL_EFFECT_RESOURCES(String idString) {
+    }
 
-		ArrayList<EffectsResourceCosts> effectsResourceCosts = new ArrayList<>();
+    public ArrayList<EffectsResourceCosts> GET_ALL_EFFECT_RESOURCES(String idString) {
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `static_power_effectcost`  WHERE `IDString` = ?")) {
+        ArrayList<EffectsResourceCosts> effectsResourceCosts = new ArrayList<>();
 
-			preparedStatement.setString(1, idString);
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `static_power_effectcost`  WHERE `IDString` = ?")) {
 
-			ResultSet rs = preparedStatement.executeQuery();
-			effectsResourceCosts = getObjectsFromRs(rs, 1000);
+            preparedStatement.setString(1, idString);
 
-		} catch (SQLException e) {
-			Logger.error(e);
-		}
+            ResultSet rs = preparedStatement.executeQuery();
+            effectsResourceCosts = getObjectsFromRs(rs, 1000);
 
-		return effectsResourceCosts;
-	}
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
+
+        return effectsResourceCosts;
+    }
 }

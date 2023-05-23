@@ -134,7 +134,7 @@ public class dbCharacterSkillHandler extends dbHandlerBase {
 			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `dyn_character_skill` SET `trains`=? WHERE `UID` = ?")) {
 
 			preparedStatement.setShort(1, (short) characterSkill.getNumTrains());
-			preparedStatement.setLong(2, (long) characterSkill.getObjectUUID());
+			preparedStatement.setLong(2, characterSkill.getObjectUUID());
 
 			if (preparedStatement.executeUpdate() != 0)
 				characterSkill.syncTrains();
@@ -162,7 +162,7 @@ public class dbCharacterSkillHandler extends dbHandlerBase {
 			preparedStatement.setInt(1, characterSkill.getSkillsBase().getObjectUUID());
 			preparedStatement.setInt(2, CharacterSkill.GetOwner(characterSkill).getObjectUUID());
 			preparedStatement.setShort(3, (short) characterSkill.getNumTrains());
-			preparedStatement.setLong(4, (long) characterSkill.getObjectUUID());
+			preparedStatement.setLong(4, characterSkill.getObjectUUID());
 
 			if (preparedStatement.executeUpdate() != 0)
 				characterSkill.syncTrains();

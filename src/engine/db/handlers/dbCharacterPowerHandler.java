@@ -24,149 +24,149 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class dbCharacterPowerHandler extends dbHandlerBase {
 
-	public dbCharacterPowerHandler() {
-		this.localClass = CharacterPower.class;
-		this.localObjectType = Enum.GameObjectType.valueOf(this.localClass.getSimpleName());
-	}
+    public dbCharacterPowerHandler() {
+        this.localClass = CharacterPower.class;
+        this.localObjectType = Enum.GameObjectType.valueOf(this.localClass.getSimpleName());
+    }
 
-	public CharacterPower ADD_CHARACTER_POWER(CharacterPower toAdd) {
+    public CharacterPower ADD_CHARACTER_POWER(CharacterPower toAdd) {
 
-		CharacterPower characterPower = null;
+        CharacterPower characterPower = null;
 
-		if (CharacterPower.getOwner(toAdd) == null || toAdd.getPower() == null) {
-			Logger.error("dbCharacterSkillHandler.ADD_Power", toAdd.getObjectUUID() + " missing owner or powersBase");
-			return null;
-		}
+        if (CharacterPower.getOwner(toAdd) == null || toAdd.getPower() == null) {
+            Logger.error("dbCharacterSkillHandler.ADD_Power", toAdd.getObjectUUID() + " missing owner or powersBase");
+            return null;
+        }
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO `dyn_character_power` (`CharacterID`, `powersBaseToken`, `trains`) VALUES (?, ?, ?);")) {
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO `dyn_character_power` (`CharacterID`, `powersBaseToken`, `trains`) VALUES (?, ?, ?);")) {
 
-			preparedStatement.setLong(1, CharacterPower.getOwner(toAdd).getObjectUUID());
-			preparedStatement.setInt(2, toAdd.getPower().getToken());
-			preparedStatement.setInt(3, toAdd.getTrains());
+            preparedStatement.setLong(1, CharacterPower.getOwner(toAdd).getObjectUUID());
+            preparedStatement.setInt(2, toAdd.getPower().getToken());
+            preparedStatement.setInt(3, toAdd.getTrains());
 
-			preparedStatement.executeUpdate();
-			ResultSet rs = preparedStatement.getGeneratedKeys();
+            preparedStatement.executeUpdate();
+            ResultSet rs = preparedStatement.getGeneratedKeys();
 
-			if (rs.next())
-				characterPower = GET_CHARACTER_POWER(rs.getInt(1));
+            if (rs.next())
+                characterPower = GET_CHARACTER_POWER(rs.getInt(1));
 
-		} catch (SQLException e) {
-			Logger.error(e);
-			return null;
-		}
-		return characterPower;
-	}
+        } catch (SQLException e) {
+            Logger.error(e);
+            return null;
+        }
+        return characterPower;
+    }
 
-	public int DELETE_CHARACTER_POWER(final int objectUUID) {
+    public int DELETE_CHARACTER_POWER(final int objectUUID) {
 
-		int rowCount = 0;
+        int rowCount = 0;
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM `dyn_character_power` WHERE `UID` = ?")) {
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM `dyn_character_power` WHERE `UID` = ?")) {
 
-			preparedStatement.setLong(1, objectUUID);
-			rowCount = preparedStatement.executeUpdate();
+            preparedStatement.setLong(1, objectUUID);
+            rowCount = preparedStatement.executeUpdate();
 
-		} catch (SQLException e) {
-			Logger.error(e);
-		}
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
 
-		return rowCount;
-	}
+        return rowCount;
+    }
 
-	public CharacterPower GET_CHARACTER_POWER(int objectUUID) {
+    public CharacterPower GET_CHARACTER_POWER(int objectUUID) {
 
-		CharacterPower characterPower = (CharacterPower) DbManager.getFromCache(Enum.GameObjectType.CharacterPower, objectUUID);
+        CharacterPower characterPower = (CharacterPower) DbManager.getFromCache(Enum.GameObjectType.CharacterPower, objectUUID);
 
-		if (characterPower != null)
-			return characterPower;
+        if (characterPower != null)
+            return characterPower;
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `dyn_character_power` WHERE `UID` = ?")) {
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `dyn_character_power` WHERE `UID` = ?")) {
 
-			preparedStatement.setLong(1, objectUUID);
-			ResultSet rs = preparedStatement.executeQuery();
-			characterPower = (CharacterPower) getObjectFromRs(rs);
+            preparedStatement.setLong(1, objectUUID);
+            ResultSet rs = preparedStatement.executeQuery();
+            characterPower = (CharacterPower) getObjectFromRs(rs);
 
-		} catch (SQLException e) {
-			Logger.error(e);
-		}
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
 
-		return characterPower;
-	}
+        return characterPower;
+    }
 
-	public ConcurrentHashMap<Integer, CharacterPower> GET_POWERS_FOR_CHARACTER(PlayerCharacter pc) {
+    public ConcurrentHashMap<Integer, CharacterPower> GET_POWERS_FOR_CHARACTER(PlayerCharacter pc) {
 
-		ConcurrentHashMap<Integer, CharacterPower> powers = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_LOW);
-		int objectUUID = pc.getObjectUUID();
+        ConcurrentHashMap<Integer, CharacterPower> powers = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_LOW);
+        int objectUUID = pc.getObjectUUID();
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `dyn_character_power` WHERE CharacterID = ?")) {
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `dyn_character_power` WHERE CharacterID = ?")) {
 
-			preparedStatement.setLong(1, (long) objectUUID);
-			ResultSet rs = preparedStatement.executeQuery();
+            preparedStatement.setLong(1, objectUUID);
+            ResultSet rs = preparedStatement.executeQuery();
 
-			while (rs.next()) {
-				CharacterPower cp = new CharacterPower(rs, pc);
-				if (cp.getPower() != null)
-					powers.put(cp.getPower().getToken(), cp);
-			}
+            while (rs.next()) {
+                CharacterPower cp = new CharacterPower(rs, pc);
+                if (cp.getPower() != null)
+                    powers.put(cp.getPower().getToken(), cp);
+            }
 
-		} catch (SQLException e) {
-			Logger.error(e);
-		}
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
 
-		return powers;
-	}
+        return powers;
+    }
 
-	public void UPDATE_TRAINS(final CharacterPower characterPower) {
+    public void UPDATE_TRAINS(final CharacterPower characterPower) {
 
-		//skip update if nothing changed
+        //skip update if nothing changed
 
-		if (!characterPower.isTrained())
-			return;
+        if (!characterPower.isTrained())
+            return;
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `dyn_character_power` SET `trains`=? WHERE `UID`=?")) {
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `dyn_character_power` SET `trains`=? WHERE `UID`=?")) {
 
-			preparedStatement.setShort(1, (short) characterPower.getTrains());
-			preparedStatement.setInt(2, characterPower.getObjectUUID());
+            preparedStatement.setShort(1, (short) characterPower.getTrains());
+            preparedStatement.setInt(2, characterPower.getObjectUUID());
 
-			preparedStatement.execute();
+            preparedStatement.execute();
 
-		} catch (SQLException e) {
-			Logger.error(e);
-		}
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
 
-		characterPower.setTrained(false);
-	}
+        characterPower.setTrained(false);
+    }
 
-	public void updateDatabase(final CharacterPower pow) {
+    public void updateDatabase(final CharacterPower pow) {
 
-		if (pow.getPower() == null) {
-			Logger.error("Failed to find powersBase for Power " + pow.getObjectUUID());
-			return;
-		}
+        if (pow.getPower() == null) {
+            Logger.error("Failed to find powersBase for Power " + pow.getObjectUUID());
+            return;
+        }
 
-		if (CharacterPower.getOwner(pow) == null) {
-			Logger.error("Failed to find owner for Power " + pow.getObjectUUID());
-			return;
-		}
+        if (CharacterPower.getOwner(pow) == null) {
+            Logger.error("Failed to find owner for Power " + pow.getObjectUUID());
+            return;
+        }
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `dyn_character_power` SET `PowersBaseToken`=?, `CharacterID`=?, `trains`=? WHERE `UID`=?")) {
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `dyn_character_power` SET `PowersBaseToken`=?, `CharacterID`=?, `trains`=? WHERE `UID`=?")) {
 
-			preparedStatement.setInt(1, pow.getPower().getToken());
-			preparedStatement.setInt(2, CharacterPower.getOwner(pow).getObjectUUID());
-			preparedStatement.setShort(3, (short) pow.getTrains());
-			preparedStatement.setInt(4, pow.getObjectUUID());
-			preparedStatement.execute();
+            preparedStatement.setInt(1, pow.getPower().getToken());
+            preparedStatement.setInt(2, CharacterPower.getOwner(pow).getObjectUUID());
+            preparedStatement.setShort(3, (short) pow.getTrains());
+            preparedStatement.setInt(4, pow.getObjectUUID());
+            preparedStatement.execute();
 
-		} catch (SQLException e) {
-			Logger.error(e);
-		}
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
 
-		pow.setTrained(false);
-	}
+        pow.setTrained(false);
+    }
 }

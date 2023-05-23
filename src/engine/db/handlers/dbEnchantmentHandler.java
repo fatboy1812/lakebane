@@ -21,55 +21,55 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class dbEnchantmentHandler extends dbHandlerBase {
 
-	public ConcurrentHashMap<String, Integer> GET_ENCHANTMENTS_FOR_ITEM(final int id) {
+    public ConcurrentHashMap<String, Integer> GET_ENCHANTMENTS_FOR_ITEM(final int id) {
 
-		ConcurrentHashMap<String, Integer> enchants = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_LOW);
+        ConcurrentHashMap<String, Integer> enchants = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_LOW);
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `dyn_item_enchantment` WHERE `ItemID`=?;")) {
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `dyn_item_enchantment` WHERE `ItemID`=?;")) {
 
-			preparedStatement.setLong(1, id);
+            preparedStatement.setLong(1, id);
 
-			ResultSet rs = preparedStatement.executeQuery();
+            ResultSet rs = preparedStatement.executeQuery();
 
-			while (rs.next())
-				enchants.put(rs.getString("powerAction"), rs.getInt("rank"));
+            while (rs.next())
+                enchants.put(rs.getString("powerAction"), rs.getInt("rank"));
 
-		} catch (SQLException e) {
-			Logger.error(e);
-		}
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
 
-		return enchants;
-	}
+        return enchants;
+    }
 
-	public boolean CREATE_ENCHANTMENT_FOR_ITEM(long itemID, String powerAction, int rank) {
+    public boolean CREATE_ENCHANTMENT_FOR_ITEM(long itemID, String powerAction, int rank) {
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO `dyn_item_enchantment` (`itemID`, `powerAction`, `rank`) VALUES (?, ?, ?);")) {
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO `dyn_item_enchantment` (`itemID`, `powerAction`, `rank`) VALUES (?, ?, ?);")) {
 
-			preparedStatement.setLong(1, itemID);
-			preparedStatement.setString(2, powerAction);
-			preparedStatement.setInt(3, rank);
+            preparedStatement.setLong(1, itemID);
+            preparedStatement.setString(2, powerAction);
+            preparedStatement.setInt(3, rank);
 
-			return (preparedStatement.executeUpdate() > 0);
+            return (preparedStatement.executeUpdate() > 0);
 
-		} catch (SQLException e) {
-			Logger.error(e);
-		}
-		return false;
-	}
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
+        return false;
+    }
 
-	public boolean CLEAR_ENCHANTMENTS(long itemID) {
+    public boolean CLEAR_ENCHANTMENTS(long itemID) {
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM `dyn_item_enchantment` WHERE `itemID`=?;")) {
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM `dyn_item_enchantment` WHERE `itemID`=?;")) {
 
-			preparedStatement.setLong(1, itemID);
-			return (preparedStatement.executeUpdate() > 0);
+            preparedStatement.setLong(1, itemID);
+            return (preparedStatement.executeUpdate() > 0);
 
-		} catch (SQLException e) {
-			Logger.error(e);
-		}
-		return false;
-	}
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
+        return false;
+    }
 }

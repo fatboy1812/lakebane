@@ -24,10 +24,7 @@ import org.pmw.tinylog.Logger;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -39,17 +36,18 @@ public enum ZoneManager {
 
     ZONEMANAGER;
 
-    public static Instant hotZoneLastUpdate;
-    /* Instance variables */
-    private static Zone seaFloor = null;
-    public static Zone hotZone = null;
-    public static int hotZoneCycle = 0;  // Used with HOTZONE_DURATION from config.
+    public static final Set<Zone> macroZones = Collections.newSetFromMap(new ConcurrentHashMap<>());
     private static final ConcurrentHashMap<Integer, Zone> zonesByID = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD);
     private static final ConcurrentHashMap<Integer, Zone> zonesByUUID = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD);
     private static final ConcurrentHashMap<String, Zone> zonesByName = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD);
-    public static final Set<Zone> macroZones = Collections.newSetFromMap(new ConcurrentHashMap<>());
     private static final Set<Zone> npcCityZones = Collections.newSetFromMap(new ConcurrentHashMap<>());
     private static final Set<Zone> playerCityZones = Collections.newSetFromMap(new ConcurrentHashMap<>());
+    public static Instant hotZoneLastUpdate;
+    public static Zone hotZone = null;
+    public static int hotZoneCycle = 0;  // Used with HOTZONE_DURATION from config.
+    public static HashMap<Integer, Vector2f> _zone_size_data = new HashMap<>();
+    /* Instance variables */
+    private static Zone seaFloor = null;
 
     // Find all zones coordinates fit into, starting with Sea Floor
 
@@ -170,12 +168,12 @@ public enum ZoneManager {
         return (Bounds.collide(loc, ZoneManager.hotZone.getBounds()) == true);
     }
 
-    public static void setSeaFloor(final Zone value) {
-        ZoneManager.seaFloor = value;
-    }
-
     public static Zone getSeaFloor() {
         return ZoneManager.seaFloor;
+    }
+
+    public static void setSeaFloor(final Zone value) {
+        ZoneManager.seaFloor = value;
     }
 
     public static final void populateWorldZones(final Zone zone) {

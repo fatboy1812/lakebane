@@ -11,6 +11,8 @@ package engine.db.handlers;
 
 import engine.Enum;
 import engine.gameManager.DbManager;
+import engine.gameManager.ZoneManager;
+import engine.math.Vector2f;
 import engine.objects.Zone;
 import org.pmw.tinylog.Logger;
 
@@ -77,7 +79,7 @@ public class dbZoneHandler extends dbHandlerBase {
 		try (Connection connection = DbManager.getConnection();
 			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT `obj_zone`.*, `object`.`parent` FROM `object` INNER JOIN `obj_zone` ON `obj_zone`.`UID` = `object`.`UID` WHERE `object`.`parent` = ?;")) {
 
-			preparedStatement.setLong(1, (long) objectUUID);
+			preparedStatement.setLong(1, objectUUID);
 
 			ResultSet rs = preparedStatement.executeQuery();
 			zoneList = getObjectsFromRs(rs, 2000);
@@ -89,19 +91,24 @@ public class dbZoneHandler extends dbHandlerBase {
 		return zoneList;
 	}
 
-	public ResultSet GET_ZONE_EXTENTS(final int loadNum) {
+	public void LOAD_ZONE_EXTENTS() {
 
 		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `static_zone_size` WHERE `loadNum`=?;")) {
+			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `static_zone_size`;")) {
 
-			preparedStatement.setInt(1, loadNum);
+			ResultSet rs = preparedStatement.executeQuery();
 
-			return preparedStatement.executeQuery();
+			while (rs.next()) {
+				Vector2f zoneSize = new Vector2f();
+				int loadNum = rs.getInt("loadNum");
+				zoneSize.x = rs.getFloat("xRadius");
+				zoneSize.y = rs.getFloat("zRadius");
+				ZoneManager._zone_size_data.put(loadNum, zoneSize);
+			}
 
 		} catch (SQLException e) {
 			Logger.error(e);
 		}
-		return null;
 	}
 
 	public boolean DELETE_ZONE(final Zone zone) {
