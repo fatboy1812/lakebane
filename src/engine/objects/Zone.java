@@ -340,10 +340,6 @@ public class Zone extends AbstractGameObject {
 		this.nodes.add(child);
 	}
 
-	public void removeNode(Zone child) {
-		this.nodes.remove(child);
-	}
-
 	/*
 	 * Serializing
 	 */
