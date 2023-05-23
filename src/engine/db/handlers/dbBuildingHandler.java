@@ -662,7 +662,7 @@ public class dbBuildingHandler extends dbHandlerBase {
             ResultSet rs = preparedStatement.executeQuery();
 
             if (rs.next())
-                storedEnum = DbObjectType.valueOf(getString("type").toUpperCase());
+                storedEnum = DbObjectType.valueOf(rs.getString("type").toUpperCase());
 
         } catch (SQLException e) {
             Logger.error("Building", e);
