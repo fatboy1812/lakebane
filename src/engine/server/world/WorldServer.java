@@ -305,9 +305,12 @@ public class WorldServer {
 		PowersManager.LoadAllMobPowers();
 
 		//load item enchantment values
+		Logger.info("Loading item enchants");
 		DbManager.LootQueries.LOAD_ENCHANT_VALUES();
 
-		//initialize realms
+		Logger.info("Loading zone extent cache");
+		DbManager.ZoneQueries.LOAD_ZONE_EXTENTS();
+
 		Logger.info("Loading Realms");
 		Realm.loadAllRealms();
 
