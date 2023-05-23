@@ -307,9 +307,11 @@ public enum DbManager {
 		config.setPassword(ConfigManager.MB_DATABASE_PASS.getValue());
 		config.addDataSourceProperty("characterEncoding", "utf8");
 		config.addDataSourceProperty("cachePrepStmts", "true");
-		config.addDataSourceProperty("prepStmtCacheSize", "250");
+		config.addDataSourceProperty("useServerPrepStmts", "true");
+		config.addDataSourceProperty("prepStmtCacheSize", "500");
 		config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
 		config.addDataSourceProperty("leakDetectionThreshold", "5000");
+		config.addDataSourceProperty("cacheServerConfiguration", "true");
 
 		connectionPool = new HikariDataSource(config); // setup the connection pool
 
