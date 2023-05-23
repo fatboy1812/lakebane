@@ -12,7 +12,6 @@ package engine.db.handlers;
 import engine.Enum;
 import engine.Enum.GameObjectType;
 import engine.gameManager.DbManager;
-import engine.objects.AbstractGameObject;
 import engine.objects.MaxSkills;
 import engine.objects.SkillsBase;
 import org.pmw.tinylog.Logger;
@@ -34,63 +33,83 @@ public class dbSkillBaseHandler extends dbHandlerBase {
     public SkillsBase GET_BASE(final int objectUUID) {
 
         SkillsBase skillsBase = (SkillsBase) DbManager.getFromCache(GameObjectType.SkillsBase, objectUUID);
+
         if (skillsBase != null)
             return skillsBase;
-        prepareCallable("SELECT * FROM static_skill_skillsbase WHERE ID = ?");
-        setInt(1, objectUUID);
-        SkillsBase sb;
-        sb = (SkillsBase) getObjectSingle(objectUUID);
-        SkillsBase.putInCache(sb);
-        return sb;
+
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM static_skill_skillsbase WHERE ID = ?")) {
+
+            preparedStatement.setInt(1, objectUUID);
+            ResultSet rs = preparedStatement.executeQuery();
+
+            skillsBase = (SkillsBase) getObjectFromRs(rs);
+
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
+
+        SkillsBase.putInCache(skillsBase);
+        return skillsBase;
     }
 
     public SkillsBase GET_BASE_BY_NAME(String name) {
-        SkillsBase sb = SkillsBase.getFromCache(name);
-        if (sb != null) {
-            return sb;
+
+        SkillsBase skillsBase = SkillsBase.getFromCache(name);
+
+        if (skillsBase != null)
+            return skillsBase;
+
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM static_skill_skillsbase WHERE name = ?")) {
+
+            preparedStatement.setString(1, name);
+            ResultSet rs = preparedStatement.executeQuery();
+
+            skillsBase = (SkillsBase) getObjectFromRs(rs);
+
+        } catch (SQLException e) {
+            Logger.error(e);
         }
-        prepareCallable("SELECT * FROM static_skill_skillsbase WHERE name = ?");
-        setString(1, name);
-        ArrayList<AbstractGameObject> result = getObjectList();
-        if (result.size() > 0) {
-            sb = (SkillsBase) result.get(0);
-            SkillsBase.putInCache(sb);
-            return sb;
-        } else {
-            return null;
-        }
+
+        SkillsBase.putInCache(skillsBase);
+        return skillsBase;
     }
 
     public SkillsBase GET_BASE_BY_TOKEN(final int token) {
-        SkillsBase sb = SkillsBase.getFromCache(token);
-        if (sb != null) {
-            return sb;
+
+        SkillsBase skillsBase = SkillsBase.getFromCache(token);
+
+        if (skillsBase != null)
+            return skillsBase;
+
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM static_skill_skillsbase WHERE token = ?")) {
+
+            preparedStatement.setInt(1, token);
+            ResultSet rs = preparedStatement.executeQuery();
+
+            skillsBase = (SkillsBase) getObjectFromRs(rs);
+
+        } catch (SQLException e) {
+            Logger.error(e);
         }
 
-        prepareCallable("SELECT * FROM static_skill_skillsbase WHERE token = ?");
-        setInt(1, token);
-        ArrayList<AbstractGameObject> result = getObjectList();
-        if (result.size() > 0) {
-            sb = (SkillsBase) result.get(0);
-            SkillsBase.putInCache(sb);
-            return sb;
-        } else {
-            return null;
-        }
+        SkillsBase.putInCache(skillsBase);
+        return skillsBase;
     }
 
     public void LOAD_ALL_MAX_SKILLS_FOR_CONTRACT() {
 
-        prepareCallable("SELECT * FROM `static_rune_maxskills`");
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `static_rune_maxskills`")) {
 
+            ResultSet rs = preparedStatement.executeQuery();
 
-        try {
-            ResultSet rs = executeQuery();
-
-            //shrines cached in rs for easy cache on creation.
             while (rs.next()) {
 
                 MaxSkills maxSKills = new MaxSkills(rs);
+
                 if (MaxSkills.MaxSkillsSet.get(maxSKills.getRuneID()) == null) {
                     ArrayList<MaxSkills> newMaxSkillsList = new ArrayList<>();
                     newMaxSkillsList.add(maxSKills);
@@ -100,17 +119,13 @@ public class dbSkillBaseHandler extends dbHandlerBase {
 
             }
 
-
         } catch (SQLException e) {
-            Logger.error(e.getErrorCode() + ' ' + e.getMessage(), e);
-        } finally {
-            closeCallable();
+            Logger.error(e);
         }
-
     }
 
-    public void LOAD_ALL_RUNE_SKILLS() {
 
+    public void LOAD_ALL_RUNE_SKILLS() {
 
         try (Connection connection = DbManager.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `static_skill_skillsgranted`")) {

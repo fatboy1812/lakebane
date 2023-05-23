@@ -512,7 +512,6 @@ public class dbPlayerCharacterHandler extends dbHandlerBase {
             Logger.error(e);
         }
 
-        prepareCallable("SELECT * FROM dyn_character_friends");
     }
 
     public boolean ADD_HERALDY(int source, AbstractWorldObject character) {
