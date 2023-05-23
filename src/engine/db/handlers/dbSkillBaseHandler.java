@@ -17,6 +17,8 @@ import engine.objects.MaxSkills;
 import engine.objects.SkillsBase;
 import org.pmw.tinylog.Logger;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -110,34 +112,27 @@ public class dbSkillBaseHandler extends dbHandlerBase {
 	
 	public void LOAD_ALL_RUNE_SKILLS() {
 
-		prepareCallable("SELECT * FROM `static_skill_skillsgranted`");
 
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `static_skill_skillsgranted`")) {
 
-		try {
-			ResultSet rs = executeQuery();
+			ResultSet rs = preparedStatement.executeQuery();
 
-			//shrines cached in rs for easy cache on creation.
 			while (rs.next()) {
 
 				int runeID = rs.getInt("runeID");
 				int token = rs.getInt("token");
 				int amount = rs.getInt("amount");
-				
+
 				if (SkillsBase.runeSkillsCache.get(runeID) == null)
 					SkillsBase.runeSkillsCache.put(runeID, new HashMap<>());
-				
+
 				SkillsBase.runeSkillsCache.get(runeID).put(token, amount);
 			}
 
-
-
 		} catch (SQLException e) {
-			Logger.error( e.getErrorCode() + ' ' + e.getMessage(), e);
-		} finally {
-			closeCallable();
+			Logger.error(e);
 		}
-
 	}
-
 
 }
