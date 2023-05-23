@@ -298,18 +298,24 @@ public enum DbManager {
 
 		HikariConfig config = new HikariConfig();
 
-		config.setMaximumPoolSize(Runtime.getRuntime().availableProcessors() * 2);
+		config.setMaximumPoolSize((Runtime.getRuntime().availableProcessors() * 2) + 1);
 
 		config.setJdbcUrl("jdbc:mysql://" + ConfigManager.MB_DATABASE_ADDRESS.getValue() +
 				":" + ConfigManager.MB_DATABASE_PORT.getValue() + "/" +
 				ConfigManager.MB_DATABASE_NAME.getValue());
 		config.setUsername(ConfigManager.MB_DATABASE_USER.getValue());
 		config.setPassword(ConfigManager.MB_DATABASE_PASS.getValue());
+
+		config.addDataSourceProperty("minimumIdle", "5");
+		config.addDataSourceProperty("idleTimeout", "120000");
+
 		config.addDataSourceProperty("characterEncoding", "utf8");
-		config.addDataSourceProperty("cachePrepStmts", "true");
+
 		config.addDataSourceProperty("useServerPrepStmts", "true");
+		config.addDataSourceProperty("cachePrepStmts", "true");
 		config.addDataSourceProperty("prepStmtCacheSize", "500");
 		config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+
 		config.addDataSourceProperty("leakDetectionThreshold", "5000");
 		config.addDataSourceProperty("cacheServerConfiguration", "true");
 
