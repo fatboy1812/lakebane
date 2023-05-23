@@ -649,11 +649,11 @@ public class dbBuildingHandler extends dbHandlerBase {
 
     public final DbObjectType GET_UID_ENUM(long object_UID) {
 
-        DbObjectType storedEnum = DbObjectType.INVALID;
-        String objectType = "INVALID";
+        DbObjectType objectType = DbObjectType.INVALID;
+        String typeString = "INVALID";
 
         if (object_UID == 0)
-            return storedEnum;
+            return objectType;
 
         try (Connection connection = DbManager.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement("SELECT `type` FROM `object` WHERE `object`.`UID` = ? LIMIT 1;")) {
@@ -663,8 +663,8 @@ public class dbBuildingHandler extends dbHandlerBase {
             ResultSet rs = preparedStatement.executeQuery();
 
             if (rs.next()) {
-                objectType = rs.getString("type").toUpperCase();
-                storedEnum = DbObjectType.valueOf(objectType);
+                typeString = rs.getString("type").toUpperCase();
+                objectType = DbObjectType.valueOf(typeString);
             }
 
         } catch (SQLException e) {
@@ -672,7 +672,7 @@ public class dbBuildingHandler extends dbHandlerBase {
             return DbObjectType.INVALID;
         }
 
-        return storedEnum;
+        return objectType;
     }
 
     public boolean updateBuildingRank(final Building b, int Rank) {

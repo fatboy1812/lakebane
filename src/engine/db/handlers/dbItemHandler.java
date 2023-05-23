@@ -107,26 +107,6 @@ public class dbItemHandler extends dbHandlerBase {
         return null;
     }
 
-    public String GET_OWNER(int ownerID) {
-
-        String ownerType;
-
-        try (Connection connection = DbManager.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement("SELECT `type` FROM `object` WHERE `UID`=?")) {
-
-            preparedStatement.setInt(1, ownerID);
-            ResultSet rs = preparedStatement.executeQuery();
-
-            ownerType = rs.getString("type");
-
-        } catch (SQLException e) {
-            Logger.error(e);
-            return "";
-        }
-
-        return ownerType;
-    }
-
     public boolean DO_TRADE(HashSet<Integer> from1, HashSet<Integer> from2,
                             CharacterItemManager man1, CharacterItemManager man2,
                             Item inventoryGold1, Item inventoryGold2, int goldFrom1, int goldFrom2) {
