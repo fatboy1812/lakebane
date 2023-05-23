@@ -19,7 +19,6 @@ import engine.server.MBServerStatics;
 import org.joda.time.DateTime;
 import org.pmw.tinylog.Logger;
 
-import java.net.UnknownHostException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -37,68 +36,71 @@ public class dbWarehouseHandler extends dbHandlerBase {
 
 	}
 
-	public ArrayList<AbstractGameObject> CREATE_WAREHOUSE( int parentZoneID, int OwnerUUID, String name, int meshUUID,
-			Vector3fImmutable location, float meshScale, int currentHP,
-			ProtectionState protectionState, int currentGold, int rank,
-			DateTime upgradeDate, int blueprintUUID, float w, float rotY) {
-
-		prepareCallable("CALL `WAREHOUSE_CREATE`(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,? ,? ,?, ?);");
-
-		setInt(1, parentZoneID);
-		setInt(2, OwnerUUID);
-		setString(3, name);
-		setInt(4, meshUUID);
-		setFloat(5, location.x);
-		setFloat(6, location.y);
-		setFloat(7, location.z);
-		setFloat(8, meshScale);
-		setInt(9, currentHP);
-		setString(10, protectionState.name());
-		setInt(11, currentGold);
-		setInt(12, rank);
-
-		if (upgradeDate != null) {
-			setTimeStamp(13, upgradeDate.getMillis());
-		} else {
-			setNULL(13, java.sql.Types.DATE);
+	public static void addObject(ArrayList<AbstractGameObject> list, ResultSet rs) throws SQLException {
+		String type = rs.getString("type");
+		switch (type) {
+			case "building":
+				Building building = new Building(rs);
+				DbManager.addToCache(building);
+				list.add(building);
+				break;
+			case "warehouse":
+				Warehouse warehouse = new Warehouse(rs);
+				DbManager.addToCache(warehouse);
+				list.add(warehouse);
+				break;
 		}
+	}
 
-		setInt(14, blueprintUUID);
-		setFloat(15, w);
-		setFloat(16, rotY);
+	public ArrayList<AbstractGameObject> CREATE_WAREHOUSE(int parentZoneID, int OwnerUUID, String name, int meshUUID,
+														  Vector3fImmutable location, float meshScale, int currentHP,
+														  ProtectionState protectionState, int currentGold, int rank,
+														  DateTime upgradeDate, int blueprintUUID, float w, float rotY) {
 
-		ArrayList<AbstractGameObject> list = new ArrayList<>();
-		//System.out.println(this.cs.get().toString());
-		try {
-			boolean work = execute();
-			if (work) {
-				ResultSet rs = this.callableStatement.get().getResultSet();
-				while (rs.next()) {
-					addObject(list, rs);
-				}
-				rs.close();
-			} else {
-				Logger.info("Warehouse Creation Failed: " + this.callableStatement.get().toString());
-				return list; //city creation failure
-			}
-			while (this.callableStatement.get().getMoreResults()) {
-				ResultSet rs = this.callableStatement.get().getResultSet();
-				while (rs.next()) {
-					addObject(list, rs);
-				}
-				rs.close();
+		ArrayList<AbstractGameObject> warehouseList = new ArrayList<>();
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("CALL `WAREHOUSE_CREATE`(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? ,? ,? ,?, ?);")) {
+
+			preparedStatement.setInt(1, parentZoneID);
+			preparedStatement.setInt(2, OwnerUUID);
+			preparedStatement.setString(3, name);
+			preparedStatement.setInt(4, meshUUID);
+			preparedStatement.setFloat(5, location.x);
+			preparedStatement.setFloat(6, location.y);
+			preparedStatement.setFloat(7, location.z);
+			preparedStatement.setFloat(8, meshScale);
+			preparedStatement.setInt(9, currentHP);
+			preparedStatement.setString(10, protectionState.name());
+			preparedStatement.setInt(11, currentGold);
+			preparedStatement.setInt(12, rank);
+
+			if (upgradeDate != null)
+				preparedStatement.setTimestamp(13, new java.sql.Timestamp(upgradeDate.getMillis()));
+			else
+				preparedStatement.setNull(13, java.sql.Types.DATE);
+
+			preparedStatement.setInt(14, blueprintUUID);
+			preparedStatement.setFloat(15, w);
+			preparedStatement.setFloat(16, rotY);
+
+			preparedStatement.execute();
+			ResultSet rs = preparedStatement.getResultSet();
+
+			while (rs.next())
+				addObject(warehouseList, rs);
+
+			while (preparedStatement.getMoreResults()) {
+				rs = preparedStatement.getResultSet();
+
+				while (rs.next())
+					addObject(warehouseList, rs);
 			}
 		} catch (SQLException e) {
-			Logger.info("Warehouse Creation Failed, SQLException: " + this.callableStatement.get().toString() + e.toString());
-			return list; //city creation failure
-		} catch (UnknownHostException e) {
-			Logger.info("Warehouse Creation Failed, UnknownHostException: " + this.callableStatement.get().toString());
-			return list; //city creation failure
-		} finally {
-			closeCallable();
+			Logger.error(e);
 		}
-		return list;
 
+		return warehouseList;
 	}
 
 	public boolean updateLocks(final Warehouse wh, long locks) {
@@ -117,7 +119,7 @@ public class dbWarehouseHandler extends dbHandlerBase {
 		return false;
 	}
 
-	public boolean updateGold(final Warehouse wh, int amount ) {
+	public boolean updateGold(final Warehouse wh, int amount) {
 		prepareCallable("UPDATE `obj_warehouse` SET `warehouse_gold`=? WHERE `UID` = ?");
 		setInt(1, amount);
 		setInt(2, wh.getUID());
@@ -268,7 +270,7 @@ public class dbWarehouseHandler extends dbHandlerBase {
 		return (executeUpdate() != 0);
 	}
 
-	public boolean updateWormwood(final Warehouse wh, int amount ) {
+	public boolean updateWormwood(final Warehouse wh, int amount) {
 		prepareCallable("UPDATE `obj_warehouse` SET `warehouse_wormwood`=? WHERE `UID` = ?");
 		setInt(1, amount);
 		setInt(2, wh.getUID());
@@ -300,7 +302,7 @@ public class dbWarehouseHandler extends dbHandlerBase {
 		return (executeUpdate() != 0);
 	}
 
-	public boolean CREATE_TRANSACTION(int warehouseBuildingID, GameObjectType targetType, int targetUUID, TransactionType transactionType,Resource resource, int amount,DateTime date){
+	public boolean CREATE_TRANSACTION(int warehouseBuildingID, GameObjectType targetType, int targetUUID, TransactionType transactionType, Resource resource, int amount, DateTime date) {
 		Transaction transactions = null;
 		prepareCallable("INSERT INTO `dyn_warehouse_transactions` (`warehouseUID`, `targetType`,`targetUID`, `type`,`resource`,`amount`,`date` ) VALUES (?,?,?,?,?,?,?)");
 		setLong(1, warehouseBuildingID);
@@ -308,25 +310,9 @@ public class dbWarehouseHandler extends dbHandlerBase {
 		setLong(3, targetUUID);
 		setString(4, transactionType.name());
 		setString(5, resource.name());
-		setInt(6,amount);
-		setTimeStamp(7,date.getMillis());
+		setInt(6, amount);
+		setTimeStamp(7, date.getMillis());
 		return (executeUpdate() != 0);
-	}
-
-	public static void addObject(ArrayList<AbstractGameObject> list, ResultSet rs) throws SQLException, UnknownHostException {
-		String type = rs.getString("type");
-		switch (type) {
-		case "building":
-			Building building = new Building(rs);
-			DbManager.addToCache(building);
-			list.add(building);
-			break;
-		case "warehouse":
-			Warehouse warehouse = new Warehouse(rs);
-			DbManager.addToCache(warehouse);
-			list.add(warehouse);
-			break;
-		}
 	}
 
 	public ArrayList<Transaction> GET_TRANSACTIONS_FOR_WAREHOUSE(final int warehouseUUID) {
@@ -343,7 +329,7 @@ public class dbWarehouseHandler extends dbHandlerBase {
 			}
 
 		} catch (SQLException e) {
-			Logger.error( e.getErrorCode() + ' ' + e.getMessage(), e);
+			Logger.error(e.getErrorCode() + ' ' + e.getMessage(), e);
 		} finally {
 			closeCallable();
 		}
