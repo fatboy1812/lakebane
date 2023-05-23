@@ -33,20 +33,6 @@ public class dbWarehouseHandler extends dbHandlerBase {
 		this.localClass = Warehouse.class;
 		this.localObjectType = engine.Enum.GameObjectType.valueOf(this.localClass.getSimpleName());
 
-		if (columns.isEmpty()) {
-			createColumns();
-		}
-	}
-
-	public Warehouse CREATE_WAREHOUSE(Warehouse wh) {
-		try {
-			wh = this.addWarehouse(wh);
-		} catch (Exception e) {
-			Logger.error(e);
-			wh = null;
-			
-		}
-		return wh;
 	}
 
 	public ArrayList<AbstractGameObject> CREATE_WAREHOUSE( int parentZoneID, int OwnerUUID, String name, int meshUUID,
@@ -111,50 +97,6 @@ public class dbWarehouseHandler extends dbHandlerBase {
 		}
 		return list;
 
-	}
-
-	//Don't call yet, not ready in DB. -
-	public boolean WAREHOUSE_ADD(Item item, Warehouse warehouse, ItemBase ib, int amount) {
-		if (item == null || warehouse == null || ib == null || !(dbWarehouseHandler.columns.containsKey(ib.getUUID()))) {
-			return false;
-		}
-		if ((item.getNumOfItems() - amount) < 0) {
-			return false;
-		}
-		if (!warehouse.getResources().containsKey(ib)) {
-			return false;
-		}
-
-		prepareCallable("CALL `warehouse_ADD`(?,?,?,?,?,?,?);");
-		setLong(1, (long) warehouse.getObjectUUID());
-		setInt(2, warehouse.getResources().get(ib));
-		setLong(3, (long) item.getObjectUUID());
-		setInt(4, item.getNumOfItems());
-		setInt(5, amount);
-		setString(6, dbWarehouseHandler.columns.get(ib.getUUID()));
-		setInt(7, ib.getUUID());
-		String result = getResult();
-
-		return (result != null && result.equals("success"));
-	}
-
-	private Warehouse addWarehouse(Warehouse toAdd) {
-		prepareCallable("CALL `warehouse_CREATE`(?);");
-		setInt(1, toAdd.getUID());
-		int objectUUID = (int) getUUID();
-		if (objectUUID > 0) {
-			return GET_WAREHOUSE(objectUUID);
-		}
-		return null;
-	}
-
-	public Warehouse GET_WAREHOUSE(int objectUUID) {
-		Warehouse warehouse = (Warehouse) DbManager.getFromCache(GameObjectType.Warehouse, objectUUID);
-		if (warehouse != null)
-			return warehouse;
-		prepareCallable("SELECT * FROM `obj_warehouse` WHERE `UID` = ?");
-		setInt(1, objectUUID);
-		return (Warehouse) getObjectSingle(objectUUID);
 	}
 
 	public boolean updateLocks(final Warehouse wh, long locks) {
@@ -347,32 +289,6 @@ public class dbWarehouseHandler extends dbHandlerBase {
 		return (executeUpdate() != 0);
 	}
 
-	private static void createColumns() {
-		columns.put(1580000, "warehouse_stone");
-		columns.put(1580001, "warehouse_truesteel");
-		columns.put(1580002, "warehouse_iron");
-		columns.put(1580003, "warehouse_adamant");
-		columns.put(1580004, "warehouse_lumber");
-		columns.put(1580005, "warehouse_oak");
-		columns.put(1580006, "warehouse_bronzewood");
-		columns.put(1580007, "warehouse_mandrake");
-		columns.put(1580008, "warehouse_coal");
-		columns.put(1580009, "warehouse_agate");
-		columns.put(1580010, "warehouse_diamond");
-		columns.put(1580011, "warehouse_onyx");
-		columns.put(1580012, "warehouse_azoth");
-		columns.put(1580013, "warehouse_orichalk");
-		columns.put(1580014, "warehouse_antimony");
-		columns.put(1580015, "warehouse_sulfur");
-		columns.put(1580016, "warehouse_quicksilver");
-		columns.put(1580017, "warehouse_galvor");
-		columns.put(1580018, "warehouse_wormwood");
-		columns.put(1580019, "warehouse_obsidian");
-		columns.put(1580020, "warehouse_bloodstone");
-		columns.put(1580021, "warehouse_mithril");
-		columns.put(7, "warehouse_gold");
-	}
-
 	public boolean CREATE_TRANSACTION(int warehouseBuildingID, GameObjectType targetType, int targetUUID, TransactionType transactionType,Resource resource, int amount,DateTime date){
 		Transaction transactions = null;
 		prepareCallable("INSERT INTO `dyn_warehouse_transactions` (`warehouseUID`, `targetType`,`targetUID`, `type`,`resource`,`amount`,`date` ) VALUES (?,?,?,?,?,?,?)");
@@ -385,8 +301,6 @@ public class dbWarehouseHandler extends dbHandlerBase {
 		setTimeStamp(7,date.getMillis());
 		return (executeUpdate() != 0);
 	}
-
-
 
 	public static void addObject(ArrayList<AbstractGameObject> list, ResultSet rs) throws SQLException, UnknownHostException {
 		String type = rs.getString("type");
