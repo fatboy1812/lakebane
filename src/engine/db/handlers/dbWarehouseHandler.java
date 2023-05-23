@@ -120,241 +120,437 @@ public class dbWarehouseHandler extends dbHandlerBase {
 	}
 
 	public boolean updateGold(final Warehouse wh, int amount) {
-		prepareCallable("UPDATE `obj_warehouse` SET `warehouse_gold`=? WHERE `UID` = ?");
-		setInt(1, amount);
-		setInt(2, wh.getUID());
-		return (executeUpdate() != 0);
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_warehouse` SET `warehouse_gold`=? WHERE `UID` = ?")) {
+
+			preparedStatement.setInt(1, amount);
+			preparedStatement.setInt(2, wh.getUID());
+
+			return (preparedStatement.executeUpdate() > 0);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+		}
+		return false;
 	}
 
 	public boolean updateStone(final Warehouse wh, int amount) {
-		prepareCallable("UPDATE `obj_warehouse` SET `warehouse_stone`=? WHERE `UID` = ?");
-		setInt(1, amount);
-		setInt(2, wh.getUID());
 
-		return (executeUpdate() != 0);
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_warehouse` SET `warehouse_stone`=? WHERE `UID` = ?")) {
+
+			preparedStatement.setInt(1, amount);
+			preparedStatement.setInt(2, wh.getUID());
+
+			return (preparedStatement.executeUpdate() > 0);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+		}
+		return false;
 	}
 
 	public boolean updateTruesteel(final Warehouse wh, int amount) {
-		prepareCallable("UPDATE `obj_warehouse` SET `warehouse_truesteel`=? WHERE `UID` = ?");
-		setInt(1, amount);
-		setInt(2, wh.getUID());
 
-		return (executeUpdate() != 0);
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_warehouse` SET `warehouse_truesteel`=? WHERE `UID` = ?")) {
+
+			preparedStatement.setInt(1, amount);
+			preparedStatement.setInt(2, wh.getUID());
+
+			return (preparedStatement.executeUpdate() > 0);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+		}
+		return false;
 	}
 
 	public boolean updateIron(final Warehouse wh, int amount) {
-		prepareCallable("UPDATE `obj_warehouse` SET `warehouse_iron`=? WHERE `UID` = ?");
-		setInt(1, amount);
-		setInt(2, wh.getUID());
 
-		return (executeUpdate() != 0);
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_warehouse` SET `warehouse_iron`=? WHERE `UID` = ?")) {
+
+			preparedStatement.setInt(1, amount);
+			preparedStatement.setInt(2, wh.getUID());
+
+			return (preparedStatement.executeUpdate() > 0);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+		}
+		return false;
 	}
 
 	public boolean updateAdamant(final Warehouse wh, int amount) {
-		prepareCallable("UPDATE `obj_warehouse` SET `warehouse_adamant`=? WHERE `UID` = ?");
-		setInt(1, amount);
-		setInt(2, wh.getUID());
 
-		return (executeUpdate() != 0);
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_warehouse` SET `warehouse_adamant`=? WHERE `UID` = ?")) {
+
+			preparedStatement.setInt(1, amount);
+			preparedStatement.setInt(2, wh.getUID());
+
+			return (preparedStatement.executeUpdate() > 0);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+		}
+		return false;
 	}
 
 	public boolean updateLumber(final Warehouse wh, int amount) {
-		prepareCallable("UPDATE `obj_warehouse` SET `warehouse_lumber`=? WHERE `UID` = ?");
-		setInt(1, amount);
-		setInt(2, wh.getUID());
 
-		return (executeUpdate() != 0);
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_warehouse` SET `warehouse_lumber`=? WHERE `UID` = ?")) {
+
+			preparedStatement.setInt(1, amount);
+			preparedStatement.setInt(2, wh.getUID());
+
+			return (preparedStatement.executeUpdate() > 0);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+		}
+		return false;
 	}
 
 	public boolean updateOak(final Warehouse wh, int amount) {
-		prepareCallable("UPDATE `obj_warehouse` SET `warehouse_oak`=? WHERE `UID` = ?");
-		setInt(1, amount);
-		setInt(2, wh.getUID());
 
-		return (executeUpdate() != 0);
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_warehouse` SET `warehouse_oak`=? WHERE `UID` = ?")) {
+
+			preparedStatement.setInt(1, amount);
+			preparedStatement.setInt(2, wh.getUID());
+
+			return (preparedStatement.executeUpdate() > 0);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+		}
+		return false;
 	}
 
 	public boolean updateBronzewood(final Warehouse wh, int amount) {
-		prepareCallable("UPDATE `obj_warehouse` SET `warehouse_bronzewood`=? WHERE `UID` = ?");
-		setInt(1, amount);
-		setInt(2, wh.getUID());
 
-		return (executeUpdate() != 0);
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_warehouse` SET `warehouse_bronzewood`=? WHERE `UID` = ?")) {
+
+			preparedStatement.setInt(1, amount);
+			preparedStatement.setInt(2, wh.getUID());
+
+			return (preparedStatement.executeUpdate() > 0);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+		}
+		return false;
 	}
 
 	public boolean updateMandrake(final Warehouse wh, int amount) {
-		prepareCallable("UPDATE `obj_warehouse` SET `warehouse_mandrake`=? WHERE `UID` = ?");
-		setInt(1, amount);
-		setInt(2, wh.getUID());
 
-		return (executeUpdate() != 0);
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_warehouse` SET `warehouse_mandrake`=? WHERE `UID` = ?")) {
+
+			preparedStatement.setInt(1, amount);
+			preparedStatement.setInt(2, wh.getUID());
+
+			return (preparedStatement.executeUpdate() > 0);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+		}
+		return false;
 	}
 
 	public boolean updateCoal(final Warehouse wh, int amount) {
-		prepareCallable("UPDATE `obj_warehouse` SET `warehouse_coal`=? WHERE `UID` = ?");
-		setInt(1, amount);
-		setInt(2, wh.getUID());
 
-		return (executeUpdate() != 0);
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_warehouse` SET `warehouse_coal`=? WHERE `UID` = ?")) {
+
+			preparedStatement.setInt(1, amount);
+			preparedStatement.setInt(2, wh.getUID());
+
+			return (preparedStatement.executeUpdate() > 0);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+		}
+		return false;
 	}
 
 	public boolean updateAgate(final Warehouse wh, int amount) {
-		prepareCallable("UPDATE `obj_warehouse` SET `warehouse_agate`=? WHERE `UID` = ?");
-		setInt(1, amount);
-		setInt(2, wh.getUID());
 
-		return (executeUpdate() != 0);
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_warehouse` SET `warehouse_agate`=? WHERE `UID` = ?")) {
+
+			preparedStatement.setInt(1, amount);
+			preparedStatement.setInt(2, wh.getUID());
+
+			return (preparedStatement.executeUpdate() > 0);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+		}
+		return false;
 	}
 
 	public boolean updateDiamond(final Warehouse wh, int amount) {
-		prepareCallable("UPDATE `obj_warehouse` SET `warehouse_diamond`=? WHERE `UID` = ?");
-		setInt(1, amount);
-		setInt(2, wh.getUID());
 
-		return (executeUpdate() != 0);
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_warehouse` SET `warehouse_diamond`=? WHERE `UID` = ?")) {
+
+			preparedStatement.setInt(1, amount);
+			preparedStatement.setInt(2, wh.getUID());
+
+			return (preparedStatement.executeUpdate() > 0);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+		}
+		return false;
 	}
 
 	public boolean updateOnyx(final Warehouse wh, int amount) {
-		prepareCallable("UPDATE `obj_warehouse` SET `warehouse_onyx`=? WHERE `UID` = ?");
-		setInt(1, amount);
-		setInt(2, wh.getUID());
 
-		return (executeUpdate() != 0);
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_warehouse` SET `warehouse_onyx`=? WHERE `UID` = ?")) {
+
+			preparedStatement.setInt(1, amount);
+			preparedStatement.setInt(2, wh.getUID());
+
+			return (preparedStatement.executeUpdate() > 0);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+		}
+		return false;
 	}
 
 	public boolean updateAzoth(final Warehouse wh, int amount) {
-		prepareCallable("UPDATE `obj_warehouse` SET `warehouse_azoth`=? WHERE `UID` = ?");
-		setInt(1, amount);
-		setInt(2, wh.getUID());
 
-		return (executeUpdate() != 0);
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_warehouse` SET `warehouse_azoth`=? WHERE `UID` = ?")) {
+
+			preparedStatement.setInt(1, amount);
+			preparedStatement.setInt(2, wh.getUID());
+
+			return (preparedStatement.executeUpdate() > 0);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+		}
+		return false;
 	}
 
 	public boolean updateOrichalk(final Warehouse wh, int amount) {
-		prepareCallable("UPDATE `obj_warehouse` SET `warehouse_orichalk`=? WHERE `UID` = ?");
-		setInt(1, amount);
-		setInt(2, wh.getUID());
 
-		return (executeUpdate() != 0);
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_warehouse` SET `warehouse_orichalk`=? WHERE `UID` = ?")) {
+
+			preparedStatement.setInt(1, amount);
+			preparedStatement.setInt(2, wh.getUID());
+
+			return (preparedStatement.executeUpdate() > 0);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+		}
+		return false;
 	}
 
 	public boolean updateAntimony(final Warehouse wh, int amount) {
-		prepareCallable("UPDATE `obj_warehouse` SET `warehouse_antimony`=? WHERE `UID` = ?");
-		setInt(1, amount);
-		setInt(2, wh.getUID());
 
-		return (executeUpdate() != 0);
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_warehouse` SET `warehouse_antimony`=? WHERE `UID` = ?")) {
+
+			preparedStatement.setInt(1, amount);
+			preparedStatement.setInt(2, wh.getUID());
+
+			return (preparedStatement.executeUpdate() > 0);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+		}
+		return false;
 	}
 
 	public boolean updateSulfur(final Warehouse wh, int amount) {
-		prepareCallable("UPDATE `obj_warehouse` SET `warehouse_sulfur`=? WHERE `UID` = ?");
-		setInt(1, amount);
-		setInt(2, wh.getUID());
 
-		return (executeUpdate() != 0);
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_warehouse` SET `warehouse_sulfur`=? WHERE `UID` = ?")) {
+
+			preparedStatement.setInt(1, amount);
+			preparedStatement.setInt(2, wh.getUID());
+
+			return (preparedStatement.executeUpdate() > 0);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+		}
+		return false;
 	}
 
 	public boolean updateQuicksilver(final Warehouse wh, int amount) {
-		prepareCallable("UPDATE `obj_warehouse` SET `warehouse_quicksilver`=? WHERE `UID` = ?");
-		setInt(1, amount);
-		setInt(2, wh.getUID());
 
-		return (executeUpdate() != 0);
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_warehouse` SET `warehouse_quicksilver`=? WHERE `UID` = ?")) {
+
+			preparedStatement.setInt(1, amount);
+			preparedStatement.setInt(2, wh.getUID());
+
+			return (preparedStatement.executeUpdate() > 0);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+		}
+		return false;
 	}
 
 	public boolean updateGalvor(final Warehouse wh, int amount) {
-		prepareCallable("UPDATE `obj_warehouse` SET `warehouse_galvor`=? WHERE `UID` = ?");
-		setInt(1, amount);
-		setInt(2, wh.getUID());
 
-		return (executeUpdate() != 0);
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_warehouse` SET `warehouse_galvor`=? WHERE `UID` = ?")) {
+
+			preparedStatement.setInt(1, amount);
+			preparedStatement.setInt(2, wh.getUID());
+
+			return (preparedStatement.executeUpdate() > 0);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+		}
+		return false;
 	}
 
 	public boolean updateWormwood(final Warehouse wh, int amount) {
-		prepareCallable("UPDATE `obj_warehouse` SET `warehouse_wormwood`=? WHERE `UID` = ?");
-		setInt(1, amount);
-		setInt(2, wh.getUID());
 
-		return (executeUpdate() != 0);
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_warehouse` SET `warehouse_wormwood`=? WHERE `UID` = ?")) {
+
+			preparedStatement.setInt(1, amount);
+			preparedStatement.setInt(2, wh.getUID());
+
+			return (preparedStatement.executeUpdate() > 0);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+		}
+		return false;
 	}
 
 	public boolean updateObsidian(final Warehouse wh, int amount) {
-		prepareCallable("UPDATE `obj_warehouse` SET `warehouse_obsidian`=? WHERE `UID` = ?");
-		setInt(1, amount);
-		setInt(2, wh.getUID());
 
-		return (executeUpdate() != 0);
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_warehouse` SET `warehouse_obsidian`=? WHERE `UID` = ?")) {
+
+			preparedStatement.setInt(1, amount);
+			preparedStatement.setInt(2, wh.getUID());
+
+			return (preparedStatement.executeUpdate() > 0);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+		}
+		return false;
 	}
 
 	public boolean updateBloodstone(final Warehouse wh, int amount) {
-		prepareCallable("UPDATE `obj_warehouse` SET `warehouse_bloodstone`=? WHERE `UID` = ?");
-		setInt(1, amount);
-		setInt(2, wh.getUID());
 
-		return (executeUpdate() != 0);
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_warehouse` SET `warehouse_bloodstone`=? WHERE `UID` = ?")) {
+
+			preparedStatement.setInt(1, amount);
+			preparedStatement.setInt(2, wh.getUID());
+
+			return (preparedStatement.executeUpdate() > 0);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+		}
+		return false;
 	}
 
 	public boolean updateMithril(final Warehouse wh, int amount) {
-		prepareCallable("UPDATE `obj_warehouse` SET `warehouse_mithril`=? WHERE `UID` = ?");
-		setInt(1, amount);
-		setInt(2, wh.getUID());
 
-		return (executeUpdate() != 0);
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_warehouse` SET `warehouse_mithril`=? WHERE `UID` = ?")) {
+
+			preparedStatement.setInt(1, amount);
+			preparedStatement.setInt(2, wh.getUID());
+
+			return (preparedStatement.executeUpdate() > 0);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+		}
+		return false;
 	}
 
 	public boolean CREATE_TRANSACTION(int warehouseBuildingID, GameObjectType targetType, int targetUUID, TransactionType transactionType, Resource resource, int amount, DateTime date) {
-		Transaction transactions = null;
-		prepareCallable("INSERT INTO `dyn_warehouse_transactions` (`warehouseUID`, `targetType`,`targetUID`, `type`,`resource`,`amount`,`date` ) VALUES (?,?,?,?,?,?,?)");
-		setLong(1, warehouseBuildingID);
-		setString(2, targetType.name());
-		setLong(3, targetUUID);
-		setString(4, transactionType.name());
-		setString(5, resource.name());
-		setInt(6, amount);
-		setTimeStamp(7, date.getMillis());
-		return (executeUpdate() != 0);
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO `dyn_warehouse_transactions` (`warehouseUID`, `targetType`,`targetUID`, `type`,`resource`,`amount`,`date` ) VALUES (?,?,?,?,?,?,?)")) {
+
+			preparedStatement.setInt(1, amount);
+			preparedStatement.setLong(1, warehouseBuildingID);
+			preparedStatement.setString(2, targetType.name());
+			preparedStatement.setLong(3, targetUUID);
+			preparedStatement.setString(4, transactionType.name());
+			preparedStatement.setString(5, resource.name());
+			preparedStatement.setInt(6, amount);
+			preparedStatement.setTimestamp(7, new java.sql.Timestamp(date.getMillis()));
+
+			return (preparedStatement.executeUpdate() > 0);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+		}
+		return false;
 	}
 
 	public ArrayList<Transaction> GET_TRANSACTIONS_FOR_WAREHOUSE(final int warehouseUUID) {
-		ArrayList<Transaction> transactionsList = new ArrayList<>();
-		prepareCallable("SELECT * FROM dyn_warehouse_transactions WHERE `warehouseUID` = ?;");
-		setInt(1, warehouseUUID);
-		try {
-			ResultSet rs = executeQuery();
 
-			//shrines cached in rs for easy cache on creation.
+		ArrayList<Transaction> transactionsList = new ArrayList<>();
+
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM dyn_warehouse_transactions WHERE `warehouseUID` = ?;")) {
+
+			preparedStatement.setInt(1, warehouseUUID);
+
+			ResultSet rs = preparedStatement.executeQuery();
+
 			while (rs.next()) {
 				Transaction transactions = new Transaction(rs);
 				transactionsList.add(transactions);
 			}
 
 		} catch (SQLException e) {
-			Logger.error(e.getErrorCode() + ' ' + e.getMessage(), e);
-		} finally {
-			closeCallable();
+			Logger.error(e);
 		}
+
 		return transactionsList;
 	}
 
 	public void LOAD_ALL_WAREHOUSES() {
 
-		Warehouse thisWarehouse;
+		Warehouse warehouse;
 
-		prepareCallable("SELECT `obj_warehouse`.*, `object`.`parent`, `object`.`type` FROM `object` LEFT JOIN `obj_warehouse` ON `object`.`UID` = `obj_warehouse`.`UID` WHERE `object`.`type` = 'warehouse';");
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT `obj_warehouse`.*, `object`.`parent`, `object`.`type` FROM `object` LEFT JOIN `obj_warehouse` ON `object`.`UID` = `obj_warehouse`.`UID` WHERE `object`.`type` = 'warehouse';")) {
 
-		try {
-			ResultSet rs = executeQuery();
+
+			ResultSet rs = preparedStatement.executeQuery();
+
 			while (rs.next()) {
-				thisWarehouse = new Warehouse(rs);
-				thisWarehouse.runAfterLoad();
-				thisWarehouse.loadAllTransactions();
+				warehouse = new Warehouse(rs);
+				warehouse.runAfterLoad();
+				warehouse.loadAllTransactions();
 			}
 
 		} catch (SQLException e) {
-			Logger.error(e.getErrorCode() + ' ' + e.getMessage(), e);
-		} finally {
-			closeCallable();
+			Logger.error(e);
 		}
-
 	}
 }
