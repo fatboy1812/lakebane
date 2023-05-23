@@ -650,6 +650,7 @@ public class dbBuildingHandler extends dbHandlerBase {
     public final DbObjectType GET_UID_ENUM(long object_UID) {
 
         DbObjectType storedEnum = DbObjectType.INVALID;
+        String objectType = "INVALID";
 
         if (object_UID == 0)
             return storedEnum;
@@ -661,11 +662,13 @@ public class dbBuildingHandler extends dbHandlerBase {
 
             ResultSet rs = preparedStatement.executeQuery();
 
-            if (rs.next())
-                storedEnum = DbObjectType.valueOf(rs.getString("type").toUpperCase());
+            if (rs.next()) {
+                objectType = rs.getString("type").toUpperCase();
+                storedEnum = DbObjectType.valueOf(objectType);
+            }
 
         } catch (SQLException e) {
-            Logger.error("Building", e);
+            Logger.error("UID_ENUM Lookup failed for UID: " + object_UID + "type: " + objectType);
             return DbObjectType.INVALID;
         }
 
