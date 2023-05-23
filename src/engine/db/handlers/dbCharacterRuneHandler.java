@@ -83,9 +83,8 @@ public class dbCharacterRuneHandler extends dbHandlerBase {
 
 		} catch (SQLException e) {
 			Logger.error(e);
-			return false;
 		}
-
+		return false;
 	}
 
 	public ArrayList<CharacterRune> GET_RUNES_FOR_CHARACTER(final int characterId) {

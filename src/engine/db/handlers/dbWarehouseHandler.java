@@ -20,6 +20,8 @@ import org.joda.time.DateTime;
 import org.pmw.tinylog.Logger;
 
 import java.net.UnknownHostException;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -100,10 +102,19 @@ public class dbWarehouseHandler extends dbHandlerBase {
 	}
 
 	public boolean updateLocks(final Warehouse wh, long locks) {
-		prepareCallable("UPDATE `obj_warehouse` SET `warehouse_locks`=? WHERE `UID` = ?");
-		setLong(1, locks);
-		setInt(2, wh.getUID());
-		return (executeUpdate() != 0);
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_warehouse` SET `warehouse_locks`=? WHERE `UID` = ?")) {
+
+			preparedStatement.setLong(1, locks);
+			preparedStatement.setInt(2, wh.getUID());
+
+			return (preparedStatement.executeUpdate() > 0);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+		}
+		return false;
 	}
 
 	public boolean updateGold(final Warehouse wh, int amount ) {

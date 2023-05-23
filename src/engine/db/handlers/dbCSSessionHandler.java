@@ -44,9 +44,8 @@ public class dbCSSessionHandler extends dbHandlerBase {
 
 		} catch (SQLException e) {
 			Logger.error(e);
-			return false;
 		}
-
+		return false;
 	}
 
 	public boolean DELETE_UNUSED_CSSESSION(String secKey) {
@@ -59,9 +58,8 @@ public class dbCSSessionHandler extends dbHandlerBase {
 
 		} catch (SQLException e) {
 			Logger.error(e);
-			return false;
 		}
-
+		return false;
 	}
 
 	public boolean DELETE_CSSESSION(String secKey) {
@@ -74,9 +72,8 @@ public class dbCSSessionHandler extends dbHandlerBase {
 
 		} catch (SQLException e) {
 			Logger.error(e);
-			return false;
 		}
-
+		return false;
 	}
 
 	public boolean UPDATE_CSSESSION(String secKey, int charID) {
@@ -91,9 +88,8 @@ public class dbCSSessionHandler extends dbHandlerBase {
 
 		} catch (SQLException e) {
 			Logger.error(e);
-			return false;
 		}
-
+		return false;
 	}
 
 	public CSSession GET_CSSESSION(String secKey) {

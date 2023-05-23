@@ -95,9 +95,8 @@ public class dbPlayerCharacterHandler extends dbHandlerBase {
 
 		} catch (SQLException e) {
 			Logger.error(e);
-			return false;
 		}
-
+		return false;
 	}
 
 	public ArrayList<PlayerCharacter> GET_CHARACTERS_FOR_ACCOUNT(final int id) {
@@ -231,9 +230,8 @@ public class dbPlayerCharacterHandler extends dbHandlerBase {
 
 		} catch (SQLException e) {
 			Logger.error(e);
-			return false;
 		}
-
+		return false;
 	}
 
 	public boolean SET_DELETED(final PlayerCharacter pc) {
@@ -248,8 +246,8 @@ public class dbPlayerCharacterHandler extends dbHandlerBase {
 
 		} catch (SQLException e) {
 			Logger.error(e);
-			return false;
 		}
+		return false;
 	}
 
 	public boolean SET_ACTIVE(final PlayerCharacter pc, boolean status) {
@@ -264,8 +262,8 @@ public class dbPlayerCharacterHandler extends dbHandlerBase {
 
 		} catch (SQLException e) {
 			Logger.error(e);
-			return false;
 		}
+		return false;
 	}
 
 	public boolean SET_BIND_BUILDING(final PlayerCharacter pc, int bindBuildingID) {
@@ -280,8 +278,8 @@ public class dbPlayerCharacterHandler extends dbHandlerBase {
 
 		} catch (SQLException e) {
 			Logger.error(e);
-			return false;
 		}
+		return false;
 	}
 
 	public boolean SET_ANNIVERSERY(final PlayerCharacter pc, boolean flag) {
@@ -296,8 +294,8 @@ public class dbPlayerCharacterHandler extends dbHandlerBase {
 
 		} catch (SQLException e) {
 			Logger.error(e);
-			return false;
 		}
+		return false;
 	}
 
 
@@ -313,8 +311,8 @@ public class dbPlayerCharacterHandler extends dbHandlerBase {
 
 		} catch (SQLException e) {
 			Logger.error(e);
-			return false;
 		}
+		return false;
 	}
 	
 	public boolean UPDATE_GUILD(final PlayerCharacter pc, int guildUUID) {
@@ -329,8 +327,8 @@ public class dbPlayerCharacterHandler extends dbHandlerBase {
 
 		} catch (SQLException e) {
 			Logger.error(e);
-			return false;
 		}
+		return false;
 	}
 
 	public boolean UPDATE_CHARACTER_STATS(final PlayerCharacter pc) {
@@ -349,8 +347,8 @@ public class dbPlayerCharacterHandler extends dbHandlerBase {
 
 		} catch (SQLException e) {
 			Logger.error(e);
-			return false;
 		}
+		return false;
 	}
 
 	public String SET_PROPERTY(final PlayerCharacter playerCharacter, String name, Object new_value) {
@@ -386,8 +384,8 @@ public class dbPlayerCharacterHandler extends dbHandlerBase {
 
 		} catch (SQLException e) {
 			Logger.error(e);
-			return false;
 		}
+		return false;
 	}
 	
 	public boolean SET_INNERCOUNCIL(PlayerCharacter player, boolean isInnerCouncil) {
@@ -402,8 +400,8 @@ public class dbPlayerCharacterHandler extends dbHandlerBase {
 
 		} catch (SQLException e) {
 			Logger.error(e);
-			return false;
 		}
+		return false;
 	}
 	
 	public boolean SET_FULL_MEMBER(PlayerCharacter player, boolean isFullMember) {
@@ -418,8 +416,8 @@ public class dbPlayerCharacterHandler extends dbHandlerBase {
 
 		} catch (SQLException e) {
 			Logger.error(e);
-			return false;
 		}
+		return false;
 	}
 	
 	public boolean SET_TAX_COLLECTOR(PlayerCharacter player, boolean isTaxCollector) {
@@ -434,8 +432,8 @@ public class dbPlayerCharacterHandler extends dbHandlerBase {
 
 		} catch (SQLException e) {
 			Logger.error(e);
-			return false;
 		}
+		return false;
 	}
 	
 	public boolean SET_RECRUITER(PlayerCharacter player, boolean isRecruiter) {
@@ -450,8 +448,8 @@ public class dbPlayerCharacterHandler extends dbHandlerBase {
 
 		} catch (SQLException e) {
 			Logger.error(e);
-			return false;
 		}
+		return false;
 	}
 	
 	public boolean SET_GUILD_TITLE(PlayerCharacter player, int title) {
@@ -466,8 +464,8 @@ public class dbPlayerCharacterHandler extends dbHandlerBase {
 
 		} catch (SQLException e) {
 			Logger.error(e);
-			return false;
 		}
+		return false;
 	}
 
 	public boolean ADD_FRIEND(int source, long friend) {
@@ -482,8 +480,8 @@ public class dbPlayerCharacterHandler extends dbHandlerBase {
 
 		} catch (SQLException e) {
 			Logger.error(e);
-			return false;
 		}
+		return false;
 	}
 	
 	public boolean REMOVE_FRIEND(int source, int friend) {
@@ -498,8 +496,8 @@ public class dbPlayerCharacterHandler extends dbHandlerBase {
 
 		} catch (SQLException e) {
 			Logger.error(e);
-			return false;
 		}
+		return false;
 	}
 	
 	public void LOAD_PLAYER_FRIENDS() {
@@ -534,8 +532,8 @@ public class dbPlayerCharacterHandler extends dbHandlerBase {
 
 		} catch (SQLException e) {
 			Logger.error(e);
-			return false;
 		}
+		return false;
 	}
 	
 	public boolean REMOVE_HERALDY(int source, int characterUID) {
@@ -550,8 +548,8 @@ public class dbPlayerCharacterHandler extends dbHandlerBase {
 
 		} catch (SQLException e) {
 			Logger.error(e);
-			return false;
 		}
+		return false;
 	}
 	
 	public void LOAD_HERALDY() {

@@ -89,7 +89,6 @@ public class dbAccountHandler extends dbHandlerBase {
 		} catch (SQLException e) {
 			Logger.error(e);
 		}
-
 	}
 
 	public ArrayList<String> GET_TRASH_LIST() {
@@ -107,7 +106,6 @@ public class dbAccountHandler extends dbHandlerBase {
 		} catch (SQLException e) {
 			Logger.error(e);
 		}
-
 		return machineList;
 	}
 
@@ -122,7 +120,6 @@ public class dbAccountHandler extends dbHandlerBase {
 		} catch (SQLException e) {
 			Logger.error(e);
 		}
-
 	}
 
 	public ArrayList<PlayerCharacter> GET_ALL_CHARS_FOR_MACHINE(String machineID) {
@@ -155,7 +152,6 @@ public class dbAccountHandler extends dbHandlerBase {
 		} catch (SQLException e) {
 			Logger.error(e);
 		}
-
 		return trashList;
 	}
 
@@ -169,7 +165,6 @@ public class dbAccountHandler extends dbHandlerBase {
 		} catch (SQLException e) {
 			Logger.error(e);
 		}
-
 	}
 
 	public void CREATE_SINGLE(String accountName, String password) {
@@ -185,7 +180,6 @@ public class dbAccountHandler extends dbHandlerBase {
 		} catch (SQLException e) {
 			Logger.error(e);
 		}
-
 	}
 
 	public Account GET_ACCOUNT(String uname) {
@@ -238,7 +232,6 @@ public class dbAccountHandler extends dbHandlerBase {
 		} catch (SQLException e) {
 			Logger.error(e);
 		}
-
 	}
 
 	public void updateDatabase(final Account acc) {
@@ -260,7 +253,6 @@ public class dbAccountHandler extends dbHandlerBase {
 		} catch (SQLException e) {
 			Logger.error(e);
 		}
-
 	}
 
 	public void INVALIDATE_LOGIN_CACHE(long accountUID, String objectType) {
@@ -276,7 +268,6 @@ public class dbAccountHandler extends dbHandlerBase {
 		} catch (SQLException e) {
 			Logger.error(e);
 		}
-
 	}
 
 }

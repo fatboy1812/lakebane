@@ -139,8 +139,8 @@ public class dbContractHandler extends dbHandlerBase {
 
 		} catch (SQLException e) {
 			Logger.error(e);
-			return false;
 		}
+		return false;
 	}
 
 	public boolean updateDatabase(final Contract con) {
@@ -162,8 +162,7 @@ public class dbContractHandler extends dbHandlerBase {
 
 		} catch (SQLException e) {
 			Logger.error(e);
-			return false;
 		}
-
+		return false;
 	}
 }

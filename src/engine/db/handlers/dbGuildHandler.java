@@ -68,9 +68,8 @@ public class dbGuildHandler extends dbHandlerBase {
 
 		} catch (SQLException e) {
 			Logger.error(e);
-			return false;
 		}
-
+		return false;
 	}
 
 	public boolean REMOVE_FROM_BANISH_LIST(int target, long characterID) {
@@ -85,8 +84,8 @@ public class dbGuildHandler extends dbHandlerBase {
 
 		} catch (SQLException e) {
 			Logger.error(e);
-			return false;
 		}
+		return false;
 	}
 
 	public boolean ADD_TO_GUILDHISTORY(int target, PlayerCharacter playerCharacter, DateTime historyDate, GuildHistoryType historyType) {
@@ -108,9 +107,8 @@ public class dbGuildHandler extends dbHandlerBase {
 
 		} catch (SQLException e) {
 			Logger.error(e);
-			return false;
 		}
-
+		return false;
 	}
 
 	//TODO Need to get this working.
@@ -346,8 +344,8 @@ public class dbGuildHandler extends dbHandlerBase {
 
 		} catch (SQLException e) {
 			Logger.error(e);
-			return false;
 		}
+		return false;
 	}
 
 	public boolean SET_GUILD_LEADER(int objectUUID,int guildID) {
@@ -362,9 +360,8 @@ public class dbGuildHandler extends dbHandlerBase {
 
 		} catch (SQLException e) {
 			Logger.error(e);
-			return false;
 		}
-
+		return false;
 	}
 
 	public boolean IS_NAME_UNIQUE(final String name) {
@@ -382,8 +379,8 @@ public class dbGuildHandler extends dbHandlerBase {
 
 		} catch (SQLException e) {
 			Logger.error(e);
-			return false;
 		}
+
 		return valid;
 	}
 
@@ -436,8 +433,8 @@ public class dbGuildHandler extends dbHandlerBase {
 
 		} catch (SQLException e) {
 			Logger.error(e);
-			return false;
 		}
+		return false;
 	}
 
 	public boolean UPDATE_PARENT(int guildUID, int parentUID) {
@@ -452,9 +449,8 @@ public class dbGuildHandler extends dbHandlerBase {
 
 		} catch (SQLException e) {
 			Logger.error(e);
-			return false;
 		}
-
+		return false;
 	}
 
 	public int DELETE_GUILD(final Guild guild) {
@@ -485,9 +481,8 @@ public class dbGuildHandler extends dbHandlerBase {
 
 		} catch (SQLException e) {
 			Logger.error(e);
-			return false;
 		}
-
+		return false;
 	}
 
 	public int UPDATE_GUILD_STATUS_OFFLINE(int target, boolean isInnerCouncil, boolean isRecruiter, boolean isTaxCollector, int guildId) {
@@ -563,8 +558,8 @@ public class dbGuildHandler extends dbHandlerBase {
 
 		} catch (SQLException e) {
 			Logger.error(e);
-			return false;
 		}
+		return false;
 	}
 
 	public boolean ADD_TO_ALLIANCE_LIST(final long sourceGuildID, final long targetGuildID, boolean isRecommended, boolean isAlly, String recommender) {
@@ -582,8 +577,8 @@ public class dbGuildHandler extends dbHandlerBase {
 
 		} catch (SQLException e) {
 			Logger.error(e);
-			return false;
 		}
+		return false;
 	}
 
 	public boolean REMOVE_FROM_ALLIANCE_LIST(final long sourceGuildID, long targetGuildID) {
@@ -598,8 +593,8 @@ public class dbGuildHandler extends dbHandlerBase {
 
 		} catch (SQLException e) {
 			Logger.error(e);
-			return false;
 		}
+		return false;
 	}
 
 	public boolean UPDATE_RECOMMENDED(final long sourceGuildID, long targetGuildID) {

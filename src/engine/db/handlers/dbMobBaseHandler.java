@@ -108,8 +108,8 @@ public class dbMobBaseHandler extends dbHandlerBase {
 
 		} catch (SQLException e) {
 			Logger.error(e);
-			return false;
 		}
+		return false;
 	}
 
 	public HashMap<Integer, Integer> LOAD_STATIC_POWERS(int mobBaseUUID) {

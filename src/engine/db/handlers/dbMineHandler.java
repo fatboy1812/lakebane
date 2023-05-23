@@ -80,8 +80,8 @@ public class dbMineHandler extends dbHandlerBase {
 
 		} catch (SQLException e) {
 			Logger.error(e);
-			return false;
 		}
+		return false;
 	}
 
 	public boolean CHANGE_RESOURCE(Mine mine, Resource resource) {
@@ -96,8 +96,8 @@ public class dbMineHandler extends dbHandlerBase {
 
 		} catch (SQLException e) {
 			Logger.error(e);
-			return false;
 		}
+		return false;
 	}
 
 	public boolean CHANGE_TYPE(Mine mine, MineProduction productionType) {
@@ -112,9 +112,8 @@ public class dbMineHandler extends dbHandlerBase {
 
 		} catch (SQLException e) {
 			Logger.error(e);
-			return false;
 		}
-
+		return false;
 	}
 
 	public boolean SET_FLAGS(Mine mine, int newFlags) {
@@ -129,8 +128,8 @@ public class dbMineHandler extends dbHandlerBase {
 
 		} catch (SQLException e) {
 			Logger.error(e);
-			return false;
 		}
+		return false;
 	}
 
 }

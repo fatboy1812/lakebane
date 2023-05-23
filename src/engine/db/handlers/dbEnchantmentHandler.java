@@ -55,10 +55,10 @@ public class dbEnchantmentHandler extends dbHandlerBase {
 
 		} catch (SQLException e) {
 			Logger.error(e);
-			return false;
 		}
-
+		return false;
 	}
+
 	public boolean CLEAR_ENCHANTMENTS(long itemID) {
 
 		try (Connection connection = DbManager.getConnection();
@@ -69,7 +69,7 @@ public class dbEnchantmentHandler extends dbHandlerBase {
 
 		} catch (SQLException e) {
 			Logger.error(e);
-			return false;
 		}
+		return false;
 	}
 }

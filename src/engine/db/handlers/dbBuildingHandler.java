@@ -204,12 +204,12 @@ public class dbBuildingHandler extends dbHandlerBase {
             preparedStatement.setLong(1, b.getObjectUUID());
             preparedStatement.execute();
 
+            return true;
         } catch (SQLException e) {
             Logger.error(e);
-            return false;
         }
 
-        return true;
+        return false;
     }
 
     public boolean CHANGE_NAME(Building b, String newName) {
@@ -224,9 +224,8 @@ public class dbBuildingHandler extends dbHandlerBase {
 
         } catch (SQLException e) {
             Logger.error(e);
-            return false;
         }
-
+        return false;
     }
 
     public boolean SET_RESERVE(Building b, int reserveAmount) {
@@ -241,9 +240,9 @@ public class dbBuildingHandler extends dbHandlerBase {
 
         } catch (SQLException e) {
             Logger.error(e);
-            return false;
         }
 
+        return false;
     }
 
     //CAS update to rank
@@ -259,9 +258,8 @@ public class dbBuildingHandler extends dbHandlerBase {
 
         } catch (SQLException e) {
             Logger.error(e);
-            return false;
         }
-
+        return false;
     }
 
     public boolean UPDATE_BUILDING_HEALTH(final long buildingID, int NewHealth) {
@@ -276,9 +274,8 @@ public class dbBuildingHandler extends dbHandlerBase {
 
         } catch (SQLException e) {
             Logger.error(e);
-            return false;
         }
-
+        return false;
     }
 
     public boolean UPDATE_BUILDING_ALTITUDE(final long buildingID, float newAltitude) {
@@ -293,9 +290,8 @@ public class dbBuildingHandler extends dbHandlerBase {
 
         } catch (SQLException e) {
             Logger.error(e);
-            return false;
         }
-
+        return false;
     }
 
     public boolean UPDATE_PROTECTIONSTATE(final long buildingUUID, ProtectionState protectionState) {
@@ -310,9 +306,8 @@ public class dbBuildingHandler extends dbHandlerBase {
 
         } catch (SQLException e) {
             Logger.error(e);
-            return false;
         }
-
+        return false;
     }
 
     public boolean UPDATE_DOOR_LOCK(final int buildingUUID, int doorFlags) {
@@ -327,9 +322,8 @@ public class dbBuildingHandler extends dbHandlerBase {
 
         } catch (SQLException e) {
             Logger.error(e);
-            return false;
         }
-
+        return false;
     }
 
     public boolean ADD_TO_FRIENDS_LIST(final long buildingID, final long friendID, final long guildID, final int friendType) {
@@ -346,9 +340,8 @@ public class dbBuildingHandler extends dbHandlerBase {
 
         } catch (SQLException e) {
             Logger.error(e);
-            return false;
         }
-
+        return false;
     }
 
     public boolean REMOVE_FROM_FRIENDS_LIST(final long buildingID, long friendID, long guildID, int friendType) {
@@ -365,9 +358,8 @@ public class dbBuildingHandler extends dbHandlerBase {
 
         } catch (SQLException e) {
             Logger.error(e);
-            return false;
         }
-
+        return false;
     }
 
     public boolean REMOVE_FROM_CONDEMNED_LIST(final long buildingID, long friendID, long guildID, int friendType) {
@@ -384,9 +376,8 @@ public class dbBuildingHandler extends dbHandlerBase {
 
         } catch (SQLException e) {
             Logger.error(e);
-            return false;
         }
-
+        return false;
     }
 
     public void CLEAR_FRIENDS_LIST(final long buildingID) {
@@ -427,9 +418,8 @@ public class dbBuildingHandler extends dbHandlerBase {
 
         } catch (SQLException e) {
             Logger.error(e);
-            return false;
         }
-
+        return false;
     }
 
     public void LOAD_ALL_FRIENDS_FOR_BUILDING(Building building) {
@@ -536,9 +526,8 @@ public class dbBuildingHandler extends dbHandlerBase {
 
         } catch (SQLException e) {
             Logger.error(e);
-            return false;
         }
-
+        return false;
     }
 
     public boolean ADD_TO_PATROL(final long parentUID, final Vector3fImmutable patrolPoint) {
@@ -555,9 +544,8 @@ public class dbBuildingHandler extends dbHandlerBase {
 
         } catch (SQLException e) {
             Logger.error(e);
-            return false;
         }
-
+        return false;
     }
 
     public HashMap<Integer, ArrayList<BuildingRegions>> LOAD_BUILDING_REGIONS() {
@@ -589,7 +577,6 @@ public class dbBuildingHandler extends dbHandlerBase {
 
         } catch (SQLException e) {
             Logger.error(e);
-            return null;
         }
 
         Logger.info("read: " + recordsRead + " cached: " + regionList.size());
@@ -702,8 +689,8 @@ public class dbBuildingHandler extends dbHandlerBase {
 
         } catch (SQLException e) {
             Logger.error(e);
-            return false;
         }
+        return false;
     }
 
     public boolean updateReverseKOS(final Building b, boolean reverse) {
@@ -718,9 +705,8 @@ public class dbBuildingHandler extends dbHandlerBase {
 
         } catch (SQLException e) {
             Logger.error(e);
-            return false;
         }
-
+        return false;
     }
 
     public boolean updateActiveCondemn(final Condemned condemn, boolean active) {
@@ -739,9 +725,8 @@ public class dbBuildingHandler extends dbHandlerBase {
 
         } catch (SQLException e) {
             Logger.error(e);
-            return false;
         }
-
+        return false;
     }
 
     public boolean updateBuildingOwner(final Building building, int ownerUUID) {
@@ -757,9 +742,8 @@ public class dbBuildingHandler extends dbHandlerBase {
 
         } catch (SQLException e) {
             Logger.error(e);
-            return false;
         }
-
+        return false;
     }
 
     public boolean updateBuildingUpgradeTime(LocalDateTime upgradeDateTime, Building toUpgrade, int costToUpgrade) {
@@ -781,8 +765,8 @@ public class dbBuildingHandler extends dbHandlerBase {
 
         } catch (SQLException e) {
             Logger.error(e);
-            return false;
         }
+        return false;
     }
 
     public boolean updateMaintDate(Building building) {
@@ -802,8 +786,8 @@ public class dbBuildingHandler extends dbHandlerBase {
 
         } catch (SQLException e) {
             Logger.error(e);
-            return false;
         }
+        return false;
     }
 
     public boolean addTaxes(Building building, TaxType taxType, int amount, boolean enforceKOS) {
@@ -821,9 +805,8 @@ public class dbBuildingHandler extends dbHandlerBase {
 
         } catch (SQLException e) {
             Logger.error(e);
-            return false;
         }
-
+        return false;
     }
 
     public boolean removeTaxes(Building building) {
@@ -842,8 +825,8 @@ public class dbBuildingHandler extends dbHandlerBase {
 
         } catch (SQLException e) {
             Logger.error(e);
-            return false;
         }
+        return false;
     }
 
     public boolean acceptTaxes(Building building) {
@@ -859,8 +842,8 @@ public class dbBuildingHandler extends dbHandlerBase {
 
         } catch (SQLException e) {
             Logger.error(e);
-            return false;
         }
+        return false;
     }
 
 }

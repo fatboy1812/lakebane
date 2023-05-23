@@ -69,8 +69,8 @@ public class dbCharacterSkillHandler extends dbHandlerBase {
 
 		} catch (SQLException e) {
 			Logger.error(e);
-			return false;
 		}
+		return false;
 	}
 
 	public CharacterSkill GET_SKILL(final int objectUUID) {

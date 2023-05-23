@@ -137,7 +137,6 @@ public class dbItemHandler extends dbHandlerBase {
 
 		} catch (SQLException e) {
 			Logger.error(e);
-			return false;
 		}
 		return worked;
 	}
@@ -277,9 +276,8 @@ public class dbItemHandler extends dbHandlerBase {
 
 		} catch (SQLException e) {
 			Logger.error(e);
-			return false;
 		}
-
+		return false;
 	}
 
 	public boolean ORPHAN_INVENTORY(final HashSet<Item> inventory) {

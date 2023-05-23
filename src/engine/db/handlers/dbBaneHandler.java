@@ -104,7 +104,7 @@ public class dbBaneHandler extends dbHandlerBase {
             Logger.error(e);
             return false;
         }
-        return true;
 
+        return true;
     }
 }
