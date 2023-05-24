@@ -308,6 +308,7 @@ public enum DbManager {
 		config.setPassword(ConfigManager.MB_DATABASE_PASS.getValue());
 
 		config.addDataSourceProperty("minimumIdle", "5");
+		config.addDataSourceProperty("idleTimeout", "600000");
 		config.addDataSourceProperty("maxLifetime", "3600000");
 
 		config.addDataSourceProperty("characterEncoding", "utf8");
