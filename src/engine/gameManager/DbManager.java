@@ -307,6 +307,8 @@ public enum DbManager {
 		config.setUsername(ConfigManager.MB_DATABASE_USER.getValue());
 		config.setPassword(ConfigManager.MB_DATABASE_PASS.getValue());
 
+		// Must be set lower than SQL server connection lifetime!
+
 		config.addDataSourceProperty("maxLifetime", "3600000");
 
 		config.addDataSourceProperty("characterEncoding", "utf8");
