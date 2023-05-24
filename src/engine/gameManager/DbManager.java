@@ -307,8 +307,6 @@ public enum DbManager {
 		config.setUsername(ConfigManager.MB_DATABASE_USER.getValue());
 		config.setPassword(ConfigManager.MB_DATABASE_PASS.getValue());
 
-		config.addDataSourceProperty("minimumIdle", "5");
-		config.addDataSourceProperty("idleTimeout", "600000");
 		config.addDataSourceProperty("maxLifetime", "3600000");
 
 		config.addDataSourceProperty("characterEncoding", "utf8");
@@ -323,6 +321,6 @@ public enum DbManager {
 
 		connectionPool = new HikariDataSource(config); // setup the connection pool
 
-		Logger.info("Database pool has " + connectionCount + " max connections");
+		Logger.info("Database configured with " + connectionCount + " connections");
 	}
 }
