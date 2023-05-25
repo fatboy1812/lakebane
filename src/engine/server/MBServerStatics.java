@@ -655,6 +655,7 @@ public class MBServerStatics {
 	public static int AI_POWER_DIVISOR = 20;
 	public static int AI_PET_HEEL_DISTANCE = 10;
 	public static int AI_PATROL_RADIUS = 60;
+	public static int AI_POWER_CHANCE = 25; // set 1-100 for chance a mob will cast
 	
 	public static float AI_MAX_ANGLE = 10f;
 
