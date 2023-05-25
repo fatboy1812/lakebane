@@ -29,6 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 import static engine.math.FastMath.sqr;
 public class MobileFSM {
+    public static int AI_POWER_CHANCE = 30; // set 1 -100 to determine mobs chance to cast a spell
     private static void AttackTarget(Mob mob, AbstractWorldObject target) {
         if (mob == null)
             return;
@@ -170,7 +171,6 @@ public class MobileFSM {
         //make sure mob is out of combat stance
         if(mob.stopPatrolTime == 0) {
             mob.stopPatrolTime = System.currentTimeMillis();
-            return;
         }
         if (mob.isCombat() && mob.getCombatTarget() == null) {
             mob.setCombat(false);
@@ -188,7 +188,6 @@ public class MobileFSM {
                 mob.patrolPoints = barracks.patrolPoints;
             } else{
                 randomGuardPatrolPoint(mob);
-                mob.stopPatrolTime = System.currentTimeMillis() + (MBServerStatics.AI_PATROL_DIVISOR * 1000);
                 return;
             }
         }
@@ -198,7 +197,6 @@ public class MobileFSM {
         mob.destination = mob.patrolPoints.get(mob.lastPatrolPointIndex);
         mob.lastPatrolPointIndex += 1;
         MovementUtilities.aiMove(mob, mob.destination, true);
-        mob.stopPatrolTime = System.currentTimeMillis() + (MBServerStatics.AI_PATROL_DIVISOR * 1000);
         if(mob.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardCaptain.ordinal()){
             for (Entry<Mob, Integer> minion : mob.siegeMinionMap.entrySet()) {
                 //make sure mob is out of combat stance
@@ -214,6 +212,7 @@ public class MobileFSM {
                         minion.getKey().updateLocation();
                         Vector3fImmutable formationPatrolPoint = new Vector3fImmutable(mob.destination.x + minionOffset.x, mob.destination.y, mob.destination.z + minionOffset.z);
                         MovementUtilities.aiMove(minion.getKey(), formationPatrolPoint, true);
+                        MovementUtilities.moveToLocation(minion.getKey(),formationPatrolPoint,0);
                     }
                 }
             }
@@ -224,7 +223,7 @@ public class MobileFSM {
         // mobile in the proper state to cast.
         if (mob == null)
             return false;
-        if(ThreadLocalRandom.current().nextInt(100) > MBServerStatics.AI_POWER_CHANCE){
+        if(ThreadLocalRandom.current().nextInt(100) > AI_POWER_CHANCE){
             return false;
         }
         if (mob.mobPowers.isEmpty())
@@ -421,6 +420,8 @@ public class MobileFSM {
                 if (mob.getCombatTarget() == null) {
                     if(!mob.isMoving()) {
                         Patrol(mob);
+                    } else{
+                        mob.stopPatrolTime = System.currentTimeMillis();
                     }
                 }else {
                     chaseTarget(mob);
@@ -579,9 +580,6 @@ public class MobileFSM {
         }
     }
     private static void DefaultLogic(Mob mob) {
-        if(mob.getObjectUUID() == 40548){
-            int thing = 0;
-        }
         //check for players that can be aggroed if mob is agressive and has no target
         if (mob.BehaviourType.isAgressive) {
             AbstractWorldObject newTarget = ChangeTargetFromHateValue(mob);
@@ -604,6 +602,9 @@ public class MobileFSM {
         //check if mob can attack if it isn't wimpy
         if (!mob.BehaviourType.isWimpy && !mob.isMoving() && mob.combatTarget != null)
             CheckForAttack(mob);
+        if(mob.combatTarget != null){
+            CheckForAttack(mob);
+        }
     }
     public static void CheckForPlayerGuardAggro(Mob mob) {
         //looks for and sets mobs combatTarget
