@@ -335,7 +335,8 @@ public class CombatUtilities {
 		if(agent.isSummonedPet() == true || agent.isPet() == true || agent.isNecroPet() == true) {
 			damage = calculatePetDamage(agent);
 		}else if(agent.isPlayerGuard() == true){
-			damage = calculateGuardDamage(agent);
+			//damage = calculateGuardDamage(agent);
+			damage = calculateMobDamage(agent);
 		}else if (agent.getLevel() > 80) {
 			damage = calculateEpicDamage(agent);
 		} else{

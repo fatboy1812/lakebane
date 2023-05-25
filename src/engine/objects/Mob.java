@@ -1392,7 +1392,11 @@ public class Mob extends AbstractIntelligenceAgent {
         NPCManager.applyRuneSetEffects(this);
         this.recalculateStats();
         this.setHealth(this.healthMax);
-        this.region = BuildingManager.GetRegion(this.building, bindLoc.x, bindLoc.y, bindLoc.z);
+        if(this.building == null && ((Mob)this.npcOwner).BehaviourType.ordinal() == MobBehaviourType.GuardCaptain.ordinal()){
+            this.building = ((Mob)this.npcOwner).building;
+        } else {
+            this.region = BuildingManager.GetRegion(this.building, bindLoc.x, bindLoc.y, bindLoc.z);
+        }
         MovementManager.translocate(this,this.bindLoc, this.region);
         if (!this.isSiege && !this.isPlayerGuard && contract == null)
             loadInventory();

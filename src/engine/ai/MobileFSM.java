@@ -180,9 +180,7 @@ public class MobileFSM {
             mob.stopPatrolTime = System.currentTimeMillis();
             return;
         }
-        //wait between 10 and 15 seconds after reaching patrol point before moving
-        int patrolDelay = ThreadLocalRandom.current().nextInt(10000) + 5000;
-        if (mob.stopPatrolTime + patrolDelay > System.currentTimeMillis())
+        if (mob.stopPatrolTime + (MBServerStatics.AI_PATROL_DIVISOR * 1000) > System.currentTimeMillis())
             //early exit while waiting to patrol again
             return;
         //guard captains inherit barracks patrol points dynamically
@@ -226,6 +224,9 @@ public class MobileFSM {
         // mobile in the proper state to cast.
         if (mob == null)
             return false;
+        if(ThreadLocalRandom.current().nextInt(100) > MBServerStatics.AI_POWER_CHANCE){
+            return false;
+        }
         if (mob.mobPowers.isEmpty())
             return false;
         if (mob.nextCastTime == 0)
@@ -272,12 +273,7 @@ public class MobileFSM {
                 msg = PowersManager.createPowerMsg(mobPower, powerRank, mob, target);
             msg.setUnknown04(2);
             PowersManager.finishUseMobPower(msg, mob, 0, 0);
-            // Default minimum seconds between cast = 10
-            long coolDown = mobPower.getCooldown();
-            if (coolDown < 10000)
-                mob.nextCastTime = System.currentTimeMillis() + 10000 + coolDown;
-            else
-                mob.nextCastTime = System.currentTimeMillis() + coolDown;
+                mob.nextCastTime = System.currentTimeMillis() + (MBServerStatics.AI_POWER_DIVISOR * 1000);
             return true;
         }
         return false;
