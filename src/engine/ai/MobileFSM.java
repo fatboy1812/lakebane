@@ -29,7 +29,6 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 import static engine.math.FastMath.sqr;
 public class MobileFSM {
-    public static int AI_POWER_CHANCE = 30; // set 1 -100 to determine mobs chance to cast a spell
     private static void AttackTarget(Mob mob, AbstractWorldObject target) {
         if (mob == null)
             return;
@@ -223,10 +222,10 @@ public class MobileFSM {
         // mobile in the proper state to cast.
         if (mob == null)
             return false;
-        if(ThreadLocalRandom.current().nextInt(100) > AI_POWER_CHANCE){
-            return false;
-        }
+
         if (mob.mobPowers.isEmpty())
+            return false;
+        if(ThreadLocalRandom.current().nextInt(100) > 50)
             return false;
         if (mob.nextCastTime == 0)
             mob.nextCastTime = System.currentTimeMillis();
