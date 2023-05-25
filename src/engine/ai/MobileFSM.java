@@ -168,17 +168,15 @@ public class MobileFSM {
     }
     private static void Patrol(Mob mob) {
         //make sure mob is out of combat stance
+        if(mob.stopPatrolTime == 0) {
+            mob.stopPatrolTime = System.currentTimeMillis();
+            return;
+        }
         if (mob.isCombat() && mob.getCombatTarget() == null) {
             mob.setCombat(false);
             UpdateStateMsg rwss = new UpdateStateMsg();
             rwss.setPlayer(mob);
             DispatchMessage.sendToAllInRange(mob, rwss);
-        }
-        if (mob.isMoving() == true) {
-            //early exit for a mob who is already moving to a patrol point
-            //while mob moving, update lastPatrolTime so that when they stop moving the 10 second timer can begin
-            mob.stopPatrolTime = System.currentTimeMillis();
-            return;
         }
         if (mob.stopPatrolTime + (MBServerStatics.AI_PATROL_DIVISOR * 1000) > System.currentTimeMillis())
             //early exit while waiting to patrol again
@@ -190,6 +188,7 @@ public class MobileFSM {
                 mob.patrolPoints = barracks.patrolPoints;
             } else{
                 randomGuardPatrolPoint(mob);
+                mob.stopPatrolTime = System.currentTimeMillis() + (MBServerStatics.AI_PATROL_DIVISOR * 1000);
                 return;
             }
         }
@@ -199,6 +198,7 @@ public class MobileFSM {
         mob.destination = mob.patrolPoints.get(mob.lastPatrolPointIndex);
         mob.lastPatrolPointIndex += 1;
         MovementUtilities.aiMove(mob, mob.destination, true);
+        mob.stopPatrolTime = System.currentTimeMillis() + (MBServerStatics.AI_PATROL_DIVISOR * 1000);
         if(mob.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardCaptain.ordinal()){
             for (Entry<Mob, Integer> minion : mob.siegeMinionMap.entrySet()) {
                 //make sure mob is out of combat stance
