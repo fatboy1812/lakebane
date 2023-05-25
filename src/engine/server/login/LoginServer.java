@@ -116,16 +116,20 @@ public class LoginServer {
             // Invalidate cache for players driven by forum
             // and stored procedure forum_link_pass()
 
-            try {
-
                 // Run cache routine right away if requested.
 
                 File cacheFile = new File("cacheInvalid");
 
 
                 if (cacheFile.exists() == true) {
+
                     nextCacheTime = LocalDateTime.now();
-                    Files.deleteIfExists(Paths.get("cacheInvalid"));
+
+                    try {
+                        Files.deleteIfExists(Paths.get("cacheInvalid"));
+                    } catch (IOException e) {
+                        throw new RuntimeException(e);
+                    }
                 }
 
                 if (LocalDateTime.now().isAfter(nextCacheTime)) {
@@ -145,10 +149,7 @@ public class LoginServer {
                 }
 
                 ThreadUtils.sleep(100);
-            } catch (Exception e) {
-                Logger.error(e);
-                e.printStackTrace();
-            }
+
         }
     }
 
