@@ -17,10 +17,7 @@ import engine.objects.PlayerCharacter;
 import engine.server.MBServerStatics;
 import org.pmw.tinylog.Logger;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class dbCharacterSkillHandler extends dbHandlerBase {
@@ -40,7 +37,7 @@ public class dbCharacterSkillHandler extends dbHandlerBase {
 		}
 
 		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO `dyn_character_skill` (`CharacterID`, `skillsBaseID`, `trains`) VALUES (?, ?, ?);")) {
+			 PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO `dyn_character_skill` (`CharacterID`, `skillsBaseID`, `trains`) VALUES (?, ?, ?);", Statement.RETURN_GENERATED_KEYS)) {
 
 			preparedStatement.setLong(1, CharacterSkill.GetOwner(toAdd).getObjectUUID());
 			preparedStatement.setInt(2, toAdd.getSkillsBase().getObjectUUID());

@@ -16,10 +16,7 @@ import engine.objects.PlayerCharacter;
 import engine.server.MBServerStatics;
 import org.pmw.tinylog.Logger;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class dbCharacterPowerHandler extends dbHandlerBase {
@@ -39,7 +36,7 @@ public class dbCharacterPowerHandler extends dbHandlerBase {
         }
 
         try (Connection connection = DbManager.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO `dyn_character_power` (`CharacterID`, `powersBaseToken`, `trains`) VALUES (?, ?, ?);")) {
+             PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO `dyn_character_power` (`CharacterID`, `powersBaseToken`, `trains`) VALUES (?, ?, ?);", Statement.RETURN_GENERATED_KEYS)) {
 
             preparedStatement.setLong(1, CharacterPower.getOwner(toAdd).getObjectUUID());
             preparedStatement.setInt(2, toAdd.getPower().getToken());

@@ -14,10 +14,7 @@ import engine.gameManager.DbManager;
 import engine.objects.CharacterRune;
 import org.pmw.tinylog.Logger;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 
 public class dbCharacterRuneHandler extends dbHandlerBase {
@@ -32,7 +29,7 @@ public class dbCharacterRuneHandler extends dbHandlerBase {
         CharacterRune characterRune = null;
 
         try (Connection connection = DbManager.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO `dyn_character_rune` (`CharacterID`, `RuneBaseID`) VALUES (?, ?);")) {
+             PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO `dyn_character_rune` (`CharacterID`, `RuneBaseID`) VALUES (?, ?);", Statement.RETURN_GENERATED_KEYS)) {
 
             preparedStatement.setLong(1, toAdd.getPlayerID());
             preparedStatement.setInt(2, toAdd.getRuneBaseID());
