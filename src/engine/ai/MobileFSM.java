@@ -505,6 +505,9 @@ public class MobileFSM {
             PowersBase recall = PowersManager.getPowerByToken(-1994153779);
             PowersManager.useMobPower(mob, mob, recall, 40);
             mob.setCombatTarget(null);
+            for (Entry playerEntry : mob.playerAgroMap.entrySet()) {
+                PlayerCharacter.getFromCache((int)playerEntry.getKey()).setHateValue(0);
+            }
         }
     }
     private static void chaseTarget(Mob mob) {
