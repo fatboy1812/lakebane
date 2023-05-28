@@ -180,7 +180,8 @@ public class MobileFSM {
             mob.stopPatrolTime = System.currentTimeMillis();
             return;
         }
-        if (mob.stopPatrolTime + (MBServerStatics.AI_PATROL_DIVISOR * 1000) > System.currentTimeMillis())
+        int patrolDelay = ThreadLocalRandom.current().nextInt((int)(MBServerStatics.AI_PATROL_DIVISOR * 0.5f)) + (int)(MBServerStatics.AI_PATROL_DIVISOR * 0.5f);
+        if (mob.stopPatrolTime + (patrolDelay * 1000) > System.currentTimeMillis())
             //early exit while waiting to patrol again
             return;
         //guard captains inherit barracks patrol points dynamically
