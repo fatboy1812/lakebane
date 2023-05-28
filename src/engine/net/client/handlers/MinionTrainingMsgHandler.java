@@ -153,10 +153,7 @@ public class MinionTrainingMsgHandler extends AbstractClientMsgHandler {
 
 						//   toCreate.despawn();
 						if (toCreate != null) {
-							//test timer for treb testing
-							toCreate.setSpawnTime(10);
-							//toCreate.setSpawnTime(60 * 15);
-							//toCreate.setTimeToSpawnSiege(System.currentTimeMillis() + (60 * 15 * 1000));
+							toCreate.setSpawnTime(60 * 15);
 							Building building = BuildingManager.getBuilding(((MinionTrainingMessage) baseMsg).getBuildingID());
 							int slot = ((NPC)toCreate.npcOwner).getSiegeMinionMap().get(toCreate);
 							Vector3fImmutable slotLocation;
