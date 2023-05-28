@@ -55,7 +55,7 @@ public class Boon  {
 	
 	public static void HandleBoonListsForItemBase(int itemBaseID){
 		ArrayList<Boon> boons = null;
-		boons = DbManager.BoonQueries.GET_BOON_AMOUNTS_FOR_ITEMBASEUUID(itemBaseID);
+		boons = DbManager.BoonQueries.GET_BOON_AMOUNTS_FOR_ITEMBASE(itemBaseID);
 		if (boons != null)
 			GetBoonsForItemBase.put(itemBaseID, boons);
 	}

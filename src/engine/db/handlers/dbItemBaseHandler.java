@@ -9,10 +9,13 @@
 
 package engine.db.handlers;
 
+import engine.gameManager.DbManager;
 import engine.objects.BootySetEntry;
 import engine.objects.ItemBase;
 import org.pmw.tinylog.Logger;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -20,29 +23,26 @@ import java.util.HashMap;
 
 public class dbItemBaseHandler extends dbHandlerBase {
 
-	public dbItemBaseHandler() {
+    public dbItemBaseHandler() {
 
 	}
 
 	public void LOAD_BAKEDINSTATS(ItemBase itemBase) {
 
-		try {
-			prepareCallable("SELECT * FROM `static_item_bakedinstat` WHERE `itemID` = ?");
-			setInt(1, itemBase.getUUID());
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `static_item_bakedinstat` WHERE `itemID` = ?")) {
 
-			ResultSet rs = executeQuery();
+			preparedStatement.setInt(1, itemBase.getUUID());
+			ResultSet rs = preparedStatement.executeQuery();
 
 			while (rs.next()) {
-
 				if (rs.getBoolean("fromUse"))
 					itemBase.getUsedStats().put(rs.getInt("token"), rs.getInt("numTrains"));
 				else
 					itemBase.getBakedInStats().put(rs.getInt("token"), rs.getInt("numTrains"));
 			}
 		} catch (SQLException e) {
-			Logger.error( e.toString());
-		} finally {
-			closeCallable();
+			Logger.error(e);
 		}
 	}
 
@@ -50,27 +50,24 @@ public class dbItemBaseHandler extends dbHandlerBase {
 
 		ArrayList<Integer> tempList = new ArrayList<>();
 		ArrayList<Integer> tempListOff = new ArrayList<>();
-		try {
-			prepareCallable("SELECT * FROM `static_itembase_animations` WHERE `itemBaseUUID` = ?");
-			setInt(1, itemBase.getUUID());
 
-			ResultSet rs = executeQuery();
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `static_itembase_animations` WHERE `itemBaseUUID` = ?")) {
+
+			preparedStatement.setInt(1, itemBase.getUUID());
+			ResultSet rs = preparedStatement.executeQuery();
 
 			while (rs.next()) {
 				int animation = rs.getInt("animation");
-
 				boolean rightHand = rs.getBoolean("rightHand");
 
 				if (rightHand)
 					tempList.add(animation);
 				else
 					tempListOff.add(animation);
-
 			}
 		} catch (SQLException e) {
-			Logger.error( e.toString());
-		} finally {
-			closeCallable();
+			Logger.error(e);
 		}
 
 		itemBase.setAnimations(tempList);
@@ -80,44 +77,37 @@ public class dbItemBaseHandler extends dbHandlerBase {
 	public void LOAD_ALL_ITEMBASES() {
 
 		ItemBase itemBase;
-
 		int recordsRead = 0;
 
-		prepareCallable("SELECT * FROM static_itembase");
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM static_itembase")) {
 
-		try {
-			ResultSet rs = executeQuery();
+			ResultSet rs = preparedStatement.executeQuery();
 
 			while (rs.next()) {
-
 				recordsRead++;
 				itemBase = new ItemBase(rs);
-
-				// Add ItemBase to internal cache
-
 				ItemBase.addToCache(itemBase);
 			}
 
-			Logger.info( "read: " + recordsRead + "cached: " + ItemBase.getUUIDCache().size());
-
 		} catch (SQLException e) {
-			Logger.error( e.toString());
-		} finally {
-			closeCallable();
+			Logger.error(e);
 		}
+
+		Logger.info("read: " + recordsRead + " cached: " + ItemBase.getUUIDCache().size());
 	}
 
 	public HashMap<Integer, ArrayList<Integer>> LOAD_RUNES_FOR_NPC_AND_MOBS() {
 
 		HashMap<Integer, ArrayList<Integer>> runeSets = new HashMap<>();
-		int	runeSetID;
+		int runeSetID;
 		int runeBaseID;
 		int recordsRead = 0;
 
-		prepareCallable("SELECT * FROM static_npc_runeSet");
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM static_npc_runeSet")) {
 
-		try {
-			ResultSet rs = executeQuery();
+			ResultSet rs = preparedStatement.executeQuery();
 
 			while (rs.next()) {
 
@@ -126,25 +116,23 @@ public class dbItemBaseHandler extends dbHandlerBase {
 				runeSetID = rs.getInt("runeSet");
 				runeBaseID = rs.getInt("runeBase");
 
-				if (runeSets.get(runeSetID) == null){
+				if (runeSets.get(runeSetID) == null) {
 					ArrayList<Integer> runeList = new ArrayList<>();
 					runeList.add(runeBaseID);
 					runeSets.put(runeSetID, runeList);
-				}
-				else{
-					ArrayList<Integer>runeList = runeSets.get(runeSetID);
+				} else {
+					ArrayList<Integer> runeList = runeSets.get(runeSetID);
 					runeList.add(runeSetID);
 					runeSets.put(runeSetID, runeList);
 				}
 			}
 
-			Logger.info("read: " + recordsRead + " cached: " + runeSets.size());
-
 		} catch (SQLException e) {
-			Logger.error( e.toString());
-		} finally {
-			closeCallable();
+			Logger.error(e);
+			return runeSets;
 		}
+
+		Logger.info("read: " + recordsRead + " cached: " + runeSets.size());
 		return runeSets;
 	}
 
@@ -152,14 +140,13 @@ public class dbItemBaseHandler extends dbHandlerBase {
 
 		HashMap<Integer, ArrayList<BootySetEntry>> bootySets = new HashMap<>();
 		BootySetEntry bootySetEntry;
-		int	bootySetID;
-
+		int bootySetID;
 		int recordsRead = 0;
 
-		prepareCallable("SELECT * FROM static_npc_bootySet");
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM static_npc_bootySet")) {
 
-		try {
-			ResultSet rs = executeQuery();
+			ResultSet rs = preparedStatement.executeQuery();
 
 			while (rs.next()) {
 
@@ -168,25 +155,22 @@ public class dbItemBaseHandler extends dbHandlerBase {
 				bootySetID = rs.getInt("bootySet");
 				bootySetEntry = new BootySetEntry(rs);
 
-				if (bootySets.get(bootySetID) == null){
+				if (bootySets.get(bootySetID) == null) {
 					ArrayList<BootySetEntry> bootyList = new ArrayList<>();
 					bootyList.add(bootySetEntry);
 					bootySets.put(bootySetID, bootyList);
-				}
-				else{
-					ArrayList<BootySetEntry>bootyList = bootySets.get(bootySetID);
+				} else {
+					ArrayList<BootySetEntry> bootyList = bootySets.get(bootySetID);
 					bootyList.add(bootySetEntry);
 					bootySets.put(bootySetID, bootyList);
 				}
 			}
-
-			Logger.info("read: " + recordsRead + " cached: " + bootySets.size());
-
 		} catch (SQLException e) {
-			Logger.error( e.toString());
-		} finally {
-			closeCallable();
+			Logger.error(e);
+			return bootySets;
 		}
+
+		Logger.info("read: " + recordsRead + " cached: " + bootySets.size());
 		return bootySets;
 	}
 }

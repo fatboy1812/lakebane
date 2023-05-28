@@ -18,6 +18,7 @@ package engine.workthreads;
 import engine.Enum;
 import engine.db.archive.*;
 import engine.gameManager.ConfigManager;
+import engine.gameManager.DbManager;
 import org.pmw.tinylog.Logger;
 
 import java.sql.*;
@@ -153,9 +154,9 @@ public class WarehousePushThread implements Runnable {
 
 	public static boolean pushMineRecords() {
 
-		try (Connection localConnection = DataWarehouse.connectionPool.getConnection();
-				PreparedStatement statement = MineRecord.buildMineQueryStatement(localConnection);
-				ResultSet rs = statement.executeQuery()) {
+		try (Connection localConnection = DbManager.getConnection();
+			 PreparedStatement statement = MineRecord.buildMineQueryStatement(localConnection);
+			 ResultSet rs = statement.executeQuery()) {
 
 			while (rs.next()) {
 				pushMineRecord(rs);
@@ -164,7 +165,7 @@ public class WarehousePushThread implements Runnable {
 
 			return true;
 		} catch (SQLException e) {
-			Logger.error( "Error with local DB connection: " + e.toString());
+			Logger.error("Error with local DB connection: " + e.toString());
 			e.printStackTrace();
 			return false;
 		}
@@ -172,9 +173,9 @@ public class WarehousePushThread implements Runnable {
 
 	public static boolean pushCharacterRecords() {
 
-		try (Connection localConnection = DataWarehouse.connectionPool.getConnection();
-				PreparedStatement statement = CharacterRecord.buildCharacterQueryStatement(localConnection);
-				ResultSet rs = statement.executeQuery()) {
+		try (Connection localConnection = DbManager.getConnection();
+			 PreparedStatement statement = CharacterRecord.buildCharacterQueryStatement(localConnection);
+			 ResultSet rs = statement.executeQuery()) {
 
 			while (rs.next()) {
 				pushCharacterRecord(rs);
@@ -183,7 +184,7 @@ public class WarehousePushThread implements Runnable {
 
 			return true;
 		} catch (SQLException e) {
-			Logger.error( "Error with local DB connection: " + e.toString());
+			Logger.error("Error with local DB connection: " + e.toString());
 			e.printStackTrace();
 			return false;
 		}
@@ -191,9 +192,9 @@ public class WarehousePushThread implements Runnable {
 
 	private static boolean pushGuildRecords() {
 
-		try (Connection localConnection = DataWarehouse.connectionPool.getConnection();
-				PreparedStatement statement = GuildRecord.buildGuildQueryStatement(localConnection);
-				ResultSet rs = statement.executeQuery()) {
+		try (Connection localConnection = DbManager.getConnection();
+			 PreparedStatement statement = GuildRecord.buildGuildQueryStatement(localConnection);
+			 ResultSet rs = statement.executeQuery()) {
 
 			while (rs.next()) {
 				pushGuildRecord(rs);
@@ -238,9 +239,9 @@ public class WarehousePushThread implements Runnable {
 
 	private static boolean pushBaneRecords() {
 
-		try (Connection localConnection = DataWarehouse.connectionPool.getConnection();
-				PreparedStatement statement = BaneRecord.buildBaneQueryStatement(localConnection);
-				ResultSet rs = statement.executeQuery()) {
+		try (Connection localConnection = DbManager.getConnection();
+			 PreparedStatement statement = BaneRecord.buildBaneQueryStatement(localConnection);
+			 ResultSet rs = statement.executeQuery()) {
 
 			while (rs.next()) {
 				pushBaneRecord(rs);
@@ -271,9 +272,9 @@ public class WarehousePushThread implements Runnable {
 
 	private static boolean pushCityRecords() {
 
-		try (Connection localConnection = DataWarehouse.connectionPool.getConnection();
-				PreparedStatement statement = CityRecord.buildCityQueryStatement(localConnection);
-				ResultSet rs = statement.executeQuery()) {
+		try (Connection localConnection = DbManager.getConnection();
+			 PreparedStatement statement = CityRecord.buildCityQueryStatement(localConnection);
+			 ResultSet rs = statement.executeQuery()) {
 
 			while (rs.next()) {
 				pushCityRecord(rs);
@@ -282,7 +283,7 @@ public class WarehousePushThread implements Runnable {
 
 			return true;
 		} catch (SQLException e) {
-			Logger.error( "Error with local DB connection: " + e.toString());
+			Logger.error("Error with local DB connection: " + e.toString());
 			e.printStackTrace();
 			return false;
 		}
@@ -290,9 +291,9 @@ public class WarehousePushThread implements Runnable {
 
 	private static boolean pushPvpRecords() {
 
-		try (Connection localConnection = DataWarehouse.connectionPool.getConnection();
-				PreparedStatement statement = PvpRecord.buildPvpQueryStatement(localConnection);
-				ResultSet rs = statement.executeQuery()) {
+		try (Connection localConnection = DbManager.getConnection();
+			 PreparedStatement statement = PvpRecord.buildPvpQueryStatement(localConnection);
+			 ResultSet rs = statement.executeQuery()) {
 
 			while (rs.next()) {
 
@@ -323,9 +324,9 @@ public class WarehousePushThread implements Runnable {
 
 	private static boolean pushRealmRecords() {
 
-		try (Connection localConnection = DataWarehouse.connectionPool.getConnection();
-				PreparedStatement statement = RealmRecord.buildRealmQueryStatement(localConnection);
-				ResultSet rs = statement.executeQuery()) {
+		try (Connection localConnection = DbManager.getConnection();
+			 PreparedStatement statement = RealmRecord.buildRealmQueryStatement(localConnection);
+			 ResultSet rs = statement.executeQuery()) {
 
 			while (rs.next()) {
 
@@ -335,7 +336,7 @@ public class WarehousePushThread implements Runnable {
 
 			return true;
 		} catch (SQLException e) {
-			Logger.error( "Error with local DB connection: " + e.toString());
+			Logger.error("Error with local DB connection: " + e.toString());
 			e.printStackTrace();
 			return false;
 		}
@@ -392,9 +393,9 @@ public class WarehousePushThread implements Runnable {
 
 		queryString = "SELECT * FROM `warehouse_index`";
 
-		try (Connection localConnection = DataWarehouse.connectionPool.getConnection();
-				CallableStatement statement = localConnection.prepareCall(queryString);
-				ResultSet rs = statement.executeQuery()) {
+		try (Connection localConnection = DbManager.getConnection();
+			 CallableStatement statement = localConnection.prepareCall(queryString);
+			 ResultSet rs = statement.executeQuery()) {
 
 			while (rs.next()) {
 				charIndex = rs.getInt("charIndex");
@@ -417,14 +418,14 @@ public class WarehousePushThread implements Runnable {
 
 	private static boolean updateWarehouseIndex() {
 
-		try (Connection connection = DataWarehouse.connectionPool.getConnection();
-				PreparedStatement statement = WarehousePushThread.buildIndexUpdateStatement(connection)) {
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement statement = WarehousePushThread.buildIndexUpdateStatement(connection)) {
 
 			statement.execute();
 			return true;
 
 		} catch (SQLException e) {
-			Logger.error( e.toString());
+			Logger.error(e.toString());
 			return false;
 		}
 	}

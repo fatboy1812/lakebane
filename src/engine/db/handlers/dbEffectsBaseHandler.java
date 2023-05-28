@@ -9,173 +9,295 @@
 
 package engine.db.handlers;
 
+import engine.Enum;
+import engine.gameManager.DbManager;
+import engine.gameManager.PowersManager;
+import engine.powers.EffectsBase;
+import engine.powers.effectmodifiers.*;
+import org.pmw.tinylog.Logger;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashSet;
+
 public class dbEffectsBaseHandler extends dbHandlerBase {
 
-	public dbEffectsBaseHandler() {
+    public dbEffectsBaseHandler() {
 
 	}
 
+	public static ArrayList<EffectsBase> getAllEffectsBase() {
 
+		ArrayList<EffectsBase> effectList = new ArrayList<>();
 
-	public boolean CreateEffectBase(int token, String IDString,String name,int flags){
-		prepareCallable("INSERT INTO `wpak_static_power_effectbase` (`token`,`IDString`,`name`,`flags`) VALUES (?,?,?,?)");
-		setInt(1,token);
-		setString(2,IDString);
-		setString(3,name);
-		setInt(4,flags);
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement prepareStatement = connection.prepareStatement("SELECT * FROM static_power_effectbase ORDER BY `IDString` DESC")) {
 
-		return (executeUpdate() > 0);
-	}
-	
-	public boolean CreateEffectBaseRAW(String IDString,String type,String detail){
-		prepareCallable("INSERT INTO `wpak_effect_effectbase_raw` (`token`,`IDString`,`name`,`flags`) VALUES (?,?,?,?)");
-		setString(1,IDString);
-		setString(2,type);
-		setString(3,detail);
+			ResultSet rs = prepareStatement.executeQuery();
 
-		return (executeUpdate() > 0);
-	}
+			while (rs.next()) {
+				EffectsBase effectBase = new EffectsBase(rs);
+				effectList.add(effectBase);
+			}
+		} catch (SQLException e) {
+			Logger.error(e.toString());
+		}
 
-	public boolean CreateEffectSource(String IDString,String source){
-		prepareCallable("INSERT INTO `wpak_static_power_sourcetype` (`IDString`,`source`) VALUES (?,?)");
-
-		setString(1,IDString);
-		setString(2,source);
-
-		return (executeUpdate() > 0);
-	}
-	
-	public boolean CreateEffectSourceRAW(String IDString,String type,String detail){
-		prepareCallable("INSERT INTO `wpak_effect_source_raw` (`effectID`,`type`, `text`) VALUES (?,?,?)");
-
-		setString(1,IDString);
-		setString(2,type);
-		setString(3,detail);
-
-		return (executeUpdate() > 0);
+		return effectList;
 	}
 
-	public boolean CreateEffectCondition(String IDString,String powerOrEffect,String type,float amount,float ramp,byte useAddFormula,String damageType1,String damageType2,String damageType3){
-		prepareCallable("INSERT INTO `wpak_static_power_failcondition` (`IDString`,`powerOrEffect`,`type`,`amount`,`ramp`,`useAddFormula`,`damageType1`,`damageType2`,`damageType3`) VALUES (?,?,?,?,?,?,?,?,?)");
-		setString(1,IDString);
-		setString(2,powerOrEffect);
-		setString(3,type);
-		setFloat(4,amount);
-		setFloat(5,ramp);
-		setByte(6,useAddFormula);
-		setString(7,damageType1);
-		setString(8,damageType2);
-		setString(9,damageType3);
+	public static void cacheAllEffectModifiers() {
 
-		return (executeUpdate() > 0);
-	}
-	
-	public boolean CreateEffectConditionRAW(String IDString,String type,String detail){
-		prepareCallable("INSERT INTO `wpak_effect_condition_raw` (`effectID`,`type`, `text`) VALUES (?,?,?)");
-		setString(1,IDString);
-		setString(2,type);
-		setString(3,detail);
-		return (executeUpdate() > 0);
-	}
+		String IDString;
+		AbstractEffectModifier abstractEffectModifier = null;
 
-	public boolean CreateEffectMod(String IDString,String modType,float minMod,float maxMod,float percentMod,float ramp,byte useRampAdd,String type,String string1,String string2){
-		prepareCallable("INSERT INTO `wpak_static_power_effectmod` (`IDString`,`modType`,`minMod`,`maxMod`,`percentMod`,`ramp`,`useRampAdd`,`type`,`string1`,`string2`) VALUES (?,?,?,?,?,?,?,?,?,?)");
-		setString(1, IDString);
-		setString(2, modType);
-		setFloat(3, minMod);
-		setFloat(4, maxMod);
-		setFloat(5, percentMod);
-		setFloat(6, ramp);
-		setByte(7, useRampAdd);
-		setString(8, type);
-		setString(9, string1);
-		setString(10, string2);
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement prepareStatement = connection.prepareStatement("SELECT * FROM static_power_effectmod")) {
 
-		return (executeUpdate() > 0);
-	}
-	
-	public boolean CreateEffectModRAW(String IDString,String type,String detail){
-		prepareCallable("INSERT INTO `wpak_effect_mod_raw` (`effectID`,`type`, `text`) VALUES (?,?,?)");
-		setString(1,IDString);
-		setString(2,type);
-		setString(3,detail);
+			ResultSet rs = prepareStatement.executeQuery();
 
-		return (executeUpdate() > 0);
-	}
-	
+			while (rs.next()) {
 
-	public boolean CreatePowerPowerAction(String IDString,String type,String effectID,String effectID2,String deferredPowerID,float levelCap,float levelCapRamp,String damageType,int numIterations,String effectSourceToRemove,String trackFilter,int maxTrack,int mobID,int mobLevel,int simpleDamage,String transferFromType,String transferToType,float transferAmount,float transferRamp,float transferEfficiency,float transferEfficiencyRamp,int flags){
-		prepareCallable("INSERT INTO `wpak_static_power_poweraction` (`IDString`,`type`,`effectID`,`effectID2`,`deferredPowerID`,`levelCap`,`levelCapRamp`,`damageType`,`numIterations`,`effectSourceToRemove`,`trackFilter`,`maxTrack`,`mobID`,`mobLevel`,`simpleDamage`,`transferFromType`,`transferToType`,`transferAmount`,`transferRamp`,`transferEfficiency`,`transferEfficiencyRamp`,`flags`) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)");
+				IDString = rs.getString("IDString");
+				EffectsBase effectBase = PowersManager.getEffectByIDString(IDString);
+				Enum.ModType modifier = Enum.ModType.GetModType(rs.getString("modType"));
 
-		setString(1,IDString);
-		setString(2,type);
-		setString(3,effectID);
-		setString(4,effectID2);
-		setString(5,deferredPowerID);
-		setFloat(6,levelCap);
-		setFloat(7,levelCapRamp);
-		setString(8,damageType);
-		setInt(9,numIterations);
-		setString(10,effectSourceToRemove);
-		setString(11,trackFilter);
-		setInt(12,maxTrack);
-		setInt(13,mobID);
-		setInt(14,mobLevel);
-		setInt(15,simpleDamage);
-		setString(16,transferFromType);
-		setString(17,transferToType);
-		setFloat(18,transferAmount);
-		setFloat(19,transferRamp);
-		setFloat(20,transferEfficiency);
-		setFloat(21,transferEfficiencyRamp);
-		setInt(22,flags);
+				//combine item prefix and suffix effect modifiers
 
-		return (executeUpdate() > 0);
-	}
-	
-	public boolean CreatePowerPowerActionRAW(String IDString,String type,String detail){
-		prepareCallable("INSERT INTO `wpak_effect_poweraction_raw` (`effectID`,`type`, `text`) VALUES (?,?,?)");
+				abstractEffectModifier = getCombinedModifiers(abstractEffectModifier, rs, effectBase, modifier);
 
-		setString(1,IDString);
-		setString(2,type);
-		setString(3,detail);
+				if (abstractEffectModifier != null) {
 
-		return (executeUpdate() > 0);
-	}
+					if (EffectsBase.modifiersMap.containsKey(effectBase.getIDString()) == false)
+						EffectsBase.modifiersMap.put(effectBase.getIDString(), new HashSet<>());
 
-	public boolean ClearAllEffectBase(){
-		prepareCallable("DELETE from `wpak_static_power_effectbase`");
-		executeUpdate();
+					EffectsBase.modifiersMap.get(effectBase.getIDString()).add(abstractEffectModifier);
 
-		prepareCallable(" DELETE from `wpak_static_power_sourcetype` ");
-		executeUpdate();
+				}
 
-		prepareCallable(" DELETE from `wpak_static_power_failcondition` WHERE `powerOrEffect` = ?");
-		setString(1,"Effect");
-		executeUpdate();
+			}
 
-		prepareCallable(" DELETE from `wpak_static_power_effectmod` ");
-		executeUpdate();
-
-		return true;
+		} catch (Exception e) {
+			Logger.error(e);
+		}
 
 	}
 
-	public boolean ResetIncrement(){
-		prepareCallable("ALTER TABLE `wpak_static_power_effectbase` AUTO_INCREMENT = 1");
-		executeUpdate();
+	private static AbstractEffectModifier getCombinedModifiers(AbstractEffectModifier abstractEffectModifier, ResultSet rs, EffectsBase effectBase, Enum.ModType modifier) throws SQLException {
+		switch (modifier) {
+			case AdjustAboveDmgCap:
+				abstractEffectModifier = new AdjustAboveDmgCapEffectModifier(rs);
+				break;
+			case Ambidexterity:
+				abstractEffectModifier = new AmbidexterityEffectModifier(rs);
+				break;
+			case AnimOverride:
+				break;
+			case ArmorPiercing:
+				abstractEffectModifier = new ArmorPiercingEffectModifier(rs);
+				break;
+			case AttackDelay:
+				abstractEffectModifier = new AttackDelayEffectModifier(rs);
+				break;
+			case Attr:
+				abstractEffectModifier = new AttributeEffectModifier(rs);
+				break;
+			case BlackMantle:
+				abstractEffectModifier = new BlackMantleEffectModifier(rs);
+				break;
+			case BladeTrails:
+				abstractEffectModifier = new BladeTrailsEffectModifier(rs);
+				break;
+			case Block:
+				abstractEffectModifier = new BlockEffectModifier(rs);
+				break;
+			case BlockedPowerType:
+				abstractEffectModifier = new BlockedPowerTypeEffectModifier(rs);
+				break;
+			case CannotAttack:
+				abstractEffectModifier = new CannotAttackEffectModifier(rs);
+				break;
+			case CannotCast:
+				abstractEffectModifier = new CannotCastEffectModifier(rs);
+				break;
+			case CannotMove:
+				abstractEffectModifier = new CannotMoveEffectModifier(rs);
+				break;
+			case CannotTrack:
+				abstractEffectModifier = new CannotTrackEffectModifier(rs);
+				break;
+			case Charmed:
+				abstractEffectModifier = new CharmedEffectModifier(rs);
+				break;
+			case ConstrainedAmbidexterity:
+				abstractEffectModifier = new ConstrainedAmbidexterityEffectModifier(rs);
+				break;
+			case DamageCap:
+				abstractEffectModifier = new DamageCapEffectModifier(rs);
+				break;
+			case DamageShield:
+				abstractEffectModifier = new DamageShieldEffectModifier(rs);
+				break;
+			case DCV:
+				abstractEffectModifier = new DCVEffectModifier(rs);
+				break;
+			case Dodge:
+				abstractEffectModifier = new DodgeEffectModifier(rs);
+				break;
+			case DR:
+				abstractEffectModifier = new DREffectModifier(rs);
+				break;
+			case Durability:
+				abstractEffectModifier = new DurabilityEffectModifier(rs);
+				break;
+			case ExclusiveDamageCap:
+				abstractEffectModifier = new ExclusiveDamageCapEffectModifier(rs);
+				break;
+			case Fade:
+				abstractEffectModifier = new FadeEffectModifier(rs);
+				break;
+			case Fly:
+				abstractEffectModifier = new FlyEffectModifier(rs);
+				break;
+			case Health:
+				abstractEffectModifier = new HealthEffectModifier(rs);
+				break;
+			case HealthFull:
+				abstractEffectModifier = new HealthFullEffectModifier(rs);
+				break;
+			case HealthRecoverRate:
+				abstractEffectModifier = new HealthRecoverRateEffectModifier(rs);
+				break;
+			case IgnoreDamageCap:
+				abstractEffectModifier = new IgnoreDamageCapEffectModifier(rs);
+				break;
+			case IgnorePassiveDefense:
+				abstractEffectModifier = new IgnorePassiveDefenseEffectModifier(rs);
+				break;
+			case ImmuneTo:
+				abstractEffectModifier = new ImmuneToEffectModifier(rs);
+				break;
+			case ImmuneToAttack:
+				abstractEffectModifier = new ImmuneToAttackEffectModifier(rs);
+				break;
+			case ImmuneToPowers:
+				abstractEffectModifier = new ImmuneToPowersEffectModifier(rs);
+				break;
+			case Invisible:
+				abstractEffectModifier = new InvisibleEffectModifier(rs);
+				break;
+			case ItemName:
+				abstractEffectModifier = new ItemNameEffectModifier(rs);
+				if (((ItemNameEffectModifier) abstractEffectModifier).name.isEmpty())
+					break;
+				if (effectBase != null)
+					effectBase.setName((((ItemNameEffectModifier) abstractEffectModifier).name));
+				break;
+			case Mana:
+				abstractEffectModifier = new ManaEffectModifier(rs);
+				break;
+			case ManaFull:
+				abstractEffectModifier = new ManaFullEffectModifier(rs);
+				break;
+			case ManaRecoverRate:
+				abstractEffectModifier = new ManaRecoverRateEffectModifier(rs);
+				break;
+			case MaxDamage:
+				abstractEffectModifier = new MaxDamageEffectModifier(rs);
+				break;
+			case MeleeDamageModifier:
+				abstractEffectModifier = new MeleeDamageEffectModifier(rs);
+				break;
+			case MinDamage:
+				abstractEffectModifier = new MinDamageEffectModifier(rs);
+				break;
+			case NoMod:
+				abstractEffectModifier = new NoModEffectModifier(rs);
+				break;
+			case OCV:
+				abstractEffectModifier = new OCVEffectModifier(rs);
+				break;
+			case Parry:
+				abstractEffectModifier = new ParryEffectModifier(rs);
+				break;
+			case PassiveDefense:
+				abstractEffectModifier = new PassiveDefenseEffectModifier(rs);
+				break;
+			case PowerCost:
+				abstractEffectModifier = new PowerCostEffectModifier(rs);
+				break;
+			case PowerCostHealth:
+				abstractEffectModifier = new PowerCostHealthEffectModifier(rs);
+				break;
+			case PowerDamageModifier:
+				abstractEffectModifier = new PowerDamageEffectModifier(rs);
+				break;
+			case ProtectionFrom:
+				abstractEffectModifier = new ProtectionFromEffectModifier(rs);
+				break;
+			case Resistance:
+				abstractEffectModifier = new ResistanceEffectModifier(rs);
+				break;
+			case ScaleHeight:
+				abstractEffectModifier = new ScaleHeightEffectModifier(rs);
+				break;
+			case ScaleWidth:
+				abstractEffectModifier = new ScaleWidthEffectModifier(rs);
+				break;
+			case ScanRange:
+				abstractEffectModifier = new ScanRangeEffectModifier(rs);
+				break;
+			case SeeInvisible:
+				abstractEffectModifier = new SeeInvisibleEffectModifier(rs);
+				break;
+			case Silenced:
+				abstractEffectModifier = new SilencedEffectModifier(rs);
+				break;
+			case Skill:
+				abstractEffectModifier = new SkillEffectModifier(rs);
+				break;
+			case Slay:
+				abstractEffectModifier = new SlayEffectModifier(rs);
+				break;
+			case Speed:
+				abstractEffectModifier = new SpeedEffectModifier(rs);
+				break;
+			case SpireBlock:
+				abstractEffectModifier = new SpireBlockEffectModifier(rs);
+				break;
+			case Stamina:
+				abstractEffectModifier = new StaminaEffectModifier(rs);
+				break;
+			case StaminaFull:
+				abstractEffectModifier = new StaminaFullEffectModifier(rs);
+				break;
+			case StaminaRecoverRate:
+				abstractEffectModifier = new StaminaRecoverRateEffectModifier(rs);
+				break;
+			case Stunned:
+				abstractEffectModifier = new StunnedEffectModifier(rs);
+				break;
+			case Value:
+				abstractEffectModifier = new ValueEffectModifier(rs);
+				if (effectBase != null) {
+					ValueEffectModifier valueEffect = (ValueEffectModifier) abstractEffectModifier;
+					effectBase.setValue(valueEffect.minMod);
+				}
+				break;
+			case WeaponProc:
+				abstractEffectModifier = new WeaponProcEffectModifier(rs);
+				break;
+			case WeaponRange:
+				abstractEffectModifier = new WeaponRangeEffectModifier(rs);
+				break;
+			case WeaponSpeed:
+				abstractEffectModifier = new WeaponSpeedEffectModifier(rs);
+				break;
 
-		prepareCallable("ALTER TABLE `wpak_static_power_sourcetype` AUTO_INCREMENT = 1");
-		executeUpdate();
-
-		prepareCallable("ALTER TABLE `wpak_static_power_failcondition` AUTO_INCREMENT = 1");
-		executeUpdate();
-
-		prepareCallable("ALTER TABLE `wpak_static_power_effectmod` AUTO_INCREMENT = 1");
-		executeUpdate();
-
-
-		return true;
+		}
+		return abstractEffectModifier;
 	}
-
 }

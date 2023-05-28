@@ -16,6 +16,10 @@ import engine.objects.PlayerCharacter;
 import engine.objects.Runegate;
 import org.pmw.tinylog.Logger;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Collection;
@@ -40,7 +44,7 @@ public enum SimulationManager {
 			+ RUNEGATE_PULSE;
 	private long _updatePulseTime = System.currentTimeMillis() + UPDATE_PULSE;
 	private long _flightPulseTime = System.currentTimeMillis() + FlIGHT_PULSE;
-	
+
 	public static Duration executionTime = Duration.ofNanos(1);
 	public static Duration executionMax = Duration.ofNanos(1);
 
@@ -49,15 +53,26 @@ public enum SimulationManager {
 		// don't allow instantiation.
 	}
 
-    public static String getPopulationString() {
-        String outString;
-        String newLine = System.getProperty("line.separator");
-        outString = "[LUA_POPULATION()]" + newLine;
-        outString += DbManager.CSSessionQueries.GET_POPULATION_STRING();
-        return outString;
-    }
+	public static String getPopulationString() {
 
-    /*
+		String popString = "";
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement getPopString = connection.prepareStatement("CALL GET_POPULATION_STRING()");) {
+
+			ResultSet rs = getPopString.executeQuery();
+
+			if (rs.next())
+				popString = rs.getString("popstring");
+
+		} catch (SQLException e) {
+			Logger.error(e.toString());
+		}
+
+		return popString;
+	}
+
+	/*
 	 * Update the simulation. *** Important: Whatever you do in here, do it damn
 	 * quick!
 	 */

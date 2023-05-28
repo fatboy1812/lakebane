@@ -651,7 +651,7 @@ public class MBServerStatics {
 	public static int AI_RECALL_RANGE = 400;
 	public static int AI_PULSE_MOB_THRESHOLD = 200;
 	public static int AI_THREAD_SLEEP = 1000;
-	public static int AI_PATROL_DIVISOR = 10;
+	public static int AI_PATROL_DIVISOR = 15;
 	public static int AI_POWER_DIVISOR = 20;
 	public static int AI_PET_HEEL_DISTANCE = 10;
 	public static int AI_PATROL_RADIUS = 60;

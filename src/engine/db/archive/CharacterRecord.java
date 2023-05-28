@@ -10,6 +10,7 @@
 package engine.db.archive;
 
 import engine.Enum;
+import engine.gameManager.DbManager;
 import engine.objects.Guild;
 import engine.objects.PlayerCharacter;
 import engine.workthreads.WarehousePushThread;
@@ -109,13 +110,13 @@ public class CharacterRecord extends DataRecord {
 
     public static void advanceKillCounter(PlayerCharacter player) {
 
-        try (Connection connection = DataWarehouse.connectionPool.getConnection();
+        try (Connection connection = DbManager.getConnection();
              PreparedStatement statement = buildKillCounterStatement(connection, player)) {
 
             statement.execute();
 
         } catch (SQLException e) {
-            Logger.error( e.toString());
+            Logger.error(e.toString());
         }
 
     }
@@ -136,13 +137,13 @@ public class CharacterRecord extends DataRecord {
 
     public static void advanceDeathCounter(PlayerCharacter player) {
 
-        try (Connection connection = DataWarehouse.connectionPool.getConnection();
+        try (Connection connection = DbManager.getConnection();
              PreparedStatement statement = buildDeathCounterStatement(connection, player)) {
 
             statement.execute();
 
         } catch (SQLException e) {
-            Logger.error( e.toString());
+            Logger.error(e.toString());
         }
 
     }
@@ -163,13 +164,13 @@ public class CharacterRecord extends DataRecord {
 
     public static void updatePromotionClass(PlayerCharacter player) {
 
-        try (Connection connection = DataWarehouse.connectionPool.getConnection();
+        try (Connection connection = DbManager.getConnection();
              PreparedStatement statement = buildUpdatePromotionStatement(connection, player)) {
 
             statement.execute();
 
         } catch (SQLException e) {
-            Logger.error( e.toString());
+            Logger.error(e.toString());
         }
 
     }
@@ -197,7 +198,7 @@ public class CharacterRecord extends DataRecord {
 
         WarehousePushThread.charDelta = 0;
 
-        try (Connection localConnection = DataWarehouse.connectionPool.getConnection();
+        try (Connection localConnection = DbManager.getConnection();
              PreparedStatement statement = localConnection.prepareStatement(queryString, ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE); // Make this an updatable result set as we'll reset the dirty flag as we go along
              ResultSet rs = statement.executeQuery()) {
 
@@ -263,13 +264,13 @@ public class CharacterRecord extends DataRecord {
 
     public void write() {
 
-        try (Connection connection = DataWarehouse.connectionPool.getConnection();
+        try (Connection connection = DbManager.getConnection();
              PreparedStatement statement = buildCharacterInsertStatement(connection, this.player)) {
 
             statement.execute();
 
         } catch (SQLException e) {
-            Logger.error( "Error writing character record " + e.toString());
+            Logger.error("Error writing character record " + e.toString());
 
         }
     }

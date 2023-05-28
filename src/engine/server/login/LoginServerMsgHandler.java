@@ -449,9 +449,9 @@ public class LoginServerMsgHandler implements NetMsgHandler {
         Account account = session.getAccount();
         account.setLastCharIDUsed(gameServerIPRequestMessage.getCharacterUUID());
 
-        GameServerIPResponseMsg gsiprm = new GameServerIPResponseMsg();
+        GameServerIPResponseMsg gameServerIPResponseMsg = new GameServerIPResponseMsg();
 
-        if (!conn.sendMsg(gsiprm)) {
+        if (!conn.sendMsg(gameServerIPResponseMsg)) {
             Logger.error("Failed to send message");
             this.KickToLogin(MBServerStatics.LOGINERROR_UNABLE_TO_LOGIN, "Unable to send GameServerIPResponseMsg to client.", conn);
         }

@@ -305,9 +305,12 @@ public class WorldServer {
 		PowersManager.LoadAllMobPowers();
 
 		//load item enchantment values
+		Logger.info("Loading item enchants");
 		DbManager.LootQueries.LOAD_ENCHANT_VALUES();
 
-		//initialize realms
+		Logger.info("Loading zone extent cache");
+		DbManager.ZoneQueries.LOAD_ZONE_EXTENTS();
+
 		Logger.info("Loading Realms");
 		Realm.loadAllRealms();
 
@@ -471,7 +474,7 @@ public class WorldServer {
 					+  ConfigManager.MB_DATABASE_ADDRESS.getValue() + ':'
 					+  ConfigManager.MB_DATABASE_PORT.getValue());
 
-			DbManager.configureDatabaseLayer();
+			DbManager.configureConnectionPool();
 
 		} catch (Exception e) {
 			Logger.error(e.getMessage());
@@ -572,7 +575,7 @@ public class WorldServer {
 
 				//Handle cities
 
-				City.loadCities(zone);
+				ZoneManager.loadCities(zone);
 				ZoneManager.populateWorldZones(zone);
 
 			} catch (Exception e) {

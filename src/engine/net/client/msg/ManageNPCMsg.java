@@ -465,18 +465,42 @@ public class ManageNPCMsg extends ClientNetMsg {
 								writer.putInt(0);
 								writer.putInt(1);
 								writer.putInt(1);
-								writer.put((byte) 0);
-								long curTime = System.currentTimeMillis() / 1000;
-								long upgradeTime = mob.getTimeToSpawnSiege() / 1000;
-								long timeLife = upgradeTime - curTime;
 
-								writer.putInt(900);
-								writer.putInt(900);
-								writer.putInt((int) timeLife); //time remaining?
-								writer.putInt(0);
-								writer.put((byte) 0);
-								writer.putString(mob.getName());
-								writer.put((byte) 0);
+								long curTime = System.currentTimeMillis() / 1000;
+								long upgradeTime = (mob.deathTime + (mob.spawnTime * 1000)) / 1000;
+								long timeLife = upgradeTime - curTime;
+								if (upgradeTime * 1000 > System.currentTimeMillis()) {
+									if(mob.npcOwner.isAlive()) {
+										writer.put((byte) 0);//shows respawning timer
+										writer.putInt(mob.spawnTime);
+										writer.putInt(mob.spawnTime);
+										writer.putInt((int) timeLife); //time remaining for mob that is dead
+										writer.putInt(0);
+										writer.put((byte) 0);
+										writer.putString(mob.getNameOverride().isEmpty() ? mob.getName() : mob.getNameOverride());
+										writer.put((byte) 0);
+									}
+									else{
+										writer.put((byte) 0);//shows respawning timer
+										writer.putInt(0);
+										writer.putInt(0);
+										writer.putInt(0); //time remaining for mob that is dead
+										writer.putInt(0);
+										writer.put((byte) 0);
+										writer.putString(mob.getNameOverride().isEmpty() ? mob.getName() : mob.getNameOverride());
+										writer.put((byte) 0);
+									}
+								} else {
+									//nothing required for countdown for a mob that is alive
+									writer.put((byte) 1);//shows "Standing By"
+									writer.putInt(0);
+									writer.putInt(0);
+									writer.putInt(0);
+									writer.putInt(0);
+									writer.put((byte) 0);
+									writer.putString(mob.getNameOverride().isEmpty() ? mob.getName() : mob.getNameOverride());
+									writer.put((byte) 0);
+								}
 							}
 						return;
 

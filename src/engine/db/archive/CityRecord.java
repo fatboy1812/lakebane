@@ -10,6 +10,7 @@
 package engine.db.archive;
 
 import engine.Enum;
+import engine.gameManager.DbManager;
 import engine.objects.City;
 import engine.workthreads.WarehousePushThread;
 
@@ -126,8 +127,8 @@ public class CityRecord extends DataRecord {
 
 	public void write() {
 
-		try (Connection connection = DataWarehouse.connectionPool.getConnection();
-				PreparedStatement statement = this.buildCityInsertStatement(connection)) {
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement statement = this.buildCityInsertStatement(connection)) {
 
 			statement.execute();
 

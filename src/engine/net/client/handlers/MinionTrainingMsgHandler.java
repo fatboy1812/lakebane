@@ -4,10 +4,8 @@ import engine.Enum;
 import engine.Enum.DispatchChannel;
 import engine.InterestManagement.WorldGrid;
 import engine.exception.MsgSendException;
-import engine.gameManager.BuildingManager;
-import engine.gameManager.DbManager;
-import engine.gameManager.NPCManager;
-import engine.gameManager.SessionManager;
+import engine.gameManager.*;
+import engine.math.Vector3fImmutable;
 import engine.net.Dispatch;
 import engine.net.DispatchMessage;
 import engine.net.client.ClientConnection;
@@ -156,8 +154,16 @@ public class MinionTrainingMsgHandler extends AbstractClientMsgHandler {
 						//   toCreate.despawn();
 						if (toCreate != null) {
 							toCreate.setSpawnTime(60 * 15);
-							toCreate.setTimeToSpawnSiege(System.currentTimeMillis() + (60 * 15 * 1000));
-							toCreate.setDeathTime(System.currentTimeMillis());
+							Building building = BuildingManager.getBuilding(((MinionTrainingMessage) baseMsg).getBuildingID());
+							int slot = ((NPC)toCreate.npcOwner).getSiegeMinionMap().get(toCreate);
+							Vector3fImmutable slotLocation;
+							toCreate.building = building;
+							toCreate.parentZone = zone;
+							BuildingLocation buildingLocation = BuildingManager._slotLocations.get(building.meshUUID).get(slot);
+							slotLocation = building.getLoc().add(buildingLocation.getLocation());
+							toCreate.setBindLoc(slotLocation);
+							zone.zoneMobSet.add(toCreate);
+							MovementManager.translocate(toCreate,toCreate.getBindLoc(),toCreate.npcOwner.region);
                         }
 					}
 
@@ -289,6 +295,7 @@ public class MinionTrainingMsgHandler extends AbstractClientMsgHandler {
 						if (toCreate != null) {
 							toCreate.setTimeToSpawnSiege(System.currentTimeMillis() + MBServerStatics.FIFTEEN_MINUTES);
 							toCreate.setDeathTime(System.currentTimeMillis());
+							toCreate.parentZone.zoneMobSet.add(toCreate);
                         }
 					}
 

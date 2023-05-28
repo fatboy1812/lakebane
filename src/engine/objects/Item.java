@@ -210,14 +210,20 @@ public class Item extends AbstractWorldObject {
 		this.durabilityCurrent = rs.getShort("item_durabilityCurrent");
 		this.durabilityMax = rs.getShort("item_durabilityMax");
 
-		String ot = DbManager.ItemQueries.GET_OWNER(this.ownerID);
+		DbObjectType ownerType;
+		ownerType = DbManager.BuildingQueries.GET_UID_ENUM(this.ownerID);
 
-		if (ot.equals("character"))
-			this.ownerType = OwnerType.PlayerCharacter;
-		else if (ot.equals("npc"))
-			this.ownerType = OwnerType.Npc;
-		else if (ot.equals("account"))
-			this.ownerType = OwnerType.Account;
+		switch (ownerType) {
+			case CHARACTER:
+				this.ownerType = OwnerType.PlayerCharacter;
+				break;
+			case NPC:
+				this.ownerType = OwnerType.Npc;
+				break;
+			case ACCOUNT:
+				this.ownerType = OwnerType.Account;
+				break;
+		}
 
 		this.canDestroy = true;
 
@@ -1062,7 +1068,6 @@ public float getBonusPercent(ModType modType, SourceType sourceType) {
 			this.magicValue =  this.getItemBase().getBaseValue() + calcMagicValue();
 			return;
 		}
-		
 
 		ConcurrentHashMap<String, Integer> enchantList = DbManager.EnchantmentQueries.GET_ENCHANTMENTS_FOR_ITEM(this.getObjectUUID());
 

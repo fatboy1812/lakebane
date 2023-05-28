@@ -7,7 +7,6 @@
 //                www.magicbane.com
 
 
-
 package engine.ai.utilities;
 
 public class PowerUtilities {

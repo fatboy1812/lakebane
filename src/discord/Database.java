@@ -54,15 +54,13 @@ public class Database {
     public boolean updateAccountPassword(String discordAccountID, String newPassword) {
 
         try (Connection connection = DriverManager.getConnection(sqlURI, ConfigManager.MB_DATABASE_USER.getValue(),
-                ConfigManager.MB_DATABASE_PASS.getValue())) {
+                ConfigManager.MB_DATABASE_PASS.getValue());
+             PreparedStatement updateStatement = connection.prepareStatement("call discordUpdatePassword(?, ?)")) {
 
-            CallableStatement updatePassword = connection.prepareCall("call discordUpdatePassword(?, ?)");
+            updateStatement.setString(1, discordAccountID);
+            updateStatement.setString(2, newPassword);
 
-            updatePassword.setString(1, discordAccountID);
-            updatePassword.setString(2, newPassword);
-
-            updatePassword.executeUpdate();
-            updatePassword.close();
+            updateStatement.executeUpdate();
             return true;
 
         } catch (SQLException e) {
@@ -75,15 +73,13 @@ public class Database {
     public boolean updateAccountStatus(String discordAccountID, Enum.AccountStatus accountStatus) {
 
         try (Connection connection = DriverManager.getConnection(sqlURI, ConfigManager.MB_DATABASE_USER.getValue(),
-                ConfigManager.MB_DATABASE_PASS.getValue())) {
+                ConfigManager.MB_DATABASE_PASS.getValue());
+             PreparedStatement updateStatement = connection.prepareStatement("update obj_account set `status` = ? where `discordAccount` = ?")) {
 
-            PreparedStatement updateAccountStatus = connection.prepareCall("update obj_account set `status` = ? where `discordAccount` = ?");
+            updateStatement.setString(1, accountStatus.name());
+            updateStatement.setString(2, discordAccountID);
 
-            updateAccountStatus.setString(1, accountStatus.name());
-            updateAccountStatus.setString(2, discordAccountID);
-
-            updateAccountStatus.executeUpdate();
-            updateAccountStatus.close();
+            updateStatement.executeUpdate();
             return true;
 
         } catch (SQLException e) {
@@ -98,14 +94,13 @@ public class Database {
         try (Connection connection = DriverManager.getConnection(sqlURI, ConfigManager.MB_DATABASE_USER.getValue(),
                 ConfigManager.MB_DATABASE_PASS.getValue())) {
 
-            CallableStatement registerAccount = connection.prepareCall("call discordAccountRegister(?, ?, ?)");
+            PreparedStatement registerStatement = connection.prepareStatement("call discordAccountRegister(?, ?, ?)");
 
-            registerAccount.setString(1, discordAccountID);
-            registerAccount.setString(2, discordUserName);
-            registerAccount.setString(3, discordPassword);
+            registerStatement.setString(1, discordAccountID);
+            registerStatement.setString(2, discordUserName);
+            registerStatement.setString(3, discordPassword);
 
-            registerAccount.execute();
-            registerAccount.close();
+            registerStatement.execute();
             return true;
 
         } catch (SQLException e) {
@@ -123,11 +118,11 @@ public class Database {
         String queryString = "SELECT * FROM obj_account where discordAccount = ?";
 
         try (Connection connection = DriverManager.getConnection(sqlURI, ConfigManager.MB_DATABASE_USER.getValue(),
-                ConfigManager.MB_DATABASE_PASS.getValue())) {
+                ConfigManager.MB_DATABASE_PASS.getValue());
+             PreparedStatement accountQuery = connection.prepareStatement(queryString);) {
 
             // Discord account name based lookup
 
-            PreparedStatement accountQuery = connection.prepareStatement(queryString);
             accountQuery.setString(1, discordAccountID);
 
             ResultSet rs = accountQuery.executeQuery();
@@ -169,11 +164,8 @@ public class Database {
         String queryString = "SELECT * FROM dyn_trash_detail;";
 
         try (Connection connection = DriverManager.getConnection(sqlURI, ConfigManager.MB_DATABASE_USER.getValue(),
-                ConfigManager.MB_DATABASE_PASS.getValue())) {
-
-            // Discord account name based lookup
-
-            PreparedStatement trashQuery = connection.prepareStatement(queryString);
+                ConfigManager.MB_DATABASE_PASS.getValue());
+             PreparedStatement trashQuery = connection.prepareStatement(queryString)) {
 
             ResultSet rs = trashQuery.executeQuery();
 
@@ -195,15 +187,11 @@ public class Database {
     public String getTrashList() {
 
         String outString = "";
-        String queryString = "SELECT DISTINCT `characterName` FROM dyn_trash_detail;";
         int counter = 0;
 
         try (Connection connection = DriverManager.getConnection(sqlURI, ConfigManager.MB_DATABASE_USER.getValue(),
-                ConfigManager.MB_DATABASE_PASS.getValue())) {
-
-            // Discord account name based lookup
-
-            PreparedStatement trashQuery = connection.prepareStatement(queryString);
+                ConfigManager.MB_DATABASE_PASS.getValue());
+             PreparedStatement trashQuery = connection.prepareStatement("SELECT DISTINCT `characterName` FROM dyn_trash_detail;")) {
 
             ResultSet rs = trashQuery.executeQuery();
 
@@ -234,14 +222,9 @@ public class Database {
 
         int trashCount = 0;
 
-        String queryString = "SELECT count(distinct characterName) FROM dyn_trash_detail;";
-
         try (Connection connection = DriverManager.getConnection(sqlURI, ConfigManager.MB_DATABASE_USER.getValue(),
-                ConfigManager.MB_DATABASE_PASS.getValue())) {
-
-            // Discord account name based lookup
-
-            PreparedStatement trashQuery = connection.prepareStatement(queryString);
+                ConfigManager.MB_DATABASE_PASS.getValue());
+             PreparedStatement trashQuery = connection.prepareStatement("SELECT count(distinct characterName) FROM dyn_trash_detail;")) {
 
             ResultSet rs = trashQuery.executeQuery();
 
@@ -259,23 +242,17 @@ public class Database {
 
     public void setAdminEventAsRead(int adminEvent) {
 
-        String queryString = "UPDATE dyn_admin_log SET `SentFlag` = 1 WHERE `entry` = ? ";
-
         try (Connection connection = DriverManager.getConnection(sqlURI, ConfigManager.MB_DATABASE_USER.getValue(),
-                ConfigManager.MB_DATABASE_PASS.getValue())) {
-
-            PreparedStatement updateAdminEvent = connection.prepareCall(queryString);
+                ConfigManager.MB_DATABASE_PASS.getValue());
+             PreparedStatement updateAdminEvent = connection.prepareStatement("UPDATE dyn_admin_log SET `SentFlag` = 1 WHERE `entry` = ? ")) {
 
             updateAdminEvent.setInt(1, adminEvent);
 
             updateAdminEvent.executeUpdate();
-            updateAdminEvent.close();
-            return;
 
         } catch (SQLException e) {
             Logger.error(e.toString());
             online = false;
-            return;
         }
 
     }
@@ -283,14 +260,11 @@ public class Database {
     public HashMap<Integer, String> getAdminEvents() {
 
         HashMap<Integer, String> outMap = new HashMap<>();
-        String queryString = "SELECT * from dyn_admin_log where `SentFlag` = 0";
 
         try (Connection connection = DriverManager.getConnection(sqlURI, ConfigManager.MB_DATABASE_USER.getValue(),
-                ConfigManager.MB_DATABASE_PASS.getValue())) {
+                ConfigManager.MB_DATABASE_PASS.getValue());
+             PreparedStatement adminLogQuery = connection.prepareStatement("SELECT * from dyn_admin_log where `SentFlag` = 0")) {
 
-            // Discord Admin Log lookup of unreported events
-
-            PreparedStatement adminLogQuery = connection.prepareStatement(queryString);
             ResultSet rs = adminLogQuery.executeQuery();
             String workString;
 
@@ -311,14 +285,10 @@ public class Database {
     public String getTrashFile() {
 
         String outString = "machineID : count\n";
-        String queryString = "SELECT * FROM dyn_trash;";
 
         try (Connection connection = DriverManager.getConnection(sqlURI, ConfigManager.MB_DATABASE_USER.getValue(),
-                ConfigManager.MB_DATABASE_PASS.getValue())) {
-
-            // Discord account name based lookup
-
-            PreparedStatement trashQuery = connection.prepareStatement(queryString);
+                ConfigManager.MB_DATABASE_PASS.getValue());
+             PreparedStatement trashQuery = connection.prepareStatement("SELECT * FROM dyn_trash;")) {
 
             ResultSet rs = trashQuery.executeQuery();
 
@@ -346,14 +316,10 @@ public class Database {
         else
             searchString = accountName + "%#%";
 
-        queryString = "SELECT * FROM obj_account where `acct_uname` LIKE ?";
-
         try (Connection connection = DriverManager.getConnection(sqlURI, ConfigManager.MB_DATABASE_USER.getValue(),
-                ConfigManager.MB_DATABASE_PASS.getValue())) {
+                ConfigManager.MB_DATABASE_PASS.getValue());
+             PreparedStatement nameQuery = connection.prepareStatement("SELECT * FROM obj_account where `acct_uname` LIKE ?")) {
 
-            // Discord account name based lookup
-
-            PreparedStatement nameQuery = connection.prepareStatement(queryString);
             nameQuery.setString(1, searchString);
 
             ResultSet rs = nameQuery.executeQuery();
@@ -389,15 +355,14 @@ public class Database {
         return discordAccounts;
     }
 
-    public String getPopulationSTring() {
+    public String getPopulationString() {
 
         String popString = "";
 
         try (Connection connection = DriverManager.getConnection(sqlURI, ConfigManager.MB_DATABASE_USER.getValue(),
-                ConfigManager.MB_DATABASE_PASS.getValue())) {
+                ConfigManager.MB_DATABASE_PASS.getValue());
+             PreparedStatement getPopString = connection.prepareStatement("CALL GET_POPULATION_STRING()");) {
 
-            // Discord account name based lookup
-            CallableStatement getPopString = connection.prepareCall("CALL GET_POPULATION_STRING()");
             ResultSet rs = getPopString.executeQuery();
 
             if (rs.next())
@@ -414,11 +379,9 @@ public class Database {
     public void invalidateLoginCache(String discordAccountID) {
 
         try (Connection connection = DriverManager.getConnection(sqlURI, ConfigManager.MB_DATABASE_USER.getValue(),
-                ConfigManager.MB_DATABASE_PASS.getValue())) {
+                ConfigManager.MB_DATABASE_PASS.getValue());
+             PreparedStatement invalidateAccounts = connection.prepareStatement("INSERT IGNORE INTO login_cachelist (`UID`) SELECT `UID` from `obj_account` WHERE `discordAccount` = ?")) {
 
-            String queryString = "INSERT IGNORE INTO login_cachelist (`UID`) SELECT `UID` from `obj_account` WHERE `discordAccount` = ?";
-
-            PreparedStatement invalidateAccounts = connection.prepareStatement(queryString);
             invalidateAccounts.setString(1, discordAccountID);
             invalidateAccounts.executeUpdate();
 

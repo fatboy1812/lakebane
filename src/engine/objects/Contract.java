@@ -138,8 +138,8 @@ public class Contract extends AbstractGameObject {
 
 	 //Specify if trainer, merchant, banker, etc via classID
 	 private void setBools() {
-		 DbManager.ContractQueries.GET_GENERIC_INVENTORY(this);
-		 DbManager.ContractQueries.GET_SELL_LISTS(this);
+		 DbManager.ContractQueries.LOAD_CONTRACT_INVENTORY(this);
+		 DbManager.ContractQueries.LOAD_SELL_LIST_FOR_CONTRACT(this);
 
 		 this.isTrainer = this.classID > 2499 && this.classID < 3050 || this.classID == 2028;
 

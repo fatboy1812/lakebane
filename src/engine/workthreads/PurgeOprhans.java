@@ -8,7 +8,7 @@
 
 package engine.workthreads;
 
-import engine.db.archive.DataWarehouse;
+import engine.gameManager.DbManager;
 import org.pmw.tinylog.Logger;
 
 import java.sql.Connection;
@@ -46,7 +46,7 @@ public class PurgeOprhans implements Runnable {
         // Member variable declaration
 
         try (
-                Connection connection = DataWarehouse.connectionPool.getConnection();
+                Connection connection = DbManager.getConnection();
                 PreparedStatement statement = connection.prepareStatement("SELECT * from `object` where `type` = 'item' AND `parent` IS NULL", ResultSet.TYPE_SCROLL_SENSITIVE, ResultSet.CONCUR_UPDATABLE);
                 ResultSet rs = statement.executeQuery()) {
 

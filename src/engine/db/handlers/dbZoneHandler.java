@@ -11,9 +11,15 @@ package engine.db.handlers;
 
 import engine.Enum;
 import engine.gameManager.DbManager;
+import engine.gameManager.ZoneManager;
+import engine.math.Vector2f;
 import engine.objects.Zone;
+import org.pmw.tinylog.Logger;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.ArrayList;
 
 public class dbZoneHandler extends dbHandlerBase {
@@ -46,48 +52,79 @@ public class dbZoneHandler extends dbHandlerBase {
 
 	public Zone GET_BY_UID(long ID) {
 
-		Zone zone = (Zone) DbManager.getFromCache(Enum.GameObjectType.Zone, (int)ID);
+		Zone zone = (Zone) DbManager.getFromCache(Enum.GameObjectType.Zone, (int) ID);
+
 		if (zone != null)
 			return zone;
-		prepareCallable("SELECT `obj_zone`.*, `object`.`parent` FROM `object` INNER JOIN `obj_zone` ON `obj_zone`.`UID` = `object`.`UID` WHERE `object`.`UID` = ?;");
-		setLong(1, ID);
-		return (Zone) getObjectSingle((int) ID);
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT `obj_zone`.*, `object`.`parent` FROM `object` INNER JOIN `obj_zone` ON `obj_zone`.`UID` = `object`.`UID` WHERE `object`.`UID` = ?;")) {
+
+			preparedStatement.setLong(1, ID);
+
+			ResultSet rs = preparedStatement.executeQuery();
+			zone = (Zone) getObjectFromRs(rs);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+		}
+
+		return zone;
 	}
 
 	public ArrayList<Zone> GET_MAP_NODES(final int objectUUID) {
-		prepareCallable("SELECT `obj_zone`.*, `object`.`parent` FROM `object` INNER JOIN `obj_zone` ON `obj_zone`.`UID` = `object`.`UID` WHERE `object`.`parent` = ?;");
-		setLong(1, (long) objectUUID);
-		return getObjectList();
+
+		ArrayList<Zone> zoneList = new ArrayList<>();
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT `obj_zone`.*, `object`.`parent` FROM `object` INNER JOIN `obj_zone` ON `obj_zone`.`UID` = `object`.`UID` WHERE `object`.`parent` = ?;")) {
+
+			preparedStatement.setLong(1, objectUUID);
+
+			ResultSet rs = preparedStatement.executeQuery();
+			zoneList = getObjectsFromRs(rs, 2000);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+		}
+
+		return zoneList;
 	}
 
-	public ResultSet GET_ZONE_EXTENTS(final int loadNum) {
-		prepareCallable("SELECT * FROM `static_zone_size` WHERE `loadNum`=?;");
-		setInt(1, loadNum);
-		return executeQuery();
-	}
+	public void LOAD_ZONE_EXTENTS() {
 
-	public String SET_PROPERTY(final Zone z, String name, Object new_value) {
-		prepareCallable("CALL zone_SETPROP(?,?,?)");
-		setLong(1, (long) z.getObjectUUID());
-		setString(2, name);
-		setString(3, String.valueOf(new_value));
-		return getResult();
-	}
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `static_zone_size`;")) {
 
-	public String SET_PROPERTY(final Zone z, String name, Object new_value, Object old_value) {
-		prepareCallable("CALL zone_GETSETPROP(?,?,?,?)");
-		setLong(1, (long) z.getObjectUUID());
-		setString(2, name);
-		setString(3, String.valueOf(new_value));
-		setString(4, String.valueOf(old_value));
-		return getResult();
+			ResultSet rs = preparedStatement.executeQuery();
+
+			while (rs.next()) {
+				Vector2f zoneSize = new Vector2f();
+				int loadNum = rs.getInt("loadNum");
+				zoneSize.x = rs.getFloat("xRadius");
+				zoneSize.y = rs.getFloat("zRadius");
+				ZoneManager._zone_size_data.put(loadNum, zoneSize);
+			}
+
+		} catch (SQLException e) {
+			Logger.error(e);
+		}
 	}
 
 	public boolean DELETE_ZONE(final Zone zone) {
 
-		prepareCallable("DELETE FROM `object` WHERE `UID` = ? AND `type` = 'zone'");
-		setInt(1, zone.getObjectUUID());
-		return (executeUpdate() != 0);
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM `object` WHERE `UID` = ? AND `type` = 'zone'")) {
+
+			preparedStatement.setInt(1, zone.getObjectUUID());
+
+			return (preparedStatement.executeUpdate() > 0);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+		}
+
+		return false;
 	}
 
 }

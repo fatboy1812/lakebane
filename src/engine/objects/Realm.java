@@ -22,7 +22,6 @@ import engine.server.MBServerStatics;
 import org.pmw.tinylog.Logger;
 
 import java.awt.*;
-import java.net.UnknownHostException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
@@ -72,7 +71,7 @@ public class Realm {
 	/**
 	 * ResultSet Constructor
 	 */
-	public Realm(ResultSet rs) throws SQLException, UnknownHostException {
+	public Realm(ResultSet rs) throws SQLException {
 
 		this.mapColor = new Color(Integer.parseInt(rs.getString("realmColor"), 16));
 		this.mapR = (float) (mapColor.getRed() * 0.00392156863);

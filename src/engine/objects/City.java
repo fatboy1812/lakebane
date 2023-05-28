@@ -34,7 +34,6 @@ import engine.workthreads.DestroyCityThread;
 import engine.workthreads.TransferCityThread;
 import org.pmw.tinylog.Logger;
 
-import java.net.UnknownHostException;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
@@ -87,7 +86,7 @@ public class City extends AbstractWorldObject {
 
 	// Players who have entered the city (used for adding and removing affects)
 
-	private final HashSet<Integer> _playerMemory = new HashSet<>();
+	public final HashSet<Integer> _playerMemory = new HashSet<>();
 
 	public volatile boolean protectionEnforced = true;
 	private String hash;
@@ -98,9 +97,9 @@ public class City extends AbstractWorldObject {
 	 * ResultSet Constructor
 	 */
 
-	public City(ResultSet rs) throws SQLException, UnknownHostException {
+	public City(ResultSet rs) throws SQLException {
 		super(rs);
-		try{
+		try {
 			this.cityName = rs.getString("name");
 			this.motto = rs.getString("motto");
 			this.isNpc = rs.getByte("isNpc");
@@ -745,33 +744,6 @@ public class City extends AbstractWorldObject {
 	public boolean isOpen() {
 		return open;
 	}
-
-	public static void loadCities(Zone zone) {
-
-		ArrayList<City> cities = DbManager.CityQueries.GET_CITIES_BY_ZONE(zone.getObjectUUID());
-
-		for (City city : cities) {
-
-			city.setParent(zone);
-			city.setObjectTypeMask(MBServerStatics.MASK_CITY);
-            city.setLoc(city.location);
-            
-            //not player city, must be npc city..
-            if (!zone.isPlayerCity())
-            	zone.setNPCCity(true);
-            
-			if ((ConfigManager.serverType.equals(ServerType.WORLDSERVER)) && (city.hash == null)) {
-
-				city.setHash();
-
-				if (DataWarehouse.recordExists(Enum.DataRecordType.CITY, city.getObjectUUID()) == false) {
-					CityRecord cityRecord = CityRecord.borrow(city, Enum.RecordEventType.CREATE);
-					DataWarehouse.pushToWarehouse(cityRecord);
-				}
-			}
-		}
-	}
-
 
 
 	@Override

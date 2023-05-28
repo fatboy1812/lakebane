@@ -29,7 +29,7 @@ public class StatusRequestHandler {
             outString += "OFFLINE\n";
 
         if (Database.online == true)
-            outString += MagicBot.database.getPopulationSTring();
+            outString += MagicBot.database.getPopulationString();
         else
             outString += "Database offline: no population data.";
 

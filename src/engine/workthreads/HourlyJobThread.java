@@ -284,7 +284,6 @@ public class HourlyJobThread implements Runnable {
         Logger.info(WorldServer.getUptimeString());
         Logger.info(SimulationManager.getPopulationString());
         Logger.info(MessageDispatcher.getNetstatString());
-        Logger.info("Connection Pool Size: " + DbManager.getPoolSize());
         Logger.info(PurgeOprhans.recordsDeleted.toString() + "orphaned items deleted");
     }
 }

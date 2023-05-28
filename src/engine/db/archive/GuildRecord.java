@@ -11,6 +11,7 @@ package engine.db.archive;
 
 import engine.Enum;
 import engine.Enum.RecordEventType;
+import engine.gameManager.DbManager;
 import engine.objects.Guild;
 import engine.workthreads.WarehousePushThread;
 
@@ -164,16 +165,16 @@ public class GuildRecord extends DataRecord {
 
 	public void write() {
 
-		try (Connection connection = DataWarehouse.connectionPool.getConnection();
-				PreparedStatement statement = this.buildGuildInsertStatement(connection)) {
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement statement = this.buildGuildInsertStatement(connection)) {
 
-			statement.execute();
+            statement.execute();
 
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
-	}
+    }
 
 	private PreparedStatement buildGuildInsertStatement(Connection connection) throws SQLException {
 
