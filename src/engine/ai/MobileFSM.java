@@ -299,31 +299,18 @@ public class MobileFSM {
     public static void DetermineAction(Mob mob) {
         if (mob == null)
             return;
-        if (mob.despawned && mob.getMobBase().getLoadID() == 13171) {
-            //trebuchet spawn handler
-            CheckForRespawn(mob);
-            return;
-        }
-        if (mob.despawned && mob.isPlayerGuard) {
-            //override for guards
-            if(mob.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardMinion.ordinal()){
-                if(mob.npcOwner.isAlive() == false || ((Mob)mob.npcOwner).despawned == true){
+        if(mob.despawned || !mob.isAlive()) {
+            if (mob.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardMinion.ordinal()) {
+                if (mob.npcOwner.isAlive() == false || ((Mob) mob.npcOwner).despawned == true) {
                     //minions don't respawn while guard captain is dead
-                    if(mob.isAlive() == false) {
+                    if (mob.isAlive() == false) {
                         mob.deathTime = System.currentTimeMillis();
                         return;
                     }
                 }
+                CheckForRespawn(mob);
+                return;
             }
-            CheckForRespawn(mob);
-            //check to send mob home for player guards to prevent exploit of dragging guards away and then teleporting
-            CheckToSendMobHome(mob);
-            return;
-        }
-        if (!mob.isAlive()) {
-            //no need to continue if mob is dead, check for respawn and move on
-            CheckForRespawn(mob);
-            return;
         }
         if (mob.playerAgroMap.isEmpty() && mob.isPlayerGuard == false)
             //no players loaded, no need to proceed
