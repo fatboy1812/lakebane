@@ -1395,7 +1395,7 @@ public class Mob extends AbstractIntelligenceAgent {
         this.setHealth(this.healthMax);
         if(this.building == null && ((Mob)this.npcOwner).BehaviourType.ordinal() == MobBehaviourType.GuardCaptain.ordinal()){
             this.building = ((Mob)this.npcOwner).building;
-        } else {
+        } else if(this.building != null){
             this.region = BuildingManager.GetRegion(this.building, bindLoc.x, bindLoc.y, bindLoc.z);
         }
         MovementManager.translocate(this,this.bindLoc, this.region);
