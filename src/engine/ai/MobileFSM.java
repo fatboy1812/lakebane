@@ -484,7 +484,14 @@ public class MobileFSM {
     }
     private static void CheckToSendMobHome(Mob mob) {
         if(mob.BehaviourType.isAgressive) {
-            CheckForAggro(mob);
+            if(mob.isPlayerGuard())
+            {
+                if(mob.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardCaptain.ordinal()){
+                    CheckForPlayerGuardAggro(mob);
+                }
+            } else {
+                CheckForAggro(mob);
+            }
         }
         if(mob.getCombatTarget() != null && CombatUtilities.inRange2D(mob,mob.getCombatTarget(),MBServerStatics.AI_BASE_AGGRO_RANGE * 0.5f)){
             return;
