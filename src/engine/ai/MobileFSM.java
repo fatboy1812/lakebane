@@ -583,9 +583,13 @@ public class MobileFSM {
         if (mob.getCombatTarget() == null) {
             //safehold guard
             SafeGuardAggro(mob);
-            if (mob.getCombatTarget() != null)
-                CheckForAttack(mob);
+        } else{
+            if(mob.combatTarget.isAlive() == false){
+                SafeGuardAggro(mob);
+            }
         }
+        if (mob.getCombatTarget() != null)
+            CheckForAttack(mob);
     }
     private static void DefaultLogic(Mob mob) {
         if(mob.getObjectUUID() == 40548){
