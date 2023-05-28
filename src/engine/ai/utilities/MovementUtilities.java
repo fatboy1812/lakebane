@@ -98,7 +98,7 @@ public class MovementUtilities {
 
     }
 
-    public static boolean inRangeDropAggro(Mob agent, PlayerCharacter target) {
+    public static boolean inRangeDropAggro(Mob agent, AbstractCharacter target) {
 
         Vector3fImmutable sl = agent.getLoc();
         Vector3fImmutable tl = target.getLoc();

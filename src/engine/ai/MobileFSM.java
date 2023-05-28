@@ -466,7 +466,7 @@ public class MobileFSM {
         //checks if mob can attack based on attack timer and range
         if (mob.isAlive() == false)
             return;
-        if (MovementUtilities.inRangeDropAggro(mob, (PlayerCharacter) mob.getCombatTarget()) == false) {
+        if (MovementUtilities.inRangeDropAggro(mob, (AbstractCharacter)mob.getCombatTarget()) == false) {
             mob.setCombatTarget(null);
             if (mob.isCombat()) {
                 mob.setCombat(false);
@@ -486,6 +486,7 @@ public class MobileFSM {
             AttackTarget(mob, mob.getCombatTarget());
     }
     private static void CheckToSendMobHome(Mob mob) {
+        CheckForAggro(mob);
         if(mob.getCombatTarget() != null && CombatUtilities.inRange2D(mob,mob.getCombatTarget(),MBServerStatics.AI_BASE_AGGRO_RANGE * 0.5f)){
             return;
         }
