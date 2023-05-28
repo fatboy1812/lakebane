@@ -226,9 +226,6 @@ public class MobileFSM {
             return false;
         if (mob.mobPowers.isEmpty())
             return false;
-        //added in cast chance for mobs, editable by MBServerStatics.AI_POWER_CHANCE
-        if(ThreadLocalRandom.current().nextInt(100) > MBServerStatics.AI_POWER_CHANCE)
-            return false;
         if (mob.nextCastTime == 0)
             mob.nextCastTime = System.currentTimeMillis();
         return mob.nextCastTime <= System.currentTimeMillis();
@@ -422,6 +419,8 @@ public class MobileFSM {
                 if (mob.getCombatTarget() == null) {
                     if(!mob.isMoving()) {
                         Patrol(mob);
+                    } else{
+                        mob.stopPatrolTime = System.currentTimeMillis();
                     }
                 }else {
                     chaseTarget(mob);
@@ -466,7 +465,7 @@ public class MobileFSM {
         //checks if mob can attack based on attack timer and range
         if (mob.isAlive() == false)
             return;
-        if (MovementUtilities.inRangeDropAggro(mob, (AbstractCharacter)mob.getCombatTarget()) == false) {
+        if (mob.getCombatTarget().getObjectType().equals(Enum.GameObjectType.PlayerCharacter) && MovementUtilities.inRangeDropAggro(mob, (PlayerCharacter)mob.getCombatTarget()) == false) {
             mob.setCombatTarget(null);
             if (mob.isCombat()) {
                 mob.setCombat(false);
