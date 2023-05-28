@@ -486,7 +486,9 @@ public class MobileFSM {
             AttackTarget(mob, mob.getCombatTarget());
     }
     private static void CheckToSendMobHome(Mob mob) {
-        CheckForAggro(mob);
+        if(mob.BehaviourType.isAgressive) {
+            CheckForAggro(mob);
+        }
         if(mob.getCombatTarget() != null && CombatUtilities.inRange2D(mob,mob.getCombatTarget(),MBServerStatics.AI_BASE_AGGRO_RANGE * 0.5f)){
             return;
         }
