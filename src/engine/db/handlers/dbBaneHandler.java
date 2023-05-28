@@ -9,6 +9,7 @@
 
 package engine.db.handlers;
 
+import engine.gameManager.DbManager;
 import engine.objects.Bane;
 import engine.objects.Building;
 import engine.objects.City;
@@ -16,10 +17,10 @@ import engine.objects.PlayerCharacter;
 import org.joda.time.DateTime;
 import org.pmw.tinylog.Logger;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
 
 public class dbBaneHandler extends dbHandlerBase {
 
@@ -29,78 +30,63 @@ public class dbBaneHandler extends dbHandlerBase {
 
     public boolean CREATE_BANE(City city, PlayerCharacter owner, Building stone) {
 
-        prepareCallable("INSERT INTO `dyn_banes` (`cityUUID`, `ownerUUID`, `stoneUUID`, `placementDate`) VALUES(?,?,?,?)");
-        setLong(1, (long) city.getObjectUUID());
-        setLong(2, (long) owner.getObjectUUID());
-        setLong(3, (long) stone.getObjectUUID());
-        setTimeStamp(4, System.currentTimeMillis());
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO `dyn_banes` (`cityUUID`, `ownerUUID`, `stoneUUID`, `placementDate`) VALUES(?,?,?,?)")) {
 
-        return (executeUpdate() > 0);
+            preparedStatement.setLong(1, city.getObjectUUID());
+            preparedStatement.setLong(2, owner.getObjectUUID());
+            preparedStatement.setLong(3, stone.getObjectUUID());
+            preparedStatement.setTimestamp(4, new java.sql.Timestamp(System.currentTimeMillis()));
 
+            preparedStatement.execute();
+
+        } catch (SQLException e) {
+            Logger.error(e);
+            return false;
+        }
+
+        return true;
     }
 
     public Bane LOAD_BANE(int cityUUID) {
 
-        Bane newBane = null;
+        Bane bane = null;
 
-        try {
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * from dyn_banes WHERE `dyn_banes`.`cityUUID` = ?")) {
 
-            prepareCallable("SELECT * from dyn_banes WHERE `dyn_banes`.`cityUUID` = ?");
-
-            setLong(1, (long) cityUUID);
-            ResultSet rs = executeQuery();
+            preparedStatement.setLong(1, cityUUID);
+            ResultSet rs = preparedStatement.executeQuery();
 
             if (rs.next()) {
-                newBane = new Bane(rs);
-                Bane.addBane(newBane);
+                bane = new Bane(rs);
+                Bane.addBane(bane);
             }
-
-        } catch (SQLException ex) {
-            java.util.logging.Logger.getLogger(dbBaneHandler.class.getName()).log(Level.SEVERE, null, ex);
-        } finally {
-            closeCallable();
-        }
-        return newBane;
-
-    }
-
-    public ConcurrentHashMap<Integer, Bane> LOAD_ALL_BANES() {
-
-        ConcurrentHashMap<Integer, Bane> baneList;
-        Bane thisBane;
-
-        baneList = new ConcurrentHashMap<>();
-
-        int recordsRead = 0;
-
-        prepareCallable("SELECT * FROM dyn_banes");
-
-        try {
-            ResultSet rs = executeQuery();
-
-            while (rs.next()) {
-
-                recordsRead++;
-                thisBane = new Bane(rs);
-                baneList.put(thisBane.getCityUUID(), thisBane);
-
-            }
-
-            Logger.info("read: " + recordsRead + " cached: " + baneList.size());
 
         } catch (SQLException e) {
-            Logger.error( e.toString());
-        } finally {
-            closeCallable();
+            Logger.error(e);
         }
-        return baneList;
+
+        return bane;
     }
 
+
     public boolean SET_BANE_TIME(DateTime toSet, int cityUUID) {
-        prepareCallable("UPDATE `dyn_banes` SET `liveDate`=? WHERE `cityUUID`=?");
-        setTimeStamp(1, toSet.getMillis());
-        setLong(2, cityUUID);
-        return (executeUpdate() > 0);
+
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `dyn_banes` SET `liveDate`=? WHERE `cityUUID`=?")) {
+
+            preparedStatement.setTimestamp(1, new java.sql.Timestamp(toSet.getMillis()));
+            preparedStatement.setLong(2, cityUUID);
+
+            preparedStatement.execute();
+
+        } catch (SQLException e) {
+            Logger.error(e);
+            return false;
+        }
+
+        return true;
     }
 
     public boolean REMOVE_BANE(Bane bane) {
@@ -108,8 +94,17 @@ public class dbBaneHandler extends dbHandlerBase {
         if (bane == null)
             return false;
 
-        prepareCallable("DELETE FROM `dyn_banes` WHERE `cityUUID` = ?");
-        setLong(1, (long) bane.getCity().getObjectUUID());
-        return (executeUpdate() > 0);
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM `dyn_banes` WHERE `cityUUID` = ?")) {
+
+            preparedStatement.setLong(1, bane.getCity().getObjectUUID());
+            preparedStatement.execute();
+
+        } catch (SQLException e) {
+            Logger.error(e);
+            return false;
+        }
+
+        return true;
     }
 }

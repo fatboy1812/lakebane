@@ -21,7 +21,7 @@ import java.sql.SQLException;
 
 public class ItemNameEffectModifier extends AbstractEffectModifier {
 
-	String name = "";
+	public String name = "";
 
 	public ItemNameEffectModifier(ResultSet rs) throws SQLException {
 		super(rs);

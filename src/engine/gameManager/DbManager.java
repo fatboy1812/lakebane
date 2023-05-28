@@ -8,11 +8,12 @@
 
 package engine.gameManager;
 
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import engine.Enum;
 import engine.Enum.GameObjectType;
 import engine.db.handlers.*;
 import engine.objects.*;
-import engine.pooling.ConnectionPool;
 import engine.server.MBServerStatics;
 import engine.util.Hasher;
 import org.pmw.tinylog.Logger;
@@ -26,27 +27,13 @@ import java.util.concurrent.ConcurrentHashMap;
 public enum DbManager {
 	DBMANAGER;
 
-	private static ConnectionPool connPool;
+	private static HikariDataSource connectionPool = null;
+
 	public static Hasher hasher;
 
 	//Local Object Caching
 
 	private static final EnumMap<GameObjectType, ConcurrentHashMap<Integer, AbstractGameObject>> objectCache = new EnumMap<>(GameObjectType.class);
-
-	public static boolean configureDatabaseLayer() {
-
-		boolean worked = true;
-
-		try {
-			DbManager.connPool = new ConnectionPool();
-			DbManager.connPool.fill(10);
-			DBMANAGER.hasher = new Hasher();
-		} catch (Exception e ) {
-			e.printStackTrace();
-			worked = false;
-		}
-		return worked;
-	}
 
 	public static AbstractGameObject getObject(GameObjectType objectType, int objectUUID) {
 
@@ -87,9 +74,6 @@ public enum DbManager {
 		return outObject;
 	}
 
-	public static int getPoolSize(){
-		return connPool.getPoolSize();
-	}
 
 	public static boolean inCache(GameObjectType gameObjectType, int uuid) {
 
@@ -227,7 +211,7 @@ public enum DbManager {
 	}
 
 	public static PreparedStatement prepareStatement(String sql) throws SQLException {
-		return getConn().prepareStatement(sql, 1);
+		return getConnection().prepareStatement(sql, 1);
 	}
 
 	// Omg refactor this out, somebody!
@@ -259,15 +243,12 @@ public enum DbManager {
 	 * @return the conn
 	 */
 	//XXX I think we have a severe resource leak here! No one is putting the connections back!
-	public static Connection getConn() {
-		Connection conn = DbManager.connPool.get();
+	public static Connection getConnection() {
 		try {
-			if (!conn.isClosed())
-				DbManager.connPool.put(conn);
+			return DbManager.connectionPool.getConnection();
 		} catch (SQLException e) {
-			Logger.error( e.toString());
+			throw new RuntimeException(e);
 		}
-		return conn;
 	}
 
 	public static final dbAccountHandler AccountQueries = new dbAccountHandler();
@@ -312,4 +293,36 @@ public enum DbManager {
 	public static final dbHeightMapHandler HeightMapQueries = new dbHeightMapHandler();
 
 	public static final dbRunegateHandler RunegateQueries = new dbRunegateHandler();
+
+	public static void configureConnectionPool() {
+
+		HikariConfig config = new HikariConfig();
+
+		int connectionCount = (Runtime.getRuntime().availableProcessors() * 2) + 1;
+		config.setMaximumPoolSize(connectionCount);
+
+		config.setJdbcUrl("jdbc:mysql://" + ConfigManager.MB_DATABASE_ADDRESS.getValue() +
+				":" + ConfigManager.MB_DATABASE_PORT.getValue() + "/" +
+				ConfigManager.MB_DATABASE_NAME.getValue());
+		config.setUsername(ConfigManager.MB_DATABASE_USER.getValue());
+		config.setPassword(ConfigManager.MB_DATABASE_PASS.getValue());
+
+		// Must be set lower than SQL server connection lifetime!
+
+		config.addDataSourceProperty("maxLifetime", "3600000");
+
+		config.addDataSourceProperty("characterEncoding", "utf8");
+
+		config.addDataSourceProperty("useServerPrepStmts", "true");
+		config.addDataSourceProperty("cachePrepStmts", "true");
+		config.addDataSourceProperty("prepStmtCacheSize", "500");
+		config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+
+		config.addDataSourceProperty("leakDetectionThreshold", "5000");
+		config.addDataSourceProperty("cacheServerConfiguration", "true");
+
+		connectionPool = new HikariDataSource(config); // setup the connection pool
+
+		Logger.info("Database configured with " + connectionCount + " connections");
+	}
 }

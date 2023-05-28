@@ -8,6 +8,7 @@
 
 
 package engine.ai;
+import engine.gameManager.SessionManager;
 import engine.gameManager.ZoneManager;
 import engine.objects.Mob;
 import engine.objects.Zone;
@@ -88,7 +89,7 @@ public class MobileFSMManager {
 					for (Mob mob : zone.zoneMobSet) {
 
 						try {
-							if (mob != null)
+							if (mob != null && SessionManager.getActivePlayerCharacterCount() > 0)
 								MobileFSM.DetermineAction(mob);
 						} catch (Exception e) {
 							Logger.error("Mob: " + mob.getName() + " UUID: " + mob.getObjectUUID() + " ERROR: " + e);

@@ -11,6 +11,8 @@ package engine.gameManager;
 import engine.Enum.*;
 import engine.InterestManagement.HeightMap;
 import engine.InterestManagement.WorldGrid;
+import engine.db.handlers.dbEffectsBaseHandler;
+import engine.db.handlers.dbSkillReqHandler;
 import engine.job.AbstractJob;
 import engine.job.AbstractScheduleJob;
 import engine.job.JobContainer;
@@ -99,7 +101,7 @@ public enum PowersManager {
 	public static void InitializeLoginPowers() {
 
 		// get all PowersBase
-		ArrayList<PowersBase> pbList = PowersBase.getAllPowersBase();
+		ArrayList<PowersBase> pbList = dbSkillReqHandler.getAllPowersBase();
 
 		for (PowersBase pb : pbList) {
 			if (pb.getToken() != 0)
@@ -111,7 +113,7 @@ public enum PowersManager {
 	public static void InitializePowers() {
 
 		// Add EffectsBase
-		ArrayList<EffectsBase> ebList = EffectsBase.getAllEffectsBase();
+		ArrayList<EffectsBase> ebList = dbEffectsBaseHandler.getAllEffectsBase();
 
 		for (EffectsBase eb : ebList) {
 			PowersManager.effectsBaseByToken.put(eb.getToken(), eb);
@@ -123,7 +125,7 @@ public enum PowersManager {
 		EffectsBase.getFailConditions(PowersManager.effectsBaseByIDString);
 
 		// Add Modifiers to Effects
-		AbstractEffectModifier.getAllEffectModifiers();
+		dbEffectsBaseHandler.cacheAllEffectModifiers();
 
 		// Add Source Types to Effects
 		PowersManager.addAllSourceTypes();
@@ -136,7 +138,7 @@ public enum PowersManager {
 	//	AbstractPowerAction.loadValidItemFlags(PowersManager.powerActionsByIDString);
 
 		// get all PowersBase
-		ArrayList<PowersBase> pbList = PowersBase.getAllPowersBase();
+		ArrayList<PowersBase> pbList = dbSkillReqHandler.getAllPowersBase();
 		for (PowersBase pb : pbList) {
 			if (pb.getToken() != 0) {
 				PowersManager.powersBaseByIDString.put(pb.getIDString(), pb);
@@ -147,7 +149,7 @@ public enum PowersManager {
 		// Add Power Prereqs
 		PowerPrereq.getAllPowerPrereqs(PowersManager.powersBaseByIDString);
 		// Add Fail Conditions
-		PowersBase.getFailConditions(PowersManager.powersBaseByIDString);
+		dbSkillReqHandler.getFailConditions(PowersManager.powersBaseByIDString);
 		// Add Actions Base
 		ActionsBase.getActionsBase(PowersManager.powersBaseByIDString,
 				PowersManager.powerActionsByIDString);

@@ -10,347 +10,456 @@
 package engine.db.handlers;
 
 import engine.Enum.ProfitType;
-import engine.objects.*;
+import engine.gameManager.DbManager;
+import engine.objects.NPC;
+import engine.objects.NPCProfits;
+import engine.objects.ProducedItem;
+import engine.objects.Zone;
 import org.joda.time.DateTime;
 import org.pmw.tinylog.Logger;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class dbNPCHandler extends dbHandlerBase {
 
-	public dbNPCHandler() {
-		this.localClass = NPC.class;
-		this.localObjectType = engine.Enum.GameObjectType.valueOf(this.localClass.getSimpleName());
-	}
+    public dbNPCHandler() {
+        this.localClass = NPC.class;
+        this.localObjectType = engine.Enum.GameObjectType.valueOf(this.localClass.getSimpleName());
+    }
 
-	public NPC ADD_NPC(NPC toAdd, boolean isMob) {
-		prepareCallable("CALL `npc_CREATE`(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);");
-		setLong(1, toAdd.getParentZoneID());
-		setString(2, toAdd.getName());
-		setInt(3, toAdd.getContractID());
-		setInt(4, toAdd.getGuildUUID());
-		setFloat(5, toAdd.getSpawnX());
-		setFloat(6, toAdd.getSpawnY());
-		setFloat(7, toAdd.getSpawnZ());
-		setInt(8, toAdd.getLevel());
-		setFloat(9, toAdd.getBuyPercent());
-		setFloat(10, toAdd.getSellPercent());
-		if (toAdd.getBuilding() != null) {
-			setInt(11, toAdd.getBuilding().getObjectUUID());
-		} else {
-			setInt(11, 0);
-		}
+    public NPC ADD_NPC(NPC toAdd, boolean isMob) {
 
-		int objectUUID = (int) getUUID();
-		if (objectUUID > 0) {
-			return GET_NPC(objectUUID);
-		}
-		return null;
-	}
+        NPC npc = null;
 
-	public int DELETE_NPC(final NPC npc) {
-		if (npc.isStatic()) {
-			return DELETE_STATIC_NPC(npc);
-		}
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("CALL `npc_CREATE`(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);")) {
 
-		npc.removeFromZone();
-		prepareCallable("DELETE FROM `object` WHERE `UID` = ?");
-		setLong(1, (long) npc.getDBID());
-		return executeUpdate();
-	}
+            preparedStatement.setLong(1, toAdd.getParentZoneID());
+            preparedStatement.setString(2, toAdd.getName());
+            preparedStatement.setInt(3, toAdd.getContractID());
+            preparedStatement.setInt(4, toAdd.getGuildUUID());
+            preparedStatement.setFloat(5, toAdd.getSpawnX());
+            preparedStatement.setFloat(6, toAdd.getSpawnY());
+            preparedStatement.setFloat(7, toAdd.getSpawnZ());
+            preparedStatement.setInt(8, toAdd.getLevel());
+            preparedStatement.setFloat(9, toAdd.getBuyPercent());
+            preparedStatement.setFloat(10, toAdd.getSellPercent());
 
-	private int DELETE_STATIC_NPC(final NPC npc) {
-		npc.removeFromZone();
-		prepareCallable("DELETE FROM `_init_npc` WHERE `ID` = ?");
-		setInt(1, npc.getDBID());
-		return executeUpdate();
-	}
+            if (toAdd.getBuilding() != null)
+                preparedStatement.setInt(11, toAdd.getBuilding().getObjectUUID());
+            else
+                preparedStatement.setInt(11, 0);
 
-	public ArrayList<NPC> GET_ALL_NPCS_FOR_ZONE(Zone zone) {
-		prepareCallable("SELECT `obj_npc`.*, `object`.`parent` FROM `object` INNER JOIN `obj_npc` ON `obj_npc`.`UID` = `object`.`UID` WHERE `object`.`parent` = ?;");
-		setLong(1, (long) zone.getObjectUUID());
-		return getLargeObjectList();
-	}
+            ResultSet rs = preparedStatement.executeQuery();
 
-	public ArrayList<NPC> GET_ALL_NPCS() {
-		prepareCallable("SELECT `obj_npc`.*, `object`.`parent` FROM `object` INNER JOIN `obj_npc` ON `obj_npc`.`UID` = `object`.`UID`;");
-		
-		return getObjectList();
-	}
+            if (rs.next()) {
+                int objectUUID = (int) rs.getLong("UID");
 
-	public ArrayList<NPC> GET_NPCS_BY_BUILDING(final int buildingID) {
-		prepareCallable("SELECT `obj_npc`.*, `object`.`parent` FROM `obj_npc` INNER JOIN `object` ON `obj_npc`.`UID` = `object`.`UID` WHERE `npc_buildingID` = ? LIMIT 3");
-		setInt(1, buildingID);
-		return getObjectList();
-	}
+                if (objectUUID > 0)
+                    npc = GET_NPC(objectUUID);
+            }
 
-	public NPC GET_NPC(final int objectUUID) {
-		prepareCallable("SELECT `obj_npc`.*, `object`.`parent` FROM `object` INNER JOIN `obj_npc` ON `obj_npc`.`UID` = `object`.`UID` WHERE `object`.`UID` = ?;");
-		setLong(1, (long) objectUUID);
-		return (NPC) getObjectSingle(objectUUID);
-	}
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
 
-	public int MOVE_NPC(long npcID, long parentID, float locX, float locY, float locZ) {
-		prepareCallable("UPDATE `object` INNER JOIN `obj_npc` On `object`.`UID` = `obj_npc`.`UID` SET `object`.`parent`=?, `obj_npc`.`npc_spawnX`=?, `obj_npc`.`npc_spawnY`=?, `obj_npc`.`npc_spawnZ`=? WHERE `obj_npc`.`UID`=?;");
-		setLong(1, parentID);
-		setFloat(2, locX);
-		setFloat(3, locY);
-		setFloat(4, locZ);
-		setLong(5, npcID);
-		return executeUpdate();
-	}
+        return npc;
+    }
 
+    public int DELETE_NPC(final NPC npc) {
 
-	public String SET_PROPERTY(final NPC n, String name, Object new_value) {
-		prepareCallable("CALL npc_SETPROP(?,?,?)");
-		setLong(1, (long) n.getDBID());
-		setString(2, name);
-		setString(3, String.valueOf(new_value));
-		return getResult();
-	}
+        int row_count = 0;
 
-	public String SET_PROPERTY(final NPC n, String name, Object new_value, Object old_value) {
-		prepareCallable("CALL npc_GETSETPROP(?,?,?,?)");
-		setLong(1, (long) n.getDBID());
-		setString(2, name);
-		setString(3, String.valueOf(new_value));
-		setString(4, String.valueOf(old_value));
-		return getResult();
-	}
+        npc.removeFromZone();
 
-	public void updateDatabase(final NPC npc) {
-		prepareCallable("UPDATE obj_npc SET npc_name=?, npc_contractID=?, npc_typeID=?, npc_guildID=?,"
-				+ " npc_spawnX=?, npc_spawnY=?, npc_spawnZ=?, npc_level=? ,"
-				+ " npc_buyPercent=?, npc_sellPercent=?, npc_buildingID=? WHERE UID = ?");
-		setString(1, npc.getName());
-		setInt(2, (npc.getContract() != null) ? npc.getContract().getObjectUUID() : 0);
-		setInt(3, 0);
-		setInt(4, (npc.getGuild() != null) ? npc.getGuild().getObjectUUID() : 0);
-		setFloat(5, npc.getBindLoc().x);
-		setFloat(6, npc.getBindLoc().y);
-		setFloat(7, npc.getBindLoc().z);
-		setShort(8, npc.getLevel());
-		setFloat(9, npc.getBuyPercent());
-		setFloat(10, npc.getSellPercent());
-		setInt(11, (npc.getBuilding() != null) ? npc.getBuilding().getObjectUUID() : 0);
-		setInt(12, npc.getDBID());
-		executeUpdate();
-	}
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM `object` WHERE `UID` = ?")) {
 
-	public boolean updateUpgradeTime(NPC npc, DateTime upgradeDateTime) {
+            preparedStatement.setLong(1, npc.getDBID());
+            row_count = preparedStatement.executeUpdate();
 
+        } catch (SQLException e) {
+            Logger.error(e);
 
+        }
+        return row_count;
+    }
 
-		try {
+    public ArrayList<NPC> GET_ALL_NPCS_FOR_ZONE(Zone zone) {
 
-			prepareCallable("UPDATE obj_npc SET upgradeDate=? "
-					+ "WHERE UID = ?");
+        ArrayList<NPC> npcList = new ArrayList<>();
 
-			if (upgradeDateTime == null)
-				setNULL(1, java.sql.Types.DATE);
-			else
-				setTimeStamp(1, upgradeDateTime.getMillis());
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT `obj_npc`.*, `object`.`parent` FROM `object` INNER JOIN `obj_npc` ON `obj_npc`.`UID` = `object`.`UID` WHERE `object`.`parent` = ?;")) {
 
-			setInt(2, npc.getObjectUUID());
-			executeUpdate();
-		} catch (Exception e) {
-			Logger.error("UUID: " + npc.getObjectUUID());
-			return false;
-		}
-		return true;
-	}
+            preparedStatement.setLong(1, zone.getObjectUUID());
 
-	public boolean UPDATE_BUY_PROFIT(NPC npc,float percent) {
-		prepareCallable("UPDATE `obj_npc` SET `npc_buyPercent`=? WHERE `UID`=?");
-		setFloat(1, percent);
-		setLong(2, npc.getObjectUUID());
-		return (executeUpdate() > 0);
-	}
+            ResultSet rs = preparedStatement.executeQuery();
+            npcList = getObjectsFromRs(rs, 1000);
 
-	public boolean UPDATE_SELL_PROFIT(NPC npc,float percent) {
-		prepareCallable("UPDATE `obj_npc` SET `npc_sellPercent`=? WHERE `UID`=?");
-		setFloat(1, percent);
-		setLong(2, npc.getObjectUUID());
-		return (executeUpdate() > 0);
-	}
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
 
-	public boolean UPDATE_SLOT(NPC npc,int slot) {
-		prepareCallable("UPDATE `obj_npc` SET `npc_slot`=? WHERE `UID`=?");
-		setFloat(1, slot);
-		setLong(2, npc.getObjectUUID());
-		return (executeUpdate() > 0);
-	}
+        return npcList;
+    }
 
-	public boolean UPDATE_MOBBASE(NPC npc, int mobBaseID) {
-		prepareCallable("UPDATE `obj_npc` SET `npc_raceID`=? WHERE `UID`=?");
-		setLong(1, mobBaseID);
-		setLong(2, npc.getObjectUUID());
-		return (executeUpdate() > 0);
-	}
+    public NPC GET_NPC(final int objectUUID) {
 
-	public boolean UPDATE_EQUIPSET(NPC npc, int equipSetID) {
-		prepareCallable("UPDATE `obj_npc` SET `equipsetID`=? WHERE `UID`=?");
-		setInt(1, equipSetID);
-		setLong(2, npc.getObjectUUID());
-		return (executeUpdate() > 0);
-	}
-	
-	public boolean UPDATE_NAME(NPC npc,String name) {
-		prepareCallable("UPDATE `obj_npc` SET `npc_name`=? WHERE `UID`=?");
-		setString(1, name);
-		setLong(2, npc.getObjectUUID());
-		return (executeUpdate() > 0);
-	}
+        NPC npc = null;
 
-	public void LOAD_PIRATE_NAMES() {
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT `obj_npc`.*, `object`.`parent` FROM `object` INNER JOIN `obj_npc` ON `obj_npc`.`UID` = `object`.`UID` WHERE `object`.`UID` = ?;")) {
 
-		String pirateName;
-		int mobBase;
-		int recordsRead = 0;
+            preparedStatement.setLong(1, objectUUID);
 
-		prepareCallable("SELECT * FROM static_piratenames");
+            ResultSet rs = preparedStatement.executeQuery();
+            npc = (NPC) getObjectFromRs(rs);
 
-		try {
-			ResultSet rs = executeQuery();
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
+        return npc;
+    }
 
-			while (rs.next()) {
+    public int MOVE_NPC(long npcID, long parentID, float locX, float locY, float locZ) {
 
-				recordsRead++;
-				mobBase = rs.getInt("mobbase");
-				pirateName = rs.getString("first_name");
+        int rowCount;
 
-				// Handle new mobbbase entries
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `object` INNER JOIN `obj_npc` On `object`.`UID` = `obj_npc`.`UID` SET `object`.`parent`=?, `obj_npc`.`npc_spawnX`=?, `obj_npc`.`npc_spawnY`=?, `obj_npc`.`npc_spawnZ`=? WHERE `obj_npc`.`UID`=?;")) {
 
-				if (NPC._pirateNames.get(mobBase) == null) {
-					NPC._pirateNames.putIfAbsent(mobBase, new ArrayList<>());
-					}
+            preparedStatement.setLong(1, parentID);
+            preparedStatement.setFloat(2, locX);
+            preparedStatement.setFloat(3, locY);
+            preparedStatement.setFloat(4, locZ);
+            preparedStatement.setLong(5, npcID);
 
-				// Insert name into proper arraylist
+            rowCount = preparedStatement.executeUpdate();
 
-				NPC._pirateNames.get(mobBase).add(pirateName);
-
-			}
-
-			Logger.info("names read: " + recordsRead + " for "
-			             + NPC._pirateNames.size() + " mobBases");
-
-		} catch (SQLException e) {
-			Logger.error(e.getErrorCode() + ' ' + e.getMessage(), e);
-		} finally {
-			closeCallable();
-		}
-	}
+        } catch (SQLException e) {
+            Logger.error(e);
+            return 0;
+        }
+        return rowCount;
+    }
 
 
-	public boolean ADD_TO_PRODUCTION_LIST(final long ID,final long npcUID, final long itemBaseID, DateTime dateTime, String prefix, String suffix, String name, boolean isRandom, int playerID) {
-		prepareCallable("INSERT INTO `dyn_npc_production` (`ID`,`npcUID`, `itemBaseID`,`dateToUpgrade`, `isRandom`, `prefix`, `suffix`, `name`,`playerID`) VALUES (?,?,?,?,?,?,?,?,?)");
-		setLong(1,ID);
-		setLong(2, npcUID);
-		setLong(3, itemBaseID);
-		setTimeStamp(4, dateTime.getMillis());
-		setBoolean(5, isRandom);
-		setString(6, prefix);
-		setString(7, suffix);
-		setString(8, name);
-		setInt(9,playerID);
-		return (executeUpdate() > 0);
-	}
+    public String SET_PROPERTY(final NPC n, String name, Object new_value) {
 
-	public boolean REMOVE_FROM_PRODUCTION_LIST(final long ID,final long npcUID) {
-		prepareCallable("DELETE FROM `dyn_npc_production` WHERE `ID`=? AND `npcUID`=?;");
-		setLong(1,ID);
-		setLong(2, npcUID);
-		return (executeUpdate() > 0);
-	}
+        String result = "";
 
-	public boolean UPDATE_ITEM_TO_INVENTORY(final long ID,final long npcUID) {
-		prepareCallable("UPDATE `dyn_npc_production` SET `inForge`=? WHERE `ID`=? AND `npcUID`=?;");
-		setByte(1, (byte)0);
-		setLong(2, ID);
-		setLong(3, npcUID);
-		return (executeUpdate() > 0);
-	}
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("CALL npc_SETPROP(?,?,?)")) {
 
-	public boolean UPDATE_ITEM_PRICE(final long ID,final long npcUID, int value) {
-		prepareCallable("UPDATE `dyn_npc_production` SET `value`=? WHERE `ID`=? AND `npcUID`=?;");
-		setInt(1, value);
-		setLong(2, ID);
-		setLong(3, npcUID);
+            preparedStatement.setLong(1, n.getDBID());
+            preparedStatement.setString(2, name);
+            preparedStatement.setString(3, String.valueOf(new_value));
 
-		return (executeUpdate() > 0);
-	}
+            ResultSet rs = preparedStatement.executeQuery();
 
-	public boolean UPDATE_ITEM_ID(final long ID,final long npcUID,final long value) {
-		prepareCallable("UPDATE `dyn_npc_production` SET `ID`=? WHERE `ID`=? AND `npcUID`=? LIMIT 1;");
-		setLong(1, value);
-		setLong(2, ID);
-		setLong(3, npcUID);
+            if (rs.next())
+                result = rs.getString("result");
 
-		return (executeUpdate() > 0);
-	}
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
+        return result;
+    }
 
-	public void LOAD_ALL_ITEMS_TO_PRODUCE(NPC npc) {
+    public void updateDatabase(final NPC npc) {
 
-		if (npc == null)
-			return;
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE obj_npc SET npc_name=?, npc_contractID=?, npc_typeID=?, npc_guildID=?,"
+                     + " npc_spawnX=?, npc_spawnY=?, npc_spawnZ=?, npc_level=? ,"
+                     + " npc_buyPercent=?, npc_sellPercent=?, npc_buildingID=? WHERE UID = ?")) {
 
-		prepareCallable("SELECT * FROM `dyn_npc_production` WHERE `npcUID` = ?");
-		setInt(1,npc.getObjectUUID());
+            preparedStatement.setString(1, npc.getName());
+            preparedStatement.setInt(2, (npc.getContract() != null) ? npc.getContract().getObjectUUID() : 0);
+            preparedStatement.setInt(3, 0);
+            preparedStatement.setInt(4, (npc.getGuild() != null) ? npc.getGuild().getObjectUUID() : 0);
+            preparedStatement.setFloat(5, npc.getBindLoc().x);
+            preparedStatement.setFloat(6, npc.getBindLoc().y);
+            preparedStatement.setFloat(7, npc.getBindLoc().z);
+            preparedStatement.setShort(8, npc.getLevel());
+            preparedStatement.setFloat(9, npc.getBuyPercent());
+            preparedStatement.setFloat(10, npc.getSellPercent());
+            preparedStatement.setInt(11, (npc.getBuilding() != null) ? npc.getBuilding().getObjectUUID() : 0);
+            preparedStatement.setInt(12, npc.getDBID());
 
-		try {
-			ResultSet rs = executeQuery();
+            preparedStatement.executeUpdate();
 
-			//shrines cached in rs for easy cache on creation.
-			while (rs.next()) {
-				ProducedItem producedItem = new ProducedItem(rs);
-				npc.forgedItems.add(producedItem);
-			}
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
+    }
 
-		} catch (SQLException e) {
-			Logger.error(e.getErrorCode() + ' ' + e.getMessage(), e);
-		} finally {
-			closeCallable();
-		}
-	}
-	
-	public boolean UPDATE_PROFITS(NPC npc,ProfitType profitType, float value){
-		prepareCallable("UPDATE `dyn_npc_profits` SET `" + profitType.dbField + "` = ? WHERE `npcUID`=?");
-		setFloat(1, value);
-		setInt(2, npc.getObjectUUID());
-		return (executeUpdate() > 0);
-	}
-	
-	public void LOAD_NPC_PROFITS() {
+    public boolean updateUpgradeTime(NPC npc, DateTime upgradeDateTime) {
 
-		HashMap<Integer, ArrayList<BuildingRegions>> regions;
-		NPCProfits npcProfit;
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE obj_npc SET upgradeDate=? "
+                     + "WHERE UID = ?")) {
 
+            if (upgradeDateTime == null)
+                preparedStatement.setNull(1, java.sql.Types.DATE);
+            else
+                preparedStatement.setTimestamp(1, new java.sql.Timestamp(upgradeDateTime.getMillis()));
 
-		prepareCallable("SELECT * FROM dyn_npc_profits");
+            preparedStatement.setInt(2, npc.getObjectUUID());
 
-		try {
-			ResultSet rs = executeQuery();
+            preparedStatement.execute();
+            return true;
 
-			while (rs.next()) {
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
+        return false;
+    }
 
-				
-				npcProfit = new NPCProfits(rs);
-				NPCProfits.ProfitCache.put(npcProfit.npcUID, npcProfit);
-			}
+    public boolean UPDATE_MOBBASE(NPC npc, int mobBaseID) {
 
-		} catch (SQLException e) {
-			Logger.error(": " + e.getErrorCode() + ' ' + e.getMessage(), e);
-		} finally {
-			closeCallable();
-		}
-	}
-	
-	public boolean CREATE_PROFITS(NPC npc){
-			prepareCallable("INSERT INTO `dyn_npc_profits` (`npcUID`) VALUES (?)");
-			setLong(1,npc.getObjectUUID());
-			return (executeUpdate() > 0);
-	}
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_npc` SET `npc_raceID`=? WHERE `UID`=?")) {
+
+            preparedStatement.setLong(1, mobBaseID);
+            preparedStatement.setLong(2, npc.getObjectUUID());
+
+            return (preparedStatement.executeUpdate() > 0);
+
+        } catch (SQLException e) {
+            Logger.error(e);
+            return false;
+        }
+    }
+
+    public boolean UPDATE_EQUIPSET(NPC npc, int equipSetID) {
+
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_npc` SET `equipsetID`=? WHERE `UID`=?")) {
+
+            preparedStatement.setInt(1, equipSetID);
+            preparedStatement.setLong(2, npc.getObjectUUID());
+
+            return (preparedStatement.executeUpdate() > 0);
+
+        } catch (SQLException e) {
+            Logger.error(e);
+            return false;
+        }
+    }
+
+    public boolean UPDATE_NAME(NPC npc, String name) {
+
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_npc` SET `npc_name`=? WHERE `UID`=?")) {
+
+            preparedStatement.setString(1, name);
+            preparedStatement.setLong(2, npc.getObjectUUID());
+
+            return (preparedStatement.executeUpdate() > 0);
+
+        } catch (SQLException e) {
+            Logger.error(e);
+            return false;
+        }
+    }
+
+    public void LOAD_PIRATE_NAMES() {
+
+        String pirateName;
+        int mobBase;
+        int recordsRead = 0;
+
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM static_piratenames")) {
+
+            ResultSet rs = preparedStatement.executeQuery();
+
+            while (rs.next()) {
+
+                recordsRead++;
+                mobBase = rs.getInt("mobbase");
+                pirateName = rs.getString("first_name");
+
+                // Handle new mobbbase entries
+
+                if (NPC._pirateNames.get(mobBase) == null)
+                    NPC._pirateNames.putIfAbsent(mobBase, new ArrayList<>());
+
+                // Insert name into proper arraylist
+
+                NPC._pirateNames.get(mobBase).add(pirateName);
+            }
+
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
+
+        Logger.info("names read: " + recordsRead + " for "
+                + NPC._pirateNames.size() + " mobBases");
+    }
+
+    public boolean ADD_TO_PRODUCTION_LIST(final long ID, final long npcUID, final long itemBaseID, DateTime dateTime, String prefix, String suffix, String name, boolean isRandom, int playerID) {
+
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO `dyn_npc_production` (`ID`,`npcUID`, `itemBaseID`,`dateToUpgrade`, `isRandom`, `prefix`, `suffix`, `name`,`playerID`) VALUES (?,?,?,?,?,?,?,?,?)")) {
+
+            preparedStatement.setLong(1, ID);
+            preparedStatement.setLong(2, npcUID);
+            preparedStatement.setLong(3, itemBaseID);
+            preparedStatement.setTimestamp(4, new java.sql.Timestamp(dateTime.getMillis()));
+            preparedStatement.setBoolean(5, isRandom);
+            preparedStatement.setString(6, prefix);
+            preparedStatement.setString(7, suffix);
+            preparedStatement.setString(8, name);
+            preparedStatement.setInt(9, playerID);
+
+            return (preparedStatement.executeUpdate() > 0);
+
+        } catch (SQLException e) {
+            Logger.error(e);
+            return false;
+        }
+    }
+
+    public boolean REMOVE_FROM_PRODUCTION_LIST(final long ID, final long npcUID) {
+
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM `dyn_npc_production` WHERE `ID`=? AND `npcUID`=?;")) {
+
+            preparedStatement.setLong(1, ID);
+            preparedStatement.setLong(2, npcUID);
+
+            return (preparedStatement.executeUpdate() > 0);
+
+        } catch (SQLException e) {
+            Logger.error(e);
+            return false;
+        }
+    }
+
+    public boolean UPDATE_ITEM_TO_INVENTORY(final long ID, final long npcUID) {
+
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `dyn_npc_production` SET `inForge`=? WHERE `ID`=? AND `npcUID`=?;")) {
+
+            preparedStatement.setByte(1, (byte) 0);
+            preparedStatement.setLong(2, ID);
+            preparedStatement.setLong(3, npcUID);
+
+            return (preparedStatement.executeUpdate() > 0);
+
+        } catch (SQLException e) {
+            Logger.error(e);
+            return false;
+        }
+    }
+
+    public boolean UPDATE_ITEM_PRICE(final long ID, final long npcUID, int value) {
+
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `dyn_npc_production` SET `value`=? WHERE `ID`=? AND `npcUID`=?;")) {
+
+            preparedStatement.setInt(1, value);
+            preparedStatement.setLong(2, ID);
+            preparedStatement.setLong(3, npcUID);
+
+            return (preparedStatement.executeUpdate() > 0);
+
+        } catch (SQLException e) {
+            Logger.error(e);
+            return false;
+        }
+    }
+
+    public boolean UPDATE_ITEM_ID(final long ID, final long npcUID, final long value) {
+
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `dyn_npc_production` SET `ID`=? WHERE `ID`=? AND `npcUID`=? LIMIT 1;")) {
+
+            preparedStatement.setLong(1, value);
+            preparedStatement.setLong(2, ID);
+            preparedStatement.setLong(3, npcUID);
+
+            return (preparedStatement.executeUpdate() > 0);
+
+        } catch (SQLException e) {
+            Logger.error(e);
+            return false;
+        }
+    }
+
+    public void LOAD_ALL_ITEMS_TO_PRODUCE(NPC npc) {
+
+        if (npc == null)
+            return;
+
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `dyn_npc_production` WHERE `npcUID` = ?")) {
+
+            preparedStatement.setInt(1, npc.getObjectUUID());
+            ResultSet rs = preparedStatement.executeQuery();
+
+            while (rs.next()) {
+                ProducedItem producedItem = new ProducedItem(rs);
+                npc.forgedItems.add(producedItem);
+            }
+
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
+    }
+
+    public boolean UPDATE_PROFITS(NPC npc, ProfitType profitType, float value) {
+
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `dyn_npc_profits` SET `" + profitType.dbField + "` = ? WHERE `npcUID`=?")) {
+
+            preparedStatement.setFloat(1, value);
+            preparedStatement.setInt(2, npc.getObjectUUID());
+
+            return (preparedStatement.executeUpdate() > 0);
+
+        } catch (SQLException e) {
+            Logger.error(e);
+            return false;
+        }
+    }
+
+    public void LOAD_NPC_PROFITS() {
+
+        NPCProfits npcProfit;
+
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM dyn_npc_profits")) {
+
+            ResultSet rs = preparedStatement.executeQuery();
+
+            while (rs.next()) {
+                npcProfit = new NPCProfits(rs);
+                NPCProfits.ProfitCache.put(npcProfit.npcUID, npcProfit);
+            }
+
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
+    }
+
+    public boolean CREATE_PROFITS(NPC npc) {
+
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO `dyn_npc_profits` (`npcUID`) VALUES (?)")) {
+
+            preparedStatement.setLong(1, npc.getObjectUUID());
+            return (preparedStatement.executeUpdate() > 0);
+
+        } catch (SQLException e) {
+            Logger.error(e);
+            return false;
+        }
+    }
 }

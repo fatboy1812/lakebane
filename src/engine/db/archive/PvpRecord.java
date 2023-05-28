@@ -9,6 +9,7 @@
 
 package engine.db.archive;
 
+import engine.gameManager.DbManager;
 import engine.gameManager.ZoneManager;
 import engine.math.Vector3fImmutable;
 import engine.objects.Guild;
@@ -90,19 +91,19 @@ public class PvpRecord extends DataRecord {
 
 		LinkedList<Integer> outList = new LinkedList<>();
 
-		try (Connection connection = DataWarehouse.connectionPool.getConnection();
-				PreparedStatement statement = buildHistoryStatement(connection, charUUID, historyType);
-				ResultSet rs = statement.executeQuery()) {
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement statement = buildHistoryStatement(connection, charUUID, historyType);
+			 ResultSet rs = statement.executeQuery()) {
 
 			while (rs.next()) {
 
 				switch (historyType) {
-				case KILLS:
-					outList.add((int) DataWarehouse.hasher.decrypt(rs.getString("victim_id"))[0]);
-					break;
-				case DEATHS:
-					outList.add((int) DataWarehouse.hasher.decrypt(rs.getString("char_id"))[0]);
-					break;
+					case KILLS:
+						outList.add((int) DataWarehouse.hasher.decrypt(rs.getString("victim_id"))[0]);
+						break;
+					case DEATHS:
+						outList.add((int) DataWarehouse.hasher.decrypt(rs.getString("char_id"))[0]);
+						break;
 				}
 			}
 		} catch (SQLException e) {
@@ -132,9 +133,9 @@ public class PvpRecord extends DataRecord {
 		outString = "[LUA_PVP() DATA WAREHOUSE]" + newLine;
 		dividerString = "--------------------------------" + newLine;
 
-		try (Connection connection = DataWarehouse.connectionPool.getConnection();
-				PreparedStatement statement = buildLuaHistoryQueryStatement(connection, charUUID);
-				ResultSet rs = statement.executeQuery()) {
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement statement = buildLuaHistoryQueryStatement(connection, charUUID);
+			 ResultSet rs = statement.executeQuery()) {
 
 			while (rs.next()) {
 
@@ -293,13 +294,13 @@ public class PvpRecord extends DataRecord {
 
 	public void write() {
 
-		try (Connection connection = DataWarehouse.connectionPool.getConnection();
-				PreparedStatement statement = buildPvPInsertStatement(connection)) {
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement statement = buildPvPInsertStatement(connection)) {
 
 			statement.execute();
 
 		} catch (SQLException e) {
-			Logger.error( e.toString());
+			Logger.error(e.toString());
 		}
 
 		// Warehouse record for this pvp event written if code path reaches here.

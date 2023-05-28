@@ -17,6 +17,8 @@ import engine.util.StringUtils;
 import org.pmw.tinylog.Logger;
 
 import java.net.InetAddress;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
@@ -28,73 +30,85 @@ public class dbCSSessionHandler extends dbHandlerBase {
 	}
 
 	public boolean ADD_CSSESSION(String secKey, Account acc, InetAddress inet, String machineID) {
-        prepareCallable("INSERT INTO `dyn_session` (`secretKey`, `accountID`, `discordAccount`, `sessionIP`, machineID) VALUES (?,?,?,INET_ATON(?),?)");
-        setString(1, secKey);
-		setLong(2, acc.getObjectUUID());
-		setString(3, acc.discordAccount);
-        setString(4, StringUtils.InetAddressToClientString(inet));
-        setString(5, machineID);
-        return (executeUpdate() != 0);
-    }
-	// This method returns population metrics from the database
 
-	public String GET_POPULATION_STRING() {
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO `dyn_session` (`secretKey`, `accountID`, `discordAccount`, `sessionIP`, machineID) VALUES (?,?,?,INET_ATON(?),?)")) {
 
-		String outString = null;
+			preparedStatement.setString(1, secKey);
+			preparedStatement.setLong(2, acc.getObjectUUID());
+			preparedStatement.setString(3, acc.discordAccount);
+			preparedStatement.setString(4, StringUtils.InetAddressToClientString(inet));
+			preparedStatement.setString(5, machineID);
 
-		// Set up call to stored procedure
-		prepareCallable("CALL GET_POPULATION_STRING()");
+			return (preparedStatement.executeUpdate() > 0);
 
-		try {
-
-			// Evaluate database ordinal and return enum
-			outString = getString("popstring");
-
-		} catch (Exception e) {
-			Logger.error( "Failure in stored procedure:" + e.getMessage());
-		} finally {
-			closeCallable();
+		} catch (SQLException e) {
+			Logger.error(e);
 		}
-		return outString;
+		return false;
 	}
 
 	public boolean DELETE_UNUSED_CSSESSION(String secKey) {
-		prepareCallable("DELETE FROM `dyn_session` WHERE `secretKey`=? && `characterID` IS NULL");
-		setString(1, secKey);
-		return (executeUpdate() != 0);
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM `dyn_session` WHERE `secretKey`=? && `characterID` IS NULL")) {
+
+			preparedStatement.setString(1, secKey);
+			return (preparedStatement.executeUpdate() > 0);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+		}
+		return false;
 	}
 
 	public boolean DELETE_CSSESSION(String secKey) {
-		prepareCallable("DELETE FROM `dyn_session` WHERE `secretKey`=?");
-		setString(1, secKey);
-		return (executeUpdate() != 0);
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM `dyn_session` WHERE `secretKey`=?")) {
+
+			preparedStatement.setString(1, secKey);
+			return (preparedStatement.executeUpdate() > 0);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+		}
+		return false;
 	}
 
 	public boolean UPDATE_CSSESSION(String secKey, int charID) {
-		prepareCallable("UPDATE `dyn_session` SET `characterID`=? WHERE `secretKey`=?");
-		setInt(1, charID);
-		setString(2, secKey);
-		return (executeUpdate() != 0);
+
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `dyn_session` SET `characterID`=? WHERE `secretKey`=?")) {
+
+			preparedStatement.setInt(1, charID);
+			preparedStatement.setString(2, secKey);
+
+			return (preparedStatement.executeUpdate() > 0);
+
+		} catch (SQLException e) {
+			Logger.error(e);
+		}
+		return false;
 	}
 
 	public CSSession GET_CSSESSION(String secKey) {
+
 		CSSession css = null;
-		prepareCallable("SELECT `accountID`, `characterID`, `machineID` FROM `dyn_session` WHERE `secretKey`=?");
-		setString(1, secKey);
-		try {
 
-			ResultSet rs = executeQuery();
+		try (Connection connection = DbManager.getConnection();
+			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT `accountID`, `characterID`, `machineID` FROM `dyn_session` WHERE `secretKey`=?")) {
 
-			if (rs.next()) {
-				css = new CSSession(secKey, DbManager.AccountQueries.GET_ACCOUNT(rs.getInt("accountID")), PlayerCharacter.getPlayerCharacter(rs
-						.getInt("characterID")), getString("machineID"));
-			}
-			rs.close();
+			preparedStatement.setString(1, secKey);
+			ResultSet rs = preparedStatement.executeQuery();
+
+			if (rs.next())
+				css = new CSSession(secKey, DbManager.AccountQueries.GET_ACCOUNT(rs.getInt("accountID")), PlayerCharacter.getPlayerCharacter(rs.getInt("characterID")), rs.getString("machineID"));
+
 		} catch (SQLException e) {
-			Logger.error("Error with seckey: " + secKey);
-		} finally {
-			closeCallable();
+			Logger.error(e);
 		}
+
 		return css;
 	}
 }
