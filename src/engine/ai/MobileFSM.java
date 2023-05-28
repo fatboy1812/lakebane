@@ -486,6 +486,9 @@ public class MobileFSM {
             AttackTarget(mob, mob.getCombatTarget());
     }
     private static void CheckToSendMobHome(Mob mob) {
+        if(CombatUtilities.inRangeToAttack(mob, mob.getCombatTarget()) == true){
+            return;
+        }
         if (mob.isPlayerGuard() && !mob.despawned) {
             City current = ZoneManager.getCityAtLocation(mob.getLoc());
             if (current == null || current.equals(mob.getGuild().getOwnedCity()) == false || mob.playerAgroMap.isEmpty()) {
