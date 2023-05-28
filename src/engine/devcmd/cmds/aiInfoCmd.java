@@ -102,6 +102,7 @@ public class aiInfoCmd extends AbstractDevCmd {
             for(Map.Entry<Integer,Boolean> entry : mob.playerAgroMap.entrySet()){
                 output += "Player ID: " + entry.getKey() + " Is Safemode: " + entry.getValue() + newline;
             }
+            output += "Current Target: " + mob.getCombatTarget().getName() + newline;
         }
         throwbackInfo(pc, output);
     }
