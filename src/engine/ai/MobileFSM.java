@@ -486,7 +486,7 @@ public class MobileFSM {
             AttackTarget(mob, mob.getCombatTarget());
     }
     private static void CheckToSendMobHome(Mob mob) {
-        if(CombatUtilities.inRangeToAttack(mob, mob.getCombatTarget()) == true){
+        if(CombatUtilities.inRange2D(mob,mob.getCombatTarget(),mob.getRange() * 0.5f)){
             return;
         }
         if (mob.isPlayerGuard() && !mob.despawned) {
@@ -505,6 +505,7 @@ public class MobileFSM {
             }
         }
          else if(MovementUtilities.inRangeOfBindLocation(mob) == false) {
+
             PowersBase recall = PowersManager.getPowerByToken(-1994153779);
             PowersManager.useMobPower(mob, mob, recall, 40);
             mob.setCombatTarget(null);
