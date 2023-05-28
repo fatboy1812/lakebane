@@ -69,7 +69,7 @@ public class MobileFSM {
             mob.setCombatTarget(null);
             return;
         }
-        if (CombatUtilities.inRange2D(mob, target, mob.getRange())) {
+        if (CombatUtilities.inRangeToAttack(mob,mob.getCombatTarget())) {
             //no weapons, default mob attack speed 3 seconds.
             if (System.currentTimeMillis() < mob.getLastAttackTime())
                 return;
@@ -170,6 +170,10 @@ public class MobileFSM {
         //make sure mob is out of combat stance
         if(mob.stopPatrolTime == 0) {
             mob.stopPatrolTime = System.currentTimeMillis();
+        }
+        if(mob.isMoving() == true){
+            mob.stopPatrolTime = System.currentTimeMillis();
+            return;
         }
         if (mob.isCombat() && mob.getCombatTarget() == null) {
             mob.setCombat(false);
@@ -299,16 +303,17 @@ public class MobileFSM {
     public static void DetermineAction(Mob mob) {
         if (mob == null)
             return;
-        if(mob.despawned || !mob.isAlive()) {
+        if(mob.despawned == true || mob.isAlive() == false) {
             if (mob.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardMinion.ordinal()) {
                 if (mob.npcOwner.isAlive() == false || ((Mob) mob.npcOwner).despawned == true) {
                     //minions don't respawn while guard captain is dead
                         mob.deathTime = System.currentTimeMillis();
                         return;
                 }
-                CheckForRespawn(mob);
-                return;
+
             }
+            CheckForRespawn(mob);
+            return;
         }
         if (mob.playerAgroMap.isEmpty() && mob.isPlayerGuard == false)
             //no players loaded, no need to proceed
@@ -402,11 +407,7 @@ public class MobileFSM {
                 break;
             default:
                 if (mob.getCombatTarget() == null) {
-                    if(!mob.isMoving()) {
                         Patrol(mob);
-                    } else{
-                        mob.stopPatrolTime = System.currentTimeMillis();
-                    }
                 }else {
                     chaseTarget(mob);
                 }

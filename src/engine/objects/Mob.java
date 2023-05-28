@@ -825,7 +825,7 @@ public class Mob extends AbstractIntelligenceAgent {
             return null;
 
         mob = new Mob(minionMobBase, guild, parent, level, new Vector3fImmutable(1, 1, 1), 0, false);
-        mob.runAfterLoad();
+        //mob.runAfterLoad();
         mob.despawned = true;
         DbManager.addToCache(mob);
 
@@ -843,7 +843,6 @@ public class Mob extends AbstractIntelligenceAgent {
 
         owner.getSiegeMinionMap().put(mob, slot);
 
-        mob.setSpawnTime(10);
         mob.setNpcOwner(owner);
         mob.BehaviourType = MobBehaviourType.Pet1;
         mob.BehaviourType.canRoam = false;
@@ -1376,7 +1375,7 @@ public class Mob extends AbstractIntelligenceAgent {
     public void respawn() {
         //Commenting out Mob ID rotation.
         this.despawned = false;
-        this.playerAgroMap.clear();
+        //this.playerAgroMap.clear();
         this.setCombatTarget(null);
         this.setHealth(this.healthMax);
         this.stamina.set(this.staminaMax);
