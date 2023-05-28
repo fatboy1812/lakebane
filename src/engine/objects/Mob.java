@@ -1980,8 +1980,7 @@ public class Mob extends AbstractIntelligenceAgent {
                     Vector3fImmutable newPatrolPoint = Vector3fImmutable.getRandomPointInCircle(this.getBindLoc(), patrolRadius);
                     this.patrolPoints.add(newPatrolPoint);
                 }
-                MovementManager.translocate(this,this.patrolPoints.get(1), null);
-                this.lastPatrolPointIndex = 1;
+                MovementManager.translocate(this,this.patrolPoints.get(0), null);
             }
             if (this.BehaviourType == null)
                 this.BehaviourType = this.getMobBase().fsm;
