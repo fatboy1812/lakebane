@@ -180,7 +180,7 @@ public class MobileFSM {
             mob.stopPatrolTime = System.currentTimeMillis();
             return;
         }
-        int patrolDelay = ThreadLocalRandom.current().nextInt(MBServerStatics.AI_PATROL_DIVISOR) + (int)(MBServerStatics.AI_PATROL_DIVISOR * 0.5f);
+        int patrolDelay = ThreadLocalRandom.current().nextInt((int)(MBServerStatics.AI_PATROL_DIVISOR * 0.5f), MBServerStatics.AI_PATROL_DIVISOR);
         if (mob.stopPatrolTime + (patrolDelay * 1000) > System.currentTimeMillis())
             //early exit while waiting to patrol again
             return;
