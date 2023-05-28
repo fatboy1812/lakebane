@@ -403,13 +403,21 @@ public class CombatUtilities {
         DamageType dt = DamageType.Crush;
         AbstractWorldObject target = agent.getCombatTarget();
         float dmgMultiplier = 1 + agent.getBonuses().getFloatPercentAll(ModType.MeleeDamageModifier, SourceType.None);
-        if (agent.getEquip().get(1).getItemBase() != null) {
-            dt = agent.getEquip().get(1).getItemBase().getDamageType();
-        } else if (agent.getEquip().get(2).getItemBase() != null && agent.getEquip().get(2).getItemBase().isShield() == false) {
-            dt = agent.getEquip().get(2).getItemBase().getDamageType();
+        double min = agent.getMinDamageHandOne();
+        double max = agent.getMaxDamageHandOne();
+        if(agent.getEquip().get(1) != null) {
+            if (agent.getEquip().get(1).getItemBase() != null) {
+                dt = agent.getEquip().get(1).getItemBase().getDamageType();
+                min = agent.getMinDamageHandOne();
+                max = agent.getMaxDamageHandOne();
+            } else if (agent.getEquip().get(2).getItemBase() != null && agent.getEquip().get(2).getItemBase().isShield() == false) {
+                dt = agent.getEquip().get(2).getItemBase().getDamageType();
+                min = agent.getMinDamageHandTwo();
+                max = agent.getMaxDamageHandTwo();
+            }
         }
-        double min = agent.getMobBase().getMinDmg();
-        double max = agent.getMobBase().getMaxDmg();
+
+
         double range = max - min;
         double damage = min + ((ThreadLocalRandom.current().nextFloat() * range) + (ThreadLocalRandom.current().nextFloat() * range)) / 2;
         return (int) (((AbstractCharacter) target).getResists().getResistedDamage(agent, (AbstractCharacter) target, dt, (float) damage, 0) * dmgMultiplier);
