@@ -727,7 +727,7 @@ public class MobileFSM {
             if(potentialTarget.equals(mob.getCombatTarget())){
                 continue;
             }
-            if(potentialTarget != null && potentialTarget.getHateValue() > CurrentHateValue){
+            if(potentialTarget != null && potentialTarget.getHateValue() > CurrentHateValue && MovementUtilities.inRangeToAggro(mob, potentialTarget)){
                 CurrentHateValue = potentialTarget.getHateValue();
                 mostHatedTarget = potentialTarget;
             }
