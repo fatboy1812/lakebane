@@ -174,12 +174,6 @@ public class MobileFSM {
             rwss.setPlayer(mob);
             DispatchMessage.sendToAllInRange(mob, rwss);
         }
-        if (mob.isMoving() == true) {
-            //early exit for a mob who is already moving to a patrol point
-            //while mob moving, update lastPatrolTime so that when they stop moving the 10 second timer can begin
-            mob.stopPatrolTime = System.currentTimeMillis();
-            return;
-        }
         int patrolDelay = ThreadLocalRandom.current().nextInt((int)(MBServerStatics.AI_PATROL_DIVISOR * 0.5f), MBServerStatics.AI_PATROL_DIVISOR) + MBServerStatics.AI_PATROL_DIVISOR;
         if (mob.stopPatrolTime + (patrolDelay * 1000) > System.currentTimeMillis())
             //early exit while waiting to patrol again
@@ -337,6 +331,9 @@ public class MobileFSM {
         }
         mob.updateLocation();
         CheckToSendMobHome(mob);
+        if(mob.combatTarget != null && mob.combatTarget.isAlive() == false){
+            mob.setCombatTarget(null);
+        }
         switch (mob.BehaviourType) {
             case GuardCaptain:
                 GuardCaptainLogic(mob);
