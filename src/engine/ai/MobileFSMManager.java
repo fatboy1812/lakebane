@@ -44,6 +44,7 @@ public class MobileFSMManager {
 
                 try {
                     MovementManager.translocate(mob,mob.patrolPoints.get(0), null);
+                    mob.updateLocation();
                 } catch (Exception e) {
                     Logger.error("Mob: " + mob.getName() + " UUID: " + mob.getObjectUUID() + " ERROR: " + e);
                     e.printStackTrace();
