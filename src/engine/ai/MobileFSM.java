@@ -303,10 +303,8 @@ public class MobileFSM {
             if (mob.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardMinion.ordinal()) {
                 if (mob.npcOwner.isAlive() == false || ((Mob) mob.npcOwner).despawned == true) {
                     //minions don't respawn while guard captain is dead
-                    if (mob.isAlive() == false) {
                         mob.deathTime = System.currentTimeMillis();
                         return;
-                    }
                 }
                 CheckForRespawn(mob);
                 return;
