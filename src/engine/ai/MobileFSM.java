@@ -486,7 +486,7 @@ public class MobileFSM {
             AttackTarget(mob, mob.getCombatTarget());
     }
     private static void CheckToSendMobHome(Mob mob) {
-        if(CombatUtilities.inRange2D(mob,mob.getCombatTarget(),mob.getRange() * 0.5f)){
+        if(mob.getCombatTarget() != null && CombatUtilities.inRange2D(mob,mob.getCombatTarget(),mob.getRange() * 0.5f)){
             return;
         }
         if (mob.isPlayerGuard() && !mob.despawned) {
