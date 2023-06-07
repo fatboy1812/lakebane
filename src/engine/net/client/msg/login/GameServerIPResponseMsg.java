@@ -36,7 +36,7 @@ public class GameServerIPResponseMsg extends ClientNetMsg {
 	 */
 	public GameServerIPResponseMsg( ) {
 		super(Protocol.GAMESERVERIPRESPONSE);
-		this.ip = ConfigManager.MB_PUBLIC_ADDR.getValue();
+		this.ip = ConfigManager.MB_BIND_ADDR.getValue();
 		this.port = Integer.parseInt(ConfigManager.MB_WORLD_PORT.getValue());
 	}
 

@@ -24,10 +24,6 @@ import java.util.regex.Pattern;
 
 public enum ConfigManager {
 
-    // Bind address can differ from public address
-    // when running over a network bridge, etc.
-
-    MB_PUBLIC_ADDR,
     MB_BIND_ADDR,
 
     // Database connection config

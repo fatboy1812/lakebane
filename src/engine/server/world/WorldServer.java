@@ -54,6 +54,7 @@ import org.pmw.tinylog.writers.RollingFileWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -248,7 +249,16 @@ public class WorldServer {
 
 			String name = ConfigManager.MB_WORLD_NAME.getValue();
 
-			Logger.info("Magicbane network config: " + ConfigManager.MB_BIND_ADDR.getValue() + ":" + ConfigManager.MB_WORLD_PORT.getValue());
+			if (ConfigManager.MB_BIND_ADDR.getValue().equals("0.0.0.0")) {
+
+				try (final DatagramSocket socket = new DatagramSocket()) {
+					socket.connect(InetAddress.getByName("8.8.8.8"), 10002);
+					ConfigManager.MB_BIND_ADDR.setValue(socket.getLocalAddress().getHostAddress());
+				}
+
+			}
+
+			Logger.info("Magicbane binding to: " + ConfigManager.MB_BIND_ADDR.getValue() + ":" + ConfigManager.MB_LOGIN_PORT.getValue());
 
 			InetAddress addy = InetAddress.getByName(ConfigManager.MB_BIND_ADDR.getValue());
 			int port = Integer.parseInt(ConfigManager.MB_WORLD_PORT.getValue());
