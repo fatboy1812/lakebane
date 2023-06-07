@@ -277,8 +277,6 @@ public class LoginServer {
 
             }
 
-            Logger.info("Magicbane binding to: " + ConfigManager.MB_BIND_ADDR.getValue() + ":" + ConfigManager.MB_LOGIN_PORT.getValue());
-
             InetAddress addy = InetAddress.getByName(ConfigManager.MB_BIND_ADDR.getValue());
             int port = Integer.parseInt(ConfigManager.MB_LOGIN_PORT.getValue());
 
