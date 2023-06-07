@@ -24,7 +24,7 @@ import engine.net.client.msg.ErrorPopupMsg;
 import engine.net.client.msg.guild.BreakFealtyMsg;
 import engine.net.client.msg.guild.SendGuildEntryMsg;
 import engine.objects.*;
-import engine.server.MBServerStatics;
+import engine.server.world.WorldServer;
 import engine.session.Session;
 
 import java.util.ArrayList;
@@ -75,9 +75,7 @@ public class BreakFealtyHandler extends AbstractClientMsgHandler {
 			}
 
 
-
-
-			if (!DbManager.GuildQueries.UPDATE_PARENT(guild.getObjectUUID(),MBServerStatics.worldUUID)) {
+			if (!DbManager.GuildQueries.UPDATE_PARENT(guild.getObjectUUID(), WorldServer.worldUUID)) {
 				ErrorPopupMsg.sendErrorMsg(player, "A Serious error has occurred. Please post details for to ensure transaction integrity");
 				return true;
 			}
@@ -141,7 +139,7 @@ public class BreakFealtyHandler extends AbstractClientMsgHandler {
 			return true;
 		}
 
-		if (!DbManager.GuildQueries.UPDATE_PARENT(guild.getObjectUUID(),MBServerStatics.worldUUID)) {
+		if (!DbManager.GuildQueries.UPDATE_PARENT(guild.getObjectUUID(), WorldServer.worldUUID)) {
 			ErrorPopupMsg.sendErrorMsg(player, "A Serious error has occurred. Please post details for to ensure transaction integrity");
 			return true;
 		}

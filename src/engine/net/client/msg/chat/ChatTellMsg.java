@@ -16,7 +16,7 @@ import engine.net.ByteBufferWriter;
 import engine.net.client.Protocol;
 import engine.objects.AbstractCharacter;
 import engine.objects.AbstractWorldObject;
-import engine.server.MBServerStatics;
+import engine.server.world.WorldServer;
 
 public class ChatTellMsg extends AbstractChatMsg {
 
@@ -106,19 +106,19 @@ public class ChatTellMsg extends AbstractChatMsg {
 		if (this.target != null) {
 			writer.putInt(this.target.getObjectType().ordinal());
 			writer.putInt(this.target.getObjectUUID());
-			if (AbstractWorldObject.IsAbstractCharacter(target)) {
-				writer.putString(((AbstractCharacter) this.target).getFirstName());
-			} else {
-				writer.putString(this.target.getName());
-			}
-		} else {
-			writer.putInt(this.targetType);
-			writer.putInt(this.targetID);
-			writer.putString(this.targetName);
-		}
-		writer.putInt(MBServerStatics.worldMapID);
-		writer.putInt(MBServerStatics.worldMapID);
-	}
+            if (AbstractWorldObject.IsAbstractCharacter(target)) {
+                writer.putString(((AbstractCharacter) this.target).getFirstName());
+            } else {
+                writer.putString(this.target.getName());
+            }
+        } else {
+            writer.putInt(this.targetType);
+            writer.putInt(this.targetID);
+            writer.putString(this.targetName);
+        }
+        writer.putInt(WorldServer.worldMapID);
+        writer.putInt(WorldServer.worldMapID);
+    }
 
 	/**
 	 * @return the target

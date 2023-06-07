@@ -10,7 +10,6 @@
 package engine.server;
 
 import engine.Enum;
-import engine.gameManager.ConfigManager;
 import engine.math.Vector3fImmutable;
 
 public class MBServerStatics {
@@ -794,7 +793,4 @@ public class MBServerStatics {
     public static String VETERAN = "Veteran";
     public static String ELITE = "Elite";
 
-    public static int worldMapID = Integer.parseInt(ConfigManager.MB_WORLD_MAPID.getValue());
-    public static int worldUUID = Integer.parseInt(ConfigManager.MB_WORLD_UUID.getValue());
-    public static Enum.AccountStatus worldAccessLevel = Enum.AccountStatus.valueOf(ConfigManager.MB_WORLD_ACCESS_LVL.getValue());
 }

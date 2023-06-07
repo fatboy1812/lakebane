@@ -31,7 +31,7 @@ import engine.net.client.msg.AllianceChangeMsg;
 import engine.net.client.msg.ErrorPopupMsg;
 import engine.net.client.msg.UpdateClientAlliancesMsg;
 import engine.net.client.msg.guild.GuildInfoMsg;
-import engine.server.MBServerStatics;
+import engine.server.world.WorldServer;
 import org.joda.time.DateTime;
 import org.pmw.tinylog.Logger;
 
@@ -805,9 +805,9 @@ public class Guild extends AbstractWorldObject {
 
         }
 
-        if (MBServerStatics.worldUUID == nationUUID && this.cityUUID != 0)
+        if (WorldServer.worldUUID == nationUUID && this.cityUUID != 0)
             this.nation = this;
-        else if (nationUUID == 0 || (MBServerStatics.worldUUID == nationUUID && this.cityUUID == 0)) {
+        else if (nationUUID == 0 || (WorldServer.worldUUID == nationUUID && this.cityUUID == 0)) {
             this.nation = Guild.getErrantGuild();
             this.nmotd = "";
         } else
@@ -919,7 +919,7 @@ public class Guild extends AbstractWorldObject {
 
         // Update database
 
-        if (!DbManager.GuildQueries.UPDATE_PARENT(subGuild.getObjectUUID(), MBServerStatics.worldUUID))
+        if (!DbManager.GuildQueries.UPDATE_PARENT(subGuild.getObjectUUID(), WorldServer.worldUUID))
             Logger.debug("Failed to set Nation Guild for Guild with UID " + subGuild.getObjectUUID());
 
         // Guild without any subs is no longer a nation

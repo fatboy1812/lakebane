@@ -21,6 +21,7 @@ import engine.net.client.msg.login.ServerStatusMsg;
 import engine.net.client.msg.login.VersionInfoMsg;
 import engine.objects.*;
 import engine.server.MBServerStatics;
+import engine.server.world.WorldServer;
 import engine.util.ByteUtils;
 import engine.util.ThreadUtils;
 import org.pmw.tinylog.Configurator;
@@ -326,10 +327,10 @@ public class LoginServer {
                 boolean isUp = isRunning;
 
 
-                if (MBServerStatics.worldAccessLevel.ordinal() > ac.status.ordinal())
+                if (WorldServer.worldAccessLevel.ordinal() > ac.status.ordinal())
                     isUp = false;
 
-                LoginServer.serverStatusMsg.setServerID(MBServerStatics.worldMapID);
+                LoginServer.serverStatusMsg.setServerID(WorldServer.worldMapID);
                 LoginServer.serverStatusMsg.setIsUp(isUp ? (byte) 1 : (byte) 0);
                 clientConnection.sendMsg(LoginServer.serverStatusMsg);
             }

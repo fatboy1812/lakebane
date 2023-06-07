@@ -17,7 +17,7 @@ import engine.net.ByteBufferWriter;
 import engine.net.client.ClientConnection;
 import engine.net.client.Protocol;
 import engine.objects.AbstractWorldObject;
-import engine.server.MBServerStatics;
+import engine.server.world.WorldServer;
 import engine.session.Session;
 
 public class ChatCSRMsg extends AbstractChatMsg {
@@ -71,8 +71,8 @@ public class ChatCSRMsg extends AbstractChatMsg {
 		writer.putInt(this.source.getObjectUUID());
 		writer.putInt(this.unknown01);
 		writer.putString(this.message);
-		writer.putString(this.source.getName());
-		writer.putInt(MBServerStatics.worldMapID);
+        writer.putString(this.source.getName());
+        writer.putInt(WorldServer.worldMapID);
 	}
 
 }

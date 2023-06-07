@@ -15,7 +15,7 @@ import engine.net.ByteBufferReader;
 import engine.net.ByteBufferWriter;
 import engine.net.client.Protocol;
 import engine.net.client.msg.ClientNetMsg;
-import engine.server.MBServerStatics;
+import engine.server.world.WorldServer;
 
 public class InvalidNameMsg extends ClientNetMsg {
 
@@ -48,9 +48,9 @@ public class InvalidNameMsg extends ClientNetMsg {
 	@Override
 	protected void _serialize(ByteBufferWriter writer) {
 		writer.putString(this.FirstName);
-		writer.putString(this.LastName);
-		writer.putInt(MBServerStatics.worldMapID);
-		writer.putInt(errorCode);
+        writer.putString(this.LastName);
+        writer.putInt(WorldServer.worldMapID);
+        writer.putInt(errorCode);
 	}
 
 	/**

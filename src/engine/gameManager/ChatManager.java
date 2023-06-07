@@ -407,7 +407,7 @@ DispatchMessage.dispatchMsgToAll(sender, msg, true);
         chatGuildMsg.setSourceType(sender.getObjectType().ordinal());
         chatGuildMsg.setSourceID(sender.getObjectUUID());
         chatGuildMsg.setSourceName(sender.getFirstName());
-        chatGuildMsg.setUnknown03(MBServerStatics.worldMapID); // Server ID
+        chatGuildMsg.setUnknown03(WorldServer.worldMapID); // Server ID
         chatGuildMsg.setUnknown04(sender.getGuild() != null ? sender.getGuild()
                 .getCharter() : 0); // Charter?
         chatGuildMsg.setUnknown05(GuildStatusController.getTitle(sender.getGuildStatus())); // Title?
@@ -462,7 +462,7 @@ DispatchMessage.dispatchMsgToAll(sender, msg, true);
         chatICMsg.setSourceType(sender.getObjectType().ordinal());
         chatICMsg.setSourceID(sender.getObjectUUID());
         chatICMsg.setSourceName(sender.getFirstName());
-        chatICMsg.setUnknown02(MBServerStatics.worldMapID); // Server ID
+        chatICMsg.setUnknown02(WorldServer.worldMapID); // Server ID
         chatICMsg.setUnknown03(GuildStatusController.getRank(sender.getGuildStatus())); // correct?
         chatICMsg.setUnknown04(GuildStatusController.getTitle(sender.getGuildStatus())); // correct?
         chatICMsg.setUnknown05(2); // unknown, seen 1 and 2
@@ -524,7 +524,7 @@ DispatchMessage.dispatchMsgToAll(sender, msg, true);
         chatGroupMsg.setSourceType(sender.getObjectType().ordinal());
         chatGroupMsg.setSourceID(sender.getObjectUUID());
         chatGroupMsg.setSourceName(sender.getFirstName());
-        chatGroupMsg.setUnknown02(MBServerStatics.worldMapID); // Server ID
+        chatGroupMsg.setUnknown02(WorldServer.worldMapID); // Server ID
 
 
         // Send dispatch to each player

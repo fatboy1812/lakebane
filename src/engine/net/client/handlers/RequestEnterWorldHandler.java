@@ -18,6 +18,7 @@ import engine.objects.AbstractWorldObject;
 import engine.objects.Account;
 import engine.objects.PlayerCharacter;
 import engine.server.MBServerStatics;
+import engine.server.world.WorldServer;
 import engine.session.Session;
 import org.pmw.tinylog.Logger;
 
@@ -60,10 +61,10 @@ public class RequestEnterWorldHandler extends AbstractClientMsgHandler {
 
 		Account acc = SessionManager.getAccount(origin);
 
-		if (acc.status.ordinal() < MBServerStatics.worldAccessLevel.ordinal() || MBServerStatics.blockLogin) {
-			origin.disconnect();
-			return true;
-		}
+        if (acc.status.ordinal() < WorldServer.worldAccessLevel.ordinal() || MBServerStatics.blockLogin) {
+            origin.disconnect();
+            return true;
+        }
 
 		// Brand new character.  Send the city select screen
 

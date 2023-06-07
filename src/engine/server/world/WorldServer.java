@@ -68,6 +68,9 @@ import static java.lang.System.exit;
 
 public class WorldServer {
 
+	public static int worldMapID = Integer.parseInt(ConfigManager.MB_WORLD_MAPID.getValue());
+	public static int worldUUID = 1; // Root object in database
+	public static Enum.AccountStatus worldAccessLevel = Enum.AccountStatus.valueOf(ConfigManager.MB_WORLD_ACCESS_LVL.getValue());
 	private static LocalDateTime bootTime = LocalDateTime.now();
 	public boolean isRunning = false;
 
@@ -428,7 +431,7 @@ public class WorldServer {
 		Logger.info("World data loaded.");
 
 		//set default accesslevel for server  *** Refactor who two separate variables?
-		MBServerStatics.accessLevel = MBServerStatics.worldAccessLevel;
+		MBServerStatics.accessLevel = worldAccessLevel;
 		Logger.info("Default access level set to " + MBServerStatics.accessLevel);
 
 		Logger.info("Initializing Network");
@@ -495,10 +498,10 @@ public class WorldServer {
 
 		ArrayList<Zone> rootParent;
 
-		rootParent = DbManager.ZoneQueries.GET_MAP_NODES(MBServerStatics.worldUUID);
+		rootParent = DbManager.ZoneQueries.GET_MAP_NODES(worldUUID);
 
 		if (rootParent.isEmpty()) {
-			Logger.error("populateWorldBuildings: No entries found in worldMap for parent " + MBServerStatics.worldUUID);
+			Logger.error("populateWorldBuildings: No entries found in worldMap for parent " + worldUUID);
 			return;
 		}
 

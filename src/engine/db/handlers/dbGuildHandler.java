@@ -13,7 +13,7 @@ import engine.Enum;
 import engine.Enum.GuildHistoryType;
 import engine.gameManager.DbManager;
 import engine.objects.*;
-import engine.server.MBServerStatics;
+import engine.server.world.WorldServer;
 import org.joda.time.DateTime;
 import org.pmw.tinylog.Logger;
 
@@ -419,7 +419,7 @@ public class dbGuildHandler extends dbHandlerBase {
         try (Connection connection = DbManager.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement("CALL `guild_CREATE`(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")) {
 
-            preparedStatement.setLong(1, MBServerStatics.worldUUID);
+            preparedStatement.setLong(1, WorldServer.worldUUID);
             preparedStatement.setLong(2, g.getGuildLeaderUUID());
             preparedStatement.setString(3, g.getName());
             preparedStatement.setInt(4, guildTag.backgroundColor01);

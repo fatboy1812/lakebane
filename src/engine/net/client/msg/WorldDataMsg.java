@@ -19,7 +19,7 @@ import engine.net.ByteBufferReader;
 import engine.net.ByteBufferWriter;
 import engine.net.client.Protocol;
 import engine.objects.Zone;
-import engine.server.MBServerStatics;
+import engine.server.world.WorldServer;
 import org.pmw.tinylog.Logger;
 
 public class WorldDataMsg extends ClientNetMsg {
@@ -74,7 +74,7 @@ public class WorldDataMsg extends ClientNetMsg {
 		writer.putInt(512);
 		writer.putInt(384);
 
-		writer.putInt(MBServerStatics.worldMapID);
+		writer.putInt(WorldServer.worldMapID);
 		writer.putInt(0x00000000);
 
 		writer.putInt(getTotalMapSize(root) + 1);

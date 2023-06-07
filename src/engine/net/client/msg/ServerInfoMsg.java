@@ -17,6 +17,7 @@ import engine.net.ByteBufferWriter;
 import engine.net.client.Protocol;
 import engine.server.MBServerStatics;
 import engine.server.login.LoginServer;
+import engine.server.world.WorldServer;
 
 
 public class ServerInfoMsg extends ClientNetMsg {
@@ -49,9 +50,9 @@ public class ServerInfoMsg extends ClientNetMsg {
 		// wsis.serializeForClientMsg(writer);
 		// }
 		writer.putInt(1);
-		
-		writer.putInt(MBServerStatics.worldMapID);
-		writer.putString(ConfigManager.MB_WORLD_NAME.getValue());
+
+        writer.putInt(WorldServer.worldMapID);
+        writer.putString(ConfigManager.MB_WORLD_NAME.getValue());
 		if (LoginServer.population < MBServerStatics.LOW_POPULATION)
 			writer.putInt(0); //Land Rush
 		else if (LoginServer.population < MBServerStatics.NORMAL_POPULATION)

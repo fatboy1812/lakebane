@@ -30,6 +30,7 @@ import engine.net.client.msg.TaxResourcesMsg;
 import engine.net.client.msg.ViewResourcesMessage;
 import engine.powers.EffectsBase;
 import engine.server.MBServerStatics;
+import engine.server.world.WorldServer;
 import engine.workthreads.DestroyCityThread;
 import engine.workthreads.TransferCityThread;
 import org.pmw.tinylog.Logger;
@@ -1125,7 +1126,7 @@ public class City extends AbstractWorldObject {
 		// claiming your new tree and set as Landed
 
 		if (!sourceNation.isEmptyGuild() && sourceNation != sourceGuild) {
-			if (!DbManager.GuildQueries.UPDATE_PARENT(sourceGuild.getObjectUUID(), MBServerStatics.worldUUID)) {
+			if (!DbManager.GuildQueries.UPDATE_PARENT(sourceGuild.getObjectUUID(), WorldServer.worldUUID)) {
 				ChatManager.chatGuildError((PlayerCharacter) sourcePlayer, "A Serious error has occurred. Please post details for to ensure transaction integrity");
 				return;
 			}

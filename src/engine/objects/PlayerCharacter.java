@@ -39,6 +39,7 @@ import engine.powers.EffectsBase;
 import engine.server.MBServerStatics;
 import engine.server.login.LoginServer;
 import engine.server.login.LoginServerMsgHandler;
+import engine.server.world.WorldServer;
 import engine.util.MiscUtils;
 import org.joda.time.DateTime;
 import org.pmw.tinylog.Logger;
@@ -1995,7 +1996,7 @@ public class PlayerCharacter extends AbstractCharacter {
 		writer.putInt(0);
 
 		writer.putString(ConfigManager.MB_WORLD_NAME.getValue());
-		writer.putInt(MBServerStatics.worldMapID);
+		writer.putInt(WorldServer.worldMapID);
 
 		writer.put((byte) 1); // End Datablock byte
 		writer.putInt(0); // Unsure, Pad?
@@ -2315,9 +2316,9 @@ public class PlayerCharacter extends AbstractCharacter {
             if (playerCharacter.account == null)
                 serverUp = 0;
 
-            if ((playerCharacter.account.status.equals(AccountStatus.ADMIN) == false) &&
-                    (playerCharacter.account.status.equals(MBServerStatics.worldAccessLevel) == false))
-                serverUp = 0;
+			if ((playerCharacter.account.status.equals(AccountStatus.ADMIN) == false) &&
+					(playerCharacter.account.status.equals(WorldServer.worldAccessLevel) == false))
+				serverUp = 0;
 
             writer.putInt(serverUp);
             writer.putInt(0); // effects, not sure used by players

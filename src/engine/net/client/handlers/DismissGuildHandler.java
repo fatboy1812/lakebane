@@ -24,7 +24,7 @@ import engine.net.client.msg.ErrorPopupMsg;
 import engine.net.client.msg.guild.DismissGuildMsg;
 import engine.net.client.msg.guild.SendGuildEntryMsg;
 import engine.objects.*;
-import engine.server.MBServerStatics;
+import engine.server.world.WorldServer;
 import engine.session.Session;
 
 import java.util.ArrayList;
@@ -86,8 +86,8 @@ public class DismissGuildHandler extends AbstractClientMsgHandler {
         switch (toDismiss.getGuildState()) {
             case Sworn:
 
-                if (!DbManager.GuildQueries.UPDATE_PARENT(toDismiss.getObjectUUID(), MBServerStatics.worldUUID)) {
-                     ErrorPopupMsg.sendErrorMsg(player, "A Serious error has occured. Please post details for to ensure transaction integrity");
+                if (!DbManager.GuildQueries.UPDATE_PARENT(toDismiss.getObjectUUID(), WorldServer.worldUUID)) {
+                    ErrorPopupMsg.sendErrorMsg(player, "A Serious error has occured. Please post details for to ensure transaction integrity");
                     return true;
                 }
                 nation.getSubGuildList().remove(toDismiss);
@@ -97,7 +97,7 @@ public class DismissGuildHandler extends AbstractClientMsgHandler {
 
                 break;
             case Province:
-                if (!DbManager.GuildQueries.UPDATE_PARENT(toDismiss.getObjectUUID(),MBServerStatics.worldUUID)) {
+                if (!DbManager.GuildQueries.UPDATE_PARENT(toDismiss.getObjectUUID(), WorldServer.worldUUID)) {
                     ErrorPopupMsg.sendErrorMsg(player, "A Serious error has occured. Please post details for to ensure transaction integrity");
                     return true;
                 }
