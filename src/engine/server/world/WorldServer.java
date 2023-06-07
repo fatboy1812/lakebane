@@ -281,6 +281,9 @@ public class WorldServer {
 		Logger.info("Initialize database layer");
 		initDatabaselayer();
 
+		Logger.info("Starting network Dispatcher");
+		DispatchMessage.startMessagePump();
+
 		Logger.info("Setting cross server session behavior");
 		SessionManager.setCrossServerBehavior(1); // Sets cross server behavior
 
@@ -463,9 +466,6 @@ public class WorldServer {
 
 		Logger.info("Initializing Client Connection Manager");
 		initClientConnectionManager();
-
-		Logger.info("Starting message pumps");
-		DispatchMessage.startMessagePump();
 
 		// Run maintenance
 
