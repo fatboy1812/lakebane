@@ -9,13 +9,13 @@
 package engine.InterestManagement;
 
 import engine.Enum;
+import engine.gameManager.ConfigManager;
 import engine.gameManager.DbManager;
 import engine.gameManager.ZoneManager;
 import engine.math.Vector2f;
 import engine.math.Vector3fImmutable;
 import engine.objects.AbstractWorldObject;
 import engine.objects.Zone;
-import engine.server.MBServerStatics;
 import engine.util.MapLoader;
 import org.pmw.tinylog.Logger;
 
@@ -76,7 +76,7 @@ public class HeightMap {
         this.fullExtentsY = halfExtentsY * 2;
 
         this.heightmapImage = null;
-        File imageFile = new File(MBServerStatics.DEFAULT_DATA_DIR + "heightmaps/" + this.heightMapID + ".bmp");
+        File imageFile = new File(ConfigManager.DEFAULT_DATA_DIR + "heightmaps/" + this.heightMapID + ".bmp");
 
         // early exit if no image file was found.  Will log in caller.
 

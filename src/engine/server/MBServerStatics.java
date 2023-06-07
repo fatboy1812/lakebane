@@ -44,13 +44,7 @@ public class MBServerStatics {
 
 	public static final int BANK_GOLD_LIMIT = 25000000;
 	public static final int PLAYER_GOLD_LIMIT = 10000000;
-	public static final int BUILDING_GOLD_LIMIT = 15000000;
 
-	public static final String VENDOR_FULL = "This vendor has no more gold to give.";
-	public static final boolean HEIGHTMAP_DEBUG = false;
-	public static final boolean FAST_LOAD = false; // skip loading mobs,
-	// buildings, npcs
-	public static final boolean FAST_LOAD_INIT = false; // skip loading mobs,
 	// buildings, npcs
 	/*
 	 * Login cache flags
@@ -59,19 +53,6 @@ public class MBServerStatics {
 	public static final boolean SKIP_CACHE_LOGIN_PLAYER = false; // skip caching															// on login
 	public static final boolean SKIP_CACHE_LOGIN_ITEM = false; // skip caching
 
-	/*
-	 * Logger
-	 */
-	public static final int bannerWidth = 80;
-	public static final int typeWidth = 10;
-	public static final int originWidth = 25;
-	public static final int logWidth = 80;
-
-	/*
-	 * ConfigSystem related
-	 */
-	public static final String DEFAULT_CONFIG_DIR = "mb.conf/";
-	public static final String DEFAULT_DATA_DIR = "mb.data/";
 	/*
 	 * ChatManager related
 	 */
@@ -88,28 +69,8 @@ public class MBServerStatics {
 	// The number of elements in INITIAL_WORKERS defines the initial number of
 	// job pools
 	public static final int[] INITIAL_JOBPOOL_WORKERS = { 4, 2, 1 };
-	public static final int DEFAULT_JOBPOOL_WORKERS = 1;
-	public static final int DEFAULT_LOGIN_JOBPOOL_WORKERS = 5;
-
-	public static final int JOBWORKER_IDLE_TIMEOUT_MS = 750;
 	public static final int JOBMANAGER_INTERNAL_MONITORING_INTERVAL_MS = 1000;
 	public static final int JOB_STALL_THRESHOLD_MS = 120 * 1000;
-	public static final int MAX_JOB_HISTORY_OBJECTS = 1000; // max number of
-	// historic jobs to
-	// store on queue
-	// after execution
-	public static final int JOBSTATISTICS_WAKE_INTERVAL_MS = 500; // wake up and
-	// gather
-	// job stats
-	// every X
-	// ms,
-	// decrease
-	// this is
-	// we blow
-	// the job
-	// history
-	// queue
-
 	public static final int SCHEDULER_INITIAL_CAPACITY = 1000;
 	public static final int SCHEDULER_EXECUTION_TIME_COMPENSATION = 16;
 
@@ -127,7 +88,6 @@ public class MBServerStatics {
 	 * LoginErrorMsg related
 	 */
 	public static final int LOGINERROR_INVALID_USERNAME_PASSWORD = 1;
-	public static final int LOGINERROR_ACCOUNT_SUSPENDED = 2;
 
 	/*
 	 * Message is Version:
@@ -153,20 +113,6 @@ public class MBServerStatics {
 	public static final int LOGINERROR_UNABLE_TO_LOGIN = 11;
 	public static final int LOGINERROR_LOGINSERVER_BUSY = 12;
 	public static final int LOGINERROR_BLANK = 13;
-
-	/*
-	 * >13 = 'blank' 12 = 'Login Server is currently busy, please try again in a
-	 * few minutes.' 11 = 'Unable to login. Please try again. If this problem
-	 * persists, contact customer support (error = )' 10 = 'You have made too
-	 * many unsuccessful login attempts, you must wait 15 minutes.' 9 = 'Your
-	 * Account is insecure, you must change your password before logging in
-	 * again.' 8 = 'This Account does not have an active Shadowbane
-	 * Subscription' 7 = 'No More PlayTime on this account 6 = 'Invalid
-	 * Administrator Username/Password' 5 = 'Login Server Is Unavailable (Error
-	 * = 0)' 4 = 'YouAreNotAllowedToLoginYet' 3 = 'Incorrect ClientVersion,
-	 * latest is' 2 = 'This Account Has Been Suspended' 1 = 'Invalid
-	 * Username/Password'
-	 */
 
 	/*
 	 * Name Validation Related
@@ -198,15 +144,7 @@ public class MBServerStatics {
 	 */
 	public static final boolean TCP_NO_DELAY_DEFAULT = true;
 	public static final byte MAX_CRYPTO_INIT_TRIES = 10;
-	
 
-	/*
-	 * EmuConnectionManager related
-	 */
-	public static final long delayBetweenConnectionChecks = 5000L; // in ms
-	public static final long delayBetweenReconnectAttempts = 2000L; // in ms
-	public static final int maxReconnectAttempts = 20;
-	public static final long reconnectTimeout = 15000L;
 	public static boolean DEBUG_PROTOCOL = false;
 	/*
 	 * Account Related
@@ -214,14 +152,7 @@ public class MBServerStatics {
 
 	public static final byte MAX_LOGIN_ATTEMPTS = 5;
     public static final int RESET_LOGIN_ATTEMPTS_AFTER = (15 * 60 * 1000); // in
-    // ms
     public static final int MAX_ACTIVE_GAME_ACCOUNTS_PER_DISCORD_ACCOUNT = 4; // 0
-	// to
-	// disable
-	/*
-	 * Character related
-	 */
-
 	public static final byte MAX_NUM_OF_CHARACTERS = 7;
 
 	public static final int STAT_STR_ID = 0x8AC3C0E6;
@@ -229,16 +160,6 @@ public class MBServerStatics {
 	public static final int STAT_CON_ID = 0xB15DC77E;
 	public static final int STAT_DEX_ID = 0xE07B3336;
 	public static final int STAT_INT_ID = 0xFF665EC3;
-
-	/*
-	 * Skill attributeIDs
-	 */
-
-	public static final int SKILL_RUNNING = 5;
-
-	/*
-	 * EquipSlot
-	 */
 
 	public static final int SLOT_UNEQUIPPED = 0;
 	public static final int SLOT_MAINHAND = 1;
@@ -275,12 +196,6 @@ public class MBServerStatics {
 	public static final String[] FORMATION_NAMES = { "Column", "Line", "Box",
 			"Triangle", "Circle", "Ranks", "Wedge", "Inverse Wedge", "T" };
 
-	/*
-	 * Runes
-	 */
-
-	public static final int RUNETYPE_TRAIT = 1;
-
 	public static final int RUNE_COST_ATTRIBUTE_ID = 0;
 
 	public static final int RUNE_STR_ATTRIBUTE_ID = 1;
@@ -306,64 +221,13 @@ public class MBServerStatics {
 	 */
 	public static final int NO_DB_ROW_ASSIGNED_YET = Integer.MAX_VALUE;
 
-	/*
-	 * PreparedStatement query debugging
-	 */
 	public static final boolean DB_DEBUGGING_ON_BY_DEFAULT = false; // warning:
-	// not
-	// recommended
-	// for a
-	// live
-	// production
-	// server
+
 	public static final boolean ENABLE_QUERY_TIME_WARNING = true;
 	public static final boolean ENABLE_UPDATE_TIME_WARNING = true;
 	public static final boolean ENABLE_EXECUTION_TIME_WARNING = true;
 
-	/*
-	 * ClientEncryption
-	 */
-	public static final int AUTHENTICATION_WAIT_TIMEOUT = 1000 * 2; // seconds
-	public static final int MaxGetKeyFromClientTries = 4;
-	public static final int MaxProtocolMessagesPerSecond = 20;  // 60 per second
-
-	/*
-	 * Guild Colors
-	 */
-
-	// public static final int GUILD_COLOR_LIGHTGREEN = 0;
-	// public static final int GUILD_COLOR_GREEN = 1;
-	// public static final int GUILD_COLOR_DARKGREEN = 2;
-	// public static final int GUILD_COLOR_LIGHTBLUE = 3;
-	// public static final int GUILD_COLOR_BLUE = 4;
-	// public static final int GUILD_COLOR_DARKBLUE = 5;
-	// public static final int GUILD_COLOR_PURPLE = 6;
-	// public static final int GUILD_COLOR_DARKRED = 7;
-	// public static final int GUILD_COLOR_LIGHTRED = 8;
-	// public static final int GUILD_COLOR_ORANGE = 9;
-	// public static final int GUILD_COLOR_BROWNORANGE = 10;
-	// public static final int GUILD_COLOR_BROWN = 11;
-	// public static final int GUILD_COLOR_BROWNYELLOW = 12;
-	// public static final int GUILD_COLOR_YELLOW = 13;
-	// public static final int GUILD_COLOR_LIGHTGREY = 14;
-	// public static final int GUILD_COLOR_GREY = 15;
-	// public static final int GUILD_COLOR_DARKGREY = 16;
-	// public static final int GUILD_COLOR_BLACK = 17;
-	// public static final int GUILD_COLOR_BLUEGREEN = 18;
-	// public static final int GUILD_COLOR_WHITE = 19;
-
-	/*
-	 * Timeout Related
-	 */
 	public static final int AFK_TIMEOUT_MS = (30 * 60 * 1000) * 100; // Added
-	// *100
-	// to
-	// discount
-	// it as
-	// a
-	// "random DC reason"
-	public static final int KEEPALIVE_TIMEOUT_MS = (2 * 60 * 1000)
-			+ (15 * 1000);
 	public static final int TIMEOUT_CHECKS_TIMER_MS = (60 * 1000);
 
 	/*
@@ -477,19 +341,6 @@ public class MBServerStatics {
 	public static final float RUNSPEED_MOB = 15.4f;
 
 	public static final float MOVEMENT_DESYNC_TOLERANCE = 2f; // Distance out of
-	public static String ITEMNOTINVENTORY = "Item must be in your inventory.";
-	public static String ZEROITEM = "This item has zero quantity.";
-	// sync with
-	// client can be
-	// before
-	// generating
-	// debug
-	// messages
-	// max units a player can desync before the server stops forcing
-	// client->server sync
-	public static final float MOVEMENT_MAX_DESYNC = 1000;
-
-	public static final int IGNORE_LIST_MAX = 60;
 
 	public static final float NO_WEAPON_RANGE = 8f; // Range for attack with no
 	// weapon
@@ -508,11 +359,6 @@ public class MBServerStatics {
 	// minutes
 	public static final float HEALTH_REGEN_RUN = 0f;
 	public static final float HEALTH_REGEN_SWIM_NOSTAMINA = -.03f; // 100% in
-	// 33.33
-	// seconds.
-	// Needs
-	// verified
-
 	public static final float HEALTH_REGEN_SIT_STATIC = 0.33333f; // 100% in 3
 	// minutes
 	public static final float HEALTH_REGEN_IDLE_STATIC = 0.0666667f; // 100% in
@@ -524,24 +370,13 @@ public class MBServerStatics {
 	public static final float HEALTH_REGEN_SWIM_NOSTAMINA_STATIC = 0f; // 100%
 	
 	public static final float MANA_REGEN_STATIC = 0.16666666666666666666666666666667f;
-	// in 30
-	// seconds.
-	// Needs
-	// verified
-
 	public static final float MANA_REGEN_SIT = 0.008333333f; // 100% in 2
-	// minutes <=
-	// needs
-	// verified
-	public static final float MANA_REGEN_IDLE = 0.00166667f; // 100% in 10
-	// minutes <=
-	// needs
-	// verified
-	public static final float MANA_REGEN_WALK = 0.00125f; // 100% in 13.333
-	// minutes <= needs
-	// verified
-	public static final float MANA_REGEN_RUN = 0f;
 
+	public static final float MANA_REGEN_IDLE = 0.00166667f; // 100% in 10
+
+	public static final float MANA_REGEN_WALK = 0.00125f; // 100% in 13.333
+
+	public static final float MANA_REGEN_RUN = 0f;
 	public static final float STAMINA_REGEN_SIT = 2f; // 2 per second
 	public static final float STAMINA_REGEN_IDLE = 0.2f; // 1 per 5 seconds
 	public static final float STAMINA_REGEN_WALK = 0f;
@@ -554,45 +389,15 @@ public class MBServerStatics {
 	public static  float STAMINA_REGEN_FLY_RUN_COMBAT = -1.6499999762f; // needs verifying
 
 	public static final int REGEN_SENSITIVITY_PLAYER = 250; // calc regen ever X
-	// ms
 	public static final int REGEN_SENSITIVITY_MOB = 1000; // calc regen ever X
-	// ms
-	/*
-	 * Tombstone type to show Tombstone (2022); Tombstone, Grave (2023);
-	 * Tombstone, Skull (2024);
-	 */
-	public static final int TOMBSTONE = 2024;
-	public static final int DEATH_SHROUD_DURATION = 1; // 3 minute death shroud
-	public static final int SAFE_MODE_DURATION = 1; // 3 minute safe mode
 
-	/*
-	 * Timers
-	 */
+	public static final int TOMBSTONE = 2024;
+
 	public static final int LOGOUT_TIMER_MS = 1000; // logout delay applied
-	// after the last
-	// aggressive action
-	public static final int CLEANUP_TIMER_MS = 15 * 60 * 1000; // Remove player
-	// from cache
-	// after 15
-	// minutes
 	public static final int CORPSE_CLEANUP_TIMER_MS = 15 * 60 * 1000; // Cleanup
-	// corpse
-	// in
-	// world
-	// after
-	// 15
-	// minutes
 	public static final int DEFAULT_SPAWN_TIME_MS = 3 * 60 * 1000; // 3 minute
-	// respawn
-	// on mobs
-	// default
 	public static final int SESSION_CLEANUP_TIMER_MS = 30 * 1000; // cleanup
-	// sessions
-	// for login
-	// 30
-	// seconds
-	// after
-	// logout
+
 	public static final int MOVEMENT_FREQUENCY_MS = 1000; // Update movement
 	// once every X ms
 	public static final int FLY_FREQUENCY_MS = 1000; // Update flight once every
@@ -606,7 +411,6 @@ public class MBServerStatics {
 	public static final long DB_UPDATE_WARNING_TIME_MS = 250L;
 	public static final long DB_EXECUTION_WARNING_TIME_MS = 250L;
 	public static boolean DB_ENABLE_QUERY_OUTPUT = false;
-	public static final int SUMMON_MAX_WAIT = 18000; // 18 seconds to accept
 	// summons
 	public static final int THIRTY_SECONDS = 30000;
 	public static final int FOURTYFIVE_SECONDS = 45000;
@@ -616,27 +420,13 @@ public class MBServerStatics {
 	public static final int THIRTY_MINUTES = 1800000;
 	public static final long TWENTY_FOUR_HOURS = 86400000;
 	public static final int LOAD_OBJECT_DELAY = 500; // long to wait to update
-	public static int IPLimit = 5000;
-	// group list after
-	// LoadChar
-	public static final int UPDATE_LINK_WORLD = 2500;
-	public static final int UPDATE_LINK_LOGIN = 2500;
+
 	public static final int TELEPORT_TIME_IN_SECONDS = 10;
 	public static final int REPLEDGE_TIME_IN_SECONDS = 0;
-	public static final int CHECK_DATABASE_UPDATES = 10000; // update database
-	// changes every 10
-	// seconds.
 	public static final int RUNEGATE_CLOSE_TIME = 30000; // runegate close timer
 	public static final long PLAYER_KILL_XP_TIMER = 60 * 60 * 1000; // 60
-	// minutes
-	// between
-	// grant xp
-	// on same
-	// target
 	public static final int UPDATE_GROUP_RATE = 10000; // Update group info
-	// every 10 seconds
 	public static float PLAYER_HATE_DELIMITER = 50; // reduces 50 hate a second
-	// while player idling.
 	public static float PLAYER_COMBAT_HATE_MODIFIER = 2;
 
 	/*
@@ -662,16 +452,9 @@ public class MBServerStatics {
 
 	// Pet Settings
 	public static final float PET_TELEPORT_DISTANCE = 600; // distance a pet
-	// teleports to
-	// player
 	public static final float PET_FOLLOW_DISTANCE = 10; // distance a pet starts
-	// moving towards owner
 	public static final float PET_REST_DISTANCE = 4; // distance a pet stops
-	// moving towards owner
 
-	/*
-	 * Combat
-	 */
 	public static final int COMBAT_SEND_DODGE = 20;
 	public static final int COMBAT_SEND_BLOCK = 21;
 	public static final int COMBAT_SEND_PARRY = 22;
@@ -684,48 +467,6 @@ public class MBServerStatics {
 	public static final int MAX_COMBAT_HITBOX_RADIUS = 80;
 	public static final int PROC_CHANCE = 5; // %chance to proc
 
-	/*
-	 * Mob loot -- gold calculations
-	 */
-	public static final String STRONGBOX_DELAY_STRING = "StrongboxSpam";
-	public static final String STRONGBOX_DELAY_OUTPUT = "You must wait 1 minute to do this again.";
-	public static final int BIG_SPAM_DELAY = 10000;
-	public static String BIG_SPAM_DELAY_STRING = "BIGSPAM";
-
-	public static final double GOLD_DROP_PERCENTAGE_CHANCE = 61d;
-	public static final double GOLD_DROP_MULTIPLIER_GLOBAL = 1.0d; // tweak all
-	// rates at
-	// once
-	public static final double GOLD_DROP_MULTIPLIER_HOTZONE = 2.0d;
-	public static final double GOLD_DROP_MULTIPLIER_MAELSTROM = 1.1d;
-	public static final double GOLD_DROP_MULTIPLIER_OBLIVION = 1.1d;
-	public static final double[] GOLD_DROP_MINIMUM_PER_MOB_LEVEL = { 450, 450,
-			450, 450, 450, // 0 - 4
-			450, 450, 450, 450, 450, // 5 - 9
-			450, 1000, 1000, 1000, 1000, // 10 - 14
-			1000, 1000, 1000, 1000, 1000, // 15 - 19
-			1000, 1000, 1000, 1000, 1000, // 20 - 24
-			2000, 2000, 2000, 2000, 2000, // 25 - 29
-			2000, 2000, 2000, 2000, 2000, // 30 - 34
-			2000, 2000, 2000, 2000, 2000, // 35 - 39
-			4000, 4000, 4000, 4000, 4000, // 40 - 44
-			4000, 4000, 4000, 4000, 4000, // 45 - 49
-			5000 // 50+
-	};
-	public static final double[] GOLD_DROP_MAXIMUM_PER_MOB_LEVEL = { 1000,
-			1000, 1000, 1000, 1000, // 0 - 4
-			1000, 1000, 1000, 1000, 1000, // 5 - 9
-			1000, 2500, 2500, 2500, 2500, // 10 - 14
-			2500, 2500, 2500, 2500, 2500, // 15 - 19
-			2500, 2500, 2500, 2500, 2500, // 20 - 24
-			4000, 4000, 4000, 4000, 4000, // 25 - 29
-			4000, 4000, 4000, 4000, 4000, // 30 - 34
-			4000, 4000, 4000, 4000, 4000, // 35 - 39
-			9000, 9000, 9000, 9000, 9000, // 40 - 44
-			9000, 9000, 9000, 9000, 9000, // 45 - 49
-			12000 // 50+
-	};
-
     // DO NOT FINAL THESE FIELD!
     public static Enum.AccountStatus accessLevel; // Min account level to login to server
     public static boolean blockLogin = false;
@@ -734,61 +475,23 @@ public class MBServerStatics {
 	public static boolean ENABLE_AUDIT_JOB_WORKERS = true;
 	public static boolean ENABLE_COMBAT_TARGET_HITBOX = true;
 
-	/*
-	 * Track Sensitivity
-	 */
-	// Rate that track arrow refreshes. When inside TRACK_ARROW_FAST_RANGE, use
-	// TRACK_ARROW_SENSITIVITY_FAST speed, otherwise use TRACK_ARROW_SENSITIVITY
-	// speed.
 	public static final float TRACK_ARROW_FAST_RANGE = 50f; // Range to go from
-	// Fast arrow to
-	// slow
+
 	public static final int TRACK_ARROW_SENSITIVITY = 1000; // Refresh track
 	// arrows every X ms
 	public static final int TRACK_ARROW_SENSITIVITY_FAST = 250; // Refresh track
-	// arrows every
-	// X ms
-
-	/*
-	 * Population breakpoints
-	 */
 	public static final int LOW_POPULATION = 100;
 	public static final int NORMAL_POPULATION = 500;
 	public static final int HIGH_POPULATION = 1000;
 	public static final int VERY_OVERPOPULATED_POPULATION = 3000;
 	public static final int FULL_POPULATION = 5000;
-
-	// Refresh sensetivities
 	public static final int TRACK_WINDOW_THRESHOLD = 1000; // max refresh once
-	// every 1 seconds.
 	public static final int WHO_WINDOW_THRESHOLD = 3000; // max refresh once
-	// every 3 seconds.
-	public static final int VENDOR_WINDOW_THRESHOLD = 2000; // max refresh once
-	// every 2 seconds.
-	public static final int PURCHASE_THRESHOLD = 500; // max refresh once every
-	// 0.5 seconds.
-	public static final int SELL_THRESHOLD = 100; // max refresh once every 0.1
-	// seconds.
-	public static final int MAX_PLAYER_LOAD_SIZE = 1000;
+
 
 	// Mine related
 	public static final int MINE_EARLY_WINDOW = 16; // 4pm
 	public static final int MINE_LATE_WINDOW = 0; // Midnight
-
-	// Race
-	public static final float RADIUS_ARACOIX = 0.68999999761581f;
-	public static final float RADIUS_MINOTAUR = 0.69960004091263f;
-	public static final float RADIUS_DWARF = 0;
-	public static final float RADIUS_HUMAN = 0;
-	public static final float RADIUS_NEPHILIM = 0;
-	public static final float RADIUS_AELFBORN = 0;
-    public static final float RADIUS_ELF = 0;
-    public static final float RADIUS_VAMPIRE = 0;
-    public static final float RADIUS_IREKEI = 0;
-    public static final float RADIUS_HALF_GIANT = 0;
-    public static final float RADIUS_SHADE = 0;
-    public static final float RADIUS_CENTAUR = 0.68999999761581f;
-
     public static String JUNIOR = "Junior";
     public static String VETERAN = "Veteran";
     public static String ELITE = "Elite";

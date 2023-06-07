@@ -469,7 +469,7 @@ public class LoginServer {
 
     private int readPopulationFile() {
 
-        ProcessBuilder builder = new ProcessBuilder("/bin/bash", "-c", "cat " + MBServerStatics.DEFAULT_DATA_DIR + ConfigManager.MB_WORLD_NAME.getValue().replaceAll("'","") + ".pop");
+        ProcessBuilder builder = new ProcessBuilder("/bin/bash", "-c", "cat " + ConfigManager.DEFAULT_DATA_DIR + ConfigManager.MB_WORLD_NAME.getValue().replaceAll("'", "") + ".pop");
         builder.redirectErrorStream(true);
         Process process = null;
         String line = null;

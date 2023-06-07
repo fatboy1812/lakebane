@@ -179,7 +179,7 @@ public class WorldServer {
 		try {
 
 
-			File populationFile = new File(MBServerStatics.DEFAULT_DATA_DIR + ConfigManager.MB_WORLD_NAME.getValue().replaceAll("'", "") + ".pop");
+			File populationFile = new File(ConfigManager.DEFAULT_DATA_DIR + ConfigManager.MB_WORLD_NAME.getValue().replaceAll("'", "") + ".pop");
 			FileWriter fileWriter;
 
 			try {

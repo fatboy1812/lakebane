@@ -92,6 +92,7 @@ public enum ConfigManager {
     // We also use the config to point to the current message pump
     // and determine the server type at runtime.
 
+    public static final String DEFAULT_DATA_DIR = "mb.data/";
     public static Map<String, String> configMap = new HashMap(System.getenv());
     public static Enum.ServerType serverType = Enum.ServerType.NONE;
     public static NetMsgHandler handler;

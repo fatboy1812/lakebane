@@ -5,6 +5,7 @@
 package engine.util;
 
 import engine.InterestManagement.RealmMap;
+import engine.gameManager.ConfigManager;
 import engine.server.MBServerStatics;
 import org.pmw.tinylog.Logger;
 
@@ -30,7 +31,7 @@ public enum MapLoader {
         // Load image from disk
         
         try {
-            image = ImageIO.read(new File(MBServerStatics.DEFAULT_DATA_DIR + "realmmap.png"));
+            image = ImageIO.read(new File(ConfigManager.DEFAULT_DATA_DIR + "realmmap.png"));
 
             // Array size determined by image size
             MBServerStatics.SPATIAL_HASH_BUCKETSX = image.getWidth();
