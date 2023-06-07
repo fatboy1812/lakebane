@@ -57,6 +57,8 @@ public enum ConfigManager {
 
     MB_WORLD_NAME,
     MB_WORLD_MAPID,
+    MB_WORLD_REALMMAP,
+
     MB_WORLD_PORT,
     MB_WORLD_ACCESS_LVL,
     MB_WORLD_WAREHOUSE_PUSH,

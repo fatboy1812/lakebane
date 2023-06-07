@@ -7,7 +7,6 @@
 //                www.magicbane.com
 
 
-
 package engine.server.world;
 
 import engine.Enum;
@@ -69,6 +68,8 @@ import static java.lang.System.exit;
 public class WorldServer {
 
 	public static int worldMapID = Integer.parseInt(ConfigManager.MB_WORLD_MAPID.getValue());
+	public static int worldRealmMap = Integer.parseInt(ConfigManager.MB_WORLD_REALMMAP.getValue());
+
 	public static int worldUUID = 1; // Root object in database
 	public static Enum.AccountStatus worldAccessLevel = Enum.AccountStatus.valueOf(ConfigManager.MB_WORLD_ACCESS_LVL.getValue());
 	private static LocalDateTime bootTime = LocalDateTime.now();
@@ -98,7 +99,7 @@ public class WorldServer {
 		}
 
 		try {
-			
+
 			worldServer = new WorldServer();
 
 			ConfigManager.serverType = Enum.ServerType.WORLDSERVER;
@@ -106,7 +107,7 @@ public class WorldServer {
 			ConfigManager.handler = new ClientMessagePump(worldServer);
 
 			worldServer.init();
-			
+
 			int retVal = worldServer.exec();
 
 			if (retVal != 0)
@@ -125,13 +126,13 @@ public class WorldServer {
 		NPC npc = NPC.getFromCache(msg.getObjectID());
 		float sellPercent = 1;
 
-		if (npc != null){
-			
+		if (npc != null) {
+
 			if (origin.getPlayerCharacter() != null)
 				sellPercent = npc.getSellPercent(origin.getPlayerCharacter());
 			else
 				sellPercent = npc.getSellPercent();
-			
+
 			msg.setTrainPercent(sellPercent); //TrainMsg.getTrainPercent(npc));
 		}
 
@@ -152,11 +153,8 @@ public class WorldServer {
 		DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
 	}
 
-	public static void shutdown() {
-		exit(1);
-	}
-
 	public static String getUptimeString() {
+
 		String outString = null;
 		java.time.Duration uptimeDuration;
 		String newLine = System.getProperty("line.separator");
@@ -165,7 +163,7 @@ public class WorldServer {
 			outString = "[LUA_UPTIME()]" + newLine;
 			uptimeDuration = java.time.Duration.between(LocalDateTime.now(), WorldServer.bootTime);
 			long uptimeSeconds = Math.abs(uptimeDuration.getSeconds());
-			String uptime =   String.format("%d hours %02d minutes %02d seconds", uptimeSeconds / 3600, (uptimeSeconds % 3600) / 60, (uptimeSeconds % 60));
+			String uptime = String.format("%d hours %02d minutes %02d seconds", uptimeSeconds / 3600, (uptimeSeconds % 3600) / 60, (uptimeSeconds % 60));
 			outString += "uptime: " + uptime;
 			outString += " pop: " + SessionManager.getActivePlayerCharacterCount() + " max pop: " + SessionManager._maxPopulation;
 		} catch (Exception e) {
@@ -174,13 +172,35 @@ public class WorldServer {
 		return outString;
 	}
 
+	public static void writePopulationFile() {
+
+		int population = SessionManager.getActivePlayerCharacterCount();
+		try {
+
+
+			File populationFile = new File(MBServerStatics.DEFAULT_DATA_DIR + ConfigManager.MB_WORLD_NAME.getValue().replaceAll("'", "") + ".pop");
+			FileWriter fileWriter;
+
+			try {
+				fileWriter = new FileWriter(populationFile, false);
+				fileWriter.write(Integer.toString(population));
+				fileWriter.close();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+
+		} catch (Exception e) {
+			Logger.error(e);
+		}
+	}
+
 	private int exec() {
 
 		LocalDateTime nextHeartbeatTime = LocalDateTime.now();
 		LocalDateTime nextPopulationFileTime = LocalDateTime.now();
 		LocalDateTime nextFlashTrashCheckTime = LocalDateTime.now();
 		LocalDateTime nextHourlyJobTime = LocalDateTime.now().withMinute(0).withSecond(0).plusHours(1);
-		LocalDateTime nextWareHousePushTime = LocalDateTime.now();;
+		LocalDateTime nextWareHousePushTime = LocalDateTime.now();
 
 		// Begin execution of main game loop
 
@@ -233,7 +253,7 @@ public class WorldServer {
 			InetAddress addy = InetAddress.getByName(ConfigManager.MB_BIND_ADDR.getValue());
 			int port = Integer.parseInt(ConfigManager.MB_WORLD_PORT.getValue());
 
-			ClientConnectionManager connectionManager =  new ClientConnectionManager(name + ".ClientConnMan", addy,
+			ClientConnectionManager connectionManager = new ClientConnectionManager(name + ".ClientConnMan", addy,
 					port);
 			connectionManager.startup();
 
@@ -263,25 +283,23 @@ public class WorldServer {
 		Guild.getErrantGuild();
 
 		Logger.info("Initializing PowersManager.");
-		// activate powers manager
 		PowersManager.initPowersManager(true);
-		
+
 		Logger.info("Initializing granted Skills for Runes");
 		DbManager.SkillsBaseQueries.LOAD_ALL_RUNE_SKILLS();
-		
+
 		Logger.info("Initializing Player Friends");
 		DbManager.PlayerCharacterQueries.LOAD_PLAYER_FRIENDS();
-		
+
 		Logger.info("Initializing NPC Profits");
 		DbManager.NPCQueries.LOAD_NPC_PROFITS();
-		
+
 		Logger.info("Initializing MeshBounds");
 		MeshBounds.InitializeBuildingBounds();
 
-		// Load ItemBases
 		Logger.info("Loading ItemBases");
 		ItemBase.loadAllItemBases();
-		
+
 		Logger.info("Loading PromotionClasses");
 		DbManager.PromotionQueries.GET_ALL_PROMOTIONS();
 
@@ -294,6 +312,7 @@ public class WorldServer {
 		// Load new loot system
 		Logger.info("Loading New Loot Tables");
 		LootManager.loadLootData();
+
 		//load old loot system (still needed for rolling for now)
 		LootTable.populateLootTables();
 		RuneBaseAttribute.LoadAllAttributes();
@@ -307,7 +326,6 @@ public class WorldServer {
 		Logger.info("Loading Mob Powers for MobBases");
 		PowersManager.LoadAllMobPowers();
 
-		//load item enchantment values
 		Logger.info("Loading item enchants");
 		DbManager.LootQueries.LOAD_ENCHANT_VALUES();
 
@@ -322,10 +340,10 @@ public class WorldServer {
 
 		Logger.info("Loading Kits");
 		DbManager.KitQueries.GET_ALL_KITS();
-		
+
 		Logger.info("Loading World Grid");
 		WorldGrid.InitializeGridObjects();
-		
+
 		Logger.info("Starting InterestManager.");
 		WorldGrid.startLoadJob();
 
@@ -364,18 +382,14 @@ public class WorldServer {
 		SupportMsgType.InitializeSupportMsgType();
 
 		//Load Buildings, Mobs and NPCs for server
+
 		getWorldBuildingsMobsNPCs();
 
 		// Configure realms for serialization
 		// Doing this after the world is loaded
 
 		Logger.info("Configuring realm serialization data");
-
-		try{
-			Realm.configureAllRealms();
-		}catch(Exception e){
-			Logger.error( e.getMessage());
-		}
+		Realm.configureAllRealms();
 
 		Logger.info("Loading Mine data.");
 		Mine.loadAllMines();
@@ -397,23 +411,25 @@ public class WorldServer {
 
 		//pick a startup Hotzone
 		ZoneManager.generateAndSetRandomHotzone();
-		
+
 		Logger.info("Loading All Players from database to Server Cache");
 		long start = System.currentTimeMillis();
-		try{
+
+		try {
 			DbManager.PlayerCharacterQueries.GET_ALL_CHARACTERS();
-		}catch(Exception e){
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
-	
+
 		long end = System.currentTimeMillis();
-		Logger.info("Loading All Players took "  + (end - start) + " ms.");
-		
+
+		Logger.info("Loading All Players took " + (end - start) + " ms.");
+
 		ItemProductionManager.ITEMPRODUCTIONMANAGER.initialize();
 
 		Logger.info("Loading Player Heraldries");
 		DbManager.PlayerCharacterQueries.LOAD_HERALDY();
-		
+
 		Logger.info("Running Heraldry Audit for Deleted Players");
 		Heraldry.AuditHeraldry();
 
@@ -444,17 +460,19 @@ public class WorldServer {
 		DispatchMessage.startMessagePump();
 
 		// Run maintenance
+
 		MaintenanceManager.dailyMaintenance();
 
-		// Disabled but kept in case of emergency
 		Logger.info("Starting Orphan Item Purge");
 		PurgeOprhans.startPurgeThread();
 
 		// Open/Close mines for the current window
+
 		Logger.info("Processing mine window.");
 		HourlyJobThread.processMineWindow();
 
 		// Calculate bootstrap time and rest boot time to current time.
+
 		java.time.Duration bootDuration = java.time.Duration.between(LocalDateTime.now(), bootTime);
 		long bootSeconds = Math.abs(bootDuration.getSeconds());
 		String boottime = String.format("%d hours %02d minutes %02d seconds", bootSeconds / 3600, (bootSeconds % 3600) / 60, (bootSeconds % 60));
@@ -467,15 +485,16 @@ public class WorldServer {
 		System.gc();
 		return true;
 	}
+
 	protected boolean initDatabaselayer() {
 
 		// Try starting a GOM <-> DB connection.
 		try {
 
 			Logger.info("Configuring GameObjectManager to use Database: '"
-					+  ConfigManager.MB_DATABASE_NAME.getValue() + "' on "
-					+  ConfigManager.MB_DATABASE_ADDRESS.getValue() + ':'
-					+  ConfigManager.MB_DATABASE_PORT.getValue());
+					+ ConfigManager.MB_DATABASE_NAME.getValue() + "' on "
+					+ ConfigManager.MB_DATABASE_ADDRESS.getValue() + ':'
+					+ ConfigManager.MB_DATABASE_PORT.getValue());
 
 			DbManager.configureConnectionPool();
 
@@ -492,7 +511,6 @@ public class WorldServer {
 
 		return true;
 	}
-
 
 	private void getWorldBuildingsMobsNPCs() {
 
@@ -521,10 +539,10 @@ public class WorldServer {
 			try {
 				ZoneManager.addZone(zone.getLoadNum(), zone);
 
-				try{
+				try {
 					zone.generateWorldAltitude();
-				}catch(Exception e){
-					Logger.error( e.getMessage());
+				} catch (Exception e) {
+					Logger.error(e.getMessage());
 					e.printStackTrace();
 				}
 
@@ -539,7 +557,7 @@ public class WorldServer {
 						b.setObjectTypeMask(MBServerStatics.MASK_BUILDING);
 						b.setLoc(b.getLoc());
 					} catch (Exception e) {
-						Logger.error( b.getObjectUUID() + " returned an Error Message :" + e.getMessage());
+						Logger.error(b.getObjectUUID() + " returned an Error Message :" + e.getMessage());
 					}
 				}
 
@@ -551,9 +569,9 @@ public class WorldServer {
 					m.setObjectTypeMask(MBServerStatics.MASK_MOB | m.getTypeMasks());
 					m.setLoc(m.getLoc());
 
-				//ADD GUARDS HERE.
+					//ADD GUARDS HERE.
 					if (m.building != null && m.building.getBlueprint() != null && m.building.getBlueprint().getBuildingGroup() == BuildingGroup.BARRACK)
-					DbManager.MobQueries.LOAD_PATROL_POINTS(m);
+						DbManager.MobQueries.LOAD_PATROL_POINTS(m);
 				}
 
 				//Handle npc's
@@ -572,7 +590,7 @@ public class WorldServer {
 						n.setObjectTypeMask(MBServerStatics.MASK_NPC);
 						n.setLoc(n.getLoc());
 					} catch (Exception e) {
-						Logger.error( n.getObjectUUID() + " returned an Error Message :" + e.getMessage());
+						Logger.error(n.getObjectUUID() + " returned an Error Message :" + e.getMessage());
 					}
 				}
 
@@ -645,10 +663,10 @@ public class WorldServer {
 				System.currentTimeMillis() + delta);
 		playerCharacter.getTimers().put("Logout", jc);
 		playerCharacter.getTimestamps().put("logout", System.currentTimeMillis());
-		
+
 		//send update to friends that you are logged off.
 
-		PlayerFriends.SendFriendsStatus(playerCharacter,false);
+		PlayerFriends.SendFriendsStatus(playerCharacter, false);
 
 	}
 
@@ -673,7 +691,7 @@ public class WorldServer {
 
 		if (player.getPet() != null)
 			player.getPet().dismiss();
-		
+
 		NPCManager.dismissNecroPets(player);
 
 		// Set player inactive so they quit loading for other players
@@ -688,41 +706,18 @@ public class WorldServer {
 			if (group != null)
 				GroupManager.LeaveGroup(player);
 		} catch (MsgSendException e) {
-			Logger.error( e.toString());
+			Logger.error(e.toString());
 		}
-		
+
 		player.respawnLock.writeLock().lock();
-		try{
+		try {
 			if (!player.isAlive())
 				player.respawn(false, false, true);
-		}catch(Exception e){
+		} catch (Exception e) {
 			Logger.error(e);
-		}finally{
+		} finally {
 			player.respawnLock.writeLock().unlock();
 		}
-	}
-
-
-	public static void writePopulationFile() {
-
-		int population = SessionManager.getActivePlayerCharacterCount();
-try {
-	
-
-		File populationFile = new File(MBServerStatics.DEFAULT_DATA_DIR + ConfigManager.MB_WORLD_NAME.getValue().replaceAll("'","") + ".pop");
-		FileWriter fileWriter;
-
-		try {
-			fileWriter = new FileWriter(populationFile, false);
-			fileWriter.write(Integer.toString(population));
-			fileWriter.close();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		
-}catch(Exception e){
-	Logger.error(e);
-}
 	}
 
 	private void processTrashFile() {
@@ -742,7 +737,7 @@ try {
 
 		// Build list of trash characters associated with that machineID
 
-		for (String machineID:machineList) {
+		for (String machineID : machineList) {
 			trashList = DbManager.AccountQueries.GET_ALL_CHARS_FOR_MACHINE(machineID);
 
 
@@ -784,7 +779,7 @@ try {
 		// server cache file by now.
 
 		Timer timer = new Timer("Disconnect Trash");
-		timer.schedule(new DisconnectTrashTask( trashList ), 3000L);
+		timer.schedule(new DisconnectTrashTask(trashList), 3000L);
 
 		// Clean up after ourselves
 
@@ -795,7 +790,7 @@ try {
 			e.printStackTrace();
 		}
 
-		}
+	}
 
 	private void processFlashFile() {
 
@@ -823,8 +818,8 @@ try {
 		if (flashString == "")
 			flashString = "Rebooting for to fix bug.";
 
-		Logger.info( "Sending flash from external interface");
-		Logger.info( "Msg: " + flashString);
+		Logger.info("Sending flash from external interface");
+		Logger.info("Msg: " + flashString);
 
 		ChatSystemMsg msg = new ChatSystemMsg(null, flashString);
 		msg.setChannel(engine.Enum.ChatChannelType.FLASH.getChannelID());

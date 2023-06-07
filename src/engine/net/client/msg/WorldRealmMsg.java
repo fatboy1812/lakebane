@@ -26,6 +26,7 @@ import engine.net.ByteBufferReader;
 import engine.net.ByteBufferWriter;
 import engine.net.client.Protocol;
 import engine.objects.Realm;
+import engine.server.world.WorldServer;
 
 
 public class WorldRealmMsg extends ClientNetMsg {
@@ -74,7 +75,7 @@ public class WorldRealmMsg extends ClientNetMsg {
 			realm.serializeForClientMsg(writer);
 
 		writer.putInt(0x0);
-			writer.putInt(3000000);
+		writer.putInt(WorldServer.worldRealmMap);
 
 	}
 
