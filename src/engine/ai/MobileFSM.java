@@ -36,17 +36,17 @@ public class MobileFSM {
             mob.setCombatTarget(null);
             return;
         }
+        if(target.getObjectType() == Enum.GameObjectType.PlayerCharacter && canCast(mob)){
+            if(MobCast(mob)){
+                return;
+            }
+        }
         if (!CombatUtilities.inRangeToAttack(mob, target))
             return;
         switch (target.getObjectType()) {
             case PlayerCharacter:
                 PlayerCharacter targetPlayer = (PlayerCharacter) target;
-                if (canCast(mob)) {
-                    if (!MobCast(mob))
-                        AttackPlayer(mob, targetPlayer);
-                } else {
-                    AttackPlayer(mob, targetPlayer);
-                }
+                AttackPlayer(mob, targetPlayer);
                 break;
             case Building:
                 Building targetBuilding = (Building) target;
