@@ -250,9 +250,10 @@ public class MinionTrainingMsgHandler extends AbstractClientMsgHandler {
 
 						int maxSlots = 5;
 
-						if (npc.getContract().getContractID() == 842)
+						if (npc.getContract().getContractID() == 842)//artillery captain
 							maxSlots = 1;
-
+						if(npc.getContract().getContractID() == 910)//guard dogs
+							maxSlots = 0;
 						switch (npc.getRank()){
 							case 1:
 							case 2:
