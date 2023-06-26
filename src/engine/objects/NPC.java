@@ -171,11 +171,10 @@ public class NPC extends AbstractCharacter {
 			this.currentID = this.dbID;
 			this.setObjectTypeMask(MBServerStatics.MASK_NPC);
 			int contractID = rs.getInt("npc_contractID");
-
+			this.contract = DbManager.ContractQueries.GET_CONTRACT(contractID);
 			this.parentZoneID = rs.getInt("parent");
 
 			this.gridObjectType = GridObjectType.STATIC;
-			this.contract = DbManager.ContractQueries.GET_CONTRACT(contractID);
 			this.equipmentSetID = rs.getInt("equipmentSet");
 			this.runeSetID = rs.getInt("runeSet");
 
