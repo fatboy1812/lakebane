@@ -547,7 +547,17 @@ public enum BuildingManager {
 
             return true;
         }
+        if (contract.getContractID() == 910) {
+            //guard dog
+            mob = Mob.createMob(contract.getMobbaseID(), Vector3fImmutable.ZERO, contractOwner.getGuild(), true, zone, building, contract.getContractID(), pirateName, rank);
 
+            if (mob == null)
+                return false;
+
+            WorldGrid.addObject(mob, contractOwner);
+
+            return true;
+        }
         npc = NPC.createNPC(pirateName, contract.getObjectUUID(), Vector3fImmutable.ZERO, contractOwner.getGuild(), false, zone, (short) rank, building);
 
         if (npc == null)

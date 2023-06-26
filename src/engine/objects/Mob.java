@@ -1966,7 +1966,9 @@ public class Mob extends AbstractIntelligenceAgent {
             Bounds mobBounds = Bounds.borrow();
             mobBounds.setBounds(this.getLoc());
             this.setBounds(mobBounds);
-
+            if(this.contract != null && this.contract.getContractID() == 910){
+                this.isPlayerGuard = true;
+            }
             //assign 5 random patrol points for regular mobs
 
             if (!this.isGuard() && !this.isPlayerGuard() && !this.isPet() && !this.isNecroPet() && !this.isSummonedPet() && !this.isCharmedPet()) {
