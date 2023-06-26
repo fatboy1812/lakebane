@@ -733,6 +733,7 @@ public class Mob extends AbstractIntelligenceAgent {
 
         mob.runAfterLoad();
         mob.despawned = true;
+        mob.despawn();
 
         //grab equipment and name from minionbase.
 
