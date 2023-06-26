@@ -467,6 +467,9 @@ public class MobileFSM {
         //checks if mob can attack based on attack timer and range
         if (mob.isAlive() == false)
             return;
+        if(mob.getCombatTarget() == null){
+            return;
+        }
         if (mob.getCombatTarget().getObjectType().equals(Enum.GameObjectType.PlayerCharacter) && MovementUtilities.inRangeDropAggro(mob, (PlayerCharacter)mob.getCombatTarget()) == false) {
             mob.setCombatTarget(null);
             if (mob.isCombat()) {
@@ -560,8 +563,7 @@ public class MobileFSM {
         if (mob.getCombatTarget() == null)
             CheckForPlayerGuardAggro(mob);
         CheckMobMovement(mob);
-        if (mob.getCombatTarget() != null)
-            CheckForAttack(mob);
+        CheckForAttack(mob);
     }
     public static void GuardMinionLogic(Mob mob) {
         if (!mob.npcOwner.isAlive() && mob.getCombatTarget() == null) {
@@ -572,8 +574,7 @@ public class MobileFSM {
          else
             mob.setCombatTarget(null);
         CheckMobMovement(mob);
-        if (mob.getCombatTarget() != null)
-            CheckForAttack(mob);
+        CheckForAttack(mob);
     }
     public static void GuardWallArcherLogic(Mob mob) {
         if (mob.getCombatTarget() == null)
@@ -586,7 +587,6 @@ public class MobileFSM {
             mob.setCombatTarget(null);
         if (MovementUtilities.canMove(mob) && mob.BehaviourType.canRoam)
             CheckMobMovement(mob);
-        if (mob.getCombatTarget() != null)
             CheckForAttack(mob);
     }
     private static void HamletGuardLogic(Mob mob) {
@@ -598,7 +598,6 @@ public class MobileFSM {
                 SafeGuardAggro(mob);
             }
         }
-        if (mob.getCombatTarget() != null)
             CheckForAttack(mob);
     }
     private static void DefaultLogic(Mob mob) {
