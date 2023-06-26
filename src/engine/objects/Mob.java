@@ -1968,6 +1968,9 @@ public class Mob extends AbstractIntelligenceAgent {
             this.setBounds(mobBounds);
             if(this.contract != null && this.contract.getContractID() == 910){
                 this.isPlayerGuard = true;
+                this.BehaviourType = MobBehaviourType.GuardCaptain;
+                this.spawnTime = 900;
+                this.guardedCity = ZoneManager.getCityAtLocation(this.bindLoc);
             }
             //assign 5 random patrol points for regular mobs
 
