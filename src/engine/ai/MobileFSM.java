@@ -59,7 +59,7 @@ public class MobileFSM {
         }
     }
     public static void AttackPlayer(Mob mob, PlayerCharacter target) {
-        if (mob.getMobBase().getSeeInvis() < target.getHidden() || !target.isAlive()) {
+        if(!mob.canSee(target)){
             mob.setCombatTarget(null);
             return;
         }
@@ -221,6 +221,10 @@ public class MobileFSM {
             return false;
         if (mob.mobPowers.isEmpty())
             return false;
+        if(!mob.canSee((PlayerCharacter) mob.getCombatTarget())){
+            mob.setCombatTarget(null);
+            return false;
+        }
         if (mob.nextCastTime == 0)
             mob.nextCastTime = System.currentTimeMillis();
         return mob.nextCastTime <= System.currentTimeMillis();
