@@ -187,7 +187,12 @@ public class NPC extends AbstractCharacter {
 			// Default to contract load ID
 
 			if (loadID == 0)
-				loadID = this.contract.getMobbaseID();
+				if (this.contract != null)
+					loadID = this.contract.getMobbaseID();
+				else {
+					Logger.error("Invalid contract for NPC: " + this.getObjectUUID());
+					loadID = 2100; // Default human male
+				}
 
 			this.mobBase = MobBase.getMobBase(this.loadID);
 			this.level = rs.getByte("npc_level");
