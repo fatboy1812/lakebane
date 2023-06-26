@@ -507,7 +507,7 @@ public class PlaceAssetMsgHandler extends AbstractClientMsgHandler {
 		}
 
 		Vector3fImmutable plantLoc = new Vector3fImmutable(treeInfo.getLoc().x,
-				serverZone.getHeightMap().getInterpolatedTerrainHeight(treeInfo.getLoc()),
+				HeightMap.getWorldHeight(treeInfo.getLoc()),
 				treeInfo.getLoc().z);
 
 		cityObjects = DbManager.CityQueries.CREATE_CITY(playerCharacter.getObjectUUID(), serverZone.getObjectUUID(),
