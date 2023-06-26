@@ -38,18 +38,7 @@ public class MobileFSMManager {
                 execution();
             }
         };
-        for (Zone zone : ZoneManager.getAllZones()) {
 
-            for (Mob mob : zone.zoneMobSet) {
-
-                try {
-                    MovementManager.translocate(mob,mob.patrolPoints.get(0), null);
-                } catch (Exception e) {
-                    Logger.error("Mob: " + mob.getName() + " UUID: " + mob.getObjectUUID() + " ERROR: " + e);
-                    e.printStackTrace();
-                }
-            }
-        }
         alive = true;
 
         Thread t = new Thread(worker, "MobileFSMManager");
