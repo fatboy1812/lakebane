@@ -811,6 +811,8 @@ public class Mob extends AbstractIntelligenceAgent {
         mob.guardedCity = guardCaptain.guardedCity;
         mob.parentZone = parent;
         parent.zoneMobSet.add(mob);
+        MovementManager.translocate(mob,guardCaptain.bindLoc,guardCaptain.region);
+        mob.bindLoc = guardCaptain.bindLoc;
         return mob;
     }
 
