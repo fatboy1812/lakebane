@@ -65,7 +65,7 @@ public enum ConfigManager {
 
     // Mobile AI modifiers
     MB_AI_CAST_FREQUENCY,
-    MB_AI_ATTACK_RANGE,
+    MB_AI_AGGRO_RANGE,
 
     //drop rates
     MB_NORMAL_EXP_RATE,
