@@ -61,6 +61,11 @@ public enum ConfigManager {
     MB_WORLD_MAINTENANCE,
     MB_WORLD_GREETING,
     MB_WORLD_KEYCLONE_MAX,
+    MB_USE_RUINS,
+
+    // Mobile AI modifiers
+    MB_AI_CAST_FREQUENCY,
+    MB_AI_ATTACK_RANGE,
 
     //drop rates
     MB_NORMAL_EXP_RATE,
