@@ -439,7 +439,7 @@ public class Enum {
 			if (ConfigManager.MB_USE_RUINS.getValue().equalsIgnoreCase("true"))
 				ruinZone = ZoneManager.getZoneByUUID(this.zoneUUID);
 			else
-				ruinZone = ZoneManager.getZoneByName("Sea Dog's Rest");
+				ruinZone = ZoneManager.getZoneByName("sea dog's rest");
 
 			spawnLocation = Vector3fImmutable.getRandomPointOnCircle(ruinZone.getLoc(), 30);
 
