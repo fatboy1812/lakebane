@@ -9,6 +9,7 @@
 package engine;
 
 import ch.claude_martin.enumbitset.EnumBitSetHelper;
+import engine.gameManager.ConfigManager;
 import engine.gameManager.PowersManager;
 import engine.gameManager.ZoneManager;
 import engine.math.Vector2f;
@@ -433,7 +434,13 @@ public class Enum {
 			Zone ruinZone;
 			Vector3fImmutable spawnLocation;
 
-			ruinZone = ZoneManager.getZoneByUUID(this.zoneUUID);
+			// Send to SDR if so configured
+
+			if (ConfigManager.MB_USE_RUINS.getValue().equalsIgnoreCase("true"))
+				ruinZone = ZoneManager.getZoneByUUID(this.zoneUUID);
+			else
+				ruinZone = ZoneManager.getZoneByName("Sea Dog's Rest");
+
 			spawnLocation = Vector3fImmutable.getRandomPointOnCircle(ruinZone.getLoc(), 30);
 
 			return spawnLocation;

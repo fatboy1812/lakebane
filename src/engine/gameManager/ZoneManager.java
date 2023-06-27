@@ -144,6 +144,10 @@ public enum ZoneManager {
         return ZoneManager.zonesByID.get(zoneID);
     }
 
+    public static Zone getZoneByName(final String zoneName) {
+        return ZoneManager.zonesByName.get(zoneName);
+    }
+
     public static final Collection<Zone> getAllZones() {
         return ZoneManager.zonesByUUID.values();
     }
