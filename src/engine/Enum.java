@@ -14,7 +14,10 @@ import engine.gameManager.PowersManager;
 import engine.gameManager.ZoneManager;
 import engine.math.Vector2f;
 import engine.math.Vector3fImmutable;
-import engine.objects.*;
+import engine.objects.AbstractCharacter;
+import engine.objects.ItemBase;
+import engine.objects.Shrine;
+import engine.objects.Zone;
 import engine.powers.EffectsBase;
 import org.pmw.tinylog.Logger;
 
@@ -438,9 +441,16 @@ public class Enum {
 				spawnLocation = Vector3fImmutable.getRandomPointOnCircle(ruinZone.getLoc(), 30);
 			} else {
 				ruinZone = ZoneManager.getZoneByName("sea dog's rest");
-				City sdr = ZoneManager.getCityAtLocation(ruinZone.getLoc());
-				spawnLocation = sdr.getBindLoc();
+
+				// 14001 does not have a banestone to bind at
+
+				if (ruinZone.getLoadNum() == 14001)
+					spawnLocation = Vector3fImmutable.getRandomPointOnCircle(ruinZone.getLoc(), 30);
+				else
+					spawnLocation = Vector3fImmutable.getRandomPointOnCircle(ruinZone.getLoc()
+							.add(new Vector3fImmutable(-196.016f, 2.812f, 203.621f)), 30);
 			}
+
 
 			return spawnLocation;
 		}
