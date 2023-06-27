@@ -436,12 +436,19 @@ public class Enum {
 
 			// Send to SDR if so configured
 
-			if (ConfigManager.MB_USE_RUINS.getValue().equalsIgnoreCase("true"))
+			if (ConfigManager.MB_USE_RUINS.getValue().equalsIgnoreCase("true")) {
 				ruinZone = ZoneManager.getZoneByUUID(this.zoneUUID);
-			else
+				spawnLocation = Vector3fImmutable.getRandomPointOnCircle(ruinZone.getLoc(), 30);
+			} else {
 				ruinZone = ZoneManager.getZoneByName("sea dog's rest");
 
-			spawnLocation = Vector3fImmutable.getRandomPointOnCircle(ruinZone.getLoc(), 30);
+				// 14001 does not have a banestone to bind at
+
+				if (ruinZone.getLoadNum() == 14001)
+					spawnLocation = Vector3fImmutable.getRandomPointOnCircle(ruinZone.getLoc(), 30);
+				else
+					spawnLocation = Vector3fImmutable.getRandomPointOnCircle(ruinZone.getLoc().add(new Vector3fImmutable(-196.016f, 2.812f, 203.621f)), 30);
+			}
 
 			return spawnLocation;
 		}
