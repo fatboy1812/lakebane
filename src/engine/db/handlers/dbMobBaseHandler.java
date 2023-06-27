@@ -10,11 +10,11 @@
 package engine.db.handlers;
 
 import engine.Enum.GameObjectType;
+import engine.ai.MobileFSMManager;
 import engine.gameManager.DbManager;
 import engine.objects.MobBase;
 import engine.objects.MobBaseEffects;
 import engine.objects.MobBaseStats;
-import engine.server.MBServerStatics;
 import org.pmw.tinylog.Logger;
 
 import java.sql.Connection;
@@ -81,12 +81,11 @@ public class dbMobBaseHandler extends dbHandlerBase {
             ResultSet rs = preparedStatement.executeQuery();
 
             while (rs.next()) {
-                MBServerStatics.AI_BASE_AGGRO_RANGE = rs.getInt("aggro_range");
-                MBServerStatics.AI_PATROL_DIVISOR = rs.getInt("patrol_chance");
-                MBServerStatics.AI_DROP_AGGRO_RANGE = rs.getInt("drop_aggro_range");
-                MBServerStatics.AI_POWER_DIVISOR = rs.getInt("cast_chance");
-                MBServerStatics.AI_RECALL_RANGE = rs.getInt("recall_range");
-                MBServerStatics.AI_PET_HEEL_DISTANCE = rs.getInt("pet_heel_distance");
+                MobileFSMManager.AI_BASE_AGGRO_RANGE = rs.getInt("aggro_range");
+                MobileFSMManager.AI_PATROL_DIVISOR = rs.getInt("patrol_chance");
+                MobileFSMManager.AI_DROP_AGGRO_RANGE = rs.getInt("drop_aggro_range");
+                MobileFSMManager.AI_POWER_DIVISOR = rs.getInt("cast_chance");
+                MobileFSMManager.AI_RECALL_RANGE = rs.getInt("recall_range");
             }
         } catch (SQLException e) {
             Logger.error(e);
@@ -98,11 +97,11 @@ public class dbMobBaseHandler extends dbHandlerBase {
         try (Connection connection = DbManager.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `static_ai_defaults` SET `aggro_range` = ?,`patrol_chance`= ?,`drop_aggro_range`= ?,`cast_chance`= ?,`recall_range`= ? WHERE `ID` = 1")) {
 
-            preparedStatement.setInt(1, MBServerStatics.AI_BASE_AGGRO_RANGE);
-            preparedStatement.setInt(2, MBServerStatics.AI_PATROL_DIVISOR);
-            preparedStatement.setInt(3, MBServerStatics.AI_DROP_AGGRO_RANGE);
-            preparedStatement.setInt(4, MBServerStatics.AI_POWER_DIVISOR);
-            preparedStatement.setInt(5, MBServerStatics.AI_RECALL_RANGE);
+            preparedStatement.setInt(1, MobileFSMManager.AI_BASE_AGGRO_RANGE);
+            preparedStatement.setInt(2, MobileFSMManager.AI_PATROL_DIVISOR);
+            preparedStatement.setInt(3, MobileFSMManager.AI_DROP_AGGRO_RANGE);
+            preparedStatement.setInt(4, MobileFSMManager.AI_POWER_DIVISOR);
+            preparedStatement.setInt(5, MobileFSMManager.AI_RECALL_RANGE);
 
             return (preparedStatement.executeUpdate() > 0);
 

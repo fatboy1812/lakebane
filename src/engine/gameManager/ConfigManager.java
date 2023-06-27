@@ -86,7 +86,9 @@ public enum ConfigManager {
     MB_MAGICBOT_FORTOFIX,
     MB_MAGICBOT_RECRUIT,
     MB_MAGICBOT_MAGICBOX,
-    MB_MAGICBOT_ADMINLOG;
+    MB_MAGICBOT_ADMINLOG,
+
+    MB_MOB_DIFFICULTY;//0.1(easy)  -  1.0(hard)
 
     // Map to hold our config pulled in from the environment
     // We also use the config to point to the current message pump

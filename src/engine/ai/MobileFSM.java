@@ -174,7 +174,7 @@ public class MobileFSM {
             rwss.setPlayer(mob);
             DispatchMessage.sendToAllInRange(mob, rwss);
         }
-        int patrolDelay = ThreadLocalRandom.current().nextInt((int)(MBServerStatics.AI_PATROL_DIVISOR * 0.5f), MBServerStatics.AI_PATROL_DIVISOR) + MBServerStatics.AI_PATROL_DIVISOR;
+        int patrolDelay = ThreadLocalRandom.current().nextInt((int)(MobileFSMManager.AI_PATROL_DIVISOR * 0.5f), MobileFSMManager.AI_PATROL_DIVISOR) + MobileFSMManager.AI_PATROL_DIVISOR;
         if (mob.stopPatrolTime + (patrolDelay * 1000) > System.currentTimeMillis())
             //early exit while waiting to patrol again
             return;
@@ -270,7 +270,7 @@ public class MobileFSM {
             msg.setUnknown04(2);
             PowersManager.finishUseMobPower(msg, mob, 0, 0);
             // Default minimum seconds between cast = 10
-                mob.nextCastTime = System.currentTimeMillis() + (MBServerStatics.AI_POWER_DIVISOR * 1000);
+                mob.nextCastTime = System.currentTimeMillis() + mobPower.getCooldown() + (MobileFSMManager.AI_POWER_DIVISOR * 1000);
             return true;
         }
         return false;
@@ -500,7 +500,7 @@ public class MobileFSM {
                 CheckForAggro(mob);
             }
         }
-        if(mob.getCombatTarget() != null && CombatUtilities.inRange2D(mob,mob.getCombatTarget(),MBServerStatics.AI_BASE_AGGRO_RANGE * 0.5f)){
+        if(mob.getCombatTarget() != null && CombatUtilities.inRange2D(mob,mob.getCombatTarget(), MobileFSMManager.AI_BASE_AGGRO_RANGE * 0.5f)){
             return;
         }
         if (mob.isPlayerGuard() && !mob.despawned) {

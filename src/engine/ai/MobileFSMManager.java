@@ -9,12 +9,10 @@
 
 package engine.ai;
 
-import engine.gameManager.MovementManager;
-import engine.gameManager.SessionManager;
+import engine.gameManager.ConfigManager;
 import engine.gameManager.ZoneManager;
 import engine.objects.Mob;
 import engine.objects.Zone;
-import engine.server.MBServerStatics;
 import engine.util.ThreadUtils;
 import org.pmw.tinylog.Logger;
 
@@ -30,6 +28,17 @@ public class MobileFSMManager {
     private volatile boolean alive;
     private long timeOfKill = -1;
 
+    //AI variables moved form mb_server_statics
+    public static int AI_BASE_AGGRO_RANGE = 60;
+    public static int AI_DROP_AGGRO_RANGE = 60;
+    public static int AI_RECALL_RANGE = 400;
+    public static int AI_PULSE_MOB_THRESHOLD = 200;
+    public static int AI_THREAD_SLEEP = 1000;
+    public static int AI_PATROL_DIVISOR = 15;
+    public static int AI_POWER_DIVISOR = 20;
+    public static  float AI_MAX_ANGLE = 10f;
+
+
     private MobileFSMManager() {
 
         Runnable worker = new Runnable() {
@@ -40,7 +49,10 @@ public class MobileFSMManager {
         };
 
         alive = true;
-
+        //assign the AI varibales base don difficulty scaling from config file:
+        float difficulty = Float.parseFloat(ConfigManager.MB_MOB_DIFFICULTY.getValue());
+        AI_BASE_AGGRO_RANGE = (int)(100 * difficulty); // range at which aggressive mobs will attack you
+        AI_POWER_DIVISOR = (int)(20 * (1.5f-difficulty)); //duration between mob casts
         Thread t = new Thread(worker, "MobileFSMManager");
         t.start();
     }
@@ -69,7 +81,7 @@ public class MobileFSMManager {
 
         //Load zone threshold once.
 
-        long mobPulse = System.currentTimeMillis() + MBServerStatics.AI_PULSE_MOB_THRESHOLD;
+        long mobPulse = System.currentTimeMillis() + AI_PULSE_MOB_THRESHOLD;
         Instant startTime;
 
         while (alive) {
@@ -99,7 +111,7 @@ public class MobileFSMManager {
                 if (executionTime.compareTo(executionMax) > 0)
                     executionMax = executionTime;
 
-                mobPulse = System.currentTimeMillis() + MBServerStatics.AI_PULSE_MOB_THRESHOLD;
+                mobPulse = System.currentTimeMillis() + AI_PULSE_MOB_THRESHOLD;
             }
         }
     }

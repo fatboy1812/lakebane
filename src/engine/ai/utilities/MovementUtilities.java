@@ -13,12 +13,12 @@ import engine.Enum;
 import engine.Enum.GameObjectType;
 import engine.Enum.ModType;
 import engine.Enum.SourceType;
+import engine.ai.MobileFSMManager;
 import engine.exception.MsgSendException;
 import engine.gameManager.MovementManager;
 import engine.math.Vector3fImmutable;
 import engine.net.client.msg.MoveToPointMsg;
 import engine.objects.*;
-import engine.server.MBServerStatics;
 import org.pmw.tinylog.Logger;
 
 import java.util.concurrent.ThreadLocalRandom;
@@ -79,7 +79,7 @@ public class MovementUtilities {
             zoneRange = agent.getSpawnRadius();
 
 
-        return distanceSquaredToTarget < sqr(MBServerStatics.AI_DROP_AGGRO_RANGE + zoneRange);
+        return distanceSquaredToTarget < sqr(MobileFSMManager.AI_DROP_AGGRO_RANGE + zoneRange);
 
     }
 
@@ -89,7 +89,7 @@ public class MovementUtilities {
         Vector3fImmutable tl = target.getLoc();
 
         float distanceSquaredToTarget = sl.distanceSquared2D(tl) - sqr(agent.calcHitBox() + target.calcHitBox()); //distance to center of target
-        float range = MBServerStatics.AI_BASE_AGGRO_RANGE;
+        float range = MobileFSMManager.AI_BASE_AGGRO_RANGE;
 
         if (agent.isPlayerGuard())
             range = 150;

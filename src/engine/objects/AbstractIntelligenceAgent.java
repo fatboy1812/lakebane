@@ -14,6 +14,7 @@ import engine.Enum.GameObjectType;
 import engine.Enum.ModType;
 import engine.Enum.SourceType;
 import engine.InterestManagement.WorldGrid;
+import engine.ai.MobileFSMManager;
 import engine.gameManager.ZoneManager;
 import engine.math.Vector3fImmutable;
 import engine.net.Dispatch;
@@ -189,7 +190,7 @@ public abstract class AbstractIntelligenceAgent extends AbstractCharacter {
 	public abstract AbstractWorldObject getFearedObject();
 
 	public float getAggroRange() {
-		float ret = MBServerStatics.AI_BASE_AGGRO_RANGE;
+		float ret = MobileFSMManager.AI_BASE_AGGRO_RANGE;
 		if (this.bonuses != null)
 			ret *= (1 +this.bonuses.getFloatPercentAll(ModType.ScanRange, SourceType.None));
 		return ret;

@@ -428,33 +428,6 @@ public class MBServerStatics {
 	public static final int UPDATE_GROUP_RATE = 10000; // Update group info
 	public static float PLAYER_HATE_DELIMITER = 50; // reduces 50 hate a second
 	public static float PLAYER_COMBAT_HATE_MODIFIER = 2;
-
-	/*
-	 * AI
-	 */
-
-	// The min distance from players at which the AI Manager feels safe to turn
-	// off a mob.
-	public static int AI_BASE_AGGRO_RANGE = 60;
-	public static int AI_DROP_AGGRO_RANGE = 60;
-	public static int AI_RECALL_RANGE = 400;
-	public static int AI_PULSE_MOB_THRESHOLD = 200;
-	public static int AI_THREAD_SLEEP = 1000;
-	public static int AI_PATROL_DIVISOR = 15;
-	public static int AI_POWER_DIVISOR = 20;
-	public static int AI_PET_HEEL_DISTANCE = 10;
-	public static int AI_PATROL_RADIUS = 60;
-	public static int AI_POWER_CHANCE = 25; // set 1-100 for chance a mob will cast
-	
-	public static float AI_MAX_ANGLE = 10f;
-
-	public static final int AI_PET_TIME_BETWEEN_JOB_TICKS_MS = 250;
-
-	// Pet Settings
-	public static final float PET_TELEPORT_DISTANCE = 600; // distance a pet
-	public static final float PET_FOLLOW_DISTANCE = 10; // distance a pet starts
-	public static final float PET_REST_DISTANCE = 4; // distance a pet stops
-
 	public static final int COMBAT_SEND_DODGE = 20;
 	public static final int COMBAT_SEND_BLOCK = 21;
 	public static final int COMBAT_SEND_PARRY = 22;
