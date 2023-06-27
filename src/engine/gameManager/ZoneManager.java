@@ -103,8 +103,7 @@ public enum ZoneManager {
 
         ZoneManager.zonesByID.put(zoneID, zone);
 
-        if (zone != null)
-            ZoneManager.zonesByUUID.put(zone.getObjectUUID(), zone);
+        ZoneManager.zonesByUUID.put(zone.getObjectUUID(), zone);
 
         ZoneManager.zonesByName.put(zone.getName().toLowerCase(), zone);
 
