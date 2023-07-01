@@ -521,7 +521,7 @@ public class MobileFSM {
         }
         if (mob.isPlayerGuard() && !mob.despawned) {
             City current = ZoneManager.getCityAtLocation(mob.getLoc());
-            if (current == null || current.equals(mob.getGuild().getOwnedCity()) == false || mob.playerAgroMap.isEmpty()) {
+            if (current == null || current.equals(mob.getGuild().getOwnedCity()) == false) {
                 PowersBase recall = PowersManager.getPowerByToken(-1994153779);
                 PowersManager.useMobPower(mob, mob, recall, 40);
                 mob.setCombatTarget(null);
