@@ -233,6 +233,7 @@ public class MobileFSM {
         // Method picks a random spell from a mobile's list of powers
         // and casts it on the current target (or itself).  Validation
         // (including empty lists) is done previously within canCast();
+
         ArrayList<Integer> powerTokens;
         ArrayList<Integer> purgeTokens;
         PlayerCharacter target = (PlayerCharacter) mob.getCombatTarget();
@@ -259,6 +260,21 @@ public class MobileFSM {
         int powerToken = powerTokens.get(ThreadLocalRandom.current().nextInt(powerTokens.size()));
         int powerRank = mob.mobPowers.get(powerToken);
         PowersBase mobPower = PowersManager.getPowerByToken(powerToken);
+        //check for hit-roll
+        if(mobPower.requiresHitRoll) {
+            if (CombatUtilities.triggerDefense(mob, mob.getCombatTarget())) {
+                return false;
+            }
+            if (CombatUtilities.triggerDodge(mob, mob.getCombatTarget())) {
+                return false;
+            }
+            if (CombatUtilities.triggerBlock(mob, mob.getCombatTarget())) {
+                return false;
+            }
+            if (CombatUtilities.triggerParry(mob, mob.getCombatTarget())) {
+                return false;
+            }
+        }
         // Cast the spell
         if (CombatUtilities.inRange2D(mob, mob.getCombatTarget(), mobPower.getRange())) {
             PowersManager.useMobPower(mob, (AbstractCharacter) mob.getCombatTarget(), mobPower, powerRank);
