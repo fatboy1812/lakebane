@@ -120,7 +120,6 @@ public enum DevCmdManager {
         DevCmdManager.registerDevCmd(new PurgeObjectsCmd());
         DevCmdManager.registerDevCmd(new SplatMobCmd());
         DevCmdManager.registerDevCmd(new SlotNpcCmd());
-        DevCmdManager.registerDevCmd(new SetAICmd());
         DevCmdManager.registerDevCmd(new GateInfoCmd());
         DevCmdManager.registerDevCmd(new ShowOffsetCmd());
         DevCmdManager.registerDevCmd(new RealmInfoCmd());
