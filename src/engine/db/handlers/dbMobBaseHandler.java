@@ -72,45 +72,6 @@ public class dbMobBaseHandler extends dbHandlerBase {
         }
         return mobbaseList;
     }
-
-    public void SET_AI_DEFAULTS() {
-
-        try (Connection connection = DbManager.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `static_ai_defaults`")) {
-
-            ResultSet rs = preparedStatement.executeQuery();
-
-            while (rs.next()) {
-                MobileFSMManager.AI_BASE_AGGRO_RANGE = rs.getInt("aggro_range");
-                MobileFSMManager.AI_PATROL_DIVISOR = rs.getInt("patrol_chance");
-                MobileFSMManager.AI_DROP_AGGRO_RANGE = rs.getInt("drop_aggro_range");
-                MobileFSMManager.AI_POWER_DIVISOR = rs.getInt("cast_chance");
-                MobileFSMManager.AI_RECALL_RANGE = rs.getInt("recall_range");
-            }
-        } catch (SQLException e) {
-            Logger.error(e);
-        }
-    }
-
-    public boolean UPDATE_AI_DEFAULTS() {
-
-        try (Connection connection = DbManager.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `static_ai_defaults` SET `aggro_range` = ?,`patrol_chance`= ?,`drop_aggro_range`= ?,`cast_chance`= ?,`recall_range`= ? WHERE `ID` = 1")) {
-
-            preparedStatement.setInt(1, MobileFSMManager.AI_BASE_AGGRO_RANGE);
-            preparedStatement.setInt(2, MobileFSMManager.AI_PATROL_DIVISOR);
-            preparedStatement.setInt(3, MobileFSMManager.AI_DROP_AGGRO_RANGE);
-            preparedStatement.setInt(4, MobileFSMManager.AI_POWER_DIVISOR);
-            preparedStatement.setInt(5, MobileFSMManager.AI_RECALL_RANGE);
-
-            return (preparedStatement.executeUpdate() > 0);
-
-        } catch (SQLException e) {
-            Logger.error(e);
-        }
-        return false;
-    }
-
     public HashMap<Integer, Integer> LOAD_STATIC_POWERS(int mobBaseUUID) {
 
         HashMap<Integer, Integer> powersList = new HashMap<>();

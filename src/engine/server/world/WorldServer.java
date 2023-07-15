@@ -358,8 +358,6 @@ public class WorldServer {
 		Logger.info("Starting InterestManager.");
 		WorldGrid.startLoadJob();
 
-		DbManager.MobBaseQueries.SET_AI_DEFAULTS();
-
 		Logger.info("Loading blueprint data.");
 		StaticColliders.loadAllStaticColliders();
 		BuildingRegions.loadAllStaticColliders();
