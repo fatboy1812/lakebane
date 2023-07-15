@@ -147,9 +147,9 @@ public class LootManager {
             return null;
         }
         int itemTableId = selectedRow.itemTableID;
-        int minRollRange = mob.getLevel() + roll + mob.getParentZone().minLvl;
+        int minRollRange = (mob.getLevel() * 3) + mob.getParentZone().minLvl;
         //add 20 to max roll range to make dwarven HA and Sage possible
-        int maxRollRange = (mob.getLevel() * 2) + roll + 20 + (mob.getParentZone().maxLvl * 2);
+        int maxRollRange = (mob.getLevel() * 3) + (mob.getParentZone().maxLvl * 2);
         if (maxRollRange > 320) {
             maxRollRange = 320;
         }
