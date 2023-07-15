@@ -7,7 +7,6 @@
 //                www.magicbane.com
 
 
-
 package engine.objects;
 
 import engine.Enum;
@@ -48,483 +47,264 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class City extends AbstractWorldObject {
 
-	private String cityName;
-	private String motto;
-	private  String description;
-	public java.time.LocalDateTime established;
-	private  int isNoobIsle; //1: noob, 0: not noob: -1: not noob, no teleport
-	private int population = 0;
-	private int siegesWithstood = 0;
-	private  int realmID;
-	private  int radiusType;
-	private  float bindRadius;
-	private  float statLat;
-	private  float statAlt;
-	private  float statLon;
-	private  float bindX;
-	private  float bindZ;
-	private  byte isNpc;  //aka Safehold
-	private byte isCapital = 0;
-	private  byte isSafeHold;
-	private boolean forceRename = false;
-	public boolean hasBeenTransfered = false;
-
-	private boolean noTeleport = false; //used by npc cities
-	private boolean noRepledge = false; //used by npc cities
-	private boolean isOpen = false;
-
-	private int treeOfLifeID;
-	private Vector3fImmutable location = Vector3fImmutable.ZERO;
-	private Vector3fImmutable bindLoc;
-	protected Zone parentZone;
-	private int warehouseBuildingID = 0;
-	private boolean open = false;
-	private boolean reverseKOS = false;
-	public static long lastCityUpdate = 0;
-	public LocalDateTime realmTaxDate;
-	
-	public ReentrantReadWriteLock transactionLock = new ReentrantReadWriteLock();
-
-	// Players who have entered the city (used for adding and removing affects)
-
-	public final HashSet<Integer> _playerMemory = new HashSet<>();
-
-	public volatile boolean protectionEnforced = true;
-	private String hash;
-	public ArrayList<Building>cityBarracks;
-	public ArrayList<Integer> cityOutlaws = new ArrayList<>();
-
-	/**
-	 * ResultSet Constructor
-	 */
-
-	public City(ResultSet rs) throws SQLException {
-		super(rs);
-		try {
-			this.cityName = rs.getString("name");
-			this.motto = rs.getString("motto");
-			this.isNpc = rs.getByte("isNpc");
-			this.isSafeHold = (byte) ((this.isNpc == 1) ? 1 : 0);
-			this.description = ""; // TODO Implement this!
-			this.isNoobIsle = rs.getByte("isNoobIsle"); // Noob
-			this.gridObjectType = GridObjectType.STATIC;
-			// Island
-			// City(00000001),
-			// Otherwise(FFFFFFFF)
-			this.population = rs.getInt("population");
-			this.siegesWithstood = rs.getInt("siegesWithstood");
-
-			java.sql.Timestamp establishedTimeStamp = rs.getTimestamp("established");
-
-			if (establishedTimeStamp != null)
-				this.established = java.time.LocalDateTime.ofInstant(establishedTimeStamp.toInstant(), ZoneId.systemDefault());
-
-			this.location = new Vector3fImmutable(rs.getFloat("xCoord"), rs.getFloat("yCoord"), rs.getFloat("zCoord"));
-			this.statLat = rs.getFloat("xCoord");
-			this.statAlt = rs.getFloat("yCoord");
-			this.statLon = rs.getFloat("zCoord");
-
-			java.sql.Timestamp realmTaxTimeStamp = rs.getTimestamp("realmTaxDate");
-
-			if (realmTaxTimeStamp != null)
-				this.realmTaxDate = realmTaxTimeStamp.toLocalDateTime();
-
-			if (this.realmTaxDate == null)
-				this.realmTaxDate = LocalDateTime.now();
-
-			this.treeOfLifeID = rs.getInt("treeOfLifeUUID");
-			this.bindX = rs.getFloat("bindX");
-			this.bindZ = rs.getFloat("bindZ");
-			this.bindLoc = new Vector3fImmutable(this.location.getX() + this.bindX,
-					this.location.getY(),
-					this.location.getZ() + this.bindZ);
-			this.radiusType = rs.getInt("radiusType");
-			float bindradiustemp = rs.getFloat("bindRadius");
-			if (bindradiustemp > 2)
-				bindradiustemp -=2;
-
-			this.bindRadius = bindradiustemp;
-
-			this.forceRename = rs.getInt("forceRename") == 1;
-			this.open = rs.getInt("open") == 1;
-
-			if (this.cityName.equals("Perdition") || this.cityName.equals("Bastion")) {
-				this.noTeleport = true;
-				this.noRepledge = true;
-			} else {
-				this.noTeleport = false;
-				this.noRepledge = false;
-			}
-
-			this.hash = rs.getString("hash");
-			
-			if (this.motto.isEmpty()){
-				Guild guild = this.getGuild();
-				
-				if (guild != null && guild.isEmptyGuild() == false)
-					this.motto = guild.getMotto();
-			}
-				
-
-			//Disabled till i finish.
-			// this.reverseKOS  = rs.getInt("kos") == 1;
-
-
-			Zone zone = ZoneManager.getZoneByUUID(rs.getInt("parent"));
-
-			if (zone != null)
-				setParent(zone);
-			
-			//npc cities without heightmaps except swampstone are specials.
-			
-				
-
-			this.realmID = rs.getInt("realmID");
-
-		}catch(Exception e){
-			Logger.error(e);
-		}
-
-		// *** Refactor: Is this working?  Intended to supress
-		//                login server errors from attempting to
-		//                 load cities/realms along with players
-
-
-
-	}
-
-	/*
-	 * Utils
-	 */
-
-	public boolean renameCity(String cityName){
-		if (!DbManager.CityQueries.renameCity(this, cityName))
-			return false;
-		if (!DbManager.CityQueries.updateforceRename(this, false))
-			return false;
-
-		this.cityName = cityName;
-		this.forceRename = false;
-		return true;
-	}
-
-	public boolean updateTOL(Building tol){
-		if (tol == null)
-			return false;
-		if (!DbManager.CityQueries.updateTOL(this, tol.getObjectUUID()))
-			return false;
-		this.treeOfLifeID = tol.getObjectUUID();
-		return true;
-	}
-
-	public boolean renameCityForNewPlant(String cityName){
-		if (!DbManager.CityQueries.renameCity(this, cityName))
-			return false;
-		if (!DbManager.CityQueries.updateforceRename(this, true))
-			return false;
-
-		this.cityName = cityName;
-		this.forceRename = true;
-		return true;
-	}
-
-	public void setForceRename(boolean forceRename) {
-		if (!DbManager.CityQueries.updateforceRename(this, forceRename))
-			return;
-		this.forceRename = forceRename;
-	}
-	public String getCityName() {
-
-		return cityName;
-	}
-
-	public String getMotto() {
-		return motto;
-	}
-
-	public String getDescription() {
-		return description;
-	}
-
-	public Building getTOL() {
-		if (this.treeOfLifeID == 0)
-			return null;
-
-		return BuildingManager.getBuildingFromCache(this.treeOfLifeID);
-
-	}
-
-	public int getIsNoobIsle() {
-		return isNoobIsle;
-	}
-
-	public int getPopulation() {
-		return population;
-	}
-
-	public int getSiegesWithstood() {
-		return siegesWithstood;
-	}
-
-	public float getLatitude() {
-		return this.location.x;
-	}
-
-	public float getLongitude() {
-		return this.location.z;
-	}
-
-	public float getAltitude() {
-		return this.location.y;
-	}
-
-	@Override
-	public Vector3fImmutable getLoc() {
-		return this.location;
-	}
-
-	public byte getIsNpcOwned() {
-		return isNpc;
-	}
+    public static long lastCityUpdate = 0;
+    public final HashSet<Integer> _playerMemory = new HashSet<>();
+    public java.time.LocalDateTime established;
+    public boolean hasBeenTransfered = false;
+    public LocalDateTime realmTaxDate;
+    public ReentrantReadWriteLock transactionLock = new ReentrantReadWriteLock();
+    public volatile boolean protectionEnforced = true;
+    public ArrayList<Building> cityBarracks;
+    public ArrayList<Integer> cityOutlaws = new ArrayList<>();
+    protected Zone parentZone;
+    private String cityName;
+    private String motto;
+    private String description;
+    private int isNoobIsle; //1: noob, 0: not noob: -1: not noob, no teleport
+    private int population = 0;
+    private int siegesWithstood = 0;
+    private int realmID;
+    private int radiusType;
+    private float bindRadius;
+    private float statLat;
+    private float statAlt;
+    private float statLon;
+    private float bindX;
+    private float bindZ;
+    private byte isNpc;  //aka Safehold
+    private byte isCapital = 0;
+    private byte isSafeHold;
+    private boolean forceRename = false;
+    private boolean noTeleport = false; //used by npc cities
+    private boolean noRepledge = false; //used by npc cities
+    private boolean isOpen = false;
+    private int treeOfLifeID;
+    private Vector3fImmutable location = Vector3fImmutable.ZERO;
+
+    // Players who have entered the city (used for adding and removing affects)
+    private Vector3fImmutable bindLoc;
+    private int warehouseBuildingID = 0;
+    private boolean open = false;
+    private boolean reverseKOS = false;
+    private String hash;
+
+    /**
+     * ResultSet Constructor
+     */
+
+    public City(ResultSet rs) throws SQLException {
+        super(rs);
+        try {
+            this.cityName = rs.getString("name");
+            this.motto = rs.getString("motto");
+            this.isNpc = rs.getByte("isNpc");
+            this.isSafeHold = (byte) ((this.isNpc == 1) ? 1 : 0);
+            this.description = ""; // TODO Implement this!
+            this.isNoobIsle = rs.getByte("isNoobIsle"); // Noob
+            this.gridObjectType = GridObjectType.STATIC;
+            // Island
+            // City(00000001),
+            // Otherwise(FFFFFFFF)
+            this.population = rs.getInt("population");
+            this.siegesWithstood = rs.getInt("siegesWithstood");
+
+            java.sql.Timestamp establishedTimeStamp = rs.getTimestamp("established");
+
+            if (establishedTimeStamp != null)
+                this.established = java.time.LocalDateTime.ofInstant(establishedTimeStamp.toInstant(), ZoneId.systemDefault());
+
+            this.location = new Vector3fImmutable(rs.getFloat("xCoord"), rs.getFloat("yCoord"), rs.getFloat("zCoord"));
+            this.statLat = rs.getFloat("xCoord");
+            this.statAlt = rs.getFloat("yCoord");
+            this.statLon = rs.getFloat("zCoord");
+
+            java.sql.Timestamp realmTaxTimeStamp = rs.getTimestamp("realmTaxDate");
+
+            if (realmTaxTimeStamp != null)
+                this.realmTaxDate = realmTaxTimeStamp.toLocalDateTime();
+
+            if (this.realmTaxDate == null)
+                this.realmTaxDate = LocalDateTime.now();
+
+            this.treeOfLifeID = rs.getInt("treeOfLifeUUID");
+            this.bindX = rs.getFloat("bindX");
+            this.bindZ = rs.getFloat("bindZ");
+            this.bindLoc = new Vector3fImmutable(this.location.getX() + this.bindX,
+                    this.location.getY(),
+                    this.location.getZ() + this.bindZ);
+            this.radiusType = rs.getInt("radiusType");
+            float bindradiustemp = rs.getFloat("bindRadius");
+            if (bindradiustemp > 2)
+                bindradiustemp -= 2;
+
+            this.bindRadius = bindradiustemp;
+
+            this.forceRename = rs.getInt("forceRename") == 1;
+            this.open = rs.getInt("open") == 1;
+
+            if (this.cityName.equals("Perdition") || this.cityName.equals("Bastion")) {
+                this.noTeleport = true;
+                this.noRepledge = true;
+            } else {
+                this.noTeleport = false;
+                this.noRepledge = false;
+            }
 
-	public byte getIsSafeHold() {
-		return this.isSafeHold;
-	}
-
-	public boolean isSafeHold() {
-		return (this.isSafeHold == (byte) 1);
-	}
-
-	public byte getIsCapital() {
-		return isCapital;
-	}
-
-	public void setIsCapital(boolean state) {
-		this.isCapital = (state) ? (byte) 1 : (byte) 0;
-	}
-
-	public int getRadiusType() {
-		return this.radiusType;
-	}
-
-	public float getBindRadius() {
-		return this.bindRadius;
-	}
-
-	public int getRank() {
-		return (this.getTOL() == null) ? 0 : this.getTOL().getRank();
-	}
-
-	public Bane getBane() {
-		return Bane.getBane(this.getObjectUUID());
-	}
-
-	public void setParent(Zone zone) {
-
-		try {
-			
-		
-		this.parentZone = zone;
-		this.location = new Vector3fImmutable(zone.absX + statLat, zone.absY + statAlt, zone.absZ + statLon);
-		this.bindLoc = new Vector3fImmutable(this.location.x + this.bindX,
-				this.location.y,
-				this.location.z + this.bindZ);
-
-		// set city bounds
-
-		Bounds cityBounds = Bounds.borrow();
-		cityBounds.setBounds(new Vector2f(this.location.x + 64, this.location.z + 64), // location x and z are offset by 64 from the center of the city.
-				new Vector2f(Enum.CityBoundsType.GRID.extents, Enum.CityBoundsType.GRID.extents),
-				0.0f);
-		this.setBounds(cityBounds);
-		
-		if (zone.getHeightMap() == null && this.isNpc == 1 && this.getObjectUUID() != 1213 ){
-			HeightMap.GenerateCustomHeightMap(zone);
-			Logger.info(zone.getName() + " created custom heightmap");
-		}
-		}catch(Exception e){
-			Logger.error(e);
-		}
-	}
-
-	public Zone getParent() {
-		return this.parentZone;
-	}
-
-	public boolean isCityZone(Zone zone) {
-
-		if (zone == null || this.parentZone == null)
-			return false;
-
-		return zone.getObjectUUID() == this.parentZone.getObjectUUID();
-
-	}
-
-	public AbstractCharacter getOwner() {
-
-		if (this.getTOL() == null)
-			return null;
-
-		int ownerID = this.getTOL().getOwnerUUID();
-
-		if (ownerID == 0)
-			return null;
-
-		if (this.isNpc == 1)
-			return NPC.getNPC(ownerID);
-		else
-			return PlayerCharacter.getPlayerCharacter(ownerID);
-	}
-
-	public Guild getGuild() {
-
-		if (this.getTOL() == null)
-			return null;
+            this.hash = rs.getString("hash");
 
-
+            if (this.motto.isEmpty()) {
+                Guild guild = this.getGuild();
 
-		if (this.isNpc == 1) {
+                if (guild != null && guild.isEmptyGuild() == false)
+                    this.motto = guild.getMotto();
+            }
 
-			if (this.getTOL().getOwner() == null)
-				return null;
-			return this.getTOL().getOwner().getGuild();
-		} else {
-			if (this.getTOL().getOwner() == null)
-				return null;
-			return this.getTOL().getOwner().getGuild();
-		}
-	}
 
-	public boolean openCity(boolean open){
-		if (!DbManager.CityQueries.updateOpenCity(this, open))
-			return false;
-		this.open = open;
-		return true;
-	}
+            //Disabled till i finish.
+            // this.reverseKOS  = rs.getInt("kos") == 1;
 
-	
-	public static void _serializeForClientMsg(City city, ByteBufferWriter writer) {
-		City.serializeForClientMsg(city,writer);
-	}
 
-	/*
-	 * Serializing
-	 */
+            Zone zone = ZoneManager.getZoneByUUID(rs.getInt("parent"));
 
-	
-	public static void serializeForClientMsg(City city, ByteBufferWriter writer) {
-		AbstractCharacter guildRuler;
-		Guild rulingGuild;
-		Guild rulingNation;
-		java.time.LocalDateTime dateTime1900;
+            if (zone != null)
+                setParent(zone);
 
-		// Cities aren't a city without a TOL. Time to early exit.
-		// No need to spam the log here as non-existant TOL's are indicated
-		// during bootstrap routines.
+            //npc cities without heightmaps except swampstone are specials.
 
-		if (city.getTOL() == null){
 
-			Logger.error( "NULL TOL FOR " + city.cityName);
-		}
+            this.realmID = rs.getInt("realmID");
 
+        } catch (Exception e) {
+            Logger.error(e);
+        }
 
-		// Assign city owner
+        // *** Refactor: Is this working?  Intended to supress
+        //                login server errors from attempting to
+        //                 load cities/realms along with players
 
-		if (city.getTOL() != null)
-			guildRuler = city.getTOL().getOwner();
-		else guildRuler = null;
 
-		// If is an errant tree, use errant guild for serialization.
-		// otherwise we serialize the soverign guild
+    }
 
-		if (guildRuler == null)
-			rulingGuild = Guild.getErrantGuild();
-		else
-			rulingGuild = guildRuler.getGuild();
+    /*
+     * Utils
+     */
 
-		rulingNation = rulingGuild.getNation();
+    public static void _serializeForClientMsg(City city, ByteBufferWriter writer) {
+        City.serializeForClientMsg(city, writer);
+    }
 
-		// Begin Serialzing soverign guild data
-		writer.putInt(city.getObjectType().ordinal());
-		writer.putInt(city.getObjectUUID());
-		writer.putString(city.cityName);
-		writer.putInt(rulingGuild.getObjectType().ordinal());
-		writer.putInt(rulingGuild.getObjectUUID());
+    public static void serializeForClientMsg(City city, ByteBufferWriter writer) {
+        AbstractCharacter guildRuler;
+        Guild rulingGuild;
+        Guild rulingNation;
+        java.time.LocalDateTime dateTime1900;
 
-		writer.putString(rulingGuild.getName());
-		writer.putString(city.motto);
-		writer.putString(rulingGuild.getLeadershipType());
+        // Cities aren't a city without a TOL. Time to early exit.
+        // No need to spam the log here as non-existant TOL's are indicated
+        // during bootstrap routines.
 
-		// Serialize guild ruler's name
-		// If tree is abandoned blank out the name
-		// to allow them a rename.
+        if (city.getTOL() == null) {
 
-		if (guildRuler == null)
-			writer.putString("");
-		else
-			writer.putString(guildRuler.getFirstName() + ' ' + guildRuler.getLastName());
+            Logger.error("NULL TOL FOR " + city.cityName);
+        }
 
-		writer.putInt(rulingGuild.getCharter());
-		writer.putInt(0); // always 00000000
 
-		writer.put(city.isSafeHold);
+        // Assign city owner
 
-		writer.put((byte) 1);
-		writer.put((byte) 1);  // *** Refactor: What are these flags?
-		writer.put((byte) 1);
-		writer.put((byte) 1);
-		writer.put((byte) 1);
+        if (city.getTOL() != null)
+            guildRuler = city.getTOL().getOwner();
+        else
+            guildRuler = null;
 
-		GuildTag._serializeForDisplay(rulingGuild.getGuildTag(),writer);
-		GuildTag._serializeForDisplay(rulingNation.getGuildTag(),writer);
+        // If is an errant tree, use errant guild for serialization.
+        // otherwise we serialize the soverign guild
 
-		writer.putInt(0);// TODO Implement description text
+        if (guildRuler == null)
+            rulingGuild = Guild.getErrantGuild();
+        else
+            rulingGuild = guildRuler.getGuild();
 
-		writer.put((byte) 1);
+        rulingNation = rulingGuild.getNation();
 
-		if (city.isCapital > 0)
-			writer.put((byte) 1);
-		else
-			writer.put((byte) 0);
+        // Begin Serialzing soverign guild data
+        writer.putInt(city.getObjectType().ordinal());
+        writer.putInt(city.getObjectUUID());
+        writer.putString(city.cityName);
+        writer.putInt(rulingGuild.getObjectType().ordinal());
+        writer.putInt(rulingGuild.getObjectUUID());
 
-		writer.put((byte) 1);
+        writer.putString(rulingGuild.getName());
+        writer.putString(city.motto);
+        writer.putString(rulingGuild.getLeadershipType());
 
-		// Begin serializing nation guild info
+        // Serialize guild ruler's name
+        // If tree is abandoned blank out the name
+        // to allow them a rename.
 
-		if (rulingNation.isEmptyGuild()){
-			writer.putInt(rulingGuild.getObjectType().ordinal());
-			writer.putInt(rulingGuild.getObjectUUID());
-		}
+        if (guildRuler == null)
+            writer.putString("");
+        else
+            writer.putString(guildRuler.getFirstName() + ' ' + guildRuler.getLastName());
 
-		else{
-			writer.putInt(rulingNation.getObjectType().ordinal());
-			writer.putInt(rulingNation.getObjectUUID());
-		}
+        writer.putInt(rulingGuild.getCharter());
+        writer.putInt(0); // always 00000000
 
+        writer.put(city.isSafeHold);
 
-		// Serialize nation name
+        writer.put((byte) 1);
+        writer.put((byte) 1);  // *** Refactor: What are these flags?
+        writer.put((byte) 1);
+        writer.put((byte) 1);
+        writer.put((byte) 1);
 
-		if (rulingNation.isEmptyGuild())
-			writer.putString("None");
-		else
-			writer.putString(rulingNation.getName());
+        GuildTag._serializeForDisplay(rulingGuild.getGuildTag(), writer);
+        GuildTag._serializeForDisplay(rulingNation.getGuildTag(), writer);
 
-		writer.putInt(city.getTOL().getRank());
+        writer.putInt(0);// TODO Implement description text
 
-		if (city.isNoobIsle > 0)
-			writer.putInt(1);
-		else
-			writer.putInt(0xFFFFFFFF);
+        writer.put((byte) 1);
 
-		writer.putInt(city.population);
+        if (city.isCapital > 0)
+            writer.put((byte) 1);
+        else
+            writer.put((byte) 0);
 
-		if (rulingNation.isEmptyGuild())
-			writer.putString(" ");
-		else
-			writer.putString(Guild.GetGL(rulingNation).getFirstName() + ' ' + Guild.GetGL(rulingNation).getLastName());
+        writer.put((byte) 1);
 
+        // Begin serializing nation guild info
 
-		writer.putLocalDateTime(city.established);
+        if (rulingNation.isEmptyGuild()) {
+            writer.putInt(rulingGuild.getObjectType().ordinal());
+            writer.putInt(rulingGuild.getObjectUUID());
+        } else {
+            writer.putInt(rulingNation.getObjectType().ordinal());
+            writer.putInt(rulingNation.getObjectUUID());
+        }
+
+
+        // Serialize nation name
+
+        if (rulingNation.isEmptyGuild())
+            writer.putString("None");
+        else
+            writer.putString(rulingNation.getName());
+
+        writer.putInt(city.getTOL().getRank());
+
+        if (city.isNoobIsle > 0)
+            writer.putInt(1);
+        else
+            writer.putInt(0xFFFFFFFF);
+
+        writer.putInt(city.population);
+
+        if (rulingNation.isEmptyGuild())
+            writer.putString(" ");
+        else
+            writer.putString(Guild.GetGL(rulingNation).getFirstName() + ' ' + Guild.GetGL(rulingNation).getLastName());
+
+
+        writer.putLocalDateTime(city.established);
 
 //		writer.put((byte) city.established.getDayOfMonth());
 //		writer.put((byte) city.established.minusMonths(1).getMonth().getValue());
@@ -533,109 +313,53 @@ public class City extends AbstractWorldObject {
 //		writer.put((byte) minutes);
 //		writer.put((byte) seconds);
 
-		writer.putFloat(city.location.x);
-		writer.putFloat(city.location.y);
-		writer.putFloat(city.location.z);
+        writer.putFloat(city.location.x);
+        writer.putFloat(city.location.y);
+        writer.putFloat(city.location.z);
 
-		writer.putInt(city.siegesWithstood);
+        writer.putInt(city.siegesWithstood);
 
-		writer.put((byte) 1);
-		writer.put((byte) 0);
-		writer.putInt(0x64);
-		writer.put((byte) 0);
-		writer.put((byte) 0);
-		writer.put((byte) 0);
-	}
+        writer.put((byte) 1);
+        writer.put((byte) 0);
+        writer.putInt(0x64);
+        writer.put((byte) 0);
+        writer.put((byte) 0);
+        writer.put((byte) 0);
+    }
 
-	public static Vector3fImmutable getBindLoc(int cityID) {
+    public static Vector3fImmutable getBindLoc(int cityID) {
 
-		City city;
+        City city;
 
-		city = City.getCity(cityID);
+        city = City.getCity(cityID);
 
-		if (city == null)
-			return Enum.Ruins.getRandomRuin().getLocation();
+        if (city == null)
+            return Enum.Ruins.getRandomRuin().getLocation();
 
-		return city.getBindLoc();
-	}
+        return city.getBindLoc();
+    }
 
-	public Vector3fImmutable getBindLoc() {
-		Vector3fImmutable treeLoc = null;
+    public static ArrayList<City> getCitiesToTeleportTo(PlayerCharacter pc) {
 
-		if (this.getTOL() != null && this.getTOL().getRank() == 8)
-			treeLoc = this.getTOL().getStuckLocation();
+        ArrayList<City> cities = new ArrayList<>();
 
-		if (treeLoc != null)
-			return treeLoc;
+        if (pc == null)
+            return cities;
 
-		if (this.radiusType == 1 && this.bindRadius > 0f) {
-			//square radius
-			float x = this.bindLoc.getX();
-			float z = this.bindLoc.getZ();
-			float offset = ((ThreadLocalRandom.current().nextFloat() * 2) - 1) * this.bindRadius;
-			int direction = ThreadLocalRandom.current().nextInt(4);
+        Guild pcG = pc.getGuild();
 
-			switch (direction) {
-			case 0:
-				x += this.bindRadius;
-				z += offset;
-				break;
-			case 1:
-				x += offset;
-				z -= this.bindRadius;
-				break;
-			case 2:
-				x -= this.bindRadius;
-				z += offset;
-				break;
-			case 3:
-				x += offset;
-				z += this.bindRadius;
-				break;
-			}
-			return new Vector3fImmutable(x, this.bindLoc.getY(), z);
-		} else if (this.radiusType == 2 && this.bindRadius > 0f) {
-			//circle radius
-			Vector3fImmutable dir = FastMath.randomVector2D();
-			return this.bindLoc.scaleAdd(this.bindRadius, dir);
-		} else if (this.radiusType == 3 && this.bindRadius > 0f) {
-			//random inside square
-			float x = this.bindLoc.getX();
-			x += ((ThreadLocalRandom.current().nextFloat() * 2) - 1) * this.bindRadius;
-			float z = this.bindLoc.getZ();
-			z += ((ThreadLocalRandom.current().nextFloat() * 2) - 1) * this.bindRadius;
-			return new Vector3fImmutable(x, this.bindLoc.getY(), z);
-		} else if (this.radiusType == 4 && this.bindRadius > 0f) {
-			//random inside circle
-			Vector3fImmutable dir = FastMath.randomVector2D();
-			return this.bindLoc.scaleAdd(ThreadLocalRandom.current().nextFloat() * this.bindRadius, dir);
-		} else
-			//spawn at bindLoc
-			//System.out.println("x: " + this.bindLoc.x + ", z: " + this.bindLoc.z);
-			return this.bindLoc;
-	}
+        ConcurrentHashMap<Integer, AbstractGameObject> worldCities = DbManager.getMap(Enum.GameObjectType.City);
 
-	public static ArrayList<City> getCitiesToTeleportTo(PlayerCharacter pc) {
+        //add npc cities
+        for (AbstractGameObject ago : worldCities.values()) {
 
-		ArrayList<City> cities = new ArrayList<>();
+            if (ago.getObjectType().equals(GameObjectType.City)) {
+                City city = (City) ago;
 
-		if (pc == null)
-			return cities;
+                if (city.noTeleport)
+                    continue;
 
-		Guild pcG = pc.getGuild();
-
-		ConcurrentHashMap<Integer, AbstractGameObject> worldCities = DbManager.getMap(Enum.GameObjectType.City);
-
-		//add npc cities
-		for (AbstractGameObject ago : worldCities.values()) {
-
-			if (ago.getObjectType().equals(GameObjectType.City)) {
-				City city = (City) ago;
-
-				if (city.noTeleport)
-					continue;
-
-				if (city.parentZone != null && city.parentZone.isPlayerCity()) {
+                if (city.parentZone != null && city.parentZone.isPlayerCity()) {
 
                     if (pc.getAccount().status.equals(AccountStatus.ADMIN)) {
                         cities.add(city);
@@ -647,68 +371,51 @@ public class City extends AbstractWorldObject {
 
                             if (!BuildingManager.IsPlayerHostile(city.getTOL(), pc))
                                 cities.add(city); //verify nation or guild is same
-                        }
-
-						else if (Guild.sameNationExcludeErrant(city.getGuild(), pcG))
-							cities.add(city);
+                        } else if (Guild.sameNationExcludeErrant(city.getGuild(), pcG))
+                            cities.add(city);
 
 
-				} else if (city.isNpc == 1) {
-					//list NPC cities
-					Guild g = city.getGuild();
-					if (g == null) {
-						if (city.isNpc == 1)
-							if (city.isNoobIsle == 1) {
-								if (pc.getLevel() < 21)
-									cities.add(city);
-							} else if (pc.getLevel() > 9)
-								cities.add(city);
+                } else if (city.isNpc == 1) {
+                    //list NPC cities
+                    Guild g = city.getGuild();
+                    if (g == null) {
+                        if (city.isNpc == 1)
+                            if (city.isNoobIsle == 1) {
+                                if (pc.getLevel() < 21)
+                                    cities.add(city);
+                            } else if (pc.getLevel() > 9)
+                                cities.add(city);
 
-					} else if (pc.getLevel() >= g.getTeleportMin() && pc.getLevel() <= g.getTeleportMax()){
-
-
-						cities.add(city);
-					}
-				}
+                    } else if (pc.getLevel() >= g.getTeleportMin() && pc.getLevel() <= g.getTeleportMax()) {
 
 
-			}
-		}
+                        cities.add(city);
+                    }
+                }
 
-		return cities;
-	}
 
-	public NPC getRuneMaster() {
-		NPC outNPC = null;
+            }
+        }
 
-		if (this.getTOL() == null)
-			return outNPC;
+        return cities;
+    }
 
-		for (AbstractCharacter npc : getTOL().getHirelings().keySet()) {
-			if (npc.getObjectType() == GameObjectType.NPC)
-				if (((NPC)npc).getContract().isRuneMaster() == true)
-					outNPC = (NPC)npc;
-		}
+    public static ArrayList<City> getCitiesToRepledgeTo(PlayerCharacter pc) {
+        ArrayList<City> cities = new ArrayList<>();
+        if (pc == null)
+            return cities;
+        Guild pcG = pc.getGuild();
 
-		return outNPC;
-	}
+        ConcurrentHashMap<Integer, AbstractGameObject> worldCities = DbManager.getMap(Enum.GameObjectType.City);
 
-	public static ArrayList<City> getCitiesToRepledgeTo(PlayerCharacter pc) {
-		ArrayList<City> cities = new ArrayList<>();
-		if (pc == null)
-			return cities;
-		Guild pcG = pc.getGuild();
+        //add npc cities
+        for (AbstractGameObject ago : worldCities.values()) {
+            if (ago.getObjectType().equals(GameObjectType.City)) {
+                City city = (City) ago;
+                if (city.noRepledge)
+                    continue;
 
-		ConcurrentHashMap<Integer, AbstractGameObject> worldCities = DbManager.getMap(Enum.GameObjectType.City);
-
-		//add npc cities
-		for (AbstractGameObject ago : worldCities.values()) {
-			if (ago.getObjectType().equals(GameObjectType.City)) {
-				City city = (City) ago;
-				if (city.noRepledge)
-					continue;
-
-				if (city.parentZone != null && city.parentZone.isPlayerCity()) {
+                if (city.parentZone != null && city.parentZone.isPlayerCity()) {
 
                     //list Player cities
                     //open city, just list
@@ -721,589 +428,869 @@ public class City extends AbstractWorldObject {
                     } else if (Guild.sameNationExcludeErrant(city.getGuild(), pcG))
                         cities.add(city);
 
-				} else if (city.isNpc == 1) {
-					//list NPC cities
+                } else if (city.isNpc == 1) {
+                    //list NPC cities
+
+                    Guild g = city.getGuild();
+                    if (g == null) {
+                        if (city.isNpc == 1)
+                            if (city.isNoobIsle == 1) {
+                                if (pc.getLevel() < 21)
+                                    cities.add(city);
+                            } else if (pc.getLevel() > 9)
+                                cities.add(city);
+                    } else if (pc.getLevel() >= g.getRepledgeMin() && pc.getLevel() <= g.getRepledgeMax()) {
+
+                        cities.add(city);
+                    }
+                }
+            }
+        }
+        return cities;
+    }
+
+    public static City getCity(int cityId) {
+
+        if (cityId == 0)
+            return null;
+
+        City city = (City) DbManager.getFromCache(Enum.GameObjectType.City, cityId);
+        if (city != null)
+            return city;
+
+        return DbManager.CityQueries.GET_CITY(cityId);
+
+    }
+
+    public static City GetCityFromCache(int cityId) {
+
+        if (cityId == 0)
+            return null;
+
+        return (City) DbManager.getFromCache(Enum.GameObjectType.City, cityId);
+    }
+
+    public boolean renameCity(String cityName) {
+        if (!DbManager.CityQueries.renameCity(this, cityName))
+            return false;
+        if (!DbManager.CityQueries.updateforceRename(this, false))
+            return false;
+
+        this.cityName = cityName;
+        this.forceRename = false;
+        return true;
+    }
+
+    public boolean updateTOL(Building tol) {
+        if (tol == null)
+            return false;
+        if (!DbManager.CityQueries.updateTOL(this, tol.getObjectUUID()))
+            return false;
+        this.treeOfLifeID = tol.getObjectUUID();
+        return true;
+    }
+
+    public boolean renameCityForNewPlant(String cityName) {
+        if (!DbManager.CityQueries.renameCity(this, cityName))
+            return false;
+        if (!DbManager.CityQueries.updateforceRename(this, true))
+            return false;
+
+        this.cityName = cityName;
+        this.forceRename = true;
+        return true;
+    }
+
+    public String getCityName() {
+
+        return cityName;
+    }
+
+    public String getMotto() {
+        return motto;
+    }
+
+    public String getDescription() {
+        return description;
+    }
+
+    public Building getTOL() {
+        if (this.treeOfLifeID == 0)
+            return null;
+
+        return BuildingManager.getBuildingFromCache(this.treeOfLifeID);
+
+    }
+
+    public int getIsNoobIsle() {
+        return isNoobIsle;
+    }
+
+    public int getPopulation() {
+        return population;
+    }
 
-					Guild g = city.getGuild();
-					if (g == null) {
-						if (city.isNpc == 1)
-							if (city.isNoobIsle == 1) {
-								if (pc.getLevel() < 21)
-									cities.add(city);
-							} else if (pc.getLevel() > 9)
-								cities.add(city);
-					} else if (pc.getLevel() >= g.getRepledgeMin() && pc.getLevel() <= g.getRepledgeMax()){
+    /**
+     * @param population the population to set
+     */
+    public void setPopulation(int population) {
+        this.population = population;
+    }
 
-						cities.add(city);
-					}
-				}
-			}
-		}
-		return cities;
-	}
+    public int getSiegesWithstood() {
+        return siegesWithstood;
+    }
 
-	public boolean isOpen() {
-		return open;
-	}
+    /**
+     * @param siegesWithstood the siegesWithstood to set
+     */
+    public void setSiegesWithstood(int siegesWithstood) {
+
+        // early exit if setting to current value
+
+        if (this.siegesWithstood == siegesWithstood)
+            return;
+
+        if (DbManager.CityQueries.updateSiegesWithstood(this, siegesWithstood) == true)
+            this.siegesWithstood = siegesWithstood;
+        else
+            Logger.error("Error when writing to database for cityUUID: " + this.getObjectUUID());
+    }
 
+    public float getLatitude() {
+        return this.location.x;
+    }
 
-	@Override
-	public void updateDatabase() {
-		// TODO Create update logic.
-	}
+    public float getLongitude() {
+        return this.location.z;
+    }
 
-	public static City getCity(int cityId) {
+    public float getAltitude() {
+        return this.location.y;
+    }
 
-		if (cityId == 0)
-			return null;
+    @Override
+    public Vector3fImmutable getLoc() {
+        return this.location;
+    }
 
-		City city = (City) DbManager.getFromCache(Enum.GameObjectType.City, cityId);
-		if (city != null)
-			return city;
+    public byte getIsNpcOwned() {
+        return isNpc;
+    }
 
-		return DbManager.CityQueries.GET_CITY(cityId);
+    public byte getIsSafeHold() {
+        return this.isSafeHold;
+    }
 
-	}
-	public static City GetCityFromCache(int cityId) {
+    public boolean isSafeHold() {
+        return (this.isSafeHold == (byte) 1);
+    }
 
-		if (cityId == 0)
-			return null;
+    public byte getIsCapital() {
+        return isCapital;
+    }
 
-		return (City) DbManager.getFromCache(Enum.GameObjectType.City, cityId);
-	}
+    public void setIsCapital(boolean state) {
+        this.isCapital = (state) ? (byte) 1 : (byte) 0;
+    }
 
-	@Override
-	public void runAfterLoad() {
+    public int getRadiusType() {
+        return this.radiusType;
+    }
 
-		// Set city bounds
-		// *** Note: Moved to SetParent()
-		//     for some undocumented reason
+    public float getBindRadius() {
+        return this.bindRadius;
+    }
 
-		// Set city motto to current guild motto
+    public int getRank() {
+        return (this.getTOL() == null) ? 0 : this.getTOL().getRank();
+    }
 
-		if (BuildingManager.getBuilding(this.treeOfLifeID) == null)
-			Logger.info( "City UID " + this.getObjectUUID() + " Failed to Load Tree of Life with ID " + this.treeOfLifeID);
+    /*
+     * Serializing
+     */
 
-		if ((ConfigManager.serverType.equals(ServerType.WORLDSERVER))
-				&& (this.isNpc == (byte) 0)) {
+    public Bane getBane() {
+        return Bane.getBane(this.getObjectUUID());
+    }
 
-			Realm wsr = Realm.getRealm(this.realmID);
+    public Zone getParent() {
+        return this.parentZone;
+    }
 
-			if (wsr != null)
-				wsr.addCity(this.getObjectUUID());
-			else
-				Logger.error("Unable to find realm of ID " + realmID + " for city " + this.getObjectUUID());
-		}
+    public void setParent(Zone zone) {
 
-		if (this.getGuild() != null) {
-			this.motto = this.getGuild().getMotto();
+        try {
+
+
+            this.parentZone = zone;
+            this.location = new Vector3fImmutable(zone.absX + statLat, zone.absY + statAlt, zone.absZ + statLon);
+            this.bindLoc = new Vector3fImmutable(this.location.x + this.bindX,
+                    this.location.y,
+                    this.location.z + this.bindZ);
+
+            // set city bounds
+
+            Bounds cityBounds = Bounds.borrow();
+            cityBounds.setBounds(new Vector2f(this.location.x + 64, this.location.z + 64), // location x and z are offset by 64 from the center of the city.
+                    new Vector2f(Enum.CityBoundsType.GRID.extents, Enum.CityBoundsType.GRID.extents),
+                    0.0f);
+            this.setBounds(cityBounds);
+
+            if (zone.getHeightMap() == null && this.isNpc == 1 && this.getObjectUUID() != 1213) {
+                HeightMap.GenerateCustomHeightMap(zone);
+                Logger.info(zone.getName() + " created custom heightmap");
+            }
+        } catch (Exception e) {
+            Logger.error(e);
+        }
+    }
+
+    public boolean isCityZone(Zone zone) {
+
+        if (zone == null || this.parentZone == null)
+            return false;
+
+        return zone.getObjectUUID() == this.parentZone.getObjectUUID();
+
+    }
+
+    public AbstractCharacter getOwner() {
+
+        if (this.getTOL() == null)
+            return null;
+
+        int ownerID = this.getTOL().getOwnerUUID();
+
+        if (ownerID == 0)
+            return null;
+
+        if (this.isNpc == 1)
+            return NPC.getNPC(ownerID);
+        else
+            return PlayerCharacter.getPlayerCharacter(ownerID);
+    }
+
+    public Guild getGuild() {
+
+        if (this.getTOL() == null)
+            return null;
+
+
+        if (this.isNpc == 1) {
+
+            if (this.getTOL().getOwner() == null)
+                return null;
+            return this.getTOL().getOwner().getGuild();
+        } else {
+            if (this.getTOL().getOwner() == null)
+                return null;
+            return this.getTOL().getOwner().getGuild();
+        }
+    }
+
+    public boolean openCity(boolean open) {
+        if (!DbManager.CityQueries.updateOpenCity(this, open))
+            return false;
+        this.open = open;
+        return true;
+    }
+
+    public Vector3fImmutable getBindLoc() {
+        Vector3fImmutable treeLoc = null;
+
+        if (this.getTOL() != null && this.getTOL().getRank() == 8)
+            treeLoc = this.getTOL().getStuckLocation();
+
+        if (treeLoc != null)
+            return treeLoc;
+
+        if (this.radiusType == 1 && this.bindRadius > 0f) {
+            //square radius
+            float x = this.bindLoc.getX();
+            float z = this.bindLoc.getZ();
+            float offset = ((ThreadLocalRandom.current().nextFloat() * 2) - 1) * this.bindRadius;
+            int direction = ThreadLocalRandom.current().nextInt(4);
+
+            switch (direction) {
+                case 0:
+                    x += this.bindRadius;
+                    z += offset;
+                    break;
+                case 1:
+                    x += offset;
+                    z -= this.bindRadius;
+                    break;
+                case 2:
+                    x -= this.bindRadius;
+                    z += offset;
+                    break;
+                case 3:
+                    x += offset;
+                    z += this.bindRadius;
+                    break;
+            }
+            return new Vector3fImmutable(x, this.bindLoc.getY(), z);
+        } else if (this.radiusType == 2 && this.bindRadius > 0f) {
+            //circle radius
+            Vector3fImmutable dir = FastMath.randomVector2D();
+            return this.bindLoc.scaleAdd(this.bindRadius, dir);
+        } else if (this.radiusType == 3 && this.bindRadius > 0f) {
+            //random inside square
+            float x = this.bindLoc.getX();
+            x += ((ThreadLocalRandom.current().nextFloat() * 2) - 1) * this.bindRadius;
+            float z = this.bindLoc.getZ();
+            z += ((ThreadLocalRandom.current().nextFloat() * 2) - 1) * this.bindRadius;
+            return new Vector3fImmutable(x, this.bindLoc.getY(), z);
+        } else if (this.radiusType == 4 && this.bindRadius > 0f) {
+            //random inside circle
+            Vector3fImmutable dir = FastMath.randomVector2D();
+            return this.bindLoc.scaleAdd(ThreadLocalRandom.current().nextFloat() * this.bindRadius, dir);
+        } else
+            //spawn at bindLoc
+            //System.out.println("x: " + this.bindLoc.x + ", z: " + this.bindLoc.z);
+            return this.bindLoc;
+    }
+
+    public NPC getRuneMaster() {
+        NPC outNPC = null;
+
+        if (this.getTOL() == null)
+            return outNPC;
+
+        for (AbstractCharacter npc : getTOL().getHirelings().keySet()) {
+            if (npc.getObjectType() == GameObjectType.NPC)
+                if (((NPC) npc).getContract().isRuneMaster() == true)
+                    outNPC = (NPC) npc;
+        }
+
+        return outNPC;
+    }
 
-			// Determine if this city is a nation capitol
+    public boolean isOpen() {
+        return open;
+    }
 
-			if (this.getGuild().getGuildState() == GuildState.Nation)
-				for (Guild sub : this.getGuild().getSubGuildList()) {
+    @Override
+    public void updateDatabase() {
+        // TODO Create update logic.
+    }
 
-					if ( (sub.getGuildState() == GuildState.Protectorate) ||
-							(sub.getGuildState() == GuildState.Province))
-						this.isCapital = 1;
-				}
+    @Override
+    public void runAfterLoad() {
 
-			ArrayList<PlayerCharacter> guildList = Guild.GuildRoster(this.getGuild());
+        // Set city bounds
+        // *** Note: Moved to SetParent()
+        //     for some undocumented reason
 
-			this.population = guildList.size();
-		}
+        // Set city motto to current guild motto
 
-		// Banes are loaded for this city from the database at this point
+        if (BuildingManager.getBuilding(this.treeOfLifeID) == null)
+            Logger.info("City UID " + this.getObjectUUID() + " Failed to Load Tree of Life with ID " + this.treeOfLifeID);
 
-		if (this.getBane() == null)
-			return;
+        if ((ConfigManager.serverType.equals(ServerType.WORLDSERVER))
+                && (this.isNpc == (byte) 0)) {
 
-		// if this city is baned, add the siege effect
+            Realm wsr = Realm.getRealm(this.realmID);
 
-		try {
-			this.getTOL().addEffectBit((1 << 16));
-			this.getBane().getStone().addEffectBit((1 << 19));;
-		}catch(Exception e){
-			Logger.info("Failed ao add bane effects on city." + e.getMessage());
-		}
-	}
+            if (wsr != null)
+                wsr.addCity(this.getObjectUUID());
+            else
+                Logger.error("Unable to find realm of ID " + realmID + " for city " + this.getObjectUUID());
+        }
 
-	public void addCityEffect(EffectsBase effectBase, int rank) {
+        if (this.getGuild() != null) {
+            this.motto = this.getGuild().getMotto();
 
-		HashSet<AbstractWorldObject> currentPlayers;
-		PlayerCharacter player;
+            // Determine if this city is a nation capitol
 
-		// Add this new effect to the current city effect collection.
-		// so any new player to the grid will have all effects applied
+            if (this.getGuild().getGuildState() == GuildState.Nation)
+                for (Guild sub : this.getGuild().getSubGuildList()) {
 
-		this.addEffectNoTimer(Integer.toString(effectBase.getUUID()), effectBase, rank, false);
+                    if ((sub.getGuildState() == GuildState.Protectorate) ||
+                            (sub.getGuildState() == GuildState.Province))
+                        this.isCapital = 1;
+                }
 
-		// Any players currently in the zone will not be processed by the heartbeat
-		// if it's not the first effect toggled so we do it here manually
+            ArrayList<PlayerCharacter> guildList = Guild.GuildRoster(this.getGuild());
 
-		currentPlayers = WorldGrid.getObjectsInRangePartial(this.location, this.parentZone.getBounds().getHalfExtents().x * 1.2f, MBServerStatics.MASK_PLAYER);
+            this.population = guildList.size();
+        }
 
-		for (AbstractWorldObject playerObject : currentPlayers) {
+        // Banes are loaded for this city from the database at this point
 
-			if (playerObject == null)
-				continue;
-			if (!this.isLocationWithinSiegeBounds(playerObject.getLoc()))
-				continue;
+        if (this.getBane() == null)
+            return;
 
-			player = (PlayerCharacter) playerObject;
-			player.addCityEffect(Integer.toString(effectBase.getUUID()), effectBase, rank, MBServerStatics.FOURTYFIVE_SECONDS, true,this);
-		}
+        // if this city is baned, add the siege effect
 
-	}
+        try {
+            this.getTOL().addEffectBit((1 << 16));
+            this.getBane().getStone().addEffectBit((1 << 19));
+            ;
+        } catch (Exception e) {
+            Logger.info("Failed ao add bane effects on city." + e.getMessage());
+        }
+    }
 
-	public void removeCityEffect(EffectsBase effectBase, int rank, boolean refreshEffect) {
+    public void addCityEffect(EffectsBase effectBase, int rank) {
 
+        HashSet<AbstractWorldObject> currentPlayers;
+        PlayerCharacter player;
 
-		PlayerCharacter player;
+        // Add this new effect to the current city effect collection.
+        // so any new player to the grid will have all effects applied
 
-		// Remove the city effect from the ago's internal collection
+        this.addEffectNoTimer(Integer.toString(effectBase.getUUID()), effectBase, rank, false);
 
-		if (this.getEffects().containsKey(Integer.toString(effectBase.getUUID())))
-			this.getEffects().remove(Integer.toString(effectBase.getUUID()));
+        // Any players currently in the zone will not be processed by the heartbeat
+        // if it's not the first effect toggled so we do it here manually
 
-		// Any players currently in the zone will not be processed by the heartbeat
-		// so we do it here manually
+        currentPlayers = WorldGrid.getObjectsInRangePartial(this.location, this.parentZone.getBounds().getHalfExtents().x * 1.2f, MBServerStatics.MASK_PLAYER);
 
+        for (AbstractWorldObject playerObject : currentPlayers) {
 
-		for (Integer playerID : this._playerMemory) {
+            if (playerObject == null)
+                continue;
+            if (!this.isLocationWithinSiegeBounds(playerObject.getLoc()))
+                continue;
 
-			player = PlayerCharacter.getFromCache(playerID);
-			if (player == null)
-				continue;
+            player = (PlayerCharacter) playerObject;
+            player.addCityEffect(Integer.toString(effectBase.getUUID()), effectBase, rank, MBServerStatics.FOURTYFIVE_SECONDS, true, this);
+        }
 
-			player.endEffectNoPower(Integer.toString(effectBase.getUUID()));
+    }
 
-			// Reapply effect with timeout?
+    public void removeCityEffect(EffectsBase effectBase, int rank, boolean refreshEffect) {
 
-			if (refreshEffect == true)
-				player.addCityEffect(Integer.toString(effectBase.getUUID()), effectBase, rank, MBServerStatics.FOURTYFIVE_SECONDS, false,this);
 
-		}
+        PlayerCharacter player;
 
-	}
+        // Remove the city effect from the ago's internal collection
 
-	public Warehouse getWarehouse() {
-		if (this.warehouseBuildingID == 0)
-			return null;
-		return Warehouse.warehouseByBuildingUUID.get(this.warehouseBuildingID);
-	}
+        if (this.getEffects().containsKey(Integer.toString(effectBase.getUUID())))
+            this.getEffects().remove(Integer.toString(effectBase.getUUID()));
 
-	public Realm getRealm() {
+        // Any players currently in the zone will not be processed by the heartbeat
+        // so we do it here manually
 
-		return Realm.getRealm(this.realmID);
 
-	}
+        for (Integer playerID : this._playerMemory) {
 
-	public boolean isLocationOnCityGrid(Vector3fImmutable insideLoc) {
+            player = PlayerCharacter.getFromCache(playerID);
+            if (player == null)
+                continue;
 
-		Bounds newBounds = Bounds.borrow();
-		newBounds.setBounds(insideLoc);
-		boolean collided = Bounds.collide(this.getBounds(), newBounds,0);
-		newBounds.release();
-		return collided;
-	}
-	
-	public boolean isLocationOnCityGrid(Bounds newBounds) {
+            player.endEffectNoPower(Integer.toString(effectBase.getUUID()));
 
-		boolean collided = Bounds.collide(this.getBounds(), newBounds,0);
-		return collided;
-	}
+            // Reapply effect with timeout?
 
-	public boolean isLocationWithinSiegeBounds(Vector3fImmutable insideLoc) {
+            if (refreshEffect == true)
+                player.addCityEffect(Integer.toString(effectBase.getUUID()), effectBase, rank, MBServerStatics.FOURTYFIVE_SECONDS, false, this);
 
-		return insideLoc.isInsideCircle(this.getLoc(), CityBoundsType.ZONE.extents);
+        }
 
-	}
+    }
 
-	public boolean isLocationOnCityZone(Vector3fImmutable insideLoc) {
-		return Bounds.collide(insideLoc, this.parentZone.getBounds());
-	}
+    public Warehouse getWarehouse() {
+        if (this.warehouseBuildingID == 0)
+            return null;
+        return Warehouse.warehouseByBuildingUUID.get(this.warehouseBuildingID);
+    }
 
-	private void applyAllCityEffects(PlayerCharacter player) {
+    public Realm getRealm() {
 
-		Effect effect;
-		EffectsBase effectBase;
+        return Realm.getRealm(this.realmID);
 
-		try {
-			for (String cityEffect : this.getEffects().keySet()) {
+    }
 
-				effect = this.getEffects().get(cityEffect);
-				effectBase = effect.getEffectsBase();
+    public boolean isLocationOnCityGrid(Vector3fImmutable insideLoc) {
 
-				if (effectBase == null)
-					continue;
+        Bounds newBounds = Bounds.borrow();
+        newBounds.setBounds(insideLoc);
+        boolean collided = Bounds.collide(this.getBounds(), newBounds, 0);
+        newBounds.release();
+        return collided;
+    }
 
-				player.addCityEffect(Integer.toString(effectBase.getUUID()), effectBase, effect.getTrains(), MBServerStatics.FOURTYFIVE_SECONDS, true,this);
-			}
-		} catch (Exception e) {
-			Logger.error( e.getMessage());
-		}
+    public boolean isLocationOnCityGrid(Bounds newBounds) {
 
-	}
+        boolean collided = Bounds.collide(this.getBounds(), newBounds, 0);
+        return collided;
+    }
 
-	private void removeAllCityEffects(PlayerCharacter player,boolean force) {
+    public boolean isLocationWithinSiegeBounds(Vector3fImmutable insideLoc) {
 
-		Effect effect;
-		EffectsBase effectBase;
+        return insideLoc.isInsideCircle(this.getLoc(), CityBoundsType.ZONE.extents);
 
-		try {
-			for (String cityEffect : this.getEffects().keySet()) {
+    }
 
-				effect = this.getEffects().get(cityEffect);
-				effectBase = effect.getEffectsBase();
+    public boolean isLocationOnCityZone(Vector3fImmutable insideLoc) {
+        return Bounds.collide(insideLoc, this.parentZone.getBounds());
+    }
 
-				if (player.getEffects().get(cityEffect) == null)
-					return;
+    private void applyAllCityEffects(PlayerCharacter player) {
 
-				//                player.endEffectNoPower(cityEffect);
-				player.addCityEffect(Integer.toString(effectBase.getUUID()), effectBase, effect.getTrains(), MBServerStatics.FOURTYFIVE_SECONDS, false,this);
-			}
-		} catch (Exception e) {
-			Logger.error(e.getMessage());
-		}
-	}
+        Effect effect;
+        EffectsBase effectBase;
 
-	public void onEnter() {
+        try {
+            for (String cityEffect : this.getEffects().keySet()) {
 
-		HashSet<AbstractWorldObject> currentPlayers;
-		HashSet<Integer> currentMemory;
-		PlayerCharacter player;
+                effect = this.getEffects().get(cityEffect);
+                effectBase = effect.getEffectsBase();
 
-		// Gather current list of players within the zone bounds
+                if (effectBase == null)
+                    continue;
 
-		currentPlayers = WorldGrid.getObjectsInRangePartial(this.location, CityBoundsType.ZONE.extents, MBServerStatics.MASK_PLAYER);
-		currentMemory = new HashSet<>();
+                player.addCityEffect(Integer.toString(effectBase.getUUID()), effectBase, effect.getTrains(), MBServerStatics.FOURTYFIVE_SECONDS, true, this);
+            }
+        } catch (Exception e) {
+            Logger.error(e.getMessage());
+        }
 
-		for (AbstractWorldObject playerObject : currentPlayers) {
+    }
 
-			if (playerObject == null)
-				continue;
+    private void removeAllCityEffects(PlayerCharacter player, boolean force) {
 
-			player = (PlayerCharacter) playerObject;
-			currentMemory.add(player.getObjectUUID());
+        Effect effect;
+        EffectsBase effectBase;
 
-			// Player is already in our memory
+        try {
+            for (String cityEffect : this.getEffects().keySet()) {
 
-			if (_playerMemory.contains(player.getObjectUUID()))
-				continue;
+                effect = this.getEffects().get(cityEffect);
+                effectBase = effect.getEffectsBase();
 
-			if (!this.isLocationWithinSiegeBounds(player.getLoc()))
-				continue;
-			// Apply safehold affect to player if needed
+                if (player.getEffects().get(cityEffect) == null)
+                    return;
 
-			if ((this.isSafeHold == 1))
-				player.setSafeZone(true);
+                //                player.endEffectNoPower(cityEffect);
+                player.addCityEffect(Integer.toString(effectBase.getUUID()), effectBase, effect.getTrains(), MBServerStatics.FOURTYFIVE_SECONDS, false, this);
+            }
+        } catch (Exception e) {
+            Logger.error(e.getMessage());
+        }
+    }
 
-			//add spire effects.
-			if (this.getEffects().size() > 0)
-				this.applyAllCityEffects(player);
+    /* All characters in city player memory but
+     * not the current memory have obviously
+     * left the city.  Remove their affects.
+     */
 
-			// Add player to our city's memory
+    public void onEnter() {
 
-			_playerMemory.add(player.getObjectUUID());
+        HashSet<AbstractWorldObject> currentPlayers;
+        HashSet<Integer> currentMemory;
+        PlayerCharacter player;
 
-			// ***For debugging
-			// Logger.info("PlayerMemory for ", this.getCityName() + ": " + _playerMemory.size());
-		}
-		try {
-			onExit(currentMemory);
-		} catch (Exception e) {
-			Logger.error( e.getMessage());
-		}
+        // Gather current list of players within the zone bounds
 
-	}
+        currentPlayers = WorldGrid.getObjectsInRangePartial(this.location, CityBoundsType.ZONE.extents, MBServerStatics.MASK_PLAYER);
+        currentMemory = new HashSet<>();
 
-	/* All characters in city player memory but
-	 * not the current memory have obviously
-	 * left the city.  Remove their affects.
-	 */
+        for (AbstractWorldObject playerObject : currentPlayers) {
 
-	private void onExit(HashSet<Integer> currentMemory) {
+            if (playerObject == null)
+                continue;
 
-		PlayerCharacter player;
-		int playerUUID = 0;
-		HashSet<Integer> toRemove = new HashSet<>();
-		Iterator<Integer> iter = _playerMemory.iterator();
+            player = (PlayerCharacter) playerObject;
+            currentMemory.add(player.getObjectUUID());
 
-		while (iter.hasNext()) {
+            // Player is already in our memory
 
-			playerUUID = iter.next();
+            if (_playerMemory.contains(player.getObjectUUID()))
+                continue;
 
+            if (!this.isLocationWithinSiegeBounds(player.getLoc()))
+                continue;
+            // Apply safehold affect to player if needed
 
+            if ((this.isSafeHold == 1))
+                player.setSafeZone(true);
 
-			player = PlayerCharacter.getFromCache(playerUUID);
+            //add spire effects.
+            if (this.getEffects().size() > 0)
+                this.applyAllCityEffects(player);
 
-			if (this.isLocationWithinSiegeBounds(player.getLoc()))
-				continue;
+            // Add player to our city's memory
 
-			// Remove players safezone status if warranted
-			// they can assumed to be not on the citygrid at
-			// this point.
+            _playerMemory.add(player.getObjectUUID());
 
+            // ***For debugging
+            // Logger.info("PlayerMemory for ", this.getCityName() + ": " + _playerMemory.size());
+        }
+        try {
+            onExit(currentMemory);
+        } catch (Exception e) {
+            Logger.error(e.getMessage());
+        }
 
-			player.setSafeZone(false);
+    }
 
-			this.removeAllCityEffects(player,false);
+    private void onExit(HashSet<Integer> currentMemory) {
 
-			// We will remove this player after iteration is complete
-			// so store it in a temporary collection
+        PlayerCharacter player;
+        int playerUUID = 0;
+        HashSet<Integer> toRemove = new HashSet<>();
+        Iterator<Integer> iter = _playerMemory.iterator();
 
-			toRemove.add(playerUUID);
-			// ***For debugging
-			// Logger.info("PlayerMemory for ", this.getCityName() + ": " + _playerMemory.size());
-		}
+        while (iter.hasNext()) {
 
-		// Remove players from city memory
+            playerUUID = iter.next();
 
-		_playerMemory.removeAll(toRemove);
-		for(Integer removalUUID : toRemove){
-			if(this.cityOutlaws.contains(removalUUID))
-				this.cityOutlaws.remove(removalUUID);
-		}
-	}
 
-	public int getWarehouseBuildingID() {
-		return warehouseBuildingID;
-	}
+            player = PlayerCharacter.getFromCache(playerUUID);
 
-	public void setWarehouseBuildingID(int warehouseBuildingID) {
-		this.warehouseBuildingID = warehouseBuildingID;
-	}
+            if (this.isLocationWithinSiegeBounds(player.getLoc()))
+                continue;
 
-	public final void destroy() {
+            // Remove players safezone status if warranted
+            // they can assumed to be not on the citygrid at
+            // this point.
 
-		Thread destroyCityThread = new Thread(new DestroyCityThread(this));
 
-		destroyCityThread.setName("deestroyCity:" + this.getName());
-		destroyCityThread.start();
-	}
+            player.setSafeZone(false);
 
-	public final void transfer(AbstractCharacter newOwner) {
+            this.removeAllCityEffects(player, false);
 
-		Thread transferCityThread = new Thread(new TransferCityThread(this, newOwner));
+            // We will remove this player after iteration is complete
+            // so store it in a temporary collection
 
-		transferCityThread.setName("TransferCity:" + this.getName());
-		transferCityThread.start();
-	}
+            toRemove.add(playerUUID);
+            // ***For debugging
+            // Logger.info("PlayerMemory for ", this.getCityName() + ": " + _playerMemory.size());
+        }
 
-	public final void claim(AbstractCharacter sourcePlayer) {
+        // Remove players from city memory
 
-		Guild sourceNation;
-		Guild sourceGuild;
-		Zone cityZone;
+        _playerMemory.removeAll(toRemove);
+        for (Integer removalUUID : toRemove) {
+            if (this.cityOutlaws.contains(removalUUID))
+                this.cityOutlaws.remove(removalUUID);
+        }
+    }
 
-		sourceGuild = sourcePlayer.getGuild();
+    public int getWarehouseBuildingID() {
+        return warehouseBuildingID;
+    }
 
-		if (sourceGuild == null)
-			return;
+    public void setWarehouseBuildingID(int warehouseBuildingID) {
+        this.warehouseBuildingID = warehouseBuildingID;
+    }
 
-		sourceNation = sourcePlayer.getGuild().getNation();
+    public final void destroy() {
 
-		if (sourceGuild.isEmptyGuild())
-			return;
+        Thread destroyCityThread = new Thread(new DestroyCityThread(this));
 
-		//cant claim tree with owned tree.
+        destroyCityThread.setName("deestroyCity:" + this.getName());
+        destroyCityThread.start();
+    }
 
-		if (sourceGuild.getOwnedCity() != null)
-			return;
+    public final void transfer(AbstractCharacter newOwner) {
 
-		cityZone = this.parentZone;
+        Thread transferCityThread = new Thread(new TransferCityThread(this, newOwner));
 
-		// Can't claim a tree not in a player city zone
+        transferCityThread.setName("TransferCity:" + this.getName());
+        transferCityThread.start();
+    }
 
-		// Reset sieges withstood
+    public final void claim(AbstractCharacter sourcePlayer) {
 
-		this.setSiegesWithstood(0);
+        Guild sourceNation;
+        Guild sourceGuild;
+        Zone cityZone;
 
-		this.hasBeenTransfered = true;
+        sourceGuild = sourcePlayer.getGuild();
 
-		// If currently a sub of another guild, desub when
-		// claiming your new tree and set as Landed
+        if (sourceGuild == null)
+            return;
 
-		if (!sourceNation.isEmptyGuild() && sourceNation != sourceGuild) {
-			if (!DbManager.GuildQueries.UPDATE_PARENT(sourceGuild.getObjectUUID(), WorldServer.worldUUID)) {
-				ChatManager.chatGuildError((PlayerCharacter) sourcePlayer, "A Serious error has occurred. Please post details for to ensure transaction integrity");
-				return;
-			}
+        sourceNation = sourcePlayer.getGuild().getNation();
 
-			sourceNation.getSubGuildList().remove(sourceGuild);
+        if (sourceGuild.isEmptyGuild())
+            return;
 
-			if (sourceNation.getSubGuildList().isEmpty())
-				sourceNation.downgradeGuildState();
-		}
+        //cant claim tree with owned tree.
 
-		// Link the mew guild with the tree
+        if (sourceGuild.getOwnedCity() != null)
+            return;
 
-		if (!DbManager.GuildQueries.SET_GUILD_OWNED_CITY(sourceGuild.getObjectUUID(), this.getObjectUUID())) {
-			ChatManager.chatGuildError((PlayerCharacter) sourcePlayer, "A Serious error has occurred. Please post details for to ensure transaction integrity");
-			return;
-		}
+        cityZone = this.parentZone;
 
-		sourceGuild.setCityUUID(this.getObjectUUID());
+        // Can't claim a tree not in a player city zone
 
-		sourceGuild.setNation(sourceGuild);
-		sourceGuild.setGuildState(GuildState.Sovereign);
-		GuildManager.updateAllGuildTags(sourceGuild);
-		GuildManager.updateAllGuildBinds(sourceGuild, this);
+        // Reset sieges withstood
 
-		// Build list of buildings within this parent zone
+        this.setSiegesWithstood(0);
 
-		for (Building cityBuilding : cityZone.zoneBuildingSet) {
+        this.hasBeenTransfered = true;
 
-			// Buildings without blueprints are unclaimable
+        // If currently a sub of another guild, desub when
+        // claiming your new tree and set as Landed
 
-			if (cityBuilding.getBlueprintUUID() == 0)
-				continue;
+        if (!sourceNation.isEmptyGuild() && sourceNation != sourceGuild) {
+            if (!DbManager.GuildQueries.UPDATE_PARENT(sourceGuild.getObjectUUID(), WorldServer.worldUUID)) {
+                ChatManager.chatGuildError((PlayerCharacter) sourcePlayer, "A Serious error has occurred. Please post details for to ensure transaction integrity");
+                return;
+            }
 
-			// All protection contracts are void upon transfer of a city
+            sourceNation.getSubGuildList().remove(sourceGuild);
 
-			// All protection contracts are void upon transfer of a city
-			//Dont forget to not Flip protection on Banestones and siege Equipment... Noob.
-			if (cityBuilding.getBlueprint() != null && !cityBuilding.getBlueprint().isSiegeEquip()
-					&& cityBuilding.getBlueprint().getBuildingGroup() != BuildingGroup.BANESTONE)
-				cityBuilding.setProtectionState(ProtectionState.NONE);
+            if (sourceNation.getSubGuildList().isEmpty())
+                sourceNation.downgradeGuildState();
+        }
 
-			// Transfer ownership of valid city assets
-			// these assets are autoprotected.
+        // Link the mew guild with the tree
 
-			if ((cityBuilding.getBlueprint().getBuildingGroup() == BuildingGroup.TOL)
-					|| (cityBuilding.getBlueprint().getBuildingGroup() == BuildingGroup.SPIRE)
-					|| (cityBuilding.getBlueprint().getBuildingGroup() == BuildingGroup.BARRACK)
-					|| (cityBuilding.getBlueprint().isWallPiece())
-					|| (cityBuilding.getBlueprint().getBuildingGroup() == BuildingGroup.SHRINE)) {
+        if (!DbManager.GuildQueries.SET_GUILD_OWNED_CITY(sourceGuild.getObjectUUID(), this.getObjectUUID())) {
+            ChatManager.chatGuildError((PlayerCharacter) sourcePlayer, "A Serious error has occurred. Please post details for to ensure transaction integrity");
+            return;
+        }
 
-				cityBuilding.claim(sourcePlayer);
-				cityBuilding.setProtectionState(ProtectionState.PROTECTED);
-			}
-		}
+        sourceGuild.setCityUUID(this.getObjectUUID());
 
-		this.setForceRename(true);
+        sourceGuild.setNation(sourceGuild);
+        sourceGuild.setGuildState(GuildState.Sovereign);
+        GuildManager.updateAllGuildTags(sourceGuild);
+        GuildManager.updateAllGuildBinds(sourceGuild, this);
 
-		// Reset city timer for map update
+        // Build list of buildings within this parent zone
 
-		City.lastCityUpdate = System.currentTimeMillis();
-	}
+        for (Building cityBuilding : cityZone.zoneBuildingSet) {
 
-	public final boolean transferGuildLeader(PlayerCharacter sourcePlayer) {
+            // Buildings without blueprints are unclaimable
 
-		Guild sourceGuild;
-		Zone cityZone;
-		sourceGuild = sourcePlayer.getGuild();
+            if (cityBuilding.getBlueprintUUID() == 0)
+                continue;
 
+            // All protection contracts are void upon transfer of a city
 
-		if (sourceGuild == null)
-			return false;
+            // All protection contracts are void upon transfer of a city
+            //Dont forget to not Flip protection on Banestones and siege Equipment... Noob.
+            if (cityBuilding.getBlueprint() != null && !cityBuilding.getBlueprint().isSiegeEquip()
+                    && cityBuilding.getBlueprint().getBuildingGroup() != BuildingGroup.BANESTONE)
+                cityBuilding.setProtectionState(ProtectionState.NONE);
 
-		if (sourceGuild.isEmptyGuild())
-			return false;
+            // Transfer ownership of valid city assets
+            // these assets are autoprotected.
 
-		cityZone = this.parentZone;
+            if ((cityBuilding.getBlueprint().getBuildingGroup() == BuildingGroup.TOL)
+                    || (cityBuilding.getBlueprint().getBuildingGroup() == BuildingGroup.SPIRE)
+                    || (cityBuilding.getBlueprint().getBuildingGroup() == BuildingGroup.BARRACK)
+                    || (cityBuilding.getBlueprint().isWallPiece())
+                    || (cityBuilding.getBlueprint().getBuildingGroup() == BuildingGroup.SHRINE)) {
 
-		for (Building cityBuilding : cityZone.zoneBuildingSet) {
+                cityBuilding.claim(sourcePlayer);
+                cityBuilding.setProtectionState(ProtectionState.PROTECTED);
+            }
+        }
 
-			// Buildings without blueprints are unclaimable
+        this.setForceRename(true);
 
-			if (cityBuilding.getBlueprintUUID() == 0)
-				continue;
+        // Reset city timer for map update
 
-			// All protection contracts are void upon transfer of a city
-			//Dont forget to not Flip protection on Banestones and siege Equipment... Noob.
+        City.lastCityUpdate = System.currentTimeMillis();
+    }
 
-			// Transfer ownership of valid city assets
-			// these assets are autoprotected.
+    public final boolean transferGuildLeader(PlayerCharacter sourcePlayer) {
 
-			if ((cityBuilding.getBlueprint().getBuildingGroup() == BuildingGroup.TOL)
-					|| (cityBuilding.getBlueprint().getBuildingGroup() == BuildingGroup.SPIRE)
-					|| (cityBuilding.getBlueprint().getBuildingGroup() == BuildingGroup.BARRACK)
-					|| (cityBuilding.getBlueprint().isWallPiece())
-					|| (cityBuilding.getBlueprint().getBuildingGroup() == BuildingGroup.SHRINE)
-					) {
+        Guild sourceGuild;
+        Zone cityZone;
+        sourceGuild = sourcePlayer.getGuild();
 
-				cityBuilding.claim(sourcePlayer);
-				cityBuilding.setProtectionState(ProtectionState.PROTECTED);
-			} else if(cityBuilding.getBlueprint().getBuildingGroup() == BuildingGroup.WAREHOUSE)
-				cityBuilding.claim(sourcePlayer);
 
+        if (sourceGuild == null)
+            return false;
 
-		}
-		this.setForceRename(true);
-		CityRecord cityRecord = CityRecord.borrow(this, Enum.RecordEventType.TRANSFER);
-		DataWarehouse.pushToWarehouse(cityRecord);
-		return true;
+        if (sourceGuild.isEmptyGuild())
+            return false;
 
-	}
+        cityZone = this.parentZone;
 
-	/**
-	 * @return the forceRename
-	 */
-	public boolean isForceRename() {
-		return forceRename;
-	}
+        for (Building cityBuilding : cityZone.zoneBuildingSet) {
 
-	/**
-	 * @param siegesWithstood the siegesWithstood to set
-	 */
-	public void setSiegesWithstood(int siegesWithstood) {
+            // Buildings without blueprints are unclaimable
 
-		// early exit if setting to current value
+            if (cityBuilding.getBlueprintUUID() == 0)
+                continue;
 
-		if (this.siegesWithstood == siegesWithstood)
-			return;
+            // All protection contracts are void upon transfer of a city
+            //Dont forget to not Flip protection on Banestones and siege Equipment... Noob.
 
-		if (DbManager.CityQueries.updateSiegesWithstood(this, siegesWithstood) == true)
-			this.siegesWithstood = siegesWithstood;
-		else
-			Logger.error("Error when writing to database for cityUUID: " + this.getObjectUUID());
-	}
+            // Transfer ownership of valid city assets
+            // these assets are autoprotected.
 
-	/**
-	 * @param population the population to set
-	 */
-	public void setPopulation(int population) {
-		this.population = population;
-	}
+            if ((cityBuilding.getBlueprint().getBuildingGroup() == BuildingGroup.TOL)
+                    || (cityBuilding.getBlueprint().getBuildingGroup() == BuildingGroup.SPIRE)
+                    || (cityBuilding.getBlueprint().getBuildingGroup() == BuildingGroup.BARRACK)
+                    || (cityBuilding.getBlueprint().isWallPiece())
+                    || (cityBuilding.getBlueprint().getBuildingGroup() == BuildingGroup.SHRINE)
+            ) {
 
-	public boolean isReverseKOS() {
-		return reverseKOS;
-	}
+                cityBuilding.claim(sourcePlayer);
+                cityBuilding.setProtectionState(ProtectionState.PROTECTED);
+            } else if (cityBuilding.getBlueprint().getBuildingGroup() == BuildingGroup.WAREHOUSE)
+                cityBuilding.claim(sourcePlayer);
 
-	public void setReverseKOS(boolean reverseKOS) {
-		this.reverseKOS = reverseKOS;
-	}
 
-	public String getHash() {
-		return hash;
-	}
+        }
+        this.setForceRename(true);
+        CityRecord cityRecord = CityRecord.borrow(this, Enum.RecordEventType.TRANSFER);
+        DataWarehouse.pushToWarehouse(cityRecord);
+        return true;
 
-	public void setHash(String hash) {
-		this.hash = hash;
-	}
+    }
 
-	public void setHash() {
+    /**
+     * @return the forceRename
+     */
+    public boolean isForceRename() {
+        return forceRename;
+    }
 
-		this.hash = DataWarehouse.hasher.encrypt(this.getObjectUUID());
+    public void setForceRename(boolean forceRename) {
+        if (!DbManager.CityQueries.updateforceRename(this, forceRename))
+            return;
+        this.forceRename = forceRename;
+    }
 
-		// Write hash to player character table
+    public boolean isReverseKOS() {
+        return reverseKOS;
+    }
 
-		DataWarehouse.writeHash(Enum.DataRecordType.CITY, this.getObjectUUID());
-	}
+    public void setReverseKOS(boolean reverseKOS) {
+        this.reverseKOS = reverseKOS;
+    }
 
-	public boolean setRealmTaxDate(LocalDateTime realmTaxDate) {
+    public String getHash() {
+        return hash;
+    }
 
-		if (!DbManager.CityQueries.updateRealmTaxDate(this, realmTaxDate))
-			return false;
+    public void setHash(String hash) {
+        this.hash = hash;
+    }
 
-		this.realmTaxDate = realmTaxDate;
-		return true;
+    public void setHash() {
 
-	}
+        this.hash = DataWarehouse.hasher.encrypt(this.getObjectUUID());
 
-	//TODO use this for taxing later.
+        // Write hash to player character table
+
+        DataWarehouse.writeHash(Enum.DataRecordType.CITY, this.getObjectUUID());
+    }
+
+    public boolean setRealmTaxDate(LocalDateTime realmTaxDate) {
+
+        if (!DbManager.CityQueries.updateRealmTaxDate(this, realmTaxDate))
+            return false;
+
+        this.realmTaxDate = realmTaxDate;
+        return true;
+
+    }
+
+    //TODO use this for taxing later.
 //	public boolean isAfterTaxPeriod(LocalDateTime dateTime,PlayerCharacter player){
 //		if (dateTime.isBefore(realmTaxDate)){
 //			String wait = "";
@@ -1322,141 +1309,136 @@ public class City extends AbstractWorldObject {
 //		return true;
 //	}
 
-	
 
-	public synchronized boolean TaxWarehouse(TaxResourcesMsg msg,PlayerCharacter player) {
+    public synchronized boolean TaxWarehouse(TaxResourcesMsg msg, PlayerCharacter player) {
 
-		// Member variable declaration
-		Building building = BuildingManager.getBuildingFromCache(msg.getBuildingID());
-		Guild playerGuild = player.getGuild();
+        // Member variable declaration
+        Building building = BuildingManager.getBuildingFromCache(msg.getBuildingID());
+        Guild playerGuild = player.getGuild();
 
-		if (building == null){
-			ErrorPopupMsg.sendErrorMsg(player, "Not a valid Building!");
-			return true;
-		}
+        if (building == null) {
+            ErrorPopupMsg.sendErrorMsg(player, "Not a valid Building!");
+            return true;
+        }
 
-		City city = building.getCity();
-		if (city == null){
-			ErrorPopupMsg.sendErrorMsg(player, "This building does not belong to a city.");
-			return true;
-		}
-
-
-		if (playerGuild == null || playerGuild.isEmptyGuild()){
-			ErrorPopupMsg.sendErrorMsg(player, "You must belong to a guild to do that!");
-			return true;
-		}
-
-		if (playerGuild.getOwnedCity() == null){
-			ErrorPopupMsg.sendErrorMsg(player, "Your Guild needs to own a city!");
-			return true;
-		}
-
-		if (playerGuild.getOwnedCity().getTOL() == null){
-			ErrorPopupMsg.sendErrorMsg(player, "Cannot find Tree of Life for your city!");
-			return true;
-		}
-
-		if (playerGuild.getOwnedCity().getTOL().getRank() != 8){
-			ErrorPopupMsg.sendErrorMsg(player, "Your City needs to Own a realm!");
-			return true;
-		}
-
-		if (playerGuild.getOwnedCity().getRealm() == null){
-			ErrorPopupMsg.sendErrorMsg(player, "Cannot find realm for your city!");
-			return true;
-		}
-		Realm targetRealm = RealmMap.getRealmForCity(city);
-
-		if (targetRealm == null){
-			ErrorPopupMsg.sendErrorMsg(player, "Cannot find realm for city you are attempting to tax!");
-			return true;
-		}
-
-		if (targetRealm.getRulingCity() == null){
-			ErrorPopupMsg.sendErrorMsg(player, "Realm Does not have a ruling city!");
-			return true;
-		}
-
-		if (targetRealm.getRulingCity().getObjectUUID() != playerGuild.getOwnedCity().getObjectUUID()){
-			ErrorPopupMsg.sendErrorMsg(player, "Your guild does not rule this realm!");
-			return true;
-		}
-
-		if (playerGuild.getOwnedCity().getObjectUUID() == city.getObjectUUID()){
-			ErrorPopupMsg.sendErrorMsg(player, "You cannot tax your own city!");
-			return true;
-		}
+        City city = building.getCity();
+        if (city == null) {
+            ErrorPopupMsg.sendErrorMsg(player, "This building does not belong to a city.");
+            return true;
+        }
 
 
+        if (playerGuild == null || playerGuild.isEmptyGuild()) {
+            ErrorPopupMsg.sendErrorMsg(player, "You must belong to a guild to do that!");
+            return true;
+        }
+
+        if (playerGuild.getOwnedCity() == null) {
+            ErrorPopupMsg.sendErrorMsg(player, "Your Guild needs to own a city!");
+            return true;
+        }
+
+        if (playerGuild.getOwnedCity().getTOL() == null) {
+            ErrorPopupMsg.sendErrorMsg(player, "Cannot find Tree of Life for your city!");
+            return true;
+        }
+
+        if (playerGuild.getOwnedCity().getTOL().getRank() != 8) {
+            ErrorPopupMsg.sendErrorMsg(player, "Your City needs to Own a realm!");
+            return true;
+        }
+
+        if (playerGuild.getOwnedCity().getRealm() == null) {
+            ErrorPopupMsg.sendErrorMsg(player, "Cannot find realm for your city!");
+            return true;
+        }
+        Realm targetRealm = RealmMap.getRealmForCity(city);
+
+        if (targetRealm == null) {
+            ErrorPopupMsg.sendErrorMsg(player, "Cannot find realm for city you are attempting to tax!");
+            return true;
+        }
+
+        if (targetRealm.getRulingCity() == null) {
+            ErrorPopupMsg.sendErrorMsg(player, "Realm Does not have a ruling city!");
+            return true;
+        }
+
+        if (targetRealm.getRulingCity().getObjectUUID() != playerGuild.getOwnedCity().getObjectUUID()) {
+            ErrorPopupMsg.sendErrorMsg(player, "Your guild does not rule this realm!");
+            return true;
+        }
+
+        if (playerGuild.getOwnedCity().getObjectUUID() == city.getObjectUUID()) {
+            ErrorPopupMsg.sendErrorMsg(player, "You cannot tax your own city!");
+            return true;
+        }
 
 
-		if (!GuildStatusController.isTaxCollector(player.getGuildStatus())){
-			ErrorPopupMsg.sendErrorMsg(player, "You Must be a tax Collector!");
-			return true;
-		}
+        if (!GuildStatusController.isTaxCollector(player.getGuildStatus())) {
+            ErrorPopupMsg.sendErrorMsg(player, "You Must be a tax Collector!");
+            return true;
+        }
 
 
-		
-		if (this.realmTaxDate.isAfter(LocalDateTime.now()))
-			return true;
-		if (msg.getResources().size() == 0)
-			return true;
+        if (this.realmTaxDate.isAfter(LocalDateTime.now()))
+            return true;
+        if (msg.getResources().size() == 0)
+            return true;
 
-		if (city.getWarehouse() == null)
-			return true;
-		Warehouse ruledWarehouse = playerGuild.getOwnedCity().getWarehouse();
-		if (ruledWarehouse == null)
-			return true;
-
+        if (city.getWarehouse() == null)
+            return true;
+        Warehouse ruledWarehouse = playerGuild.getOwnedCity().getWarehouse();
+        if (ruledWarehouse == null)
+            return true;
 
 
-		ItemBase.getItemHashIDMap();
+        ItemBase.getItemHashIDMap();
 
-		ArrayList<Integer>resources = new ArrayList<>();
+        ArrayList<Integer> resources = new ArrayList<>();
 
-		float taxPercent = msg.getTaxPercent();
-		if (taxPercent > 20)
-			taxPercent = .20f;
+        float taxPercent = msg.getTaxPercent();
+        if (taxPercent > 20)
+            taxPercent = .20f;
 
-		for (int resourceHash:msg.getResources().keySet()){
-			if (ItemBase.getItemHashIDMap().get(resourceHash) != null)
-				resources.add(ItemBase.getItemHashIDMap().get(resourceHash));
+        for (int resourceHash : msg.getResources().keySet()) {
+            if (ItemBase.getItemHashIDMap().get(resourceHash) != null)
+                resources.add(ItemBase.getItemHashIDMap().get(resourceHash));
 
-		}
+        }
 
-		for (Integer itemBaseID:resources){
-			ItemBase ib = ItemBase.getItemBase(itemBaseID);
-			if (ib == null)
-				continue;
-			if (ruledWarehouse.isAboveCap(ib, (int) (city.getWarehouse().getResources().get(ib) * taxPercent))){
-				ErrorPopupMsg.sendErrorMsg(player, "You're warehouse has enough " + ib.getName() + " already!");
-				return true;
-			}
+        for (Integer itemBaseID : resources) {
+            ItemBase ib = ItemBase.getItemBase(itemBaseID);
+            if (ib == null)
+                continue;
+            if (ruledWarehouse.isAboveCap(ib, (int) (city.getWarehouse().getResources().get(ib) * taxPercent))) {
+                ErrorPopupMsg.sendErrorMsg(player, "You're warehouse has enough " + ib.getName() + " already!");
+                return true;
+            }
 
-		}
+        }
 
-		if(!city.setRealmTaxDate(LocalDateTime.now().plusDays(7))){
-			ErrorPopupMsg.sendErrorMsg(player, "Failed to Update next Tax Date due to internal Error. City was not charged taxes this time.");
-			return false;
-		}
-		try{
-			city.getWarehouse().transferResources(player,msg,resources, taxPercent,ruledWarehouse);
-		}catch(Exception e){
-			Logger.info( e.getMessage());
-		}
+        if (!city.setRealmTaxDate(LocalDateTime.now().plusDays(7))) {
+            ErrorPopupMsg.sendErrorMsg(player, "Failed to Update next Tax Date due to internal Error. City was not charged taxes this time.");
+            return false;
+        }
+        try {
+            city.getWarehouse().transferResources(player, msg, resources, taxPercent, ruledWarehouse);
+        } catch (Exception e) {
+            Logger.info(e.getMessage());
+        }
 
-		// Member variable assignment
+        // Member variable assignment
 
-		ViewResourcesMessage vrm = new ViewResourcesMessage(player);
-		vrm.setGuild(building.getGuild());
-		vrm.setWarehouseBuilding(BuildingManager.getBuildingFromCache(building.getCity().getWarehouse().getBuildingUID()));
-		vrm.configure();
-		Dispatch dispatch = Dispatch.borrow(player, vrm);
-		DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
-		dispatch = Dispatch.borrow(player, msg);
-		DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
-		return true;
+        ViewResourcesMessage vrm = new ViewResourcesMessage(player);
+        vrm.setGuild(building.getGuild());
+        vrm.setWarehouseBuilding(BuildingManager.getBuildingFromCache(building.getCity().getWarehouse().getBuildingUID()));
+        vrm.configure();
+        Dispatch dispatch = Dispatch.borrow(player, vrm);
+        DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
+        dispatch = Dispatch.borrow(player, msg);
+        DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
+        return true;
 
-	}
+    }
 }

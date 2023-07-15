@@ -27,19 +27,19 @@ public class UpdateGroupJob extends AbstractScheduleJob {
 
     @Override
     protected void doJob() {
-        
+
         if (this.group == null)
             return;
-        
+
         PlayerCharacter lead = group.getGroupLead();
-        
+
         if (lead == null)
             return;
 
         try {
             GroupManager.RefreshWholeGroupList(lead, lead.getClientConnection(), this.group);
         } catch (Exception e) {
-            Logger.error( e);
+            Logger.error(e);
         }
 
         JobScheduler.getInstance().scheduleJob(this, MBServerStatics.UPDATE_GROUP_RATE);

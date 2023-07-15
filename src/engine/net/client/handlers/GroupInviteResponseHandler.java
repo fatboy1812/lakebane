@@ -34,7 +34,7 @@ public class GroupInviteResponseHandler extends AbstractClientMsgHandler {
 
     @Override
     protected boolean _handleNetMsg(ClientNetMsg baseMsg,
-            ClientConnection origin) throws MsgSendException {
+                                    ClientConnection origin) throws MsgSendException {
 
         GroupInviteResponseMsg msg = (GroupInviteResponseMsg) baseMsg;
 
@@ -50,7 +50,7 @@ public class GroupInviteResponseHandler extends AbstractClientMsgHandler {
         if (currGroup != null) // if we are already in a group we are leaving it
             GroupManager.LeaveGroup(player);
 
-	// not sure we need to test for invites to wrong grp as only
+        // not sure we need to test for invites to wrong grp as only
         // 1 invite can be on screen at a time
         //if (invitesPending.get(player) != msg.getGroupID()) // Can't accept
         // invite to
@@ -85,8 +85,8 @@ public class GroupInviteResponseHandler extends AbstractClientMsgHandler {
 
                 groupUpdateMsg.setPlayer(groupMember);
 
-               Dispatch dispatch = Dispatch.borrow(player, groupUpdateMsg);
-               DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
+                Dispatch dispatch = Dispatch.borrow(player, groupUpdateMsg);
+                DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
 
             }
 
@@ -104,8 +104,8 @@ public class GroupInviteResponseHandler extends AbstractClientMsgHandler {
 
             KEYCLONEAUDIT.audit(player, group);
 
-        return true;
-    }
+            return true;
+        }
     }
 }
 

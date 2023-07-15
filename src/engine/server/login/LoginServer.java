@@ -50,15 +50,20 @@ public class LoginServer {
 
     // Instance variables
 
-    private VersionInfoMsg versionInfoMessage;
     public static int population = 0;
     public static boolean worldServerRunning = false;
     public static boolean loginServerRunning = false;
-
     public static ServerStatusMsg serverStatusMsg = new ServerStatusMsg(0, (byte) 1);
+    private VersionInfoMsg versionInfoMessage;
 
     // This is the entrypoint for the MagicBane Login Server when
     // it is executed by the command line scripts.  The fun begins here!
+
+    public LoginServer() {
+
+    }
+
+    // Mainline execution loop for the login server.
 
     public static void main(String[] args) {
 
@@ -83,8 +88,8 @@ public class LoginServer {
             ConfigManager.serverType = Enum.ServerType.LOGINSERVER;
 
             if (ConfigManager.init() == false) {
-              Logger.error("ABORT! Missing config entry!");
-              return;
+                Logger.error("ABORT! Missing config entry!");
+                return;
             }
 
             // Start the Login Server
@@ -101,7 +106,68 @@ public class LoginServer {
         }
     }
 
-    // Mainline execution loop for the login server.
+    // Constructor
+
+    public static boolean getActiveBaneQuery(PlayerCharacter playerCharacter) {
+
+        boolean outStatus = false;
+
+        // char has never logged on so cannot have dropped a bane
+
+        if (playerCharacter.getHash() == null)
+            return outStatus;
+
+        // query data warehouse for unresolved bane with this character
+
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement statement = buildQueryActiveBaneStatement(connection, playerCharacter);
+             ResultSet rs = statement.executeQuery()) {
+
+            while (rs.next()) {
+
+                outStatus = true;
+            }
+
+        } catch (SQLException e) {
+            Logger.error(e.toString());
+        }
+
+        return outStatus;
+    }
+
+    private static PreparedStatement buildQueryActiveBaneStatement(Connection connection, PlayerCharacter playerCharacter) throws SQLException {
+        PreparedStatement outStatement;
+        String queryString = "SELECT `city_id` FROM `warehouse_banehistory` WHERE `char_id` = ? AND `RESOLUTION` = 'PENDING'";
+        outStatement = connection.prepareStatement(queryString);
+        outStatement.setString(1, playerCharacter.getHash());
+        return outStatement;
+
+    }
+
+    public static boolean isPortInUse(int port) {
+
+        ProcessBuilder builder = new ProcessBuilder("/bin/bash", "-c", "lsof -i tcp:" + port + " | tail -n +2 | awk '{print $2}'");
+        builder.redirectErrorStream(true);
+        Process process = null;
+        String line = null;
+        boolean portInUse = false;
+
+        try {
+            process = builder.start();
+
+            InputStream is = process.getInputStream();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+
+            while ((line = reader.readLine()) != null) {
+                portInUse = true;
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return portInUse;
+    }
 
     private void exec() {
 
@@ -117,47 +183,41 @@ public class LoginServer {
             // Invalidate cache for players driven by forum
             // and stored procedure forum_link_pass()
 
-                // Run cache routine right away if requested.
+            // Run cache routine right away if requested.
 
-                File cacheFile = new File("cacheInvalid");
+            File cacheFile = new File("cacheInvalid");
 
 
-                if (cacheFile.exists() == true) {
+            if (cacheFile.exists() == true) {
 
-                    nextCacheTime = LocalDateTime.now();
+                nextCacheTime = LocalDateTime.now();
 
-                    try {
-                        Files.deleteIfExists(Paths.get("cacheInvalid"));
-                    } catch (IOException e) {
-                        throw new RuntimeException(e);
-                    }
+                try {
+                    Files.deleteIfExists(Paths.get("cacheInvalid"));
+                } catch (IOException e) {
+                    throw new RuntimeException(e);
                 }
+            }
 
-                if (LocalDateTime.now().isAfter(nextCacheTime)) {
-                    invalidateCacheList();
-                    nextCacheTime = LocalDateTime.now().plusSeconds(30);
-                }
+            if (LocalDateTime.now().isAfter(nextCacheTime)) {
+                invalidateCacheList();
+                nextCacheTime = LocalDateTime.now().plusSeconds(30);
+            }
 
-                if (LocalDateTime.now().isAfter(nextServerTime)) {
-                    checkServerHealth();
-                    nextServerTime = LocalDateTime.now().plusSeconds(1);
-                }
+            if (LocalDateTime.now().isAfter(nextServerTime)) {
+                checkServerHealth();
+                nextServerTime = LocalDateTime.now().plusSeconds(1);
+            }
 
-                if (LocalDateTime.now().isAfter(nextDatabaseTime)) {
-                    String pop = SimulationManager.getPopulationString();
-                    Logger.info("Keepalive: " + pop);
-                    nextDatabaseTime = LocalDateTime.now().plusMinutes(30);
-                }
+            if (LocalDateTime.now().isAfter(nextDatabaseTime)) {
+                String pop = SimulationManager.getPopulationString();
+                Logger.info("Keepalive: " + pop);
+                nextDatabaseTime = LocalDateTime.now().plusMinutes(30);
+            }
 
-                ThreadUtils.sleep(100);
+            ThreadUtils.sleep(100);
 
         }
-    }
-
-    // Constructor
-
-    public LoginServer() {
-
     }
 
     private boolean init() {
@@ -219,6 +279,13 @@ public class LoginServer {
         Logger.info("***Boot Successful***");
         return true;
     }
+    /*
+     * message handlers (relay)
+     */
+
+    // ==============================
+    // Support Functions
+    // ==============================
 
     private boolean initDatabaseLayer() {
 
@@ -288,13 +355,6 @@ public class LoginServer {
             Logger.error(e.toString());
         }
     }
-    /*
-     * message handlers (relay)
-     */
-
-    // ==============================
-    // Support Functions
-    // ==============================
 
     public VersionInfoMsg getDefaultVersionInfo() {
         return versionInfoMessage;
@@ -404,67 +464,6 @@ public class LoginServer {
         }
 
 
-    }
-
-    public static boolean getActiveBaneQuery(PlayerCharacter playerCharacter) {
-
-        boolean outStatus = false;
-
-        // char has never logged on so cannot have dropped a bane
-
-        if (playerCharacter.getHash() == null)
-            return outStatus;
-
-        // query data warehouse for unresolved bane with this character
-
-        try (Connection connection = DbManager.getConnection();
-             PreparedStatement statement = buildQueryActiveBaneStatement(connection, playerCharacter);
-             ResultSet rs = statement.executeQuery()) {
-
-            while (rs.next()) {
-
-                outStatus = true;
-            }
-
-        } catch (SQLException e) {
-            Logger.error(e.toString());
-        }
-
-        return outStatus;
-    }
-
-    private static PreparedStatement buildQueryActiveBaneStatement(Connection connection, PlayerCharacter playerCharacter) throws SQLException {
-        PreparedStatement outStatement;
-        String queryString = "SELECT `city_id` FROM `warehouse_banehistory` WHERE `char_id` = ? AND `RESOLUTION` = 'PENDING'";
-        outStatement = connection.prepareStatement(queryString);
-        outStatement.setString(1, playerCharacter.getHash());
-        return outStatement;
-
-    }
-
-    public static boolean isPortInUse(int port) {
-
-        ProcessBuilder builder = new ProcessBuilder("/bin/bash", "-c", "lsof -i tcp:" + port + " | tail -n +2 | awk '{print $2}'");
-        builder.redirectErrorStream(true);
-        Process process = null;
-        String line = null;
-        boolean portInUse = false;
-
-        try {
-            process = builder.start();
-
-            InputStream is = process.getInputStream();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-
-            while ((line = reader.readLine()) != null) {
-                portInUse = true;
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        return portInUse;
     }
 
     private int readPopulationFile() {

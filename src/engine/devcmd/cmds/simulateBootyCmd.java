@@ -2,11 +2,13 @@ package engine.devcmd.cmds;
 
 import engine.Enum;
 import engine.devcmd.AbstractDevCmd;
-import engine.gameManager.*;
+import engine.gameManager.BuildingManager;
+import engine.gameManager.NPCManager;
 import engine.objects.*;
+
 import java.util.ArrayList;
 
-public class simulateBootyCmd  extends AbstractDevCmd {
+public class simulateBootyCmd extends AbstractDevCmd {
     public simulateBootyCmd() {
         super("simulatebooty");
     }
@@ -70,7 +72,7 @@ public class simulateBootyCmd  extends AbstractDevCmd {
                 int maxRollRange = (mob.getLevel() * 2) + 120 + (mob.getParentZone().maxLvl * 2);
                 output += "Roll Range: " + minRollRange + " - " + maxRollRange + newline;
                 output += "Special Loot:" + newline;
-                if(mob.bootySet != 0) {
+                if (mob.bootySet != 0) {
                     for (BootySetEntry entry : NPCManager._bootySetMap.get(mob.bootySet)) {
                         ItemBase item = ItemBase.getItemBase(entry.itemBase);
                         if (item != null) {
@@ -108,14 +110,14 @@ public class simulateBootyCmd  extends AbstractDevCmd {
                                         GlassItems.add(lootItem);
                                     } else {
                                         OtherDrops.add(lootItem);
-                                        if(lootItem.getName().toLowerCase().contains("crimson") || lootItem.getName().toLowerCase().contains("vorgrim") ||lootItem.getName().toLowerCase().contains("bell")){
+                                        if (lootItem.getName().toLowerCase().contains("crimson") || lootItem.getName().toLowerCase().contains("vorgrim") || lootItem.getName().toLowerCase().contains("bell")) {
                                             output += lootItem.getName() + newline;
                                         }
                                     }
                                     break;
                                 default:
                                     OtherDrops.add(lootItem);
-                                    if(lootItem.getName().toLowerCase().contains("crimson") || lootItem.getName().toLowerCase().contains("vorgrim") ||lootItem.getName().toLowerCase().contains("bell")){
+                                    if (lootItem.getName().toLowerCase().contains("crimson") || lootItem.getName().toLowerCase().contains("vorgrim") || lootItem.getName().toLowerCase().contains("bell")) {
                                         output += lootItem.getName() + newline;
                                     }
                                     break;
@@ -126,20 +128,20 @@ public class simulateBootyCmd  extends AbstractDevCmd {
                     }
                 }
                 int respawnTime = mob.getMobBase().getSpawnTime();
-                if(mob.spawnTime > 0){
+                if (mob.spawnTime > 0) {
                     respawnTime = mob.spawnTime;
                 }
                 output += "MobBase BootySet: " + mob.getMobBase().bootySet + newline;
                 output += "Mob BootySet: " + mob.bootySet + newline;
                 output += "Tables Rolled On: " + newline;
-                for(BootySetEntry entry : NPCManager._bootySetMap.get(mob.getMobBase().bootySet)){
+                for (BootySetEntry entry : NPCManager._bootySetMap.get(mob.getMobBase().bootySet)) {
                     output += "[" + entry.bootyType + "] " + entry.lootTable + newline;
                 }
                 output += "Time Required To Gain Simulated Booty: " + respawnTime * 100 + " Seconds" + newline;
                 output += "GLASS DROPS: " + GlassItems.size() + newline;
-                output += "RUNE DROPS: " + Runes.size()+ newline;
-                output += "CONTRACTS DROPS: " + Contracts.size()+ newline;
-                output += "RESOURCE DROPS: " + Resources.size()+ newline;
+                output += "RUNE DROPS: " + Runes.size() + newline;
+                output += "CONTRACTS DROPS: " + Contracts.size() + newline;
+                output += "RESOURCE DROPS: " + Resources.size() + newline;
                 output += "OFFERINGS DROPPED: " + Offerings.size() + newline;
                 output += "OTHER ITEMS DROPPED: " + OtherDrops.size() + newline;
                 output += "FAILED ROLLS: " + failures + newline;

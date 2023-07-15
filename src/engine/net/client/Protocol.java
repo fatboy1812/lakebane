@@ -252,9 +252,10 @@ public enum Protocol {
     UNKNOWN1(-263523523, Unknown1Msg.class, null),
     DROPGOLD(1461654160, DropGoldMsg.class, null);
 
-    public int opcode;
+    private static final HashMap<Integer, Protocol> _protocolMsgByOpcode = new HashMap<>();
     private final Class message;
     private final Class handlerClass;
+    public int opcode;
     public Constructor constructor;
     public AbstractClientMsgHandler handler;
 
@@ -285,8 +286,6 @@ public enum Protocol {
             }
         }
     }
-
-    private static final HashMap<Integer, Protocol> _protocolMsgByOpcode = new HashMap<>();
 
     public static Protocol getByOpcode(int opcode) {
 

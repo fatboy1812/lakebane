@@ -59,7 +59,7 @@ public class GuildCreationFinalizeMsg extends ClientNetMsg {
      * past the limit) then this constructor Throws that Exception to the
      * caller.
      */
-    public GuildCreationFinalizeMsg(AbstractConnection origin, ByteBufferReader reader)  {
+    public GuildCreationFinalizeMsg(AbstractConnection origin, ByteBufferReader reader) {
         super(Protocol.CREATEPETITION, origin, reader);
     }
 
@@ -68,8 +68,8 @@ public class GuildCreationFinalizeMsg extends ClientNetMsg {
      */
     @Override
     protected void _serialize(ByteBufferWriter writer) {
-        
-        GuildTag._serializeForDisplay(guildTag,writer);
+
+        GuildTag._serializeForDisplay(guildTag, writer);
 
         writer.putString(this.guildName);
         writer.putString(this.guildMotto);
@@ -95,7 +95,7 @@ public class GuildCreationFinalizeMsg extends ClientNetMsg {
      * Deserializes the subclass specific items from the supplied NetMsgReader.
      */
     @Override
-    protected void _deserialize(ByteBufferReader reader)  {
+    protected void _deserialize(ByteBufferReader reader) {
         guildTag = new GuildTag(reader, true);
 
         this.guildName = reader.getString();
@@ -133,7 +133,7 @@ public class GuildCreationFinalizeMsg extends ClientNetMsg {
         charterObject = Item.getFromCache(this.charterUUID);
 
         if (charterObject == null)
-            Logger.error( "Invalid charter object UUID: " + this.charterUUID);
+            Logger.error("Invalid charter object UUID: " + this.charterUUID);
 
         return charterObject;
     }
@@ -143,18 +143,18 @@ public class GuildCreationFinalizeMsg extends ClientNetMsg {
     }
 
     public int getMemberVoteFlag() {
-        
+
         if (this.membershipVote != 0)
             return 1;
-        
+
         return 0;
     }
 
     public int getICVoteFlag() {
-        
+
         if (this.icVote != 0)
             return 1;
-        
+
         return 0;
     }
 }

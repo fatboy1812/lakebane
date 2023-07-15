@@ -16,52 +16,51 @@ import engine.objects.Regions;
 
 /**
  * @author Eighty
- *
  */
 public class PrintLocationCmd extends AbstractDevCmd {
 
-	public PrintLocationCmd() {
-		super("printloc");
-	}
+    public PrintLocationCmd() {
+        super("printloc");
+    }
 
-	@Override
-	protected void _doCmd(PlayerCharacter pc, String[] words,
-			AbstractGameObject target) {
+    @Override
+    protected void _doCmd(PlayerCharacter pc, String[] words,
+                          AbstractGameObject target) {
 
-		PlayerCharacter tar;
+        PlayerCharacter tar;
 
-		if (target != null && target instanceof PlayerCharacter)
-			tar = (PlayerCharacter) target;
-		else
-			tar = pc;
+        if (target != null && target instanceof PlayerCharacter)
+            tar = (PlayerCharacter) target;
+        else
+            tar = pc;
 
-		throwbackInfo(pc, "Server location for " + tar.getFirstName());
-		if (tar.getLoc() != null) {
-			throwbackInfo(pc, "Lat: " + tar.getLoc().getX());
-			throwbackInfo(pc, "Lon: " + -tar.getLoc().getZ());
-			throwbackInfo(pc, "Alt: " + tar.getLoc().getY());
-			if (pc.region != null) {
-				this.throwbackInfo(pc, "Player Region Slope Position : " + Regions.SlopeLerpPercent(pc, pc.region));
-				this.throwbackInfo(pc, "Region Slope Magnitude : " + Regions.GetMagnitudeOfRegionSlope(pc.region));
-				this.throwbackInfo(pc, "Player Region Slope Magnitude : " + Regions.GetMagnitudeOfPlayerOnRegionSlope(pc.region, pc));
-			} else {
-				this.throwbackInfo(pc, "No Region Found for player.");
-			}
+        throwbackInfo(pc, "Server location for " + tar.getFirstName());
+        if (tar.getLoc() != null) {
+            throwbackInfo(pc, "Lat: " + tar.getLoc().getX());
+            throwbackInfo(pc, "Lon: " + -tar.getLoc().getZ());
+            throwbackInfo(pc, "Alt: " + tar.getLoc().getY());
+            if (pc.region != null) {
+                this.throwbackInfo(pc, "Player Region Slope Position : " + Regions.SlopeLerpPercent(pc, pc.region));
+                this.throwbackInfo(pc, "Region Slope Magnitude : " + Regions.GetMagnitudeOfRegionSlope(pc.region));
+                this.throwbackInfo(pc, "Player Region Slope Magnitude : " + Regions.GetMagnitudeOfPlayerOnRegionSlope(pc.region, pc));
+            } else {
+                this.throwbackInfo(pc, "No Region Found for player.");
+            }
 
-		} else {
-			throwbackInfo(pc, "Server location for " + tar.getFirstName()
-			+ " not found");
-		}
-	}
+        } else {
+            throwbackInfo(pc, "Server location for " + tar.getFirstName()
+                    + " not found");
+        }
+    }
 
-	@Override
-	protected String _getHelpString() {
+    @Override
+    protected String _getHelpString() {
         return "Returns the player's current location according to the server";
-	}
+    }
 
-	@Override
-	protected String _getUsageString() {
+    @Override
+    protected String _getUsageString() {
         return "' /printloc'";
-	}
+    }
 
 }

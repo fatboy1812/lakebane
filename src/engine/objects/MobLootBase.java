@@ -14,46 +14,46 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public class MobLootBase  {
+public class MobLootBase {
 
-	private int mobBaseID;
-	private int lootTableID;
-	private float chance;
+    public static HashMap<Integer, ArrayList<MobLootBase>> MobLootSet = new HashMap<>();
+    private int mobBaseID;
+    private int lootTableID;
+    private float chance;
 
-	public static HashMap<Integer, ArrayList<MobLootBase>> MobLootSet = new HashMap<>();
 
+    /**
+     * ResultSet Constructor
+     */
 
-	/**
-	 * ResultSet Constructor
-	 */
-
-	public MobLootBase(ResultSet rs) throws SQLException {
-		this.mobBaseID = rs.getInt("mobBaseID");
+    public MobLootBase(ResultSet rs) throws SQLException {
+        this.mobBaseID = rs.getInt("mobBaseID");
         this.lootTableID = rs.getInt("lootTable");
         this.chance = rs.getFloat("chance");
-	}
+    }
 
-	public MobLootBase(int mobBaseID, int lootTableID, int chance) {
-		super();
-		this.mobBaseID = mobBaseID;
+    public MobLootBase(int mobBaseID, int lootTableID, int chance) {
+        super();
+        this.mobBaseID = mobBaseID;
         this.lootTableID = lootTableID;
         this.chance = chance;
 
-	}
+    }
 
-	public int getMobBaseID() {
-		return mobBaseID;
-	}
-	public float getChance() {
-		return chance;
-	}
+    public int getMobBaseID() {
+        return mobBaseID;
+    }
 
-	public int getLootTableID() {
-		return lootTableID;
-	}
+    public float getChance() {
+        return chance;
+    }
 
-	public void setLootTableID(int lootTableID) {
-		this.lootTableID = lootTableID;
-	}
+    public int getLootTableID() {
+        return lootTableID;
+    }
+
+    public void setLootTableID(int lootTableID) {
+        this.lootTableID = lootTableID;
+    }
 
 }

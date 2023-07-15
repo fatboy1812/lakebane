@@ -38,12 +38,126 @@ public enum InterestManager implements Runnable {
     private static long lastTime;
     private static boolean keepGoing = true;
 
-    public void shutdown() {
-        this.keepGoing = false;
-    }
-
     InterestManager() {
         Logger.info(" Interest Management thread is running.");
+    }
+
+    public static void forceLoad(AbstractWorldObject awo) {
+
+        AbstractNetMsg msg = null;
+        LoadStructureMsg lsm;
+        LoadCharacterMsg lcm;
+        NPC npc;
+        Corpse corpse;
+        HashSet<AbstractWorldObject> toUpdate;
+
+        switch (awo.getObjectType()) {
+            case Building:
+                lsm = new LoadStructureMsg();
+                lsm.addObject((Building) awo);
+                msg = lsm;
+                break;
+            case Corpse:
+                corpse = (Corpse) awo;
+                lcm = new LoadCharacterMsg(corpse, false);
+                msg = lcm;
+                break;
+            case NPC:
+                npc = (NPC) awo;
+                lcm = new LoadCharacterMsg(npc, false);
+                msg = lcm;
+                break;
+            default:
+                return;
+        }
+
+        toUpdate = WorldGrid.getObjectsInRangePartial(awo.getLoc(), MBServerStatics.CHARACTER_LOAD_RANGE, MBServerStatics.MASK_PLAYER);
+
+        boolean send;
+
+        for (AbstractWorldObject tar : toUpdate) {
+            PlayerCharacter player = (PlayerCharacter) tar;
+            HashSet<AbstractWorldObject> loadedStaticObjects = player.getLoadedStaticObjects();
+            send = false;
+
+            if (!loadedStaticObjects.contains(awo)) {
+                loadedStaticObjects.add(awo);
+                send = true;
+            }
+
+            if (send) {
+
+                Dispatch dispatch = Dispatch.borrow(player, msg);
+                DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.PRIMARY);
+            }
+        }
+    }
+
+    public static void HandleSpecialUnload(Building building, ClientConnection origin) {
+
+        if (Regions.FurnitureRegionMap.get(building.getObjectUUID()) == null)
+            return;
+
+        Regions buildingRegion = Regions.FurnitureRegionMap.get(building.getObjectUUID());
+
+        if (!buildingRegion.isOutside())
+            return;
+
+        MoveToPointMsg moveMsg = new MoveToPointMsg(building);
+
+        if (origin != null)
+            origin.sendMsg(moveMsg);
+    }
+
+    public static void reloadCharacter(AbstractCharacter absChar) {
+
+        UnloadObjectsMsg uom = new UnloadObjectsMsg();
+        uom.addObject(absChar);
+        LoadCharacterMsg lcm = new LoadCharacterMsg(absChar, false);
+
+        HashSet<AbstractWorldObject> toSend = WorldGrid.getObjectsInRangePartial(absChar.getLoc(), MBServerStatics.CHARACTER_LOAD_RANGE,
+                MBServerStatics.MASK_PLAYER);
+
+        PlayerCharacter pc = null;
+
+        if (absChar.getObjectType().equals(GameObjectType.PlayerCharacter))
+            pc = (PlayerCharacter) absChar;
+
+        for (AbstractWorldObject awo : toSend) {
+
+            PlayerCharacter pcc = (PlayerCharacter) awo;
+
+            if (pcc == null)
+                continue;
+
+            ClientConnection cc = SessionManager.getClientConnection(pcc);
+
+            if (cc == null)
+                continue;
+
+            if (pcc.getObjectUUID() == absChar.getObjectUUID())
+                continue;
+
+            else {
+                if (pc != null)
+                    if (pcc.getSeeInvis() < pc.getHidden())
+                        continue;
+
+                if (!cc.sendMsg(uom)) {
+                    String classType = uom.getClass().getSimpleName();
+                    Logger.error("Failed to send message ");
+                }
+
+                if (!cc.sendMsg(lcm)) {
+                    String classType = lcm.getClass().getSimpleName();
+                    Logger.error("Failed to send message");
+                }
+            }
+        }
+    }
+
+    public void shutdown() {
+        this.keepGoing = false;
     }
 
     @Override
@@ -83,6 +197,9 @@ public enum InterestManager implements Runnable {
         this.lastTime += 1000;
         return dur;
     }
+
+    // Forces the loading of static objects (corpses and buildings).
+    // Needed to override threshold limits on loading statics
 
     private void updateAllPlayers() {
         // get all players
@@ -341,7 +458,7 @@ public enum InterestManager implements Runnable {
 
                     awonpc.playerAgroMap.put(player.getObjectUUID(), false);
                     //MobileFSM.setAwake(awonpc, false);
-                    ((Mob)awonpc).setCombatTarget(null);
+                    ((Mob) awonpc).setCombatTarget(null);
                     //				IVarController.setVariable(awonpc, "IntelligenceDisableDelay", (double) (System.currentTimeMillis() + 5000));
                     //				awonpc.enableIntelligence();
                     lcm = new LoadCharacterMsg(awonpc, PlayerCharacter.hideNonAscii());
@@ -358,7 +475,7 @@ public enum InterestManager implements Runnable {
 
                     if (awonpc.isMob())
                         //MobileFSM.setAwake(awonpc, false);
-                        ((Mob)awonpc).setCombatTarget(null);
+                        ((Mob) awonpc).setCombatTarget(null);
                     //				IVarController.setVariable(awonpc, "IntelligenceDisableDelay", (double) (System.currentTimeMillis() + 5000));
                     //				awonpc.enableIntelligence();
                     lcm = new LoadCharacterMsg(awonpc, PlayerCharacter.hideNonAscii());
@@ -383,76 +500,6 @@ public enum InterestManager implements Runnable {
         // time to process lcm
         //Added effects to LoadCharacter Serialization.
         //JobScheduler.getInstance().scheduleJob(new LoadEffectsJob(players, origin), MBServerStatics.LOAD_OBJECT_DELAY);
-    }
-
-    // Forces the loading of static objects (corpses and buildings).
-    // Needed to override threshold limits on loading statics
-
-    public static void forceLoad(AbstractWorldObject awo) {
-
-        AbstractNetMsg msg = null;
-        LoadStructureMsg lsm;
-        LoadCharacterMsg lcm;
-        NPC npc;
-        Corpse corpse;
-        HashSet<AbstractWorldObject> toUpdate;
-
-        switch (awo.getObjectType()) {
-            case Building:
-                lsm = new LoadStructureMsg();
-                lsm.addObject((Building) awo);
-                msg = lsm;
-                break;
-            case Corpse:
-                corpse = (Corpse) awo;
-                lcm = new LoadCharacterMsg(corpse, false);
-                msg = lcm;
-                break;
-            case NPC:
-                npc = (NPC) awo;
-                lcm = new LoadCharacterMsg(npc, false);
-                msg = lcm;
-                break;
-            default:
-                return;
-        }
-
-        toUpdate = WorldGrid.getObjectsInRangePartial(awo.getLoc(), MBServerStatics.CHARACTER_LOAD_RANGE, MBServerStatics.MASK_PLAYER);
-
-        boolean send;
-
-        for (AbstractWorldObject tar : toUpdate) {
-            PlayerCharacter player = (PlayerCharacter) tar;
-            HashSet<AbstractWorldObject> loadedStaticObjects = player.getLoadedStaticObjects();
-            send = false;
-
-            if (!loadedStaticObjects.contains(awo)) {
-                loadedStaticObjects.add(awo);
-                send = true;
-            }
-
-            if (send) {
-
-                Dispatch dispatch = Dispatch.borrow(player, msg);
-                DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.PRIMARY);
-            }
-        }
-    }
-
-    public static void HandleSpecialUnload(Building building, ClientConnection origin) {
-
-        if (Regions.FurnitureRegionMap.get(building.getObjectUUID()) == null)
-            return;
-
-        Regions buildingRegion = Regions.FurnitureRegionMap.get(building.getObjectUUID());
-
-        if (!buildingRegion.isOutside())
-            return;
-
-        MoveToPointMsg moveMsg = new MoveToPointMsg(building);
-
-        if (origin != null)
-            origin.sendMsg(moveMsg);
     }
 
     public synchronized void HandleLoadForEnterWorld(PlayerCharacter player) {
@@ -502,53 +549,6 @@ public enum InterestManager implements Runnable {
             updateMobileList(player, origin);
         } catch (Exception e) {
             Logger.error("InterestManager.updateAllMobilePlayers: " + player.getObjectUUID(), e);
-        }
-    }
-
-    public static void reloadCharacter(AbstractCharacter absChar) {
-
-        UnloadObjectsMsg uom = new UnloadObjectsMsg();
-        uom.addObject(absChar);
-        LoadCharacterMsg lcm = new LoadCharacterMsg(absChar, false);
-
-        HashSet<AbstractWorldObject> toSend = WorldGrid.getObjectsInRangePartial(absChar.getLoc(), MBServerStatics.CHARACTER_LOAD_RANGE,
-                MBServerStatics.MASK_PLAYER);
-
-        PlayerCharacter pc = null;
-
-        if (absChar.getObjectType().equals(GameObjectType.PlayerCharacter))
-            pc = (PlayerCharacter) absChar;
-
-        for (AbstractWorldObject awo : toSend) {
-
-            PlayerCharacter pcc = (PlayerCharacter) awo;
-
-            if (pcc == null)
-                continue;
-
-            ClientConnection cc = SessionManager.getClientConnection(pcc);
-
-            if (cc == null)
-                continue;
-
-            if (pcc.getObjectUUID() == absChar.getObjectUUID())
-                continue;
-
-            else {
-                if (pc != null)
-                    if (pcc.getSeeInvis() < pc.getHidden())
-                        continue;
-
-                if (!cc.sendMsg(uom)) {
-                    String classType = uom.getClass().getSimpleName();
-                    Logger.error("Failed to send message ");
-                }
-
-                if (!cc.sendMsg(lcm)) {
-                    String classType = lcm.getClass().getSimpleName();
-                    Logger.error("Failed to send message");
-                }
-            }
         }
     }
 }

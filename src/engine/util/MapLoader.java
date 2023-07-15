@@ -27,9 +27,9 @@ public enum MapLoader {
         long bytesRead = 0;
         long realmsWritten = 0;
         int realmUUID;
-        
+
         // Load image from disk
-        
+
         try {
             image = ImageIO.read(new File(ConfigManager.DEFAULT_DATA_DIR + "realmmap.png"));
 
@@ -38,12 +38,12 @@ public enum MapLoader {
             MBServerStatics.SPATIAL_HASH_BUCKETSY = image.getHeight();
             realmMap = new int[MBServerStatics.SPATIAL_HASH_BUCKETSX][MBServerStatics.SPATIAL_HASH_BUCKETSY];
         } catch (IOException e) {
-            Logger.error( "Error loading realm map: " + e.toString());
+            Logger.error("Error loading realm map: " + e.toString());
             return null;
         }
 
         // Flip image on the y axis
-        
+
         image = flipImage(image);
 
         // Load spatial imageMap with color data from file
@@ -52,9 +52,9 @@ public enum MapLoader {
             for (int j = 0; j < MBServerStatics.SPATIAL_HASH_BUCKETSX; j++) {
 
                 Color pixelColor = new Color(image.getRGB(j, i));
-                    realmUUID = RealmMap.getRealmIDByColor(pixelColor);
+                realmUUID = RealmMap.getRealmIDByColor(pixelColor);
 
-                    realmMap[j][i] = realmUUID;
+                realmMap[j][i] = realmUUID;
                 bytesRead++;
 
                 if (realmUUID != 0)
@@ -71,13 +71,13 @@ public enum MapLoader {
     }
 
     public static BufferedImage flipImage(BufferedImage img) {
-        
+
         int w = img.getWidth();
         int h = img.getHeight();
-        
+
         BufferedImage dimg = new BufferedImage(w, h, img.getColorModel()
                 .getTransparency());
-        
+
         Graphics2D g = dimg.createGraphics();
         g.drawImage(img, 0, 0, w, h, 0, h, w, 0, null);
         g.dispose();

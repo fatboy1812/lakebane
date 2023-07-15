@@ -38,7 +38,7 @@ public class GrantExperienceMsg extends ClientNetMsg {
      * past the limit) then this constructor Throws that Exception to the
      * caller.
      */
-    public GrantExperienceMsg(AbstractConnection origin, ByteBufferReader reader)  {
+    public GrantExperienceMsg(AbstractConnection origin, ByteBufferReader reader) {
         super(Protocol.EXPERIENCE, origin, reader);
     }
 
@@ -57,7 +57,7 @@ public class GrantExperienceMsg extends ClientNetMsg {
      * ByteBufferReader.
      */
     @Override
-    protected void _deserialize(ByteBufferReader reader)  {
+    protected void _deserialize(ByteBufferReader reader) {
         reader.get();
         this.xpGranted = reader.getInt();
         this.objectType = reader.getInt();
@@ -78,20 +78,20 @@ public class GrantExperienceMsg extends ClientNetMsg {
         return this.xpGranted;
     }
 
-    public int getObjectType() {
-        return this.objectType;
-    }
-
-    public int getObjectID() {
-        return this.objectID;
-    }
-
     public void setXPGranted(int value) {
         this.xpGranted = value;
     }
 
+    public int getObjectType() {
+        return this.objectType;
+    }
+
     public void setObjectType(int value) {
         this.objectType = value;
+    }
+
+    public int getObjectID() {
+        return this.objectID;
     }
 
     public void setObjectID(int value) {

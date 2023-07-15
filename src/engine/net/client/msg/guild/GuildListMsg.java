@@ -27,49 +27,49 @@ import java.util.ArrayList;
 
 public class GuildListMsg extends ClientNetMsg {
 
-	private GuildListMessageType glm;
+    private GuildListMessageType glm;
 
-	/**
-	 * Type 1 Constructor	- Guild Roster
-	 */
-	public GuildListMsg(Guild g) {
-		super(Protocol.SENDMEMBERENTRY);
-		this.glm = new GuildListMessageType1(g);
-	}
+    /**
+     * Type 1 Constructor	- Guild Roster
+     */
+    public GuildListMsg(Guild g) {
+        super(Protocol.SENDMEMBERENTRY);
+        this.glm = new GuildListMessageType1(g);
+    }
 
-	/**
-	 * Type 4 Constructor  - Guild History
-	 */
-	public GuildListMsg(PlayerCharacter pc) {
-		super(Protocol.SENDMEMBERENTRY);
-		this.glm = new GuildListMessageType2(pc);
-	}
+    /**
+     * Type 4 Constructor  - Guild History
+     */
+    public GuildListMsg(PlayerCharacter pc) {
+        super(Protocol.SENDMEMBERENTRY);
+        this.glm = new GuildListMessageType2(pc);
+    }
 
-	/**
-	 * This constructor is used by NetMsgFactory. It attempts to deserialize the
-	 * ByteBuffer into a message. If a BufferUnderflow occurs (based on reading
-	 * past the limit) then this constructor Throws that Exception to the
-	 * caller.
-	 */
-	public GuildListMsg(AbstractConnection origin, ByteBufferReader reader)  {
-		super(Protocol.SENDMEMBERENTRY, origin, reader);
-	}
+    /**
+     * This constructor is used by NetMsgFactory. It attempts to deserialize the
+     * ByteBuffer into a message. If a BufferUnderflow occurs (based on reading
+     * past the limit) then this constructor Throws that Exception to the
+     * caller.
+     */
+    public GuildListMsg(AbstractConnection origin, ByteBufferReader reader) {
+        super(Protocol.SENDMEMBERENTRY, origin, reader);
+    }
 
-	/**
-	 * Serializes the subclass specific items to the supplied ByteBufferWriter.
-	 */
-	@Override
-	protected void _serialize(ByteBufferWriter writer) {
+    /**
+     * Serializes the subclass specific items to the supplied ByteBufferWriter.
+     */
+    @Override
+    protected void _serialize(ByteBufferWriter writer) {
 
-		//TODO Find Default and null check this
-		this.glm._serialize(writer);
-	}
+        //TODO Find Default and null check this
+        this.glm._serialize(writer);
+    }
 
-	/**
-	 * Deserializes the subclass specific items from the supplied ByteBufferReader.
-	 */
-	@Override
-	protected void _deserialize(ByteBufferReader reader)  {
+    /**
+     * Deserializes the subclass specific items from the supplied ByteBufferReader.
+     */
+    @Override
+    protected void _deserialize(ByteBufferReader reader) {
 		/*
 		 *
 		 * The Server should never receive this message directly.
@@ -100,129 +100,129 @@ public class GuildListMsg extends ClientNetMsg {
 			gt.setUnknown07(reader.getInt());
 		}
 		 */
-	}
+    }
 
-	@Override
-	protected int getPowerOfTwoBufferSize() {
-		// Larger size for historically larger opcodes
-		return 15;
-	}
+    @Override
+    protected int getPowerOfTwoBufferSize() {
+        // Larger size for historically larger opcodes
+        return 15;
+    }
 }
 
 abstract class GuildListMessageType {
-	public ArrayList<Guild> history = new ArrayList<>();
+    public ArrayList<Guild> history = new ArrayList<>();
 
-	abstract void _serialize(ByteBufferWriter writer);
+    abstract void _serialize(ByteBufferWriter writer);
 }
 
 class GuildListMessageType1 extends GuildListMessageType {
 
-	private Guild g;
+    private Guild g;
 
-	public GuildListMessageType1(Guild g) {
-		this.g = g;
-	}
+    public GuildListMessageType1(Guild g) {
+        this.g = g;
+    }
 
-	@Override
-	void _serialize(ByteBufferWriter writer) {
-		Enum.GuildType gt = Enum.GuildType.getGuildTypeFromInt(g.getCharter());
+    @Override
+    void _serialize(ByteBufferWriter writer) {
+        Enum.GuildType gt = Enum.GuildType.getGuildTypeFromInt(g.getCharter());
 
-		writer.putInt(1);
-		writer.putInt(gt.ordinal());	//Charter Type
-		writer.putInt(1);	//Always 1?
-		writer.put((byte) 1);
-		writer.put((byte) 0);
-		writer.putInt(gt.getNumberOfRanks());	//Number of Ranks
-		
-		
-		ArrayList<PlayerCharacter> guildRoster = Guild.GuildRoster(g);
-		writer.putInt(guildRoster.size() + g.getBanishList().size());
+        writer.putInt(1);
+        writer.putInt(gt.ordinal());    //Charter Type
+        writer.putInt(1);    //Always 1?
+        writer.put((byte) 1);
+        writer.put((byte) 0);
+        writer.putInt(gt.getNumberOfRanks());    //Number of Ranks
 
-		// Send guild list of each player
-		for (PlayerCharacter player : guildRoster) {
-			
-			byte isActive = SessionManager.getPlayerCharacterByID(player.getObjectUUID()) != null ? (byte)1 : (byte)0;
-			writer.putInt(Enum.GameObjectType.PlayerCharacter.ordinal());
-			writer.putInt(player.getObjectUUID());
-			writer.putString(player.getCombinedName());
-			writer.put(isActive);	//Active?
-			writer.putInt(GuildStatusController.getTitle(player.getGuildStatus()));
-			writer.putInt(GuildStatusController.getRank(player.getGuildStatus()));
-			writer.putInt(0); // 1/2 has no effect
-			writer.putInt(0); // 1 has no effect
-			writer.putInt(0); // 1 has no effect
-			writer.putInt(0); // 1 has no effect
-			writer.putInt(GuildStatusController.getRank(player.getGuildStatus()));
-			writer.putInt(0); // window failed to open when set to 1
-		}
-		
-		for (PlayerCharacter banished : g.getBanishList()){
-			byte isActive = SessionManager.getPlayerCharacterByID(banished.getObjectUUID()) != null ? (byte)1 : (byte)0;
-			writer.putInt(Enum.GameObjectType.PlayerCharacter.ordinal());
-			writer.putInt(banished.getObjectUUID());
-			writer.putString(banished.getCombinedName());
-			writer.put(isActive);	//Active?
-			writer.putInt(GuildStatusController.getTitle(banished.getGuildStatus()));
-			writer.putInt(3);
-			writer.putInt(0); // 1/2 has no effect
-			writer.putInt(0); // 1 has no effect
-			writer.putInt(0); // 1 has no effect
-			writer.putInt(0); // 1 has no effect
-			writer.putInt(3);
-			writer.putInt(0); // window failed to open when set to 1
-		}
-	}
+
+        ArrayList<PlayerCharacter> guildRoster = Guild.GuildRoster(g);
+        writer.putInt(guildRoster.size() + g.getBanishList().size());
+
+        // Send guild list of each player
+        for (PlayerCharacter player : guildRoster) {
+
+            byte isActive = SessionManager.getPlayerCharacterByID(player.getObjectUUID()) != null ? (byte) 1 : (byte) 0;
+            writer.putInt(Enum.GameObjectType.PlayerCharacter.ordinal());
+            writer.putInt(player.getObjectUUID());
+            writer.putString(player.getCombinedName());
+            writer.put(isActive);    //Active?
+            writer.putInt(GuildStatusController.getTitle(player.getGuildStatus()));
+            writer.putInt(GuildStatusController.getRank(player.getGuildStatus()));
+            writer.putInt(0); // 1/2 has no effect
+            writer.putInt(0); // 1 has no effect
+            writer.putInt(0); // 1 has no effect
+            writer.putInt(0); // 1 has no effect
+            writer.putInt(GuildStatusController.getRank(player.getGuildStatus()));
+            writer.putInt(0); // window failed to open when set to 1
+        }
+
+        for (PlayerCharacter banished : g.getBanishList()) {
+            byte isActive = SessionManager.getPlayerCharacterByID(banished.getObjectUUID()) != null ? (byte) 1 : (byte) 0;
+            writer.putInt(Enum.GameObjectType.PlayerCharacter.ordinal());
+            writer.putInt(banished.getObjectUUID());
+            writer.putString(banished.getCombinedName());
+            writer.put(isActive);    //Active?
+            writer.putInt(GuildStatusController.getTitle(banished.getGuildStatus()));
+            writer.putInt(3);
+            writer.putInt(0); // 1/2 has no effect
+            writer.putInt(0); // 1 has no effect
+            writer.putInt(0); // 1 has no effect
+            writer.putInt(0); // 1 has no effect
+            writer.putInt(3);
+            writer.putInt(0); // window failed to open when set to 1
+        }
+    }
 }
 
 class GuildListMessageType2 extends GuildListMessageType {
 
-	private PlayerCharacter pc;
+    private PlayerCharacter pc;
 
-	public GuildListMessageType2(PlayerCharacter pc) {
-		this.pc = pc;
-	}
+    public GuildListMessageType2(PlayerCharacter pc) {
+        this.pc = pc;
+    }
 
-	@Override
-	void _serialize(ByteBufferWriter writer) {
+    @Override
+    void _serialize(ByteBufferWriter writer) {
 
-		Guild g = pc.getGuild();
+        Guild g = pc.getGuild();
 
-		writer.putInt(4);
+        writer.putInt(4);
 
-		writer.putInt(0);
-		writer.putInt(0);
-		writer.putInt(0);
+        writer.putInt(0);
+        writer.putInt(0);
+        writer.putInt(0);
 
-		writer.put((byte) 0);
-		writer.put((byte) 0);
-		writer.putInt(1);
-		writer.putInt(pc.getObjectType().ordinal());
-		writer.putInt(pc.getObjectUUID());
-		writer.putString(pc.getCombinedName());
+        writer.put((byte) 0);
+        writer.put((byte) 0);
+        writer.putInt(1);
+        writer.putInt(pc.getObjectType().ordinal());
+        writer.putInt(pc.getObjectUUID());
+        writer.putString(pc.getCombinedName());
 
-		writer.put((byte) 1);
-		writer.putInt(GuildStatusController.getTitle(pc.getGuildStatus()));	//Title Maybe?
-		writer.putInt(GuildStatusController.getRank(pc.getGuildStatus()));	//Rank?
+        writer.put((byte) 1);
+        writer.putInt(GuildStatusController.getTitle(pc.getGuildStatus()));    //Title Maybe?
+        writer.putInt(GuildStatusController.getRank(pc.getGuildStatus()));    //Rank?
 
-		writer.putInt(pc.getRaceToken());	//race token
-		writer.putInt(pc.getBaseClassToken());	//class token
+        writer.putInt(pc.getRaceToken());    //race token
+        writer.putInt(pc.getBaseClassToken());    //class token
 
-		writer.putInt(2);	//PAD
-		writer.putInt(pc.getLevel());
-		writer.putInt(g.getCharter());
+        writer.putInt(2);    //PAD
+        writer.putInt(pc.getLevel());
+        writer.putInt(g.getCharter());
 
-		//TODO Get Guild History from the DB
-		//ArrayList<GuildHistory> history = DbManager.GuildQueries.GET_GUILD_HISTORY_OF_PLAYER((int)pc.getPlayerUUID());
-		writer.putInt(pc.getGuildHistory().size());	//Number of Entries
+        //TODO Get Guild History from the DB
+        //ArrayList<GuildHistory> history = DbManager.GuildQueries.GET_GUILD_HISTORY_OF_PLAYER((int)pc.getPlayerUUID());
+        writer.putInt(pc.getGuildHistory().size());    //Number of Entries
 
-		for(GuildHistory guildHistory : pc.getGuildHistory()) {
-			writer.putInt(guildHistory.getHistoryType().getType());
-			writer.putInt(GameObjectType.Guild.ordinal());
-			writer.putInt((int) guildHistory.getGuildID());
-			writer.putString(guildHistory.getGuildName());
-			writer.putInt(0);
-			writer.putDateTime(guildHistory.getTime());
-		}
-	}
+        for (GuildHistory guildHistory : pc.getGuildHistory()) {
+            writer.putInt(guildHistory.getHistoryType().getType());
+            writer.putInt(GameObjectType.Guild.ordinal());
+            writer.putInt((int) guildHistory.getGuildID());
+            writer.putString(guildHistory.getGuildName());
+            writer.putInt(0);
+            writer.putDateTime(guildHistory.getTime());
+        }
+    }
 
 }

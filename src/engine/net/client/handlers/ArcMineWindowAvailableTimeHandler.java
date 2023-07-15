@@ -29,7 +29,7 @@ public class ArcMineWindowAvailableTimeHandler extends AbstractClientMsgHandler 
     @Override
     protected boolean _handleNetMsg(ClientNetMsg baseMsg, ClientConnection origin) throws MsgSendException {
 
-		ArcMineWindowAvailableTimeMsg msg = (ArcMineWindowAvailableTimeMsg) baseMsg;
+        ArcMineWindowAvailableTimeMsg msg = (ArcMineWindowAvailableTimeMsg) baseMsg;
         PlayerCharacter playerCharacter = origin.getPlayerCharacter();
         Building treeOfLife = BuildingManager.getBuildingFromCache(msg.getBuildingUUID());
         Dispatch dispatch;

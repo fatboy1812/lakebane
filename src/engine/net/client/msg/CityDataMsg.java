@@ -29,14 +29,12 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class CityDataMsg extends ClientNetMsg {
 
-    private Session s;
-    private final boolean forEnterWorld;
-    private static ByteBuffer cachedEnterWorld;
-    private static long cachedExpireTime;
-
     public static final long wdComp = 0xFF00FF0000000003L;
     private static final byte ver = 1;
-
+    private static ByteBuffer cachedEnterWorld;
+    private static long cachedExpireTime;
+    private final boolean forEnterWorld;
+    private Session s;
     private boolean updateCities = false;
     private boolean updateRunegates = false;
     private boolean updateMines = false;
@@ -71,6 +69,44 @@ public class CityDataMsg extends ClientNetMsg {
     public CityDataMsg(AbstractConnection origin, ByteBufferReader reader) {
         super(Protocol.CITYDATA, origin, reader);
         this.forEnterWorld = false;
+    }
+
+    private static void attemptSerializeForEnterWorld(ByteBuffer bb) {
+        bb.clear();
+        ByteBufferWriter temp = new ByteBufferWriter(bb);
+        temp.put((byte) 0); // PAD
+
+
+        ArrayList<City> cityList = new ArrayList<>();
+        ConcurrentHashMap<Integer, AbstractGameObject> map = DbManager.getMap(Enum.GameObjectType.City);
+        for (AbstractGameObject ago : map.values())
+
+            if (ago.getObjectType().equals(Enum.GameObjectType.City))
+                cityList.add((City) ago);
+
+        temp.putInt(cityList.size());
+
+        for (City city : cityList)
+            City.serializeForClientMsg(city, temp);
+        temp.put((byte) 0); // PAD
+
+        // Serialize runegates
+
+        temp.putInt(Runegate._runegates.values().size());
+
+        for (Runegate runegate : Runegate._runegates.values()) {
+            runegate._serializeForEnterWorld(temp);
+        }
+
+        ArrayList<Mine> mineList = new ArrayList<>();
+        for (Mine toAdd : Mine.mineMap.keySet()) {
+            mineList.add(toAdd);
+        }
+
+        temp.putInt(mineList.size());
+        for (Mine mine : mineList)
+            Mine.serializeForClientMsg(mine, temp);
+        temp.put((byte) 0); // PAD
     }
 
     @Override
@@ -181,44 +217,6 @@ public class CityDataMsg extends ClientNetMsg {
 
         writer.putBB(cachedEnterWorld);
 
-    }
-
-    private static void attemptSerializeForEnterWorld(ByteBuffer bb) {
-        bb.clear();
-        ByteBufferWriter temp = new ByteBufferWriter(bb);
-        temp.put((byte) 0); // PAD
-
-
-        ArrayList<City> cityList = new ArrayList<>();
-        ConcurrentHashMap<Integer, AbstractGameObject> map = DbManager.getMap(Enum.GameObjectType.City);
-        for (AbstractGameObject ago : map.values())
-
-            if (ago.getObjectType().equals(Enum.GameObjectType.City))
-                cityList.add((City) ago);
-
-        temp.putInt(cityList.size());
-
-        for (City city : cityList)
-            City.serializeForClientMsg(city, temp);
-        temp.put((byte) 0); // PAD
-
-        // Serialize runegates
-
-        temp.putInt(Runegate._runegates.values().size());
-
-        for (Runegate runegate : Runegate._runegates.values()) {
-            runegate._serializeForEnterWorld(temp);
-        }
-
-        ArrayList<Mine> mineList = new ArrayList<>();
-        for (Mine toAdd : Mine.mineMap.keySet()) {
-            mineList.add(toAdd);
-        }
-
-        temp.putInt(mineList.size());
-        for (Mine mine : mineList)
-            Mine.serializeForClientMsg(mine, temp);
-        temp.put((byte) 0); // PAD
     }
 
     /**

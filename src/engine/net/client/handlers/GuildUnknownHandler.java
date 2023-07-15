@@ -16,14 +16,14 @@ import engine.net.client.msg.guild.GuildUnknownMsg;
 
 public class GuildUnknownHandler extends AbstractClientMsgHandler {
 
-	public GuildUnknownHandler() {
-		super(GuildUnknownMsg.class);
-	}
+    public GuildUnknownHandler() {
+        super(GuildUnknownMsg.class);
+    }
 
-	@Override
-	protected boolean _handleNetMsg(ClientNetMsg baseMsg, ClientConnection origin) throws MsgSendException {
+    @Override
+    protected boolean _handleNetMsg(ClientNetMsg baseMsg, ClientConnection origin) throws MsgSendException {
 //		GuildUnknownMsg msg = (GuildUnknownMsg) baseMsg;
-		return true;
-	}
+        return true;
+    }
 
 }

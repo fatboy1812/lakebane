@@ -16,14 +16,14 @@ import engine.objects.PlayerCharacter;
 
 public class HelpCmd extends AbstractDevCmd {
 
-	public HelpCmd() {
-		super("help");
-		this.addCmdString("list");
-	}
+    public HelpCmd() {
+        super("help");
+        this.addCmdString("list");
+    }
 
-	@Override
-	protected void _doCmd(PlayerCharacter pcSender, String[] args,
-			AbstractGameObject target) {
+    @Override
+    protected void _doCmd(PlayerCharacter pcSender, String[] args,
+                          AbstractGameObject target) {
         if (pcSender == null)
             return;
         if (pcSender.getAccount() == null)
@@ -42,18 +42,18 @@ public class HelpCmd extends AbstractDevCmd {
             first = charLimit;
             charLimit += 500;
             last = charLimit;
-		}
-		this.throwbackInfo(pcSender, commands.substring(first));
-	}
+        }
+        this.throwbackInfo(pcSender, commands.substring(first));
+    }
 
-	@Override
-	protected String _getUsageString() {
+    @Override
+    protected String _getUsageString() {
         return "' /help' || ' /list'";
-	}
+    }
 
-	@Override
-	protected String _getHelpString() {
+    @Override
+    protected String _getHelpString() {
         return "Displays help info and lists all commands accessible for the player's access level.";
-	}
+    }
 
 }

@@ -7,6 +7,7 @@
 //                www.magicbane.com
 
 package discord;
+
 import engine.Enum;
 
 import java.time.LocalDateTime;
@@ -18,6 +19,7 @@ public class DiscordAccount {
     public LocalDateTime registrationDate;
     public LocalDateTime lastUpdateRequest;
     public byte isDiscordAdmin;
+
     public DiscordAccount() {
 
     }

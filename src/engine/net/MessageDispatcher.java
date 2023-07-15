@@ -7,9 +7,6 @@
 //                www.magicbane.com
 
 
-
-
-
 // • ▌ ▄ ·.  ▄▄▄·  ▄▄ • ▪   ▄▄· ▄▄▄▄·  ▄▄▄·  ▐▄▄▄  ▄▄▄ .
 // ·██ ▐███▪▐█ ▀█ ▐█ ▀ ▪██ ▐█ ▌▪▐█ ▀█▪▐█ ▀█ •█▌ ▐█▐▌·
 // ▐█ ▌▐▌▐█·▄█▀▀█ ▄█ ▀█▄▐█·██ ▄▄▐█▀▀█▄▄█▀▀█ ▐█▐ ▐▌▐▀▀▀
@@ -33,7 +30,7 @@ import java.util.regex.Pattern;
  * Thread blocks until MagicBane dispatch messages are
  * enqueued then processes them in FIFO order. The collection
  * is thread safe.
- * 
+ * <p>
  * Any large messages not time sensitive such as load object
  * sent to more than a single individual should be spawned
  * individually on a DispatchMessageThread.
@@ -42,77 +39,91 @@ import java.util.regex.Pattern;
 public class MessageDispatcher implements Runnable {
 
     // Instance variables
-    
-    private Dispatch messageDispatch;
-    private final Pattern filterPattern; // Unused, but just in case
-    
-    // Class variables
 
     @SuppressWarnings("unchecked") // Cannot have arrays of generics in java.
     private static final ConcurrentLinkedQueue<Dispatch>[] _messageQueue = new ConcurrentLinkedQueue[DispatchChannel.values().length];
-
     private static final LinkedBlockingQueue<Boolean> _blockingQueue = new LinkedBlockingQueue<>();
-    
+
+    // Class variables
+    public static volatile long[] messageCount = new long[DispatchChannel.values().length];
+    public static LongAdder[] dispatchCount = new LongAdder[DispatchChannel.values().length];
+
     // Performance metrics
-    
-    public static  volatile long[] messageCount = new long[DispatchChannel.values().length];
-    public static  LongAdder[] dispatchCount = new LongAdder[DispatchChannel.values().length];
-    public static  volatile long[] maxRecipients = new long[DispatchChannel.values().length];
-    public static  LongAdder itemPoolSize = new LongAdder();
-    
+    public static volatile long[] maxRecipients = new long[DispatchChannel.values().length];
+    public static LongAdder itemPoolSize = new LongAdder();
+    private final Pattern filterPattern; // Unused, but just in case
+    private Dispatch messageDispatch;
+
     // Thread constructor
-    
+
     public MessageDispatcher() {
 
         // Create new FIFO queues for this network thread
-        
+
         for (DispatchChannel dispatchChannel : DispatchChannel.values()) {
             _messageQueue[dispatchChannel.getChannelID()] = new ConcurrentLinkedQueue<>();
             dispatchCount[dispatchChannel.getChannelID()] = new LongAdder();
         }
-            
+
         filterPattern = Pattern.compile("[^\\p{ASCII}]");
-        Logger.info( " Dispatcher thread has started!");
-    
+        Logger.info(" Dispatcher thread has started!");
+
     }
 
     public static void send(Dispatch messageDispatch, DispatchChannel dispatchChannel) {
-    
+
         // Don't queue up empty dispatches!
-        
+
         if (messageDispatch.player == null)
             return;
-        
+
         _messageQueue[dispatchChannel.getChannelID()].add(messageDispatch);
         _blockingQueue.add(true);
-        
+
         // Update performance metrics
-        
+
         messageCount[dispatchChannel.getChannelID()]++;
-        
+
     }
-        
+
+    public static String getNetstatString() {
+
+        String outString = null;
+        String newLine = System.getProperty("line.separator");
+        outString = "[LUA_NETSTA()]" + newLine;
+        outString += "poolSize: " + itemPoolSize.longValue() + '\n';
+
+        for (DispatchChannel dispatchChannel : DispatchChannel.values()) {
+
+            outString += "Channel: " + dispatchChannel.name() + '\n';
+            outString += "Dispatches: " + dispatchCount[dispatchChannel.getChannelID()].longValue() + '\n';
+            outString += "Messages: " + messageCount[dispatchChannel.getChannelID()] + '\n';
+            outString += "maxRecipients: " + maxRecipients[dispatchChannel.getChannelID()] + '\n';
+        }
+        return outString;
+    }
+
     @Override
     public void run() {
-        
+
         boolean shouldBlock;
-        
+
         while (true) {
             try {
-                
+
                 shouldBlock = true;
-                
+
                 for (DispatchChannel dispatchChannel : DispatchChannel.values()) {
-                    
+
                     this.messageDispatch = _messageQueue[dispatchChannel.getChannelID()].poll();
-                    
+
                     if (this.messageDispatch != null) {
-                    DispatchMessage.serializeDispatch(this.messageDispatch);
-                    shouldBlock = false;
+                        DispatchMessage.serializeDispatch(this.messageDispatch);
+                        shouldBlock = false;
+                    }
+
                 }
-                
-                }
-                
+
                 if (shouldBlock == true)
                     shouldBlock = _blockingQueue.take();
 
@@ -123,23 +134,6 @@ public class MessageDispatcher implements Runnable {
         }
     }
 
-    public static String getNetstatString() {
-
-        String outString = null;
-        String newLine = System.getProperty("line.separator");
-        outString = "[LUA_NETSTA()]" + newLine;
-        outString += "poolSize: " + itemPoolSize.longValue() + '\n';
-        
-        for (DispatchChannel dispatchChannel : DispatchChannel.values()) {
-            
-            outString += "Channel: " + dispatchChannel.name() + '\n';
-            outString += "Dispatches: " + dispatchCount[dispatchChannel.getChannelID()].longValue()+ '\n';
-            outString += "Messages: " + messageCount[dispatchChannel.getChannelID()] + '\n';
-            outString += "maxRecipients: " + maxRecipients[dispatchChannel.getChannelID()] + '\n';
-        }
-        return outString;
-    }
-            
-        // For Debugging:
-        //Logger.error("MessageDispatcher", messageDispatch.msg.getOpcodeAsString() + " sent to " + messageDispatch.playerList.size() + " players");
-    }
+    // For Debugging:
+    //Logger.error("MessageDispatcher", messageDispatch.msg.getOpcodeAsString() + " sent to " + messageDispatch.playerList.size() + " players");
+}

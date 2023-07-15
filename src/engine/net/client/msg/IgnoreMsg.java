@@ -41,7 +41,7 @@ public class IgnoreMsg extends ClientNetMsg {
      * past the limit) then this constructor Throws that Exception to the
      * caller.
      */
-    public IgnoreMsg(AbstractConnection origin, ByteBufferReader reader)  {
+    public IgnoreMsg(AbstractConnection origin, ByteBufferReader reader) {
         super(Protocol.IGNORE, origin, reader);
     }
 
@@ -59,7 +59,7 @@ public class IgnoreMsg extends ClientNetMsg {
      * Deserializes the subclass specific items from the supplied NetMsgReader.
      */
     @Override
-    protected void _deserialize(ByteBufferReader reader)  {
+    protected void _deserialize(ByteBufferReader reader) {
         unknown1 = reader.getInt();
         unknown2 = reader.getInt();
         nameToIgnore = reader.getUnicodeString();

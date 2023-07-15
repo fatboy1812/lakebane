@@ -25,102 +25,102 @@ import engine.objects.PlayerCharacter;
 
 public class GroupInviteHandler extends AbstractClientMsgHandler {
 
-	public GroupInviteHandler() {
-		super(GroupInviteMsg.class);
-	}
+    public GroupInviteHandler() {
+        super(GroupInviteMsg.class);
+    }
 
-	@Override
-	protected boolean _handleNetMsg(ClientNetMsg baseMsg,
+    private static Group createGroup(PlayerCharacter pc, ClientConnection origin) {
 
-			ClientConnection origin) throws MsgSendException {
-		GroupInviteMsg msg = (GroupInviteMsg) baseMsg;
-		PlayerCharacter source = SessionManager.getPlayerCharacter(origin);
+        if (pc == null)
+            return null;
 
-		if (source == null)
-			return false;
+        Group group = new Group(pc, GroupManager.incrGroupCount());
+        group.addGroupMember(pc);
+        GroupManager.addNewGroup(group);
 
-		Group group = GroupManager.getGroup(source);
+        pc.setFollow(false);
+        // Send add self to group message
+        GroupUpdateMsg msg = new GroupUpdateMsg();
+        msg.setGroup(group);
+        msg.setPlayer(pc);
+        msg.setMessageType(1);
+        Dispatch dispatch = Dispatch.borrow(pc, msg);
+        DispatchMessage.dispatchMsgDispatch(dispatch, engine.Enum.DispatchChannel.SECONDARY);
 
-		// Group is new, create it.
+        group.addUpdateGroupJob();
 
-		if (group == null)
-			group = GroupInviteHandler.createGroup(source, origin);
+        return group;
+    }
 
-		if (group == null)
-			return false;
+    // this can only be called if you already know you are not in a group
+    // and have issued an invite
 
-		if (!group.isGroupLead(source)) // person doing invite must be group lead
-			return true;
+    @Override
+    protected boolean _handleNetMsg(ClientNetMsg baseMsg,
 
-		PlayerCharacter target = null;
+                                    ClientConnection origin) throws MsgSendException {
+        GroupInviteMsg msg = (GroupInviteMsg) baseMsg;
+        PlayerCharacter source = SessionManager.getPlayerCharacter(origin);
 
-		if (msg.getInvited() == 1) { // Use name for invite
-			target = SessionManager.getPlayerCharacterByLowerCaseName(msg.getName().toLowerCase());
-		} else { // Use ID for invite
-			target = SessionManager.getPlayerCharacterByID(msg.getTargetID());
-		}
+        if (source == null)
+            return false;
 
-		if (target == null)
-			return false;
+        Group group = GroupManager.getGroup(source);
 
-		// Client must be online
+        // Group is new, create it.
 
-		if (SessionManager.getClientConnection(target) == null)
-			return false;
+        if (group == null)
+            group = GroupInviteHandler.createGroup(source, origin);
 
-		if (source == target) // Inviting self, so we're done
-			return false;
+        if (group == null)
+            return false;
+
+        if (!group.isGroupLead(source)) // person doing invite must be group lead
+            return true;
+
+        PlayerCharacter target = null;
+
+        if (msg.getInvited() == 1) { // Use name for invite
+            target = SessionManager.getPlayerCharacterByLowerCaseName(msg.getName().toLowerCase());
+        } else { // Use ID for invite
+            target = SessionManager.getPlayerCharacterByID(msg.getTargetID());
+        }
+
+        if (target == null)
+            return false;
+
+        // Client must be online
+
+        if (SessionManager.getClientConnection(target) == null)
+            return false;
+
+        if (source == target) // Inviting self, so we're done
+            return false;
 
 
-		//Skip invite if target is ignoring source
+        //Skip invite if target is ignoring source
 
-		if (target.isIgnoringPlayer(source))
-			return false;
+        if (target.isIgnoringPlayer(source))
+            return false;
 
 
-		// dont block invites to people already in a group and
-		// dont check for pending invites, the client does it
-		// Send invite message to target
+        // dont block invites to people already in a group and
+        // dont check for pending invites, the client does it
+        // Send invite message to target
 
-		msg.setSourceType(GameObjectType.PlayerCharacter.ordinal());
-		msg.setSourceID(source.getObjectUUID());
-		msg.setTargetType(0);
-		msg.setTargetID(0);
-		msg.setGroupType(GameObjectType.Group.ordinal());
-		msg.setGroupID(group.getObjectUUID());
-		msg.setInvited(1);
-		msg.setName(source.getFirstName());
+        msg.setSourceType(GameObjectType.PlayerCharacter.ordinal());
+        msg.setSourceID(source.getObjectUUID());
+        msg.setTargetType(0);
+        msg.setTargetID(0);
+        msg.setGroupType(GameObjectType.Group.ordinal());
+        msg.setGroupID(group.getObjectUUID());
+        msg.setInvited(1);
+        msg.setName(source.getFirstName());
 
-		Dispatch dispatch = Dispatch.borrow(target, msg);
-		DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
+        Dispatch dispatch = Dispatch.borrow(target, msg);
+        DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
 
-		return true;
-	}
-
-	// this can only be called if you already know you are not in a group
-	// and have issued an invite
-
-	private static Group createGroup(PlayerCharacter pc, ClientConnection origin) {
-
-		if (pc == null)
-			return null;
-
-		Group group = new Group(pc, GroupManager.incrGroupCount());
-		group.addGroupMember(pc);
-		GroupManager.addNewGroup(group);
-
-		pc.setFollow(false);
-		// Send add self to group message
-		GroupUpdateMsg msg = new GroupUpdateMsg();
-		msg.setGroup(group);
-		msg.setPlayer(pc);
-		msg.setMessageType(1);
-		Dispatch dispatch = Dispatch.borrow(pc, msg);
-		DispatchMessage.dispatchMsgDispatch(dispatch, engine.Enum.DispatchChannel.SECONDARY);
-
-		group.addUpdateGroupJob();
-
-		return group;
-	}
+        return true;
+    }
 
 }

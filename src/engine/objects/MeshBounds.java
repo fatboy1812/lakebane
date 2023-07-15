@@ -17,33 +17,33 @@ import java.sql.SQLException;
 
 public class MeshBounds {
 
-	public int meshID;
-	public final float minX;
-	public final float minY;
-	public final  float minZ;
-	public final float maxX;
-	public final float maxY;
-	public final float maxZ;
-	public final float radius;
+    public final float minX;
+    public final float minY;
+    public final float minZ;
+    public final float maxX;
+    public final float maxY;
+    public final float maxZ;
+    public final float radius;
+    public int meshID;
 
-	public MeshBounds(ResultSet rs) throws SQLException {
+    public MeshBounds(ResultSet rs) throws SQLException {
 
-		meshID = rs.getInt("meshID");
-		minX = rs.getFloat("minX"); 
-		minY = rs.getFloat("minY");
-		minZ = rs.getFloat("minZ");
-		maxX = rs.getFloat("maxX");
-		maxY = rs.getFloat("maxY");
-		maxZ = rs.getFloat("maxZ");
-		float radiusX = (int) maxX;
-		float radiusZ = (int) maxZ;
-		
-		radius = Math.max(radiusX,radiusZ);
-	}
+        meshID = rs.getInt("meshID");
+        minX = rs.getFloat("minX");
+        minY = rs.getFloat("minY");
+        minZ = rs.getFloat("minZ");
+        maxX = rs.getFloat("maxX");
+        maxY = rs.getFloat("maxY");
+        maxZ = rs.getFloat("maxZ");
+        float radiusX = (int) maxX;
+        float radiusZ = (int) maxZ;
 
-	public static void InitializeBuildingBounds(){
-		Bounds.meshBoundsCache = DbManager.BuildingQueries.LOAD_MESH_BOUNDS();
-	}
-	
+        radius = Math.max(radiusX, radiusZ);
+    }
+
+    public static void InitializeBuildingBounds() {
+        Bounds.meshBoundsCache = DbManager.BuildingQueries.LOAD_MESH_BOUNDS();
+    }
+
 
 }

@@ -23,346 +23,332 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class Race {
 
-	// Local class cache
+    // Local class cache
 
-	private static ConcurrentHashMap<Integer, Race> _raceByID = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_LOW);
+    private static ConcurrentHashMap<Integer, Race> _raceByID = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_LOW);
 
-	private final String name;
-	private final String description;
-	private final int raceRuneID;
-	private Enum.RaceType raceType;
-	private final short strStart;
-	private final short strMin;
-	private final short strMax;
+    private final String name;
+    private final String description;
+    private final int raceRuneID;
+    private final short strStart;
+    private final short strMin;
+    private final short strMax;
+    private final short dexStart;
+    private final short dexMin;
+    private final short dexMax;
+    private final short conStart;
+    private final short conMin;
+    private final short conMax;
+    private final short intStart;
+    private final short intMin;
+    private final short intMax;
+    private final short spiStart;
+    private final short spiMin;
+    private final short spiMax;
+    private final short healthBonus;
+    private final short manaBonus;
+    private final short staminaBonus;
+    private final byte startingPoints;
+    private final float minHeight;
+    private final float strHeightMod;
+    private final HashSet<Integer> skinColors;
+    private final HashSet<Integer> beardColors;
+    private final HashSet<Integer> hairColors;
+    private final ArrayList<BaseClass> baseClasses;
+    private final ArrayList<SkillReq> skillsGranted;
+    private final ArrayList<PowerReq> powersGranted;
+    private Enum.RaceType raceType;
+    private int token = 0;
+    private HashSet<Integer> hairStyles;
+    private HashSet<Integer> beardStyles;
+    private ArrayList<MobBaseEffects> effectsList = new ArrayList<>();
 
-	private final short dexStart;
-	private final short dexMin;
-	private final short dexMax;
+    /**
+     * ResultSet Constructor
+     */
+    public Race(ResultSet rs) throws SQLException {
 
-	private final short conStart;
-	private final short conMin;
-	private final short conMax;
+        this.raceRuneID = rs.getInt("ID");
+        this.raceType = Enum.RaceType.getRaceTypebyRuneID(raceRuneID);
+        this.name = rs.getString("name");
+        this.description = rs.getString("description");
+        this.strStart = rs.getShort("strStart");
+        this.strMin = rs.getShort("strMin");
+        this.strMax = rs.getShort("strMax");
+        this.dexStart = rs.getShort("dexStart");
+        this.dexMin = rs.getShort("dexMin");
+        this.dexMax = rs.getShort("dexMax");
+        this.conStart = rs.getShort("conStart");
+        this.conMin = rs.getShort("conMin");
+        this.conMax = rs.getShort("conMax");
+        this.intStart = rs.getShort("intStart");
+        this.intMin = rs.getShort("intMin");
+        this.intMax = rs.getShort("intMax");
+        this.spiStart = rs.getShort("spiStart");
+        this.spiMin = rs.getShort("spiMin");
+        this.spiMax = rs.getShort("spiMax");
+        this.token = rs.getInt("token");
+        this.healthBonus = rs.getShort("healthBonus");
+        this.manaBonus = rs.getShort("manaBonus");
+        this.staminaBonus = rs.getShort("staminaBonus");
+        this.startingPoints = rs.getByte("startingPoints");
+        this.raceType = RaceType.getRaceTypebyRuneID(this.raceRuneID);
+        this.minHeight = rs.getFloat("minHeight");
+        this.strHeightMod = rs.getFloat("strHeightMod");
+        this.hairStyles = DbManager.RaceQueries.HAIR_STYLES_FOR_RACE(raceRuneID);
+        this.beardStyles = DbManager.RaceQueries.BEARD_STYLES_FOR_RACE(raceRuneID);
+        this.skinColors = DbManager.RaceQueries.SKIN_COLOR_FOR_RACE(raceRuneID);
+        this.beardColors = DbManager.RaceQueries.BEARD_COLORS_FOR_RACE(raceRuneID);
+        this.hairColors = DbManager.RaceQueries.HAIR_COLORS_FOR_RACE(raceRuneID);
+        this.baseClasses = DbManager.BaseClassQueries.GET_BASECLASS_FOR_RACE(raceRuneID);
+        this.skillsGranted = DbManager.SkillReqQueries.GET_REQS_FOR_RUNE(raceRuneID);
+        this.powersGranted = PowerReq.getPowerReqsForRune(raceRuneID);
+        this.effectsList = DbManager.MobBaseQueries.GET_RUNEBASE_EFFECTS(this.raceRuneID);
 
-	private final short intStart;
-	private final short intMin;
-	private final short intMax;
+    }
 
-	private final short spiStart;
-	private final short spiMin;
-	private final short spiMax;
+    public static void loadAllRaces() {
+        Race._raceByID = DbManager.RaceQueries.LOAD_ALL_RACES();
+    }
 
-	private final short healthBonus;
-	private final short manaBonus;
-	private final short staminaBonus;
+    public static Race getRace(int id) {
+        return _raceByID.get(id);
+    }
 
-	private final byte startingPoints;
+    @Override
+    public boolean equals(Object object) {
 
-	private final float minHeight;
-	private final float strHeightMod;
+        if ((object instanceof Race) == false)
+            return false;
 
-	private int token = 0;
+        Race race = (Race) object;
 
-	private HashSet<Integer> hairStyles;
-	private HashSet<Integer> beardStyles;
+        return this.raceRuneID == race.raceRuneID;
+    }
 
-	private final HashSet<Integer> skinColors;
-	private final HashSet<Integer> beardColors;
-	private final HashSet<Integer> hairColors;
+    @Override
+    public int hashCode() {
+        return this.raceRuneID;
+    }
 
-	private final ArrayList<BaseClass> baseClasses;
-	private ArrayList<MobBaseEffects> effectsList = new ArrayList<>();
+    /*
+     * Getters
+     */
+    public String getName() {
+        return name;
+    }
 
+    public String getDescription() {
+        return description;
+    }
 
-	private final ArrayList<SkillReq> skillsGranted;
-	private final ArrayList<PowerReq> powersGranted;
+    public short getStrStart() {
+        return strStart;
+    }
 
-	public static void loadAllRaces() {
-		Race._raceByID = DbManager.RaceQueries.LOAD_ALL_RACES();
-	}
+    public short getStrMin() {
+        return strMin;
+    }
 
+    public short getStrMax() {
+        return strMax;
+    }
 
-	@Override
-	public boolean equals(Object object) {
+    public short getDexStart() {
+        return dexStart;
+    }
 
-		if ((object instanceof Race) == false)
-			return false;
+    public short getDexMin() {
+        return dexMin;
+    }
 
-		Race race = (Race) object;
+    public short getDexMax() {
+        return dexMax;
+    }
 
-		return this.raceRuneID == race.raceRuneID;
-	}
+    public short getConStart() {
+        return conStart;
+    }
 
-	@Override
-	public int hashCode() {
-		return this.raceRuneID;
-	}
+    public short getConMin() {
+        return conMin;
+    }
 
-	/**
-	 * ResultSet Constructor
-	 */
-	public Race(ResultSet rs) throws SQLException {
+    public short getConMax() {
+        return conMax;
+    }
 
-		this.raceRuneID = rs.getInt("ID");
-		this.raceType = Enum.RaceType.getRaceTypebyRuneID(raceRuneID);
-		this.name = rs.getString("name");
-		this.description = rs.getString("description");
-		this.strStart = rs.getShort("strStart");
-		this.strMin = rs.getShort("strMin");
-		this.strMax = rs.getShort("strMax");
-		this.dexStart = rs.getShort("dexStart");
-		this.dexMin = rs.getShort("dexMin");
-		this.dexMax = rs.getShort("dexMax");
-		this.conStart = rs.getShort("conStart");
-		this.conMin = rs.getShort("conMin");
-		this.conMax = rs.getShort("conMax");
-		this.intStart = rs.getShort("intStart");
-		this.intMin = rs.getShort("intMin");
-		this.intMax = rs.getShort("intMax");
-		this.spiStart = rs.getShort("spiStart");
-		this.spiMin = rs.getShort("spiMin");
-		this.spiMax = rs.getShort("spiMax");
-		this.token = rs.getInt("token");
-		this.healthBonus = rs.getShort("healthBonus");
-		this.manaBonus = rs.getShort("manaBonus");
-		this.staminaBonus = rs.getShort("staminaBonus");
-		this.startingPoints = rs.getByte("startingPoints");
-		this.raceType = RaceType.getRaceTypebyRuneID(this.raceRuneID);
-		this.minHeight = rs.getFloat("minHeight");
-		this.strHeightMod = rs.getFloat("strHeightMod");
-		this.hairStyles = DbManager.RaceQueries.HAIR_STYLES_FOR_RACE(raceRuneID);
-		this.beardStyles = DbManager.RaceQueries.BEARD_STYLES_FOR_RACE(raceRuneID);
-		this.skinColors = DbManager.RaceQueries.SKIN_COLOR_FOR_RACE(raceRuneID);
-		this.beardColors = DbManager.RaceQueries.BEARD_COLORS_FOR_RACE(raceRuneID);
-		this.hairColors = DbManager.RaceQueries.HAIR_COLORS_FOR_RACE(raceRuneID);
-		this.baseClasses = DbManager.BaseClassQueries.GET_BASECLASS_FOR_RACE(raceRuneID);
-		this.skillsGranted = DbManager.SkillReqQueries.GET_REQS_FOR_RUNE(raceRuneID);
-		this.powersGranted = PowerReq.getPowerReqsForRune(raceRuneID);
-		this.effectsList = DbManager.MobBaseQueries.GET_RUNEBASE_EFFECTS(this.raceRuneID);
+    public short getIntStart() {
+        return intStart;
+    }
 
-	}
+    public short getIntMin() {
+        return intMin;
+    }
 
-	/*
-	 * Getters
-	 */
-	public String getName() {
-		return name;
-	}
+    public short getIntMax() {
+        return intMax;
+    }
 
-	public String getDescription() {
-		return description;
-	}
+    public short getSpiStart() {
+        return spiStart;
+    }
 
-	public short getStrStart() {
-		return strStart;
-	}
+    public short getSpiMin() {
+        return spiMin;
+    }
 
-	public short getStrMin() {
-		return strMin;
-	}
+    public short getSpiMax() {
+        return spiMax;
+    }
 
-	public short getStrMax() {
-		return strMax;
-	}
+    public byte getStartingPoints() {
+        return startingPoints;
+    }
 
-	public short getDexStart() {
-		return dexStart;
-	}
+    public int getToken() {
+        return token;
+    }
 
-	public short getDexMin() {
-		return dexMin;
-	}
+    public final HashSet<Integer> getHairStyles() {
+        return hairStyles;
+    }
 
-	public short getDexMax() {
-		return dexMax;
-	}
+    public final HashSet<Integer> getBeardStyles() {
+        return beardStyles;
+    }
 
-	public short getConStart() {
-		return conStart;
-	}
+    public final HashSet<Integer> getBeardColors() {
+        return beardColors;
+    }
 
-	public short getConMin() {
-		return conMin;
-	}
+    public HashSet<Integer> getHairColors() {
+        return hairColors;
+    }
 
-	public short getConMax() {
-		return conMax;
-	}
+    public HashSet<Integer> getSkinColors() {
+        return skinColors;
+    }
 
-	public short getIntStart() {
-		return intStart;
-	}
+    public int getNumSkinColors() {
+        return this.skinColors.size();
+    }
 
-	public short getIntMin() {
-		return intMin;
-	}
+    public int getNumHairColors() {
+        return this.hairColors.size();
+    }
 
-	public short getIntMax() {
-		return intMax;
-	}
+    public int getNumBeardColors() {
+        return this.beardColors.size();
+    }
 
-	public short getSpiStart() {
-		return spiStart;
-	}
+    public final ArrayList<BaseClass> getValidBaseClasses() {
+        return baseClasses;
+    }
 
-	public short getSpiMin() {
-		return spiMin;
-	}
-
-	public short getSpiMax() {
-		return spiMax;
-	}
-
-	public byte getStartingPoints() {
-		return startingPoints;
-	}
-
-	public int getToken() {
-		return token;
-	}
-
-	public final HashSet<Integer> getHairStyles() {
-		return hairStyles;
-	}
-
-	public final HashSet<Integer> getBeardStyles() {
-		return beardStyles;
-	}
-
-	public final HashSet<Integer> getBeardColors() {
-		return beardColors;
-	}
-
-	public HashSet<Integer> getHairColors() {
-		return hairColors;
-	}
-
-	public HashSet<Integer> getSkinColors() {
-		return skinColors;
-	}
-
-	public int getNumSkinColors() {
-		return this.skinColors.size();
-	}
-
-	public int getNumHairColors() {
-		return this.hairColors.size();
-	}
-
-	public int getNumBeardColors() {
-		return this.beardColors.size();
-	}
-
-	public final ArrayList<BaseClass> getValidBaseClasses() {
-		return baseClasses;
-	}
-
-	public ArrayList<Integer> getAllowedRunes() {
+    public ArrayList<Integer> getAllowedRunes() {
         return RuneBase.AllowedRaceRunesMap.get(raceRuneID);
-	}
+    }
 
-	public ArrayList<SkillReq> getSkillsGranted() {
-		return this.skillsGranted;
-	}
+    public ArrayList<SkillReq> getSkillsGranted() {
+        return this.skillsGranted;
+    }
 
-	public ArrayList<PowerReq> getPowersGranted() {
-		return this.powersGranted;
-	}
+    public ArrayList<PowerReq> getPowersGranted() {
+        return this.powersGranted;
+    }
 
-	public ArrayList<RuneBaseEffect> getEffectsGranted() {
-		return RuneBaseEffect.RuneIDBaseEffectMap.get(this.raceRuneID);
-	}
+    public ArrayList<RuneBaseEffect> getEffectsGranted() {
+        return RuneBaseEffect.RuneIDBaseEffectMap.get(this.raceRuneID);
+    }
 
-	/*
-	 * Validators
-	 */
-	public boolean isValidBeardStyle(int id) {
-		return this.beardStyles.contains(id);
-	}
+    /*
+     * Validators
+     */
+    public boolean isValidBeardStyle(int id) {
+        return this.beardStyles.contains(id);
+    }
 
-	public boolean isValidBeardColor(int id) {
-		return this.beardColors.contains(id);
-	}
+    public boolean isValidBeardColor(int id) {
+        return this.beardColors.contains(id);
+    }
 
-	public boolean isValidHairStyle(int id) {
-		return this.hairStyles.contains(id);
-	}
+    public boolean isValidHairStyle(int id) {
+        return this.hairStyles.contains(id);
+    }
 
-	public boolean isValidHairColor(int id) {
-		return this.hairColors.contains(id);
-	}
+    public boolean isValidHairColor(int id) {
+        return this.hairColors.contains(id);
+    }
 
-	public boolean isValidSkinColor(int id) {
-		return this.skinColors.contains(id);
-	}
+    public boolean isValidSkinColor(int id) {
+        return this.skinColors.contains(id);
+    }
 
-	public boolean isAllowedRune(RuneBase rb) {
+    public boolean isAllowedRune(RuneBase rb) {
 
-		if (this.getAllowedRunes() != null)
-			if (this.getAllowedRunes().contains(rb.getObjectUUID()))
-				return true;
-		if (RuneBase.AllowedBaseClassRunesMap.containsKey(111111)){
-			if (RuneBase.AllowedRaceRunesMap.get(111111).contains(rb.getObjectUUID()))
-				return true;
-		}
-		return false;
-	}
+        if (this.getAllowedRunes() != null)
+            if (this.getAllowedRunes().contains(rb.getObjectUUID()))
+                return true;
+        if (RuneBase.AllowedBaseClassRunesMap.containsKey(111111)) {
+            if (RuneBase.AllowedRaceRunesMap.get(111111).contains(rb.getObjectUUID()))
+                return true;
+        }
+        return false;
+    }
 
-	public float getHealthBonus() {
-		return this.healthBonus;
-	}
+    public float getHealthBonus() {
+        return this.healthBonus;
+    }
 
-	public float getManaBonus() {
-		return this.manaBonus;
-	}
+    public float getManaBonus() {
+        return this.manaBonus;
+    }
 
-	public float getStaminaBonus() {
-		return this.staminaBonus;
-	}
+    public float getStaminaBonus() {
+        return this.staminaBonus;
+    }
 
-	public float getMinHeight() {
-		return this.minHeight;
-	}
+    public float getMinHeight() {
+        return this.minHeight;
+    }
 
-	public float getStrHeightMod() {
-		return this.strHeightMod;
-	}
+    public float getStrHeightMod() {
+        return this.strHeightMod;
+    }
 
-	public float getHeight(short str) {
-		return this.minHeight + (this.strHeightMod * str);
-	}
-
-	public float getCenterHeight(short str) {
-		return getHeight(str) / 2f;
-	}
+    public float getHeight(short str) {
+        return this.minHeight + (this.strHeightMod * str);
+    }
 
 
-	/*
-	 * Serializing
-	 */
+    /*
+     * Serializing
+     */
 
-	public void serializeForClientMsg(ByteBufferWriter writer) {
-		writer.putInt(1); // For Race
-		writer.putInt(0); // Pad
-		writer.putInt(this.raceRuneID);
+    public float getCenterHeight(short str) {
+        return getHeight(str) / 2f;
+    }
 
-		writer.putInt(Enum.GameObjectType.Race.ordinal());
-		writer.putInt(raceRuneID);
-	}
+    public void serializeForClientMsg(ByteBufferWriter writer) {
+        writer.putInt(1); // For Race
+        writer.putInt(0); // Pad
+        writer.putInt(this.raceRuneID);
 
-	public static Race getRace(int id) {
-		return _raceByID.get(id);
-	}
+        writer.putInt(Enum.GameObjectType.Race.ordinal());
+        writer.putInt(raceRuneID);
+    }
 
-	public int getRaceRuneID() {
-		return raceRuneID;
-	}
+    public int getRaceRuneID() {
+        return raceRuneID;
+    }
 
-	public Enum.RaceType getRaceType() {
-		return raceType;
-	}
+    public Enum.RaceType getRaceType() {
+        return raceType;
+    }
 
 
-	public ArrayList<MobBaseEffects> getEffectsList() {
-		return effectsList;
-	}
+    public ArrayList<MobBaseEffects> getEffectsList() {
+        return effectsList;
+    }
 }

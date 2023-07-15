@@ -19,9 +19,9 @@ import java.util.ArrayList;
 public class SkillReq extends AbstractGameObject {
 
 
-	private int skillID;
-	private short level;
-	private ArrayList<Byte> skillReqs;
+    private int skillID;
+    private short level;
+    private ArrayList<Byte> skillReqs;
 
 	/* This shouldn't be used
 	public SkillReq(SkillsBase skillsBase, short level, ArrayList<Byte>skillReqs) {
@@ -52,46 +52,49 @@ public class SkillReq extends AbstractGameObject {
 	}
 	*/
 
-	/**
-	 * ResultSet Constructor
-	 */
-	public SkillReq(ResultSet rs) throws SQLException {
-		super(rs, 0);
-		this.skillID = rs.getInt("skillID");
-		this.level = rs.getShort("level");
-		skillReqs = new ArrayList<>(0);
+    /**
+     * ResultSet Constructor
+     */
+    public SkillReq(ResultSet rs) throws SQLException {
+        super(rs, 0);
+        this.skillID = rs.getInt("skillID");
+        this.level = rs.getShort("level");
+        skillReqs = new ArrayList<>(0);
 
-		int skillReq;
-		skillReq = rs.getInt("skillreq1");
-		if (skillReq > 0) skillReqs.add((byte)skillReq);
-		skillReq = rs.getInt("skillreq2");
-		if (skillReq > 0) skillReqs.add((byte)skillReq);
-		skillReq = rs.getInt("skillreq3");
-		if (skillReq > 0) skillReqs.add((byte)skillReq);
-	}
+        int skillReq;
+        skillReq = rs.getInt("skillreq1");
+        if (skillReq > 0)
+            skillReqs.add((byte) skillReq);
+        skillReq = rs.getInt("skillreq2");
+        if (skillReq > 0)
+            skillReqs.add((byte) skillReq);
+        skillReq = rs.getInt("skillreq3");
+        if (skillReq > 0)
+            skillReqs.add((byte) skillReq);
+    }
 
-	/*
-	 * Getters
-	 */
-	public SkillsBase getSkillsBase() {
-		return DbManager.SkillsBaseQueries.GET_BASE(this.skillID);
-	}
+    /*
+     * Getters
+     */
+    public SkillsBase getSkillsBase() {
+        return DbManager.SkillsBaseQueries.GET_BASE(this.skillID);
+    }
 
-	public int getSkillID() {
-		return this.skillID;
-	}
+    public int getSkillID() {
+        return this.skillID;
+    }
 
-	public short getLevel() {
-		return this.level;
-	}
+    public short getLevel() {
+        return this.level;
+    }
 
-	public ArrayList<Byte> getSkillReqs() {
-		return this.skillReqs;
-	}
+    public ArrayList<Byte> getSkillReqs() {
+        return this.skillReqs;
+    }
 
 
-	@Override
-	public void updateDatabase() {
+    @Override
+    public void updateDatabase() {
 
-	}
+    }
 }

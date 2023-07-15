@@ -20,88 +20,84 @@ import java.util.HashMap;
 
 public class RuneBaseAttribute extends AbstractGameObject {
 
-	private short attributeID;
-	private short modValue;
-
-	private int runeBaseID;
-
-	public static HashMap<Integer,ArrayList<RuneBaseAttribute>> runeBaseAttributeMap = new HashMap<>();
+    public static HashMap<Integer, ArrayList<RuneBaseAttribute>> runeBaseAttributeMap = new HashMap<>();
+    private short attributeID;
+    private short modValue;
+    private int runeBaseID;
 
 
-	/**
-	 * No Table ID Constructor
-	 */
-	public RuneBaseAttribute(short attributeID, short modValue) {
-		super();
+    /**
+     * No Table ID Constructor
+     */
+    public RuneBaseAttribute(short attributeID, short modValue) {
+        super();
 
-		this.attributeID = attributeID;
-		this.modValue = modValue;
-	}
+        this.attributeID = attributeID;
+        this.modValue = modValue;
+    }
 
-	/**
-	 * Normal
-	 */
-	public RuneBaseAttribute(short attributeID, short modValue, int newUUID) {
-		super(newUUID);
+    /**
+     * Normal
+     */
+    public RuneBaseAttribute(short attributeID, short modValue, int newUUID) {
+        super(newUUID);
 
-		this.attributeID = attributeID;
-		this.modValue = modValue;
-	}
-	/**
-	 * ResultSet Constructor
-	 */
-	public RuneBaseAttribute(ResultSet rs) throws SQLException {
-		super(rs);
+        this.attributeID = attributeID;
+        this.modValue = modValue;
+    }
 
-		this.attributeID = rs.getShort("attributeID");
-		this.modValue = rs.getShort("modValue");
-		this.runeBaseID = rs.getInt("RuneBaseID");
-	}
+    /**
+     * ResultSet Constructor
+     */
+    public RuneBaseAttribute(ResultSet rs) throws SQLException {
+        super(rs);
 
-	/*
-	 * Getters
-	 */
-	public short getAttributeID() {
-		return attributeID;
-	}
+        this.attributeID = rs.getShort("attributeID");
+        this.modValue = rs.getShort("modValue");
+        this.runeBaseID = rs.getInt("RuneBaseID");
+    }
 
-	public short getModValue() {
-		return modValue;
-	}
-
-	public static void LoadAllAttributes(){
-		DbManager.RuneBaseAttributeQueries.GET_ATTRIBUTES_FOR_RUNEBASE();
+    public static void LoadAllAttributes() {
+        DbManager.RuneBaseAttributeQueries.GET_ATTRIBUTES_FOR_RUNEBASE();
 
 
-		//cache attributeLists for rune.
-		for (AbstractGameObject ago : DbManager.getList(GameObjectType.RuneBaseAttribute)){
+        //cache attributeLists for rune.
+        for (AbstractGameObject ago : DbManager.getList(GameObjectType.RuneBaseAttribute)) {
 
-			RuneBaseAttribute runeBaseAttribute = (RuneBaseAttribute)ago;
+            RuneBaseAttribute runeBaseAttribute = (RuneBaseAttribute) ago;
 
-			int runeBaseID = ((RuneBaseAttribute)runeBaseAttribute).runeBaseID;
-			if (runeBaseAttributeMap.get(runeBaseID) == null){
-				ArrayList<RuneBaseAttribute> attributeList = new ArrayList<>();
-				attributeList.add(runeBaseAttribute);
-				runeBaseAttributeMap.put(runeBaseID, attributeList);
-			}
-			else{
-				ArrayList<RuneBaseAttribute>attributeList = runeBaseAttributeMap.get(runeBaseID);
-				attributeList.add(runeBaseAttribute);
-				runeBaseAttributeMap.put(runeBaseID, attributeList);
-			}
+            int runeBaseID = ((RuneBaseAttribute) runeBaseAttribute).runeBaseID;
+            if (runeBaseAttributeMap.get(runeBaseID) == null) {
+                ArrayList<RuneBaseAttribute> attributeList = new ArrayList<>();
+                attributeList.add(runeBaseAttribute);
+                runeBaseAttributeMap.put(runeBaseID, attributeList);
+            } else {
+                ArrayList<RuneBaseAttribute> attributeList = runeBaseAttributeMap.get(runeBaseID);
+                attributeList.add(runeBaseAttribute);
+                runeBaseAttributeMap.put(runeBaseID, attributeList);
+            }
 
-		}
+        }
 
-	}
+    }
 
-	/*
-	 * Utils
-	 */
+    /*
+     * Getters
+     */
+    public short getAttributeID() {
+        return attributeID;
+    }
 
+    public short getModValue() {
+        return modValue;
+    }
 
+    /*
+     * Utils
+     */
 
-	@Override
-	public void updateDatabase() {
-		// TODO Auto-generated method stub
-	}
+    @Override
+    public void updateDatabase() {
+        // TODO Auto-generated method stub
+    }
 }

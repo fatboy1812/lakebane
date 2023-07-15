@@ -21,31 +21,31 @@ import java.sql.SQLException;
 
 public class SimpleDamagePowerAction extends AbstractPowerAction {
 
-	private int simpleDamage;
+    private int simpleDamage;
 
-	public SimpleDamagePowerAction(ResultSet rs) throws SQLException {
-		super(rs);
+    public SimpleDamagePowerAction(ResultSet rs) throws SQLException {
+        super(rs);
 
-		this.simpleDamage = rs.getInt("simpleDamage");
-	}
+        this.simpleDamage = rs.getInt("simpleDamage");
+    }
 
-	public int getSimpleDamage() {
-		return this.simpleDamage;
-	}
+    public int getSimpleDamage() {
+        return this.simpleDamage;
+    }
 
-	@Override
-	protected void _startAction(AbstractCharacter source, AbstractWorldObject awo, Vector3fImmutable targetLoc, int trains, ActionsBase ab, PowersBase pb) {
+    @Override
+    protected void _startAction(AbstractCharacter source, AbstractWorldObject awo, Vector3fImmutable targetLoc, int trains, ActionsBase ab, PowersBase pb) {
 
-	}
+    }
 
-	@Override
-	protected void _handleChant(AbstractCharacter source, AbstractWorldObject target, Vector3fImmutable targetLoc, int trains, ActionsBase ab, PowersBase pb) {
-	}
+    @Override
+    protected void _handleChant(AbstractCharacter source, AbstractWorldObject target, Vector3fImmutable targetLoc, int trains, ActionsBase ab, PowersBase pb) {
+    }
 
-	@Override
-	protected void _startAction(AbstractCharacter source, AbstractWorldObject awo, Vector3fImmutable targetLoc,
-			int numTrains, ActionsBase ab, PowersBase pb, int duration) {
-		// TODO Auto-generated method stub
+    @Override
+    protected void _startAction(AbstractCharacter source, AbstractWorldObject awo, Vector3fImmutable targetLoc,
+                                int numTrains, ActionsBase ab, PowersBase pb, int duration) {
+        // TODO Auto-generated method stub
 
-	}
+    }
 }

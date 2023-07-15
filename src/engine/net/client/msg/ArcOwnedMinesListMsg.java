@@ -29,7 +29,7 @@ public class ArcOwnedMinesListMsg extends ClientNetMsg {
      * past the limit) then this constructor Throws that Exception to the
      * caller.
      */
-    public ArcOwnedMinesListMsg(AbstractConnection origin, ByteBufferReader reader)  {
+    public ArcOwnedMinesListMsg(AbstractConnection origin, ByteBufferReader reader) {
         super(Protocol.ARCOWNEDMINESLIST, origin, reader);
     }
 
@@ -37,7 +37,7 @@ public class ArcOwnedMinesListMsg extends ClientNetMsg {
      * Deserializes the subclass specific items from the supplied NetMsgReader.
      */
     @Override
-    protected void _deserialize(ByteBufferReader reader)  {
+    protected void _deserialize(ByteBufferReader reader) {
         reader.getInt();
     }
 

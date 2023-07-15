@@ -29,9 +29,9 @@ public class LogoutCharacterJob extends AbstractScheduleJob {
         server.logoutCharacter(this.pc);
     }
 
-	@Override
-	protected void _cancelJob() {
-		// TODO Auto-generated method stub
-		
-	}
+    @Override
+    protected void _cancelJob() {
+        // TODO Auto-generated method stub
+
+    }
 }

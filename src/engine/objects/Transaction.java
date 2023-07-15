@@ -7,7 +7,6 @@
 //                www.magicbane.com
 
 
-
 package engine.objects;
 
 import engine.Enum.GameObjectType;
@@ -19,93 +18,91 @@ import java.sql.SQLException;
 import java.util.Date;
 
 
+public class Transaction implements Comparable<Transaction> {
 
-public class Transaction  implements Comparable<Transaction> {
-
-	private final int warehouseUUID;
-	private final int targetUUID;
-	private final Resource resource;
-	private final DateTime date;
-	private final int amount;
-	private GameObjectType targetType;
-	private final TransactionType transactionType;
-	
-	
-	 
-	public Transaction(ResultSet rs) throws SQLException {
-		this.warehouseUUID = rs.getInt("warehouseUID");
-		this.targetUUID = rs.getInt("targetUID");
-		this.targetType = GameObjectType.valueOf(rs.getString("targetType"));
-		this.transactionType = TransactionType.valueOf(rs.getString("type").toUpperCase());
-		this.resource = Resource.valueOf(rs.getString("resource").toUpperCase());
-		this.amount = rs.getInt("amount");
-                
-		Date sqlDateTime = rs.getTimestamp("date");
-                
-		if (sqlDateTime != null)
-			this.date = new DateTime(sqlDateTime);
-		else
-			this.date = DateTime.now();
-
-	}
-
-	
-	public Transaction(int warehouseUUID,GameObjectType targetType, int targetUUID, TransactionType transactionType, Resource resource, int amount,
-			DateTime date) {
-		this.warehouseUUID = warehouseUUID;
-		this.targetUUID = targetUUID;
-		this.resource = resource;
-		this.date = date;
-		this.amount = amount;
-		this.targetType = targetType;
-		this.transactionType = transactionType;
-	}
+    private final int warehouseUUID;
+    private final int targetUUID;
+    private final Resource resource;
+    private final DateTime date;
+    private final int amount;
+    private final TransactionType transactionType;
+    private GameObjectType targetType;
 
 
-	public int getWarehouseUUID() {
-		return warehouseUUID;
-	}
+    public Transaction(ResultSet rs) throws SQLException {
+        this.warehouseUUID = rs.getInt("warehouseUID");
+        this.targetUUID = rs.getInt("targetUID");
+        this.targetType = GameObjectType.valueOf(rs.getString("targetType"));
+        this.transactionType = TransactionType.valueOf(rs.getString("type").toUpperCase());
+        this.resource = Resource.valueOf(rs.getString("resource").toUpperCase());
+        this.amount = rs.getInt("amount");
+
+        Date sqlDateTime = rs.getTimestamp("date");
+
+        if (sqlDateTime != null)
+            this.date = new DateTime(sqlDateTime);
+        else
+            this.date = DateTime.now();
+
+    }
 
 
-	public int getTargetUUID() {
-		return targetUUID;
-	}
+    public Transaction(int warehouseUUID, GameObjectType targetType, int targetUUID, TransactionType transactionType, Resource resource, int amount,
+                       DateTime date) {
+        this.warehouseUUID = warehouseUUID;
+        this.targetUUID = targetUUID;
+        this.resource = resource;
+        this.date = date;
+        this.amount = amount;
+        this.targetType = targetType;
+        this.transactionType = transactionType;
+    }
 
 
-	public Resource getResource() {
-		return resource;
-	}
+    public int getWarehouseUUID() {
+        return warehouseUUID;
+    }
 
 
-	public DateTime getDate() {
-		return date;
-	}
+    public int getTargetUUID() {
+        return targetUUID;
+    }
 
 
-	public int getAmount() {
-		return amount;
-	}
+    public Resource getResource() {
+        return resource;
+    }
 
 
-	public TransactionType getTransactionType() {
-		return transactionType;
-	}
+    public DateTime getDate() {
+        return date;
+    }
 
 
-	@Override
-	public int compareTo(Transaction arg0) {
-		// TODO Auto-generated method stub
-		return 0;
-	}
+    public int getAmount() {
+        return amount;
+    }
 
 
-	public GameObjectType getTargetType() {
-		return targetType;
-	}
+    public TransactionType getTransactionType() {
+        return transactionType;
+    }
 
 
-	public void setTargetType(GameObjectType targetType) {
-		this.targetType = targetType;
-	}
-	
+    @Override
+    public int compareTo(Transaction arg0) {
+        // TODO Auto-generated method stub
+        return 0;
+    }
+
+
+    public GameObjectType getTargetType() {
+        return targetType;
+    }
+
+
+    public void setTargetType(GameObjectType targetType) {
+        this.targetType = targetType;
+    }
+
 }

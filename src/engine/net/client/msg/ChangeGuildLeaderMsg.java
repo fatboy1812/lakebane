@@ -19,16 +19,16 @@ import engine.net.client.Protocol;
 
 public class ChangeGuildLeaderMsg extends ClientNetMsg {
 
-	private int targetID;
-    
- 
+    private int targetID;
+
+
     /**
      * This constructor is used by NetMsgFactory. It attempts to deserialize the
      * ByteBuffer into a message. If a BufferUnderflow occurs (based on reading
      * past the limit) then this constructor Throws that Exception to the
      * caller.
      */
-    public ChangeGuildLeaderMsg(AbstractConnection origin, ByteBufferReader reader)  {
+    public ChangeGuildLeaderMsg(AbstractConnection origin, ByteBufferReader reader) {
         super(Protocol.CHANGEGUILDLEADER, origin, reader);
     }
 
@@ -36,14 +36,14 @@ public class ChangeGuildLeaderMsg extends ClientNetMsg {
      * Deserializes the subclass specific items from the supplied NetMsgReader.
      */
     @Override
-    protected void _deserialize(ByteBufferReader reader)  {
-       reader.getInt();
-       reader.getInt();
-       reader.getInt();
-       reader.getInt();
-       targetID = reader.getInt();
-       reader.getInt();
-       reader.get();
+    protected void _deserialize(ByteBufferReader reader) {
+        reader.getInt();
+        reader.getInt();
+        reader.getInt();
+        reader.getInt();
+        targetID = reader.getInt();
+        reader.getInt();
+        reader.get();
     }
 
     /**
@@ -51,22 +51,22 @@ public class ChangeGuildLeaderMsg extends ClientNetMsg {
      */
     @Override
     protected void _serialize(ByteBufferWriter writer) throws SerializationException {
-    	writer.putInt(0);
-    	writer.putInt(0);
-    	writer.putInt(0);
-    	writer.putInt(GameObjectType.PlayerCharacter.ordinal());
-    	writer.putInt(targetID);
-    	writer.put((byte)100);
-    	writer.putInt(0);
-    	
-    	
+        writer.putInt(0);
+        writer.putInt(0);
+        writer.putInt(0);
+        writer.putInt(GameObjectType.PlayerCharacter.ordinal());
+        writer.putInt(targetID);
+        writer.put((byte) 100);
+        writer.putInt(0);
+
+
     }
 
-	public int getTargetID() {
-		return targetID;
-	}
+    public int getTargetID() {
+        return targetID;
+    }
 
-	public void setTargetID(int targetID) {
-		this.targetID = targetID;
-	}
+    public void setTargetID(int targetID) {
+        this.targetID = targetID;
+    }
 }

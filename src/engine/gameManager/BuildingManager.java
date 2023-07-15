@@ -7,7 +7,6 @@
 //                www.magicbane.com
 
 
-
 package engine.gameManager;
 
 import engine.Enum;
@@ -315,7 +314,7 @@ public enum BuildingManager {
             for (AbstractCharacter slottedNPC : building.getHirelings().keySet()) {
 
                 if (slottedNPC.getObjectType() == Enum.GameObjectType.NPC)
-                    ((NPC)slottedNPC).remove();
+                    ((NPC) slottedNPC).remove();
                 else if (slottedNPC.getObjectType() == Enum.GameObjectType.Mob)
                     NPCManager.removeMobileFromBuilding(((Mob) slottedNPC), building);
             }
@@ -493,7 +492,7 @@ public enum BuildingManager {
 
         NPC npc = null;
 
-        npc = NPC.createNPC(pirateName, NpcID.getObjectUUID(), NpcLoc, null, false, zone, (short)rank, building);
+        npc = NPC.createNPC(pirateName, NpcID.getObjectUUID(), NpcLoc, null, false, zone, (short) rank, building);
 
         if (npc == null)
             return false;
@@ -519,7 +518,8 @@ public enum BuildingManager {
 
         if (item.getChargesRemaining() > 0)
             rank = item.getChargesRemaining() * 10;
-        else rank = 10;
+        else
+            rank = 10;
 
         Mob mob;
         NPC npc;
@@ -595,10 +595,10 @@ public enum BuildingManager {
     public static boolean IsOwner(Building building, PlayerCharacter player) {
         if (building == null || player == null)
             return false;
-        
+
         if (building.getOwner() == null)
-        	return false;
-        
+            return false;
+
 
         return building.getOwner().getObjectUUID() == player.getObjectUUID();
 
@@ -650,54 +650,53 @@ public enum BuildingManager {
         }
         return null;
     }
-    
-    public static Vector3fImmutable GetBindLocationForBuilding(Building building){
-   
-    		Vector3fImmutable bindLoc = null;
-    		
-    		if (building == null)
-    			return Enum.Ruins.getRandomRuin().getLocation();
-    		
-    		
-    		bindLoc = building.getLoc();
-    		
-    	
-    			float radius = Bounds.meshBoundsCache.get(building.getMeshUUID()).radius;
-    			if ( building.getRank() == 8){
-    				bindLoc = building.getStuckLocation();
-    				if (bindLoc != null)
-    					return bindLoc;
-    			}
 
-        			float x = bindLoc.getX();
-        			float z = bindLoc.getZ();
-        			float offset = ((ThreadLocalRandom.current().nextFloat() * 2) - 1) * radius;
-        			int direction = ThreadLocalRandom.current().nextInt(4);
+    public static Vector3fImmutable GetBindLocationForBuilding(Building building) {
 
-        			switch (direction) {
-        			case 0:
-        				x += radius;
-        				z += offset;
-        				break;
-        			case 1:
-        				x += offset;
-        				z -= radius;
-        				break;
-        			case 2:
-        				x -= radius;
-        				z += offset;
-        				break;
-        			case 3:
-        				x += offset;
-        				z += radius;
-        				break;
-        			}
-        			bindLoc = new Vector3fImmutable(x, bindLoc.getY(), z);
-    		
-			return bindLoc;
+        Vector3fImmutable bindLoc = null;
 
-    		
-    	
+        if (building == null)
+            return Enum.Ruins.getRandomRuin().getLocation();
+
+
+        bindLoc = building.getLoc();
+
+
+        float radius = Bounds.meshBoundsCache.get(building.getMeshUUID()).radius;
+        if (building.getRank() == 8) {
+            bindLoc = building.getStuckLocation();
+            if (bindLoc != null)
+                return bindLoc;
+        }
+
+        float x = bindLoc.getX();
+        float z = bindLoc.getZ();
+        float offset = ((ThreadLocalRandom.current().nextFloat() * 2) - 1) * radius;
+        int direction = ThreadLocalRandom.current().nextInt(4);
+
+        switch (direction) {
+            case 0:
+                x += radius;
+                z += offset;
+                break;
+            case 1:
+                x += offset;
+                z -= radius;
+                break;
+            case 2:
+                x -= radius;
+                z += offset;
+                break;
+            case 3:
+                x += offset;
+                z += radius;
+                break;
+        }
+        bindLoc = new Vector3fImmutable(x, bindLoc.getY(), z);
+
+        return bindLoc;
+
+
     }
 
 }

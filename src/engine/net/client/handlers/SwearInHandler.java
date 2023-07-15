@@ -7,7 +7,6 @@
 //                www.magicbane.com
 
 
-
 package engine.net.client.handlers;
 
 import engine.Enum;
@@ -27,53 +26,53 @@ import engine.objects.PlayerCharacter;
 
 public class SwearInHandler extends AbstractClientMsgHandler {
 
-	public SwearInHandler() {
-		super(SwearInMsg.class);
-	}
+    public SwearInHandler() {
+        super(SwearInMsg.class);
+    }
 
-	@Override
-	protected boolean _handleNetMsg(ClientNetMsg baseMsg, ClientConnection origin) throws MsgSendException {
-		SwearInMsg msg = (SwearInMsg) baseMsg;
+    @Override
+    protected boolean _handleNetMsg(ClientNetMsg baseMsg, ClientConnection origin) throws MsgSendException {
+        SwearInMsg msg = (SwearInMsg) baseMsg;
         Dispatch dispatch;
 
-		// get source player
-		PlayerCharacter source = SessionManager.getPlayerCharacter(origin);
+        // get source player
+        PlayerCharacter source = SessionManager.getPlayerCharacter(origin);
 
-		if (source == null)
-			return true;
+        if (source == null)
+            return true;
 
-		// get target player
-		PlayerCharacter target = SessionManager.getPlayerCharacterByID(msg.getTargetID());
+        // get target player
+        PlayerCharacter target = SessionManager.getPlayerCharacterByID(msg.getTargetID());
 
-		if (target == null) {
-			ChatManager.chatGuildError(source,
-					"No such character found!");
-			return true;
-		}
+        if (target == null) {
+            ChatManager.chatGuildError(source,
+                    "No such character found!");
+            return true;
+        }
 
-		if(source.getGuild() != target.getGuild()) {
-			ChatManager.chatGuildError(source,
-				"That player is not a member of " + source.getGuild().getName());
-			return true;
-		}
+        if (source.getGuild() != target.getGuild()) {
+            ChatManager.chatGuildError(source,
+                    "That player is not a member of " + source.getGuild().getName());
+            return true;
+        }
 
-		// Verify source has authority to swear in
-		if (GuildStatusController.isInnerCouncil(source.getGuildStatus()) == false) {
-			ErrorPopupMsg.sendErrorMsg(source, "Your do not have such authority!");
-			return true;
-		}
+        // Verify source has authority to swear in
+        if (GuildStatusController.isInnerCouncil(source.getGuildStatus()) == false) {
+            ErrorPopupMsg.sendErrorMsg(source, "Your do not have such authority!");
+            return true;
+        }
 
-		// Swear target in and send message to guild
-		target.setFullMember(true);
-		target.incVer();
+        // Swear target in and send message to guild
+        target.setFullMember(true);
+        target.incVer();
 
-		ChatManager.chatGuildInfo(source,target.getFirstName() + " has been sworn in as a full member!");
+        ChatManager.chatGuildInfo(source, target.getFirstName() + " has been sworn in as a full member!");
 
         dispatch = Dispatch.borrow(source, new GuildListMsg(source.getGuild()));
         DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
-		DispatchMessage.sendToAllInRange(target, new GuildInfoMsg(target, target.getGuild(), 2));
+        DispatchMessage.sendToAllInRange(target, new GuildInfoMsg(target, target.getGuild(), 2));
 
-		return true;
-	}
+        return true;
+    }
 
 }

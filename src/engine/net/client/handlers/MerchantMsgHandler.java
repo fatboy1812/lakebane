@@ -26,440 +26,429 @@ import java.util.ArrayList;
 
 public class MerchantMsgHandler extends AbstractClientMsgHandler {
 
-	public MerchantMsgHandler() {
-		super(MerchantMsg.class);
-	}
-
-	@Override
-	protected boolean _handleNetMsg(ClientNetMsg baseMsg, ClientConnection origin) throws MsgSendException {
-
-		// Member variable declaration
-
-		MerchantMsg msg;
-		PlayerCharacter player;
-		NPC npc;
-		int msgType;
-		Building warehouse;
-		Dispatch dispatch;
-
-		// Member variable assignment
-
-		player = SessionManager.getPlayerCharacter(origin);
-		msg = (MerchantMsg) baseMsg;
-		npc = NPC.getNPC(msg.getNPCID());
-
-		// Early exit if something goes awry
-
-		if ((player == null) || (npc == null))
-			return true;
-
-		// Player must be within talking range
-
-		if (player.getLoc().distanceSquared2D(npc.getLoc()) > MBServerStatics.NPC_TALK_RANGE * MBServerStatics.NPC_TALK_RANGE) {
-			ErrorPopupMsg.sendErrorPopup(player, 14);
-			return true;
-		}
-
-		// Process application protocol message
-
-		msgType = msg.getType();
-
-		switch (msgType) {
-		case 3:
-			break;
-		case 5:
-
-			dispatch = Dispatch.borrow(player, msg);
-			DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
-			requestSwearAsSubGuild(msg, origin, player, npc);
-			break;
-		case 10:
-			teleportRepledgeScreen(msg, origin, player, false, npc);
-			break;
-		case 11:
-			teleportRepledge(msg, origin, player, false, npc);
-			break;
-		case 12:
-			teleportRepledgeScreen(msg, origin, player, true, npc);
-			break;
-		case 13:
-			teleportRepledge(msg, origin, player, true, npc);
-			break;
-		case 14:
-			if (isHermit(npc))
-				requestHermitBlessing(msg, origin, player, npc);
-			else
-				requestBoon(msg, origin, player, npc);
-			break;
-		case 15:
-			LeaderboardMessage lbm = new LeaderboardMessage();
-			dispatch = Dispatch.borrow(player, lbm);
-			DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
-			break;
-		case 16:
-			ViewResourcesMessage vrm = new ViewResourcesMessage(player);
-			warehouse = npc.getBuilding();
-			vrm.setGuild(player.getGuild());
-			vrm.setWarehouseBuilding(warehouse);
-			vrm.configure();
-			dispatch = Dispatch.borrow(player, vrm);
-			DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
-			break;
-		case 17:
-			Warehouse.warehouseWithdraw(msg, player, npc, origin);
-			break;
-		case 18:
-			Warehouse.warehouseDeposit(msg, player, npc, origin);
-			break;
-		case 19:
-			Warehouse.warehouseLock(msg, player, npc, origin);
-			break;
-		}
+    public MerchantMsgHandler() {
+        super(MerchantMsg.class);
+    }
 
-		return true;
+    private static void requestSwearAsSubGuild(MerchantMsg msg, ClientConnection origin, PlayerCharacter player, NPC npc) {
 
-	}
+        boolean Disabled = true;
 
-	private static void requestSwearAsSubGuild(MerchantMsg msg, ClientConnection origin, PlayerCharacter player, NPC npc) {
+        if (Disabled) {
+            ErrorPopupMsg.sendErrorMsg(player, "Swearing to Safeholds have been temporary disabled."); //Cannot sub as errant guild.
+            return;
+        }
 
-		boolean Disabled = true;
+        if (player.getGuild().isEmptyGuild()) {
+            ErrorPopupMsg.sendErrorMsg(player, "You do not belong to a guild!"); //Cannot sub as errant guild.
+            return;
+        }
 
-		if (Disabled){
-			ErrorPopupMsg.sendErrorMsg(player, "Swearing to Safeholds have been temporary disabled."); //Cannot sub as errant guild.
-			return;
-		}
-		
-		if (player.getGuild().isEmptyGuild()){
-			ErrorPopupMsg.sendErrorMsg(player, "You do not belong to a guild!"); //Cannot sub as errant guild.
-			return;
-		}
+        if (player.getGuild().getNation() != null && !player.getGuild().getNation().isEmptyGuild()) {
+            ErrorPopupMsg.sendErrorMsg(player, "You already belong to a nation!"); //Cannot sub as errant guild.
+            return;
+        }
 
-		if (player.getGuild().getNation() != null && !player.getGuild().getNation().isEmptyGuild()){
-			ErrorPopupMsg.sendErrorMsg(player, "You already belong to a nation!"); //Cannot sub as errant guild.
-			return;
-		}
+        if (player.getGuild().getGuildLeaderUUID() != player.getObjectUUID()) {
+            ErrorPopupMsg.sendErrorMsg(player, "You must be a Guild Leader to Swear your guild as a Sub Guild!"); //Cannot sub as errant guild.
+            return;
+        }
 
-		if (player.getGuild().getGuildLeaderUUID() != player.getObjectUUID()){
-			ErrorPopupMsg.sendErrorMsg(player, "You must be a Guild Leader to Swear your guild as a Sub Guild!"); //Cannot sub as errant guild.
-			return;
-		}
+        if (!GuildStatusController.isGuildLeader(player.getGuildStatus())) {
+            ErrorPopupMsg.sendErrorMsg(player, "You must be a Guild Leader to Swear your guild as a Sub Guild!"); //Cannot sub as errant guild.
+            return;
+        }
 
-		if (!GuildStatusController.isGuildLeader(player.getGuildStatus())){
-			ErrorPopupMsg.sendErrorMsg(player, "You must be a Guild Leader to Swear your guild as a Sub Guild!"); //Cannot sub as errant guild.
-			return;
-		}
 
-		
-		if (!npc.getGuild().isNPCGuild()){
-			ErrorPopupMsg.sendErrorMsg(player, "Runemaster does not belong to a safehold!"); //Cannot sub as errant guild.
-			return;
-		}
+        if (!npc.getGuild().isNPCGuild()) {
+            ErrorPopupMsg.sendErrorMsg(player, "Runemaster does not belong to a safehold!"); //Cannot sub as errant guild.
+            return;
+        }
 
-		if (npc.getGuild().getRepledgeMin() > player.getLevel()){
-			ErrorPopupMsg.sendErrorMsg(player, "You are too low of a level to sub to this guild!"); //Cannot sub as errant guild.
-			return;
-		}
+        if (npc.getGuild().getRepledgeMin() > player.getLevel()) {
+            ErrorPopupMsg.sendErrorMsg(player, "You are too low of a level to sub to this guild!"); //Cannot sub as errant guild.
+            return;
+        }
 
-		if (npc.getGuild().getRepledgeMax() < 75){
-			ErrorPopupMsg.sendErrorMsg(player, "Runemaster Guild Cannot Swear in your guild!"); //Cannot sub as errant guild.
-			return;
-		}
+        if (npc.getGuild().getRepledgeMax() < 75) {
+            ErrorPopupMsg.sendErrorMsg(player, "Runemaster Guild Cannot Swear in your guild!"); //Cannot sub as errant guild.
+            return;
+        }
 
 
+        if (!DbManager.GuildQueries.UPDATE_PARENT(player.getGuild().getObjectUUID(), npc.getGuild().getObjectUUID())) {
+            ErrorPopupMsg.sendErrorMsg(player, "A Serious error has occured. Please post details for to ensure transaction integrity");
+            return;
+        }
 
 
+        GuildManager.updateAllGuildBinds(player.getGuild(), npc.getGuild().getOwnedCity());
 
-		if (!DbManager.GuildQueries.UPDATE_PARENT(player.getGuild().getObjectUUID(), npc.getGuild().getObjectUUID())) {
-			ErrorPopupMsg.sendErrorMsg(player, "A Serious error has occured. Please post details for to ensure transaction integrity");
-			return;
-		}
 
+        //update Guild state.
+        player.getGuild().setNation(npc.getGuild());
+        GuildManager.updateAllGuildTags(player.getGuild());
 
-		GuildManager.updateAllGuildBinds(player.getGuild(), npc.getGuild().getOwnedCity());
+        //update state twice, errant to petitioner, to sworn.
+        player.getGuild().upgradeGuildState(false);//to petitioner
+        player.getGuild().upgradeGuildState(false);//to sworn
 
 
+    }
 
-		//update Guild state.
-		player.getGuild().setNation(npc.getGuild());
-		GuildManager.updateAllGuildTags(player.getGuild());
+    private static void requestHermitBlessing(MerchantMsg msg, ClientConnection origin, PlayerCharacter player, NPC npc) {
 
-		//update state twice, errant to petitioner, to sworn.
-		player.getGuild().upgradeGuildState(false);//to petitioner
-		player.getGuild().upgradeGuildState(false);//to sworn
+        Guild guild;
+        Realm realm;
+        City city;
+        Building tol;
 
+        // Validate player can obtain blessing
 
+        if (GuildStatusController.isGuildLeader(player.getGuildStatus()) == false) {
+            ErrorPopupMsg.sendErrorPopup(player, 173); // You must be the leader of a guild to receive a blessing
+            return;
+        }
 
+        guild = player.getGuild();
+        city = guild.getOwnedCity();
 
+        if (city == null) {
+            ErrorPopupMsg.sendErrorPopup(player, 179); // Only landed guilds may claim a territory
+            return;
+        }
+        tol = city.getTOL();
 
-	}
+        if (tol.getRank() != 7) {
+            ErrorPopupMsg.sendErrorPopup(player, 181); // Your tree must be rank 7 before claiming a territory
+            return;
+        }
 
+        realm = RealmMap.getRealmForCity(city);
 
+        if (realm.getCanBeClaimed() == false) {
+            ErrorPopupMsg.sendErrorPopup(player, 180); // This territory cannot be ruled by anyone
+            return;
+        }
 
-	private static void requestHermitBlessing(MerchantMsg msg, ClientConnection origin, PlayerCharacter player, NPC npc) {
+        if (realm.isRuled() == true) {
+            ErrorPopupMsg.sendErrorPopup(player, 178); // This territory is already claimed
+            return;
+        }
 
-		Guild guild;
-		Realm realm;
-		City city;
-		Building tol;
+        // Everything should be good, apply boon for this hermit
 
-		// Validate player can obtain blessing
+        PowersManager.applyPower(player, player, player.getLoc(), getPowerforHermit(npc).getToken(), 40, false);
 
-		if (GuildStatusController.isGuildLeader(player.getGuildStatus()) == false) {
-			ErrorPopupMsg.sendErrorPopup(player, 173); // You must be the leader of a guild to receive a blessing
-			return;
-		}
+    }
 
-		guild = player.getGuild();
-		city = guild.getOwnedCity();
+    private static void requestBoon(MerchantMsg msg, ClientConnection origin, PlayerCharacter player, NPC npc) {
 
-		if (city == null) {
-			ErrorPopupMsg.sendErrorPopup(player, 179); // Only landed guilds may claim a territory
-			return;
-		}
-		tol = city.getTOL();
+        Building shrineBuilding;
+        Shrine shrine;
 
-		if (tol.getRank() != 7) {
-			ErrorPopupMsg.sendErrorPopup(player, 181); // Your tree must be rank 7 before claiming a territory
-			return;
-		}
+        if (npc.getGuild() != player.getGuild())
+            return;
 
-		realm = RealmMap.getRealmForCity(city);
+        shrineBuilding = npc.getBuilding();
 
-		if (realm.getCanBeClaimed() == false) {
-			ErrorPopupMsg.sendErrorPopup(player, 180); // This territory cannot be ruled by anyone
-			return;
-		}
+        if (shrineBuilding == null)
+            return;
 
-		if (realm.isRuled() == true) {
-			ErrorPopupMsg.sendErrorPopup(player, 178); // This territory is already claimed
-			return;
-		}
+        if (shrineBuilding.getBlueprint() != null && shrineBuilding.getBlueprint().getBuildingGroup() != engine.Enum.BuildingGroup.SHRINE)
+            return;
 
-		// Everything should be good, apply boon for this hermit
+        if (shrineBuilding.getRank() == -1)
+            return;
 
-		PowersManager.applyPower(player, player, player.getLoc(), getPowerforHermit(npc).getToken(), 40, false);
+        shrine = Shrine.shrinesByBuildingUUID.get(shrineBuilding.getObjectUUID());
 
-	}
+        if (shrine == null)
+            return;
 
-	private static void requestBoon(MerchantMsg msg, ClientConnection origin, PlayerCharacter player, NPC npc) {
+        if (shrine.getFavors() == 0) {
+            ErrorPopupMsg.sendErrorPopup(player, 172);
+            return;
+        }
 
-		Building shrineBuilding;
-		Shrine shrine;
+        //already haz boon.
 
-		if (npc.getGuild() != player.getGuild())
-			return;
+        if (player.containsEffect(shrine.getShrineType().getPowerToken())) {
+            ErrorPopupMsg.sendErrorPopup(player, 199);
+            return;
+        }
 
-		shrineBuilding = npc.getBuilding();
+        if (!Shrine.canTakeFavor(player, shrine))
+            return;
 
-		if (shrineBuilding == null)
-			return;
+        if (!shrine.takeFavor(player))
+            return;
 
-		if (shrineBuilding.getBlueprint() != null && shrineBuilding.getBlueprint().getBuildingGroup() != engine.Enum.BuildingGroup.SHRINE)
-			return;
+        PowersBase shrinePower = PowersManager.getPowerByToken(shrine.getShrineType().getPowerToken());
 
-		if (shrineBuilding.getRank() == -1)
-			return;
+        if (shrinePower == null) {
+            ChatManager.chatSystemError(player, "FAILED TO APPLY POWER!");
+            return;
+        }
 
-		shrine = Shrine.shrinesByBuildingUUID.get(shrineBuilding.getObjectUUID());
+        int rank = shrine.getRank();
+        //R8 trees always get atleast rank 2 boons. rank uses index, where 0 is first place, 1 is second, etc...
+        if (shrineBuilding.getCity() != null && shrineBuilding.getCity().getTOL() != null && shrineBuilding.getCity().getTOL().getRank() == 8)
+            if (rank != 0)
+                rank = 1;
+        int trains = 40 - (rank * 10);
+        if (trains < 0)
+            trains = 0;
 
-		if (shrine == null)
-			return;
+        //System.out.println(trains);
+        PowersManager.applyPower(player, player, player.getLoc(), shrinePower.getToken(), trains, false);
+        ChatManager.chatGuildInfo(player.getGuild(), player.getName() + " has recieved a boon costing " + 1 + " point of favor.");
+        shrineBuilding.addEffectBit(1000000 << 2);
+        shrineBuilding.updateEffects();
 
-		if (shrine.getFavors() == 0) {
-			ErrorPopupMsg.sendErrorPopup(player, 172);
-			return;
-		}
+        //remove the effect so players loading shrines dont see the effect go off.
+        shrineBuilding.removeEffectBit(1000000 << 2);
+    }
 
-		//already haz boon.
+    private static void teleportRepledgeScreen(MerchantMsg msg, ClientConnection origin, PlayerCharacter pc, boolean isTeleport, NPC npc) {
 
-		if (player.containsEffect(shrine.getShrineType().getPowerToken())) {
-			ErrorPopupMsg.sendErrorPopup(player, 199);
-			return;
-		}
+        Dispatch dispatch;
+        TeleportRepledgeListMsg trlm;
 
-		if (!Shrine.canTakeFavor(player, shrine))
-			return;
+        //verify npc is runemaster
 
-		if (!shrine.takeFavor(player))
-			return;
+        Contract contract = npc.getContract();
 
-		PowersBase shrinePower = PowersManager.getPowerByToken(shrine.getShrineType().getPowerToken());
+        if (contract == null || !contract.isRuneMaster())
+            return;
 
-		if (shrinePower == null) {
-			ChatManager.chatSystemError(player, "FAILED TO APPLY POWER!");
-			return;
-		}
+        if (!isTeleport)
+            trlm = new TeleportRepledgeListMsg(pc, false);
+        else
+            trlm = new TeleportRepledgeListMsg(pc, true);
 
-		int rank = shrine.getRank();
-		//R8 trees always get atleast rank 2 boons. rank uses index, where 0 is first place, 1 is second, etc...
-		if (shrineBuilding.getCity() != null && shrineBuilding.getCity().getTOL() != null && shrineBuilding.getCity().getTOL().getRank() == 8)
-			if (rank != 0)
-				rank = 1;
-		int trains = 40 - (rank * 10);
-		if (trains < 0)
-			trains = 0;
+        trlm.configure();
 
-		//System.out.println(trains);
-		PowersManager.applyPower(player, player, player.getLoc(), shrinePower.getToken(), trains, false);
-		ChatManager.chatGuildInfo(player.getGuild(), player.getName() + " has recieved a boon costing " + 1 + " point of favor.");
-		shrineBuilding.addEffectBit(1000000 << 2);
-		shrineBuilding.updateEffects();
+        dispatch = Dispatch.borrow(pc, trlm);
+        DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
+    }
 
-		//remove the effect so players loading shrines dont see the effect go off.
-		shrineBuilding.removeEffectBit(1000000 << 2);
-	}
+    private static void teleportRepledge(MerchantMsg msg, ClientConnection origin, PlayerCharacter player, boolean isTeleport, NPC npc) {
 
-	private static void teleportRepledgeScreen(MerchantMsg msg, ClientConnection origin, PlayerCharacter pc, boolean isTeleport, NPC npc) {
+        //verify npc is runemaster
 
-		Dispatch dispatch;
-		TeleportRepledgeListMsg trlm;
+        Contract contract = npc.getContract();
+        Dispatch dispatch;
 
-		//verify npc is runemaster
+        if (contract == null || !contract.isRuneMaster())
+            return;
 
-		Contract contract = npc.getContract();
+        //get city to teleport/repledge to and verify valid
 
-		if (contract == null || !contract.isRuneMaster())
-			return;
+        ArrayList<City> cities;
 
-		if (!isTeleport)
-			trlm = new TeleportRepledgeListMsg(pc, false);
-		else
-			trlm = new TeleportRepledgeListMsg(pc, true);
+        City targetCity = null;
 
-		trlm.configure();
+        if (isTeleport)
+            cities = City.getCitiesToTeleportTo(player);
+        else
+            cities = City.getCitiesToRepledgeTo(player);
+        for (City city : cities) {
+            if (city.getObjectUUID() == msg.getCityID()) {
+                targetCity = city;
+                break;
+            }
+        }
 
-		dispatch = Dispatch.borrow(pc, trlm);
-		DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
-	}
+        if (targetCity == null)
+            return;
 
-	private static void teleportRepledge(MerchantMsg msg, ClientConnection origin, PlayerCharacter player, boolean isTeleport, NPC npc) {
+        //verify level required to teleport or repledge
 
-		//verify npc is runemaster
+        Guild toGuild = targetCity.getGuild();
 
-		Contract contract = npc.getContract();
-		Dispatch dispatch;
+        if (toGuild != null)
+            if (isTeleport) {
+                if (player.getLevel() < toGuild.getTeleportMin() || player.getLevel() > toGuild.getTeleportMax())
+                    return;
+            } else if (player.getLevel() < toGuild.getRepledgeMin() || player.getLevel() > toGuild.getRepledgeMax())
+                return;
 
-		if (contract == null || !contract.isRuneMaster())
-			return;
+        boolean joinedGuild = false;
 
-		//get city to teleport/repledge to and verify valid
+        //if repledge, reguild the player
 
-		ArrayList<City> cities;
+        if (!isTeleport)
+            joinedGuild = GuildManager.joinGuild(player, targetCity.getGuild(), targetCity.getObjectUUID(), GuildHistoryType.JOIN);
 
-		City targetCity = null;
+        int time;
 
-		if (isTeleport)
-			cities = City.getCitiesToTeleportTo(player);
-		else
-			cities = City.getCitiesToRepledgeTo(player);
-		for (City city : cities) {
-			if (city.getObjectUUID() == msg.getCityID()) {
-				targetCity = city;
-				break;
-			}
-		}
+        if (!isTeleport) //repledge
+            time = MBServerStatics.REPLEDGE_TIME_IN_SECONDS;
+        else
+            time = MBServerStatics.TELEPORT_TIME_IN_SECONDS;
 
-		if (targetCity == null)
-			return;
+        //resend message
+        msg.setTeleportTime(time);
 
-		//verify level required to teleport or repledge
+        if ((!isTeleport && joinedGuild) || (isTeleport)) {
 
-		Guild toGuild = targetCity.getGuild();
+            dispatch = Dispatch.borrow(player, msg);
+            DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
+        }
 
-		if (toGuild != null)
-			if (isTeleport) {
-				if (player.getLevel() < toGuild.getTeleportMin() || player.getLevel() > toGuild.getTeleportMax())
-					return;
-			}
-			else if (player.getLevel() < toGuild.getRepledgeMin() || player.getLevel() > toGuild.getRepledgeMax())
-				return;
+        //teleport player to city
 
-		boolean joinedGuild = false;
+        Vector3fImmutable teleportLoc;
 
-		//if repledge, reguild the player
+        if (targetCity.getTOL().getRank() == 8)
+            teleportLoc = targetCity.getTOL().getStuckLocation();
+        else
+            teleportLoc = Vector3fImmutable.getRandomPointOnCircle(targetCity.getTOL().getLoc(), MBServerStatics.TREE_TELEPORT_RADIUS);
 
-		if (!isTeleport)
-			joinedGuild = GuildManager.joinGuild(player, targetCity.getGuild(), targetCity.getObjectUUID(), GuildHistoryType.JOIN);
+        if (time > 0) {
+            //TODO add timer to teleport
+            TeleportJob tj = new TeleportJob(player, npc, teleportLoc, origin, true);
+            JobScheduler.getInstance().scheduleJob(tj, time * 1000);
+        } else if (joinedGuild) {
+            player.teleport(teleportLoc);
+            player.setSafeMode();
+        }
+    }
 
-		int time;
+    private static PowersBase getPowerforHermit(NPC npc) {
 
-		if (!isTeleport) //repledge
-			time = MBServerStatics.REPLEDGE_TIME_IN_SECONDS;
-		else
-			time = MBServerStatics.TELEPORT_TIME_IN_SECONDS;
+        int contractID;
+        PowersBase power;
+        Contract contract;
 
-		//resend message
-		msg.setTeleportTime(time);
+        contract = npc.getContract();
+        contractID = contract.getContractID();
+        power = null;
 
-		if ((!isTeleport && joinedGuild) || (isTeleport)) {
+        switch (contractID) {
+            case 435579:
+                power = PowersManager.getPowerByIDString("BLS-POWER");
+                break;
+            case 435580:
+                power = PowersManager.getPowerByIDString("BLS-FORTUNE");
+                break;
+            case 435581:
+                power = PowersManager.getPowerByIDString("BLS-WISDOM");
+                break;
 
-			dispatch = Dispatch.borrow(player, msg);
-			DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
-		}
-
-		//teleport player to city
-
-		Vector3fImmutable teleportLoc;
-
-		if (targetCity.getTOL().getRank() == 8)
-			teleportLoc = targetCity.getTOL().getStuckLocation();
-		else
-			teleportLoc = Vector3fImmutable.getRandomPointOnCircle(targetCity.getTOL().getLoc(), MBServerStatics.TREE_TELEPORT_RADIUS);
-
-		if (time > 0) {
-			//TODO add timer to teleport
-			TeleportJob tj = new TeleportJob(player, npc, teleportLoc, origin, true);
-			JobScheduler.getInstance().scheduleJob(tj, time * 1000);
-		}
-		else if (joinedGuild) {
-			player.teleport(teleportLoc);
-			player.setSafeMode();
-		}
-	}
-
-	private static PowersBase getPowerforHermit(NPC npc) {
-
-		int contractID;
-		PowersBase power;
-		Contract contract;
-
-		contract = npc.getContract();
-		contractID = contract.getContractID();
-		power = null;
-
-		switch (contractID) {
-		case 435579:
-			power = PowersManager.getPowerByIDString("BLS-POWER");
-			break;
-		case 435580:
-			power = PowersManager.getPowerByIDString("BLS-FORTUNE");
-			break;
-		case 435581:
-			power = PowersManager.getPowerByIDString("BLS-WISDOM");
-			break;
-
-		}
-		return power;
-	}
-
-	private static boolean isHermit(NPC npc) {
-
-		int contractID;
-		boolean retValue = false;
-
-		contractID = npc.getContractID();
-
-		switch (contractID) {
-		case 435579:
-		case 435580:
-		case 435581:
-			retValue = true;
-			break;
-		default:
-			break;
-		}
-
-		return retValue;
-	}
+        }
+        return power;
+    }
+
+    private static boolean isHermit(NPC npc) {
+
+        int contractID;
+        boolean retValue = false;
+
+        contractID = npc.getContractID();
+
+        switch (contractID) {
+            case 435579:
+            case 435580:
+            case 435581:
+                retValue = true;
+                break;
+            default:
+                break;
+        }
+
+        return retValue;
+    }
+
+    @Override
+    protected boolean _handleNetMsg(ClientNetMsg baseMsg, ClientConnection origin) throws MsgSendException {
+
+        // Member variable declaration
+
+        MerchantMsg msg;
+        PlayerCharacter player;
+        NPC npc;
+        int msgType;
+        Building warehouse;
+        Dispatch dispatch;
+
+        // Member variable assignment
+
+        player = SessionManager.getPlayerCharacter(origin);
+        msg = (MerchantMsg) baseMsg;
+        npc = NPC.getNPC(msg.getNPCID());
+
+        // Early exit if something goes awry
+
+        if ((player == null) || (npc == null))
+            return true;
+
+        // Player must be within talking range
+
+        if (player.getLoc().distanceSquared2D(npc.getLoc()) > MBServerStatics.NPC_TALK_RANGE * MBServerStatics.NPC_TALK_RANGE) {
+            ErrorPopupMsg.sendErrorPopup(player, 14);
+            return true;
+        }
+
+        // Process application protocol message
+
+        msgType = msg.getType();
+
+        switch (msgType) {
+            case 3:
+                break;
+            case 5:
+
+                dispatch = Dispatch.borrow(player, msg);
+                DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
+                requestSwearAsSubGuild(msg, origin, player, npc);
+                break;
+            case 10:
+                teleportRepledgeScreen(msg, origin, player, false, npc);
+                break;
+            case 11:
+                teleportRepledge(msg, origin, player, false, npc);
+                break;
+            case 12:
+                teleportRepledgeScreen(msg, origin, player, true, npc);
+                break;
+            case 13:
+                teleportRepledge(msg, origin, player, true, npc);
+                break;
+            case 14:
+                if (isHermit(npc))
+                    requestHermitBlessing(msg, origin, player, npc);
+                else
+                    requestBoon(msg, origin, player, npc);
+                break;
+            case 15:
+                LeaderboardMessage lbm = new LeaderboardMessage();
+                dispatch = Dispatch.borrow(player, lbm);
+                DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
+                break;
+            case 16:
+                ViewResourcesMessage vrm = new ViewResourcesMessage(player);
+                warehouse = npc.getBuilding();
+                vrm.setGuild(player.getGuild());
+                vrm.setWarehouseBuilding(warehouse);
+                vrm.configure();
+                dispatch = Dispatch.borrow(player, vrm);
+                DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
+                break;
+            case 17:
+                Warehouse.warehouseWithdraw(msg, player, npc, origin);
+                break;
+            case 18:
+                Warehouse.warehouseDeposit(msg, player, npc, origin);
+                break;
+            case 19:
+                Warehouse.warehouseLock(msg, player, npc, origin);
+                break;
+        }
+
+        return true;
+
+    }
 
 }

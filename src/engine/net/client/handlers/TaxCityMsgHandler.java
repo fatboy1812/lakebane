@@ -20,89 +20,68 @@ import engine.objects.*;
  */
 public class TaxCityMsgHandler extends AbstractClientMsgHandler {
 
-	public TaxCityMsgHandler() {
-		super(TaxCityMsg.class);
-	}
+    public TaxCityMsgHandler() {
+        super(TaxCityMsg.class);
+    }
 
-	@Override
-	protected boolean _handleNetMsg(ClientNetMsg baseMsg, ClientConnection origin) throws MsgSendException {
+    private static boolean ViewTaxes(TaxCityMsg msg, PlayerCharacter player) {
 
-		// Member variable declaration
+        // Member variable declaration
+        Building building = BuildingManager.getBuildingFromCache(msg.getGuildID());
+        Guild playerGuild = player.getGuild();
 
-		PlayerCharacter player;
-		TaxCityMsg msg;
+        if (building == null) {
+            ErrorPopupMsg.sendErrorMsg(player, "Not a valid Building!");
+            return true;
+        }
 
-		player = origin.getPlayerCharacter();
+        City city = building.getCity();
+        if (city == null) {
+            ErrorPopupMsg.sendErrorMsg(player, "This building does not belong to a city.");
+            return true;
+        }
 
-
-		msg = (TaxCityMsg) baseMsg;
-
-		ViewTaxes(msg,player);
-
-
-
-		return true;
-
-	}
-
-	private static boolean ViewTaxes(TaxCityMsg msg, PlayerCharacter player) {
-
-		// Member variable declaration
-		Building building = BuildingManager.getBuildingFromCache(msg.getGuildID());
-		Guild playerGuild = player.getGuild();
-
-		if (building == null){
-			ErrorPopupMsg.sendErrorMsg(player, "Not a valid Building!");
-			return true;
-		}
-
-		City city = building.getCity();
-		if (city == null){
-			ErrorPopupMsg.sendErrorMsg(player, "This building does not belong to a city.");
-			return true;
-		}
-
-		if (city.getWarehouse() == null){
-			ErrorPopupMsg.sendErrorMsg(player, "This city does not have a warehouse!");
-			return true;
-		}
+        if (city.getWarehouse() == null) {
+            ErrorPopupMsg.sendErrorMsg(player, "This city does not have a warehouse!");
+            return true;
+        }
 
 
-		if (playerGuild == null || playerGuild.isEmptyGuild()){
-			ErrorPopupMsg.sendErrorMsg(player, "You must belong to a guild to do that!");
-			return true;
-		}
+        if (playerGuild == null || playerGuild.isEmptyGuild()) {
+            ErrorPopupMsg.sendErrorMsg(player, "You must belong to a guild to do that!");
+            return true;
+        }
 
-		if (playerGuild.getOwnedCity() == null){
-			ErrorPopupMsg.sendErrorMsg(player, "Your Guild needs to own a city!");
-			return true;
-		}
+        if (playerGuild.getOwnedCity() == null) {
+            ErrorPopupMsg.sendErrorMsg(player, "Your Guild needs to own a city!");
+            return true;
+        }
 
-		if (playerGuild.getOwnedCity().getWarehouse() == null){
-			ErrorPopupMsg.sendErrorMsg(player, "Your Guild needs to own a warehouse!");
-			return true;
-		}
+        if (playerGuild.getOwnedCity().getWarehouse() == null) {
+            ErrorPopupMsg.sendErrorMsg(player, "Your Guild needs to own a warehouse!");
+            return true;
+        }
 
-		if (playerGuild.getOwnedCity().getTOL() == null){
-			ErrorPopupMsg.sendErrorMsg(player, "Cannot find Tree of Life for your city!");
-			return true;
-		}
+        if (playerGuild.getOwnedCity().getTOL() == null) {
+            ErrorPopupMsg.sendErrorMsg(player, "Cannot find Tree of Life for your city!");
+            return true;
+        }
 
 //		if (playerGuild.getOwnedCity().getTOL().getRank() != 8){
 //			ErrorPopupMsg.sendErrorMsg(player, "Your City needs to Own a realm!");
 //			return true;
 //		}
 
-		if (playerGuild.getOwnedCity().getRealm() == null){
-			ErrorPopupMsg.sendErrorMsg(player, "Cannot find realm for your city!");
-			return true;
-		}
-		Realm targetRealm = RealmMap.getRealmForCity(city);
+        if (playerGuild.getOwnedCity().getRealm() == null) {
+            ErrorPopupMsg.sendErrorMsg(player, "Cannot find realm for your city!");
+            return true;
+        }
+        Realm targetRealm = RealmMap.getRealmForCity(city);
 
-		if (targetRealm == null){
-			ErrorPopupMsg.sendErrorMsg(player, "Cannot find realm for city you are attempting to tax!");
-			return true;
-		}
+        if (targetRealm == null) {
+            ErrorPopupMsg.sendErrorMsg(player, "Cannot find realm for city you are attempting to tax!");
+            return true;
+        }
 
 //		if (targetRealm.getRulingCity() == null){
 //			ErrorPopupMsg.sendErrorMsg(player, "Realm Does not have a ruling city!");
@@ -120,35 +99,48 @@ public class TaxCityMsgHandler extends AbstractClientMsgHandler {
 //		}
 
 
-
-
-		if (!GuildStatusController.isTaxCollector(player.getGuildStatus())){
-			ErrorPopupMsg.sendErrorMsg(player, "You Must be a tax Collector!");
-			return true;
-		}
+        if (!GuildStatusController.isTaxCollector(player.getGuildStatus())) {
+            ErrorPopupMsg.sendErrorMsg(player, "You Must be a tax Collector!");
+            return true;
+        }
 
 
 //		if (!city.isAfterTaxPeriod(DateTime.now(), player))
 //			return true;
 
 
-
-		ViewResourcesMessage vrm = new ViewResourcesMessage(player);
-		vrm.setGuild(building.getGuild());
-		vrm.setWarehouseBuilding(BuildingManager.getBuildingFromCache(building.getCity().getWarehouse().getBuildingUID()));
-		vrm.configure();
-		Dispatch dispatch = Dispatch.borrow(player, msg);
-		DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
-		dispatch = Dispatch.borrow(player, vrm);
-		DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
-		return true;
-
+        ViewResourcesMessage vrm = new ViewResourcesMessage(player);
+        vrm.setGuild(building.getGuild());
+        vrm.setWarehouseBuilding(BuildingManager.getBuildingFromCache(building.getCity().getWarehouse().getBuildingUID()));
+        vrm.configure();
+        Dispatch dispatch = Dispatch.borrow(player, msg);
+        DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
+        dispatch = Dispatch.borrow(player, vrm);
+        DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
+        return true;
 
 
-	}
+    }
+
+    @Override
+    protected boolean _handleNetMsg(ClientNetMsg baseMsg, ClientConnection origin) throws MsgSendException {
+
+        // Member variable declaration
+
+        PlayerCharacter player;
+        TaxCityMsg msg;
+
+        player = origin.getPlayerCharacter();
 
 
+        msg = (TaxCityMsg) baseMsg;
 
+        ViewTaxes(msg, player);
+
+
+        return true;
+
+    }
 
 
 }

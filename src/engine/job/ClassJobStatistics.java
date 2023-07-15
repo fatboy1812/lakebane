@@ -11,9 +11,9 @@ package engine.job;
 
 public class ClassJobStatistics extends AbstractJobStatistics {
 
-	public ClassJobStatistics (String className) {
-		super(className);
-	}
+    public ClassJobStatistics(String className) {
+        super(className);
+    }
 
-	
+
 }

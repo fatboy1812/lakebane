@@ -21,23 +21,23 @@ import java.sql.SQLException;
 
 public class ConfusionPowerAction extends AbstractPowerAction {
 
-	public ConfusionPowerAction(ResultSet rs) throws SQLException {
-		super(rs);
-	}
+    public ConfusionPowerAction(ResultSet rs) throws SQLException {
+        super(rs);
+    }
 
-	@Override
-	protected void _startAction(AbstractCharacter source, AbstractWorldObject awo, Vector3fImmutable targetLoc, int trains, ActionsBase ab, PowersBase pb) {
+    @Override
+    protected void _startAction(AbstractCharacter source, AbstractWorldObject awo, Vector3fImmutable targetLoc, int trains, ActionsBase ab, PowersBase pb) {
 
-	}
+    }
 
-	@Override
-	protected void _handleChant(AbstractCharacter source, AbstractWorldObject target, Vector3fImmutable targetLoc, int trains, ActionsBase ab, PowersBase pb) {
-	}
+    @Override
+    protected void _handleChant(AbstractCharacter source, AbstractWorldObject target, Vector3fImmutable targetLoc, int trains, ActionsBase ab, PowersBase pb) {
+    }
 
-	@Override
-	protected void _startAction(AbstractCharacter source, AbstractWorldObject awo, Vector3fImmutable targetLoc,
-			int numTrains, ActionsBase ab, PowersBase pb, int duration) {
-		// TODO Auto-generated method stub
+    @Override
+    protected void _startAction(AbstractCharacter source, AbstractWorldObject awo, Vector3fImmutable targetLoc,
+                                int numTrains, ActionsBase ab, PowersBase pb, int duration) {
+        // TODO Auto-generated method stub
 
-	}
+    }
 }

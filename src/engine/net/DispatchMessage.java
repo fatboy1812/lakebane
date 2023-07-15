@@ -33,280 +33,280 @@ import static engine.net.MessageDispatcher.maxRecipients;
 
 public class DispatchMessage {
 
-	public static void startMessagePump() {
+    public static void startMessagePump() {
 
-		Thread messageDispatcher;
-		messageDispatcher = new Thread(new MessageDispatcher());
+        Thread messageDispatcher;
+        messageDispatcher = new Thread(new MessageDispatcher());
 
-		messageDispatcher.setName("MessageDispatcher");
-		messageDispatcher.start();
-	}
+        messageDispatcher.setName("MessageDispatcher");
+        messageDispatcher.start();
+    }
 
 
-	public static void sendToAllInRange(AbstractWorldObject obj,
-			AbstractNetMsg msg){
+    public static void sendToAllInRange(AbstractWorldObject obj,
+                                        AbstractNetMsg msg) {
 
-		if (obj == null)
-			return;
+        if (obj == null)
+            return;
 
-		if (obj.getObjectType() ==  GameObjectType.PlayerCharacter || obj.getObjectType() ==  GameObjectType.Mob || obj.getObjectType() == GameObjectType.NPC || obj.getObjectType() ==  GameObjectType.Corpse)
-			dispatchMsgToInterestArea(obj, msg, DispatchChannel.PRIMARY, MBServerStatics.CHARACTER_LOAD_RANGE, true, false);
-		else
-			dispatchMsgToInterestArea(obj ,msg, DispatchChannel.PRIMARY, MBServerStatics.STRUCTURE_LOAD_RANGE, false, false);
+        if (obj.getObjectType() == GameObjectType.PlayerCharacter || obj.getObjectType() == GameObjectType.Mob || obj.getObjectType() == GameObjectType.NPC || obj.getObjectType() == GameObjectType.Corpse)
+            dispatchMsgToInterestArea(obj, msg, DispatchChannel.PRIMARY, MBServerStatics.CHARACTER_LOAD_RANGE, true, false);
+        else
+            dispatchMsgToInterestArea(obj, msg, DispatchChannel.PRIMARY, MBServerStatics.STRUCTURE_LOAD_RANGE, false, false);
 
-	}
+    }
 
-	// Dispatches a message to a playercharacter's interest area
-	// Method includes handling of exclusion rules for visibility, self, etc.
+    // Dispatches a message to a playercharacter's interest area
+    // Method includes handling of exclusion rules for visibility, self, etc.
 
-	public static void dispatchMsgToInterestArea(AbstractWorldObject sourceObject, AbstractNetMsg msg, DispatchChannel dispatchChannel, int interestRange, boolean sendToSelf, boolean useIgnore) {
+    public static void dispatchMsgToInterestArea(AbstractWorldObject sourceObject, AbstractNetMsg msg, DispatchChannel dispatchChannel, int interestRange, boolean sendToSelf, boolean useIgnore) {
 
-		Dispatch messageDispatch;
-		HashSet<AbstractWorldObject> gridList;
-		PlayerCharacter gridPlayer;
-		AbstractWorldObject dispatchSource;
-		PlayerCharacter sourcePlayer = null;
-		long recipientCount = 0;
+        Dispatch messageDispatch;
+        HashSet<AbstractWorldObject> gridList;
+        PlayerCharacter gridPlayer;
+        AbstractWorldObject dispatchSource;
+        PlayerCharacter sourcePlayer = null;
+        long recipientCount = 0;
 
-		if (sourceObject == null)
-			return;
+        if (sourceObject == null)
+            return;
 
-		// If the source of the message is a structure, item or player
-		// setup our method variables accordingly.
+        // If the source of the message is a structure, item or player
+        // setup our method variables accordingly.
 
-		switch (sourceObject.getObjectType()) {
-		case Item:
-			dispatchSource = (AbstractWorldObject) ((Item) sourceObject).getOwner();
-			break;
-		case PlayerCharacter:
-			dispatchSource = sourceObject;
-			sourcePlayer = (PlayerCharacter)sourceObject;
-			if (sourcePlayer.getClientConnection() != null && sendToSelf){
-				Dispatch dispatch = Dispatch.borrow(sourcePlayer, msg);
-				DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.PRIMARY);
-			}
+        switch (sourceObject.getObjectType()) {
+            case Item:
+                dispatchSource = (AbstractWorldObject) ((Item) sourceObject).getOwner();
+                break;
+            case PlayerCharacter:
+                dispatchSource = sourceObject;
+                sourcePlayer = (PlayerCharacter) sourceObject;
+                if (sourcePlayer.getClientConnection() != null && sendToSelf) {
+                    Dispatch dispatch = Dispatch.borrow(sourcePlayer, msg);
+                    DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.PRIMARY);
+                }
 
 
-			break;
-		default:
-			dispatchSource = sourceObject;
-		}
+                break;
+            default:
+                dispatchSource = sourceObject;
+        }
 
-		gridList = WorldGrid.getObjectsInRangePartial(dispatchSource.getLoc(), interestRange, MBServerStatics.MASK_PLAYER);
+        gridList = WorldGrid.getObjectsInRangePartial(dispatchSource.getLoc(), interestRange, MBServerStatics.MASK_PLAYER);
 
-		for (AbstractWorldObject gridObject : gridList) {
+        for (AbstractWorldObject gridObject : gridList) {
 
-			gridPlayer = (PlayerCharacter)gridObject;
+            gridPlayer = (PlayerCharacter) gridObject;
 
-			// Apply filter options if source of dispatch is a player
+            // Apply filter options if source of dispatch is a player
 
-			if ((dispatchSource.getObjectType() == GameObjectType.PlayerCharacter) &&
-					(sourcePlayer != null)) {
+            if ((dispatchSource.getObjectType() == GameObjectType.PlayerCharacter) &&
+                    (sourcePlayer != null)) {
 
-				if (gridPlayer.getObjectUUID() == sourcePlayer.getObjectUUID())
-					continue;
+                if (gridPlayer.getObjectUUID() == sourcePlayer.getObjectUUID())
+                    continue;
 
-				if ((useIgnore == true) && (gridPlayer.isIgnoringPlayer(sourcePlayer) == true))
-					continue;
+                if ((useIgnore == true) && (gridPlayer.isIgnoringPlayer(sourcePlayer) == true))
+                    continue;
 
-				if(gridPlayer.canSee(sourcePlayer) == false)
-					continue;
-			}
+                if (gridPlayer.canSee(sourcePlayer) == false)
+                    continue;
+            }
 
-			messageDispatch = Dispatch.borrow(gridPlayer, msg);
-			MessageDispatcher.send(messageDispatch, dispatchChannel);
-			recipientCount++;
-		}
+            messageDispatch = Dispatch.borrow(gridPlayer, msg);
+            MessageDispatcher.send(messageDispatch, dispatchChannel);
+            recipientCount++;
+        }
 
-		// Update metrics
+        // Update metrics
 
-		if (recipientCount > maxRecipients[dispatchChannel.getChannelID()])
-			maxRecipients[dispatchChannel.getChannelID()] = recipientCount;
+        if (recipientCount > maxRecipients[dispatchChannel.getChannelID()])
+            maxRecipients[dispatchChannel.getChannelID()] = recipientCount;
 
-		dispatchCount[dispatchChannel.getChannelID()].increment();
-	}
+        dispatchCount[dispatchChannel.getChannelID()].increment();
+    }
 
-	public static void dispatchMsgToInterestArea(Vector3fImmutable targetLoc,AbstractWorldObject sourceObject, AbstractNetMsg msg, DispatchChannel dispatchChannel, int interestRange, boolean sendToSelf, boolean useIgnore) {
+    public static void dispatchMsgToInterestArea(Vector3fImmutable targetLoc, AbstractWorldObject sourceObject, AbstractNetMsg msg, DispatchChannel dispatchChannel, int interestRange, boolean sendToSelf, boolean useIgnore) {
 
-		Dispatch messageDispatch;
-		HashSet<AbstractWorldObject> gridList;
-		PlayerCharacter gridPlayer;
-		AbstractWorldObject dispatchSource;
-		PlayerCharacter sourcePlayer = null;
-		long recipientCount = 0;
+        Dispatch messageDispatch;
+        HashSet<AbstractWorldObject> gridList;
+        PlayerCharacter gridPlayer;
+        AbstractWorldObject dispatchSource;
+        PlayerCharacter sourcePlayer = null;
+        long recipientCount = 0;
 
-		if (sourceObject == null)
-			return;
+        if (sourceObject == null)
+            return;
 
-		// If the source of the message is a structure, item or player
-		// setup our method variables accordingly.
+        // If the source of the message is a structure, item or player
+        // setup our method variables accordingly.
 
-		switch (sourceObject.getObjectType()) {
-		case Item:
-			dispatchSource = (AbstractWorldObject) ((Item) sourceObject).getOwner();
-			break;
-		case PlayerCharacter:
-			dispatchSource = sourceObject;
-			sourcePlayer = (PlayerCharacter)sourceObject;
+        switch (sourceObject.getObjectType()) {
+            case Item:
+                dispatchSource = (AbstractWorldObject) ((Item) sourceObject).getOwner();
+                break;
+            case PlayerCharacter:
+                dispatchSource = sourceObject;
+                sourcePlayer = (PlayerCharacter) sourceObject;
 
-			if (sourcePlayer.getClientConnection() != null && sendToSelf){
-				Dispatch dispatch = Dispatch.borrow(sourcePlayer, msg);
-				DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.PRIMARY);
-			}
+                if (sourcePlayer.getClientConnection() != null && sendToSelf) {
+                    Dispatch dispatch = Dispatch.borrow(sourcePlayer, msg);
+                    DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.PRIMARY);
+                }
 
 
-			break;
-		default:
-			dispatchSource = sourceObject;
-		}
+                break;
+            default:
+                dispatchSource = sourceObject;
+        }
 
-		gridList = WorldGrid.getObjectsInRangePartial(targetLoc, interestRange, MBServerStatics.MASK_PLAYER);
+        gridList = WorldGrid.getObjectsInRangePartial(targetLoc, interestRange, MBServerStatics.MASK_PLAYER);
 
-		for (AbstractWorldObject gridObject : gridList) {
+        for (AbstractWorldObject gridObject : gridList) {
 
-			gridPlayer = (PlayerCharacter)gridObject;
+            gridPlayer = (PlayerCharacter) gridObject;
 
-			// Apply filter options if source of dispatch is a player
+            // Apply filter options if source of dispatch is a player
 
-			if ((dispatchSource.getObjectType() == GameObjectType.PlayerCharacter) &&
-					(sourcePlayer != null)) {
+            if ((dispatchSource.getObjectType() == GameObjectType.PlayerCharacter) &&
+                    (sourcePlayer != null)) {
 
-				if (gridPlayer.getObjectUUID() == sourcePlayer.getObjectUUID())
-					continue;
+                if (gridPlayer.getObjectUUID() == sourcePlayer.getObjectUUID())
+                    continue;
 
-				if ((useIgnore == true) && (gridPlayer.isIgnoringPlayer(sourcePlayer) == true))
-					continue;
+                if ((useIgnore == true) && (gridPlayer.isIgnoringPlayer(sourcePlayer) == true))
+                    continue;
 
-				if(gridPlayer.canSee(sourcePlayer) == false)
-					continue;
-			}
+                if (gridPlayer.canSee(sourcePlayer) == false)
+                    continue;
+            }
 
-			messageDispatch = Dispatch.borrow(gridPlayer, msg);
-			MessageDispatcher.send(messageDispatch, dispatchChannel);
-			recipientCount++;
-		}
+            messageDispatch = Dispatch.borrow(gridPlayer, msg);
+            MessageDispatcher.send(messageDispatch, dispatchChannel);
+            recipientCount++;
+        }
 
-		// Update metrics
+        // Update metrics
 
-		if (recipientCount > maxRecipients[dispatchChannel.getChannelID()])
-			maxRecipients[dispatchChannel.getChannelID()] = recipientCount;
+        if (recipientCount > maxRecipients[dispatchChannel.getChannelID()])
+            maxRecipients[dispatchChannel.getChannelID()] = recipientCount;
 
-		dispatchCount[dispatchChannel.getChannelID()].increment();
-	}
+        dispatchCount[dispatchChannel.getChannelID()].increment();
+    }
 
-	// Sends a message to all players in the game
+    // Sends a message to all players in the game
 
-	public static void dispatchMsgToAll(AbstractNetMsg msg) {
+    public static void dispatchMsgToAll(AbstractNetMsg msg) {
 
-		Dispatch messageDispatch;
-		long recipientCount = 0;
+        Dispatch messageDispatch;
+        long recipientCount = 0;
 
-		// Send message to nobody?  No thanks!
+        // Send message to nobody?  No thanks!
 
-		if (SessionManager.getAllActivePlayerCharacters().isEmpty())
-			return;
+        if (SessionManager.getAllActivePlayerCharacters().isEmpty())
+            return;
 
-		// Messages to all we will default to the secondary dispatch
-		// delivery channel.  They are generally large, or inconsequential.
+        // Messages to all we will default to the secondary dispatch
+        // delivery channel.  They are generally large, or inconsequential.
 
-		for (PlayerCharacter player : SessionManager.getAllActivePlayerCharacters()) {
-			messageDispatch = Dispatch.borrow(player, msg);
-			MessageDispatcher.send(messageDispatch, DispatchChannel.SECONDARY);
-			recipientCount++;
-		}
+        for (PlayerCharacter player : SessionManager.getAllActivePlayerCharacters()) {
+            messageDispatch = Dispatch.borrow(player, msg);
+            MessageDispatcher.send(messageDispatch, DispatchChannel.SECONDARY);
+            recipientCount++;
+        }
 
-		// Update metrics
+        // Update metrics
 
-		if (recipientCount > maxRecipients[DispatchChannel.SECONDARY.getChannelID()])
-			maxRecipients[DispatchChannel.SECONDARY.getChannelID()] = recipientCount;
+        if (recipientCount > maxRecipients[DispatchChannel.SECONDARY.getChannelID()])
+            maxRecipients[DispatchChannel.SECONDARY.getChannelID()] = recipientCount;
 
-		dispatchCount[DispatchChannel.SECONDARY.getChannelID()].increment();
+        dispatchCount[DispatchChannel.SECONDARY.getChannelID()].increment();
 
-	}
-	
-	public static void dispatchMsgToAll(PlayerCharacter source, AbstractNetMsg msg, boolean ignore) {
+    }
 
-		Dispatch messageDispatch;
-		long recipientCount = 0;
+    public static void dispatchMsgToAll(PlayerCharacter source, AbstractNetMsg msg, boolean ignore) {
 
-		// Send message to nobody?  No thanks!
+        Dispatch messageDispatch;
+        long recipientCount = 0;
 
-		if (SessionManager.getAllActivePlayerCharacters().isEmpty())
-			return;
+        // Send message to nobody?  No thanks!
 
-		// Messages to all we will default to the secondary dispatch
-		// delivery channel.  They are generally large, or inconsequential.
+        if (SessionManager.getAllActivePlayerCharacters().isEmpty())
+            return;
 
-		for (PlayerCharacter player : SessionManager.getAllActivePlayerCharacters()) {
-			
-			if (ignore && player.isIgnoringPlayer(source))
-				continue;
-			
-			messageDispatch = Dispatch.borrow(player, msg);
-			MessageDispatcher.send(messageDispatch, DispatchChannel.SECONDARY);
-			recipientCount++;
-		}
+        // Messages to all we will default to the secondary dispatch
+        // delivery channel.  They are generally large, or inconsequential.
 
-		// Update metrics
+        for (PlayerCharacter player : SessionManager.getAllActivePlayerCharacters()) {
 
-		if (recipientCount > maxRecipients[DispatchChannel.SECONDARY.getChannelID()])
-			maxRecipients[DispatchChannel.SECONDARY.getChannelID()] = recipientCount;
+            if (ignore && player.isIgnoringPlayer(source))
+                continue;
 
-		dispatchCount[DispatchChannel.SECONDARY.getChannelID()].increment();
+            messageDispatch = Dispatch.borrow(player, msg);
+            MessageDispatcher.send(messageDispatch, DispatchChannel.SECONDARY);
+            recipientCount++;
+        }
 
-	}
+        // Update metrics
 
-	// Sends a message to an arbitrary distribution list
+        if (recipientCount > maxRecipients[DispatchChannel.SECONDARY.getChannelID()])
+            maxRecipients[DispatchChannel.SECONDARY.getChannelID()] = recipientCount;
 
-	public static void dispatchMsgDispatch(Dispatch messageDispatch, DispatchChannel dispatchChannel) {
-		
-		if (messageDispatch == null){
-			Logger.info("DISPATCH Null for DispatchMessage!");
-			return;
-		}
+        dispatchCount[DispatchChannel.SECONDARY.getChannelID()].increment();
 
-		// No need to serialize an empty list
+    }
 
-		if (messageDispatch.player == null){
-			Logger.info("Player Null for Dispatch!");
-			messageDispatch.release();
-			return;
-		}
-			
+    // Sends a message to an arbitrary distribution list
 
-		MessageDispatcher.send(messageDispatch, dispatchChannel);
+    public static void dispatchMsgDispatch(Dispatch messageDispatch, DispatchChannel dispatchChannel) {
 
-		dispatchCount[dispatchChannel.getChannelID()].increment();
+        if (messageDispatch == null) {
+            Logger.info("DISPATCH Null for DispatchMessage!");
+            return;
+        }
 
-	}
+        // No need to serialize an empty list
 
-	protected static void serializeDispatch(Dispatch messageDispatch) {
-		ClientConnection connection;
+        if (messageDispatch.player == null) {
+            Logger.info("Player Null for Dispatch!");
+            messageDispatch.release();
+            return;
+        }
 
-		if (messageDispatch.player == null){
-			Logger.info("Player null in serializeDispatch");
-			messageDispatch.release();
-			return;
-		}
 
-		connection = messageDispatch.player.getClientConnection();
+        MessageDispatcher.send(messageDispatch, dispatchChannel);
 
-		if ((connection == null) || (connection.isConnected() == false)) {
-			messageDispatch.release();
-			return;
-		}
+        dispatchCount[dispatchChannel.getChannelID()].increment();
 
-		if (messageDispatch.msg == null) {
-			Logger.error("null message sent to " + messageDispatch.player.getName());
-			messageDispatch.release();
-			return;
-		}
+    }
 
-		if (!connection.sendMsg(messageDispatch.msg))
-			Logger.error(messageDispatch.msg.getProtocolMsg() + " failed sending to " + messageDispatch.player.getName());
+    protected static void serializeDispatch(Dispatch messageDispatch) {
+        ClientConnection connection;
 
-		messageDispatch.release();
-	}
+        if (messageDispatch.player == null) {
+            Logger.info("Player null in serializeDispatch");
+            messageDispatch.release();
+            return;
+        }
+
+        connection = messageDispatch.player.getClientConnection();
+
+        if ((connection == null) || (connection.isConnected() == false)) {
+            messageDispatch.release();
+            return;
+        }
+
+        if (messageDispatch.msg == null) {
+            Logger.error("null message sent to " + messageDispatch.player.getName());
+            messageDispatch.release();
+            return;
+        }
+
+        if (!connection.sendMsg(messageDispatch.msg))
+            Logger.error(messageDispatch.msg.getProtocolMsg() + " failed sending to " + messageDispatch.player.getName());
+
+        messageDispatch.release();
+    }
 
 
 }

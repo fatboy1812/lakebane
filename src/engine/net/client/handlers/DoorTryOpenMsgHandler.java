@@ -23,7 +23,7 @@ import java.util.HashSet;
  * @Author:
  * @Summary: Processes application protocol message which handle
  * open and close door requests to and from the client.
- * 
+ *
  */
 public class DoorTryOpenMsgHandler extends AbstractClientMsgHandler {
 
@@ -35,17 +35,17 @@ public class DoorTryOpenMsgHandler extends AbstractClientMsgHandler {
     protected boolean _handleNetMsg(ClientNetMsg baseMsg, ClientConnection origin) throws MsgSendException {
 
         // Member variable declaration
-        
+
         PlayerCharacter player;
         DoorTryOpenMsg msg;
         Building targetBuilding;
         int doorNumber;
-        
+
         // Member variable assignment
-        
-        msg = (DoorTryOpenMsg)baseMsg;
+
+        msg = (DoorTryOpenMsg) baseMsg;
         player = origin.getPlayerCharacter();
-        targetBuilding =  BuildingManager.getBuildingFromCache(msg.getBuildingUUID());
+        targetBuilding = BuildingManager.getBuildingFromCache(msg.getBuildingUUID());
 
         if (player == null || targetBuilding == null) {
             Logger.error("Player or Building returned NULL in OpenCloseDoor handling.");
@@ -53,7 +53,7 @@ public class DoorTryOpenMsgHandler extends AbstractClientMsgHandler {
         }
 
         // Must be within x distance from door to manipulate it
-        
+
         if (player.getLoc().distanceSquared2D(targetBuilding.getLoc()) > MBServerStatics.OPENCLOSEDOORDISTANCE * MBServerStatics.OPENCLOSEDOORDISTANCE)
             return true;
 
@@ -77,7 +77,7 @@ public class DoorTryOpenMsgHandler extends AbstractClientMsgHandler {
                 MBServerStatics.MASK_PLAYER);
 
         for (AbstractWorldObject awo : container) {
-            PlayerCharacter playerCharacter = (PlayerCharacter)awo;
+            PlayerCharacter playerCharacter = (PlayerCharacter) awo;
             Dispatch dispatch = Dispatch.borrow(playerCharacter, msg);
             DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
         }

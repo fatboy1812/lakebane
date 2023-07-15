@@ -47,6 +47,7 @@ public enum ChatManager {
     private static final String FLOOD_USER_ERROR = "You talk too much!";
     private static final String SILENCED = "You find yourself mute!";
     private static final String UNKNOWN_COMMAND = "No such command.";
+
     /**
      * This method used when handling a ChatMsg received from the network.
      */
@@ -107,8 +108,8 @@ public enum ChatManager {
                 ChatManager.chatIC(pc, (ChatICMsg) msg);
                 return;
             case LEADERCHANNELMESSAGE:
-            	ChatManager.chatGlobal(pc, msg.getMessage(), isFlood);
-            	return;
+                ChatManager.chatGlobal(pc, msg.getMessage(), isFlood);
+                return;
             case GLOBALCHANNELMESSAGE:
             case CHATPVP:
             case CHATCITY:
@@ -199,7 +200,7 @@ public enum ChatManager {
         }
 
         if (ChatManager.isVersionRequest(text) == true) {
-            sendSystemMessage(pcSender,  ConfigManager.MB_WORLD_GREETING.getValue());
+            sendSystemMessage(pcSender, ConfigManager.MB_WORLD_GREETING.getValue());
             return;
         }
 
@@ -247,7 +248,7 @@ public enum ChatManager {
      * Shout
      */
     public static void chatShout(AbstractWorldObject sender, String text,
-                          boolean isFlood) {
+                                 boolean isFlood) {
 
         PlayerCharacter pcSender = null;
 
@@ -267,34 +268,34 @@ public enum ChatManager {
         DispatchMessage.dispatchMsgToInterestArea(pcSender, msg, engine.Enum.DispatchChannel.SECONDARY, MBServerStatics.SHOUT_RANGE, true, true);
 
     }
-    
+
     public static void chatGlobal(PlayerCharacter sender, String text,
-            boolean isFlood) {
+                                  boolean isFlood) {
 
-PlayerCharacter pcSender = null;
+        PlayerCharacter pcSender = null;
 
-if (sender.getObjectType().equals(GameObjectType.PlayerCharacter))
-pcSender = (PlayerCharacter) sender;
+        if (sender.getObjectType().equals(GameObjectType.PlayerCharacter))
+            pcSender = (PlayerCharacter) sender;
 
-if (isFlood) {
-ChatManager.chatSayError(pcSender, FLOOD_USER_ERROR);
-return;
-}
+        if (isFlood) {
+            ChatManager.chatSayError(pcSender, FLOOD_USER_ERROR);
+            return;
+        }
 
-if (pcSender != null && testSilenced(pcSender))
-return;
+        if (pcSender != null && testSilenced(pcSender))
+            return;
 
 // Make the Message
-ChatGlobalMsg msg = new ChatGlobalMsg(sender, text);
-DispatchMessage.dispatchMsgToAll(sender, msg, true);
+        ChatGlobalMsg msg = new ChatGlobalMsg(sender, text);
+        DispatchMessage.dispatchMsgToAll(sender, msg, true);
 
-}
+    }
 
     /*
      * Tell
      */
     public static void chatTell(AbstractWorldObject sender, String recipient,
-                         String text, boolean isFlood) {
+                                String text, boolean isFlood) {
         if (text.isEmpty())
             return;
 
@@ -323,7 +324,7 @@ DispatchMessage.dispatchMsgToAll(sender, msg, true);
     }
 
     public static void chatTell(AbstractWorldObject sender,
-                         AbstractWorldObject recipient, String text) {
+                                AbstractWorldObject recipient, String text) {
 
         PlayerCharacter pcSender = null;
 
@@ -538,7 +539,7 @@ DispatchMessage.dispatchMsgToAll(sender, msg, true);
     }
 
     public static void GuildEnterWorldMsg(PlayerCharacter sender,
-                                   ClientConnection origin) {
+                                          ClientConnection origin) {
         // Verify sender has PlayerCharacter
         if (sender == null)
             return;
@@ -643,7 +644,7 @@ DispatchMessage.dispatchMsgToAll(sender, msg, true);
             ChatManager.chatSystemSend(senderList, textToThief, 1, 2);
 
         if (target != null && !textToVictim.isEmpty()) {
-        	HashSet<AbstractWorldObject> victimList = new HashSet<>();
+            HashSet<AbstractWorldObject> victimList = new HashSet<>();
             victimList.add(target);
             ChatManager.chatSystemSend(victimList, textToVictim, 1, 2);
         }
@@ -774,7 +775,7 @@ DispatchMessage.dispatchMsgToAll(sender, msg, true);
     }
 
     public static void chatGroupInfoCanSee(PlayerCharacter pc, String text) {
-    	HashSet<AbstractWorldObject> distroList = null;
+        HashSet<AbstractWorldObject> distroList = null;
 
         Group group = GroupManager.getGroup(pc);
         if (group != null) {
@@ -838,7 +839,7 @@ DispatchMessage.dispatchMsgToAll(sender, msg, true);
 
     // Send Info Message to guild channel based on guild
     public static void chatGuildInfo(Guild guild, String text) {
-    	HashSet<AbstractWorldObject> distroList = null;
+        HashSet<AbstractWorldObject> distroList = null;
         if (guild != null)
             distroList = ChatManager.getGuildList(guild, null);
         ChatManager.chatSystemSend(distroList, text, 12, 2);
@@ -846,7 +847,7 @@ DispatchMessage.dispatchMsgToAll(sender, msg, true);
 
     public static void chatSystemMOTD(PlayerCharacter sender, String text,
                                       int channel, int messageType) {
-    	HashSet<AbstractWorldObject> distroList = ChatManager.getOwnPlayer(sender);
+        HashSet<AbstractWorldObject> distroList = ChatManager.getOwnPlayer(sender);
         ChatManager.chatSystemSend(distroList, text, channel, messageType);
     }
 
@@ -857,7 +858,7 @@ DispatchMessage.dispatchMsgToAll(sender, msg, true);
     }
 
     public static void chatInfo(String text) {
-    	HashSet<AbstractWorldObject> distroList = ChatManager.getAllPlayers(null);
+        HashSet<AbstractWorldObject> distroList = ChatManager.getAllPlayers(null);
         chatSystemSend(distroList, text, 1, 2);
     }
 
@@ -871,7 +872,7 @@ DispatchMessage.dispatchMsgToAll(sender, msg, true);
 
     public static void chatSystem(PlayerCharacter sender, String text, int channel,
                                   int messageType) {
-    	HashSet<AbstractWorldObject> distroList = null;
+        HashSet<AbstractWorldObject> distroList = null;
         if (channel == 1) // System Channel Message
 
             distroList = ChatManager.getAllPlayers(sender);
@@ -924,7 +925,7 @@ DispatchMessage.dispatchMsgToAll(sender, msg, true);
 
     public static void chatSystemGuild(Guild sender, String text, int channel,
                                        int messageType) {
-    	HashSet<AbstractWorldObject> distroList = null;
+        HashSet<AbstractWorldObject> distroList = null;
 
         if (channel == 5) { // Nation Channel, get Nation list
             if (sender != null) {
@@ -976,7 +977,7 @@ DispatchMessage.dispatchMsgToAll(sender, msg, true);
 
     // Get distroList for guild
     public static HashSet<AbstractWorldObject> getGuildList(Guild guild, PlayerCharacter source) {
-    	HashSet<AbstractWorldObject> distroList = new HashSet<>();
+        HashSet<AbstractWorldObject> distroList = new HashSet<>();
 
         for (PlayerCharacter playerCharacter : SessionManager.getAllActivePlayerCharacters()) {
 
@@ -992,7 +993,7 @@ DispatchMessage.dispatchMsgToAll(sender, msg, true);
     // Get distroList for guild IC's
     public static HashSet<AbstractWorldObject> getGuildICList(Guild guild, PlayerCharacter source) {
 
-    	HashSet<AbstractWorldObject> distroList = new HashSet<>();
+        HashSet<AbstractWorldObject> distroList = new HashSet<>();
 
         for (PlayerCharacter pc : SessionManager.getAllActivePlayerCharacters()) {
 
@@ -1008,7 +1009,7 @@ DispatchMessage.dispatchMsgToAll(sender, msg, true);
 
     // Get distroList for group
     public static HashSet<AbstractWorldObject> getGroupList(Group group, PlayerCharacter source) {
-    	HashSet<AbstractWorldObject> distroList = new HashSet<>();
+        HashSet<AbstractWorldObject> distroList = new HashSet<>();
         Set<PlayerCharacter> players = group.getMembers();
         for (PlayerCharacter pc : players) {
             if (source != null && pc.isIgnoringPlayer(source))
@@ -1020,7 +1021,7 @@ DispatchMessage.dispatchMsgToAll(sender, msg, true);
 
     // Get distroList for nation
     public static HashSet<AbstractWorldObject> getNationList(Guild nation, PlayerCharacter source) {
-    	HashSet<AbstractWorldObject> distroList = new HashSet<>();
+        HashSet<AbstractWorldObject> distroList = new HashSet<>();
 
         for (PlayerCharacter pc : SessionManager.getAllActivePlayerCharacters()) {
 
@@ -1056,7 +1057,7 @@ DispatchMessage.dispatchMsgToAll(sender, msg, true);
     // Get distroList for all players
     public static HashSet<AbstractWorldObject> getAllPlayers(PlayerCharacter source) {
 
-    	HashSet<AbstractWorldObject> distroList = new HashSet<>();
+        HashSet<AbstractWorldObject> distroList = new HashSet<>();
         for (PlayerCharacter pc : SessionManager.getAllActivePlayerCharacters()) {
             if (source != null && pc.isIgnoringPlayer(source))
                 continue; // dont add if recip has ignored source
@@ -1218,7 +1219,7 @@ DispatchMessage.dispatchMsgToAll(sender, msg, true);
         else if (cmd.compareTo("getinfo") == 0)
             devCmd = "info";
         else if (devCmd.isEmpty()) {
-            Logger.info( "Unhandled admin command was used: /"
+            Logger.info("Unhandled admin command was used: /"
                     + cmd);
             return;
         }

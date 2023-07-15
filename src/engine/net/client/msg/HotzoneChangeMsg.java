@@ -49,8 +49,7 @@ public class HotzoneChangeMsg extends ClientNetMsg {
      * past the limit) then this constructor Throws that Exception to the
      * caller.
      */
-    public HotzoneChangeMsg(AbstractConnection origin, ByteBufferReader reader)
-             {
+    public HotzoneChangeMsg(AbstractConnection origin, ByteBufferReader reader) {
         super(Protocol.ARCHOTZONECHANGE, origin, reader);
     }
 
@@ -68,7 +67,7 @@ public class HotzoneChangeMsg extends ClientNetMsg {
      * Deserializes the subclass specific items from the supplied NetMsgReader.
      */
     @Override
-    protected void _deserialize(ByteBufferReader reader)  {
+    protected void _deserialize(ByteBufferReader reader) {
         this.zoneType = reader.getInt();
         this.zoneID = reader.getInt();
         reader.getInt();
@@ -78,12 +77,12 @@ public class HotzoneChangeMsg extends ClientNetMsg {
         return this.zoneType;
     }
 
-    public int getZoneID() {
-        return this.zoneID;
-    }
-
     public void setZoneType(int value) {
         this.zoneType = value;
+    }
+
+    public int getZoneID() {
+        return this.zoneID;
     }
 
     public void setZoneID(int value) {

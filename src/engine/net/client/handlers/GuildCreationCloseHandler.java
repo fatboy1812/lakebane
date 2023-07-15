@@ -16,15 +16,15 @@ import engine.net.client.msg.guild.GuildCreationCloseMsg;
 
 public class GuildCreationCloseHandler extends AbstractClientMsgHandler {
 
-	public GuildCreationCloseHandler() {
-		super(GuildCreationCloseMsg.class);
-	}
+    public GuildCreationCloseHandler() {
+        super(GuildCreationCloseMsg.class);
+    }
 
-	@Override
-	protected boolean _handleNetMsg(ClientNetMsg baseMsg, ClientConnection origin) throws MsgSendException {
+    @Override
+    protected boolean _handleNetMsg(ClientNetMsg baseMsg, ClientConnection origin) throws MsgSendException {
 //	GuildCreationCloseMsg msg = (GuildCreationCloseMsg) baseMsg;
 //	origin.sendMsg(msg);
-		return true;
-	}
+        return true;
+    }
 
 }

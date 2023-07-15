@@ -7,9 +7,6 @@
 //                www.magicbane.com
 
 
-
-
-
 // • ▌ ▄ ·.  ▄▄▄·  ▄▄ • ▪   ▄▄· ▄▄▄▄·  ▄▄▄·  ▐▄▄▄  ▄▄▄ .
 // ·██ ▐███▪▐█ ▀█ ▐█ ▀ ▪██ ▐█ ▌▪▐█ ▀█▪▐█ ▀█ •█▌ ▐█▐▌·
 // ▐█ ▌▐▌▐█·▄█▀▀█ ▄█ ▀█▄▐█·██ ▄▄▐█▀▀█▄▄█▀▀█ ▐█▐ ▐▌▐▀▀▀
@@ -38,57 +35,56 @@ import engine.objects.PlayerCharacter;
 
 public class HirelingServiceMsgHandler extends AbstractClientMsgHandler {
 
-	public HirelingServiceMsgHandler() {
-		super(HirelingServiceMsg.class);
-	}
+    public HirelingServiceMsgHandler() {
+        super(HirelingServiceMsg.class);
+    }
 
-	@Override
-	protected boolean _handleNetMsg(ClientNetMsg baseMsg, ClientConnection origin) throws MsgSendException {
+    @Override
+    protected boolean _handleNetMsg(ClientNetMsg baseMsg, ClientConnection origin) throws MsgSendException {
 
-		PlayerCharacter player;
-		HirelingServiceMsg msg;
+        PlayerCharacter player;
+        HirelingServiceMsg msg;
 
-		msg = (HirelingServiceMsg) baseMsg;
+        msg = (HirelingServiceMsg) baseMsg;
 
-		// get PlayerCharacter of person accepting invite
+        // get PlayerCharacter of person accepting invite
 
-		player = SessionManager.getPlayerCharacter(origin);
+        player = SessionManager.getPlayerCharacter(origin);
 
-		if (player == null)
-			return true;
-		
-	switch (msg.messageType){
-	case HirelingServiceMsg.SETREPAIRCOST:
-		Building building = BuildingManager.getBuildingFromCache(msg.buildingID);
-		
-		if (building == null)
-			return true;
-		
-		NPC npc = NPC.getFromCache(msg.npcID);
-		
-		if (npc == null)
-			return true;
-		
-		if (!BuildingManager.playerCanManage(player, building))
-			return true;
-		
-	
-		
-		npc.setRepairCost(msg.repairCost);
-		ManageNPCMsg outMsg = new ManageNPCMsg(npc);
-		Dispatch dispatch = Dispatch.borrow(player, msg);
-		
-		DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.SECONDARY);
-		dispatch = Dispatch.borrow(player, outMsg);
-		
-		DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.SECONDARY);
-		break;
-	}
-		
-		
-		return true;
+        if (player == null)
+            return true;
 
-		
-	}
+        switch (msg.messageType) {
+            case HirelingServiceMsg.SETREPAIRCOST:
+                Building building = BuildingManager.getBuildingFromCache(msg.buildingID);
+
+                if (building == null)
+                    return true;
+
+                NPC npc = NPC.getFromCache(msg.npcID);
+
+                if (npc == null)
+                    return true;
+
+                if (!BuildingManager.playerCanManage(player, building))
+                    return true;
+
+
+                npc.setRepairCost(msg.repairCost);
+                ManageNPCMsg outMsg = new ManageNPCMsg(npc);
+                Dispatch dispatch = Dispatch.borrow(player, msg);
+
+                DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.SECONDARY);
+                dispatch = Dispatch.borrow(player, outMsg);
+
+                DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.SECONDARY);
+                break;
+        }
+
+
+        return true;
+
+
+    }
 
 }

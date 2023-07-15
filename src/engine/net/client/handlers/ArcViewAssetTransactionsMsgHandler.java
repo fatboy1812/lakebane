@@ -40,9 +40,9 @@ public class ArcViewAssetTransactionsMsgHandler extends AbstractClientMsgHandler
         Warehouse warehouse = Warehouse.warehouseByBuildingUUID.get(msg.getWarehouseID());
 
         if (warehouse == null)
-        	return true;
-        
-        newMsg = new ArcViewAssetTransactionsMsg(warehouse,msg);
+            return true;
+
+        newMsg = new ArcViewAssetTransactionsMsg(warehouse, msg);
         newMsg.configure();
 
         dispatch = Dispatch.borrow(player, newMsg);

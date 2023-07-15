@@ -40,7 +40,7 @@ public class UseItemJob extends AbstractScheduleJob {
 
     @Override
     protected void _cancelJob() {
-    	this.ac.setItemCasting(false);
+        this.ac.setItemCasting(false);
     }
 
     public PowersBase getPowersBase() {

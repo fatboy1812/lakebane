@@ -7,7 +7,6 @@
 //                www.magicbane.com
 
 
-
 package engine.net.client.msg.login;
 
 import engine.Enum.GameObjectType;
@@ -36,8 +35,7 @@ public class DeleteCharacterMsg extends ClientNetMsg {
      * past the limit) then this constructor Throws that Exception to the
      * caller.
      */
-    public DeleteCharacterMsg(AbstractConnection origin, ByteBufferReader reader)
-             {
+    public DeleteCharacterMsg(AbstractConnection origin, ByteBufferReader reader) {
         super(Protocol.REMOVECHAR, origin, reader);
     }
 
@@ -56,9 +54,9 @@ public class DeleteCharacterMsg extends ClientNetMsg {
      * Deserializes the subclass specific items from the supplied
      * ByteBufferReader.
      */
-    
+
     @Override
-    protected void _deserialize(ByteBufferReader reader)  {
+    protected void _deserialize(ByteBufferReader reader) {
         reader.getInt(); // Object Type Padding
         this.characterUUID = reader.getInt();
         this.firstName = reader.getString();

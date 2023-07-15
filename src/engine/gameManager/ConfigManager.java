@@ -132,8 +132,11 @@ public enum ConfigManager {
 
     // Get the value associated with this enumeration
 
-    public  String getValue() {
-      return configMap.get(this.name());
+    public String getValue() {
+        return configMap.get(this.name());
     }
-    public  void  setValue(String value) { configMap.put(this.name(), value); }
+
+    public void setValue(String value) {
+        configMap.put(this.name(), value);
+    }
 }

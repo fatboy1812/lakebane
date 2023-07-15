@@ -17,32 +17,31 @@ import engine.objects.PlayerCharacter;
 
 public class KeepAliveServerClientHandler extends AbstractClientMsgHandler {
 
-	public KeepAliveServerClientHandler() {
-		super(KeepAliveServerClientMsg.class);
-	}
+    public KeepAliveServerClientHandler() {
+        super(KeepAliveServerClientMsg.class);
+    }
 
-	@Override
-	protected boolean _handleNetMsg(ClientNetMsg baseMsg, ClientConnection origin) throws MsgSendException {
-		
-		PlayerCharacter pc = origin.getPlayerCharacter();
-		
-	
-	
-            // Member variable declaration
-            
-            KeepAliveServerClientMsg msg;
-            
-            // Member variable assignment
-            
-            msg = (KeepAliveServerClientMsg) baseMsg;
-            
-        
-            // Send ping to client
-            
-            Dispatch dispatch = Dispatch.borrow(pc, msg);
-            DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.PRIMARY);
-            
-            return true;
-	}
+    @Override
+    protected boolean _handleNetMsg(ClientNetMsg baseMsg, ClientConnection origin) throws MsgSendException {
+
+        PlayerCharacter pc = origin.getPlayerCharacter();
+
+
+        // Member variable declaration
+
+        KeepAliveServerClientMsg msg;
+
+        // Member variable assignment
+
+        msg = (KeepAliveServerClientMsg) baseMsg;
+
+
+        // Send ping to client
+
+        Dispatch dispatch = Dispatch.borrow(pc, msg);
+        DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.PRIMARY);
+
+        return true;
+    }
 
 }

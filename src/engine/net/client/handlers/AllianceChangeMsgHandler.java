@@ -20,142 +20,134 @@ import engine.objects.PlayerCharacter;
  */
 public class AllianceChangeMsgHandler extends AbstractClientMsgHandler {
 
-	public AllianceChangeMsgHandler() {
-		super(AllianceChangeMsg.class);
-	}
+    public AllianceChangeMsgHandler() {
+        super(AllianceChangeMsg.class);
+    }
 
-	@Override
-	protected boolean _handleNetMsg(ClientNetMsg baseMsg, ClientConnection origin) throws MsgSendException {
+    private static void MakeEnemy(Guild fromGuild, Guild toGuild, AllianceChangeMsg msg, ClientConnection origin) {
 
-		// Member variable declaration
+        // Member variable declaration
+        Dispatch dispatch;
 
-		PlayerCharacter player;
-		AllianceChangeMsg msg;
+        // Member variable assignment
 
+        if (fromGuild == null)
+            return;
 
-		// Member variable assignment
+        if (toGuild == null)
+            return;
 
-		msg = (AllianceChangeMsg) baseMsg;
+        if (!Guild.sameGuild(origin.getPlayerCharacter().getGuild(), fromGuild)) {
+            msg.setMsgType(AllianceChangeMsg.ERROR_NOT_SAME_GUILD);
+            dispatch = Dispatch.borrow(origin.getPlayerCharacter(), msg);
+            DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
+            return;
+        }
 
-		player = SessionManager.getPlayerCharacter(origin);
-
-		if (player == null)
-			return true;
-
-
-
-		Guild toGuild = null;
-		toGuild = Guild.getGuild(msg.getSourceGuildID());
-		if (toGuild.isEmptyGuild())
-			return true;
-
-		if (player.getGuild().isEmptyGuild())
-			return true;
-
+        if (!GuildStatusController.isInnerCouncil(origin.getPlayerCharacter().getGuildStatus()) && !GuildStatusController.isGuildLeader(origin.getPlayerCharacter().getGuildStatus())) {
+            msg.setMsgType(AllianceChangeMsg.ERROR_NOT_AUTHORIZED);
+            dispatch = Dispatch.borrow(origin.getPlayerCharacter(), msg);
+            DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
+            return;
+        }
 
 
-		switch (msg.getMsgType()){
-		case AllianceChangeMsg.MAKE_ALLY:
-		case 1: //allyfromRecommended
-			player.getGuild().addGuildToAlliance(msg, AllianceType.Ally, toGuild, player);
-			break;
-		case AllianceChangeMsg.MAKE_ENEMY:
-		case 2: //enemy recommend
-			player.getGuild().addGuildToAlliance(msg, AllianceType.Enemy, toGuild, player);
-			break;
-		case 3:
-		case 5:
-		case 7:
-			player.getGuild().removeGuildFromAllAlliances(toGuild);
-			break;
-
-		}
-		msg.setMsgType(AllianceChangeMsg.INFO_SUCCESS);
-		Dispatch dispatch = Dispatch.borrow(player, msg);
-		DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
+        dispatch = Dispatch.borrow(origin.getPlayerCharacter(), msg);
+        DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
 
 
+    }
+
+    private static void makeAlly(Guild fromGuild, Guild toGuild, AllianceChangeMsg msg, ClientConnection origin) {
+
+        // Member variable declaration
+        Dispatch dispatch;
+
+        // Member variable assignment
+
+        if (fromGuild == null)
+            return;
+
+        if (toGuild == null)
+            return;
+
+        dispatch = Dispatch.borrow(origin.getPlayerCharacter(), msg);
+        DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
 
 
+    }
+
+    private static void removeFromAlliance(Guild fromGuild, Guild toGuild, AllianceChangeMsg msg, ClientConnection origin) {
+
+        // Member variable declaration
+        Dispatch dispatch;
+
+        // Member variable assignment
+
+        if (fromGuild == null)
+            return;
+
+        if (toGuild == null)
+            return;
+
+        dispatch = Dispatch.borrow(origin.getPlayerCharacter(), msg);
+        DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
 
 
+    }
 
-		return true;
+    @Override
+    protected boolean _handleNetMsg(ClientNetMsg baseMsg, ClientConnection origin) throws MsgSendException {
 
-	}
+        // Member variable declaration
 
-	private static void MakeEnemy(Guild fromGuild, Guild toGuild, AllianceChangeMsg msg, ClientConnection origin) {
-
-		// Member variable declaration
-		Dispatch dispatch;
-
-		// Member variable assignment
-
-		if (fromGuild == null)
-			return;
-
-		if (toGuild == null)
-			return;
-
-		if (!Guild.sameGuild(origin.getPlayerCharacter().getGuild(), fromGuild)){
-			msg.setMsgType(AllianceChangeMsg.ERROR_NOT_SAME_GUILD);
-			dispatch = Dispatch.borrow(origin.getPlayerCharacter(), msg);
-			DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
-			return;
-		}
-
-		if (!GuildStatusController.isInnerCouncil(origin.getPlayerCharacter().getGuildStatus()) && !GuildStatusController.isGuildLeader(origin.getPlayerCharacter().getGuildStatus())){
-			msg.setMsgType(AllianceChangeMsg.ERROR_NOT_AUTHORIZED);
-			dispatch = Dispatch.borrow(origin.getPlayerCharacter(), msg);
-			DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
-			return;
-		}
+        PlayerCharacter player;
+        AllianceChangeMsg msg;
 
 
-		dispatch = Dispatch.borrow(origin.getPlayerCharacter(), msg);
-		DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
+        // Member variable assignment
+
+        msg = (AllianceChangeMsg) baseMsg;
+
+        player = SessionManager.getPlayerCharacter(origin);
+
+        if (player == null)
+            return true;
 
 
-	}
+        Guild toGuild = null;
+        toGuild = Guild.getGuild(msg.getSourceGuildID());
+        if (toGuild.isEmptyGuild())
+            return true;
 
-	private static void makeAlly(Guild fromGuild, Guild toGuild, AllianceChangeMsg msg, ClientConnection origin) {
-
-		// Member variable declaration
-		Dispatch dispatch;
-
-		// Member variable assignment
-
-		if (fromGuild == null)
-			return;
-
-		if (toGuild == null)
-			return;
-
-		dispatch = Dispatch.borrow(origin.getPlayerCharacter(), msg);
-		DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
+        if (player.getGuild().isEmptyGuild())
+            return true;
 
 
-	}
+        switch (msg.getMsgType()) {
+            case AllianceChangeMsg.MAKE_ALLY:
+            case 1: //allyfromRecommended
+                player.getGuild().addGuildToAlliance(msg, AllianceType.Ally, toGuild, player);
+                break;
+            case AllianceChangeMsg.MAKE_ENEMY:
+            case 2: //enemy recommend
+                player.getGuild().addGuildToAlliance(msg, AllianceType.Enemy, toGuild, player);
+                break;
+            case 3:
+            case 5:
+            case 7:
+                player.getGuild().removeGuildFromAllAlliances(toGuild);
+                break;
 
-	private static void removeFromAlliance(Guild fromGuild, Guild toGuild, AllianceChangeMsg msg, ClientConnection origin) {
-
-		// Member variable declaration
-		Dispatch dispatch;
-
-		// Member variable assignment
-
-		if (fromGuild == null)
-			return;
-
-		if (toGuild == null)
-			return;
-
-		dispatch = Dispatch.borrow(origin.getPlayerCharacter(), msg);
-		DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
+        }
+        msg.setMsgType(AllianceChangeMsg.INFO_SUCCESS);
+        Dispatch dispatch = Dispatch.borrow(player, msg);
+        DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
 
 
-	}
+        return true;
 
+    }
 
 
 }

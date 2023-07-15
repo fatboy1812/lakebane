@@ -39,7 +39,6 @@ public class ActivateNPCMessage extends ClientNetMsg {
 
     /**
      * This is the general purpose constructor.
-     *
      */
     public ActivateNPCMessage(ArrayList<Item> items) {
         super(Protocol.ACTIVATENPC);
@@ -54,7 +53,7 @@ public class ActivateNPCMessage extends ClientNetMsg {
      * past the limit) then this constructor Throws that Exception to the
      * caller.
      */
-    public ActivateNPCMessage(AbstractConnection origin, ByteBufferReader reader)  {
+    public ActivateNPCMessage(AbstractConnection origin, ByteBufferReader reader) {
         super(Protocol.ACTIVATENPC, origin, reader);
     }
 
@@ -77,9 +76,9 @@ public class ActivateNPCMessage extends ClientNetMsg {
         }
         writer.putInt(this.size);
         for (Item item : this.ItemList) {
-        	writer.putInt(item.getObjectType().ordinal());
-        	writer.putInt(item.getObjectUUID());
-           
+            writer.putInt(item.getObjectType().ordinal());
+            writer.putInt(item.getObjectUUID());
+
         }
     }
 
@@ -87,7 +86,7 @@ public class ActivateNPCMessage extends ClientNetMsg {
      * Deserializes the subclass specific items from the supplied NetMsgReader.
      */
     @Override
-    protected void _deserialize(ByteBufferReader reader)  {
+    protected void _deserialize(ByteBufferReader reader) {
         unknown01 = reader.getInt();
         unknown02 = reader.getInt();
         reader.getInt(); // Object Type Padding
@@ -108,48 +107,48 @@ public class ActivateNPCMessage extends ClientNetMsg {
         return unknown01;
     }
 
-    public int getUnknown02() {
-        return unknown02;
-    }
-
-    public int getUnknown03() {
-        return unknown03;
-    }
-
-    public int getContractItem() {
-        return contractItem;
-    }
-
-    public int getUnknown05() {
-        return unknown05;
-    }
-
-    public int buildingUUID() {
-        return buildingUUID;
-    }
-
     public void setUnknown01(int unknown01) {
         this.unknown01 = unknown01;
     }
 
-    public void setSize(int size) {
-        this.size = size;
+    public int getUnknown02() {
+        return unknown02;
     }
 
     public void setUnknown02(int unknown02) {
         this.unknown02 = unknown02;
     }
 
+    public int getUnknown03() {
+        return unknown03;
+    }
+
     public void setUnknown03(int unknown03) {
         this.unknown03 = unknown03;
+    }
+
+    public int getContractItem() {
+        return contractItem;
     }
 
     public void setContractItem(int contractItem) {
         this.contractItem = contractItem;
     }
 
+    public int getUnknown05() {
+        return unknown05;
+    }
+
     public void setUnknown05(int unknown05) {
         this.unknown05 = unknown05;
+    }
+
+    public int buildingUUID() {
+        return buildingUUID;
+    }
+
+    public void setSize(int size) {
+        this.size = size;
     }
 
     public void setItemList(ArrayList<Item> value) {

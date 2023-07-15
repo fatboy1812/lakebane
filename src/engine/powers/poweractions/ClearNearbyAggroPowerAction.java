@@ -22,25 +22,25 @@ import java.sql.SQLException;
 
 public class ClearNearbyAggroPowerAction extends AbstractPowerAction {
 
-	public ClearNearbyAggroPowerAction(ResultSet rs) throws SQLException {
-		super(rs);
-	}
+    public ClearNearbyAggroPowerAction(ResultSet rs) throws SQLException {
+        super(rs);
+    }
 
-	@Override
-	protected void _startAction(AbstractCharacter source, AbstractWorldObject awo, Vector3fImmutable targetLoc, int trains, ActionsBase ab, PowersBase pb) {
-		if (source.getObjectType() == GameObjectType.Mob){
+    @Override
+    protected void _startAction(AbstractCharacter source, AbstractWorldObject awo, Vector3fImmutable targetLoc, int trains, ActionsBase ab, PowersBase pb) {
+        if (source.getObjectType() == GameObjectType.Mob) {
         }
 
-	}
+    }
 
-	@Override
-	protected void _handleChant(AbstractCharacter source, AbstractWorldObject target, Vector3fImmutable targetLoc, int trains, ActionsBase ab, PowersBase pb) {
-	}
+    @Override
+    protected void _handleChant(AbstractCharacter source, AbstractWorldObject target, Vector3fImmutable targetLoc, int trains, ActionsBase ab, PowersBase pb) {
+    }
 
-	@Override
-	protected void _startAction(AbstractCharacter source, AbstractWorldObject awo, Vector3fImmutable targetLoc,
-			int numTrains, ActionsBase ab, PowersBase pb, int duration) {
-		// TODO Auto-generated method stub
+    @Override
+    protected void _startAction(AbstractCharacter source, AbstractWorldObject awo, Vector3fImmutable targetLoc,
+                                int numTrains, ActionsBase ab, PowersBase pb, int duration) {
+        // TODO Auto-generated method stub
 
-	}
+    }
 }

@@ -23,23 +23,23 @@ public class EndFearJob extends AbstractEffectJob {
 
     @Override
     protected void doJob() {
-        
+
         //cancel fear for mob.
-        
+
         if (this.target == null || (!(this.target instanceof Mob)))
             return;
-        
+
         ((Mob) this.target).setFearedObject(null);
     }
 
     @Override
     protected void _cancelJob() {
-        
+
         //cancel fear for mob.
-        
-        if (this.target == null || (!(this.target instanceof Mob))) 
+
+        if (this.target == null || (!(this.target instanceof Mob)))
             return;
-        
+
         ((Mob) this.target).setFearedObject(null);
     }
 }

@@ -28,21 +28,21 @@ public class ToggleGroupSplitHandler extends AbstractClientMsgHandler {
 
     @Override
     protected boolean _handleNetMsg(ClientNetMsg baseMsg,
-            ClientConnection origin) throws MsgSendException {
+                                    ClientConnection origin) throws MsgSendException {
 
         // Member variable declaration
-        
+
         PlayerCharacter source;
         Group group;
         boolean split;
-        
+
         source = SessionManager.getPlayerCharacter(origin);
-        
+
         if (source == null)
             return false;
 
         group = GroupManager.getGroup(source);
-        
+
         if (group == null)
             return false;
 
@@ -59,10 +59,10 @@ public class ToggleGroupSplitHandler extends AbstractClientMsgHandler {
         group.sendUpdate(gum);
 
         // Send split message
-        
+
         if (split)
             ChatManager.chatGroupInfo(source, "Treasure is now being split.");
-         else 
+        else
             ChatManager.chatGroupInfo(source, "Treasure is no longer being split.");
 
         return false;

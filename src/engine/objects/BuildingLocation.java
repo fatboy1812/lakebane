@@ -22,106 +22,105 @@ import java.util.HashMap;
 
 public class BuildingLocation extends AbstractGameObject {
 
-	private final int buildingUUID;
-	private final int type;
-	private final int slot;
-	private final int unknown;
-	private final Vector3fImmutable location;
-	private final Quaternion rotation;
+    private final int buildingUUID;
+    private final int type;
+    private final int slot;
+    private final int unknown;
+    private final Vector3fImmutable location;
+    private final Quaternion rotation;
 
 
-	public BuildingLocation() {
+    public BuildingLocation() {
 
-		this.buildingUUID = 0;
-		this.type = 0;
-		this.slot = 0;
-		this.unknown = 0;
-		this.location = Vector3fImmutable.ZERO;
-		this.rotation = new Quaternion();
-	}
+        this.buildingUUID = 0;
+        this.type = 0;
+        this.slot = 0;
+        this.unknown = 0;
+        this.location = Vector3fImmutable.ZERO;
+        this.rotation = new Quaternion();
+    }
 
-	/**
-	 * ResultSet Constructor
-	 */
-	public BuildingLocation(ResultSet rs) throws SQLException {
-		super(rs);
-		this.buildingUUID = rs.getInt("BuildingID");
-		this.type = rs.getInt("type");
-		this.slot = rs.getInt("slot");
-		this.unknown = rs.getInt("unknown");
-		this.location = new Vector3fImmutable(rs.getFloat("locX"), rs.getFloat("locY"), rs.getFloat("locZ"));
-		this.rotation = new Quaternion(rs.getFloat("rotX"), rs.getFloat("rotY"), rs.getFloat("rotZ"), rs.getFloat("w"));
-	}
+    /**
+     * ResultSet Constructor
+     */
+    public BuildingLocation(ResultSet rs) throws SQLException {
+        super(rs);
+        this.buildingUUID = rs.getInt("BuildingID");
+        this.type = rs.getInt("type");
+        this.slot = rs.getInt("slot");
+        this.unknown = rs.getInt("unknown");
+        this.location = new Vector3fImmutable(rs.getFloat("locX"), rs.getFloat("locY"), rs.getFloat("locZ"));
+        this.rotation = new Quaternion(rs.getFloat("rotX"), rs.getFloat("rotY"), rs.getFloat("rotZ"), rs.getFloat("w"));
+    }
 
-	/*
-	 * Getters
-	 */
+    /*
+     * Getters
+     */
 
-	public int getBuildingUUID() {
-		return this.buildingUUID;
-	}
+    public static void loadBuildingLocations() {
 
-	public int getType() {
-		return this.type;
-	}
+        ArrayList<BuildingLocation> buildingLocations = DbManager.BuildingLocationQueries.LOAD_BUILDING_LOCATIONS();
+        HashMap<Integer, ArrayList<BuildingLocation>> locationCollection = new HashMap<>();
 
-	public int getSlot() {
-		return this.slot;
-	}
+        // Only slot locations and stuck locations are currently loaded.
 
-	public int getUnknown() {
-		return this.unknown;
-	}
+        for (BuildingLocation buildingLocation : buildingLocations) {
 
-	public float getLocX() {
-		return this.location.x;
-	}
+            switch (buildingLocation.type) {
+                case 6:
+                    locationCollection = BuildingManager._slotLocations;
+                    break;
+                case 8:
+                    locationCollection = BuildingManager._stuckLocations;
+                    break;
+            }
 
-	public float getLocY() {
-		return this.location.y;
-	}
+            // Add location to collection in BuildingManager
 
+            if (locationCollection.containsKey(buildingLocation.buildingUUID))
+                locationCollection.get(buildingLocation.buildingUUID).add(buildingLocation);
+            else {
+                locationCollection.put(buildingLocation.buildingUUID, new ArrayList<>());
+                locationCollection.get(buildingLocation.buildingUUID).add(buildingLocation);
+            }
 
-	public Vector3fImmutable getLocation() {
-		return this.location;
-	}
+        }
+    }
 
-	public Quaternion getRotation() {
-		return this.rotation;
-	}
+    public int getBuildingUUID() {
+        return this.buildingUUID;
+    }
 
-	@Override
-	public void updateDatabase() {
-	}
+    public int getType() {
+        return this.type;
+    }
 
-	public static void loadBuildingLocations() {
+    public int getSlot() {
+        return this.slot;
+    }
 
-		ArrayList<BuildingLocation> buildingLocations = DbManager.BuildingLocationQueries.LOAD_BUILDING_LOCATIONS();
-		HashMap<Integer, ArrayList<BuildingLocation>> locationCollection = new HashMap<>();
+    public int getUnknown() {
+        return this.unknown;
+    }
 
-		// Only slot locations and stuck locations are currently loaded.
+    public float getLocX() {
+        return this.location.x;
+    }
 
-		for (BuildingLocation buildingLocation : buildingLocations) {
+    public float getLocY() {
+        return this.location.y;
+    }
 
-			switch (buildingLocation.type) {
-				case 6:
-					locationCollection = BuildingManager._slotLocations;
-					break;
-				case 8:
-					locationCollection = BuildingManager._stuckLocations;
-					break;
-			}
+    public Vector3fImmutable getLocation() {
+        return this.location;
+    }
 
-			// Add location to collection in BuildingManager
+    public Quaternion getRotation() {
+        return this.rotation;
+    }
 
-			if (locationCollection.containsKey(buildingLocation.buildingUUID))
-				locationCollection.get(buildingLocation.buildingUUID).add(buildingLocation);
-				else {
-				locationCollection.put(buildingLocation.buildingUUID, new ArrayList<>());
-				locationCollection.get(buildingLocation.buildingUUID).add(buildingLocation);
-				}
-
-		}
-	}
+    @Override
+    public void updateDatabase() {
+    }
 
 }

@@ -66,8 +66,7 @@ public class GuildTreeStatusMsg extends ClientNetMsg {
      * past the limit) then this constructor Throws that Exception to the
      * caller.
      */
-    public GuildTreeStatusMsg(AbstractConnection origin, ByteBufferReader reader)
-             {
+    public GuildTreeStatusMsg(AbstractConnection origin, ByteBufferReader reader) {
         super(Protocol.GUILDTREESTATUS, origin, reader);
     }
 
@@ -75,8 +74,7 @@ public class GuildTreeStatusMsg extends ClientNetMsg {
      * Deserializes the subclass specific items to the supplied NetMsgWriter.
      */
     @Override
-    protected void _deserialize(ByteBufferReader reader)
-             {
+    protected void _deserialize(ByteBufferReader reader) {
 
         targetType = reader.getInt();
         targetID = reader.getInt();
@@ -99,7 +97,7 @@ public class GuildTreeStatusMsg extends ClientNetMsg {
 
         canAccess = this.canModify();
         canBind = 0;
-        
+
         if (player.getGuild() != null && this.treeOfLife.getGuild() != null && !this.treeOfLife.getGuild().isEmptyGuild()
                 && player.getGuild().getNation() == this.treeOfLife.getGuild().getNation())
             canBind = 1;
@@ -110,20 +108,20 @@ public class GuildTreeStatusMsg extends ClientNetMsg {
 
         //accessType not 9 not null city
         if (accessType != 9)
-            if (this.treeOfLife.getGuild().getOwnedCity().isForceRename() && canAccess )
+            if (this.treeOfLife.getGuild().getOwnedCity().isForceRename() && canAccess)
                 accessType = 10;
-            else accessType = 8;
+            else
+                accessType = 8;
 
         cityZone = this.treeOfLife.getParentZone();
         city = null;
 
         if (cityZone != null)
-        	if (cityZone.isPlayerCity())
-            city = City.GetCityFromCache(cityZone.getPlayerCityUUID());
-        	else
-        		if (this.treeOfLife != null && this.treeOfLife.getGuild() != null)
-        			city = this.treeOfLife.getGuild().getOwnedCity();
-        
+            if (cityZone.isPlayerCity())
+                city = City.GetCityFromCache(cityZone.getPlayerCityUUID());
+            else if (this.treeOfLife != null && this.treeOfLife.getGuild() != null)
+                city = this.treeOfLife.getGuild().getOwnedCity();
+
 
         if (city == null)
             CityName = "None";
@@ -153,12 +151,12 @@ public class GuildTreeStatusMsg extends ClientNetMsg {
 
         if (canAccess)
             writer.putInt(accessType);
-      
+
         else
             writer.putInt(9);
 
-        GuildTag._serializeForDisplay(cityGuildTag,writer);
-        GuildTag._serializeForDisplay(cityNationTag,writer);
+        GuildTag._serializeForDisplay(cityGuildTag, writer);
+        GuildTag._serializeForDisplay(cityNationTag, writer);
 
         writer.putString(CityName);
         writer.putString(GuildName);
@@ -168,9 +166,9 @@ public class GuildTreeStatusMsg extends ClientNetMsg {
         writer.putInt(0);
         writer.putInt(0);
         if (city == null)
-        	writer.putInt(0);
+            writer.putInt(0);
         else
-        writer.putInt(city.isOpen() ? 1 : 0); //check mark for open city
+            writer.putInt(city.isOpen() ? 1 : 0); //check mark for open city
         writer.putInt(0);
         writer.putInt(0);
         writer.put(canBind);

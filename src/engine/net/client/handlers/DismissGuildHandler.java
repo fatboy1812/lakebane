@@ -54,31 +54,30 @@ public class DismissGuildHandler extends AbstractClientMsgHandler {
         toDismiss = (Guild) DbManager.getObject(GameObjectType.Guild, dismissMsg.getGuildID());
 
         if (toDismiss == null) {
-             ErrorPopupMsg.sendErrorMsg(player, "A Serious error has occured. Please post details for to ensure transaction integrity");
+            ErrorPopupMsg.sendErrorMsg(player, "A Serious error has occured. Please post details for to ensure transaction integrity");
             return true;
         }
 
         nation = player.getGuild();
 
         if (nation == null) {
-             ErrorPopupMsg.sendErrorMsg(player, "Nothing to disband, your guild is not a nation!");
+            ErrorPopupMsg.sendErrorMsg(player, "Nothing to disband, your guild is not a nation!");
             return true;
         }
 
         if (!nation.getSubGuildList().contains(toDismiss)) {
-             ErrorPopupMsg.sendErrorMsg(player, "You do not have authority to dismiss this guild!");
+            ErrorPopupMsg.sendErrorMsg(player, "You do not have authority to dismiss this guild!");
             return true;
         }
 
         if (GuildStatusController.isGuildLeader(player.getGuildStatus()) == false) {
-           ErrorPopupMsg.sendErrorMsg(player, "Only a guild leader can dismiss a subguild!");
+            ErrorPopupMsg.sendErrorMsg(player, "Only a guild leader can dismiss a subguild!");
             return true;
         }
 
         // Restriction on active bane desubbing
 
-        if (Bane.getBaneByAttackerGuild(toDismiss) != null)
-        {
+        if (Bane.getBaneByAttackerGuild(toDismiss) != null) {
             ErrorPopupMsg.sendErrorMsg(player, "You may not dismiss subguild with active bane!");
             return true;
         }

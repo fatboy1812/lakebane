@@ -27,7 +27,7 @@ public class ArcMineChangeProductionMsg extends ClientNetMsg {
      * past the limit) then this constructor Throws that Exception to the
      * caller.
      */
-    public ArcMineChangeProductionMsg(AbstractConnection origin, ByteBufferReader reader)  {
+    public ArcMineChangeProductionMsg(AbstractConnection origin, ByteBufferReader reader) {
         super(Protocol.ARCMINECHANGEPRODUCTION, origin, reader);
     }
 
@@ -35,7 +35,7 @@ public class ArcMineChangeProductionMsg extends ClientNetMsg {
      * Deserializes the subclass specific items from the supplied NetMsgReader.
      */
     @Override
-    protected void _deserialize(ByteBufferReader reader)  {
+    protected void _deserialize(ByteBufferReader reader) {
         this.mineID = reader.getInt();
         this.resourceHash = reader.getInt();
     }

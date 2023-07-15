@@ -21,100 +21,100 @@ import org.pmw.tinylog.Logger;
 
 public class ArcSiegeSpireMsgHandler extends AbstractClientMsgHandler {
 
-	public ArcSiegeSpireMsgHandler() {
-		super(ArcSiegeSpireMsg.class);
-	}
+    public ArcSiegeSpireMsgHandler() {
+        super(ArcSiegeSpireMsg.class);
+    }
 
-	@Override
-	protected boolean _handleNetMsg(ClientNetMsg baseMsg, ClientConnection origin) throws MsgSendException {
+    @Override
+    protected boolean _handleNetMsg(ClientNetMsg baseMsg, ClientConnection origin) throws MsgSendException {
 
-		PlayerCharacter player;
-		Building spire;
-		ArcSiegeSpireMsg msg;
+        PlayerCharacter player;
+        Building spire;
+        ArcSiegeSpireMsg msg;
 
-		msg = (ArcSiegeSpireMsg) baseMsg;
+        msg = (ArcSiegeSpireMsg) baseMsg;
 
-		player = SessionManager.getPlayerCharacter(origin);
+        player = SessionManager.getPlayerCharacter(origin);
 
-		if (player == null)
-			return true;
+        if (player == null)
+            return true;
 
-		spire = (Building) DbManager.getObject(GameObjectType.Building, msg.getBuildingUUID());
+        spire = (Building) DbManager.getObject(GameObjectType.Building, msg.getBuildingUUID());
 
-		if (spire == null)
-			return true;
+        if (spire == null)
+            return true;
 
-		if (spire.getCity() == null)
-			return true;
-		
-		spire.getCity().transactionLock.writeLock().lock();
-		
-		try{
-			
-		
-		//can't activate a spire that's not rank 1.
+        if (spire.getCity() == null)
+            return true;
 
-		if (spire.getRank() < 1)
-			return true;
+        spire.getCity().transactionLock.writeLock().lock();
 
-		// can't activate a spire without a city
+        try {
 
-		if (spire.getCity() == null)
-			return true;
 
-		// Must have management authority for the spire
+            //can't activate a spire that's not rank 1.
 
-		if ((player.getGuild().equals(spire.getGuild()) == false)
-				|| (GuildStatusController.isInnerCouncil(player.getGuildStatus()) == false) )
-			return true;
+            if (spire.getRank() < 1)
+                return true;
 
-		// Handle case where spire is sabotaged
+            // can't activate a spire without a city
 
-		if (spire.getTimeStamp("DISABLED") > System.currentTimeMillis()) {
-			ErrorPopupMsg.sendErrorPopup(player, 174); //This siege spire cannot be toggled yet.
-			return true;
-		}
+            if (spire.getCity() == null)
+                return true;
 
-		// Handle case where spire's toggle delay hasn't yet passed
+            // Must have management authority for the spire
 
-		if (spire.getTimeStamp("TOGGLEDELAY") > System.currentTimeMillis()) {
-			ErrorPopupMsg.sendErrorPopup(player, 174); //This siege spire cannot be toggled yet.
-			return true;
-		}
+            if ((player.getGuild().equals(spire.getGuild()) == false)
+                    || (GuildStatusController.isInnerCouncil(player.getGuildStatus()) == false))
+                return true;
 
-		// This protocol message is a toggle.  If it's currently active then disable
-		// the spire.
+            // Handle case where spire is sabotaged
 
-		if (spire.isSpireIsActive()) {
-			spire.disableSpire(false);
-			return true;
-		}
+            if (spire.getTimeStamp("DISABLED") > System.currentTimeMillis()) {
+                ErrorPopupMsg.sendErrorPopup(player, 174); //This siege spire cannot be toggled yet.
+                return true;
+            }
 
-		// Must be enough gold on the spire to turn it on
+            // Handle case where spire's toggle delay hasn't yet passed
 
-		if (!spire.hasFunds(5000)){
-			ErrorPopupMsg.sendErrorPopup(player, 127); // Not enough gold in strongbox
-			return true;
-		}
+            if (spire.getTimeStamp("TOGGLEDELAY") > System.currentTimeMillis()) {
+                ErrorPopupMsg.sendErrorPopup(player, 174); //This siege spire cannot be toggled yet.
+                return true;
+            }
 
-		if (spire.getStrongboxValue() < 5000) {
-			ErrorPopupMsg.sendErrorPopup(player, 127); // Not enough gold in strongbox
-			return true;
-		}
+            // This protocol message is a toggle.  If it's currently active then disable
+            // the spire.
 
-		spire.transferGold(-5000,false);
-		spire.enableSpire();
+            if (spire.isSpireIsActive()) {
+                spire.disableSpire(false);
+                return true;
+            }
 
-		// Spire is now enabled.  Reset the toggle delay
+            // Must be enough gold on the spire to turn it on
 
-		spire.setTimeStamp("TOGGLEDELAY", System.currentTimeMillis() + (long) 10 * 60 * 1000);
-		}catch(Exception e){
-			Logger.error(e);
-		}finally{
-			spire.getCity().transactionLock.writeLock().unlock();
-		}
-		return true;
-		
-	}
+            if (!spire.hasFunds(5000)) {
+                ErrorPopupMsg.sendErrorPopup(player, 127); // Not enough gold in strongbox
+                return true;
+            }
+
+            if (spire.getStrongboxValue() < 5000) {
+                ErrorPopupMsg.sendErrorPopup(player, 127); // Not enough gold in strongbox
+                return true;
+            }
+
+            spire.transferGold(-5000, false);
+            spire.enableSpire();
+
+            // Spire is now enabled.  Reset the toggle delay
+
+            spire.setTimeStamp("TOGGLEDELAY", System.currentTimeMillis() + (long) 10 * 60 * 1000);
+        } catch (Exception e) {
+            Logger.error(e);
+        } finally {
+            spire.getCity().transactionLock.writeLock().unlock();
+        }
+        return true;
+
+    }
 
 }

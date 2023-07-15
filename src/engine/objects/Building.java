@@ -7,7 +7,6 @@
 //                www.magicbane.com
 
 
-
 package engine.objects;
 
 import engine.Enum;
@@ -49,1667 +48,1664 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public class Building extends AbstractWorldObject {
 
-	// Used for thread safety
+    // Used for thread safety
 
-	private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
+    private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
+    private final ConcurrentHashMap<AbstractCharacter, Integer> hirelings = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_LOW);
+    private final HashMap<Integer, DoorCloseJob> doorJobs = new HashMap<>();
+    public int meshUUID;
+    public Zone parentZone;
+    public boolean reverseKOS;
+    public int reserve = 0;
+    public float statLat;
+    public float statLon;
+    public float statAlt;
+    public LocalDateTime upgradeDateTime = null;
+    public LocalDateTime taxDateTime = null;
+    public ArrayList<Vector3fImmutable> patrolPoints = new ArrayList<>();
+    public ArrayList<Vector3fImmutable> sentryPoints = new ArrayList<>();
+    public TaxType taxType = TaxType.NONE;
+    public int taxAmount;
+    public boolean enforceKOS = false;
 
-	/*  The Blueprint class has methods able to derive
-	 *  all defining characteristics of this building,
-	 */
-	private int blueprintUUID = 0;
-	public int meshUUID;
-	private float w = 1.0f;
-	private Vector3f meshScale = new Vector3f(1.0f, 1.0f, 1.0f);
-	private int doorState = 0;
-	private int ownerUUID = 0;  //NPC or Character--check ownerIsNPC flag
-	private int _strongboxValue = 0;
-	private int maxGold;
-	private int effectFlags = 0;
-	private String name = "";
-	private int rank;
-	private boolean ownerIsNPC = true;
-	private boolean spireIsActive = false;
-	public Zone parentZone;
-	public boolean reverseKOS;
-	public int reserve = 0;
+    // Variables NOT to be stored in db
+    public int parentBuildingID;
+    public boolean isFurniture = false;
+    public int floor;
+    public int level;
+    public AtomicBoolean isDeranking = new AtomicBoolean(false);
+    public LocalDateTime maintDateTime;
+    protected Resists resists;
+    /*  The Blueprint class has methods able to derive
+     *  all defining characteristics of this building,
+     */
+    private int blueprintUUID = 0;
+    private float w = 1.0f;
+    private Vector3f meshScale = new Vector3f(1.0f, 1.0f, 1.0f);
+    private int doorState = 0;
+    private int ownerUUID = 0;  //NPC or Character--check ownerIsNPC flag
+    private int _strongboxValue = 0;
+    private int maxGold;
+    private int effectFlags = 0;
+    private String name = "";
+    private int rank;
+    private boolean ownerIsNPC = true;
+    private boolean spireIsActive = false;
+    private ConcurrentHashMap<String, JobContainer> timers = null;
+    private ConcurrentHashMap<String, Long> timestamps = null;
+    private ConcurrentHashMap<Integer, BuildingFriends> friends = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<Integer, Condemned> condemned = new ConcurrentHashMap<>();
+    private ProtectionState protectionState = ProtectionState.NONE;
+    private ArrayList<Building> children = null;
 
-	// Variables NOT to be stored in db
+    /**
+     * ResultSet Constructor
+     */
 
-	protected Resists resists;
-	public float statLat;
-	public float statLon;
-	public float statAlt;
-	private ConcurrentHashMap<String, JobContainer> timers = null;
-	private ConcurrentHashMap<String, Long> timestamps = null;
-	private final ConcurrentHashMap<AbstractCharacter, Integer> hirelings = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_LOW);
-	private final HashMap<Integer, DoorCloseJob> doorJobs = new HashMap<>();
-	private ConcurrentHashMap<Integer,BuildingFriends> friends = new ConcurrentHashMap<>();
-	private ConcurrentHashMap<Integer,Condemned> condemned = new ConcurrentHashMap<>();
-	public LocalDateTime upgradeDateTime = null;
-	public LocalDateTime taxDateTime = null;
-	private ProtectionState protectionState = ProtectionState.NONE;
+    public Building(ResultSet rs) throws SQLException {
+        super(rs);
 
-	public ArrayList<Vector3fImmutable> patrolPoints = new ArrayList<>();
-	public ArrayList<Vector3fImmutable> sentryPoints = new ArrayList<>();
-	public TaxType taxType = TaxType.NONE;
-	public int taxAmount;
-	public boolean enforceKOS = false;
+        float scale;
+        Blueprint blueprint = null;
 
-	public int parentBuildingID;
-	public boolean isFurniture = false;
+        try {
+            this.meshUUID = rs.getInt("meshUUID");
+            this.setObjectTypeMask(MBServerStatics.MASK_BUILDING);
+            this.blueprintUUID = rs.getInt("blueprintUUID");
+            this.gridObjectType = GridObjectType.STATIC;
+            this.parentZone = DbManager.ZoneQueries.GET_BY_UID(rs.getLong("parent"));
+            this.name = rs.getString("name");
+            this.ownerUUID = rs.getInt("ownerUUID");
 
-	public int floor;
-	public int level;
-	public AtomicBoolean isDeranking = new AtomicBoolean(false);
-	private ArrayList<Building> children = null;
-	public LocalDateTime maintDateTime;
+            // Orphaned Object Sanity Check
+            //This was causing ABANDONED Tols.
+            //        if (objectType == DbObjectType.INVALID)
+            //            this.ownerUUID = 0;
 
-	/**
-	 * ResultSet Constructor
-	 */
+            this.doorState = rs.getInt("doorState");
+            this.setHealth(rs.getInt("currentHP"));
+            this.w = rs.getFloat("w");
+            this.setRot(new Vector3f(0f, rs.getFloat("rotY"), 0f));
+            this.reverseKOS = rs.getByte("reverseKOS") == 1 ? true : false;
 
-	public Building(ResultSet rs) throws SQLException {
-		super(rs);
+            scale = rs.getFloat("scale");
+            this.meshScale = new Vector3f(scale, scale, scale);
 
-		float scale;
-		Blueprint blueprint = null;
+            this.rank = rs.getInt("rank");
+            this.parentBuildingID = rs.getInt("parentBuildingID");
 
-		try {
-			this.meshUUID = rs.getInt("meshUUID");
-			this.setObjectTypeMask(MBServerStatics.MASK_BUILDING);
-			this.blueprintUUID = rs.getInt("blueprintUUID");
-			this.gridObjectType = GridObjectType.STATIC;
-			this.parentZone = DbManager.ZoneQueries.GET_BY_UID(rs.getLong("parent"));
-			this.name = rs.getString("name");
-			this.ownerUUID = rs.getInt("ownerUUID");
+            //create a new list if the building is a parent and not a child.
 
-			// Orphaned Object Sanity Check
-			//This was causing ABANDONED Tols.
-			//        if (objectType == DbObjectType.INVALID)
-			//            this.ownerUUID = 0;
+            if (this.parentBuildingID == 0)
+                this.children = new ArrayList<>();
 
-			this.doorState = rs.getInt("doorState");
-			this.setHealth(rs.getInt("currentHP"));
-			this.w = rs.getFloat("w");
-			this.setRot(new Vector3f(0f, rs.getFloat("rotY"), 0f));
-			this.reverseKOS = rs.getByte("reverseKOS") == 1 ? true : false;
+            this.floor = rs.getInt("floor");
+            this.level = rs.getInt("level");
+            this.isFurniture = (rs.getBoolean("isFurniture"));
 
-			scale = rs.getFloat("scale");
-			this.meshScale = new Vector3f(scale, scale, scale);
+            // Lookup building blueprint
 
-			this.rank = rs.getInt("rank");
-			this.parentBuildingID = rs.getInt("parentBuildingID");
-			
-			//create a new list if the building is a parent and not a child.
+            if (this.blueprintUUID == 0)
+                blueprint = Blueprint._meshLookup.get(meshUUID);
+            else
+                blueprint = this.getBlueprint();
 
-			if (this.parentBuildingID == 0)
-				this.children = new ArrayList<>();
+            // Log error if something went horrible wrong
 
-			this.floor = rs.getInt("floor");
-			this.level = rs.getInt("level");
-			this.isFurniture = (rs.getBoolean("isFurniture"));
+            if ((this.blueprintUUID != 0) && (blueprint == null))
+                Logger.error("Invalid blueprint for object: " + this.getObjectUUID());
 
-			// Lookup building blueprint
+            // Note: We handle R8 tree edge case for mesh and health
+            // after city is loaded to avoid recursive result set call
+            // in City resulting in a stack ovreflow.
 
-			if (this.blueprintUUID == 0)
-				blueprint = Blueprint._meshLookup.get(meshUUID);
-			else
-				blueprint = this.getBlueprint();
+            if (blueprint != null) {
 
-			// Log error if something went horrible wrong
+                // Only switch mesh for player dropped structures
 
-			if ((this.blueprintUUID != 0) && (blueprint == null))
-				Logger.error( "Invalid blueprint for object: " + this.getObjectUUID());
+                if (this.blueprintUUID != 0)
+                    this.meshUUID = blueprint.getMeshForRank(rank);
 
-			// Note: We handle R8 tree edge case for mesh and health
-			// after city is loaded to avoid recursive result set call
-			// in City resulting in a stack ovreflow.
+                this.healthMax = blueprint.getMaxHealth(this.rank);
 
-			if (blueprint != null) {
-
-				// Only switch mesh for player dropped structures
-
-				if (this.blueprintUUID != 0)
-					this.meshUUID = blueprint.getMeshForRank(rank);
-
-				this.healthMax = blueprint.getMaxHealth(this.rank);
-
-				// If this object has no blueprint but is a blueprint
+                // If this object has no blueprint but is a blueprint
                 // mesh then set it's current health to max health
 
-				if (this.blueprintUUID == 0)
+                if (this.blueprintUUID == 0)
                     this.setHealth(healthMax);
 
-				if (blueprint.getBuildingGroup().equals(BuildingGroup.BARRACK))
-					this.patrolPoints = DbManager.BuildingQueries.LOAD_PATROL_POINTS(this);
+                if (blueprint.getBuildingGroup().equals(BuildingGroup.BARRACK))
+                    this.patrolPoints = DbManager.BuildingQueries.LOAD_PATROL_POINTS(this);
 
-			} else{
-			    this.healthMax = 100000;  // Structures with no blueprint mesh
+            } else {
+                this.healthMax = 100000;  // Structures with no blueprint mesh
                 this.setHealth(healthMax);
             }
 
-			// Null out blueprint if not needed (npc building)
-
-			if (blueprintUUID == 0)
-				blueprint = null;
-
-			resists = new Resists("Building");
-			this.statLat = rs.getFloat("locationX");
-			this.statAlt = rs.getFloat("locationY");
-			this.statLon = rs.getFloat("locationZ");
+            // Null out blueprint if not needed (npc building)
 
-			if (this.parentZone != null){
-				if (this.parentBuildingID != 0){
-					Building parentBuilding = BuildingManager.getBuilding(this.parentBuildingID);
-					if (parentBuilding != null){
-						this.setLoc(new Vector3fImmutable(this.statLat + this.parentZone.absX + parentBuilding.statLat, this.statAlt + this.parentZone.absY + parentBuilding.statAlt, this.statLon + this.parentZone.absZ + parentBuilding.statLon));
-					}else{
-						this.setLoc(new Vector3fImmutable(this.statLat + this.parentZone.absX, this.statAlt + this.parentZone.absY, this.statLon + this.parentZone.absZ));
+            if (blueprintUUID == 0)
+                blueprint = null;
 
-					}
-				} else {
+            resists = new Resists("Building");
+            this.statLat = rs.getFloat("locationX");
+            this.statAlt = rs.getFloat("locationY");
+            this.statLon = rs.getFloat("locationZ");
 
-					// Altitude of this building is derived from the heightmap engine.
+            if (this.parentZone != null) {
+                if (this.parentBuildingID != 0) {
+                    Building parentBuilding = BuildingManager.getBuilding(this.parentBuildingID);
+                    if (parentBuilding != null) {
+                        this.setLoc(new Vector3fImmutable(this.statLat + this.parentZone.absX + parentBuilding.statLat, this.statAlt + this.parentZone.absY + parentBuilding.statAlt, this.statLon + this.parentZone.absZ + parentBuilding.statLon));
+                    } else {
+                        this.setLoc(new Vector3fImmutable(this.statLat + this.parentZone.absX, this.statAlt + this.parentZone.absY, this.statLon + this.parentZone.absZ));
 
-					Vector3fImmutable tempLoc = new Vector3fImmutable(this.statLat + this.parentZone.absX, 0, this.statLon + this.parentZone.absZ);
-					tempLoc = new Vector3fImmutable(tempLoc.x, HeightMap.getWorldHeight(tempLoc), tempLoc.z);
-					this.setLoc(tempLoc);
-				}
-			}
+                    }
+                } else {
 
-			this._strongboxValue = rs.getInt("currentGold");
-			this.maxGold = 15000000; // *** Refactor to blueprint method
-			this.reserve = rs.getInt("reserve");
+                    // Altitude of this building is derived from the heightmap engine.
 
-			// Does building have a protection contract?
-			this.taxType = TaxType.valueOf(rs.getString("taxType"));
-			this.taxAmount = rs.getInt("taxAmount");
-			this.protectionState = ProtectionState.valueOf(rs.getString("protectionState"));
+                    Vector3fImmutable tempLoc = new Vector3fImmutable(this.statLat + this.parentZone.absX, 0, this.statLon + this.parentZone.absZ);
+                    tempLoc = new Vector3fImmutable(tempLoc.x, HeightMap.getWorldHeight(tempLoc), tempLoc.z);
+                    this.setLoc(tempLoc);
+                }
+            }
 
-			java.sql.Timestamp maintTimeStamp = rs.getTimestamp("maintDate");
+            this._strongboxValue = rs.getInt("currentGold");
+            this.maxGold = 15000000; // *** Refactor to blueprint method
+            this.reserve = rs.getInt("reserve");
 
-			if (maintTimeStamp != null)
-				this.maintDateTime = LocalDateTime.ofInstant(maintTimeStamp.toInstant(), ZoneId.systemDefault());
+            // Does building have a protection contract?
+            this.taxType = TaxType.valueOf(rs.getString("taxType"));
+            this.taxAmount = rs.getInt("taxAmount");
+            this.protectionState = ProtectionState.valueOf(rs.getString("protectionState"));
 
-			java.sql.Timestamp taxTimeStamp = rs.getTimestamp("taxDate");
+            java.sql.Timestamp maintTimeStamp = rs.getTimestamp("maintDate");
 
-			if (taxTimeStamp != null)
-				this.taxDateTime = LocalDateTime.ofInstant(taxTimeStamp.toInstant(), ZoneId.systemDefault());
+            if (maintTimeStamp != null)
+                this.maintDateTime = LocalDateTime.ofInstant(maintTimeStamp.toInstant(), ZoneId.systemDefault());
 
-			java.sql.Timestamp upgradeTimeStamp = rs.getTimestamp("upgradeDate");
+            java.sql.Timestamp taxTimeStamp = rs.getTimestamp("taxDate");
 
-			if (upgradeTimeStamp != null)
-				this.upgradeDateTime = LocalDateTime.ofInstant(upgradeTimeStamp.toInstant(), ZoneId.systemDefault());
+            if (taxTimeStamp != null)
+                this.taxDateTime = LocalDateTime.ofInstant(taxTimeStamp.toInstant(), ZoneId.systemDefault());
+
+            java.sql.Timestamp upgradeTimeStamp = rs.getTimestamp("upgradeDate");
+
+            if (upgradeTimeStamp != null)
+                this.upgradeDateTime = LocalDateTime.ofInstant(upgradeTimeStamp.toInstant(), ZoneId.systemDefault());
+
+        } catch (Exception e) {
+
+            Logger.error("Failed for object " + this.blueprintUUID + ' ' + this.getObjectUUID() + e.toString());
+        }
+    }
+
+    /*
+     * Getters
+     */
+
+    public static void _serializeForClientMsg(Building building, ByteBufferWriter writer) {
+        writer.putInt(building.getObjectType().ordinal());
+        writer.putInt(building.getObjectUUID());
+        writer.putInt(0); // pad
+
+        writer.putInt(building.meshUUID);
+
+        writer.putInt(0); // pad
+
+        if (building.parentBuildingID != 0) {
+
+            writer.putFloat(building.statLat);
+            writer.putFloat(building.statAlt);
+            writer.putFloat(building.statLon);
+
+        } else {
+            writer.putFloat(building.getLoc().getX());
+            writer.putFloat(building.getLoc().getY()); // Y location
+            writer.putFloat(building.getLoc().getZ());
+        }
+
+        writer.putFloat(building.w);
+        writer.putFloat(0f);
+        writer.putFloat(building.getRot().y);
 
-		} catch (Exception e) {
+        writer.putFloat(0f);
+        writer.putFloat(building.meshScale.getX());
+        writer.putFloat(building.meshScale.getY());
+        writer.putFloat(building.meshScale.getZ());
 
-			Logger.error( "Failed for object " + this.blueprintUUID + ' ' + this.getObjectUUID() + e.toString());
-		}
-	}
+        if (building.parentBuildingID != 0) {
+            writer.putInt(GameObjectType.Building.ordinal());
+            writer.putInt(building.parentBuildingID);
+            writer.putInt(building.floor);
+            writer.putInt(building.level);
+
+        } else {
+            writer.putInt(0); // Pad //Parent
+            writer.putInt(0); // Pad
+            writer.putInt(-1); // Static
+            writer.putInt(-1); // Static
+        }
+
+        writer.put((byte) 0);  // 0
+        writer.putFloat(3);  // 3
+        writer.putInt(GameObjectType.Building.ordinal());
+        writer.putInt(building.getObjectUUID());
+
+        if (building.ownerIsNPC)
+            writer.putInt(GameObjectType.NPC.ordinal());
+        else
+            writer.putInt(GameObjectType.PlayerCharacter.ordinal());
+
+        writer.putInt(building.ownerUUID);
+
+        writer.put((byte) 1); // End Datablock
+        writer.putFloat(building.health.get());
+        writer.putFloat(building.healthMax);
 
-	/*
-	 * Getters
-	 */
+        if (building.blueprintUUID == 0)
+            writer.putInt(0);
+        else
+            writer.putInt(building.getBlueprint().getIcon());
 
-	public final boolean isRanking() {
+        writer.putInt(building.effectFlags);
 
-		return this.upgradeDateTime != null;
-	}
+        writer.put((byte) 1); // End Datablock
+        Guild g = building.getGuild();
+        Guild nation = null;
 
-	public final int getRank() {
-		return rank;
-	}
+        if (g == null) {
 
-	public final int getOwnerUUID() {
-		return ownerUUID;
-	}
+            for (int i = 0; i < 3; i++) {
+                writer.putInt(16);
+            }
+            for (int i = 0; i < 2; i++) {
+                writer.putInt(0);
+            }
+        } else {
+            GuildTag._serializeForDisplay(g.getGuildTag(), writer);
+            nation = g.getNation();
+        }
+        writer.put((byte) 1); // End Datablock?
+        if (nation == null) {
+            for (int i = 0; i < 3; i++) {
+                writer.putInt(16);
+            }
+            for (int i = 0; i < 2; i++) {
+                writer.putInt(0);
+            }
+        } else
+            GuildTag._serializeForDisplay(nation.getGuildTag(), writer);
+        writer.putString(building.name);
+        writer.put((byte) 0); // End datablock
+    }
 
-	public final boolean isOwnerIsNPC() {
-		return ownerIsNPC;
-	}
+    public final boolean isRanking() {
 
-	public final City getCity() {
+        return this.upgradeDateTime != null;
+    }
 
-		if (this.parentZone == null)
-			return null;
+    public final int getRank() {
+        return rank;
+    }
 
-		if (this.getBlueprint() != null && this.getBlueprint().isSiegeEquip() && this.protectionState.equals(ProtectionState.PROTECTED)){
-			if (this.getGuild() != null){
-				if (this.getGuild().getOwnedCity() != null){
-					if (this.getLoc().isInsideCircle(this.getGuild().getOwnedCity().getLoc(), CityBoundsType.ZONE.extents))
-						return this.getGuild().getOwnedCity();
-				}else{
-					Bane bane = Bane.getBaneByAttackerGuild(this.getGuild());
-					
-					if (bane != null){
-						if (bane.getCity() != null){
-							if (this.getLoc().isInsideCircle(bane.getCity().getLoc(), CityBoundsType.ZONE.extents))
-								return bane.getCity();
-						}
-					}
-				}
-			}
-		}
-		if (this.parentZone.isPlayerCity() == false)
-			return null;
+    public final void setRank(int newRank) {
 
-		return City.getCity(this.parentZone.getPlayerCityUUID());
+        int newMeshUUID;
+        boolean success;
 
-	}
 
-	public final String getCityName() {
+        // If this building has no blueprint then set rank and exit immediatly.
 
-		City city = getCity();
+        if (this.blueprintUUID == 0 || this.getBlueprint() != null && this.getBlueprint().getBuildingGroup().equals(BuildingGroup.MINE)) {
+            this.rank = newRank;
+            DbManager.BuildingQueries.CHANGE_RANK(this.getObjectUUID(), newRank);
+            return;
+        }
 
-		if (city != null)
-			return city.getName();
+        // Delete any upgrade jobs before doing anything else.  It won't quite work
+        // if in a few lines we happen to delete this building.
 
-		return "";
-	}
+        JobContainer jc = this.getTimers().get("UPGRADE");
 
-	public final Blueprint getBlueprint() {
+        if (jc != null) {
+            if (!JobScheduler.getInstance().cancelScheduledJob(jc))
+                Logger.error("failed to cancel existing upgrade job.");
+        }
 
-		if (this.blueprintUUID == 0)
-			return null;
+        // Attempt write to database, or delete the building
+        // if we are destroying it.
 
-		return Blueprint.getBlueprint(this.blueprintUUID);
+        if (newRank == -1)
+            success = DbManager.BuildingQueries.DELETE_FROM_DATABASE(this);
+        else
+            success = DbManager.BuildingQueries.updateBuildingRank(this, newRank);
 
-	}
+        if (success == false) {
+            Logger.error("Error writing to database UUID: " + this.getObjectUUID());
+            return;
+        }
 
-	public final int getBlueprintUUID() {
+        this.isDeranking.compareAndSet(false, true);
 
-		return this.blueprintUUID;
-	}
+        // Change the building's rank
 
-	public final void setCurrentHitPoints(Float CurrentHitPoints) {
-		this.addDatabaseJob("health", MBServerStatics.ONE_MINUTE);
-		this.setHealth(CurrentHitPoints);
-	}
+        this.rank = newRank;
 
-	public final LocalDateTime getUpgradeDateTime() {
-		lock.readLock().lock();
-		try {
-			return upgradeDateTime;
-		} finally {
-			lock.readLock().unlock();
-		}
-	}
+        // New rank means new mesh
 
-	public final float modifyHealth(final float value, final AbstractCharacter attacker) {
+        newMeshUUID = this.getBlueprint().getMeshForRank(this.rank);
+        this.meshUUID = newMeshUUID;
 
-		if (this.rank == -1)
-			return 0f;
+        // New rank mean new max hitpoints.
 
-		boolean worked = false;
-		Float oldHealth=0f, newHealth=0f;
-		while (!worked) {
-			if (this.rank == -1)
-				return 0f;
-			oldHealth = this.health.get();
-			newHealth = oldHealth + value;
-			if (newHealth > this.healthMax)
-				newHealth = healthMax;
-			worked = this.health.compareAndSet(oldHealth, newHealth);
-		}
+        this.healthMax = this.getBlueprint().getMaxHealth(this.rank);
+        this.setCurrentHitPoints(this.healthMax);
 
-		if (newHealth < 0) {
-			if (this.isDeranking.compareAndSet(false, true)) {
-				this.destroyOrDerank(attacker);
-			}
+        if (this.getUpgradeDateTime() != null)
+            BuildingManager.setUpgradeDateTime(this, null, 0);
 
-			return newHealth - oldHealth;
-		} else
-			this.addDatabaseJob("health", MBServerStatics.ONE_MINUTE);
+        // If we destroyed this building make sure to turn off
+        // protection
 
-		if (value < 0)
-			Mine.SendMineAttackMessage(this);
+        if (this.rank == -1)
+            this.protectionState = ProtectionState.NONE;
 
-		return newHealth - oldHealth;
+        if ((this.getBlueprint().getBuildingGroup() == BuildingGroup.TOL)
+                && (this.rank == 8))
+            this.meshUUID = Realm.getRealmMesh(this.getCity());
+        ;
 
+        // update object to clients
 
-	}
+        this.refresh(true);
+        if (this.getBounds() != null)
+            this.getBounds().setBounds(this);
 
-	//This method is to handle when a building is damaged below 0 health.
-	//Either destroy or derank it.
+        // Cleanup hirelings resulting from rank change
 
-	public final void destroyOrDerank(AbstractCharacter attacker) {
+        BuildingManager.cleanupHirelings(this);
 
-		Blueprint blueprint;
-		City city;
+        this.isDeranking.compareAndSet(true, false);
+    }
 
-		// Sanity check: Early exit if a non
-		// blueprinted object is attempting to
-		// derank.
+    public final int getOwnerUUID() {
+        return ownerUUID;
+    }
 
-		if (this.blueprintUUID == 0)
-			return;
+    public final boolean isOwnerIsNPC() {
+        return ownerIsNPC;
+    }
 
-		blueprint = this.getBlueprint();
-		city = this.getCity();
+    public final City getCity() {
 
-		// Special handling of destroyed Banes
+        if (this.parentZone == null)
+            return null;
 
-		if (blueprint.getBuildingGroup() == BuildingGroup.BANESTONE) {
-			city.getBane().endBane(SiegeResult.DEFEND);
-			return;
-		}
+        if (this.getBlueprint() != null && this.getBlueprint().isSiegeEquip() && this.protectionState.equals(ProtectionState.PROTECTED)) {
+            if (this.getGuild() != null) {
+                if (this.getGuild().getOwnedCity() != null) {
+                    if (this.getLoc().isInsideCircle(this.getGuild().getOwnedCity().getLoc(), CityBoundsType.ZONE.extents))
+                        return this.getGuild().getOwnedCity();
+                } else {
+                    Bane bane = Bane.getBaneByAttackerGuild(this.getGuild());
 
-		// Special handling of warehouses
+                    if (bane != null) {
+                        if (bane.getCity() != null) {
+                            if (this.getLoc().isInsideCircle(bane.getCity().getLoc(), CityBoundsType.ZONE.extents))
+                                return bane.getCity();
+                        }
+                    }
+                }
+            }
+        }
+        if (this.parentZone.isPlayerCity() == false)
+            return null;
 
-		if (blueprint.getBuildingGroup() == BuildingGroup.WAREHOUSE)
-			if (city != null)
-				city.setWarehouseBuildingID(0);
+        return City.getCity(this.parentZone.getPlayerCityUUID());
 
-		// Special handling of destroyed Spires
+    }
 
-		if ((blueprint.getBuildingGroup() == BuildingGroup.SPIRE) && this.rank == 1)
-			this.disableSpire(true);
+    public final String getCityName() {
 
-		// Special handling of destroyed Mines
+        City city = getCity();
 
-		if (blueprint.getBuildingGroup() == BuildingGroup.MINE
-				&& this.rank == 1) {
+        if (city != null)
+            return city.getName();
 
-			Mine mine = Mine.getMineFromTower(this.getObjectUUID());
+        return "";
+    }
 
-			if (mine != null) {
+    public final Blueprint getBlueprint() {
 
-				// Warehouse mine destruction event
+        if (this.blueprintUUID == 0)
+            return null;
 
-				MineRecord mineRecord = MineRecord.borrow(mine, attacker, RecordEventType.DESTROY);
-				DataWarehouse.pushToWarehouse(mineRecord);
+        return Blueprint.getBlueprint(this.blueprintUUID);
 
-				this.setRank(-1);
-				this.setCurrentHitPoints((float) 1);
-				this.healthMax = (float) 1;
-				this.meshUUID = this.getBlueprint().getMeshForRank(this.rank);
-				mine.handleDestroyMine();
-				this.getBounds().setBounds(this);
-				this.refresh(true);
-				return;
-			}
-		}
+    }
 
-		// Special handling of deranking Trees
+    public final int getBlueprintUUID() {
 
-		if (blueprint.getBuildingGroup() == BuildingGroup.TOL) {
-			derankTreeOfLife();
-			return;
-		}
+        return this.blueprintUUID;
+    }
 
-		// If codepath reaches here then it's a regular
-		//  structure not requiring special handling.
-		//  Time to either derank or destroy the building.
+    public final void setCurrentHitPoints(Float CurrentHitPoints) {
+        this.addDatabaseJob("health", MBServerStatics.ONE_MINUTE);
+        this.setHealth(CurrentHitPoints);
+    }
 
-		if ((this.rank - 1) < 1)
-			this.setRank(-1);
-		else
-			this.setRank(this.rank - 1);
+    //This method is to handle when a building is damaged below 0 health.
+    //Either destroy or derank it.
 
-	}
+    public final LocalDateTime getUpgradeDateTime() {
+        lock.readLock().lock();
+        try {
+            return upgradeDateTime;
+        } finally {
+            lock.readLock().unlock();
+        }
+    }
 
-	private void derankTreeOfLife() {
+    public final float modifyHealth(final float value, final AbstractCharacter attacker) {
 
-		City city;
-		Bane bane;
-		Realm cityRealm;ArrayList<Building> spireBuildings = new ArrayList<>();
-		ArrayList<Building> shrineBuildings = new ArrayList<>();
-		ArrayList<Building> barracksBuildings = new ArrayList<>();
-		Building spireBuilding;
-		Building shrineBuilding;
-		SiegeResult siegeResult;
-		AbstractCharacter newOwner;
+        if (this.rank == -1)
+            return 0f;
 
-		city = this.getCity();
+        boolean worked = false;
+        Float oldHealth = 0f, newHealth = 0f;
+        while (!worked) {
+            if (this.rank == -1)
+                return 0f;
+            oldHealth = this.health.get();
+            newHealth = oldHealth + value;
+            if (newHealth > this.healthMax)
+                newHealth = healthMax;
+            worked = this.health.compareAndSet(oldHealth, newHealth);
+        }
 
-		if (city == null) {
-			Logger.error("No city for tree of uuid" + this.getObjectUUID());
-			return;
-		}
+        if (newHealth < 0) {
+            if (this.isDeranking.compareAndSet(false, true)) {
+                this.destroyOrDerank(attacker);
+            }
 
-		bane = city.getBane();
+            return newHealth - oldHealth;
+        } else
+            this.addDatabaseJob("health", MBServerStatics.ONE_MINUTE);
 
-		// We need to collect the spires and shrines on the citygrid in case
-		// they will be deleted as excess as the tree deranks.
+        if (value < 0)
+            Mine.SendMineAttackMessage(this);
 
-		for (Building building : city.getParent().zoneBuildingSet) {
+        return newHealth - oldHealth;
 
-			//don't add -1 rank buildings.
 
-			if (building.rank <= 0)
-				continue;
-			if (building.getBlueprint() != null && building.getBlueprint().getBuildingGroup() == BuildingGroup.SPIRE)
-				spireBuildings.add(building);
+    }
 
-			if (building.getBlueprint() != null && building.getBlueprint().getBuildingGroup() == BuildingGroup.SHRINE)
-				shrineBuildings.add(building);
+    public final void destroyOrDerank(AbstractCharacter attacker) {
 
-			if (building.getBlueprint() != null && building.getBlueprint().getBuildingGroup() == BuildingGroup.BARRACK)
-				barracksBuildings.add(building);
-		}
+        Blueprint blueprint;
+        City city;
 
-		// A tree can only hold so many spires.  As it deranks we need to delete
-		// the excess
+        // Sanity check: Early exit if a non
+        // blueprinted object is attempting to
+        // derank.
 
-		if (spireBuildings.size() > Blueprint.getMaxShrines(this.rank - 1)) {
+        if (this.blueprintUUID == 0)
+            return;
 
-			spireBuilding = spireBuildings.get(0);
+        blueprint = this.getBlueprint();
+        city = this.getCity();
 
-			// Disable and delete a random spire
+        // Special handling of destroyed Banes
 
-			if (spireBuilding != null) {
-				spireBuilding.disableSpire(true);
-				spireBuilding.setRank(-1);
-			}
-		}
+        if (blueprint.getBuildingGroup() == BuildingGroup.BANESTONE) {
+            city.getBane().endBane(SiegeResult.DEFEND);
+            return;
+        }
 
-		if (shrineBuildings.size() > Blueprint.getMaxShrines(this.rank - 1)) {
+        // Special handling of warehouses
 
-			shrineBuilding = shrineBuildings.get(0);
+        if (blueprint.getBuildingGroup() == BuildingGroup.WAREHOUSE)
+            if (city != null)
+                city.setWarehouseBuildingID(0);
 
-			// Delete a random shrine
+        // Special handling of destroyed Spires
 
-			if (shrineBuilding != null)
-				shrineBuilding.setRank(-1);
-		}
+        if ((blueprint.getBuildingGroup() == BuildingGroup.SPIRE) && this.rank == 1)
+            this.disableSpire(true);
 
-		if (barracksBuildings.size() > this.rank - 1) {
+        // Special handling of destroyed Mines
 
-			Building barracksBuilding = barracksBuildings.get(0);
+        if (blueprint.getBuildingGroup() == BuildingGroup.MINE
+                && this.rank == 1) {
 
-			// Delete a random barrack
+            Mine mine = Mine.getMineFromTower(this.getObjectUUID());
 
-			if (barracksBuilding != null)
-				barracksBuilding.setRank(-1);
-		}
+            if (mine != null) {
 
-		// If the tree is R8 and deranking, we need to update it's
-		// mesh along with buildings losing their health bonus
+                // Warehouse mine destruction event
 
-		if (this.rank == 8) {
+                MineRecord mineRecord = MineRecord.borrow(mine, attacker, RecordEventType.DESTROY);
+                DataWarehouse.pushToWarehouse(mineRecord);
 
-			cityRealm = city.getRealm();
+                this.setRank(-1);
+                this.setCurrentHitPoints((float) 1);
+                this.healthMax = (float) 1;
+                this.meshUUID = this.getBlueprint().getMeshForRank(this.rank);
+                mine.handleDestroyMine();
+                this.getBounds().setBounds(this);
+                this.refresh(true);
+                return;
+            }
+        }
 
-			if (cityRealm != null)
-				cityRealm.abandonRealm();
+        // Special handling of deranking Trees
 
-			for (Building cityBuilding : this.parentZone.zoneBuildingSet) {
+        if (blueprint.getBuildingGroup() == BuildingGroup.TOL) {
+            derankTreeOfLife();
+            return;
+        }
 
-				if ((cityBuilding.getBlueprint() != null && cityBuilding.getBlueprint().getBuildingGroup() != BuildingGroup.TOL)
-						&& (cityBuilding.getBlueprint().getBuildingGroup() != BuildingGroup.BANESTONE)) {
-					cityBuilding.healthMax = cityBuilding.getBlueprint().getMaxHealth(cityBuilding.rank);
-				}
+        // If codepath reaches here then it's a regular
+        //  structure not requiring special handling.
+        //  Time to either derank or destroy the building.
 
-				if (cityBuilding.health.get() > cityBuilding.healthMax)
-					cityBuilding.setHealth(cityBuilding.healthMax);
-			}
-		}
+        if ((this.rank - 1) < 1)
+            this.setRank(-1);
+        else
+            this.setRank(this.rank - 1);
 
-		// Tree is simply deranking.
-		// Let's do so and early exit
+    }
 
-		if (this.rank > 1) {
-			this.setRank(rank - 1);
-			City.lastCityUpdate = System.currentTimeMillis();
-			return;
-		}
+    // Return the maint cost in gold associated with this structure
 
-		// Must remove a bane before considering destruction of a TOL
+    private void derankTreeOfLife() {
 
-		if (bane != null) {
+        City city;
+        Bane bane;
+        Realm cityRealm;
+        ArrayList<Building> spireBuildings = new ArrayList<>();
+        ArrayList<Building> shrineBuildings = new ArrayList<>();
+        ArrayList<Building> barracksBuildings = new ArrayList<>();
+        Building spireBuilding;
+        Building shrineBuilding;
+        SiegeResult siegeResult;
+        AbstractCharacter newOwner;
 
-			// Cache the new owner
+        city = this.getCity();
 
-			newOwner = Guild.GetGL(bane.getOwner().getGuild());
+        if (city == null) {
+            Logger.error("No city for tree of uuid" + this.getObjectUUID());
+            return;
+        }
 
-			this.isDeranking.compareAndSet(false, true);
+        bane = city.getBane();
 
-			if ((bane.getOwner().getGuild().getGuildState() == GuildState.Sovereign) ||
-					(bane.getOwner().getGuild().getGuildState() == GuildState.Protectorate) ||
-					(bane.getOwner().getGuild().getGuildState() == GuildState.Province) ||
-					(bane.getOwner().getGuild().getGuildState() == GuildState.Nation))
-				siegeResult = SiegeResult.DESTROY;
-			else
-				siegeResult = SiegeResult.CAPTURE;
+        // We need to collect the spires and shrines on the citygrid in case
+        // they will be deleted as excess as the tree deranks.
 
-			// Remove realm if city had one
+        for (Building building : city.getParent().zoneBuildingSet) {
 
-			Realm realm = RealmMap.getRealmAtLocation(city.getLoc());
+            //don't add -1 rank buildings.
 
-			if (realm != null)
-				if (realm.isRealmFullAfterBane())
-					siegeResult = SiegeResult.DESTROY;
+            if (building.rank <= 0)
+                continue;
+            if (building.getBlueprint() != null && building.getBlueprint().getBuildingGroup() == BuildingGroup.SPIRE)
+                spireBuildings.add(building);
 
-			city.getBane().endBane(siegeResult);
+            if (building.getBlueprint() != null && building.getBlueprint().getBuildingGroup() == BuildingGroup.SHRINE)
+                shrineBuildings.add(building);
 
-			// If it's a capture bane transfer the tree and exit
+            if (building.getBlueprint() != null && building.getBlueprint().getBuildingGroup() == BuildingGroup.BARRACK)
+                barracksBuildings.add(building);
+        }
 
-			if (siegeResult.equals(SiegeResult.CAPTURE)) {
-				city.transfer(newOwner);
-				CityRecord cityRecord = CityRecord.borrow(city, RecordEventType.CAPTURE);
-				DataWarehouse.pushToWarehouse(cityRecord);
-				return;
-			}
-		} // end removal of bane
+        // A tree can only hold so many spires.  As it deranks we need to delete
+        // the excess
 
-		//  if codepath reaches here then we can now destroy the tree and the city
+        if (spireBuildings.size() > Blueprint.getMaxShrines(this.rank - 1)) {
 
-		CityRecord cityRecord = CityRecord.borrow(city, RecordEventType.DESTROY);
-		DataWarehouse.pushToWarehouse(cityRecord);
+            spireBuilding = spireBuildings.get(0);
 
-		city.destroy();
+            // Disable and delete a random spire
 
-	}
+            if (spireBuilding != null) {
+                spireBuilding.disableSpire(true);
+                spireBuilding.setRank(-1);
+            }
+        }
 
-	public float getCurrentHitpoints(){
-		return this.health.get();
-	}
+        if (shrineBuildings.size() > Blueprint.getMaxShrines(this.rank - 1)) {
 
-	// Return the maint cost in gold associated with this structure
+            shrineBuilding = shrineBuildings.get(0);
 
-	public int getMaintCost() {
+            // Delete a random shrine
 
-		int maintCost =0;
+            if (shrineBuilding != null)
+                shrineBuilding.setRank(-1);
+        }
 
-		// Add cost for building structure
+        if (barracksBuildings.size() > this.rank - 1) {
 
-		maintCost += this.getBlueprint().getMaintCost(rank);
+            Building barracksBuilding = barracksBuildings.get(0);
 
-		// Add costs associated with hirelings
+            // Delete a random barrack
 
-		for (AbstractCharacter npc : this.hirelings.keySet()) {
+            if (barracksBuilding != null)
+                barracksBuilding.setRank(-1);
+        }
 
-			if (npc.getObjectType() != GameObjectType.NPC)
-				continue;
+        // If the tree is R8 and deranking, we need to update it's
+        // mesh along with buildings losing their health bonus
 
+        if (this.rank == 8) {
 
+            cityRealm = city.getRealm();
 
-			maintCost += Blueprint.getNpcMaintCost(npc.getRank());
-		}
+            if (cityRealm != null)
+                cityRealm.abandonRealm();
 
-		return maintCost;
-	}
+            for (Building cityBuilding : this.parentZone.zoneBuildingSet) {
 
+                if ((cityBuilding.getBlueprint() != null && cityBuilding.getBlueprint().getBuildingGroup() != BuildingGroup.TOL)
+                        && (cityBuilding.getBlueprint().getBuildingGroup() != BuildingGroup.BANESTONE)) {
+                    cityBuilding.healthMax = cityBuilding.getBlueprint().getMaxHealth(cityBuilding.rank);
+                }
 
-	public final void submitOpenDoorJob(int doorID) {
+                if (cityBuilding.health.get() > cityBuilding.healthMax)
+                    cityBuilding.setHealth(cityBuilding.healthMax);
+            }
+        }
 
-		//cancel any outstanding door close jobs for this door
+        // Tree is simply deranking.
+        // Let's do so and early exit
 
-		if (this.doorJobs.containsKey(doorID)) {
-			this.doorJobs.get(doorID).cancelJob();
-			this.doorJobs.remove(doorID);
-		}
+        if (this.rank > 1) {
+            this.setRank(rank - 1);
+            City.lastCityUpdate = System.currentTimeMillis();
+            return;
+        }
 
-		//add new door close job
+        // Must remove a bane before considering destruction of a TOL
 
-		DoorCloseJob dcj = new DoorCloseJob(this, doorID);
-		this.doorJobs.put(doorID, dcj);
-		JobScheduler.getInstance().scheduleJob(dcj, MBServerStatics.DOOR_CLOSE_TIMER);
-	}
+        if (bane != null) {
 
-	public final float getMaxHitPoints() {
-		return this.healthMax;
-	}
+            // Cache the new owner
 
-	public final void setMaxHitPoints(float maxHealth) {
-		this.healthMax = maxHealth;
-	}
+            newOwner = Guild.GetGL(bane.getOwner().getGuild());
 
-	public final void setName(String value) {
+            this.isDeranking.compareAndSet(false, true);
 
-		if (DbManager.BuildingQueries.CHANGE_NAME(this, value) == false)
-			return;
+            if ((bane.getOwner().getGuild().getGuildState() == GuildState.Sovereign) ||
+                    (bane.getOwner().getGuild().getGuildState() == GuildState.Protectorate) ||
+                    (bane.getOwner().getGuild().getGuildState() == GuildState.Province) ||
+                    (bane.getOwner().getGuild().getGuildState() == GuildState.Nation))
+                siegeResult = SiegeResult.DESTROY;
+            else
+                siegeResult = SiegeResult.CAPTURE;
 
-		this.name = value;
-		this.updateName();
-	}
+            // Remove realm if city had one
 
-	public final void setw(float value) {
-		this.w = value;
-	}
+            Realm realm = RealmMap.getRealmAtLocation(city.getLoc());
 
-	public final float getw() {
-		return this.w;
-	}
+            if (realm != null)
+                if (realm.isRealmFullAfterBane())
+                    siegeResult = SiegeResult.DESTROY;
 
-	public final Vector3f getMeshScale() {
-		return this.meshScale;
-	}
+            city.getBane().endBane(siegeResult);
 
-	public final int getMeshUUID() {
-		return this.meshUUID;
-	}
+            // If it's a capture bane transfer the tree and exit
 
-	public final Resists getResists() {
-		return this.resists;
-	}
+            if (siegeResult.equals(SiegeResult.CAPTURE)) {
+                city.transfer(newOwner);
+                CityRecord cityRecord = CityRecord.borrow(city, RecordEventType.CAPTURE);
+                DataWarehouse.pushToWarehouse(cityRecord);
+                return;
+            }
+        } // end removal of bane
 
-	public final Zone getParentZone() {
-		return this.parentZone;
-	}
+        //  if codepath reaches here then we can now destroy the tree and the city
 
-	public final int getParentZoneID() {
+        CityRecord cityRecord = CityRecord.borrow(city, RecordEventType.DESTROY);
+        DataWarehouse.pushToWarehouse(cityRecord);
 
-		if (this.parentZone == null)
-			return 0;
+        city.destroy();
 
-		return this.parentZone.getObjectUUID();
-	}
+    }
 
-	public final void setParentZone(Zone zone) {
+    public float getCurrentHitpoints() {
+        return this.health.get();
+    }
 
-		//update ZoneManager's zone building list
-		if (zone != null)
-			if (this.parentZone != null) {
+    public int getMaintCost() {
 
-				this.parentZone.zoneBuildingSet.remove(this);
-				if(this.getBlueprint() != null && this.getBlueprint().getBuildingGroup().equals(BuildingGroup.BARRACK)){
-					this.RemoveFromBarracksList();
-				}
-				zone.zoneBuildingSet.add(this);
+        int maintCost = 0;
 
-			} else
-				zone.zoneBuildingSet.add(this);
-		else if (this.parentZone != null) {
-			this.parentZone.zoneBuildingSet.remove(this);
-			if(this.getBlueprint() != null && this.getBlueprint().getBuildingGroup().equals(BuildingGroup.BARRACK)){
-				this.RemoveFromBarracksList();
-			}
-		}
-		if (this.parentZone == null) {
-			this.parentZone = zone;
-			this.setLoc(new Vector3fImmutable(this.statLat + zone.absX, this.statAlt + zone.absY, this.statLon + zone.absZ));
-		} else
-			this.parentZone = zone;
-		if(this.getBlueprint() != null && this.getBlueprint().getBuildingGroup().equals(BuildingGroup.BARRACK)){
-			AddToBarracksList();
-		}
-	}
+        // Add cost for building structure
 
-	//Sets the relative position to a parent zone
+        maintCost += this.getBlueprint().getMaintCost(rank);
 
-	public float getStatLat() {
-		return statLat;
-	}
+        // Add costs associated with hirelings
 
-	public float getStatLon() {
-		return statLon;
-	}
+        for (AbstractCharacter npc : this.hirelings.keySet()) {
 
-	public float getStatAlt() {
-		return statAlt;
-	}
+            if (npc.getObjectType() != GameObjectType.NPC)
+                continue;
 
-	public Guild getGuild() {
 
-		AbstractCharacter buildingOwner;
+            maintCost += Blueprint.getNpcMaintCost(npc.getRank());
+        }
 
-		buildingOwner = this.getOwner();
+        return maintCost;
+    }
 
-		if (buildingOwner != null)
-			return buildingOwner.getGuild();
-		else
-			return Guild.getErrantGuild();
-	}
+    public final void submitOpenDoorJob(int doorID) {
 
-	public int getEffectFlags() {
-		return this.effectFlags;
-	}
+        //cancel any outstanding door close jobs for this door
 
-	public void addEffectBit(int bit) {
-		this.effectFlags |= bit;
-	}
+        if (this.doorJobs.containsKey(doorID)) {
+            this.doorJobs.get(doorID).cancelJob();
+            this.doorJobs.remove(doorID);
+        }
 
-	public void removeAllVisualEffects() {
-		this.effectFlags = 0;
-		ApplyBuildingEffectMsg applyBuildingEffectMsg = new ApplyBuildingEffectMsg(3276859, 1, this.getObjectType().ordinal(), this.getObjectUUID(), 0);
-		DispatchMessage.sendToAllInRange(this, applyBuildingEffectMsg);
-	}
+        //add new door close job
 
-	public void removeEffectBit(int bit) {
-		this.effectFlags &= (~bit);
+        DoorCloseJob dcj = new DoorCloseJob(this, doorID);
+        this.doorJobs.put(doorID, dcj);
+        JobScheduler.getInstance().scheduleJob(dcj, MBServerStatics.DOOR_CLOSE_TIMER);
+    }
 
-	}
+    public final float getMaxHitPoints() {
+        return this.healthMax;
+    }
 
-	@Override
-	public String getName() {
-		return this.name;
-	}
+    public final void setMaxHitPoints(float maxHealth) {
+        this.healthMax = maxHealth;
+    }
 
-	/*
-	 * Utils
-	 */
+    public final void setw(float value) {
+        this.w = value;
+    }
 
-	public final AbstractCharacter getOwner() {
+    public final float getw() {
+        return this.w;
+    }
 
-		if (this.ownerUUID == 0)
-			return null;
-		if (this.ownerIsNPC)
-			return NPC.getFromCache(this.ownerUUID);
+    public final Vector3f getMeshScale() {
+        return this.meshScale;
+    }
 
-		return PlayerCharacter.getFromCache(this.ownerUUID);
+    public final int getMeshUUID() {
+        return this.meshUUID;
+    }
 
-	}
+    public final void setMeshUUID(int value) {
+        this.meshUUID = value;
+    }
 
-	public final String getOwnerName() {
-		AbstractCharacter owner = this.getOwner();
-		if (owner != null)
-			return owner.getName();
-		return "";
-	}
+    public final Resists getResists() {
+        return this.resists;
+    }
 
-	public final String getGuildName() {
-		Guild g = getGuild();
-		if (g != null)
-			return g.getName();
-		return "None";
-	}
+    public final Zone getParentZone() {
+        return this.parentZone;
+    }
 
+    //Sets the relative position to a parent zone
 
-	/*
-	 * Serializing
-	 */
-	
-	public static void _serializeForClientMsg(Building building, ByteBufferWriter writer) {
-		writer.putInt(building.getObjectType().ordinal());
-		writer.putInt(building.getObjectUUID());
-		writer.putInt(0); // pad
+    public final void setParentZone(Zone zone) {
 
-		writer.putInt(building.meshUUID);
+        //update ZoneManager's zone building list
+        if (zone != null)
+            if (this.parentZone != null) {
 
-		writer.putInt(0); // pad
+                this.parentZone.zoneBuildingSet.remove(this);
+                if (this.getBlueprint() != null && this.getBlueprint().getBuildingGroup().equals(BuildingGroup.BARRACK)) {
+                    this.RemoveFromBarracksList();
+                }
+                zone.zoneBuildingSet.add(this);
 
-		if (building.parentBuildingID != 0){
+            } else
+                zone.zoneBuildingSet.add(this);
+        else if (this.parentZone != null) {
+            this.parentZone.zoneBuildingSet.remove(this);
+            if (this.getBlueprint() != null && this.getBlueprint().getBuildingGroup().equals(BuildingGroup.BARRACK)) {
+                this.RemoveFromBarracksList();
+            }
+        }
+        if (this.parentZone == null) {
+            this.parentZone = zone;
+            this.setLoc(new Vector3fImmutable(this.statLat + zone.absX, this.statAlt + zone.absY, this.statLon + zone.absZ));
+        } else
+            this.parentZone = zone;
+        if (this.getBlueprint() != null && this.getBlueprint().getBuildingGroup().equals(BuildingGroup.BARRACK)) {
+            AddToBarracksList();
+        }
+    }
 
-			writer.putFloat(building.statLat);
-			writer.putFloat(building.statAlt);
-			writer.putFloat(building.statLon);
+    public final int getParentZoneID() {
 
-		}else{
-			writer.putFloat(building.getLoc().getX());
-			writer.putFloat(building.getLoc().getY()); // Y location
-			writer.putFloat(building.getLoc().getZ());
-		}
+        if (this.parentZone == null)
+            return 0;
 
-		writer.putFloat(building.w);
-		writer.putFloat(0f);
-		writer.putFloat(building.getRot().y);
+        return this.parentZone.getObjectUUID();
+    }
 
-		writer.putFloat(0f);
-		writer.putFloat(building.meshScale.getX());
-		writer.putFloat(building.meshScale.getY());
-		writer.putFloat(building.meshScale.getZ());
+    public float getStatLat() {
+        return statLat;
+    }
 
-		if (building.parentBuildingID != 0){
-			writer.putInt(GameObjectType.Building.ordinal());
-			writer.putInt(building.parentBuildingID);
-			writer.putInt(building.floor);
-			writer.putInt(building.level);
+    public float getStatLon() {
+        return statLon;
+    }
 
-		}else{
-			writer.putInt(0); // Pad //Parent
-			writer.putInt(0); // Pad
-			writer.putInt(-1); // Static
-			writer.putInt(-1); // Static
-		}
+    public float getStatAlt() {
+        return statAlt;
+    }
 
-		writer.put((byte)0);  // 0
-		writer.putFloat(3);  // 3
-		writer.putInt(GameObjectType.Building.ordinal());
-		writer.putInt(building.getObjectUUID());
+    public Guild getGuild() {
 
-		if (building.ownerIsNPC)
-			writer.putInt(GameObjectType.NPC.ordinal());
-		else
-			writer.putInt(GameObjectType.PlayerCharacter.ordinal());
+        AbstractCharacter buildingOwner;
 
-		writer.putInt(building.ownerUUID);
+        buildingOwner = this.getOwner();
 
-		writer.put((byte) 1); // End Datablock
-		writer.putFloat(building.health.get());
-		writer.putFloat(building.healthMax);
+        if (buildingOwner != null)
+            return buildingOwner.getGuild();
+        else
+            return Guild.getErrantGuild();
+    }
 
-		if (building.blueprintUUID == 0)
-			writer.putInt(0);
-		else
-			writer.putInt(building.getBlueprint().getIcon());
+    public int getEffectFlags() {
+        return this.effectFlags;
+    }
 
-		writer.putInt(building.effectFlags);
+    public void addEffectBit(int bit) {
+        this.effectFlags |= bit;
+    }
 
-		writer.put((byte) 1); // End Datablock
-		Guild g = building.getGuild();
-		Guild nation = null;
+    public void removeAllVisualEffects() {
+        this.effectFlags = 0;
+        ApplyBuildingEffectMsg applyBuildingEffectMsg = new ApplyBuildingEffectMsg(3276859, 1, this.getObjectType().ordinal(), this.getObjectUUID(), 0);
+        DispatchMessage.sendToAllInRange(this, applyBuildingEffectMsg);
+    }
 
-		if (g == null) {
+    /*
+     * Utils
+     */
 
-			for (int i = 0; i < 3; i++) {
-				writer.putInt(16);
-			}
-			for (int i = 0; i < 2; i++) {
-				writer.putInt(0);
-			}
-		} else {
-			GuildTag._serializeForDisplay(g.getGuildTag(),writer);
-			nation = g.getNation();
-		}
-		writer.put((byte) 1); // End Datablock?
-		if (nation == null) {
-			for (int i = 0; i < 3; i++) {
-				writer.putInt(16);
-			}
-			for (int i = 0; i < 2; i++) {
-				writer.putInt(0);
-			}
-		} else
-			GuildTag._serializeForDisplay(nation.getGuildTag(),writer);
-		writer.putString(building.name);
-		writer.put((byte) 0); // End datablock
-	}
+    public void removeEffectBit(int bit) {
+        this.effectFlags &= (~bit);
 
-	/*
-	 * Database
-	 */
+    }
 
-	@Override
-	public void updateDatabase() {
+    @Override
+    public String getName() {
+        return this.name;
+    }
 
-		// *** Refactor : Log error here to see if it's ever called
-	}
+    public final void setName(String value) {
 
-	public final LocalDateTime getDateToUpgrade() {
-		return upgradeDateTime;
-	}
+        if (DbManager.BuildingQueries.CHANGE_NAME(this, value) == false)
+            return;
 
-	public final boolean setStrongboxValue(int newValue) {
+        this.name = value;
+        this.updateName();
+    }
 
-		boolean success = true;
 
-		try {
-			DbManager.BuildingQueries.SET_PROPERTY(this, "currentGold", newValue);
-			this._strongboxValue = newValue;
-		} catch (Exception e) {
-			success = false;
-			Logger.error( "Error writing to database");
-		}
+    /*
+     * Serializing
+     */
 
-		return success;
-	}
+    public final AbstractCharacter getOwner() {
 
-	public final int getStrongboxValue() {
-		return _strongboxValue;
-	}
+        if (this.ownerUUID == 0)
+            return null;
+        if (this.ownerIsNPC)
+            return NPC.getFromCache(this.ownerUUID);
 
-	public final void setMeshUUID(int value) {
-		this.meshUUID = value;
-	}
+        return PlayerCharacter.getFromCache(this.ownerUUID);
 
-	public final void setRank(int newRank) {
+    }
 
-		int newMeshUUID;
-		boolean success;
+    /*
+     * Database
+     */
 
+    public final String getOwnerName() {
+        AbstractCharacter owner = this.getOwner();
+        if (owner != null)
+            return owner.getName();
+        return "";
+    }
 
-		// If this building has no blueprint then set rank and exit immediatly.
+    public final String getGuildName() {
+        Guild g = getGuild();
+        if (g != null)
+            return g.getName();
+        return "None";
+    }
 
-		if (this.blueprintUUID == 0 || this.getBlueprint() != null && this.getBlueprint().getBuildingGroup().equals(BuildingGroup.MINE)) {
-			this.rank = newRank;
-			DbManager.BuildingQueries.CHANGE_RANK(this.getObjectUUID(), newRank);
-			return;
-		}
+    @Override
+    public void updateDatabase() {
 
-		// Delete any upgrade jobs before doing anything else.  It won't quite work
-		// if in a few lines we happen to delete this building.
+        // *** Refactor : Log error here to see if it's ever called
+    }
 
-		JobContainer jc = this.getTimers().get("UPGRADE");
+    public final LocalDateTime getDateToUpgrade() {
+        return upgradeDateTime;
+    }
 
-		if (jc != null) {
-			if (!JobScheduler.getInstance().cancelScheduledJob(jc))
-				Logger.error( "failed to cancel existing upgrade job.");
-		}
+    public final boolean setStrongboxValue(int newValue) {
 
-		// Attempt write to database, or delete the building
-		// if we are destroying it.
+        boolean success = true;
 
-		if (newRank == -1)
-			success = DbManager.BuildingQueries.DELETE_FROM_DATABASE(this);
-		else
-			success = DbManager.BuildingQueries.updateBuildingRank(this, newRank);
+        try {
+            DbManager.BuildingQueries.SET_PROPERTY(this, "currentGold", newValue);
+            this._strongboxValue = newValue;
+        } catch (Exception e) {
+            success = false;
+            Logger.error("Error writing to database");
+        }
 
-		if (success == false) {
-			Logger.error("Error writing to database UUID: " + this.getObjectUUID());
-			return;
-		}
+        return success;
+    }
 
-		this.isDeranking.compareAndSet(false, true);
+    public final int getStrongboxValue() {
+        return _strongboxValue;
+    }
 
-		// Change the building's rank
+    public final void refresh(boolean newMesh) {
 
-		this.rank = newRank;
+        if (newMesh)
+            WorldGrid.updateObject(this);
+        else {
+            UpdateObjectMsg uom = new UpdateObjectMsg(this, 3);
+            DispatchMessage.sendToAllInRange(this, uom);
+        }
+    }
 
-		// New rank means new mesh
+    public final void updateName() {
 
-		newMeshUUID = this.getBlueprint().getMeshForRank(this.rank);
-		this.meshUUID = newMeshUUID;
+        UpdateObjectMsg uom = new UpdateObjectMsg(this, 2);
+        DispatchMessage.sendToAllInRange(this, uom);
 
-		// New rank mean new max hitpoints.
+    }
 
-		this.healthMax = this.getBlueprint().getMaxHealth(this.rank);
-		this.setCurrentHitPoints(this.healthMax);
+    // *** Refactor: Can't we just use setRank() for this?
 
-		if (this.getUpgradeDateTime() != null)
-			BuildingManager.setUpgradeDateTime(this, null, 0);
+    public final void rebuildMine() {
+        this.setRank(1);
+        this.meshUUID = this.getBlueprint().getMeshForRank(this.rank);
 
-		// If we destroyed this building make sure to turn off
-		// protection
+        // New rank mean new max hitpoints.
 
-		if (this.rank == -1)
-			this.protectionState = ProtectionState.NONE;
+        this.healthMax = this.getBlueprint().getMaxHealth(this.rank);
+        this.setCurrentHitPoints(this.healthMax);
+        this.getBounds().setBounds(this);
+    }
 
-		if ((this.getBlueprint().getBuildingGroup() == BuildingGroup.TOL)
-				&& (this.rank == 8))
-			this.meshUUID = Realm.getRealmMesh(this.getCity());;
+    public final void refreshGuild() {
 
-		// update object to clients
+        UpdateObjectMsg uom = new UpdateObjectMsg(this, 5);
+        DispatchMessage.sendToAllInRange(this, uom);
 
-		this.refresh(true);
-		if (this.getBounds() != null)
-			this.getBounds().setBounds(this);
+    }
 
-		// Cleanup hirelings resulting from rank change
+    public int getMaxGold() {
+        return maxGold;
+    }
 
-		BuildingManager.cleanupHirelings(this);
+    //This returns if a player is allowed access to control the building
 
-		this.isDeranking.compareAndSet(true, false);
-	}
+    @Override
+    public void runAfterLoad() {
 
-	public final void refresh(boolean newMesh) {
+        try {
 
-		if (newMesh)
-			WorldGrid.updateObject(this);
-		else {
-			UpdateObjectMsg uom = new UpdateObjectMsg(this, 3);
-			DispatchMessage.sendToAllInRange(this, uom);
-		}
-	}
+            this.parentZone.zoneBuildingSet.add(this);
 
-	public final void updateName() {
+            // Submit upgrade job if building is currently set to rank.
 
-		UpdateObjectMsg uom = new UpdateObjectMsg(this, 2);
-		DispatchMessage.sendToAllInRange(this, uom);
+            try {
+                DbObjectType objectType = DbManager.BuildingQueries.GET_UID_ENUM(this.ownerUUID);
+                this.ownerIsNPC = (objectType == DbObjectType.NPC);
+            } catch (Exception e) {
+                this.ownerIsNPC = false;
+                Logger.error("Failed to find Object Type for owner " + this.ownerUUID + " Location " + this.getLoc().toString());
+            }
 
-	}
+            try {
+                DbManager.BuildingQueries.LOAD_ALL_FRIENDS_FOR_BUILDING(this);
+                DbManager.BuildingQueries.LOAD_ALL_CONDEMNED_FOR_BUILDING(this);
+            } catch (Exception e) {
+                Logger.error(this.getObjectUUID() + " failed to load friends/condemned." + e.getMessage());
+            }
 
-	// *** Refactor: Can't we just use setRank() for this?
+            //LOad Owners in Cache so we do not have to continuely look in the db for owner.
 
-	public final void rebuildMine(){
-		this.setRank(1);
-		this.meshUUID = this.getBlueprint().getMeshForRank(this.rank);
+            if (this.ownerIsNPC) {
+                if (NPC.getNPC(this.ownerUUID) == null)
+                    Logger.info("Building UID " + this.getObjectUUID() + " Failed to Load NPC Owner with ID " + this.ownerUUID + " Location " + this.getLoc().toString());
 
-		// New rank mean new max hitpoints.
+            } else if (this.ownerUUID != 0) {
+                if (PlayerCharacter.getPlayerCharacter(this.ownerUUID) == null) {
+                    Logger.info("Building UID " + this.getObjectUUID() + " Failed to Load Player Owner with ID " + this.ownerUUID + " Location " + this.getLoc().toString());
+                }
+            }
 
-		this.healthMax = this.getBlueprint().getMaxHealth(this.rank);
-		this.setCurrentHitPoints(this.healthMax);
-		this.getBounds().setBounds(this);
-	}
+            // Apply health bonus and special mesh for realm if applicable
+            if ((this.getCity() != null) && this.getCity().getTOL() != null && (this.getCity().getTOL().rank == 8)) {
 
-	public final void refreshGuild() {
+                // Update mesh accordingly
+                if (this.getBlueprint() != null && this.getBlueprint().getBuildingGroup() == BuildingGroup.TOL)
+                    this.meshUUID = Realm.getRealmMesh(this.getCity());
 
-		UpdateObjectMsg uom = new UpdateObjectMsg(this, 5);
-		DispatchMessage.sendToAllInRange(this, uom);
+                // Apply realm capital health bonus.
+                // Do not apply bonus to banestones or TOL's.  *** Refactor:
+                // Possibly only protected buildings?  Needs some thought.
 
-	}
+                float missingHealth = 0;
 
-	public int getMaxGold() {
-		return maxGold;
-	}
+                if (this.health.get() != 0)
+                    missingHealth = this.healthMax - this.health.get();
 
-	//This returns if a player is allowed access to control the building
+                if ((this.getBlueprint() != null && this.getBlueprint().getBuildingGroup() != BuildingGroup.TOL)
+                        && (this.getBlueprint().getBuildingGroup() != BuildingGroup.BANESTONE)) {
+                    this.healthMax += (this.healthMax * Realm.getRealmHealthMod(this.getCity()));
 
-	@Override
-	public void runAfterLoad() {
+                    if (this.health.get() != 0)
+                        this.health.set(this.healthMax - missingHealth);
 
-		try {
+                    if (this.health.get() > this.healthMax)
+                        this.health.set(this.healthMax);
+                }
+            }
 
-			this.parentZone.zoneBuildingSet.add(this);
+            // Set bounds for this building
 
-			// Submit upgrade job if building is currently set to rank.
+            Bounds buildingBounds = Bounds.borrow();
+            buildingBounds.setBounds(this);
+            this.setBounds(buildingBounds);
 
-			try {
-				DbObjectType objectType = DbManager.BuildingQueries.GET_UID_ENUM(this.ownerUUID);
-				this.ownerIsNPC = (objectType == DbObjectType.NPC);
-			} catch (Exception e) {
-				this.ownerIsNPC = false;
-				Logger.error("Failed to find Object Type for owner " + this.ownerUUID+ " Location " + this.getLoc().toString());
-			}
+            //create a new list for children if the building is not a child. children list default is null.
+            //TODO Remove Furniture/Child buildings from building class and move them into a seperate class.
 
-			try{
-				DbManager.BuildingQueries.LOAD_ALL_FRIENDS_FOR_BUILDING(this);
-				DbManager.BuildingQueries.LOAD_ALL_CONDEMNED_FOR_BUILDING(this);
-			}catch(Exception e){
-				Logger.error( this.getObjectUUID() + " failed to load friends/condemned." + e.getMessage());
-			}
+            if (this.parentBuildingID == 0)
+                this.children = new ArrayList<>();
 
-			//LOad Owners in Cache so we do not have to continuely look in the db for owner.
+            if (this.parentBuildingID != 0) {
+                Building parent = BuildingManager.getBuildingFromCache(this.parentBuildingID);
 
-			if (this.ownerIsNPC){
-				if (NPC.getNPC(this.ownerUUID) == null)
-					Logger.info( "Building UID " + this.getObjectUUID() + " Failed to Load NPC Owner with ID " + this.ownerUUID+ " Location " + this.getLoc().toString());
+                if (parent != null) {
+                    parent.children.add(this);
 
-			}else if (this.ownerUUID != 0){
-				if (PlayerCharacter.getPlayerCharacter(this.ownerUUID) == null){
-					Logger.info( "Building UID " + this.getObjectUUID() + " Failed to Load Player Owner with ID " + this.ownerUUID + " Location " + this.getLoc().toString());
-				}
-			}
+                    //add furniture to region cache. floor and level are reversed in database, //TODO Fix
 
-			// Apply health bonus and special mesh for realm if applicable
-			if ((this.getCity() != null) && this.getCity().getTOL() != null && (this.getCity().getTOL().rank == 8)) {
+                    Regions region = BuildingManager.GetRegion(parent, this.level, this.floor, this.getLoc().x, this.getLoc().z);
+                    if (region != null)
+                        Regions.FurnitureRegionMap.put(this.getObjectUUID(), region);
+                }
 
-				// Update mesh accordingly
-				if (this.getBlueprint() != null && this.getBlueprint().getBuildingGroup() == BuildingGroup.TOL)
-					this.meshUUID = Realm.getRealmMesh(this.getCity());
+            }
 
-				// Apply realm capital health bonus.
-				// Do not apply bonus to banestones or TOL's.  *** Refactor:
-				// Possibly only protected buildings?  Needs some thought.
+            if (this.upgradeDateTime != null)
+                BuildingManager.submitUpgradeJob(this);
 
-				float missingHealth = 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
-				if (this.health.get() != 0)
-					missingHealth = this.healthMax-this.health.get();
+    public synchronized boolean setOwner(AbstractCharacter newOwner) {
 
-				if ((this.getBlueprint() != null && this.getBlueprint().getBuildingGroup() != BuildingGroup.TOL)
-						&& (this.getBlueprint().getBuildingGroup() != BuildingGroup.BANESTONE)){
-					this.healthMax += (this.healthMax * Realm.getRealmHealthMod(this.getCity()));
+        int newOwnerID;
+        if (newOwner == null)
+            newOwnerID = 0;
+        else
+            newOwnerID = newOwner.getObjectUUID();
 
-					if (this.health.get() != 0)
-						this.health.set(this.healthMax - missingHealth);
+        try {
 
-					if (this.health.get() > this.healthMax)
-						this.health.set(this.healthMax);
-				}
-			}
+            // Save new owner to database
 
-			// Set bounds for this building
+            if (!DbManager.BuildingQueries.updateBuildingOwner(this, newOwnerID))
+                return false;
 
-			Bounds buildingBounds = Bounds.borrow();
-			buildingBounds.setBounds(this);
-			this.setBounds(buildingBounds);
-			
-			//create a new list for children if the building is not a child. children list default is null.
-			//TODO Remove Furniture/Child buildings from building class and move them into a seperate class.
+            if (newOwner == null) {
+                this.ownerIsNPC = false;
+                this.ownerUUID = 0;
+            } else {
+                this.ownerUUID = newOwner.getObjectUUID();
+                this.ownerIsNPC = (newOwner.getObjectType() == GameObjectType.NPC);
+            }
 
-			if (this.parentBuildingID == 0)
-				this.children = new ArrayList<>();
 
-			if (this.parentBuildingID != 0){
-				Building parent = BuildingManager.getBuildingFromCache(this.parentBuildingID);
-				
-				if (parent != null){
-					parent.children.add(this);
+            // Set new guild for hirelings and refresh all clients
 
-					//add furniture to region cache. floor and level are reversed in database, //TODO Fix
+            this.refreshGuild();
+            BuildingManager.refreshHirelings(this);
 
-					Regions region = BuildingManager.GetRegion(parent, this.level,this.floor, this.getLoc().x, this.getLoc().z);
-				if (region != null)
-					Regions.FurnitureRegionMap.put(this.getObjectUUID(), region);
-				}
-					
-			}
-			
-			if (this.upgradeDateTime != null)
-				BuildingManager.submitUpgradeJob(this);
+        } catch (Exception e) {
+            Logger.error("Error updating owner! UUID: " + this.getObjectUUID());
+            return false;
+        }
 
-		}catch (Exception e){
-			e.printStackTrace();
-		}
-	}
+        return true;
 
-	public synchronized  boolean setOwner(AbstractCharacter newOwner) {
+    }
 
-		int  newOwnerID;
-		if (newOwner == null)
-			newOwnerID = 0;
-		else
-			newOwnerID = newOwner.getObjectUUID();
+    //This turns on and off low damage effect for building
 
-		try {
+    public void toggleDamageLow(boolean on) {
+        if (on)
+            addEffectBit(2);
+        else
+            removeEffectBit(2);
+    }
 
-			// Save new owner to database
+    //This turns on and off medium damage effect for building
 
-			if (!DbManager.BuildingQueries.updateBuildingOwner(this, newOwnerID))
-				return false;
+    public void toggleDamageMedium(boolean on) {
+        if (on)
+            addEffectBit(4);
+        else
+            removeEffectBit(4);
+    }
 
-			if (newOwner == null) {
-				this.ownerIsNPC = false;
-				this.ownerUUID = 0; }
-			else {
-				this.ownerUUID = newOwner.getObjectUUID();
-				this.ownerIsNPC = (newOwner.getObjectType() == GameObjectType.NPC);
-			}
+    //This turns on and off high damage effect for building
 
+    public void toggleDamageHigh(boolean on) {
+        if (on)
+            addEffectBit(8);
+        else
+            removeEffectBit(8);
+    }
 
-			// Set new guild for hirelings and refresh all clients
+    //This clears all damage effects on a building
+    public void clearDamageEffect() {
+        toggleDamageLow(false);
+        toggleDamageMedium(false);
+        toggleDamageHigh(false);
+    }
 
-			this.refreshGuild();
-			BuildingManager.refreshHirelings(this);
+    public Vector3fImmutable getStuckLocation() {
+        Vector3fImmutable stuckLocation;
+        ArrayList<BuildingLocation> stuckLocations;
 
-		} catch (Exception e) {
-			Logger.error( "Error updating owner! UUID: " + this.getObjectUUID());
-			return false;
-		}
+        stuckLocations = BuildingManager._stuckLocations.get(this.meshUUID);
 
-		return true;
+        // Sanity check
 
-	}
+        if (stuckLocations == null ||
+                stuckLocations.isEmpty())
+            return this.getLoc();
 
-	//This turns on and off low damage effect for building
+        stuckLocation = stuckLocations.get(ThreadLocalRandom.current().nextInt(stuckLocations.size())).getLocation();
+        stuckLocation = this.getLoc().add(stuckLocation);
 
-	public void toggleDamageLow(boolean on) {
-		if (on)
-			addEffectBit(2);
-		else
-			removeEffectBit(2);
-	}
+        return stuckLocation;
+    }
 
-	//This turns on and off medium damage effect for building
+    public boolean isDoorOpen(int doorNumber) {
 
-	public void toggleDamageMedium(boolean on) {
-		if (on)
-			addEffectBit(4);
-		else
-			removeEffectBit(4);
-	}
+        if (this.doorState == 0)
+            return false;
 
-	//This turns on and off high damage effect for building
+        return (this.doorState & (1 << doorNumber + 16)) != 0;
 
-	public void toggleDamageHigh(boolean on) {
-		if (on)
-			addEffectBit(8);
-		else
-			removeEffectBit(8);
-	}
+    }
 
-	//This clears all damage effects on a building
-	public void clearDamageEffect() {
-		toggleDamageLow(false);
-		toggleDamageMedium(false);
-		toggleDamageHigh(false);
-	}
+    public boolean isDoorLocked(int doorNumber) {
 
-	public Vector3fImmutable getStuckLocation() {
-		Vector3fImmutable stuckLocation;
-		ArrayList<BuildingLocation> stuckLocations;
+        if (this.doorState == 0)
+            return false;
 
-		stuckLocations = BuildingManager._stuckLocations.get(this.meshUUID);
+        return (this.doorState & (1 << doorNumber)) != 0;
 
-		// Sanity check
+    }
 
-		if (stuckLocations == null ||
-				stuckLocations.isEmpty())
-			return this.getLoc();
+    public boolean setDoorState(int doorNumber, DoorState doorState) {
 
-		stuckLocation = stuckLocations.get(ThreadLocalRandom.current().nextInt(stuckLocations.size())).getLocation();
-		stuckLocation = this.getLoc().add(stuckLocation);
+        boolean updateRecord;
 
-		return stuckLocation;
-	}
+        updateRecord = false;
 
-	public boolean isDoorOpen(int doorNumber) {
+        // Can't have an invalid door number
+        // Log error?
 
-		if (this.doorState == 0)
-			return false;
+        if (doorNumber < 1 || doorNumber > 16)
+            return false;
 
-		return (this.doorState & (1 << doorNumber + 16)) != 0;
+        switch (doorState) {
 
-	}
+            case OPEN:
+                this.doorState |= (1 << (doorNumber + 16));
+                break;
+            case CLOSED:
+                this.doorState &= ~(1 << (doorNumber + 16));
+                break;
+            case UNLOCKED:
+                this.doorState &= ~(1 << doorNumber);
+                updateRecord = true;
+                break;
+            case LOCKED:
+                this.doorState |= (1 << doorNumber);
+                updateRecord = true;
+                break;
+        }
 
-	public boolean isDoorLocked(int doorNumber) {
+        // Save to database ?
+        if (updateRecord == true)
+            return DbManager.BuildingQueries.UPDATE_DOOR_LOCK(this.getObjectUUID(), this.doorState);
+        else
+            return true;
+    }
 
-		if (this.doorState == 0)
-			return false;
+    public void updateEffects() {
 
-		return (this.doorState & (1 << doorNumber)) != 0;
+        ApplyBuildingEffectMsg applyBuildingEffectMsg = new ApplyBuildingEffectMsg(0x00720063, 1, this.getObjectType().ordinal(), this.getObjectUUID(), this.effectFlags);
+        DispatchMessage.sendToAllInRange(this, applyBuildingEffectMsg);
 
-	}
+    }
 
-	public boolean setDoorState(int doorNumber, DoorState doorState) {
+    public final void enableSpire() {
 
-		boolean updateRecord;
+        SpireType spireType;
 
-		updateRecord = false;
+        if (this.getCity() == null)
+            return;
 
-		// Can't have an invalid door number
-		// Log error?
+        // Blueprint sanity check
 
-		if (doorNumber < 1 || doorNumber > 16)
-			return false;
+        if (this.blueprintUUID == 0)
+            return;
 
-		switch (doorState) {
+        spireType = SpireType.getByBlueprintUUID(this.blueprintUUID);
 
-		case OPEN:
-			this.doorState |= (1 << (doorNumber + 16));
-			break;
-		case CLOSED:
-			this.doorState &= ~(1 << (doorNumber + 16));
-			break;
-		case UNLOCKED:
-			this.doorState &= ~(1 << doorNumber);
-			updateRecord = true;
-			break;
-		case LOCKED:
-			this.doorState |= (1 << doorNumber);
-			updateRecord = true;
-			break;
-		}
+        SiegeSpireWithdrawlJob spireJob = new SiegeSpireWithdrawlJob(this);
+        JobContainer jc = JobScheduler.getInstance().scheduleJob(spireJob, 300000);
+        this.getTimers().put("SpireWithdrawl", jc);
 
-		// Save to database ?
-		if (updateRecord == true)
-			return DbManager.BuildingQueries.UPDATE_DOOR_LOCK(this.getObjectUUID(), this.doorState);
-		else
-			return true;
-	}
+        this.getCity().addCityEffect(spireType.getEffectBase(), rank);
+        addEffectBit(spireType.getEffectFlag());
+        this.spireIsActive = true;
+        this.updateEffects();
 
-	public void updateEffects() {
 
-		ApplyBuildingEffectMsg applyBuildingEffectMsg = new ApplyBuildingEffectMsg(0x00720063, 1, this.getObjectType().ordinal(), this.getObjectUUID(), this.effectFlags);
-		DispatchMessage.sendToAllInRange(this, applyBuildingEffectMsg);
+    }
 
-	}
+    public final void disableSpire(boolean refreshEffect) {
 
-	public final void enableSpire() {
+        SpireType spireType;
 
-		SpireType spireType;
+        if (this.getCity() == null)
+            return;
 
-		if (this.getCity() == null)
-			return;
+        // Blueprint sanity check
 
-		// Blueprint sanity check
+        if (this.blueprintUUID == 0)
+            return;
 
-		if (this.blueprintUUID == 0)
-			return;
+        spireType = SpireType.getByBlueprintUUID(this.blueprintUUID);
 
-		spireType = SpireType.getByBlueprintUUID(this.blueprintUUID);
+        this.getCity().removeCityEffect(spireType.getEffectBase(), rank, refreshEffect);
 
-		SiegeSpireWithdrawlJob spireJob = new SiegeSpireWithdrawlJob(this);
-		JobContainer jc = JobScheduler.getInstance().scheduleJob(spireJob, 300000);
-		this.getTimers().put("SpireWithdrawl", jc);
+        JobContainer toRemove = this.getTimers().get("SpireWithdrawl");
 
-		this.getCity().addCityEffect(spireType.getEffectBase(), rank);
-		addEffectBit(spireType.getEffectFlag());
-		this.spireIsActive = true;
-		this.updateEffects();
+        if (toRemove != null) {
+            toRemove.cancelJob();
+            this.getTimers().remove("SpireWithdrawl");
+        }
 
+        this.spireIsActive = false;
+        this.removeEffectBit(spireType.getEffectFlag());
+        this.updateEffects();
+    }
 
-	}
+    public ConcurrentHashMap<AbstractCharacter, Integer> getHirelings() {
+        return hirelings;
+    }
 
-	public final void disableSpire(boolean refreshEffect) {
+    public final boolean isSpireIsActive() {
+        return spireIsActive;
+    }
 
-		SpireType spireType;
+    public final void setSpireIsActive(boolean spireIsActive) {
+        this.spireIsActive = spireIsActive;
+    }
 
-		if (this.getCity() == null)
-			return;
+    public final boolean isVulnerable() {
 
-		// Blueprint sanity check
+        // NPC owned buildings are never vulnerable
 
-		if (this.blueprintUUID == 0)
-			return;
+        if (ownerIsNPC)
+            return false;
 
-		spireType = SpireType.getByBlueprintUUID(this.blueprintUUID);
+        // Buildings on an npc citygrid are never vulnerable
 
-		this.getCity().removeCityEffect(spireType.getEffectBase(), rank, refreshEffect);
+        if (this.getCity() != null) {
+            if (this.getCity().getParent().isNPCCity() == true)
+                return false;
+        }
 
-		JobContainer toRemove = this.getTimers().get("SpireWithdrawl");
+        // Destroyed buildings are never vulnerable
 
-		if (toRemove != null) {
-			toRemove.cancelJob();
-			this.getTimers().remove("SpireWithdrawl");
-		}
+        if (rank < 0)
+            return false;
 
-		this.spireIsActive = false;
-		this.removeEffectBit(spireType.getEffectFlag());
-		this.updateEffects();
-	}
+        // Any structure without a blueprint was not placed by a
+        // player and we can assume to be invulnerable regardless
+        // of a protection contract or not.
 
-	public ConcurrentHashMap<AbstractCharacter, Integer> getHirelings() {
-		return hirelings;
-	}
+        if (this.getBlueprint() == null)
+            return false;
 
-	public final boolean isSpireIsActive() {
-		return spireIsActive;
-	}
+        // Runegates are never vulerable.
 
-	public final boolean isVulnerable() {
+        if (this.getBlueprint().getBuildingGroup() == BuildingGroup.RUNEGATE)
+            return false;
 
-		// NPC owned buildings are never vulnerable
+        // Shrines are never vulerable.  They blow up as a
+        // tree deranks.
 
-		if (ownerIsNPC)
-			return false;
+        if (this.getBlueprint().getBuildingGroup() == BuildingGroup.SHRINE)
+            return false;
 
-		// Buildings on an npc citygrid are never vulnerable
+        // Mines are vulnerable only if they are active
 
-		if (this.getCity() != null) {
-			if (this.getCity().getParent().isNPCCity() == true)
-				return false;
-		}
+        if (this.getBlueprint().getBuildingGroup() == BuildingGroup.MINE) {
 
-		// Destroyed buildings are never vulnerable
+            // Cannot access mine
 
-		if (rank < 0)
-			return false;
+            if (Mine.getMineFromTower(this.getObjectUUID()) == null)
+                return false;
 
-		// Any structure without a blueprint was not placed by a
-		// player and we can assume to be invulnerable regardless
-		// of a protection contract or not.
+            return Mine.getMineFromTower(this.getObjectUUID()).getIsActive() == true;
+        }
 
-		if (this.getBlueprint() == null)
-			return false;
+        // Errant banestones are vulnerable by default
 
-		// Runegates are never vulerable.
+        if ((this.getBlueprint().getBuildingGroup() == BuildingGroup.BANESTONE) &&
+                this.getCity().getBane().isErrant() == true)
+            return true;
 
-		if (this.getBlueprint().getBuildingGroup() == BuildingGroup.RUNEGATE)
-			return false;
+        // There is an active protection contract.  Is there also
+        // an active bane?  If so, it's meaningless.
 
-		// Shrines are never vulerable.  They blow up as a
-		// tree deranks.
+        if (this.assetIsProtected() == true) {
 
-		if (this.getBlueprint().getBuildingGroup() == BuildingGroup.SHRINE)
-			return false;
+            // Building protection is meaningless without a city
 
-		// Mines are vulnerable only if they are active
+            if (this.getCity() == null)
+                return true;
 
-		if (this.getBlueprint().getBuildingGroup() == BuildingGroup.MINE) {
+            // All buildings are vulnerable during an active bane
 
-			// Cannot access mine
+            return (this.getCity().protectionEnforced == false);
 
-			if (Mine.getMineFromTower(this.getObjectUUID()) == null)
-				return false;
+        }
 
-			return Mine.getMineFromTower(this.getObjectUUID()).getIsActive() == true;
-		}
+        // No protection contract?  Oh well, you're vunerable!
 
-		// Errant banestones are vulnerable by default
+        return true;
+    }
 
-		if ((this.getBlueprint().getBuildingGroup() == BuildingGroup.BANESTONE) &&
-				this.getCity().getBane().isErrant() == true)
-			return true;
+    public final ConcurrentHashMap<String, JobContainer> getTimers() {
+        if (this.timers == null)
+            this.timers = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_LOW);
+        return this.timers;
+    }
 
-		// There is an active protection contract.  Is there also
-		// an active bane?  If so, it's meaningless.
+    public final ConcurrentHashMap<String, Long> getTimestamps() {
+        if (this.timestamps == null)
+            this.timestamps = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_LOW);
+        return this.timestamps;
+    }
 
-		if (this.assetIsProtected() == true) {
+    public final long getTimeStamp(final String name) {
+        if (this.getTimestamps().containsKey(name))
+            return this.timestamps.get(name);
+        return 0L;
+    }
 
-			// Building protection is meaningless without a city
+    public final void setTimeStamp(final String name, final long value) {
+        this.getTimestamps().put(name, value);
+    }
 
-			if (this.getCity() == null)
-				return true;
+    public ConcurrentHashMap<Integer, BuildingFriends> getFriends() {
+        return this.friends;
+    }
 
-			// All buildings are vulnerable during an active bane
+    public final void claim(AbstractCharacter sourcePlayer) {
 
-			return (this.getCity().protectionEnforced == false);
+        // Clear any existing friend or condemn entries
 
-		}
+        this.friends.clear();
+        DbManager.BuildingQueries.CLEAR_FRIENDS_LIST(this.getObjectUUID());
 
-		// No protection contract?  Oh well, you're vunerable!
+        condemned.clear();
+        DbManager.BuildingQueries.CLEAR_CONDEMNED_LIST(this.getObjectUUID());
 
-		return true;
-	}
+        // Transfer the building asset ownership
 
-	public final void setSpireIsActive(boolean spireIsActive) {
-		this.spireIsActive = spireIsActive;
-	}
+        this.setOwner(sourcePlayer);
 
-	public final ConcurrentHashMap<String, JobContainer> getTimers() {
-		if (this.timers == null)
-			this.timers = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_LOW);
-		return this.timers;
-	}
+    }
 
-	public final ConcurrentHashMap<String, Long> getTimestamps() {
-		if (this.timestamps == null)
-			this.timestamps = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_LOW);
-		return this.timestamps;
-	}
+    /**
+     * @return the protectionState
+     */
+    public ProtectionState getProtectionState() {
+        return protectionState;
+    }
 
-	public final long getTimeStamp(final String name) {
-		if (this.getTimestamps().containsKey(name))
-			return this.timestamps.get(name);
-		return 0L;
-	}
+    /**
+     * @param protectionState the protectionState to set
+     */
+    public void setProtectionState(ProtectionState protectionState) {
 
-	public final void setTimeStamp(final String name, final long value) {
-		this.getTimestamps().put(name, value);
-	}
+        // Early exit if protection state is already set to input value
 
-	public  ConcurrentHashMap<Integer,BuildingFriends> getFriends() {
-		return this.friends;
-	}
+        if (this.protectionState.equals(protectionState))
+            return;
 
-	public final void claim(AbstractCharacter sourcePlayer) {
+        // if building is destroyed, just set the protection state.  There isn't a DB
+        // record to write anything to.
 
-		// Clear any existing friend or condemn entries
+        if (rank == -1) {
+            this.protectionState = protectionState;
+            return;
+        }
 
-		this.friends.clear();
-		DbManager.BuildingQueries.CLEAR_FRIENDS_LIST(this.getObjectUUID());
+        if (DbManager.BuildingQueries.UPDATE_PROTECTIONSTATE(this.getObjectUUID(), protectionState) == true) {
+            this.protectionState = protectionState;
+            return;
+        }
 
-		condemned.clear();
-		DbManager.BuildingQueries.CLEAR_CONDEMNED_LIST(this.getObjectUUID());
+        Logger.error("Protection update failed for UUID: " + this.getObjectUUID() + "\n" +
+                this.getBlueprint().getName() + " From " + this.protectionState.name() + " To: " + protectionState.name());
 
-		// Transfer the building asset ownership
+    }
 
-		this.setOwner(sourcePlayer);
+    public ConcurrentHashMap<Integer, Condemned> getCondemned() {
+        return condemned;
+    }
 
-	}
+    public boolean setReverseKOS(boolean reverseKOS) {
+        if (!DbManager.BuildingQueries.updateReverseKOS(this, reverseKOS))
+            return false;
+        this.reverseKOS = reverseKOS;
+        return true;
+    }
 
-	/**
-	 * @return the protectionState
-	 */
-	public ProtectionState getProtectionState() {
-		return protectionState;
-	}
+    public boolean assetIsProtected() {
 
-	/**
-	 * @param protectionState the protectionState to set
-	 */
-	public void setProtectionState(ProtectionState protectionState) {
+        boolean outValue = false;
 
-		// Early exit if protection state is already set to input value
+        if (protectionState.equals(ProtectionState.PROTECTED))
+            outValue = true;
 
-		if (this.protectionState.equals(protectionState))
-			return;
+        if (protectionState.equals(ProtectionState.CONTRACT))
+            outValue = true;
 
-		// if building is destroyed, just set the protection state.  There isn't a DB
-		// record to write anything to.
+        return outValue;
+    }
 
-		if (rank == -1) {
-			this.protectionState = protectionState;
-			return;
-		}
+    public synchronized boolean transferGold(int amount, boolean tax) {
 
-		if (DbManager.BuildingQueries.UPDATE_PROTECTIONSTATE(this.getObjectUUID(), protectionState) == true) {
-			this.protectionState = protectionState;
-			return;
-		}
+        if (amount < 0)
+            if (!this.hasFunds(-amount))
+                return false;
 
-		Logger.error("Protection update failed for UUID: " + this.getObjectUUID() + "\n" +
-				this.getBlueprint().getName() + " From " + this.protectionState.name() + " To: " + protectionState.name());
+        if (_strongboxValue + amount < 0)
+            return false;
 
-	}
+        if (_strongboxValue + amount > maxGold)
+            return false;
 
-	public ConcurrentHashMap<Integer,Condemned> getCondemned() {
-		return condemned;
-	}
+        //Deduct Profit taxes.
+        if (tax)
+            if (taxType == TaxType.PROFIT && protectionState == ProtectionState.CONTRACT && amount > 0)
+                amount = this.payProfitTaxes(amount);
 
-	public boolean setReverseKOS(boolean reverseKOS) {
-		if (!DbManager.BuildingQueries.updateReverseKOS(this, reverseKOS))
-			return false;
-		this.reverseKOS = reverseKOS;
-		return true;
-	}
 
-	public boolean assetIsProtected() {
+        if (amount != 0)
+            return this.setStrongboxValue(_strongboxValue + amount);
+        return true;
+    }
 
-		boolean outValue = false;
+    public synchronized int payProfitTaxes(int amount) {
 
-		if (protectionState.equals(ProtectionState.PROTECTED))
-			outValue = true;
+        if (this.getCity() == null)
+            return amount;
+        if (this.getCity().getWarehouse() == null)
+            return amount;
 
-		if (protectionState.equals(ProtectionState.CONTRACT))
-			outValue = true;
+        if (this.getCity().getWarehouse().getResources().get(ItemBase.getGoldItemBase()) >= Warehouse.getMaxResources().get(ItemBase.getGoldItemBase().getUUID()))
+            return amount;
 
-		return outValue;
-	}
+        int profitAmount = (int) (amount * (taxAmount * .01f));
 
-	public synchronized boolean transferGold(int amount,boolean tax){
+        if (this.getCity().getWarehouse().getResources().get(ItemBase.getGoldItemBase()) + profitAmount <= Warehouse.getMaxResources().get(ItemBase.getGoldItemBase().getUUID())) {
+            this.getCity().getWarehouse().depositProfitTax(ItemBase.getGoldItemBase(), profitAmount, this);
+            return amount - profitAmount;
+        }
+        //overDrafting
+        int warehouseDeposit = Warehouse.getMaxResources().get(ItemBase.getGoldItemBase().getUUID()) - this.getCity().getWarehouse().getResources().get(ItemBase.getGoldItemBase());
+        this.getCity().getWarehouse().depositProfitTax(ItemBase.getGoldItemBase(), warehouseDeposit, this);
+        return amount - warehouseDeposit;
+    }
 
-		if (amount < 0)
-			if (!this.hasFunds(-amount))
-				return false;
+    public synchronized boolean setReserve(int amount, PlayerCharacter player) {
 
-		if (_strongboxValue + amount < 0)
-			return false;
+        if (!BuildingManager.playerCanManageNotFriends(player, this))
+            return false;
 
-		if (_strongboxValue + amount > maxGold)
-			return false;
+        if (amount < 0)
+            return false;
 
-		//Deduct Profit taxes.
-		if (tax)
-			if (taxType == TaxType.PROFIT && protectionState == ProtectionState.CONTRACT && amount > 0)
-				amount = this.payProfitTaxes(amount);
+        if (!DbManager.BuildingQueries.SET_RESERVE(this, amount))
+            return false;
 
+        this.reserve = amount;
 
-		if (amount != 0)
-			return this.setStrongboxValue(_strongboxValue + amount);
-		return true;
-	}
+        return true;
+    }
 
-	public synchronized int payProfitTaxes(int amount){
+    public synchronized boolean hasFunds(int amount) {
+        return amount <= (this._strongboxValue - reserve);
+    }
 
-		if (this.getCity() == null)
-			return amount;
-		if (this.getCity().getWarehouse() == null)
-			return amount;
+    public ArrayList<Vector3fImmutable> getPatrolPoints() {
+        return patrolPoints;
+    }
 
-		if (this.getCity().getWarehouse().getResources().get(ItemBase.getGoldItemBase()) >= Warehouse.getMaxResources().get(ItemBase.getGoldItemBase().getUUID()))
-			return amount;
+    public void setPatrolPoints(ArrayList<Vector3fImmutable> patrolPoints) {
+        this.patrolPoints = patrolPoints;
+    }
 
-		int profitAmount = (int) (amount * (taxAmount *.01f));
+    public ArrayList<Vector3fImmutable> getSentryPoints() {
+        return sentryPoints;
+    }
 
-		if (this.getCity().getWarehouse().getResources().get(ItemBase.getGoldItemBase()) + profitAmount <= Warehouse.getMaxResources().get(ItemBase.getGoldItemBase().getUUID())){
-			this.getCity().getWarehouse().depositProfitTax(ItemBase.getGoldItemBase(), profitAmount,this);
-			return amount - profitAmount;
-		}
-		//overDrafting
-		int warehouseDeposit =  Warehouse.getMaxResources().get(ItemBase.getGoldItemBase().getUUID()) - this.getCity().getWarehouse().getResources().get(ItemBase.getGoldItemBase());
-		this.getCity().getWarehouse().depositProfitTax(ItemBase.getGoldItemBase(), warehouseDeposit,this);
-		return amount - warehouseDeposit;
-	}
+    public void setSentryPoints(ArrayList<Vector3fImmutable> sentryPoints) {
+        this.sentryPoints = sentryPoints;
+    }
 
-	public synchronized boolean setReserve(int amount, PlayerCharacter player){
+    public synchronized boolean addProtectionTax(Building building, PlayerCharacter pc, final TaxType taxType, int amount, boolean enforceKOS) {
+        if (building == null)
+            return false;
 
-		if (!BuildingManager.playerCanManageNotFriends(player, this))
-			return false;
+        if (this.getBlueprint() == null)
+            return false;
 
-		if (amount < 0)
-			return false;
+        if (this.getBlueprint().getBuildingGroup() != BuildingGroup.TOL)
+            return false;
 
-		if (!DbManager.BuildingQueries.SET_RESERVE(this, amount))
-			return false;
+        if (building.assetIsProtected())
+            return false;
 
-		this.reserve = amount;
+        if (!DbManager.BuildingQueries.addTaxes(building, taxType, amount, enforceKOS))
+            return false;
 
-		return true;
-	}
+        building.taxType = taxType;
+        building.taxAmount = amount;
+        building.enforceKOS = enforceKOS;
 
-	public synchronized boolean hasFunds(int amount){
-		return amount <= (this._strongboxValue - reserve);
-	}
+        return true;
 
-	public ArrayList<Vector3fImmutable> getPatrolPoints() {
-		return patrolPoints;
-	}
+    }
 
-	public void setPatrolPoints(ArrayList<Vector3fImmutable> patrolPoints) {
-		this.patrolPoints = patrolPoints;
-	}
+    public synchronized boolean declineTaxOffer() {
+        return true;
+    }
 
-	public ArrayList<Vector3fImmutable> getSentryPoints() {
-		return sentryPoints;
-	}
+    public synchronized boolean acceptTaxOffer() {
+        return true;
+    }
 
-	public void setSentryPoints(ArrayList<Vector3fImmutable> sentryPoints) {
-		this.sentryPoints = sentryPoints;
-	}
+    public synchronized boolean acceptTaxes() {
 
-	public synchronized boolean addProtectionTax(Building building, PlayerCharacter pc, final TaxType taxType, int amount, boolean enforceKOS){
-		if (building == null)
-			return false;
+        if (!DbManager.BuildingQueries.acceptTaxes(this))
+            return false;
 
-		if (this.getBlueprint() == null)
-			return false;
+        this.setProtectionState(Enum.ProtectionState.CONTRACT);
+        this.taxDateTime = LocalDateTime.now().plusDays(7);
 
-		if (this.getBlueprint().getBuildingGroup() != BuildingGroup.TOL)
-			return false;
+        return true;
+    }
 
-		if (building.assetIsProtected())
-			return false;
+    public synchronized boolean removeTaxes() {
 
-		if (!DbManager.BuildingQueries.addTaxes(building, taxType, amount, enforceKOS))
-			return false;
+        if (!DbManager.BuildingQueries.removeTaxes(this))
+            return false;
 
-		building.taxType = taxType;
-		building.taxAmount = amount;
-		building.enforceKOS = enforceKOS;
+        this.taxType = TaxType.NONE;
+        this.taxAmount = 0;
+        this.taxDateTime = null;
+        this.enforceKOS = false;
 
-		return true;
+        return true;
+    }
 
-	}
+    public boolean isTaxed() {
+        if (this.taxType == TaxType.NONE)
+            return false;
+        if (this.taxAmount == 0)
+            return false;
+        return this.taxDateTime != null;
+    }
 
-	public synchronized boolean declineTaxOffer(){
-		return true;
-	}
+    public void AddToBarracksList() {
+        City playerCity = ZoneManager.getCityAtLocation(this.loc);
+        if (playerCity != null) {
+            playerCity.cityBarracks.add(this);
+        }
+    }
 
-	public synchronized boolean acceptTaxOffer(){
-		return true;
-	}
+    public void RemoveFromBarracksList() {
 
-	public synchronized boolean acceptTaxes(){
-
-		if (!DbManager.BuildingQueries.acceptTaxes(this))
-			return false;
-
-		this.setProtectionState(Enum.ProtectionState.CONTRACT);
-		this.taxDateTime = LocalDateTime.now().plusDays(7);
-
-		return true;
-	}
-
-	public synchronized boolean removeTaxes(){
-
-		if (!DbManager.BuildingQueries.removeTaxes(this))
-			return false;
-
-		this.taxType = TaxType.NONE;
-		this.taxAmount = 0;
-		this.taxDateTime = null;
-		this.enforceKOS = false;
-
-		return true;
-	}
-
-	public boolean isTaxed(){
-		if (this.taxType == TaxType.NONE)
-			return false;
-		if (this.taxAmount == 0)
-			return false;
-		return this.taxDateTime != null;
-	}
-	public void AddToBarracksList(){
-		City playerCity = ZoneManager.getCityAtLocation(this.loc);
-		if(playerCity != null){
-			playerCity.cityBarracks.add(this);
-		}
-	}
-	public void RemoveFromBarracksList(){
-
-	}
+    }
 }

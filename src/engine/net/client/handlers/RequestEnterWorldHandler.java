@@ -30,134 +30,134 @@ import org.pmw.tinylog.Logger;
 
 public class RequestEnterWorldHandler extends AbstractClientMsgHandler {
 
-	public RequestEnterWorldHandler() {
-		super(RequestEnterWorldMsg.class);
-	}
+    public RequestEnterWorldHandler() {
+        super(RequestEnterWorldMsg.class);
+    }
 
-	@Override
-	protected boolean _handleNetMsg(ClientNetMsg baseMsg, ClientConnection origin) throws MsgSendException {
+    @Override
+    protected boolean _handleNetMsg(ClientNetMsg baseMsg, ClientConnection origin) throws MsgSendException {
 
-		RequestEnterWorldMsg msg;
+        RequestEnterWorldMsg msg;
 
-		msg = (RequestEnterWorldMsg) baseMsg;
+        msg = (RequestEnterWorldMsg) baseMsg;
 
-		Session session = SessionManager.getSession(origin);
+        Session session = SessionManager.getSession(origin);
 
-		if (session == null)
-			return true;
+        if (session == null)
+            return true;
 
-		PlayerCharacter player = origin.getPlayerCharacter();
+        PlayerCharacter player = origin.getPlayerCharacter();
 
-		WorldGrid.RemoveWorldObject(player);
-		Dispatch dispatch;
+        WorldGrid.RemoveWorldObject(player);
+        Dispatch dispatch;
 
-		if (player == null) {
-			Logger.error("Unable to find player for session" + session.getSessionID());
-			origin.kickToLogin(MBServerStatics.LOGINERROR_UNABLE_TO_LOGIN, "Player not found.");
-			return true;
-		}
+        if (player == null) {
+            Logger.error("Unable to find player for session" + session.getSessionID());
+            origin.kickToLogin(MBServerStatics.LOGINERROR_UNABLE_TO_LOGIN, "Player not found.");
+            return true;
+        }
 
-		player.setEnteredWorld(false);
+        player.setEnteredWorld(false);
 
-		Account acc = SessionManager.getAccount(origin);
+        Account acc = SessionManager.getAccount(origin);
 
         if (acc.status.ordinal() < WorldServer.worldAccessLevel.ordinal() || MBServerStatics.blockLogin) {
             origin.disconnect();
             return true;
         }
 
-		// Brand new character.  Send the city select screen
+        // Brand new character.  Send the city select screen
 
-			if (player.getLevel() == 1 && player.getBindBuildingID() == -1) {
-			SelectCityMsg scm = new SelectCityMsg(player, true);
-				dispatch = Dispatch.borrow(player, scm);
-				DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.SECONDARY);
-				return true;
-			}
+        if (player.getLevel() == 1 && player.getBindBuildingID() == -1) {
+            SelectCityMsg scm = new SelectCityMsg(player, true);
+            dispatch = Dispatch.borrow(player, scm);
+            DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.SECONDARY);
+            return true;
+        }
 
-		player.resetRegenUpdateTime();
+        player.resetRegenUpdateTime();
 
-		// Map Data
+        // Map Data
 
-		try {
-			WorldDataMsg wdm = new WorldDataMsg();
-			dispatch = Dispatch.borrow(player, wdm);
-			DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.PRIMARY);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			Logger.error("WORLDDATAMESSAGE" + e.getMessage());
-		}
+        try {
+            WorldDataMsg wdm = new WorldDataMsg();
+            dispatch = Dispatch.borrow(player, wdm);
+            DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.PRIMARY);
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            Logger.error("WORLDDATAMESSAGE" + e.getMessage());
+        }
 
-		// Realm Data
+        // Realm Data
 
-		try {
-			WorldRealmMsg wrm = new WorldRealmMsg();
-			dispatch = Dispatch.borrow(player, wrm);
-			DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.PRIMARY);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			Logger.error("REALMMESSAGE" + e.getMessage());
-		}
+        try {
+            WorldRealmMsg wrm = new WorldRealmMsg();
+            dispatch = Dispatch.borrow(player, wrm);
+            DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.PRIMARY);
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            Logger.error("REALMMESSAGE" + e.getMessage());
+        }
 
-		// Object Data
-		CityDataMsg wom = new CityDataMsg(session, true);
-		dispatch = Dispatch.borrow(player, wom);
-		DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.PRIMARY);
+        // Object Data
+        CityDataMsg wom = new CityDataMsg(session, true);
+        dispatch = Dispatch.borrow(player, wom);
+        DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.PRIMARY);
 
-		player.getTimestamps().put("EnterWorld", System.currentTimeMillis());
+        player.getTimestamps().put("EnterWorld", System.currentTimeMillis());
 
-		if (player.getLoc().equals(Vector3fImmutable.ZERO) || System.currentTimeMillis() > player.getTimeStamp("logout") + (15 * 60 * 1000)) {
-			player.stopMovement(player.getBindLoc());
-			player.setSafeMode();
-			player.updateLocation();
-			player.setRegion(AbstractWorldObject.GetRegionByWorldObject(player));
-		}
+        if (player.getLoc().equals(Vector3fImmutable.ZERO) || System.currentTimeMillis() > player.getTimeStamp("logout") + (15 * 60 * 1000)) {
+            player.stopMovement(player.getBindLoc());
+            player.setSafeMode();
+            player.updateLocation();
+            player.setRegion(AbstractWorldObject.GetRegionByWorldObject(player));
+        }
 
-		player.setTimeStamp("logout", 0);
-		player.respawnLock.writeLock().lock();
-		try{
-			if (!player.isAlive()){
-				Logger.info("respawning player on enter world.");
-				player.respawn(true, true,true);
-			}
-				
-		}catch (Exception e){
-			Logger.error(e);
-		}finally{
-			player.respawnLock.writeLock().unlock();
-		}
-		
+        player.setTimeStamp("logout", 0);
+        player.respawnLock.writeLock().lock();
+        try {
+            if (!player.isAlive()) {
+                Logger.info("respawning player on enter world.");
+                player.respawn(true, true, true);
+            }
 
-		player.resetDataAtLogin();
+        } catch (Exception e) {
+            Logger.error(e);
+        } finally {
+            player.respawnLock.writeLock().unlock();
+        }
 
-		InterestManager.INTERESTMANAGER.HandleLoadForEnterWorld(player);
 
-		// If this is a brand new character...
-		// when they enter world is a great time to write their
-		// character record to the data warehouse.
+        player.resetDataAtLogin();
 
-		if (player.getHash() == null) {
+        InterestManager.INTERESTMANAGER.HandleLoadForEnterWorld(player);
 
-			if (DataWarehouse.recordExists(Enum.DataRecordType.CHARACTER, player.getObjectUUID()) == false) {
-				CharacterRecord characterRecord = CharacterRecord.borrow(player);
-				DataWarehouse.pushToWarehouse(characterRecord);
-			}
-			player.setHash();
-		}
+        // If this is a brand new character...
+        // when they enter world is a great time to write their
+        // character record to the data warehouse.
+
+        if (player.getHash() == null) {
+
+            if (DataWarehouse.recordExists(Enum.DataRecordType.CHARACTER, player.getObjectUUID()) == false) {
+                CharacterRecord characterRecord = CharacterRecord.borrow(player);
+                DataWarehouse.pushToWarehouse(characterRecord);
+            }
+            player.setHash();
+        }
 
         //
-		// We will load the kill/death lists here as data is only pertinent
-		// to characters actually logged into the game.
+        // We will load the kill/death lists here as data is only pertinent
+        // to characters actually logged into the game.
         //
 
-		player.pvpKills = PvpRecord.getCharacterPvPHistory(player.getObjectUUID(), Enum.PvpHistoryType.KILLS);
-		player.pvpDeaths = PvpRecord.getCharacterPvPHistory(player.getObjectUUID(), Enum.PvpHistoryType.DEATHS);
+        player.pvpKills = PvpRecord.getCharacterPvPHistory(player.getObjectUUID(), Enum.PvpHistoryType.KILLS);
+        player.pvpDeaths = PvpRecord.getCharacterPvPHistory(player.getObjectUUID(), Enum.PvpHistoryType.DEATHS);
 
-		SendOwnPlayerMsg sopm = new SendOwnPlayerMsg(SessionManager.getSession(origin));
-		dispatch = Dispatch.borrow(player, sopm);
-		DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.PRIMARY);
+        SendOwnPlayerMsg sopm = new SendOwnPlayerMsg(SessionManager.getSession(origin));
+        dispatch = Dispatch.borrow(player, sopm);
+        DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.PRIMARY);
 
-		return true;
-	}
+        return true;
+    }
 
-	}
+}

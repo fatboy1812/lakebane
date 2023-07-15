@@ -21,6 +21,7 @@ import org.pmw.tinylog.Logger;
 
 public class AssetSupportMsg extends ClientNetMsg {
 
+    public static int confirmProtect;
     private int npcType;
     private int npcID;
     private int buildingType;
@@ -35,7 +36,6 @@ public class AssetSupportMsg extends ClientNetMsg {
     private int weeklyTax;
     private byte enforceKOS;
     private Enum.SupportMsgType supportMsgType;
-    public static int confirmProtect;
 
 
     /**
@@ -182,27 +182,27 @@ public class AssetSupportMsg extends ClientNetMsg {
                 writer.putInt(0);
                 break;
             case CONFIRMPROTECT:
-            	  writer.putInt(this.buildingType);
-                  writer.putInt(this.buildingID);
-                  writer.putInt(this.npcType);
-                  writer.putInt(this.npcID);
-                  writer.putInt(0);
-                  writer.putInt(0);
-                  writer.putInt(0);
-                  writer.putInt(0);
-                  writer.putInt(0);
-                  writer.putInt(0);
-                  writer.putInt(0);
-                  writer.putInt(0);
-                  writer.putInt(0);
-                  writer.putInt(0);
-                  writer.putInt(0);
-                  writer.put((byte)0);
-                  writer.put((byte)0);
-                  writer.put((byte)0);
-              
-                  
-                  break;
+                writer.putInt(this.buildingType);
+                writer.putInt(this.buildingID);
+                writer.putInt(this.npcType);
+                writer.putInt(this.npcID);
+                writer.putInt(0);
+                writer.putInt(0);
+                writer.putInt(0);
+                writer.putInt(0);
+                writer.putInt(0);
+                writer.putInt(0);
+                writer.putInt(0);
+                writer.putInt(0);
+                writer.putInt(0);
+                writer.putInt(0);
+                writer.putInt(0);
+                writer.put((byte) 0);
+                writer.put((byte) 0);
+                writer.put((byte) 0);
+
+
+                break;
             case UNPROTECT:
                 writer.putInt(this.buildingType);
                 writer.putInt(this.buildingID);
@@ -238,10 +238,6 @@ public class AssetSupportMsg extends ClientNetMsg {
         this.objectType = value;
     }
 
-    public void setPad(int value) {
-        this.pad = value;
-    }
-
     public int getUUID() {
         return objectUUID;
     }
@@ -250,6 +246,9 @@ public class AssetSupportMsg extends ClientNetMsg {
         return pad;
     }
 
+    public void setPad(int value) {
+        this.pad = value;
+    }
 
     public int getMessageType() {
         return messageType;

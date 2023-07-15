@@ -26,10 +26,10 @@ public class NetMsgStat {
     private final AtomicInteger countOverMax = new AtomicInteger();
 
     public NetMsgStat(Protocol protocolMsg, int startSize) {
-        
+
         if (startSize < 10)
             startSize = 10;
-        
+
         if (startSize > 30)
             startSize = 30;
 
@@ -57,7 +57,7 @@ public class NetMsgStat {
 
         if (this.max.get() < i)
             this.max.set(i);
-        
+
         if (i <= avg)
             this.countUnderAverage.incrementAndGet();
         else if (i < this.max.get())

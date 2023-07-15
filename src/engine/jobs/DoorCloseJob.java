@@ -7,9 +7,6 @@
 //                www.magicbane.com
 
 
-
-
-
 // • ▌ ▄ ·.  ▄▄▄·  ▄▄ • ▪   ▄▄· ▄▄▄▄·  ▄▄▄·  ▐▄▄▄  ▄▄▄ .
 // ·██ ▐███▪▐█ ▀█ ▐█ ▀ ▪██ ▐█ ▌▪▐█ ▀█▪▐█ ▀█ •█▌ ▐█▐▌·
 // ▐█ ▌▐▌▐█·▄█▀▀█ ▄█ ▀█▄▐█·██ ▄▄▐█▀▀█▄▄█▀▀█ ▐█▐ ▐▌▐▀▀▀
@@ -17,7 +14,6 @@
 // ▀▀  █▪▀▀▀ ▀  ▀ ·▀▀▀▀ ▀▀▀·▀▀▀ ·▀▀▀▀  ▀  ▀ ▀▀  █▪ ▀▀▀
 //      Magicbane Emulator Project © 2013 - 2022
 //                www.magicbane.com
-
 
 
 package engine.jobs;
@@ -48,10 +44,10 @@ public class DoorCloseJob extends AbstractScheduleJob {
         if (this.building == null)
             return;
 
-		doorNumber = Blueprint.getDoorNumberbyMesh(this.door);
+        doorNumber = Blueprint.getDoorNumberbyMesh(this.door);
 
-		this.building.setDoorState(doorNumber, DoorState.CLOSED);
-        
+        this.building.setDoorState(doorNumber, DoorState.CLOSED);
+
         DoorTryOpenMsg msg = new DoorTryOpenMsg(door, this.building.getObjectUUID(), 0, (byte) 0);
         DispatchMessage.sendToAllInRange(building, msg);
 

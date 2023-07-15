@@ -42,8 +42,7 @@ public class AcceptInviteToGuildMsg extends ClientNetMsg {
      * past the limit) then this constructor Throws that Exception to the
      * caller.
      */
-    public AcceptInviteToGuildMsg(AbstractConnection origin, ByteBufferReader reader)
-             {
+    public AcceptInviteToGuildMsg(AbstractConnection origin, ByteBufferReader reader) {
         super(Protocol.JOINGUILD, origin, reader);
     }
 
@@ -63,7 +62,7 @@ public class AcceptInviteToGuildMsg extends ClientNetMsg {
      * ByteBufferReader.
      */
     @Override
-    protected void _deserialize(ByteBufferReader reader)  {
+    protected void _deserialize(ByteBufferReader reader) {
         reader.getInt(); // Object Type padding
         this.guildUUID = reader.getInt();
         this.unknown01 = reader.getInt();
@@ -85,8 +84,7 @@ public class AcceptInviteToGuildMsg extends ClientNetMsg {
     }
 
     /**
-     * @param unknown01
-     * the unknown01 to set
+     * @param unknown01 the unknown01 to set
      */
     public void setUnknown01(int unknown01) {
         this.unknown01 = unknown01;
@@ -100,8 +98,7 @@ public class AcceptInviteToGuildMsg extends ClientNetMsg {
     }
 
     /**
-     * @param unknown02
-     * the unknown02 to set
+     * @param unknown02 the unknown02 to set
      */
     public void setUnknown02(int unknown02) {
         this.unknown02 = unknown02;

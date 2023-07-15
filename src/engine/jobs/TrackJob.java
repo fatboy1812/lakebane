@@ -36,33 +36,33 @@ public class TrackJob extends AbstractEffectJob {
 
     @Override
     protected void doJob() {
-        
+
         if (this.tpa == null || this.target == null || this.action == null || this.source == null || this.eb == null || !(this.source instanceof PlayerCharacter))
             return;
 
-         if (this.target.isAlive() == false) {
+        if (this.target.isAlive() == false) {
             sendTrackArrow(Float.intBitsToFloat(0x7E967699));
             PowersManager.finishEffectTime(this.source, this.target, this.action, this.trains);
             return;
         }
-         
-            String stackType = action.getStackType();
 
-            float distanceSquared = this.target.getLoc().distanceSquared2D(this.source.getLoc());
+        String stackType = action.getStackType();
 
-            int speed;
-            
-            if (distanceSquared < sqr(MBServerStatics.TRACK_ARROW_FAST_RANGE))
-                speed = MBServerStatics.TRACK_ARROW_SENSITIVITY_FAST;
-             else 
-                speed = MBServerStatics.TRACK_ARROW_SENSITIVITY;
+        float distanceSquared = this.target.getLoc().distanceSquared2D(this.source.getLoc());
 
-            this.source.addEffect(stackType, speed, this, this.eb, this.trains);
+        int speed;
 
-            Vector3fImmutable dir = this.target.getLoc().subtract2D(this.source.getLoc());
-            dir = dir.normalize();
+        if (distanceSquared < sqr(MBServerStatics.TRACK_ARROW_FAST_RANGE))
+            speed = MBServerStatics.TRACK_ARROW_SENSITIVITY_FAST;
+        else
+            speed = MBServerStatics.TRACK_ARROW_SENSITIVITY;
 
-            sendTrackArrow(dir.getRotation());
+        this.source.addEffect(stackType, speed, this, this.eb, this.trains);
+
+        Vector3fImmutable dir = this.target.getLoc().subtract2D(this.source.getLoc());
+        dir = dir.normalize();
+
+        sendTrackArrow(dir.getRotation());
 
     }
 
@@ -73,7 +73,7 @@ public class TrackJob extends AbstractEffectJob {
     }
 
     private void sendTrackArrow(float rotation) {
-        
+
         if (this.source != null && this.source instanceof PlayerCharacter) {
             PlayerCharacter pc = (PlayerCharacter) this.source;
 
@@ -87,6 +87,6 @@ public class TrackJob extends AbstractEffectJob {
             DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.PRIMARY);
 
         }
-}
+    }
 
 }

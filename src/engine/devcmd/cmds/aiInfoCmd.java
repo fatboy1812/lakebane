@@ -9,25 +9,19 @@
 
 package engine.devcmd.cmds;
 
-import engine.Enum.BuildingGroup;
 import engine.Enum.GameObjectType;
-import engine.Enum.TargetColor;
 import engine.devcmd.AbstractDevCmd;
 import engine.gameManager.BuildingManager;
-import engine.gameManager.SessionManager;
-import engine.math.Vector3fImmutable;
-import engine.objects.*;
-import engine.util.StringUtils;
+import engine.objects.AbstractGameObject;
+import engine.objects.Building;
+import engine.objects.Mob;
+import engine.objects.PlayerCharacter;
 
-import java.text.DecimalFormat;
-import java.util.ArrayList;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 
 /**
  * @author
- *
  */
 public class aiInfoCmd extends AbstractDevCmd {
 
@@ -73,17 +67,17 @@ public class aiInfoCmd extends AbstractDevCmd {
         int objectUUID = target.getObjectUUID();
         String output;
 
-        if(objType != GameObjectType.Mob){
+        if (objType != GameObjectType.Mob) {
             output = "Please Select A Mob For AI Info" + newline;
         } else {
             Mob mob = (Mob) target;
             output = "Mob AI Information:" + newline;
             output += mob.getName() + newline;
-            if(mob.BehaviourType != null) {
+            if (mob.BehaviourType != null) {
                 output += "BehaviourType: " + mob.BehaviourType.toString() + newline;
-                if(mob.BehaviourType.BehaviourHelperType != null) {
+                if (mob.BehaviourType.BehaviourHelperType != null) {
                     output += "Behaviour Helper Type: " + mob.BehaviourType.BehaviourHelperType.toString() + newline;
-                } else{
+                } else {
                     output += "Behaviour Helper Type: NULL" + newline;
                 }
                 output += "Wimpy: " + mob.BehaviourType.isWimpy + newline;
@@ -91,18 +85,18 @@ public class aiInfoCmd extends AbstractDevCmd {
                 output += "Can Roam: " + mob.BehaviourType.canRoam + newline;
                 output += "Calls For Help: " + mob.BehaviourType.callsForHelp + newline;
                 output += "Responds To Call For Help: " + mob.BehaviourType.respondsToCallForHelp + newline;
-            } else{
+            } else {
                 output += "BehaviourType: NULL" + newline;
             }
             output += "Aggro Range: " + mob.getAggroRange() + newline;
             output += "Player Aggro Map Size: " + mob.playerAgroMap.size() + newline;
-            if(mob.playerAgroMap.size() > 0){
+            if (mob.playerAgroMap.size() > 0) {
                 output += "Players Loaded:" + newline;
             }
-            for(Map.Entry<Integer,Boolean> entry : mob.playerAgroMap.entrySet()){
+            for (Map.Entry<Integer, Boolean> entry : mob.playerAgroMap.entrySet()) {
                 output += "Player ID: " + entry.getKey() + " Is Safemode: " + entry.getValue() + newline;
             }
-            if(mob.getCombatTarget() != null)
+            if (mob.getCombatTarget() != null)
                 output += "Current Target: " + mob.getCombatTarget().getName() + newline;
             else
                 output += "Current Target: NULL" + newline;

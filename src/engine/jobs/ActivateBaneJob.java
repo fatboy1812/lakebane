@@ -40,7 +40,7 @@ public class ActivateBaneJob extends AbstractScheduleJob {
 
 
         if (city.getBane() == null) {
-            Logger.info( "No bane found for " + city.getCityName());
+            Logger.info("No bane found for " + city.getCityName());
             return;
         }
 
@@ -65,7 +65,7 @@ public class ActivateBaneJob extends AbstractScheduleJob {
         ChatSystemMsg msg = new ChatSystemMsg(null, "[Bane Channel]  The Banecircle placed by " + city.getBane().getOwner().getGuild().getName() + " is now active! Buildings are now vulnerable to damage!");
         msg.setMessageType(4); // Error message
         msg.setChannel(ChatChannelType.SYSTEM.getChannelID());
-        
+
         DispatchMessage.dispatchMsgToAll(msg);
     }
 

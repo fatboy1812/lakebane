@@ -55,20 +55,20 @@ public class SwearInGuildHandler extends AbstractClientMsgHandler {
         targetGuild = (Guild) DbManager.getObject(GameObjectType.Guild, swearInMsg.getGuildUUID());
 
         if (targetGuild == null) {
-             ErrorPopupMsg.sendErrorMsg(player, "A Serious error has occured. Please post details for to ensure transaction integrity");
+            ErrorPopupMsg.sendErrorMsg(player, "A Serious error has occured. Please post details for to ensure transaction integrity");
             return true;
         }
 
         nation = player.getGuild();
 
         if (nation == null) {
-             ErrorPopupMsg.sendErrorMsg(player, "You do not belong to a guild!");
+            ErrorPopupMsg.sendErrorMsg(player, "You do not belong to a guild!");
             return true;
         }
 
         try {
             if (!nation.isNation()) {
-                 ErrorPopupMsg.sendErrorMsg(player, "Your guild is not a nation!");
+                ErrorPopupMsg.sendErrorMsg(player, "Your guild is not a nation!");
                 return true;
             }
             if (!nation.getSubGuildList().contains(targetGuild)) {
@@ -81,7 +81,7 @@ public class SwearInGuildHandler extends AbstractClientMsgHandler {
                 return true;
             }
 
-            if (GuildStatusController.isGuildLeader(player.getGuildStatus()) == false){
+            if (GuildStatusController.isGuildLeader(player.getGuildStatus()) == false) {
                 ErrorPopupMsg.sendErrorMsg(player, "Your do not have such authority!");
                 return true;
             }
@@ -114,7 +114,7 @@ public class SwearInGuildHandler extends AbstractClientMsgHandler {
             dispatch = Dispatch.borrow(player, msg);
             DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
 
-           City.lastCityUpdate = System.currentTimeMillis();
+            City.lastCityUpdate = System.currentTimeMillis();
 
             ArrayList<PlayerCharacter> guildMembers = SessionManager.getActivePCsInGuildID(nation.getObjectUUID());
 
@@ -128,7 +128,7 @@ public class SwearInGuildHandler extends AbstractClientMsgHandler {
                 ChatManager.chatGuildInfo(member, "Your Guild has sword fealty to " + nation.getName() + '.');
             }
         } catch (Exception e) {
-            Logger.error( e.getMessage());
+            Logger.error(e.getMessage());
             return true;
         }
 

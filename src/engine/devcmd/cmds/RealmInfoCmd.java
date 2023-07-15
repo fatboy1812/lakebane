@@ -7,7 +7,6 @@
 //                www.magicbane.com
 
 
-
 package engine.devcmd.cmds;
 
 
@@ -21,68 +20,68 @@ import engine.objects.Zone;
 
 public class RealmInfoCmd extends AbstractDevCmd {
 
-	public RealmInfoCmd() {
+    public RealmInfoCmd() {
         super("realminfo");
     }
 
-	@Override
-	protected void _doCmd(PlayerCharacter playerCharacter, String[] words,
-			AbstractGameObject target) {
+    @Override
+    protected void _doCmd(PlayerCharacter playerCharacter, String[] words,
+                          AbstractGameObject target) {
 
-		Zone serverZone;
-		Realm serverRealm;
-		int realmID;
-		String outString = "";
+        Zone serverZone;
+        Realm serverRealm;
+        int realmID;
+        String outString = "";
 
-		if (playerCharacter == null)
-			return;
+        if (playerCharacter == null)
+            return;
 
-		serverZone = ZoneManager.findSmallestZone(playerCharacter.getLoc());
+        serverZone = ZoneManager.findSmallestZone(playerCharacter.getLoc());
 
-		if (serverZone == null) {
-			throwbackError(playerCharacter, "Zone not found");
-			return;
-		}
+        if (serverZone == null) {
+            throwbackError(playerCharacter, "Zone not found");
+            return;
+        }
 
-		realmID = RealmMap.getRealmIDAtLocation(playerCharacter.getLoc());
+        realmID = RealmMap.getRealmIDAtLocation(playerCharacter.getLoc());
 
-		String newline = "\r\n ";
+        String newline = "\r\n ";
 
-		outString = newline;
-		outString += "Realm: " + realmID + "(";
+        outString = newline;
+        outString += "Realm: " + realmID + "(";
 
-		serverRealm = Realm.getRealm(realmID);
+        serverRealm = Realm.getRealm(realmID);
 
-		if (serverRealm == null)
-			outString += "SeaFloor";
-		else
-			outString += serverRealm.getRealmName();
+        if (serverRealm == null)
+            outString += "SeaFloor";
+        else
+            outString += serverRealm.getRealmName();
 
-		outString += ")";
-		outString += newline;
+        outString += ")";
+        outString += newline;
 
-		outString += " Zone: " + serverZone.getName();
+        outString += " Zone: " + serverZone.getName();
 
-		outString += newline;
+        outString += newline;
 
-		if (serverZone.getParent() != null)
-			outString += " Parent: " + serverZone.getParent().getName();
-		else
-			outString += "Parent: NONE";
+        if (serverZone.getParent() != null)
+            outString += " Parent: " + serverZone.getParent().getName();
+        else
+            outString += "Parent: NONE";
 
-		outString += newline;
+        outString += newline;
 
-		throwbackInfo(playerCharacter, outString);
-	}
+        throwbackInfo(playerCharacter, outString);
+    }
 
-	@Override
-	protected String _getHelpString() {
+    @Override
+    protected String _getHelpString() {
         return "Returns info on realm.";
-	}
+    }
 
-	@Override
-	protected String _getUsageString() {
+    @Override
+    protected String _getUsageString() {
         return "' /info targetID'";
-	}
+    }
 
 }

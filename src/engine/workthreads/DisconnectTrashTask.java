@@ -25,28 +25,29 @@ public class DisconnectTrashTask extends TimerTask {
     // Pass it a list of characters and it will disconnect them
     // 5 seconds in the future.
 
-    public DisconnectTrashTask(ArrayList<PlayerCharacter> trashList)
-    {
+    public DisconnectTrashTask(ArrayList<PlayerCharacter> trashList) {
         this.trashList = new ArrayList<>(trashList);
     }
 
     public void run() {
 
-       Logger.info("Disconnecting actives from pool of: " + trashList.size());
+        Logger.info("Disconnecting actives from pool of: " + trashList.size());
 
         Session trashSession;
         int accountUID;
 
-                for (PlayerCharacter trashPlayer:trashList) {
-                    trashSession = SessionManager.getSession(trashPlayer);
-                    accountUID = trashPlayer.getAccount().getObjectUUID();
+        for (PlayerCharacter trashPlayer : trashList) {
+            trashSession = SessionManager.getSession(trashPlayer);
+            accountUID = trashPlayer.getAccount().getObjectUUID();
 
-                    if (trashSession != null)
-                        trashSession.getConn().disconnect();
+            if (trashSession != null)
+                trashSession.getConn().disconnect();
 
-                    // Remove account from cache
+            // Remove account from cache
 
-                    DbManager.removeFromCache(Enum.GameObjectType.Account, accountUID);
-                }
-            };
+            DbManager.removeFromCache(Enum.GameObjectType.Account, accountUID);
+        }
+    }
+
+    ;
 }

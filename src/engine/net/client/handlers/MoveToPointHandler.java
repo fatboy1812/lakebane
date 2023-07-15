@@ -24,7 +24,7 @@ public class MoveToPointHandler extends AbstractClientMsgHandler {
 
     @Override
     protected boolean _handleNetMsg(ClientNetMsg baseMsg,
-            ClientConnection origin) throws MsgSendException {
+                                    ClientConnection origin) throws MsgSendException {
         MoveToPointMsg msg = (MoveToPointMsg) baseMsg;
 
         PlayerCharacter pc = (origin != null) ? (origin.getPlayerCharacter()) : null;

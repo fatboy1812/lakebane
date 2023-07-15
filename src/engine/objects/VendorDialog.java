@@ -18,57 +18,57 @@ import java.util.ArrayList;
 
 public class VendorDialog extends AbstractGameObject {
 
-	private final String dialogType;
-	private final String intro;
-	private ArrayList<MenuOption> options = new ArrayList<>();
+    private static VendorDialog vd;
+    private final String dialogType;
+    private final String intro;
+    private ArrayList<MenuOption> options = new ArrayList<>();
 
-	public VendorDialog(String dialogType, String intro, int UUID) {
-		super(UUID);
-		this.dialogType = dialogType;
-		this.intro = intro;
-	}
+    public VendorDialog(String dialogType, String intro, int UUID) {
+        super(UUID);
+        this.dialogType = dialogType;
+        this.intro = intro;
+    }
 
-	/**
-	 * ResultSet Constructor
-	 */
-	public VendorDialog(ResultSet rs) throws SQLException {
-		super(rs);
-		this.dialogType = rs.getString("dialogType");
-		this.intro = rs.getString("intro");
-		this.options = DbManager.MenuQueries.GET_MENU_OPTIONS(this.getObjectUUID());
-	}
+    /**
+     * ResultSet Constructor
+     */
+    public VendorDialog(ResultSet rs) throws SQLException {
+        super(rs);
+        this.dialogType = rs.getString("dialogType");
+        this.intro = rs.getString("intro");
+        this.options = DbManager.MenuQueries.GET_MENU_OPTIONS(this.getObjectUUID());
+    }
 
-	/*
-	 * Getters
-	 */
-	public String getDialogType() {
-		return this.dialogType;
-	}
+    public static VendorDialog getHostileVendorDialog() {
+        if (VendorDialog.vd == null)
+            VendorDialog.vd = new VendorDialog("TrainerDialog", "HostileIntro", 0);
+        return VendorDialog.vd;
+    }
 
-	public String getIntro() {
-		return this.intro;
-	}
+    public static VendorDialog getVendorDialog(int id) {
 
-	public ArrayList<MenuOption> getOptions() {
-		return this.options;
-	}
+        return DbManager.VendorDialogQueries.GET_VENDORDIALOG(id);
+    }
 
-	private static VendorDialog vd;
-	public static VendorDialog getHostileVendorDialog() {
-		if (VendorDialog.vd == null)
-			VendorDialog.vd = new VendorDialog("TrainerDialog", "HostileIntro", 0);
-		return VendorDialog.vd;
-	}
+    /*
+     * Getters
+     */
+    public String getDialogType() {
+        return this.dialogType;
+    }
 
+    public String getIntro() {
+        return this.intro;
+    }
 
-	/*
-	 * Database
-	 */
-	@Override
-	public void updateDatabase() {}
+    public ArrayList<MenuOption> getOptions() {
+        return this.options;
+    }
 
-	public static VendorDialog getVendorDialog(int id) {
-		
-		return DbManager.VendorDialogQueries.GET_VENDORDIALOG(id);
-	}
+    /*
+     * Database
+     */
+    @Override
+    public void updateDatabase() {
+    }
 }

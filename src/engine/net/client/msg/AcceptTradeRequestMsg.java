@@ -29,7 +29,7 @@ public class AcceptTradeRequestMsg extends ClientNetMsg {
     private int playerID;
     private int targetType;
     private int targetID;
-  
+
 
     /**
      * This is the general purpose constructor
@@ -38,9 +38,9 @@ public class AcceptTradeRequestMsg extends ClientNetMsg {
         super(Protocol.REQUESTTRADEOK);
         this.unknown01 = unknown01;
         this.playerType = player.getObjectType().ordinal();
-        this.playerID =player.getObjectUUID();
+        this.playerID = player.getObjectUUID();
         this.targetType = target.getObjectType().ordinal();
-        this.targetID =target.getObjectUUID();
+        this.targetID = target.getObjectUUID();
     }
 
     /**
@@ -49,8 +49,7 @@ public class AcceptTradeRequestMsg extends ClientNetMsg {
      * past the limit) then this constructor Throws that Exception to the
      * caller.
      */
-    public AcceptTradeRequestMsg(AbstractConnection origin, ByteBufferReader reader)
-             {
+    public AcceptTradeRequestMsg(AbstractConnection origin, ByteBufferReader reader) {
         super(Protocol.REQUESTTRADEOK, origin, reader);
     }
 
@@ -58,14 +57,13 @@ public class AcceptTradeRequestMsg extends ClientNetMsg {
      * Deserializes the subclass specific items to the supplied NetMsgWriter.
      */
     @Override
-    protected void _deserialize(ByteBufferReader reader)
-             {
+    protected void _deserialize(ByteBufferReader reader) {
         unknown01 = reader.getInt();
         playerType = reader.getInt();
         playerID = reader.getInt();
         targetType = reader.getInt();
         targetID = reader.getInt();
-      
+
     }
 
     /**
@@ -95,39 +93,37 @@ public class AcceptTradeRequestMsg extends ClientNetMsg {
         this.unknown01 = unknown01;
     }
 
-  
-	
 
-	public int getPlayerType() {
-		return playerType;
-	}
+    public int getPlayerType() {
+        return playerType;
+    }
 
-	public void setPlayerType(int playerType) {
-		this.playerType = playerType;
-	}
+    public void setPlayerType(int playerType) {
+        this.playerType = playerType;
+    }
 
-	public int getPlayerID() {
-		return playerID;
-	}
+    public int getPlayerID() {
+        return playerID;
+    }
 
-	public void setPlayerID(int playerID) {
-		this.playerID = playerID;
-	}
+    public void setPlayerID(int playerID) {
+        this.playerID = playerID;
+    }
 
-	public int getTargetType() {
-		return targetType;
-	}
+    public int getTargetType() {
+        return targetType;
+    }
 
-	public void setTargetType(int targetType) {
-		this.targetType = targetType;
-	}
+    public void setTargetType(int targetType) {
+        this.targetType = targetType;
+    }
 
-	public int getTargetID() {
-		return targetID;
-	}
+    public int getTargetID() {
+        return targetID;
+    }
 
-	public void setTargetID(int targetID) {
-		this.targetID = targetID;
-	}
+    public void setTargetID(int targetID) {
+        this.targetID = targetID;
+    }
 
 }

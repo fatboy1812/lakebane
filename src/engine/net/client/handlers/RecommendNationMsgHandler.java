@@ -19,72 +19,69 @@ import engine.objects.PlayerCharacter;
  */
 public class RecommendNationMsgHandler extends AbstractClientMsgHandler {
 
-	public RecommendNationMsgHandler() {
-		super(RecommendNationMsg.class);
-	}
+    public RecommendNationMsgHandler() {
+        super(RecommendNationMsg.class);
+    }
 
-	@Override
-	protected boolean _handleNetMsg(ClientNetMsg baseMsg, ClientConnection origin) throws MsgSendException {
+    private static void RecommendNation(Guild fromGuild, Guild toGuild, RecommendNationMsg msg, ClientConnection origin) {
 
-		// Member variable declaration
+        // Member variable declaration
+        Dispatch dispatch;
 
-		PlayerCharacter player;
-		RecommendNationMsg msg;
+        // Member variable assignment
 
+        if (fromGuild == null)
+            return;
 
-		// Member variable assignment
+        if (toGuild == null)
+            return;
 
-		msg = (RecommendNationMsg) baseMsg;
+        AllianceType allianceType;
+        if (msg.getAlly() == 1)
+            allianceType = AllianceType.RecommendedAlly;
+        else
+            allianceType = AllianceType.RecommendedEnemy;
 
-		player = SessionManager.getPlayerCharacter(origin);
+        if (!fromGuild.addGuildToAlliance(new AllianceChangeMsg(origin.getPlayerCharacter(), fromGuild.getObjectUUID(), toGuild.getObjectUUID(), (byte) 0, 0), allianceType, toGuild, origin.getPlayerCharacter()))
+            return;
+        String alliance = msg.getAlly() == 1 ? "ally" : "enemy";
 
-		if (player == null)
-			return true;
+        ChatManager.chatGuildInfo(fromGuild, origin.getPlayerCharacter().getFirstName() + " has recommended " + toGuild.getName() + " as an " + alliance);
 
-
-		RecommendNationMsgHandler.RecommendNation(player.getGuild(), Guild.getGuild(msg.getGuildID()), msg, origin);
-
-
-
-
-		//		dispatch = Dispatch.borrow(player, baseMsg);
-		//		DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
-
-		return true;
-
-	}
-
-	private static void RecommendNation(Guild fromGuild, Guild toGuild, RecommendNationMsg msg, ClientConnection origin) {
-
-		// Member variable declaration
-		Dispatch dispatch;
-
-		// Member variable assignment
-
-		if (fromGuild == null)
-			return;
-
-		if (toGuild == null)
-			return;
-
-		AllianceType allianceType;
-		if (msg.getAlly() == 1)
-			allianceType = AllianceType.RecommendedAlly;
-		else
-			allianceType = AllianceType.RecommendedEnemy;
-
-		if (!fromGuild.addGuildToAlliance(new AllianceChangeMsg(origin.getPlayerCharacter(),fromGuild.getObjectUUID(), toGuild.getObjectUUID(), (byte)0, 0), allianceType, toGuild, origin.getPlayerCharacter()))
-			return;
-		String alliance = msg.getAlly() == 1? "ally" : "enemy";
-
-		ChatManager.chatGuildInfo(fromGuild, origin.getPlayerCharacter().getFirstName() + " has recommended " + toGuild.getName() + " as an " + alliance );
-
-		//		dispatch = Dispatch.borrow(origin.getPlayerCharacter(), msg);
-		//		DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
+        //		dispatch = Dispatch.borrow(origin.getPlayerCharacter(), msg);
+        //		DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
 
 
-	}
+    }
 
+    @Override
+    protected boolean _handleNetMsg(ClientNetMsg baseMsg, ClientConnection origin) throws MsgSendException {
+
+        // Member variable declaration
+
+        PlayerCharacter player;
+        RecommendNationMsg msg;
+
+
+        // Member variable assignment
+
+        msg = (RecommendNationMsg) baseMsg;
+
+        player = SessionManager.getPlayerCharacter(origin);
+
+        if (player == null)
+            return true;
+
+
+        RecommendNationMsgHandler.RecommendNation(player.getGuild(), Guild.getGuild(msg.getGuildID()), msg, origin);
+
+
+        //		dispatch = Dispatch.borrow(player, baseMsg);
+        //		DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
+
+        return true;
+
+    }
 
 
 }

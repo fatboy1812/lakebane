@@ -23,7 +23,7 @@ public class LeaveGroupHandler extends AbstractClientMsgHandler {
 
     @Override
     protected boolean _handleNetMsg(ClientNetMsg baseMsg,
-            ClientConnection origin) throws MsgSendException {
+                                    ClientConnection origin) throws MsgSendException {
         GroupManager.LeaveGroup(origin);
         return true;
     }

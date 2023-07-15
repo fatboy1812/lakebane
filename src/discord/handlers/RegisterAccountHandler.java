@@ -56,18 +56,18 @@ public class RegisterAccountHandler {
             return;
         }
 
-            // Validate account name with regex
+        // Validate account name with regex
 
-            accountName = args[0].replaceAll("\\s+", "");
+        accountName = args[0].replaceAll("\\s+", "");
 
-            if (MagicBot.accountNameRegex.matcher(accountName).matches() == false) {
+        if (MagicBot.accountNameRegex.matcher(accountName).matches() == false) {
 
-                MagicBot.sendResponse(event,
-                        "Your supplied account name does not compute.\n" +
-                                "Account names must satisfy following regex:\n" +
-                                "^[\\p{Alnum}]{6,20}$");
-                return;
-            }
+            MagicBot.sendResponse(event,
+                    "Your supplied account name does not compute.\n" +
+                            "Account names must satisfy following regex:\n" +
+                            "^[\\p{Alnum}]{6,20}$");
+            return;
+        }
 
         if (accountName.equalsIgnoreCase("accountname")) {
             MagicBot.sendResponse(event,

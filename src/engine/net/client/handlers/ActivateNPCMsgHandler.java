@@ -22,115 +22,115 @@ import java.util.ArrayList;
  */
 public class ActivateNPCMsgHandler extends AbstractClientMsgHandler {
 
-	public ActivateNPCMsgHandler() {
-		super(ActivateNPCMessage.class);
-	}
+    public ActivateNPCMsgHandler() {
+        super(ActivateNPCMessage.class);
+    }
 
-	@Override
-	protected boolean _handleNetMsg(ClientNetMsg baseMsg, ClientConnection origin) throws MsgSendException {
+    @Override
+    protected boolean _handleNetMsg(ClientNetMsg baseMsg, ClientConnection origin) throws MsgSendException {
 
-		ActivateNPCMessage msg;
-		PlayerCharacter player;
-		Building building;
-		Contract contract;
-		CharacterItemManager itemMan;
-		Zone zone;
+        ActivateNPCMessage msg;
+        PlayerCharacter player;
+        Building building;
+        Contract contract;
+        CharacterItemManager itemMan;
+        Zone zone;
 
-		msg = (ActivateNPCMessage) baseMsg;
-		player = SessionManager.getPlayerCharacter(origin);
-		building =  BuildingManager.getBuildingFromCache(msg.buildingUUID());
+        msg = (ActivateNPCMessage) baseMsg;
+        player = SessionManager.getPlayerCharacter(origin);
+        building = BuildingManager.getBuildingFromCache(msg.buildingUUID());
 
-		if (player == null || building == null)
-			return false;
+        if (player == null || building == null)
+            return false;
 
-		ArrayList<Item> ItemLists = new ArrayList<>();
+        ArrayList<Item> ItemLists = new ArrayList<>();
 
-		// Filter hirelings by slot type
+        // Filter hirelings by slot type
 
-		for (Item hirelings : player.getInventory()) {
-			if (hirelings.getItemBase().getType().equals(ItemType.CONTRACT)) {
+        for (Item hirelings : player.getInventory()) {
+            if (hirelings.getItemBase().getType().equals(ItemType.CONTRACT)) {
 
-				contract = DbManager.ContractQueries.GET_CONTRACT(hirelings.getItemBase().getUUID());
+                contract = DbManager.ContractQueries.GET_CONTRACT(hirelings.getItemBase().getUUID());
 
-				if (contract == null)
-					continue;
+                if (contract == null)
+                    continue;
 
-				if (contract.canSlotinBuilding(building))
-					ItemLists.add(hirelings);
-			}
-		}
+                if (contract.canSlotinBuilding(building))
+                    ItemLists.add(hirelings);
+            }
+        }
 
-		if (msg.getUnknown01() == 1) {
-			//Request npc list to slot
-			ActivateNPCMessage anm = new ActivateNPCMessage();
-			anm.setSize(ItemLists.size());
-			anm.setItemList(ItemLists);
-			Dispatch dispatch = Dispatch.borrow(player, anm);
-			DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
-		}
+        if (msg.getUnknown01() == 1) {
+            //Request npc list to slot
+            ActivateNPCMessage anm = new ActivateNPCMessage();
+            anm.setSize(ItemLists.size());
+            anm.setItemList(ItemLists);
+            Dispatch dispatch = Dispatch.borrow(player, anm);
+            DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
+        }
 
-		if (msg.getUnknown01() == 0) {
+        if (msg.getUnknown01() == 0) {
 
-			//Slot npc
+            //Slot npc
 
-			if (building.getBlueprintUUID() == 0) {
-				ChatManager.chatSystemError(player, "Unable to load Blueprint for Building Mesh " + building.getMeshUUID());
-				return false;
-			}
+            if (building.getBlueprintUUID() == 0) {
+                ChatManager.chatSystemError(player, "Unable to load Blueprint for Building Mesh " + building.getMeshUUID());
+                return false;
+            }
 
-			if (building.getBlueprint().getMaxSlots() == building.getHirelings().size())
-				return false;
+            if (building.getBlueprint().getMaxSlots() == building.getHirelings().size())
+                return false;
 
-			Item contractItem = Item.getFromCache(msg.getContractItem());
+            Item contractItem = Item.getFromCache(msg.getContractItem());
 
-			if (contractItem == null)
-				return false;
+            if (contractItem == null)
+                return false;
 
-			if (!player.getCharItemManager().doesCharOwnThisItem(contractItem.getObjectUUID())) {
-				Logger.error(player.getName() + "has attempted to place Hireling : " + contractItem.getName() + "without a valid contract!");
-				return false;
-			}
+            if (!player.getCharItemManager().doesCharOwnThisItem(contractItem.getObjectUUID())) {
+                Logger.error(player.getName() + "has attempted to place Hireling : " + contractItem.getName() + "without a valid contract!");
+                return false;
+            }
 
-			itemMan = player.getCharItemManager();
+            itemMan = player.getCharItemManager();
 
-			zone = ZoneManager.findSmallestZone(building.getLoc());
+            zone = ZoneManager.findSmallestZone(building.getLoc());
 
-			if (zone == null)
-				return false;
+            if (zone == null)
+                return false;
 
-			contract = DbManager.ContractQueries.GET_CONTRACT(contractItem.getItemBase().getUUID());
+            contract = DbManager.ContractQueries.GET_CONTRACT(contractItem.getItemBase().getUUID());
 
-			if (contract == null)
-				return false;
+            if (contract == null)
+                return false;
 
-			// Check if contract can be slotted in this building
+            // Check if contract can be slotted in this building
 
-			if (contract.canSlotinBuilding(building) == false)
-				return false;
+            if (contract.canSlotinBuilding(building) == false)
+                return false;
 
-			if (!BuildingManager.addHireling(building, player, zone, contract, contractItem))
-				return false;
+            if (!BuildingManager.addHireling(building, player, zone, contract, contractItem))
+                return false;
 
-			itemMan.delete(contractItem);
-			itemMan.updateInventory();
+            itemMan.delete(contractItem);
+            itemMan.updateInventory();
 
-			ManageCityAssetsMsg mca1 = new ManageCityAssetsMsg(player, building);
+            ManageCityAssetsMsg mca1 = new ManageCityAssetsMsg(player, building);
 
-			mca1.actionType = 3;
+            mca1.actionType = 3;
 
-			mca1.setTargetType(building.getObjectType().ordinal());
-			mca1.setTargetID(building.getObjectUUID());
-			mca1.setTargetType3(building.getObjectType().ordinal());
-			mca1.setTargetID3(building.getObjectUUID());
-			mca1.setAssetName1(building.getName());
-			mca1.setUnknown54(1);
-			Dispatch dispatch = Dispatch.borrow(player, mca1);
-			DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
+            mca1.setTargetType(building.getObjectType().ordinal());
+            mca1.setTargetID(building.getObjectUUID());
+            mca1.setTargetType3(building.getObjectType().ordinal());
+            mca1.setTargetID3(building.getObjectUUID());
+            mca1.setAssetName1(building.getName());
+            mca1.setUnknown54(1);
+            Dispatch dispatch = Dispatch.borrow(player, mca1);
+            DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
 
 
-		}
+        }
 
-		return true;
-	}
+        return true;
+    }
 
 }

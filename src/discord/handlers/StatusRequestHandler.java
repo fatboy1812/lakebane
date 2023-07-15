@@ -24,7 +24,7 @@ public class StatusRequestHandler {
         outString = "Server Status: ";
 
         if (LoginServer.isPortInUse(Integer.parseInt(ConfigManager.MB_WORLD_PORT.getValue())))
-        outString += "ONLINE\n";
+            outString += "ONLINE\n";
         else
             outString += "OFFLINE\n";
 

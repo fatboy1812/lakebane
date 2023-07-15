@@ -22,202 +22,203 @@ import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
 
 public enum DevCmdManager {
-		DEV_CMD_MANAGER;
+    DEV_CMD_MANAGER;
 
-	public static ConcurrentHashMap<String, AbstractDevCmd> devCmds;
+    public static ConcurrentHashMap<String, AbstractDevCmd> devCmds;
 
-	DevCmdManager() {
-		init();
-	}
-	
-	public static void init() {
-		DevCmdManager.devCmds = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_LOW);
-		DevCmdManager.registerCommands();
-	}
+    DevCmdManager() {
+        init();
+    }
 
-	/**
-	 *
-	 */
-	private static void registerCommands() {
-	
-		// Player
-		DevCmdManager.registerDevCmd(new DistanceCmd());;
-		DevCmdManager.registerDevCmd(new HelpCmd());
-		DevCmdManager.registerDevCmd(new GetZoneCmd());
-		DevCmdManager.registerDevCmd(new GetZoneMobsCmd());
-		DevCmdManager.registerDevCmd(new PrintBankCmd());
-		DevCmdManager.registerDevCmd(new PrintEquipCmd());
-		DevCmdManager.registerDevCmd(new PrintInventoryCmd());
-		DevCmdManager.registerDevCmd(new PrintVaultCmd());
-		DevCmdManager.registerDevCmd(new PrintStatsCmd());
-		DevCmdManager.registerDevCmd(new PrintSkillsCmd());
-		DevCmdManager.registerDevCmd(new PrintPowersCmd());
-		DevCmdManager.registerDevCmd(new PrintBonusesCmd());
-		DevCmdManager.registerDevCmd(new PrintResistsCmd());
-		DevCmdManager.registerDevCmd(new PrintLocationCmd());
-		DevCmdManager.registerDevCmd(new InfoCmd());
-		DevCmdManager.registerDevCmd(new aiInfoCmd());
-		DevCmdManager.registerDevCmd(new simulateBootyCmd());
-		DevCmdManager.registerDevCmd(new GetHeightCmd());
+    public static void init() {
+        DevCmdManager.devCmds = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_LOW);
+        DevCmdManager.registerCommands();
+    }
 
-		// Tester
-		DevCmdManager.registerDevCmd(new JumpCmd());
-		DevCmdManager.registerDevCmd(new GotoCmd());
-		DevCmdManager.registerDevCmd(new SummonCmd());
-		DevCmdManager.registerDevCmd(new SetHealthCmd());
-		DevCmdManager.registerDevCmd(new SetManaCmd());
-		DevCmdManager.registerDevCmd(new SetStaminaCmd());
-		DevCmdManager.registerDevCmd(new FindBuildingsCmd());
-		DevCmdManager.registerDevCmd(new TeleportModeCmd());
-		DevCmdManager.registerDevCmd(new SetLevelCmd());
-		DevCmdManager.registerDevCmd(new SetBaseClassCmd());
-		DevCmdManager.registerDevCmd(new SetPromotionClassCmd());
-		DevCmdManager.registerDevCmd(new EffectCmd());
-		DevCmdManager.registerDevCmd(new SetRuneCmd());
-		DevCmdManager.registerDevCmd(new GetOffsetCmd());
-		DevCmdManager.registerDevCmd(new DebugCmd());
-		DevCmdManager.registerDevCmd(new AddGoldCmd());
-		DevCmdManager.registerDevCmd(new ZoneInfoCmd());
-		DevCmdManager.registerDevCmd(new DebugMeleeSyncCmd());
-		DevCmdManager.registerDevCmd(new HotzoneCmd());
-		DevCmdManager.registerDevCmd(new MineActiveCmd());
-		// Dev
-		DevCmdManager.registerDevCmd(new ApplyStatModCmd());
-		DevCmdManager.registerDevCmd(new AddBuildingCmd());
-		DevCmdManager.registerDevCmd(new AddNPCCmd());
-		DevCmdManager.registerDevCmd(new AddMobCmd());
-		DevCmdManager.registerDevCmd(new RemoveObjectCmd());
-		DevCmdManager.registerDevCmd(new RotateCmd());
-		DevCmdManager.registerDevCmd(new FlashMsgCmd());
-		DevCmdManager.registerDevCmd(new SysMsgCmd());
-		DevCmdManager.registerDevCmd(new GetBankCmd());
-		DevCmdManager.registerDevCmd(new GetVaultCmd());
-		DevCmdManager.registerDevCmd(new CombatMessageCmd());
-		DevCmdManager.registerDevCmd(new RenameCmd());
-		DevCmdManager.registerDevCmd(new CreateItemCmd());
-		DevCmdManager.registerDevCmd(new GetMemoryCmd());
-		DevCmdManager.registerDevCmd(new SetRankCmd());
-		DevCmdManager.registerDevCmd(new MakeBaneCmd());
-		DevCmdManager.registerDevCmd(new RemoveBaneCmd());
-		DevCmdManager.registerDevCmd(new SetBaneActiveCmd());
-		DevCmdManager.registerDevCmd(new SetAdminRuneCmd());
-		DevCmdManager.registerDevCmd(new SetInvulCmd());
-		DevCmdManager.registerDevCmd(new MakeItemCmd());
-		DevCmdManager.registerDevCmd(new EnchantCmd());
-		DevCmdManager.registerDevCmd(new SetSubRaceCmd());
-		// Admin
-		DevCmdManager.registerDevCmd(new GetCacheCountCmd());
-		DevCmdManager.registerDevCmd(new GetRuneDropRateCmd());
-		DevCmdManager.registerDevCmd(new DecachePlayerCmd());
-		DevCmdManager.registerDevCmd(new AuditMobsCmd());
-		DevCmdManager.registerDevCmd(new ChangeNameCmd());
-		DevCmdManager.registerDevCmd(new SetGuildCmd());
-		DevCmdManager.registerDevCmd(new SetOwnerCmd());
-		DevCmdManager.registerDevCmd(new NetDebugCmd());
-		DevCmdManager.registerDevCmd(new SqlDebugCmd());
-		DevCmdManager.registerDevCmd(new PullCmd());
-		DevCmdManager.registerDevCmd(new PurgeObjectsCmd());
-		DevCmdManager.registerDevCmd(new SplatMobCmd());
-		DevCmdManager.registerDevCmd(new SlotNpcCmd());
-		DevCmdManager.registerDevCmd(new SetAICmd());
-		DevCmdManager.registerDevCmd(new GateInfoCmd());
-		DevCmdManager.registerDevCmd(new ShowOffsetCmd());
-		DevCmdManager.registerDevCmd(new RealmInfoCmd());
-		DevCmdManager.registerDevCmd(new RebootCmd());
-		DevCmdManager.registerDevCmd(new SetMineTypeCmd());
-		DevCmdManager.registerDevCmd(new SetMineExpansion());
-		DevCmdManager.registerDevCmd(new SetForceRenameCityCmd());
-		DevCmdManager.registerDevCmd(new GotoObj());
-		DevCmdManager.registerDevCmd(new convertLoc());
-		DevCmdManager.registerDevCmd(new GetMobBaseLoot());
-		DevCmdManager.registerDevCmd(new MBDropCmd());
-		DevCmdManager.registerDevCmd(new AuditHeightMapCmd());
-		DevCmdManager.registerDevCmd(new UnloadFurnitureCmd());
-		DevCmdManager.registerDevCmd(new SetNpcEquipSetCmd());
-		DevCmdManager.registerDevCmd(new SetBuildingAltitudeCmd());
-		DevCmdManager.registerDevCmd(new ResetLevelCmd());
-		DevCmdManager.registerDevCmd(new HeartbeatCmd());
-		DevCmdManager.registerDevCmd(new SetNpcNameCmd());
-		DevCmdManager.registerDevCmd(new SetNpcMobbaseCmd());
-		DevCmdManager.registerDevCmd(new DespawnCmd());
-		DevCmdManager.registerDevCmd(new BoundsCmd());
-		DevCmdManager.registerDevCmd(new GotoBoundsCmd());
-		DevCmdManager.registerDevCmd(new RegionCmd());
-		DevCmdManager.registerDevCmd(new SetMaintCmd());
-		DevCmdManager.registerDevCmd(new ApplyBonusCmd());
-		DevCmdManager.registerDevCmd(new AuditFailedItemsCmd());
-		DevCmdManager.registerDevCmd(new SlotTestCmd());
+    /**
+     *
+     */
+    private static void registerCommands() {
 
-	}
+        // Player
+        DevCmdManager.registerDevCmd(new DistanceCmd());
+        ;
+        DevCmdManager.registerDevCmd(new HelpCmd());
+        DevCmdManager.registerDevCmd(new GetZoneCmd());
+        DevCmdManager.registerDevCmd(new GetZoneMobsCmd());
+        DevCmdManager.registerDevCmd(new PrintBankCmd());
+        DevCmdManager.registerDevCmd(new PrintEquipCmd());
+        DevCmdManager.registerDevCmd(new PrintInventoryCmd());
+        DevCmdManager.registerDevCmd(new PrintVaultCmd());
+        DevCmdManager.registerDevCmd(new PrintStatsCmd());
+        DevCmdManager.registerDevCmd(new PrintSkillsCmd());
+        DevCmdManager.registerDevCmd(new PrintPowersCmd());
+        DevCmdManager.registerDevCmd(new PrintBonusesCmd());
+        DevCmdManager.registerDevCmd(new PrintResistsCmd());
+        DevCmdManager.registerDevCmd(new PrintLocationCmd());
+        DevCmdManager.registerDevCmd(new InfoCmd());
+        DevCmdManager.registerDevCmd(new aiInfoCmd());
+        DevCmdManager.registerDevCmd(new simulateBootyCmd());
+        DevCmdManager.registerDevCmd(new GetHeightCmd());
 
-	private static void registerDevCmd(AbstractDevCmd cmd) {
-		ArrayList<String> cmdStrings = cmd.getCmdStrings();
-		for (String cmdString : cmdStrings) {
-			DevCmdManager.devCmds.put(cmdString, cmd);
-		}
-	}
+        // Tester
+        DevCmdManager.registerDevCmd(new JumpCmd());
+        DevCmdManager.registerDevCmd(new GotoCmd());
+        DevCmdManager.registerDevCmd(new SummonCmd());
+        DevCmdManager.registerDevCmd(new SetHealthCmd());
+        DevCmdManager.registerDevCmd(new SetManaCmd());
+        DevCmdManager.registerDevCmd(new SetStaminaCmd());
+        DevCmdManager.registerDevCmd(new FindBuildingsCmd());
+        DevCmdManager.registerDevCmd(new TeleportModeCmd());
+        DevCmdManager.registerDevCmd(new SetLevelCmd());
+        DevCmdManager.registerDevCmd(new SetBaseClassCmd());
+        DevCmdManager.registerDevCmd(new SetPromotionClassCmd());
+        DevCmdManager.registerDevCmd(new EffectCmd());
+        DevCmdManager.registerDevCmd(new SetRuneCmd());
+        DevCmdManager.registerDevCmd(new GetOffsetCmd());
+        DevCmdManager.registerDevCmd(new DebugCmd());
+        DevCmdManager.registerDevCmd(new AddGoldCmd());
+        DevCmdManager.registerDevCmd(new ZoneInfoCmd());
+        DevCmdManager.registerDevCmd(new DebugMeleeSyncCmd());
+        DevCmdManager.registerDevCmd(new HotzoneCmd());
+        DevCmdManager.registerDevCmd(new MineActiveCmd());
+        // Dev
+        DevCmdManager.registerDevCmd(new ApplyStatModCmd());
+        DevCmdManager.registerDevCmd(new AddBuildingCmd());
+        DevCmdManager.registerDevCmd(new AddNPCCmd());
+        DevCmdManager.registerDevCmd(new AddMobCmd());
+        DevCmdManager.registerDevCmd(new RemoveObjectCmd());
+        DevCmdManager.registerDevCmd(new RotateCmd());
+        DevCmdManager.registerDevCmd(new FlashMsgCmd());
+        DevCmdManager.registerDevCmd(new SysMsgCmd());
+        DevCmdManager.registerDevCmd(new GetBankCmd());
+        DevCmdManager.registerDevCmd(new GetVaultCmd());
+        DevCmdManager.registerDevCmd(new CombatMessageCmd());
+        DevCmdManager.registerDevCmd(new RenameCmd());
+        DevCmdManager.registerDevCmd(new CreateItemCmd());
+        DevCmdManager.registerDevCmd(new GetMemoryCmd());
+        DevCmdManager.registerDevCmd(new SetRankCmd());
+        DevCmdManager.registerDevCmd(new MakeBaneCmd());
+        DevCmdManager.registerDevCmd(new RemoveBaneCmd());
+        DevCmdManager.registerDevCmd(new SetBaneActiveCmd());
+        DevCmdManager.registerDevCmd(new SetAdminRuneCmd());
+        DevCmdManager.registerDevCmd(new SetInvulCmd());
+        DevCmdManager.registerDevCmd(new MakeItemCmd());
+        DevCmdManager.registerDevCmd(new EnchantCmd());
+        DevCmdManager.registerDevCmd(new SetSubRaceCmd());
+        // Admin
+        DevCmdManager.registerDevCmd(new GetCacheCountCmd());
+        DevCmdManager.registerDevCmd(new GetRuneDropRateCmd());
+        DevCmdManager.registerDevCmd(new DecachePlayerCmd());
+        DevCmdManager.registerDevCmd(new AuditMobsCmd());
+        DevCmdManager.registerDevCmd(new ChangeNameCmd());
+        DevCmdManager.registerDevCmd(new SetGuildCmd());
+        DevCmdManager.registerDevCmd(new SetOwnerCmd());
+        DevCmdManager.registerDevCmd(new NetDebugCmd());
+        DevCmdManager.registerDevCmd(new SqlDebugCmd());
+        DevCmdManager.registerDevCmd(new PullCmd());
+        DevCmdManager.registerDevCmd(new PurgeObjectsCmd());
+        DevCmdManager.registerDevCmd(new SplatMobCmd());
+        DevCmdManager.registerDevCmd(new SlotNpcCmd());
+        DevCmdManager.registerDevCmd(new SetAICmd());
+        DevCmdManager.registerDevCmd(new GateInfoCmd());
+        DevCmdManager.registerDevCmd(new ShowOffsetCmd());
+        DevCmdManager.registerDevCmd(new RealmInfoCmd());
+        DevCmdManager.registerDevCmd(new RebootCmd());
+        DevCmdManager.registerDevCmd(new SetMineTypeCmd());
+        DevCmdManager.registerDevCmd(new SetMineExpansion());
+        DevCmdManager.registerDevCmd(new SetForceRenameCityCmd());
+        DevCmdManager.registerDevCmd(new GotoObj());
+        DevCmdManager.registerDevCmd(new convertLoc());
+        DevCmdManager.registerDevCmd(new GetMobBaseLoot());
+        DevCmdManager.registerDevCmd(new MBDropCmd());
+        DevCmdManager.registerDevCmd(new AuditHeightMapCmd());
+        DevCmdManager.registerDevCmd(new UnloadFurnitureCmd());
+        DevCmdManager.registerDevCmd(new SetNpcEquipSetCmd());
+        DevCmdManager.registerDevCmd(new SetBuildingAltitudeCmd());
+        DevCmdManager.registerDevCmd(new ResetLevelCmd());
+        DevCmdManager.registerDevCmd(new HeartbeatCmd());
+        DevCmdManager.registerDevCmd(new SetNpcNameCmd());
+        DevCmdManager.registerDevCmd(new SetNpcMobbaseCmd());
+        DevCmdManager.registerDevCmd(new DespawnCmd());
+        DevCmdManager.registerDevCmd(new BoundsCmd());
+        DevCmdManager.registerDevCmd(new GotoBoundsCmd());
+        DevCmdManager.registerDevCmd(new RegionCmd());
+        DevCmdManager.registerDevCmd(new SetMaintCmd());
+        DevCmdManager.registerDevCmd(new ApplyBonusCmd());
+        DevCmdManager.registerDevCmd(new AuditFailedItemsCmd());
+        DevCmdManager.registerDevCmd(new SlotTestCmd());
 
-	public static AbstractDevCmd getDevCmd(String cmd) {
-			String lowercase = cmd.toLowerCase();
-			return DevCmdManager.devCmds.get(lowercase);
-	}
+    }
 
-	public static boolean handleDevCmd(PlayerCharacter pcSender, String cmd,
-			String argString, AbstractGameObject target) {
+    private static void registerDevCmd(AbstractDevCmd cmd) {
+        ArrayList<String> cmdStrings = cmd.getCmdStrings();
+        for (String cmdString : cmdStrings) {
+            DevCmdManager.devCmds.put(cmdString, cmd);
+        }
+    }
 
-		if (pcSender == null) {
-			return false;
-		}
+    public static AbstractDevCmd getDevCmd(String cmd) {
+        String lowercase = cmd.toLowerCase();
+        return DevCmdManager.devCmds.get(lowercase);
+    }
 
-		Account a = SessionManager.getAccount(pcSender);
+    public static boolean handleDevCmd(PlayerCharacter pcSender, String cmd,
+                                       String argString, AbstractGameObject target) {
 
-		if (a == null) {
-			return false;
-		}
+        if (pcSender == null) {
+            return false;
+        }
 
-		AbstractDevCmd adc = DevCmdManager.getDevCmd(cmd);
+        Account a = SessionManager.getAccount(pcSender);
 
-		if (adc == null) {
-			return false;
-		}
+        if (a == null) {
+            return false;
+        }
 
-		//kill any commands not available to everyone on production server
-		//only admin level can run dev commands on production
+        AbstractDevCmd adc = DevCmdManager.getDevCmd(cmd);
 
-		if (a.status.equals(Enum.AccountStatus.ADMIN) == false) {
-			Logger.info("Account " + a.getUname() + "attempted to use dev command " + cmd);
-			return false;
-		}
+        if (adc == null) {
+            return false;
+        }
 
-		// TODO add a job here to separate calling thread form executing thread?
-		// Log
+        //kill any commands not available to everyone on production server
+        //only admin level can run dev commands on production
 
-		String accName = a.getUname();
-		String pcName = pcSender.getCombinedName();
-		String logString = pcName + '(' + accName
-				+ ") '";
-		logString += cmd + ' ' + argString + '\'';
-		Logger.info( logString);
-		DbManager.AccountQueries.WRITE_ADMIN_LOG(pcName, "COMMAND: " + cmd + " " + argString);
+        if (a.status.equals(Enum.AccountStatus.ADMIN) == false) {
+            Logger.info("Account " + a.getUname() + "attempted to use dev command " + cmd);
+            return false;
+        }
 
-		// execute command;
-		try {
-			adc.doCmd(pcSender, argString, target);
-		} catch (Exception e) {
-			Logger.error(e.toString());
-			e.printStackTrace();
-		}
+        // TODO add a job here to separate calling thread form executing thread?
+        // Log
 
-		return true;
-	}
+        String accName = a.getUname();
+        String pcName = pcSender.getCombinedName();
+        String logString = pcName + '(' + accName
+                + ") '";
+        logString += cmd + ' ' + argString + '\'';
+        Logger.info(logString);
+        DbManager.AccountQueries.WRITE_ADMIN_LOG(pcName, "COMMAND: " + cmd + " " + argString);
 
-	public static String getCmdsForAccessLevel() {
-		String out = "";
+        // execute command;
+        try {
+            adc.doCmd(pcSender, argString, target);
+        } catch (Exception e) {
+            Logger.error(e.toString());
+            e.printStackTrace();
+        }
 
-		for (Entry<String, AbstractDevCmd> e : DevCmdManager.devCmds.entrySet())
-			out += e.getKey() + ", ";
+        return true;
+    }
 
-		return out;
-	}
+    public static String getCmdsForAccessLevel() {
+        String out = "";
+
+        for (Entry<String, AbstractDevCmd> e : DevCmdManager.devCmds.entrySet())
+            out += e.getKey() + ", ";
+
+        return out;
+    }
 
 }

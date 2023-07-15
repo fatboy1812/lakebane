@@ -37,7 +37,7 @@ public class IgnoreListMsg extends ClientNetMsg {
      * past the limit) then this constructor Throws that Exception to the
      * caller.
      */
-    public IgnoreListMsg(AbstractConnection origin, ByteBufferReader reader)  {
+    public IgnoreListMsg(AbstractConnection origin, ByteBufferReader reader) {
         super(Protocol.ARCIGNORELISTUPDATE, origin, reader);
     }
 
@@ -60,7 +60,7 @@ public class IgnoreListMsg extends ClientNetMsg {
      * Deserializes the subclass specific items from the supplied NetMsgReader.
      */
     @Override
-    protected void _deserialize(ByteBufferReader reader)  {
+    protected void _deserialize(ByteBufferReader reader) {
         int size = reader.getInt();
         for (int i = 0; i < size; i++) {
             this.names.add(reader.getString());

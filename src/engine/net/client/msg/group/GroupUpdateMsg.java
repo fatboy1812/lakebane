@@ -58,9 +58,19 @@ public class GroupUpdateMsg extends ClientNetMsg {
      * past the limit) then this constructor Throws that Exception to the
      * caller.
      */
-    public GroupUpdateMsg(AbstractConnection origin, ByteBufferReader reader)  {
+    public GroupUpdateMsg(AbstractConnection origin, ByteBufferReader reader) {
         super(Protocol.UPDATEGROUP, origin, reader);
     }
+
+    private static void _serializeFour(ByteBufferWriter writer) {
+
+        // 4 sends a party dissolved window
+        for (int i = 0; i < 3; i++) {
+            writer.putInt(0);
+        }
+    }
+
+    // *** Refactor: This method is an abortion.  Needs to be re-written from scratch.
 
     /**
      * Serializes the subclass specific items to the supplied ByteBufferWriter.
@@ -71,12 +81,12 @@ public class GroupUpdateMsg extends ClientNetMsg {
         writer.putInt(this.group.getObjectUUID());
         writer.putInt(this.messageType);
 
-	// 5 breaks everything including movement etc
+        // 5 breaks everything including movement etc
         // 4 sends a party dissolved message
         // 3 closes the group window and leaves the group
         // 2 seems to update the location but not the stats correctly upon coming back into range
         // 1 seems to add you to the group but if called by a job tops up your stats on the client and desyncs it
-        
+
         switch (messageType) {
             case 4:
                 GroupUpdateMsg._serializeFour(writer);
@@ -106,10 +116,8 @@ public class GroupUpdateMsg extends ClientNetMsg {
         }
     }
 
-    // *** Refactor: This method is an abortion.  Needs to be re-written from scratch.
-    
     private void serializePlayer(ByteBufferWriter writer, PlayerCharacter player, int messageType, int count) {
-        
+
         if (messageType == 1) {
             writer.putString((player != null) ? player.getFirstName() : "nullError");
             writer.putString((player != null) ? player.getLastName() : "");
@@ -141,7 +149,7 @@ public class GroupUpdateMsg extends ClientNetMsg {
             writer.putInt((player != null) ? Float.floatToIntBits(player.getLoc().getY()) : 0);
             writer.putInt((player != null) ? Float.floatToIntBits(player.getLoc().getZ()) : 0);
         }
-        
+
         if (player == null)
             writer.putLong(0);
         else {
@@ -173,7 +181,7 @@ public class GroupUpdateMsg extends ClientNetMsg {
         writer.putInt(1);
         writer.put((byte) 1);
 
-	// if sending message type 1 this seems to make the group window flicker the button
+        // if sending message type 1 this seems to make the group window flicker the button
         // i think getfollow and split gold might be the wrong way around
         if (group != null) {
             writer.put(this.group.getSplitGold() ? (byte) 1 : (byte) 0);
@@ -186,14 +194,6 @@ public class GroupUpdateMsg extends ClientNetMsg {
             writer.put(player.getFollow() ? (byte) 1 : (byte) 0);
         } else {
             writer.put((byte) 0);
-        }
-    }
-
-    private static void _serializeFour(ByteBufferWriter writer) {
-
-        // 4 sends a party dissolved window
-        for (int i = 0; i < 3; i++) {
-            writer.putInt(0);
         }
     }
 
@@ -213,7 +213,7 @@ public class GroupUpdateMsg extends ClientNetMsg {
             writer.putFloat(player.getLoc().z);
             writer.putInt(GameObjectType.PlayerCharacter.ordinal());
             writer.putInt(player.getObjectUUID());
-           
+
         }
         writer.putInt(0);
         writer.putInt(0);
@@ -243,7 +243,8 @@ public class GroupUpdateMsg extends ClientNetMsg {
     }
 
     private void _serializeEight(ByteBufferWriter writer) {
-        PlayerCharacter player = this.players.iterator().next();;
+        PlayerCharacter player = this.players.iterator().next();
+        ;
         writer.putInt(0);
         if (player != null) {
             writer.put(player.getFollow() ? (byte) 1 : (byte) 0);
@@ -262,7 +263,7 @@ public class GroupUpdateMsg extends ClientNetMsg {
      * ByteBufferReader.
      */
     @Override
-    protected void _deserialize(ByteBufferReader reader)  {
+    protected void _deserialize(ByteBufferReader reader) {
         this.players = Collections.newSetFromMap(new ConcurrentHashMap<>());
 
         reader.getInt();

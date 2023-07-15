@@ -22,7 +22,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public class 	PlaceAssetMsg extends ClientNetMsg {
+public class PlaceAssetMsg extends ClientNetMsg {
 
 	/*
 	Client -> Server
@@ -78,9 +78,9 @@ public class 	PlaceAssetMsg extends ClientNetMsg {
 	//00000000
 	 */
 
-	//UseItem(C->S)->Type 2(S->C)->Type 1(C->S)  <-close placement window, no response
-	//UseItem(C->S)->Type 2(S->C)->Type 3(C->S)->Type 0(S->C)  <-Attempt place asset, with error response
-	//UseItem(C->S)->Type 2(S->C)->Type 3(C->S)->Type 4(S->C)  <-Attempt place asset, with success response
+    //UseItem(C->S)->Type 2(S->C)->Type 1(C->S)  <-close placement window, no response
+    //UseItem(C->S)->Type 2(S->C)->Type 3(C->S)->Type 0(S->C)  <-Attempt place asset, with error response
+    //UseItem(C->S)->Type 2(S->C)->Type 3(C->S)->Type 4(S->C)  <-Attempt place asset, with success response
 
 	/* Error msg codes
 	//1		"msg append here" <- what's in msg string.
@@ -164,56 +164,64 @@ public class 	PlaceAssetMsg extends ClientNetMsg {
 	//79	This tree cannot support more walls.
 	 */
 
-	private static final Map<Integer,Integer> wallToCost;
-	static {
-		Map<Integer,Integer> map = new HashMap<>();
-		map.put(454700, 100000);   //Straight Outer Wall
-		map.put(1309900, 100000);  //Irekei Outer Straight Wall
-		map.put(1348900, 100000);  //Invorri Outer Straight Wall
-		map.put(454650, 150000);   //Outer Wall with Stairs
-		map.put(455000, 150000);   //Outer Wall with Tower
-		map.put(454550, 150000);   //Outer Wall Gate
-		map.put(455700, 150000);   //Small Gate House
-		map.put(1309600, 150000);  //Irekei Outer Wall with Stairs
-		map.put(1309300, 150000);  //Irekei Outer Wall Gate
-		map.put(1331200, 150000);  //Elven Straight Outer Wall
-		map.put(1330900, 150000);  //Elven Outer Wall with Stairs
-		map.put(1332100, 150000);  //Elven Outer Wall with Tower
-		map.put(1330300, 150000);  //Elven Outer Wall Gate
-		map.put(1348600, 150000);  //Invorri Outer Wall with Stairs
-		map.put(1348300, 150000);  //Invorri Outer Wall Gate
-		map.put(454750, 300000);   //Concave Tower
-		map.put(458100, 300000);   //Artillery Tower
-		map.put(455300, 300000);   //Tower Junction
-		map.put(454800, 300000);   //Convex Tower (inside corner)
-		map.put(1310200, 300000);  //Irekei Concave Tower
-		map.put(5070800, 300000);  //Irekei Artillery Tower
-		map.put(1310500, 300000);  //Irekei Convex Tower
-		map.put(1330600, 300000);  //Elven Gate House
-		map.put(1331500, 300000);  //Elven Concave Tower
-		map.put(5070200, 300000);  //Elven Artillery Tower
-		map.put(1332400, 300000);  //Elven Tower Junction
-		map.put(1331800, 300000);  //Elven Convex Tower
-		map.put(1349200, 300000);  //Invorri Concave Tower
-		map.put(5071400, 300000);  //Invorri Artillery Tower
-		map.put(1349500, 300000);  //Invorri Convex Tower
-		wallToCost = Collections.unmodifiableMap(map);
-	}
-	private static final Map<Integer,Integer> wallToUseId;
-	static {
-		Map<Integer,Integer> map = new HashMap<>();
-		///Feudal Outer Walls
-		map.put(454700, 1);   //Straight Outer Wall
-		map.put(454650, 1);   //Outer Wall with Stairs
-		map.put(455000, 1);   //Outer Wall with Tower
-		map.put(454550, 1);   //Outer Wall Gate
-		map.put(455700, 1);   //Small Gate House
-		map.put(454750, 1);   //Concave Tower
-		map.put(458100, 1);   //Artillery Tower
-		map.put(455300, 1);   //Tower Junction
-		map.put(454800, 1);   //Convex Tower (inside corner)
-		//map.put(1, 454000, 1); //Gate House (giant gatehouse) NOT USE IN GAME
-		//Feudal Inner Walls
+    private static final Map<Integer, Integer> wallToCost;
+    private static final Map<Integer, Integer> wallToUseId;
+    private static final Map<Integer, Map<Integer, Integer>> useIdToWallCostMaps;
+    private static final int NONE = 0;
+    private static final int CLIENTREQ_UNKNOWN = 1;
+    private static final int SERVER_OPENWINDOW = 2;
+    private static final int CLIENTREQ_NEWBUILDING = 3;  // Request to place asset
+    private static final int SERVER_CLOSEWINDOW = 4;
+
+    static {
+        Map<Integer, Integer> map = new HashMap<>();
+        map.put(454700, 100000);   //Straight Outer Wall
+        map.put(1309900, 100000);  //Irekei Outer Straight Wall
+        map.put(1348900, 100000);  //Invorri Outer Straight Wall
+        map.put(454650, 150000);   //Outer Wall with Stairs
+        map.put(455000, 150000);   //Outer Wall with Tower
+        map.put(454550, 150000);   //Outer Wall Gate
+        map.put(455700, 150000);   //Small Gate House
+        map.put(1309600, 150000);  //Irekei Outer Wall with Stairs
+        map.put(1309300, 150000);  //Irekei Outer Wall Gate
+        map.put(1331200, 150000);  //Elven Straight Outer Wall
+        map.put(1330900, 150000);  //Elven Outer Wall with Stairs
+        map.put(1332100, 150000);  //Elven Outer Wall with Tower
+        map.put(1330300, 150000);  //Elven Outer Wall Gate
+        map.put(1348600, 150000);  //Invorri Outer Wall with Stairs
+        map.put(1348300, 150000);  //Invorri Outer Wall Gate
+        map.put(454750, 300000);   //Concave Tower
+        map.put(458100, 300000);   //Artillery Tower
+        map.put(455300, 300000);   //Tower Junction
+        map.put(454800, 300000);   //Convex Tower (inside corner)
+        map.put(1310200, 300000);  //Irekei Concave Tower
+        map.put(5070800, 300000);  //Irekei Artillery Tower
+        map.put(1310500, 300000);  //Irekei Convex Tower
+        map.put(1330600, 300000);  //Elven Gate House
+        map.put(1331500, 300000);  //Elven Concave Tower
+        map.put(5070200, 300000);  //Elven Artillery Tower
+        map.put(1332400, 300000);  //Elven Tower Junction
+        map.put(1331800, 300000);  //Elven Convex Tower
+        map.put(1349200, 300000);  //Invorri Concave Tower
+        map.put(5071400, 300000);  //Invorri Artillery Tower
+        map.put(1349500, 300000);  //Invorri Convex Tower
+        wallToCost = Collections.unmodifiableMap(map);
+    }
+
+    static {
+        Map<Integer, Integer> map = new HashMap<>();
+        ///Feudal Outer Walls
+        map.put(454700, 1);   //Straight Outer Wall
+        map.put(454650, 1);   //Outer Wall with Stairs
+        map.put(455000, 1);   //Outer Wall with Tower
+        map.put(454550, 1);   //Outer Wall Gate
+        map.put(455700, 1);   //Small Gate House
+        map.put(454750, 1);   //Concave Tower
+        map.put(458100, 1);   //Artillery Tower
+        map.put(455300, 1);   //Tower Junction
+        map.put(454800, 1);   //Convex Tower (inside corner)
+        //map.put(1, 454000, 1); //Gate House (giant gatehouse) NOT USE IN GAME
+        //Feudal Inner Walls
 		/*
 		map.put(454100, 2);   //Inner Archway
 		map.put(454200, 2);   //Inner Wall Corner
@@ -225,369 +233,389 @@ public class 	PlaceAssetMsg extends ClientNetMsg {
 		map.put(454900, 2);   //Tower-Inner Wall Junction (T-South) stuck inside right
 		map.put(454950, 2);   //Tower-Inner Wall Junction (4-way) stuck inside
 		 */
-		//Irekei Outer Walls
-		map.put(1309900, 3);  //Irekei Outer Straight Wall
-		map.put(1309600, 3);  //Irekei Outer Wall with Stairs
-		map.put(1309300, 3);  //Irekei Outer Wall Gate
-		map.put(1310200, 3);  //Irekei Concave Tower
-		map.put(5070800, 3);  //Irekei Artillery Tower
-		map.put(1310500, 3);  //Irekei Convex Tower
-		//Elven Outer Walls
-		map.put(1331200, 4);  //Elven Straight Outer Wall
-		map.put(1330900, 4);  //Elven Outer Wall with Stairs
-		map.put(1332100, 4);  //Elven Outer Wall with Tower
-		map.put(1330300, 4);  //Elven Outer Wall Gate
-		map.put(1330600, 4);  //Elven Gate House
-		map.put(1331500, 4);  //Elven Concave Tower
-		map.put(5070200, 4);  //Elven Artillery Tower
-		map.put(1332400, 4);  //Elven Tower Junction
-		map.put(1331800, 4);  //Elven Convex Tower
-		//Invorri Outer Walls
-		map.put(1348900, 5);  //Invorri Outer Straight Wall
-		map.put(1348600, 5);  //Invorri Outer Wall with Stairs
-		map.put(1348300, 5);  //Invorri Outer Wall Gate
-		map.put(1349200, 5);  //Invorri Concave Tower
-		map.put(5071400, 5);  //Invorri Artillery Tower
-		map.put(1349500, 5);  //Invorri Convex Tower
-		wallToUseId = Collections.unmodifiableMap(map);
-	}
-	private static final Map<Integer, Map<Integer,Integer>> useIdToWallCostMaps;
-	static {
-		//autoloaded based on wallToUseId and wallToCost
-		Map<Integer, Map<Integer,Integer>> map = new HashMap<>();
-		for (Map.Entry<Integer,Integer> entry : wallToUseId.entrySet()) {
-			int wallId = entry.getKey();
-			int useId = entry.getValue();
-			int cost = 0;
-			Integer costCheck = wallToCost.get(wallId);
-			if (costCheck != null) {
-				cost = costCheck;
-			} else {
-				throw new Error("PlaceAssetMsg: WallId '" + wallId + "' has no cost in 'wallToCost' but exists in 'useIdToWall'.");
-			}
-			if (!map.containsKey(useId)) {
-				map.put(useId, new HashMap<>());
-			}
-			map.get(useId).put(wallId, cost);
-		}
-		for (Map.Entry<Integer,Map<Integer,Integer>> entry : map.entrySet()) {
-			map.put(entry.getKey(), Collections.unmodifiableMap(entry.getValue()));
-		}
-		useIdToWallCostMaps = Collections.unmodifiableMap(map);
-	}
+        //Irekei Outer Walls
+        map.put(1309900, 3);  //Irekei Outer Straight Wall
+        map.put(1309600, 3);  //Irekei Outer Wall with Stairs
+        map.put(1309300, 3);  //Irekei Outer Wall Gate
+        map.put(1310200, 3);  //Irekei Concave Tower
+        map.put(5070800, 3);  //Irekei Artillery Tower
+        map.put(1310500, 3);  //Irekei Convex Tower
+        //Elven Outer Walls
+        map.put(1331200, 4);  //Elven Straight Outer Wall
+        map.put(1330900, 4);  //Elven Outer Wall with Stairs
+        map.put(1332100, 4);  //Elven Outer Wall with Tower
+        map.put(1330300, 4);  //Elven Outer Wall Gate
+        map.put(1330600, 4);  //Elven Gate House
+        map.put(1331500, 4);  //Elven Concave Tower
+        map.put(5070200, 4);  //Elven Artillery Tower
+        map.put(1332400, 4);  //Elven Tower Junction
+        map.put(1331800, 4);  //Elven Convex Tower
+        //Invorri Outer Walls
+        map.put(1348900, 5);  //Invorri Outer Straight Wall
+        map.put(1348600, 5);  //Invorri Outer Wall with Stairs
+        map.put(1348300, 5);  //Invorri Outer Wall Gate
+        map.put(1349200, 5);  //Invorri Concave Tower
+        map.put(5071400, 5);  //Invorri Artillery Tower
+        map.put(1349500, 5);  //Invorri Convex Tower
+        wallToUseId = Collections.unmodifiableMap(map);
+    }
 
-	private int actionType; //1,3 (recv), 0,2 (send)
-	private int msgID; //used on type 0, 0 on all other types
-	private String msg; //used on type 0
-	private int contractType; //used on type 1
-	private int contractID; //used on type 1
-	private byte unknown01; //0x01 on type 2 (send city data). 0x00 otherwise
-	private float x;
-	private float y;
-	private float z;
-	private byte unknown02; //0x01 if data follow, 0x00 otherwise. Best guess
-	private ArrayList<PlacementInfo> placementInfo;
+    static {
+        //autoloaded based on wallToUseId and wallToCost
+        Map<Integer, Map<Integer, Integer>> map = new HashMap<>();
+        for (Map.Entry<Integer, Integer> entry : wallToUseId.entrySet()) {
+            int wallId = entry.getKey();
+            int useId = entry.getValue();
+            int cost = 0;
+            Integer costCheck = wallToCost.get(wallId);
+            if (costCheck != null) {
+                cost = costCheck;
+            } else {
+                throw new Error("PlaceAssetMsg: WallId '" + wallId + "' has no cost in 'wallToCost' but exists in 'useIdToWall'.");
+            }
+            if (!map.containsKey(useId)) {
+                map.put(useId, new HashMap<>());
+            }
+            map.get(useId).put(wallId, cost);
+        }
+        for (Map.Entry<Integer, Map<Integer, Integer>> entry : map.entrySet()) {
+            map.put(entry.getKey(), Collections.unmodifiableMap(entry.getValue()));
+        }
+        useIdToWallCostMaps = Collections.unmodifiableMap(map);
+    }
 
-	private static final int NONE = 0;
-	private static final int CLIENTREQ_UNKNOWN = 1;
-	private static final int SERVER_OPENWINDOW = 2;
-	private static final int CLIENTREQ_NEWBUILDING = 3;  // Request to place asset
-	private static final int SERVER_CLOSEWINDOW = 4;
+    private int actionType; //1,3 (recv), 0,2 (send)
+    private int msgID; //used on type 0, 0 on all other types
+    private String msg; //used on type 0
+    private int contractType; //used on type 1
+    private int contractID; //used on type 1
+    private byte unknown01; //0x01 on type 2 (send city data). 0x00 otherwise
+    private float x;
+    private float y;
+    private float z;
+    private byte unknown02; //0x01 if data follow, 0x00 otherwise. Best guess
+    private ArrayList<PlacementInfo> placementInfo;
 
-	/**
-	 * This is the general purpose constructor.
-	 */
-	public PlaceAssetMsg() {
-		super(Protocol.PLACEASSET);
-		this.placementInfo = new ArrayList<>();
-		this.actionType = SERVER_OPENWINDOW;
-		this.msgID = 0;
-		this.msg = "";
-		this.contractType = 0;
-		this.contractID = 0;
-		this.unknown01 = (byte)0x00;
-		this.x = 0f;
-		this.y = 0f;
-		this.z = 0f;
-		this.unknown02 = (byte)0x01;
-	}
+    /**
+     * This is the general purpose constructor.
+     */
+    public PlaceAssetMsg() {
+        super(Protocol.PLACEASSET);
+        this.placementInfo = new ArrayList<>();
+        this.actionType = SERVER_OPENWINDOW;
+        this.msgID = 0;
+        this.msg = "";
+        this.contractType = 0;
+        this.contractID = 0;
+        this.unknown01 = (byte) 0x00;
+        this.x = 0f;
+        this.y = 0f;
+        this.z = 0f;
+        this.unknown02 = (byte) 0x01;
+    }
 
-	/**
-	 * This constructor is used by NetMsgFactory. It attempts to deserialize the
-	 * ByteBuffer into a message. If a BufferUnderflow occurs (based on reading
-	 * past the limit) then this constructor Throws that Exception to the
-	 * caller.
-	 */
-	public PlaceAssetMsg(AbstractConnection origin, ByteBufferReader reader)  {
-		super(Protocol.PLACEASSET, origin, reader);
-	}
+    /**
+     * This constructor is used by NetMsgFactory. It attempts to deserialize the
+     * ByteBuffer into a message. If a BufferUnderflow occurs (based on reading
+     * past the limit) then this constructor Throws that Exception to the
+     * caller.
+     */
+    public PlaceAssetMsg(AbstractConnection origin, ByteBufferReader reader) {
+        super(Protocol.PLACEASSET, origin, reader);
+    }
 
-	/**
-	 * Serializes the subclass specific items to the supplied NetMsgWriter.
-	 */
-	@Override
-	protected void _serialize(ByteBufferWriter writer) {
+    private static Map<Integer, Integer> getBuildingList(int buildingID) {
+        if (useIdToWallCostMaps.containsKey(buildingID)) {
+            return useIdToWallCostMaps.get(buildingID);
+        }
+        return new HashMap<>(0);
+    }
 
-		writer.putInt(this.actionType);
+    public static int getWallCost(int blueprintUUID) {
+        if (wallToCost.containsKey(blueprintUUID)) {
+            return wallToCost.get(blueprintUUID);
+        }
+        Logger.warn("Cost of Wall '" + blueprintUUID + "' was requested but no cost is configured for that wallId.");
+        return 0;
+    }
 
-		if (this.actionType == NONE) {
-			writer.putInt(this.msgID);
-			if (this.msgID != 0)
-			writer.putString(this.msg);
-		} else if (this.actionType == SERVER_CLOSEWINDOW) {
-			//writer.putInt(1);  //Qty of assets placed?? A 0 will crash the client. Any value >0 seems to do the same thing.
-			writer.putInt(0);
-		} else {
-			writer.putInt(0);
-		}
+    public static void sendPlaceAssetError(ClientConnection origin, int errorID, String stringData) {
 
-		writer.putInt(this.contractType);
-		writer.putInt(this.contractID);
-		writer.putInt(0);
-		writer.putInt(0);
-		writer.putInt(0);
-		writer.putFloat(1f);
-		writer.putInt(0);
-		writer.putInt(0);
-		writer.putInt(0);
+        PlaceAssetMsg outMsg;
 
-		if (this.actionType == SERVER_OPENWINDOW || (this.actionType == NONE && this.msgID == 0) ) {
-			//send Place Asset Msg
-			writer.put((byte)0x01);
-			writer.putFloat(x);
-			writer.putFloat(y);
-			writer.putFloat(z);
-			for (int i=0;i<3;i++)
-				writer.putFloat(896); // city Bounds full extent.
-			for (int i=0;i<3;i++)
-				writer.putFloat(128); //grid dimensions
-			PlacementInfo pi = (this.placementInfo.size() > 0) ? this.placementInfo.get(0) : null;
-			int buildingID = (pi != null) ? pi.getBlueprintUUID() : 0;
-			if (buildingID == 24200){
-				writer.putFloat(875);
-				writer.putFloat(875);
-			}else{
-				writer.putFloat(576);
-				writer.putFloat(576);
-			}
-
-
-
-			if (buildingID < 6) {
-				//place wall lists
-				writer.put((byte)0x01);
-				writer.putInt(0);
-				writer.putInt(0);
-				Map<Integer, Integer> buildings = getBuildingList(buildingID);
-				writer.putInt(buildings.size());
-				for (int bID : buildings.keySet()) {
-					writer.putInt(0);
-					writer.putInt(bID);
-					writer.putInt(buildings.get(bID));
-				}
-			} else {
-				//send individual building
-				writer.put((byte)0x00);
-				writer.putInt(1);
-				writer.putInt(0);
-				writer.putInt(buildingID);
-				writer.putInt(1);
-				writer.putInt(0);
-				writer.putInt(0);
-			}
-		} else {
-			//Send Server response to client placing asset
-			writer.put((byte)0x00);
-			for (int i=0;i<11;i++)
-				writer.putFloat(0f);
-			writer.put((byte)0x00);
-			writer.putInt(0);
-			if (this.placementInfo == null)
-				writer.putInt(0);
-			else{
-				writer.putInt(this.placementInfo.size());
-				for (PlacementInfo placementInfo : this.placementInfo){
-					writer.putInt(0);
-					writer.putInt(placementInfo.blueprintUUID);
-					writer.putVector3f(placementInfo.loc);
-					writer.putFloat(placementInfo.w);
-					writer.putVector3f(placementInfo.rot);
-				}
-			}
-			
-			writer.putInt(0);
-		}
-	}
-
-	private static Map<Integer, Integer> getBuildingList(int buildingID) {
-		if (useIdToWallCostMaps.containsKey(buildingID)) {
-			return useIdToWallCostMaps.get(buildingID);
-		}
-		return new HashMap<>(0);
-	}
-
-	public static int getWallCost(int blueprintUUID) {
-		if (wallToCost.containsKey(blueprintUUID)) {
-			return wallToCost.get(blueprintUUID);
-		}
-		Logger.warn("Cost of Wall '" + blueprintUUID + "' was requested but no cost is configured for that wallId.");
-		return 0;
-	}
-
-	public static void sendPlaceAssetError(ClientConnection origin, int errorID, String stringData) {
-
-		PlaceAssetMsg outMsg;
-
-		outMsg = new PlaceAssetMsg();
+        outMsg = new PlaceAssetMsg();
         outMsg.actionType = 0;
         outMsg.msgID = errorID;
         outMsg.msg = stringData;
 
         Dispatch dispatch = Dispatch.borrow(origin.getPlayerCharacter(), outMsg);
-		DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
-	}
-	
-	public static void sendPlaceAssetConfirmWall(ClientConnection origin, Zone zone) {
-		
-		PlaceAssetMsg outMsg = new PlaceAssetMsg();
+        DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
+    }
+
+    public static void sendPlaceAssetConfirmWall(ClientConnection origin, Zone zone) {
+
+        PlaceAssetMsg outMsg = new PlaceAssetMsg();
         outMsg.actionType = 0;
         outMsg.msgID = 0;
         outMsg.msg = "";
         outMsg.x = zone.getLoc().x + 64;
         outMsg.y = zone.getLoc().y;
         outMsg.z = zone.getLoc().z + 64;
-        
+
 
         Dispatch dispatch = Dispatch.borrow(origin.getPlayerCharacter(), outMsg);
-		DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
-	}
+        DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
+    }
 
-	/**
-	 * Deserializes the subclass specific items from the supplied NetMsgReader.
-	 */
-	@Override
-	protected void _deserialize(ByteBufferReader reader)  {
-		this.placementInfo = new ArrayList<>();
-		this.actionType = reader.getInt();
-		reader.getInt();
-		this.contractType = reader.getInt();
-		this.contractID = reader.getInt();
-		for (int i=0; i<7; i++)
-			reader.getInt();
-		reader.get();
-		for (int i=0; i<11; i++)
-			reader.getInt();
-		reader.get();
-		reader.getInt();
-		int placementInfo = reader.getInt();
-		for (int i=0;i<placementInfo;i++) {
-			reader.getInt();
-			PlacementInfo pi = new PlacementInfo(reader.getInt(), reader.getFloat(), reader.getFloat(),
-					reader.getFloat(), reader.getFloat(), reader.getFloat(), reader.getFloat(), reader.getFloat());
-			this.placementInfo.add(pi);
-		}
-		reader.getInt();
-	}
+    /**
+     * Serializes the subclass specific items to the supplied NetMsgWriter.
+     */
+    @Override
+    protected void _serialize(ByteBufferWriter writer) {
 
-	public int getActionType() {
-		return this.actionType;
-	}
-	public int getID() {
-		return this.msgID;
-	}
-	public String getMsg() {
-		return msg;
-	}
-	public int getContractType() {
-		return this.contractType;
-	}
-	public int getContractID() {
-		return this.contractID;
-	}
-	public byte getUnknown01() {
-		return this.unknown01;
-	}
-	public float getX() {
-		return this.x;
-	}
-	public float getY() {
-		return this.y;
-	}
-	public float getZ() {
-		return this.z;
-	}
-	public byte getUnknown02() {
-		return this.unknown02;
-	}
-	public ArrayList<PlacementInfo> getPlacementInfo() {
-		return this.placementInfo;
-	}
-	public PlacementInfo getFirstPlacementInfo() {
-		if (this.placementInfo.size() > 0)
-			return this.placementInfo.get(0);
-		return null;
-	}
+        writer.putInt(this.actionType);
 
-	public void setActionType(int value) {
-		this.actionType = value;
-	}
-	public void setMsgID(int value) {
-		this.msgID = value;
-	}
-	public void setMsg(String value) {
-		this.msg = value;
-	}
-	public void setContractType(int value) {
-		this.contractType = value;
-	}
-	public void setContractID(int value) {
-		this.contractID = value;
-	}
-	public void setUnknown01(byte value) {
-		this.unknown01 = value;
-	}
-	public void setX(float value) {
-		this.x = value;
-	}
-	public void setY(float value) {
-		this.y = value;
-	}
-	public void setZ(float value) {
-		this.z = value;
-	}
-	public void setUnknown02(byte value) {
-		this.unknown02 = value;
-	}
-	public void addPlacementInfo(int ID) {
-		PlacementInfo pi = new PlacementInfo(ID, 0f, 0f, 0f, 0f, 0f, 0f, 0f);
-		this.placementInfo.add(pi);
-	}
+        if (this.actionType == NONE) {
+            writer.putInt(this.msgID);
+            if (this.msgID != 0)
+                writer.putString(this.msg);
+        } else if (this.actionType == SERVER_CLOSEWINDOW) {
+            //writer.putInt(1);  //Qty of assets placed?? A 0 will crash the client. Any value >0 seems to do the same thing.
+            writer.putInt(0);
+        } else {
+            writer.putInt(0);
+        }
 
-	public static class PlacementInfo {
-		int blueprintUUID;
-		Vector3fImmutable loc;
-		float w;
-		Vector3fImmutable rot;
-		public PlacementInfo(int blueprintUUID, float locX, float locY, float locZ, float w, float rotX, float rotY, float rotZ) {
-			this.blueprintUUID = blueprintUUID;
-			this.loc = new Vector3fImmutable(locX, locY, locZ);
-			this.w = w;
-			this.rot = new Vector3fImmutable(rotX, rotY, rotZ);
-		}
-		public int getBlueprintUUID() {
-			return this.blueprintUUID;
-		}
-		public Vector3fImmutable getLoc() {
-			return this.loc;
-		}
-		public float getW() {
-			return this.w;
-		}
-		public Vector3fImmutable getRot() {
-			return this.rot;
-		}
-		public void setLoc(Vector3fImmutable loc) {
-			this.loc = loc;
-		}
-	}
+        writer.putInt(this.contractType);
+        writer.putInt(this.contractID);
+        writer.putInt(0);
+        writer.putInt(0);
+        writer.putInt(0);
+        writer.putFloat(1f);
+        writer.putInt(0);
+        writer.putInt(0);
+        writer.putInt(0);
+
+        if (this.actionType == SERVER_OPENWINDOW || (this.actionType == NONE && this.msgID == 0)) {
+            //send Place Asset Msg
+            writer.put((byte) 0x01);
+            writer.putFloat(x);
+            writer.putFloat(y);
+            writer.putFloat(z);
+            for (int i = 0; i < 3; i++)
+                writer.putFloat(896); // city Bounds full extent.
+            for (int i = 0; i < 3; i++)
+                writer.putFloat(128); //grid dimensions
+            PlacementInfo pi = (this.placementInfo.size() > 0) ? this.placementInfo.get(0) : null;
+            int buildingID = (pi != null) ? pi.getBlueprintUUID() : 0;
+            if (buildingID == 24200) {
+                writer.putFloat(875);
+                writer.putFloat(875);
+            } else {
+                writer.putFloat(576);
+                writer.putFloat(576);
+            }
+
+
+            if (buildingID < 6) {
+                //place wall lists
+                writer.put((byte) 0x01);
+                writer.putInt(0);
+                writer.putInt(0);
+                Map<Integer, Integer> buildings = getBuildingList(buildingID);
+                writer.putInt(buildings.size());
+                for (int bID : buildings.keySet()) {
+                    writer.putInt(0);
+                    writer.putInt(bID);
+                    writer.putInt(buildings.get(bID));
+                }
+            } else {
+                //send individual building
+                writer.put((byte) 0x00);
+                writer.putInt(1);
+                writer.putInt(0);
+                writer.putInt(buildingID);
+                writer.putInt(1);
+                writer.putInt(0);
+                writer.putInt(0);
+            }
+        } else {
+            //Send Server response to client placing asset
+            writer.put((byte) 0x00);
+            for (int i = 0; i < 11; i++)
+                writer.putFloat(0f);
+            writer.put((byte) 0x00);
+            writer.putInt(0);
+            if (this.placementInfo == null)
+                writer.putInt(0);
+            else {
+                writer.putInt(this.placementInfo.size());
+                for (PlacementInfo placementInfo : this.placementInfo) {
+                    writer.putInt(0);
+                    writer.putInt(placementInfo.blueprintUUID);
+                    writer.putVector3f(placementInfo.loc);
+                    writer.putFloat(placementInfo.w);
+                    writer.putVector3f(placementInfo.rot);
+                }
+            }
+
+            writer.putInt(0);
+        }
+    }
+
+    /**
+     * Deserializes the subclass specific items from the supplied NetMsgReader.
+     */
+    @Override
+    protected void _deserialize(ByteBufferReader reader) {
+        this.placementInfo = new ArrayList<>();
+        this.actionType = reader.getInt();
+        reader.getInt();
+        this.contractType = reader.getInt();
+        this.contractID = reader.getInt();
+        for (int i = 0; i < 7; i++)
+            reader.getInt();
+        reader.get();
+        for (int i = 0; i < 11; i++)
+            reader.getInt();
+        reader.get();
+        reader.getInt();
+        int placementInfo = reader.getInt();
+        for (int i = 0; i < placementInfo; i++) {
+            reader.getInt();
+            PlacementInfo pi = new PlacementInfo(reader.getInt(), reader.getFloat(), reader.getFloat(),
+                    reader.getFloat(), reader.getFloat(), reader.getFloat(), reader.getFloat(), reader.getFloat());
+            this.placementInfo.add(pi);
+        }
+        reader.getInt();
+    }
+
+    public int getActionType() {
+        return this.actionType;
+    }
+
+    public void setActionType(int value) {
+        this.actionType = value;
+    }
+
+    public int getID() {
+        return this.msgID;
+    }
+
+    public String getMsg() {
+        return msg;
+    }
+
+    public void setMsg(String value) {
+        this.msg = value;
+    }
+
+    public int getContractType() {
+        return this.contractType;
+    }
+
+    public void setContractType(int value) {
+        this.contractType = value;
+    }
+
+    public int getContractID() {
+        return this.contractID;
+    }
+
+    public void setContractID(int value) {
+        this.contractID = value;
+    }
+
+    public byte getUnknown01() {
+        return this.unknown01;
+    }
+
+    public void setUnknown01(byte value) {
+        this.unknown01 = value;
+    }
+
+    public float getX() {
+        return this.x;
+    }
+
+    public void setX(float value) {
+        this.x = value;
+    }
+
+    public float getY() {
+        return this.y;
+    }
+
+    public void setY(float value) {
+        this.y = value;
+    }
+
+    public float getZ() {
+        return this.z;
+    }
+
+    public void setZ(float value) {
+        this.z = value;
+    }
+
+    public byte getUnknown02() {
+        return this.unknown02;
+    }
+
+    public void setUnknown02(byte value) {
+        this.unknown02 = value;
+    }
+
+    public ArrayList<PlacementInfo> getPlacementInfo() {
+        return this.placementInfo;
+    }
+
+    public PlacementInfo getFirstPlacementInfo() {
+        if (this.placementInfo.size() > 0)
+            return this.placementInfo.get(0);
+        return null;
+    }
+
+    public void setMsgID(int value) {
+        this.msgID = value;
+    }
+
+    public void addPlacementInfo(int ID) {
+        PlacementInfo pi = new PlacementInfo(ID, 0f, 0f, 0f, 0f, 0f, 0f, 0f);
+        this.placementInfo.add(pi);
+    }
+
+    public static class PlacementInfo {
+        int blueprintUUID;
+        Vector3fImmutable loc;
+        float w;
+        Vector3fImmutable rot;
+
+        public PlacementInfo(int blueprintUUID, float locX, float locY, float locZ, float w, float rotX, float rotY, float rotZ) {
+            this.blueprintUUID = blueprintUUID;
+            this.loc = new Vector3fImmutable(locX, locY, locZ);
+            this.w = w;
+            this.rot = new Vector3fImmutable(rotX, rotY, rotZ);
+        }
+
+        public int getBlueprintUUID() {
+            return this.blueprintUUID;
+        }
+
+        public Vector3fImmutable getLoc() {
+            return this.loc;
+        }
+
+        public void setLoc(Vector3fImmutable loc) {
+            this.loc = loc;
+        }
+
+        public float getW() {
+            return this.w;
+        }
+
+        public Vector3fImmutable getRot() {
+            return this.rot;
+        }
+    }
 }

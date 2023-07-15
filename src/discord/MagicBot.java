@@ -37,32 +37,32 @@ import java.util.regex.Pattern;
 import static discord.ChatChannel.ADMINLOG;
 
 /*
-*  MagicBot is many things to Magicbane...
-*
-*  -Project Mascot
-*  -Customer service and administration bot
-*  -Benevolent dictator
-*  -Investment manager.
-*
-*  MagicBot will never beg you for money.  He is a very
-*  responsible robot. He was varnished but never garnished.
-*  MagicBot does not for to overclock himself.  His chips
-*  will therefore never overcook.
-*  MagicBot will never be a pitiful robot trying for to use
-*  you as emotional support human.
-*
-*  MagicBot is just not that sort of robot and Magicbane
-*  just isn't that sort of project.
-*
-*  MagicBot runs a Shaodowbane emulator not a Second Life emulator.
-*
-*/
+ *  MagicBot is many things to Magicbane...
+ *
+ *  -Project Mascot
+ *  -Customer service and administration bot
+ *  -Benevolent dictator
+ *  -Investment manager.
+ *
+ *  MagicBot will never beg you for money.  He is a very
+ *  responsible robot. He was varnished but never garnished.
+ *  MagicBot does not for to overclock himself.  His chips
+ *  will therefore never overcook.
+ *  MagicBot will never be a pitiful robot trying for to use
+ *  you as emotional support human.
+ *
+ *  MagicBot is just not that sort of robot and Magicbane
+ *  just isn't that sort of project.
+ *
+ *  MagicBot runs a Shaodowbane emulator not a Second Life emulator.
+ *
+ */
 public class MagicBot extends ListenerAdapter {
 
-    public static JDA jda;
-    public static Database database;
     public static final Pattern accountNameRegex = Pattern.compile("^[\\p{Alnum}]{6,20}$");
     public static final Pattern passwordRegex = Pattern.compile("^[\\p{Alnum}]{6,20}$");
+    public static JDA jda;
+    public static Database database;
     public static long discordServerID;
     public static long discordRoleID;
 
@@ -126,10 +126,134 @@ public class MagicBot extends ListenerAdapter {
         Runnable adminLogRunnable = () -> SendAdminLogUpdates();
 
         ScheduledExecutorService exec = Executors.newScheduledThreadPool(1);
-        exec.scheduleAtFixedRate(adminLogRunnable , 0, 1, TimeUnit.MINUTES);
+        exec.scheduleAtFixedRate(adminLogRunnable, 0, 1, TimeUnit.MINUTES);
 
         Logger.info("***MAGICBOT IS RUNNING***");
 
+    }
+
+    public static void sendResponse(MessageReceivedEvent event, String responseContent) {
+
+        // Send a formatted MagicBot response to a Discord user
+
+        String discordUserName;
+        MessageChannel channel;
+
+        // Exit if discord is offline
+
+        if (jda.getStatus().equals(JDA.Status.CONNECTED) == false)
+            return;
+
+        discordUserName = event.getAuthor().getName();
+        channel = event.getMessage().getChannel();
+
+        channel.sendMessage(
+                "```\n" + "Hello Player " + discordUserName + "\n\n" +
+                        responseContent + "\n\n" +
+                        RobotSpeak.getRobotSpeak() + "\n```").queue();
+    }
+
+    public static boolean isAdminEvent(MessageReceivedEvent event) {
+
+        String discordAccountID = event.getAuthor().getId();
+        List<DiscordAccount> discordAccounts;
+        DiscordAccount discordAccount;
+
+        // Note that database errors will cause this to return false.
+        // After the database is offline Avail status must be set
+        // to true before any subsequent admin commands will function.
+
+        if (Database.online == false)
+            return false;
+
+        discordAccounts = database.getDiscordAccounts(discordAccountID);
+
+        if (discordAccounts.isEmpty())
+            return false;
+
+        discordAccount = discordAccounts.get(0);
+        return (discordAccount.isDiscordAdmin == 1);
+    }
+
+    public static String generatePassword(int length) {
+
+        String ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+        StringBuilder passwordBuilder = new StringBuilder(length);
+        Random random = new Random();
+
+        // Generate alphanumeric password of a given length.
+        // Could not find a good method of generating a password
+        // based upon a given regex.
+
+        for (int i = 0; i < length; i++)
+            passwordBuilder.append(ALPHABET.charAt(random.nextInt(ALPHABET.length())));
+
+        return new String(passwordBuilder);
+    }
+
+    public static String readLogFile(String filePath, int lineCount) {
+
+        ProcessBuilder builder = new ProcessBuilder("/bin/bash", "-c", "tail -n  " + lineCount + " " + filePath);
+        builder.redirectErrorStream(true);
+        Process process = null;
+        String line = null;
+        String logOutput = "";
+
+        try {
+            process = builder.start();
+
+            InputStream is = process.getInputStream();
+            BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+
+            while ((line = reader.readLine()) != null) {
+                logOutput += line + "\n";
+            }
+
+        } catch (IOException e) {
+            Logger.error(e.toString());
+            return "Error while reading logfile";
+        }
+
+        return logOutput;
+    }
+
+    private static void junkbot(String command, String[] inString) {
+
+        String outString;
+        Writer fileWriter;
+
+        if (inString == null)
+            return;
+        ;
+
+        outString = command + String.join(" ", inString);
+        outString += "\n";
+
+        try {
+            fileWriter = new BufferedWriter(new FileWriter("junkbot.txt", true));
+            fileWriter.append(outString);
+            fileWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void SendAdminLogUpdates() {
+        HashMap<Integer, String> adminEvents = database.getAdminEvents();
+
+        for (int adminEvent : adminEvents.keySet()) {
+
+            // Set event as read
+            database.setAdminEventAsRead(adminEvent);
+            String outString =
+                    "```\n" + "Hello Players \n\n" +
+                            adminEvents.get(adminEvent) + "\n\n" +
+                            RobotSpeak.getRobotSpeak() + "\n```";
+
+            if (ADMINLOG.textChannel.canTalk())
+                ADMINLOG.textChannel.sendMessage(outString).queue();
+
+        }
     }
 
     @Override
@@ -142,7 +266,8 @@ public class MagicBot extends ListenerAdapter {
 
         // Early exit if message sent to us by another bot or ourselves.
 
-        if (event.getAuthor().isBot()) return;
+        if (event.getAuthor().isBot())
+            return;
 
         // Extract message and origin channel from event
 
@@ -247,49 +372,6 @@ public class MagicBot extends ListenerAdapter {
         }
     }
 
-    public static void sendResponse(MessageReceivedEvent event, String responseContent) {
-
-        // Send a formatted MagicBot response to a Discord user
-
-        String discordUserName;
-        MessageChannel channel;
-
-        // Exit if discord is offline
-
-        if (jda.getStatus().equals(JDA.Status.CONNECTED) == false)
-            return;
-
-        discordUserName = event.getAuthor().getName();
-        channel = event.getMessage().getChannel();
-
-        channel.sendMessage(
-                "```\n" + "Hello Player " + discordUserName + "\n\n" +
-                        responseContent + "\n\n" +
-                        RobotSpeak.getRobotSpeak() + "\n```").queue();
-    }
-
-    public static boolean isAdminEvent(MessageReceivedEvent event) {
-
-        String discordAccountID = event.getAuthor().getId();
-        List<DiscordAccount> discordAccounts;
-        DiscordAccount discordAccount;
-
-        // Note that database errors will cause this to return false.
-        // After the database is offline Avail status must be set
-        // to true before any subsequent admin commands will function.
-
-        if (Database.online == false)
-            return false;
-
-        discordAccounts = database.getDiscordAccounts(discordAccountID);
-
-        if (discordAccounts.isEmpty())
-            return false;
-
-        discordAccount = discordAccounts.get(0);
-        return (discordAccount.isDiscordAdmin == 1);
-    }
-
     public void handleHelpRequest(MessageReceivedEvent event) {
 
         // Help is kept here in the main class instead of a handler as a
@@ -321,86 +403,5 @@ public class MagicBot extends ListenerAdapter {
                     "#dev                  help (list dev subcommands)\n" +
                     "#trash                <blank>/detail/flush";
         sendResponse(event, helpString);
-    }
-
-    public static String generatePassword(int length) {
-
-        String ALPHABET = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
-        StringBuilder passwordBuilder = new StringBuilder(length);
-        Random random = new Random();
-
-        // Generate alphanumeric password of a given length.
-        // Could not find a good method of generating a password
-        // based upon a given regex.
-
-        for (int i = 0; i < length; i++)
-            passwordBuilder.append(ALPHABET.charAt(random.nextInt(ALPHABET.length())));
-
-        return new String(passwordBuilder);
-    }
-
-    public static String readLogFile(String filePath, int lineCount) {
-
-        ProcessBuilder builder = new ProcessBuilder("/bin/bash", "-c", "tail -n  " + lineCount + " " + filePath);
-        builder.redirectErrorStream(true);
-        Process process = null;
-        String line = null;
-        String logOutput = "";
-
-        try {
-            process = builder.start();
-
-            InputStream is = process.getInputStream();
-            BufferedReader reader = new BufferedReader(new InputStreamReader(is));
-
-            while ((line = reader.readLine()) != null) {
-                logOutput += line + "\n";
-            }
-
-        } catch (IOException e) {
-            Logger.error(e.toString());
-            return "Error while reading logfile";
-        }
-
-        return logOutput;
-    }
-
-    private static void junkbot(String command, String[] inString) {
-
-        String outString;
-        Writer fileWriter;
-
-        if (inString == null)
-            return;
-        ;
-
-        outString = command + String.join(" ", inString);
-        outString += "\n";
-
-        try {
-            fileWriter = new BufferedWriter(new FileWriter("junkbot.txt", true));
-            fileWriter.append(outString);
-            fileWriter.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private static void SendAdminLogUpdates() {
-        HashMap<Integer, String> adminEvents = database.getAdminEvents();
-
-        for (int adminEvent : adminEvents.keySet()) {
-
-            // Set event as read
-            database.setAdminEventAsRead(adminEvent);
-            String outString =
-                    "```\n" + "Hello Players \n\n" +
-                            adminEvents.get(adminEvent) + "\n\n" +
-                            RobotSpeak.getRobotSpeak() + "\n```";
-
-            if (ADMINLOG.textChannel.canTalk())
-                ADMINLOG.textChannel.sendMessage(outString).queue();
-
-        }
     }
 }

@@ -405,7 +405,7 @@ public class CombatUtilities {
         float dmgMultiplier = 1 + agent.getBonuses().getFloatPercentAll(ModType.MeleeDamageModifier, SourceType.None);
         double min = agent.getMinDamageHandOne();
         double max = agent.getMaxDamageHandOne();
-        if(agent.getEquip().get(1) != null) {
+        if (agent.getEquip().get(1) != null) {
             if (agent.getEquip().get(1).getItemBase() != null) {
                 dt = agent.getEquip().get(1).getItemBase().getDamageType();
                 min = agent.getMinDamageHandOne();

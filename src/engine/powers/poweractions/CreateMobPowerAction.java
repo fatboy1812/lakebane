@@ -30,114 +30,112 @@ import java.sql.SQLException;
 
 public class CreateMobPowerAction extends AbstractPowerAction {
 
-	private int mobID;
-	private int mobLevel;
+    private int mobID;
+    private int mobLevel;
 
-	public CreateMobPowerAction(ResultSet rs) throws SQLException {
-		super(rs);
+    public CreateMobPowerAction(ResultSet rs) throws SQLException {
+        super(rs);
 
-		this.mobID = rs.getInt("mobID");
-		this.mobLevel = rs.getInt("mobLevel");
-	}
+        this.mobID = rs.getInt("mobID");
+        this.mobLevel = rs.getInt("mobLevel");
+    }
 
-	public int getMobID() {
-		return this.mobID;
-	}
+    public int getMobID() {
+        return this.mobID;
+    }
 
-	public int getMobLevel() {
-		return this.mobLevel;
-	}
+    public int getMobLevel() {
+        return this.mobLevel;
+    }
 
-	@Override
-	protected void _startAction(AbstractCharacter source, AbstractWorldObject awo, Vector3fImmutable targetLoc, int trains, ActionsBase ab, PowersBase pb) {
+    @Override
+    protected void _startAction(AbstractCharacter source, AbstractWorldObject awo, Vector3fImmutable targetLoc, int trains, ActionsBase ab, PowersBase pb) {
 
-		if (source == null || !(source.getObjectType().equals(Enum.GameObjectType.PlayerCharacter)))
-			return;
+        if (source == null || !(source.getObjectType().equals(Enum.GameObjectType.PlayerCharacter)))
+            return;
 
-		PlayerCharacter owner = (PlayerCharacter) source;
-		Mob currentPet = owner.getPet();
-		Zone seaFloor = ZoneManager.getSeaFloor();
-		Guild guild = Guild.getErrantGuild();
-		ClientConnection origin = owner.getClientConnection();
+        PlayerCharacter owner = (PlayerCharacter) source;
+        Mob currentPet = owner.getPet();
+        Zone seaFloor = ZoneManager.getSeaFloor();
+        Guild guild = Guild.getErrantGuild();
+        ClientConnection origin = owner.getClientConnection();
 
-		if (seaFloor == null || guild == null || origin == null)
-			return;
+        if (seaFloor == null || guild == null || origin == null)
+            return;
 
-		MobBase mobbase = MobBase.getMobBase(mobID);
+        MobBase mobbase = MobBase.getMobBase(mobID);
 
-		if (mobbase == null) {
-			Logger.error("Attempt to summon pet with null mobbase: " + mobID);
-			return;
-		}
+        if (mobbase == null) {
+            Logger.error("Attempt to summon pet with null mobbase: " + mobID);
+            return;
+        }
 
-		if (mobbase.isNecroPet() && owner.inSafeZone())
-			return;
+        if (mobbase.isNecroPet() && owner.inSafeZone())
+            return;
 
-		//create Pet
-		Mob pet = Mob.createPet(mobID, guild, seaFloor, owner, (short)mobLevel);
+        //create Pet
+        Mob pet = Mob.createPet(mobID, guild, seaFloor, owner, (short) mobLevel);
 
 
-		if(pet.getMobBaseID() == 12021 || pet.getMobBaseID() == 12022) { //is a necro pet
-			if(currentPet!= null && !currentPet.isNecroPet() && !currentPet.isSiege()) {
-				DbManager.removeFromCache(currentPet);
-				WorldGrid.RemoveWorldObject(currentPet);
+        if (pet.getMobBaseID() == 12021 || pet.getMobBaseID() == 12022) { //is a necro pet
+            if (currentPet != null && !currentPet.isNecroPet() && !currentPet.isSiege()) {
+                DbManager.removeFromCache(currentPet);
+                WorldGrid.RemoveWorldObject(currentPet);
                 currentPet.setCombatTarget(null);
 
-				if (currentPet.getParentZone() != null)
-					currentPet.getParentZone().zoneMobSet.remove(currentPet);
+                if (currentPet.getParentZone() != null)
+                    currentPet.getParentZone().zoneMobSet.remove(currentPet);
 
-				currentPet.playerAgroMap.clear();
+                currentPet.playerAgroMap.clear();
 
-				try {
-					currentPet.clearEffects();
-				}catch(Exception e){
-					Logger.error(e.getMessage());
-				}
+                try {
+                    currentPet.clearEffects();
+                } catch (Exception e) {
+                    Logger.error(e.getMessage());
+                }
 
-				//currentPet.disableIntelligence();
-			}else if (currentPet != null && currentPet.isSiege()){
-				currentPet.setMob();
-				currentPet.setOwner(null);
-				currentPet.setCombatTarget(null);
+                //currentPet.disableIntelligence();
+            } else if (currentPet != null && currentPet.isSiege()) {
+                currentPet.setMob();
+                currentPet.setOwner(null);
+                currentPet.setCombatTarget(null);
 
-				if (currentPet.isAlive())
-					WorldGrid.updateObject(currentPet);
-			}
-			//remove 10th pet
-			
-		
-			NPCManager.spawnNecroPet(owner, pet);
+                if (currentPet.isAlive())
+                    WorldGrid.updateObject(currentPet);
+            }
+            //remove 10th pet
 
-		}
-		else { //is not a necro pet
-			if(currentPet != null) {
-				if(!currentPet.isNecroPet() && !currentPet.isSiege()) {
-					DbManager.removeFromCache(currentPet);
-					currentPet.setCombatTarget(null);
+
+            NPCManager.spawnNecroPet(owner, pet);
+
+        } else { //is not a necro pet
+            if (currentPet != null) {
+                if (!currentPet.isNecroPet() && !currentPet.isSiege()) {
+                    DbManager.removeFromCache(currentPet);
+                    currentPet.setCombatTarget(null);
 
                     currentPet.setOwner(null);
-					WorldGrid.RemoveWorldObject(currentPet);
+                    WorldGrid.RemoveWorldObject(currentPet);
 
-					currentPet.getParentZone().zoneMobSet.remove(currentPet);
-					currentPet.playerAgroMap.clear();
-					currentPet.clearEffects();
-					//currentPet.disableIntelligence();
-				}
-				else {
-					if (currentPet.isSiege()){
-						currentPet.setMob();
-						currentPet.setOwner(null);
-						currentPet.setCombatTarget(null);
+                    currentPet.getParentZone().zoneMobSet.remove(currentPet);
+                    currentPet.playerAgroMap.clear();
+                    currentPet.clearEffects();
+                    //currentPet.disableIntelligence();
+                } else {
+                    if (currentPet.isSiege()) {
+                        currentPet.setMob();
+                        currentPet.setOwner(null);
+                        currentPet.setCombatTarget(null);
 
-						if (currentPet.isAlive())
-							WorldGrid.updateObject(currentPet);
-					}
-					
-				}
-				NPCManager.auditNecroPets(owner);
-				NPCManager.resetNecroPets(owner);
-			}
-		}
+                        if (currentPet.isAlive())
+                            WorldGrid.updateObject(currentPet);
+                    }
+
+                }
+                NPCManager.auditNecroPets(owner);
+                NPCManager.resetNecroPets(owner);
+            }
+        }
 		/*		if(owner.getPet() != null) {
 			if(owner.getPet().getMobBaseID() != 12021 && owner.getPet().getMobBaseID() != 12022) {
 				//if not a necro pet, remove pet
@@ -152,22 +150,22 @@ public class CreateMobPowerAction extends AbstractPowerAction {
 		}
 	}*/
 
-		//	if (mobID == 12021 || mobID == 12022) //Necro Pets
-		//	pet.setPet(owner, true);
-		owner.setPet(pet);
-		PetMsg pm = new PetMsg(5, pet);
-		Dispatch dispatch = Dispatch.borrow(owner, pm);
-		DispatchMessage.dispatchMsgDispatch(dispatch, engine.Enum.DispatchChannel.SECONDARY);
-	}
+        //	if (mobID == 12021 || mobID == 12022) //Necro Pets
+        //	pet.setPet(owner, true);
+        owner.setPet(pet);
+        PetMsg pm = new PetMsg(5, pet);
+        Dispatch dispatch = Dispatch.borrow(owner, pm);
+        DispatchMessage.dispatchMsgDispatch(dispatch, engine.Enum.DispatchChannel.SECONDARY);
+    }
 
-	@Override
-	protected void _handleChant(AbstractCharacter source, AbstractWorldObject target, Vector3fImmutable targetLoc, int trains, ActionsBase ab, PowersBase pb) {
-	}
+    @Override
+    protected void _handleChant(AbstractCharacter source, AbstractWorldObject target, Vector3fImmutable targetLoc, int trains, ActionsBase ab, PowersBase pb) {
+    }
 
-	@Override
-	protected void _startAction(AbstractCharacter source, AbstractWorldObject awo, Vector3fImmutable targetLoc,
-			int numTrains, ActionsBase ab, PowersBase pb, int duration) {
-		// TODO Auto-generated method stub
+    @Override
+    protected void _startAction(AbstractCharacter source, AbstractWorldObject awo, Vector3fImmutable targetLoc,
+                                int numTrains, ActionsBase ab, PowersBase pb, int duration) {
+        // TODO Auto-generated method stub
 
-	}
+    }
 }

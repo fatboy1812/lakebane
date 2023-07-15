@@ -47,8 +47,7 @@ public class MineRecord extends DataRecord {
         if (mineRecord == null) {
             mineRecord = new MineRecord();
             mineRecord.eventType = eventType;
-        }
-        else {
+        } else {
             mineRecord.recordType = Enum.DataRecordType.MINE;
             mineRecord.eventType = eventType;
         }
@@ -58,8 +57,7 @@ public class MineRecord extends DataRecord {
         if (character.getObjectType().equals(Enum.GameObjectType.PlayerCharacter)) {
             player = (PlayerCharacter) character;
             mineRecord.charHash = player.getHash();
-        }
-        else
+        } else
             mineRecord.charHash = character.getName();
 
         DataWarehouse.hasher.encrypt(0);

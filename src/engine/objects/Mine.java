@@ -44,6 +44,8 @@ public class Mine extends AbstractGameObject {
 
     public static ConcurrentHashMap<Mine, Integer> mineMap = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_LOW);
     public static ConcurrentHashMap<Integer, Mine> towerMap = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_LOW);
+    private final String zoneName;
+    private final Zone parentZone;
     public boolean isActive = false;
     public PlayerCharacter lastClaimer;
     public boolean wasClaimed = false;
@@ -52,12 +54,10 @@ public class Mine extends AbstractGameObject {
     public GuildTag guildTag;
     public String nationName;
     public GuildTag nationTag;
-    private final String zoneName;
     private Resource production;
     private Guild owningGuild;
     private int flags;
     private int buildingID;
-    private final Zone parentZone;
     private MineProduction mineType;
 
     /**

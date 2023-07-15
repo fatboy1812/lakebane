@@ -17,57 +17,56 @@ import engine.objects.PlayerCharacter;
  */
 public class TaxResourcesMsgHandler extends AbstractClientMsgHandler {
 
-	public TaxResourcesMsgHandler() {
-		super(TaxResourcesMsg.class);
-	}
+    public TaxResourcesMsgHandler() {
+        super(TaxResourcesMsg.class);
+    }
 
-	@Override
-	protected boolean _handleNetMsg(ClientNetMsg baseMsg, ClientConnection origin) throws MsgSendException {
+    private static boolean TaxWarehouse(TaxResourcesMsg msg, PlayerCharacter player) {
 
-		// Member variable declaration
-
-		PlayerCharacter player;
-		TaxResourcesMsg msg;
-
-		player = origin.getPlayerCharacter();
-		if (player == null)
-			return true;
+        // Member variable declaration
+        Building building = BuildingManager.getBuildingFromCache(msg.getBuildingID());
 
 
-		msg = (TaxResourcesMsg) baseMsg;
+        if (building == null) {
+            ErrorPopupMsg.sendErrorMsg(player, "Not a valid Building!");
+            return true;
+        }
 
-		TaxWarehouse(msg,player);
+        City city = building.getCity();
+        if (city == null) {
+            ErrorPopupMsg.sendErrorMsg(player, "This building does not belong to a city.");
+            return true;
+        }
 
-
-
-		return true;
-
-	}
-
-	private static boolean TaxWarehouse(TaxResourcesMsg msg, PlayerCharacter player) {
-
-		// Member variable declaration
-		Building building = BuildingManager.getBuildingFromCache(msg.getBuildingID());
+        city.TaxWarehouse(msg, player);
 
 
-		if (building == null){
-			ErrorPopupMsg.sendErrorMsg(player, "Not a valid Building!");
-			return true;
-		}
-
-		City city = building.getCity();
-		if (city == null){
-			ErrorPopupMsg.sendErrorMsg(player, "This building does not belong to a city.");
-			return true;
-		}
-
-		city.TaxWarehouse(msg, player);
+        return true;
 
 
-		return true;
+    }
+
+    @Override
+    protected boolean _handleNetMsg(ClientNetMsg baseMsg, ClientConnection origin) throws MsgSendException {
+
+        // Member variable declaration
+
+        PlayerCharacter player;
+        TaxResourcesMsg msg;
+
+        player = origin.getPlayerCharacter();
+        if (player == null)
+            return true;
 
 
-	}
+        msg = (TaxResourcesMsg) baseMsg;
+
+        TaxWarehouse(msg, player);
+
+
+        return true;
+
+    }
 
 
 }

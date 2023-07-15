@@ -25,152 +25,152 @@ public class dbItemBaseHandler extends dbHandlerBase {
 
     public dbItemBaseHandler() {
 
-	}
+    }
 
-	public void LOAD_BAKEDINSTATS(ItemBase itemBase) {
+    public void LOAD_BAKEDINSTATS(ItemBase itemBase) {
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `static_item_bakedinstat` WHERE `itemID` = ?")) {
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `static_item_bakedinstat` WHERE `itemID` = ?")) {
 
-			preparedStatement.setInt(1, itemBase.getUUID());
-			ResultSet rs = preparedStatement.executeQuery();
+            preparedStatement.setInt(1, itemBase.getUUID());
+            ResultSet rs = preparedStatement.executeQuery();
 
-			while (rs.next()) {
-				if (rs.getBoolean("fromUse"))
-					itemBase.getUsedStats().put(rs.getInt("token"), rs.getInt("numTrains"));
-				else
-					itemBase.getBakedInStats().put(rs.getInt("token"), rs.getInt("numTrains"));
-			}
-		} catch (SQLException e) {
-			Logger.error(e);
-		}
-	}
+            while (rs.next()) {
+                if (rs.getBoolean("fromUse"))
+                    itemBase.getUsedStats().put(rs.getInt("token"), rs.getInt("numTrains"));
+                else
+                    itemBase.getBakedInStats().put(rs.getInt("token"), rs.getInt("numTrains"));
+            }
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
+    }
 
-	public void LOAD_ANIMATIONS(ItemBase itemBase) {
+    public void LOAD_ANIMATIONS(ItemBase itemBase) {
 
-		ArrayList<Integer> tempList = new ArrayList<>();
-		ArrayList<Integer> tempListOff = new ArrayList<>();
+        ArrayList<Integer> tempList = new ArrayList<>();
+        ArrayList<Integer> tempListOff = new ArrayList<>();
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `static_itembase_animations` WHERE `itemBaseUUID` = ?")) {
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `static_itembase_animations` WHERE `itemBaseUUID` = ?")) {
 
-			preparedStatement.setInt(1, itemBase.getUUID());
-			ResultSet rs = preparedStatement.executeQuery();
+            preparedStatement.setInt(1, itemBase.getUUID());
+            ResultSet rs = preparedStatement.executeQuery();
 
-			while (rs.next()) {
-				int animation = rs.getInt("animation");
-				boolean rightHand = rs.getBoolean("rightHand");
+            while (rs.next()) {
+                int animation = rs.getInt("animation");
+                boolean rightHand = rs.getBoolean("rightHand");
 
-				if (rightHand)
-					tempList.add(animation);
-				else
-					tempListOff.add(animation);
-			}
-		} catch (SQLException e) {
-			Logger.error(e);
-		}
+                if (rightHand)
+                    tempList.add(animation);
+                else
+                    tempListOff.add(animation);
+            }
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
 
-		itemBase.setAnimations(tempList);
-		itemBase.setOffHandAnimations(tempListOff);
-	}
+        itemBase.setAnimations(tempList);
+        itemBase.setOffHandAnimations(tempListOff);
+    }
 
-	public void LOAD_ALL_ITEMBASES() {
+    public void LOAD_ALL_ITEMBASES() {
 
-		ItemBase itemBase;
-		int recordsRead = 0;
+        ItemBase itemBase;
+        int recordsRead = 0;
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM static_itembase")) {
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM static_itembase")) {
 
-			ResultSet rs = preparedStatement.executeQuery();
+            ResultSet rs = preparedStatement.executeQuery();
 
-			while (rs.next()) {
-				recordsRead++;
-				itemBase = new ItemBase(rs);
-				ItemBase.addToCache(itemBase);
-			}
+            while (rs.next()) {
+                recordsRead++;
+                itemBase = new ItemBase(rs);
+                ItemBase.addToCache(itemBase);
+            }
 
-		} catch (SQLException e) {
-			Logger.error(e);
-		}
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
 
-		Logger.info("read: " + recordsRead + " cached: " + ItemBase.getUUIDCache().size());
-	}
+        Logger.info("read: " + recordsRead + " cached: " + ItemBase.getUUIDCache().size());
+    }
 
-	public HashMap<Integer, ArrayList<Integer>> LOAD_RUNES_FOR_NPC_AND_MOBS() {
+    public HashMap<Integer, ArrayList<Integer>> LOAD_RUNES_FOR_NPC_AND_MOBS() {
 
-		HashMap<Integer, ArrayList<Integer>> runeSets = new HashMap<>();
-		int runeSetID;
-		int runeBaseID;
-		int recordsRead = 0;
+        HashMap<Integer, ArrayList<Integer>> runeSets = new HashMap<>();
+        int runeSetID;
+        int runeBaseID;
+        int recordsRead = 0;
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM static_npc_runeSet")) {
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM static_npc_runeSet")) {
 
-			ResultSet rs = preparedStatement.executeQuery();
+            ResultSet rs = preparedStatement.executeQuery();
 
-			while (rs.next()) {
+            while (rs.next()) {
 
-				recordsRead++;
+                recordsRead++;
 
-				runeSetID = rs.getInt("runeSet");
-				runeBaseID = rs.getInt("runeBase");
+                runeSetID = rs.getInt("runeSet");
+                runeBaseID = rs.getInt("runeBase");
 
-				if (runeSets.get(runeSetID) == null) {
-					ArrayList<Integer> runeList = new ArrayList<>();
-					runeList.add(runeBaseID);
-					runeSets.put(runeSetID, runeList);
-				} else {
-					ArrayList<Integer> runeList = runeSets.get(runeSetID);
-					runeList.add(runeSetID);
-					runeSets.put(runeSetID, runeList);
-				}
-			}
+                if (runeSets.get(runeSetID) == null) {
+                    ArrayList<Integer> runeList = new ArrayList<>();
+                    runeList.add(runeBaseID);
+                    runeSets.put(runeSetID, runeList);
+                } else {
+                    ArrayList<Integer> runeList = runeSets.get(runeSetID);
+                    runeList.add(runeSetID);
+                    runeSets.put(runeSetID, runeList);
+                }
+            }
 
-		} catch (SQLException e) {
-			Logger.error(e);
-			return runeSets;
-		}
+        } catch (SQLException e) {
+            Logger.error(e);
+            return runeSets;
+        }
 
-		Logger.info("read: " + recordsRead + " cached: " + runeSets.size());
-		return runeSets;
-	}
+        Logger.info("read: " + recordsRead + " cached: " + runeSets.size());
+        return runeSets;
+    }
 
-	public HashMap<Integer, ArrayList<BootySetEntry>> LOAD_BOOTY_FOR_MOBS() {
+    public HashMap<Integer, ArrayList<BootySetEntry>> LOAD_BOOTY_FOR_MOBS() {
 
-		HashMap<Integer, ArrayList<BootySetEntry>> bootySets = new HashMap<>();
-		BootySetEntry bootySetEntry;
-		int bootySetID;
-		int recordsRead = 0;
+        HashMap<Integer, ArrayList<BootySetEntry>> bootySets = new HashMap<>();
+        BootySetEntry bootySetEntry;
+        int bootySetID;
+        int recordsRead = 0;
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM static_npc_bootySet")) {
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM static_npc_bootySet")) {
 
-			ResultSet rs = preparedStatement.executeQuery();
+            ResultSet rs = preparedStatement.executeQuery();
 
-			while (rs.next()) {
+            while (rs.next()) {
 
-				recordsRead++;
+                recordsRead++;
 
-				bootySetID = rs.getInt("bootySet");
-				bootySetEntry = new BootySetEntry(rs);
+                bootySetID = rs.getInt("bootySet");
+                bootySetEntry = new BootySetEntry(rs);
 
-				if (bootySets.get(bootySetID) == null) {
-					ArrayList<BootySetEntry> bootyList = new ArrayList<>();
-					bootyList.add(bootySetEntry);
-					bootySets.put(bootySetID, bootyList);
-				} else {
-					ArrayList<BootySetEntry> bootyList = bootySets.get(bootySetID);
-					bootyList.add(bootySetEntry);
-					bootySets.put(bootySetID, bootyList);
-				}
-			}
-		} catch (SQLException e) {
-			Logger.error(e);
-			return bootySets;
-		}
+                if (bootySets.get(bootySetID) == null) {
+                    ArrayList<BootySetEntry> bootyList = new ArrayList<>();
+                    bootyList.add(bootySetEntry);
+                    bootySets.put(bootySetID, bootyList);
+                } else {
+                    ArrayList<BootySetEntry> bootyList = bootySets.get(bootySetID);
+                    bootyList.add(bootySetEntry);
+                    bootySets.put(bootySetID, bootyList);
+                }
+            }
+        } catch (SQLException e) {
+            Logger.error(e);
+            return bootySets;
+        }
 
-		Logger.info("read: " + recordsRead + " cached: " + bootySets.size());
-		return bootySets;
-	}
+        Logger.info("read: " + recordsRead + " cached: " + bootySets.size());
+        return bootySets;
+    }
 }

@@ -16,27 +16,28 @@ import engine.objects.PlayerCharacter;
 
 public class GetRuneDropRateCmd extends AbstractDevCmd {
 
-	public GetRuneDropRateCmd() {
+    public GetRuneDropRateCmd() {
         super("getrunedroprate");
     }
 
-	@Override
-	protected void _doCmd(PlayerCharacter pcSender, String[] words,
-			AbstractGameObject target) {
-		if (pcSender == null) return;
+    @Override
+    protected void _doCmd(PlayerCharacter pcSender, String[] words,
+                          AbstractGameObject target) {
+        if (pcSender == null)
+            return;
 
-		String out = "Depracated";
-		throwbackInfo(pcSender, out);
-	}
+        String out = "Depracated";
+        throwbackInfo(pcSender, out);
+    }
 
-	@Override
-	protected String _getUsageString() {
-		return "' /getrunedroprate'";
-	}
+    @Override
+    protected String _getUsageString() {
+        return "' /getrunedroprate'";
+    }
 
-	@Override
-	protected String _getHelpString() {
-		return "lists drop rates for runes and contracts in non-hotzone.";
-	}
+    @Override
+    protected String _getHelpString() {
+        return "lists drop rates for runes and contracts in non-hotzone.";
+    }
 
 }

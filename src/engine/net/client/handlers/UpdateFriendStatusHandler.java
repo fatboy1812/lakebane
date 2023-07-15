@@ -26,59 +26,58 @@ import java.util.HashSet;
 
 public class UpdateFriendStatusHandler extends AbstractClientMsgHandler {
 
-	public UpdateFriendStatusHandler() {
-		super(UpdateFriendStatusMessage.class);
-	}
+    public UpdateFriendStatusHandler() {
+        super(UpdateFriendStatusMessage.class);
+    }
 
-	@Override
-	protected boolean _handleNetMsg(ClientNetMsg baseMsg,
-			ClientConnection origin) throws MsgSendException {
-		
-		PlayerCharacter player = origin.getPlayerCharacter();
-		
-		if (player == null)
-			return true;
-		
+    //change to Request
+    public static void HandleUpdateFriend(PlayerCharacter player, UpdateFriendStatusMessage msg) {
+        FriendStatus friendStatus = FriendStatus.Available;
 
-		UpdateFriendStatusMessage msg = (UpdateFriendStatusMessage)baseMsg;
-		
-		
-			HandleUpdateFriend(player,msg);
-			
-		return true;
-	}
-	
+        try {
+            friendStatus = FriendStatus.values()[msg.statusType];
+        } catch (Exception e) {
+            Logger.error(e);
+        }
+        player.friendStatus = friendStatus;
+        SendUpdateToFriends(player);
+    }
 
-	//change to Request
-	public static void HandleUpdateFriend(PlayerCharacter player, UpdateFriendStatusMessage msg){
-	FriendStatus friendStatus = FriendStatus.Available;
-	
-	try {
-		friendStatus = FriendStatus.values()[msg.statusType];
-	}catch (Exception e){
-		Logger.error(e);
-	}
-	player.friendStatus = friendStatus;
-	SendUpdateToFriends(player);
-	}
-	
-	public static void SendUpdateToFriends(PlayerCharacter player){
-		
-		HashSet<Integer> friends = PlayerFriends.PlayerFriendsMap.get(player.getObjectUUID());
-		
-		if (friends == null)
-			return;
-		
-		UpdateFriendStatusMessage outMsg = new UpdateFriendStatusMessage(player);
-		
-		for (int friendID : friends){
-			PlayerCharacter playerFriend = SessionManager.getPlayerCharacterByID(friendID);
-			if (playerFriend == null)
-				return;
-			Dispatch dispatch = Dispatch.borrow(playerFriend, outMsg);
-			DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.SECONDARY);
-		}
-		
-		
-	}
+    public static void SendUpdateToFriends(PlayerCharacter player) {
+
+        HashSet<Integer> friends = PlayerFriends.PlayerFriendsMap.get(player.getObjectUUID());
+
+        if (friends == null)
+            return;
+
+        UpdateFriendStatusMessage outMsg = new UpdateFriendStatusMessage(player);
+
+        for (int friendID : friends) {
+            PlayerCharacter playerFriend = SessionManager.getPlayerCharacterByID(friendID);
+            if (playerFriend == null)
+                return;
+            Dispatch dispatch = Dispatch.borrow(playerFriend, outMsg);
+            DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.SECONDARY);
+        }
+
+
+    }
+
+    @Override
+    protected boolean _handleNetMsg(ClientNetMsg baseMsg,
+                                    ClientConnection origin) throws MsgSendException {
+
+        PlayerCharacter player = origin.getPlayerCharacter();
+
+        if (player == null)
+            return true;
+
+
+        UpdateFriendStatusMessage msg = (UpdateFriendStatusMessage) baseMsg;
+
+
+        HandleUpdateFriend(player, msg);
+
+        return true;
+    }
 }

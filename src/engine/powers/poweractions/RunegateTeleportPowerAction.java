@@ -26,62 +26,62 @@ import static engine.math.FastMath.sqrt;
 
 public class RunegateTeleportPowerAction extends AbstractPowerAction {
 
-	/**
-	 * ResultSet Constructor
-	 */
-	public RunegateTeleportPowerAction(ResultSet rs) throws SQLException {
-		super(rs);
-	}
+    /**
+     * ResultSet Constructor
+     */
+    public RunegateTeleportPowerAction(ResultSet rs) throws SQLException {
+        super(rs);
+    }
 
-	@Override
-	protected void _startAction(AbstractCharacter source, AbstractWorldObject awo, Vector3fImmutable targetLoc, int trains, ActionsBase ab, PowersBase pb) {
+    @Override
+    protected void _startAction(AbstractCharacter source, AbstractWorldObject awo, Vector3fImmutable targetLoc, int trains, ActionsBase ab, PowersBase pb) {
 
-		if (source == null || awo == null || !(awo .getObjectType().equals(Enum.GameObjectType.PlayerCharacter)))
-			return;
+        if (source == null || awo == null || !(awo.getObjectType().equals(Enum.GameObjectType.PlayerCharacter)))
+            return;
 
-		PlayerCharacter pc = (PlayerCharacter) awo;
-		float dist = 9999999999f;
-		Building rg = null;
-		Vector3fImmutable rgLoc;
+        PlayerCharacter pc = (PlayerCharacter) awo;
+        float dist = 9999999999f;
+        Building rg = null;
+        Vector3fImmutable rgLoc;
 
-		for (Runegate runegate: Runegate._runegates.values()) {
+        for (Runegate runegate : Runegate._runegates.values()) {
 
-				rgLoc = runegate.gateBuilding.getLoc();
+            rgLoc = runegate.gateBuilding.getLoc();
 
-				float distanceToRunegateSquared = source.getLoc().distanceSquared2D(rgLoc);
+            float distanceToRunegateSquared = source.getLoc().distanceSquared2D(rgLoc);
 
-				if (distanceToRunegateSquared < sqr(dist)) {
-					dist = sqrt(distanceToRunegateSquared);
-					rg = runegate.gateBuilding;
-				}
-			}
+            if (distanceToRunegateSquared < sqr(dist)) {
+                dist = sqrt(distanceToRunegateSquared);
+                rg = runegate.gateBuilding;
+            }
+        }
 
-		if(source.getObjectUUID() != pc.getObjectUUID()) {
-			pc.setTimeStampNow("PromptRecall");
-			pc.setTimeStamp("LastRecallType",0); //recall to rg
+        if (source.getObjectUUID() != pc.getObjectUUID()) {
+            pc.setTimeStampNow("PromptRecall");
+            pc.setTimeStamp("LastRecallType", 0); //recall to rg
 
-			if (rg != null) {
-				PromptRecallMsg promptRecallMsgmsg = new PromptRecallMsg();
-				Dispatch dispatch = Dispatch.borrow(pc, promptRecallMsgmsg);
-				DispatchMessage.dispatchMsgDispatch(dispatch, engine.Enum.DispatchChannel.SECONDARY);
-			}
+            if (rg != null) {
+                PromptRecallMsg promptRecallMsgmsg = new PromptRecallMsg();
+                Dispatch dispatch = Dispatch.borrow(pc, promptRecallMsgmsg);
+                DispatchMessage.dispatchMsgDispatch(dispatch, engine.Enum.DispatchChannel.SECONDARY);
+            }
 
-		} else {
-			if (rg != null) {
-				pc.teleport(rg.getLoc());
-				pc.setSafeMode();
-			}
-		}
-	}
+        } else {
+            if (rg != null) {
+                pc.teleport(rg.getLoc());
+                pc.setSafeMode();
+            }
+        }
+    }
 
-	@Override
-	protected void _handleChant(AbstractCharacter source, AbstractWorldObject target, Vector3fImmutable targetLoc, int trains, ActionsBase ab, PowersBase pb) {
-	}
+    @Override
+    protected void _handleChant(AbstractCharacter source, AbstractWorldObject target, Vector3fImmutable targetLoc, int trains, ActionsBase ab, PowersBase pb) {
+    }
 
-	@Override
-	protected void _startAction(AbstractCharacter source, AbstractWorldObject awo, Vector3fImmutable targetLoc,
-			int numTrains, ActionsBase ab, PowersBase pb, int duration) {
-		// TODO Auto-generated method stub
+    @Override
+    protected void _startAction(AbstractCharacter source, AbstractWorldObject awo, Vector3fImmutable targetLoc,
+                                int numTrains, ActionsBase ab, PowersBase pb, int duration) {
+        // TODO Auto-generated method stub
 
-	}
+    }
 }

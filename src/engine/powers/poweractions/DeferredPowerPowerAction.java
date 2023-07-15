@@ -26,70 +26,70 @@ import java.util.HashMap;
 
 public class DeferredPowerPowerAction extends AbstractPowerAction {
 
-	private String effectID;
-	private String deferedPowerID;
-	private EffectsBase effect;
-	//	private EffectsBase deferedPower;
+    private String effectID;
+    private String deferedPowerID;
+    private EffectsBase effect;
+    //	private EffectsBase deferedPower;
 
-	public DeferredPowerPowerAction(ResultSet rs, HashMap<String, EffectsBase> effects) throws SQLException {
-		super(rs);
+    public DeferredPowerPowerAction(ResultSet rs, HashMap<String, EffectsBase> effects) throws SQLException {
+        super(rs);
 
-		this.effectID = rs.getString("effectID");
-		this.deferedPowerID = rs.getString("deferredPowerID");
-		this.effect = effects.get(this.effectID);
-	}
+        this.effectID = rs.getString("effectID");
+        this.deferedPowerID = rs.getString("deferredPowerID");
+        this.effect = effects.get(this.effectID);
+    }
 
-	public String getEffectID() {
-		return this.effectID;
-	}
+    public String getEffectID() {
+        return this.effectID;
+    }
 
-	public String getDeferredPowerID() {
-		return this.deferedPowerID;
-	}
+    public String getDeferredPowerID() {
+        return this.deferedPowerID;
+    }
 
-	public EffectsBase getEffect() {
-		return this.effect;
-	}
+    public EffectsBase getEffect() {
+        return this.effect;
+    }
 
-	@Override
-	protected void _startAction(AbstractCharacter source, AbstractWorldObject awo, Vector3fImmutable targetLoc, int trains, ActionsBase ab, PowersBase pb) {
-		if (this.effect == null || pb == null || ab == null) {
-			//TODO log error here
-			return;
-		}
+    @Override
+    protected void _startAction(AbstractCharacter source, AbstractWorldObject awo, Vector3fImmutable targetLoc, int trains, ActionsBase ab, PowersBase pb) {
+        if (this.effect == null || pb == null || ab == null) {
+            //TODO log error here
+            return;
+        }
 
-		//add schedule job to end it if needed and add effect to pc
+        //add schedule job to end it if needed and add effect to pc
 
-		String stackType = ab.getStackType();
-		DeferredPowerJob eff = new DeferredPowerJob(source, awo, stackType, trains, ab, pb, this.effect, this);
-		if (stackType.equals("IgnoreStack"))
-			awo.addEffect(Integer.toString(ab.getUUID()), 10000, eff, this.effect, trains);
-		else
-			awo.addEffect(stackType, 10000, eff, this.effect, trains);
+        String stackType = ab.getStackType();
+        DeferredPowerJob eff = new DeferredPowerJob(source, awo, stackType, trains, ab, pb, this.effect, this);
+        if (stackType.equals("IgnoreStack"))
+            awo.addEffect(Integer.toString(ab.getUUID()), 10000, eff, this.effect, trains);
+        else
+            awo.addEffect(stackType, 10000, eff, this.effect, trains);
 
-		switch (awo.getObjectType()){
-		case PlayerCharacter:
-			((PlayerCharacter)awo).setWeaponPower(eff);
-			break;
-		case Mob:
-			((Mob)awo).setWeaponPower(eff);
-			break;
-		default:
-			break;
-		}
+        switch (awo.getObjectType()) {
+            case PlayerCharacter:
+                ((PlayerCharacter) awo).setWeaponPower(eff);
+                break;
+            case Mob:
+                ((Mob) awo).setWeaponPower(eff);
+                break;
+            default:
+                break;
+        }
 
 
-		this.effect.startEffect(source, awo, trains, eff);
-	}
+        this.effect.startEffect(source, awo, trains, eff);
+    }
 
-	@Override
-	protected void _handleChant(AbstractCharacter source, AbstractWorldObject target, Vector3fImmutable targetLoc, int trains, ActionsBase ab, PowersBase pb) {
-	}
+    @Override
+    protected void _handleChant(AbstractCharacter source, AbstractWorldObject target, Vector3fImmutable targetLoc, int trains, ActionsBase ab, PowersBase pb) {
+    }
 
-	@Override
-	protected void _startAction(AbstractCharacter source, AbstractWorldObject awo, Vector3fImmutable targetLoc,
-			int numTrains, ActionsBase ab, PowersBase pb, int duration) {
-		// TODO Auto-generated method stub
+    @Override
+    protected void _startAction(AbstractCharacter source, AbstractWorldObject awo, Vector3fImmutable targetLoc,
+                                int numTrains, ActionsBase ab, PowersBase pb, int duration) {
+        // TODO Auto-generated method stub
 
-	}
+    }
 }

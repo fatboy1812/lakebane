@@ -25,44 +25,44 @@ import java.util.HashMap;
 
 public class TransferStatOTPowerAction extends TransferStatPowerAction {
 
-	private int numIterations;
+    private int numIterations;
 
-	public TransferStatOTPowerAction(ResultSet rs, HashMap<String, EffectsBase> effects) throws SQLException {
-		super(rs, effects);
+    public TransferStatOTPowerAction(ResultSet rs, HashMap<String, EffectsBase> effects) throws SQLException {
+        super(rs, effects);
 
-		this.numIterations = rs.getInt("numIterations");
-	}
+        this.numIterations = rs.getInt("numIterations");
+    }
 
-	public int getNumIterations() {
-		return this.numIterations;
-	}
+    public int getNumIterations() {
+        return this.numIterations;
+    }
 
-	protected void _startAction(AbstractCharacter source, AbstractWorldObject awo, Vector3f targetLoc, int trains, ActionsBase ab, PowersBase pb) {
-		this.__startAction(source, awo, trains, ab, pb);
-	}
+    protected void _startAction(AbstractCharacter source, AbstractWorldObject awo, Vector3f targetLoc, int trains, ActionsBase ab, PowersBase pb) {
+        this.__startAction(source, awo, trains, ab, pb);
+    }
 
-	@Override
-	protected void __startAction(AbstractCharacter source, AbstractWorldObject awo, int trains, ActionsBase ab, PowersBase pb) {
-		if (this.effect == null || source == null || awo == null || ab == null || pb == null)
-			return;
+    @Override
+    protected void __startAction(AbstractCharacter source, AbstractWorldObject awo, int trains, ActionsBase ab, PowersBase pb) {
+        if (this.effect == null || source == null || awo == null || ab == null || pb == null)
+            return;
 
-		//add schedule job to end it if needed and add effect to pc
-		int duration = ab.getDuration(trains);
-		String stackType = ab.getStackType();
-		stackType = (stackType.equals("IgnoreStack")) ? Integer.toString(ab.getUUID()) : stackType;
-		TransferStatOTJob eff = new TransferStatOTJob(source, awo, stackType, trains, ab, pb, this.effect, this);
-		int tick = eff.getTickLength();
+        //add schedule job to end it if needed and add effect to pc
+        int duration = ab.getDuration(trains);
+        String stackType = ab.getStackType();
+        stackType = (stackType.equals("IgnoreStack")) ? Integer.toString(ab.getUUID()) : stackType;
+        TransferStatOTJob eff = new TransferStatOTJob(source, awo, stackType, trains, ab, pb, this.effect, this);
+        int tick = eff.getTickLength();
 
-		if (duration > 0)
-			awo.addEffect(stackType, tick, eff, this.effect, trains);
+        if (duration > 0)
+            awo.addEffect(stackType, tick, eff, this.effect, trains);
 
-		//start effect icon for client. Skip applying dot until first iteration.
-		eff.setSkipApplyEffect(true);
-		this.effect.startEffect(source, awo, trains, eff);
-		eff.setSkipApplyEffect(false);
-	}
+        //start effect icon for client. Skip applying dot until first iteration.
+        eff.setSkipApplyEffect(true);
+        this.effect.startEffect(source, awo, trains, eff);
+        eff.setSkipApplyEffect(false);
+    }
 
-	@Override
-	protected void _handleChant(AbstractCharacter source, AbstractWorldObject target, Vector3fImmutable targetLoc, int trains, ActionsBase ab, PowersBase pb) {
-	}
+    @Override
+    protected void _handleChant(AbstractCharacter source, AbstractWorldObject target, Vector3fImmutable targetLoc, int trains, ActionsBase ab, PowersBase pb) {
+    }
 }
