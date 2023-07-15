@@ -234,8 +234,13 @@ public class MobileFSM {
             mob.setCombatTarget(null);
             return false;
         }
+        int castRoll = ThreadLocalRandom.current().nextInt(101);
+        if(castRoll <= MobileFSMManager.AI_POWER_DIVISOR){
+            return false;
+        }
         if (mob.nextCastTime == 0)
             mob.nextCastTime = System.currentTimeMillis();
+
         return mob.nextCastTime <= System.currentTimeMillis();
     }
 
@@ -296,7 +301,8 @@ public class MobileFSM {
             msg.setUnknown04(2);
             PowersManager.finishUseMobPower(msg, mob, 0, 0);
             // Default minimum seconds between cast = 10
-            mob.nextCastTime = System.currentTimeMillis() + mobPower.getCooldown() + (MobileFSMManager.AI_POWER_DIVISOR * 1000);
+            float randomCooldown = (ThreadLocalRandom.current().nextInt(150) + 100) * 0.01f;
+            mob.nextCastTime = System.currentTimeMillis() + (long)((mobPower.getCooldown() + (MobileFSMManager.AI_POWER_DIVISOR * 1000)) * randomCooldown);
             return true;
         }
         return false;
