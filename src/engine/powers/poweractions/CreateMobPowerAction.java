@@ -155,7 +155,9 @@ public class CreateMobPowerAction extends AbstractPowerAction {
         //	if (mobID == 12021 || mobID == 12022) //Necro Pets
         //	pet.setPet(owner, true);
         owner.setPet(pet);
-        MovementManager.translocate(pet,owner.getLoc(),owner.region);
+        if(pet.isSiege() == false) {
+            MovementManager.translocate(pet, owner.getLoc(), owner.region);
+        }
         PetMsg pm = new PetMsg(5, pet);
         Dispatch dispatch = Dispatch.borrow(owner, pm);
         DispatchMessage.dispatchMsgDispatch(dispatch, engine.Enum.DispatchChannel.SECONDARY);

@@ -332,6 +332,11 @@ public class MobileFSM {
     public static void DetermineAction(Mob mob) {
         if (mob == null)
             return;
+        //pet cleanup for errant pets
+        if(mob.BehaviourType.ordinal() == Enum.MobBehaviourType.Pet1.ordinal() && mob.getOwner() == null && mob.isSiege() == false){
+                mob.despawn();
+                WorldGrid.removeObject(mob);
+        }
         if (mob.despawned && mob.getMobBase().getLoadID() == 13171) {
             //trebuchet spawn handler
             CheckForRespawn(mob);
@@ -358,7 +363,7 @@ public class MobileFSM {
             CheckForRespawn(mob);
             return;
         }
-        if (mob.playerAgroMap.isEmpty() && mob.isPlayerGuard == false)
+        if (mob.playerAgroMap.isEmpty() && mob.isPlayerGuard == false && mob.BehaviourType.ordinal() != Enum.MobBehaviourType.Pet1.ordinal())
             //no players loaded, no need to proceed
             return;
         if (mob.isCombat() && mob.getCombatTarget() == null) {
@@ -368,7 +373,9 @@ public class MobileFSM {
             DispatchMessage.sendToAllInRange(mob, rwss);
         }
         mob.updateLocation();
-        CheckToSendMobHome(mob);
+        if(mob.BehaviourType.ordinal() != Enum.MobBehaviourType.Pet1.ordinal()) {
+            CheckToSendMobHome(mob);
+        }
         if (mob.combatTarget != null && mob.combatTarget.isAlive() == false) {
             mob.setCombatTarget(null);
         }
@@ -568,10 +575,10 @@ public class MobileFSM {
 
     private static void chaseTarget(Mob mob) {
         mob.updateMovementState();
-        if (mob.playerAgroMap.containsKey(mob.getCombatTarget().getObjectUUID()) == false) {
-            mob.setCombatTarget(null);
-            return;
-        }
+        //if (mob.playerAgroMap.containsKey(mob.getCombatTarget().getObjectUUID()) == false) {
+        //    mob.setCombatTarget(null);
+        //    return;
+        //}
         if (CombatUtilities.inRange2D(mob, mob.getCombatTarget(), mob.getRange()) == false) {
             if (mob.getRange() > 15) {
                 mob.destination = mob.getCombatTarget().getLoc();
