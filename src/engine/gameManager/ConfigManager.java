@@ -61,6 +61,11 @@ public enum ConfigManager {
     MB_WORLD_MAINTENANCE,
     MB_WORLD_GREETING,
     MB_WORLD_KEYCLONE_MAX,
+    MB_USE_RUINS,
+
+    // Mobile AI modifiers
+    MB_AI_CAST_FREQUENCY,
+    MB_AI_AGGRO_RANGE,
 
     //drop rates
     MB_NORMAL_EXP_RATE,
@@ -86,9 +91,7 @@ public enum ConfigManager {
     MB_MAGICBOT_FORTOFIX,
     MB_MAGICBOT_RECRUIT,
     MB_MAGICBOT_MAGICBOX,
-    MB_MAGICBOT_ADMINLOG,
-
-    MB_MOB_DIFFICULTY;//0.1(easy)  -  1.0(hard)
+    MB_MAGICBOT_ADMINLOG;
 
     // Map to hold our config pulled in from the environment
     // We also use the config to point to the current message pump

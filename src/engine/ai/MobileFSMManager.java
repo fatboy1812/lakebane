@@ -47,10 +47,15 @@ public class MobileFSMManager {
         };
 
         alive = true;
+
         //assign the AI varibales base don difficulty scaling from config file:
-        float difficulty = Float.parseFloat(ConfigManager.MB_MOB_DIFFICULTY.getValue());
-        AI_BASE_AGGRO_RANGE = (int)(100 * difficulty); // range at which aggressive mobs will attack you
-        AI_POWER_DIVISOR = (int)(20 * (1.5f-difficulty)); //duration between mob casts
+
+        float difficulty = Float.parseFloat(ConfigManager.MB_AI_AGGRO_RANGE.getValue());
+        AI_BASE_AGGRO_RANGE = (int) (100 * difficulty); // range at which aggressive mobs will attack you
+
+        difficulty = Float.parseFloat(ConfigManager.MB_AI_CAST_FREQUENCY.getValue());
+        AI_POWER_DIVISOR = (int) (20 * (1.5f - difficulty)); //duration between mob casts
+
         Thread t = new Thread(worker, "MobileFSMManager");
         t.start();
     }

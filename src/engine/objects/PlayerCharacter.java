@@ -879,13 +879,10 @@ public class PlayerCharacter extends AbstractCharacter {
 
 		//handle rented room binds.
 
-
 		if (bindBuilding == null){
 			bindLocation = Enum.Ruins.getRandomRuin().getLocation();
 			return bindLocation;
 		}
-
-
 
 		bindLocation = BuildingManager.GetBindLocationForBuilding(bindBuilding);
 

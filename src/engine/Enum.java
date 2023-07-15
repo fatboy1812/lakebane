@@ -9,6 +9,7 @@
 package engine;
 
 import ch.claude_martin.enumbitset.EnumBitSetHelper;
+import engine.gameManager.ConfigManager;
 import engine.gameManager.PowersManager;
 import engine.gameManager.ZoneManager;
 import engine.math.Vector2f;
@@ -99,32 +100,32 @@ public class Enum {
 
 		// RaceRuneID / AggroType, isFemale
 
-		AELFMALE(2000, MonsterType.Aelfborn, RunSpeed.STANDARD, CharacterSex.MALE,1.05f),
-		AELFFEMALE(2001, MonsterType.Aelfborn, RunSpeed.STANDARD, CharacterSex.FEMALE,1.05f),
-		ARACOIXMALE(2002, MonsterType.Aracoix, RunSpeed.STANDARD, CharacterSex.MALE,1),
-		ARACOIXFEMALE(2003, MonsterType.Aracoix, RunSpeed.STANDARD, CharacterSex.FEMALE,1),
-		CENTAURMALE(2004, MonsterType.Centaur, RunSpeed.CENTAUR, CharacterSex.MALE,1.2f),
+		AELFMALE(2000, MonsterType.Aelfborn, RunSpeed.STANDARD, CharacterSex.MALE, 1.05f),
+		AELFFEMALE(2001, MonsterType.Aelfborn, RunSpeed.STANDARD, CharacterSex.FEMALE, 1.05f),
+		ARACOIXMALE(2002, MonsterType.Aracoix, RunSpeed.STANDARD, CharacterSex.MALE, 1),
+		ARACOIXFEMALE(2003, MonsterType.Aracoix, RunSpeed.STANDARD, CharacterSex.FEMALE, 1),
+		CENTAURMALE(2004, MonsterType.Centaur, RunSpeed.CENTAUR, CharacterSex.MALE, 1.2f),
 		CENTAURFEMALE(2005, MonsterType.Centaur, RunSpeed.CENTAUR, CharacterSex.FEMALE, 1.2f),
-		DWARFMALE(2006, MonsterType.Dwarf, RunSpeed.STANDARD, CharacterSex.MALE,0.80000001f),
+		DWARFMALE(2006, MonsterType.Dwarf, RunSpeed.STANDARD, CharacterSex.MALE, 0.80000001f),
 		ELFMALE(2008, MonsterType.Elf, RunSpeed.STANDARD, CharacterSex.MALE, 1.4f),
-		ELFFEMALE(2009, MonsterType.Elf, RunSpeed.STANDARD, CharacterSex.FEMALE,1.1f),
+		ELFFEMALE(2009, MonsterType.Elf, RunSpeed.STANDARD, CharacterSex.FEMALE, 1.1f),
 		HALFGIANTMALE(2010, MonsterType.HalfGiant, RunSpeed.STANDARD, CharacterSex.MALE, 1.15f),
-		HUMANMALE(2011, MonsterType.Human, RunSpeed.STANDARD, CharacterSex.MALE,1),
-		HUMANFEMALE(2012, MonsterType.Human, RunSpeed.STANDARD, CharacterSex.FEMALE,1),
-		IREKEIMALE(2013, MonsterType.Irekei, RunSpeed.STANDARD, CharacterSex.MALE,1.1f),
-		IREKEIFEMALE(2014, MonsterType.Irekei, RunSpeed.STANDARD, CharacterSex.FEMALE,1.1f),
-		SHADEMALE(2015, MonsterType.Shade, RunSpeed.STANDARD, CharacterSex.MALE,1),
-		SHADEFEMALE(2016, MonsterType.Shade, RunSpeed.STANDARD, CharacterSex.FEMALE,1),
-		MINOMALE(2017, MonsterType.Minotaur, RunSpeed.MINOTAUR, CharacterSex.MALE,1.3f),
-		ARCHONMALE(2018, MonsterType.Celestial, RunSpeed.STANDARD, CharacterSex.MALE,1),
-		HALEGIANTOLDMALE(2019, MonsterType.HalfGiant, RunSpeed.STANDARD, CharacterSex.MALE,1.15f),
-		CSRFEMALE(2020, MonsterType.CSR, RunSpeed.STANDARD, CharacterSex.FEMALE,0.66000003f),
-		CSRMALE(2021, MonsterType.CSR, RunSpeed.STANDARD, CharacterSex.MALE,1),
-		NEPHMALE(2025, MonsterType.Nephilim, RunSpeed.STANDARD, CharacterSex.MALE,1.1f),
-		NEPHFEMALE(2026, MonsterType.Nephilim, RunSpeed.STANDARD, CharacterSex.FEMALE,1.1f),
-		HALFGIANTFEMALE(2027, MonsterType.HalfGiant, RunSpeed.STANDARD, CharacterSex.FEMALE,1.15f),
+		HUMANMALE(2011, MonsterType.Human, RunSpeed.STANDARD, CharacterSex.MALE, 1),
+		HUMANFEMALE(2012, MonsterType.Human, RunSpeed.STANDARD, CharacterSex.FEMALE, 1),
+		IREKEIMALE(2013, MonsterType.Irekei, RunSpeed.STANDARD, CharacterSex.MALE, 1.1f),
+		IREKEIFEMALE(2014, MonsterType.Irekei, RunSpeed.STANDARD, CharacterSex.FEMALE, 1.1f),
+		SHADEMALE(2015, MonsterType.Shade, RunSpeed.STANDARD, CharacterSex.MALE, 1),
+		SHADEFEMALE(2016, MonsterType.Shade, RunSpeed.STANDARD, CharacterSex.FEMALE, 1),
+		MINOMALE(2017, MonsterType.Minotaur, RunSpeed.MINOTAUR, CharacterSex.MALE, 1.3f),
+		ARCHONMALE(2018, MonsterType.Celestial, RunSpeed.STANDARD, CharacterSex.MALE, 1),
+		HALEGIANTOLDMALE(2019, MonsterType.HalfGiant, RunSpeed.STANDARD, CharacterSex.MALE, 1.15f),
+		CSRFEMALE(2020, MonsterType.CSR, RunSpeed.STANDARD, CharacterSex.FEMALE, 0.66000003f),
+		CSRMALE(2021, MonsterType.CSR, RunSpeed.STANDARD, CharacterSex.MALE, 1),
+		NEPHMALE(2025, MonsterType.Nephilim, RunSpeed.STANDARD, CharacterSex.MALE, 1.1f),
+		NEPHFEMALE(2026, MonsterType.Nephilim, RunSpeed.STANDARD, CharacterSex.FEMALE, 1.1f),
+		HALFGIANTFEMALE(2027, MonsterType.HalfGiant, RunSpeed.STANDARD, CharacterSex.FEMALE, 1.15f),
 		VAMPMALE(2028, MonsterType.Vampire, RunSpeed.STANDARD, CharacterSex.MALE, 1),
-		VAMPFEMALE(2029, MonsterType.Vampire, RunSpeed.STANDARD, CharacterSex.FEMALE,1);
+		VAMPFEMALE(2029, MonsterType.Vampire, RunSpeed.STANDARD, CharacterSex.FEMALE, 1);
 
 		@SuppressWarnings("unchecked")
 		private static HashMap<Integer, RaceType> _raceTypeByID = new HashMap<>();
@@ -143,16 +144,8 @@ public class Enum {
 			this.scaleHeight = scaleHeight;
 		}
 
-		public int getRuneID() {
-			return this.runeID;
-		}
-
 		public static RaceType getRaceTypebyRuneID(int runeID) {
 			return _raceTypeByID.get(runeID);
-		}
-		
-		public float getScaleHeight(){
-			return this.scaleHeight;
 		}
 
 		public static void initRaceTypeTables() {
@@ -160,6 +153,14 @@ public class Enum {
 			for (RaceType raceType : RaceType.values()) {
 				_raceTypeByID.put(raceType.runeID, raceType);
 			}
+		}
+
+		public int getRuneID() {
+			return this.runeID;
+		}
+
+		public float getScaleHeight() {
+			return this.scaleHeight;
 		}
 
 		public MonsterType getMonsterType() {
@@ -217,11 +218,6 @@ public class Enum {
 			return runCombat;
 		}
 
-		public float getSwim() {
-			return swim;
-		}
-
-
 		public float getFlyRun() {
 			return flyRun;
 		}
@@ -256,10 +252,6 @@ public class Enum {
 			this.listType = listType;
 		}
 
-		public int getListType() {
-			return this.listType;
-		}
-
 		public static FriendListType getListTypeByID(int listType) {
 
 			FriendListType outType = null;
@@ -270,6 +262,7 @@ public class Enum {
 			}
 			return outType;
 		}
+
 	}
 
 	public enum DispatchChannel {
@@ -334,10 +327,6 @@ public class Enum {
 			this.meshID = meshID;
 		}
 
-		public int getMeshID() {
-			return meshID;
-		}
-
 		public static CharterType getCharterTypeByID(int charterID) {
 			CharterType outType = null;
 
@@ -346,6 +335,10 @@ public class Enum {
 					outType = charterType;
 			}
 			return outType;
+		}
+
+		public int getMeshID() {
+			return meshID;
 		}
 	}
 
@@ -424,21 +417,6 @@ public class Enum {
 			this.zoneUUID = uuid;
 		}
 
-		public int getZoneUUID() {
-			return this.zoneUUID;
-		}
-
-		public Vector3fImmutable getLocation() {
-
-			Zone ruinZone;
-			Vector3fImmutable spawnLocation;
-
-			ruinZone = ZoneManager.getZoneByUUID(this.zoneUUID);
-			spawnLocation = Vector3fImmutable.getRandomPointOnCircle(ruinZone.getLoc(), 30);
-
-			return spawnLocation;
-		}
-
 		public static Ruins getRandomRuin() {
 
 			Ruins ruins;
@@ -447,6 +425,32 @@ public class Enum {
 					.nextInt(Ruins.values().length)];
 
 			return ruins;
+		}
+
+		public Vector3fImmutable getLocation() {
+
+			Zone ruinZone;
+			Vector3fImmutable spawnLocation;
+
+			// Send to SDR if so configured
+
+			if (ConfigManager.MB_USE_RUINS.getValue().equalsIgnoreCase("true")) {
+				ruinZone = ZoneManager.getZoneByUUID(this.zoneUUID);
+				spawnLocation = Vector3fImmutable.getRandomPointOnCircle(ruinZone.getLoc(), 30);
+			} else {
+				ruinZone = ZoneManager.getZoneByName("sea dog's rest");
+
+				// 14001 does not have a banestone to bind at
+
+				if (ruinZone.getLoadNum() == 14001)
+					spawnLocation = Vector3fImmutable.getRandomPointOnCircle(ruinZone.getLoc(), 30);
+				else
+					spawnLocation = Vector3fImmutable.getRandomPointOnCircle(ruinZone.getLoc()
+							.add(new Vector3fImmutable(-196.016f, 2.812f, 203.621f)), 30);
+			}
+
+
+			return spawnLocation;
 		}
 
 	}
@@ -562,8 +566,8 @@ public class Enum {
 		RESOURCE(34),
 		REALMCHARTER(35);
 
-		private final int _value;
 		private final static HashMap<Integer, ItemType> _typeLookup = new HashMap<>();
+		private final int _value;
 
 		ItemType(int value) {
 			this._value = value;
@@ -630,22 +634,6 @@ public class Enum {
 			this.token = token;
 		}
 
-		public int getBlueprintUUID() {
-			return blueprintUUID;
-		}
-
-		public int getEffectFlag() {
-			return effectFlag;
-		}
-
-		public int getToken() {
-			return token;
-		}
-
-		public EffectsBase getEffectBase() {
-			return PowersManager.getEffectByToken(token);
-		}
-
 		public static SpireType getByBlueprintUUID(int uuid) {
 
 			SpireType outType = SpireType.GROUNDING;
@@ -660,6 +648,22 @@ public class Enum {
 			}
 
 			return outType;
+		}
+
+		public int getBlueprintUUID() {
+			return blueprintUUID;
+		}
+
+		public int getEffectFlag() {
+			return effectFlag;
+		}
+
+		public int getToken() {
+			return token;
+		}
+
+		public EffectsBase getEffectBase() {
+			return PowersManager.getEffectByToken(token);
 		}
 
 	}
@@ -755,22 +759,23 @@ public class Enum {
 		Powerblock,
 		Steel,
 		Drain;
-		public static DamageType GetDamageType(String modName){
+
+		public static DamageType GetDamageType(String modName) {
 			DamageType damageType;
 			if (modName.isEmpty())
 				return DamageType.None;
-			
-			try{
-				 damageType = DamageType.valueOf(modName.replace(",", ""));
-			}catch(Exception e){
+
+			try {
+				damageType = DamageType.valueOf(modName.replace(",", ""));
+			} catch (Exception e) {
 				Logger.error(e);
 				return DamageType.None;
 			}
 			return damageType;
 		}
 	}
-	
-	
+
+
 	public enum SourceType {
 		None,
 		Abjuration,
@@ -923,14 +928,15 @@ public class Enum {
 		VAMPDRAIN,
 		WEAPON,
 		Wizardry;
-		public static SourceType GetSourceType(String modName){
+
+		public static SourceType GetSourceType(String modName) {
 			SourceType returnMod;
-			if(modName.isEmpty())
+			if (modName.isEmpty())
 				return SourceType.None;
-			
-			try{
-				 returnMod = SourceType.valueOf(modName.replace(",", ""));
-			}catch(Exception e){
+
+			try {
+				returnMod = SourceType.valueOf(modName.replace(",", ""));
+			} catch (Exception e) {
 				Logger.error(modName);
 				Logger.error(e);
 				return SourceType.None;
@@ -938,8 +944,8 @@ public class Enum {
 			return returnMod;
 		}
 	}
-	
-	public enum EffectSourceType{
+
+	public enum EffectSourceType {
 		None,
 		AttackSpeedBuff,
 		Bleeding,
@@ -997,22 +1003,22 @@ public class Enum {
 		WereformPhysResBuff,
 		WereformSPRecBuff,
 		WereformStrBuff;
-		
-		public static EffectSourceType GetEffectSourceType(String modName){
+
+		public static EffectSourceType GetEffectSourceType(String modName) {
 			EffectSourceType returnMod;
-			if(modName.isEmpty())
+			if (modName.isEmpty())
 				return EffectSourceType.None;
-			
-			try{
-				 returnMod = EffectSourceType.valueOf(modName.replace(",", ""));
-			}catch(Exception e){
+
+			try {
+				returnMod = EffectSourceType.valueOf(modName.replace(",", ""));
+			} catch (Exception e) {
 				Logger.error(e);
 				return EffectSourceType.None;
 			}
 			return returnMod;
 		}
 	}
-	
+
 	public enum StackType {
 		None,
 		AggRangeDeBuff,
@@ -1120,14 +1126,15 @@ public class Enum {
 		Track,
 		Transform,
 		WeaponMove;
-		public static StackType GetStackType(String modName){
+
+		public static StackType GetStackType(String modName) {
 			StackType stackType;
 			if (modName.isEmpty())
 				return StackType.None;
-			
-			try{
-				 stackType = StackType.valueOf(modName.replace(",", ""));
-			}catch(Exception e){
+
+			try {
+				stackType = StackType.valueOf(modName.replace(",", ""));
+			} catch (Exception e) {
 				Logger.error(modName);
 				Logger.error(e);
 				return StackType.None;
@@ -1135,7 +1142,7 @@ public class Enum {
 			return stackType;
 		}
 	}
-	
+
 	public enum ModType {
 		None,
 		AdjustAboveDmgCap,
@@ -1205,21 +1212,22 @@ public class Enum {
 		WeaponProc,
 		WeaponRange,
 		WeaponSpeed;
-		
-		public static ModType GetModType(String modName){
+
+		public static ModType GetModType(String modName) {
 			ModType modType;
 			if (modName.isEmpty())
 				return ModType.None;
-			
-			try{
-				 modType = ModType.valueOf(modName.replace(",", ""));
-			}catch(Exception e){
+
+			try {
+				modType = ModType.valueOf(modName.replace(",", ""));
+			} catch (Exception e) {
 				Logger.error(e);
 				return ModType.None;
 			}
 			return modType;
 		}
 	}
+
 	public enum MovementState {
 
 		IDLE,
@@ -1355,26 +1363,6 @@ public class Enum {
 			this.reqLvl = reqLvl;
 		}
 
-		public long getFlag() {
-			return flag;
-		}
-
-		public int getReqLvl() {
-			return this.reqLvl;
-		}
-
-		public void setFlag(long flag) {
-			this.flag = flag;
-		}
-
-		public int getToken() {
-			return token;
-		}
-
-		public void setToken(int token) {
-			this.token = token;
-		}
-
 		public static CharacterSkills GetCharacterSkillByToken(int token) {
 			for (CharacterSkills skill : CharacterSkills.values()) {
 				if (skill.token == token)
@@ -1383,6 +1371,26 @@ public class Enum {
 
 			Logger.info("Returned No Skill for token " + token + ". Defaulting to Axe");
 			return CharacterSkills.Axe;
+		}
+
+		public long getFlag() {
+			return flag;
+		}
+
+		public void setFlag(long flag) {
+			this.flag = flag;
+		}
+
+		public int getReqLvl() {
+			return this.reqLvl;
+		}
+
+		public int getToken() {
+			return token;
+		}
+
+		public void setToken(int token) {
+			this.token = token;
 		}
 	}
 
@@ -1440,7 +1448,8 @@ public class Enum {
 		Warrior(SexType.NONE),
 		Wizard(SexType.NONE),
 		Nightstalker(SexType.NONE),
-		Necromancer(SexType.NONE),;
+		Necromancer(SexType.NONE),
+		;
 
 		private SexType sexRestriction;
 
@@ -1566,7 +1575,7 @@ public class Enum {
 	// building slot mechanics.
 
 	public enum BuildingGroup implements EnumBitSetHelper<BuildingGroup> {
-		NONE(0,0),
+		NONE(0, 0),
 		TOL(64f, 64f),
 		BARRACK(32f, 64f),
 		CHURCH(64f, 64f),
@@ -1604,8 +1613,8 @@ public class Enum {
 		FORTRESS(64f, 64f),
 		CITADEL(64f, 64f),
 		WALLSTRAIGHTTOWER(16f, 64),
-		WALLSTAIRS(64,64);
-		
+		WALLSTAIRS(64, 64);
+
 		private final Vector2f extents;
 
 		BuildingGroup(float extentX, float extentY) {
@@ -1617,8 +1626,8 @@ public class Enum {
 		}
 
 	}
-	
-	public enum UpdateType{
+
+	public enum UpdateType {
 		ALL,
 		MOVEMENT,
 		REGEN,
@@ -1626,13 +1635,13 @@ public class Enum {
 		LOCATION,
 		MOVEMENTSTATE;
 	}
-	
-	public enum ServerType{
+
+	public enum ServerType {
 		WORLDSERVER,
 		LOGINSERVER,
 		NONE;
 	}
-	
+
 	public enum ChatChannel implements EnumBitSetHelper<ChatChannel> {
 		System,
 		Announce,
@@ -1694,23 +1703,23 @@ public class Enum {
 		Ally,
 		Enemy;
 	}
-	
+
 	public enum FriendStatus {
 		Available,
 		Away,
 		Busy;
 	}
-	
+
 	public enum ProfitType {
-		
-		
+
+
 		BuyNormal("buy_normal"),
 		BuyGuild("buy_guild"),
 		BuyNation("buy_nation"),
 		SellNormal("sell_normal"),
 		SellGuild("sell_guild"),
 		SellNation("sell_nation");
-		
+
 		public String dbField;
 
 		private ProfitType(String dbField) {
@@ -2132,9 +2141,9 @@ public class Enum {
 			return value;
 		}
 	}
-	
-	public enum PowerFailCondition{
-		
+
+	public enum PowerFailCondition {
+
 		Attack,
 		AttackSwing,
 		Cast,
@@ -2148,8 +2157,8 @@ public class Enum {
 		TerritoryClaim,
 		UnEquip;
 	}
-	
-	public enum PowerSubType{
+
+	public enum PowerSubType {
 		Amount,
 		Ramp,
 		UseAddFormula,
@@ -2281,202 +2290,206 @@ public class Enum {
 	}
 
 	public enum GuildType {
-		NONE("None", new String[][] {{"None"}}, new String[] {"Thearchy", "Common Rule", "Theocracy", "Republic Rule"}),
+		NONE("None", new String[][]{{"None"}}, new String[]{"Thearchy", "Common Rule", "Theocracy", "Republic Rule"}),
 		CATHEDRAL("Church of the All-Father", new String[][]{
-			{"Acolyte","Acolyte"},
-			{"Catechist"},
-			{"Deacon", "Deaconess"},
-			{"Priest", "Priestess"},
-			{"High Priest", "High Priestess"},
-			{"Bishop", "Bishop"},
-			{"Lord Cardinal", "Lady Cardinal"},
-			{"Patriarch", "Matriarch"}},
-				new String[] {"Thearchy", "Common Rule", "Theocracy", "Republic Rule"}),
-		MILITARY("Military", new String[][] {
-			{"Recruit"},
-			{"Footman"},
-			{"Corporal"},
-			{"Sergeant"},
-			{"Lieutenant"},
-			{"Captain"},
-			{"General"},
-			{"Lord Marshall","Lady Marshall"}},
+				{"Acolyte", "Acolyte"},
+				{"Catechist"},
+				{"Deacon", "Deaconess"},
+				{"Priest", "Priestess"},
+				{"High Priest", "High Priestess"},
+				{"Bishop", "Bishop"},
+				{"Lord Cardinal", "Lady Cardinal"},
+				{"Patriarch", "Matriarch"}},
+				new String[]{"Thearchy", "Common Rule", "Theocracy", "Republic Rule"}),
+		MILITARY("Military", new String[][]{
+				{"Recruit"},
+				{"Footman"},
+				{"Corporal"},
+				{"Sergeant"},
+				{"Lieutenant"},
+				{"Captain"},
+				{"General"},
+				{"Lord Marshall", "Lady Marshall"}},
 				new String[]{"Autocracy", "Common Rule", "Council Rule", "Militocracy"}),
 		TEMPLE("Temple of the Cleansing Flame", new String[][]{
-			{"Aspirant"},
-			{"Novice"},
-			{"Initiate"},
-			{"Inquisitor"},
-			{"Jannisary"},
-			{"Tribune"},
-			{"Lictor"},
-			{"Justiciar"},
-			{"Pontifex","Pontifectrix"}},
-				new String[] {"Despot Rule", "Common Rule", "Protectorship", "Republic Rule"}),
-		BARBARIAN("Barbarian Clan", new String[][] {
-			{"Barbarian"},
-			{"Skald"},
-			{"Raider"},
-			{"Karl"},
-			{"Jarl"},
-			{"Chieftain"},
-			{"Thane"}},
+				{"Aspirant"},
+				{"Novice"},
+				{"Initiate"},
+				{"Inquisitor"},
+				{"Jannisary"},
+				{"Tribune"},
+				{"Lictor"},
+				{"Justiciar"},
+				{"Pontifex", "Pontifectrix"}},
+				new String[]{"Despot Rule", "Common Rule", "Protectorship", "Republic Rule"}),
+		BARBARIAN("Barbarian Clan", new String[][]{
+				{"Barbarian"},
+				{"Skald"},
+				{"Raider"},
+				{"Karl"},
+				{"Jarl"},
+				{"Chieftain"},
+				{"Thane"}},
 				new String[]{"Chiefdom", "Common Rule", "Council Rule", "Republic Rule"}),
-		RANGER("Ranger's Brotherhood", new String[][] {
-			{"Yeoman"},
-			{"Pathfinder"},
-			{"Tracker"},
-			{"Seeker"},
-			{"Protector"},
-			{"Guardian"},
-			{"Lord Protector","Lady Protector"}},
-				new String[]{"Despot Rule", "Collectivism","Council Rule","Republic Rule"}),
-		AMAZON("Amazon Temple", new String[][] {
-			{"Amazon Thrall", "Amazon"},
-			{"Amazon Slave", "Amazon Warrior"},
-			{"Amazon Servant", "Amazon Chieftess"},
-			{"Amazon Consort", "Amazon Princess"},
-			{"Amazon Seneschal", "Majestrix"},
-			{"Amazon Regent", "Imperatrix"}},
-				new String[] {"Despot Rule", "Common Rule", "Gynarchy", "Gynocracy"}),
-		NOBLE("Noble House", new String[][] {
-			{"Serf"},
-			{"Vassal"},
-			{"Exultant"},
-			{"Lord", "Lady"},
-			{"Baron", "Baroness"},
-			{"Count", "Countess"},
-			{"Duke", "Duchess"},
-			{"King", "Queen"},
-			{"Emperor", "Empress"}},
-				new String[] {"Monarchy", "Common Rule", "Feodality", "Republic"}),
-		WIZARD("Wizard's Conclave", new String[][] {
-			{"Apprentice"},
-			{"Neophyte"},
-			{"Adeptus Minor"},
-			{"Adeptus Major"},
-			{"Magus"},
-			{"High Magus"},
-			{"Archmagus"}},
-				new String[] {"Despot Rule", "Common Rule", "Council Rule", "Magocracy"}),
-		MERCENARY("Mercenary Company", new String[][] {
-			{"Soldier"},
-			{"Man-at-Arms"},
-			{"Veteran"},
-			{"Myrmidon"},
-			{"Captain"},
-			{"Commander"},
-			{"High Commander"},
-			{"Warlord"}},
-				new String[] {"Magistrature", "Mob Law", "Council Rule", "Republic Rule"}),
-		THIEVES("Thieve's Den", new String[][] {
-			{"Urchin"},
-			{"Footpad"},
-			{"Grifter"},
-			{"Burglar"},
-			{"Collector"},
-			{"Naster Thief"},
-			{"Treasurer"},
-			{"Grandmaster Thief"},
-			{"Grandfather"}},
-				new String[] {"Despot Rule", "Common Rule", "Oligarchy", "Republic Rule"}),
-		DWARF("Dwarf Hold", new String[][] {
-			{"Citizen"},
-			{"Master"},
-			{"Councilor"},
-			{"Thane"},
-			{"Great Thane"},
-			{"High Thane"}},
-				new String[] {"Despot Rule", "Common Rule", "Council Rule", "Republic Rule"}),
-		HIGHCOURT("High Court", new String[][] {
-			{"Eccekebe"},
-			{"Saedulor"},
-			{"Hodrimarth"},
-			{"Mandrae"},
-			{"Imaelin"},
-			{"Thaelostor", "Thaelostril"},
-			{"Dar Thaelostor", "Dar Thaelostril"},
-			{"Aglaeron"},
-			{"Ellestor", "Elestril"}},
-				new String[] {"Despot Rule", "Common Rule", "Council Rule", "Republic Rule"}),
-		VIRAKT("Virakt", new String[][] {
-			{"Jov'uus"},
-			{"Urikhan"},
-			{"Irkhan"},
-			{"Khal'usht"},
-			{"Arkhalar"},
-			{"Khal'uvho"},
-			{"Khar'uus"},
-			{"Kryqh'khalin"}},
-				new String[] {"Despot Rule", "Common Rule", "Council Rule", "Republic Rule"}),
-		BRIALIA("Coven of Brialia", new String[][] { // Unknown Rank names
-			{"Devotee"},
-			{"Initiated"},
-			{"Witch of the First"},
-			{"Witch of the Second"},
-			{"Witch of the Third"},
-			{"Elder"},
-			{"Hierophant"},
-			{"Witch King", "Witch Queen"}},
-				new String[] {"Despot Rule", "Common Rule", "Council Rule", "Republic Rule"}),
-		UNHOLY("Unholy Legion", new String[][] { // Unknown Rank names
-			{"Footman"},
-			{"Fell Legionaire"},
-			{"Fell Centurion"},
-			{"Dark Captain"},
-			{"Dark Commander"},
-			{"Dark Master", "Dark Mistress"},
-			{"Dread Master", "Dread Mistress"},
-			{"Dread Lord", "Dread Lady"}},
-				new String[] {"Despot Rule", "Despot Rule", "Council Rule", "Republic Rule"}),
-		SCOURGE("Cult of the Scourge", new String[][] {
-			{"Thrall"},
-			{"Mudir"},
-			{"Dark Brother", "Dark Sister"},
-			{"Hand of the Dark"},
-			{"Dark Father", "Dark Mother"}},
-				new String[] {"Despot Rule", "Common Rule", "Council Rule", "Republic Rule"}),
-		PIRATE("Pirate Crew", new String[][] {
-			{"Midshipman", "Midshipwoman"},
-			{"Sailor"},
-			{"Third Mat"},
-			{"Second Mat"},
-			{"First Mate"},
-			{"Captain"}},
-				new String[] {"Despot Rule", "Common Rule", "Council Rule", "Republic Rule"}),
-		HERALD("Academy of Heralds", new String[][] {
-			{"Pupil"},
-			{"Scribe"},
-			{"Recorder"},
-			{"Scrivener"},
-			{"Chronicler"},
-			{"Scholar"},
-			{"Archivist"},
-			{"Loremaster"}},
+		RANGER("Ranger's Brotherhood", new String[][]{
+				{"Yeoman"},
+				{"Pathfinder"},
+				{"Tracker"},
+				{"Seeker"},
+				{"Protector"},
+				{"Guardian"},
+				{"Lord Protector", "Lady Protector"}},
+				new String[]{"Despot Rule", "Collectivism", "Council Rule", "Republic Rule"}),
+		AMAZON("Amazon Temple", new String[][]{
+				{"Amazon Thrall", "Amazon"},
+				{"Amazon Slave", "Amazon Warrior"},
+				{"Amazon Servant", "Amazon Chieftess"},
+				{"Amazon Consort", "Amazon Princess"},
+				{"Amazon Seneschal", "Majestrix"},
+				{"Amazon Regent", "Imperatrix"}},
+				new String[]{"Despot Rule", "Common Rule", "Gynarchy", "Gynocracy"}),
+		NOBLE("Noble House", new String[][]{
+				{"Serf"},
+				{"Vassal"},
+				{"Exultant"},
+				{"Lord", "Lady"},
+				{"Baron", "Baroness"},
+				{"Count", "Countess"},
+				{"Duke", "Duchess"},
+				{"King", "Queen"},
+				{"Emperor", "Empress"}},
+				new String[]{"Monarchy", "Common Rule", "Feodality", "Republic"}),
+		WIZARD("Wizard's Conclave", new String[][]{
+				{"Apprentice"},
+				{"Neophyte"},
+				{"Adeptus Minor"},
+				{"Adeptus Major"},
+				{"Magus"},
+				{"High Magus"},
+				{"Archmagus"}},
+				new String[]{"Despot Rule", "Common Rule", "Council Rule", "Magocracy"}),
+		MERCENARY("Mercenary Company", new String[][]{
+				{"Soldier"},
+				{"Man-at-Arms"},
+				{"Veteran"},
+				{"Myrmidon"},
+				{"Captain"},
+				{"Commander"},
+				{"High Commander"},
+				{"Warlord"}},
+				new String[]{"Magistrature", "Mob Law", "Council Rule", "Republic Rule"}),
+		THIEVES("Thieve's Den", new String[][]{
+				{"Urchin"},
+				{"Footpad"},
+				{"Grifter"},
+				{"Burglar"},
+				{"Collector"},
+				{"Naster Thief"},
+				{"Treasurer"},
+				{"Grandmaster Thief"},
+				{"Grandfather"}},
+				new String[]{"Despot Rule", "Common Rule", "Oligarchy", "Republic Rule"}),
+		DWARF("Dwarf Hold", new String[][]{
+				{"Citizen"},
+				{"Master"},
+				{"Councilor"},
+				{"Thane"},
+				{"Great Thane"},
+				{"High Thane"}},
 				new String[]{"Despot Rule", "Common Rule", "Council Rule", "Republic Rule"}),
-		CENTAUR("Centaur Cohort", new String[][] {
-			{"Hoplite"},
-			{"Peltast"},
-			{"Myrmidon"},
-			{"Myrmidon"},
-			{"Cataphract"},
-			{"Septenrion"},
-			{"Praetorian"},
-			{"Paragon"}},
-				new String[] {"Despot Rule", "Common Rule", "Council Rule", "Republic Rule"}),
-		KHREE("Aracoix Kh'ree", new String[][] {
-			{"Duriacor"},
-			{"Exarch"},
-			{"Tetrarch"},
-			{"Dimarch"},
-			{"Elnarch"},
-			{"Illiarch"},
-			{"Tellotharch"},
-			{"Erentar"},
-			{"Araceos"},
-			{"Hierarch"}},
+		HIGHCOURT("High Court", new String[][]{
+				{"Eccekebe"},
+				{"Saedulor"},
+				{"Hodrimarth"},
+				{"Mandrae"},
+				{"Imaelin"},
+				{"Thaelostor", "Thaelostril"},
+				{"Dar Thaelostor", "Dar Thaelostril"},
+				{"Aglaeron"},
+				{"Ellestor", "Elestril"}},
+				new String[]{"Despot Rule", "Common Rule", "Council Rule", "Republic Rule"}),
+		VIRAKT("Virakt", new String[][]{
+				{"Jov'uus"},
+				{"Urikhan"},
+				{"Irkhan"},
+				{"Khal'usht"},
+				{"Arkhalar"},
+				{"Khal'uvho"},
+				{"Khar'uus"},
+				{"Kryqh'khalin"}},
+				new String[]{"Despot Rule", "Common Rule", "Council Rule", "Republic Rule"}),
+		BRIALIA("Coven of Brialia", new String[][]{ // Unknown Rank names
+				{"Devotee"},
+				{"Initiated"},
+				{"Witch of the First"},
+				{"Witch of the Second"},
+				{"Witch of the Third"},
+				{"Elder"},
+				{"Hierophant"},
+				{"Witch King", "Witch Queen"}},
+				new String[]{"Despot Rule", "Common Rule", "Council Rule", "Republic Rule"}),
+		UNHOLY("Unholy Legion", new String[][]{ // Unknown Rank names
+				{"Footman"},
+				{"Fell Legionaire"},
+				{"Fell Centurion"},
+				{"Dark Captain"},
+				{"Dark Commander"},
+				{"Dark Master", "Dark Mistress"},
+				{"Dread Master", "Dread Mistress"},
+				{"Dread Lord", "Dread Lady"}},
+				new String[]{"Despot Rule", "Despot Rule", "Council Rule", "Republic Rule"}),
+		SCOURGE("Cult of the Scourge", new String[][]{
+				{"Thrall"},
+				{"Mudir"},
+				{"Dark Brother", "Dark Sister"},
+				{"Hand of the Dark"},
+				{"Dark Father", "Dark Mother"}},
+				new String[]{"Despot Rule", "Common Rule", "Council Rule", "Republic Rule"}),
+		PIRATE("Pirate Crew", new String[][]{
+				{"Midshipman", "Midshipwoman"},
+				{"Sailor"},
+				{"Third Mat"},
+				{"Second Mat"},
+				{"First Mate"},
+				{"Captain"}},
+				new String[]{"Despot Rule", "Common Rule", "Council Rule", "Republic Rule"}),
+		HERALD("Academy of Heralds", new String[][]{
+				{"Pupil"},
+				{"Scribe"},
+				{"Recorder"},
+				{"Scrivener"},
+				{"Chronicler"},
+				{"Scholar"},
+				{"Archivist"},
+				{"Loremaster"}},
+				new String[]{"Despot Rule", "Common Rule", "Council Rule", "Republic Rule"}),
+		CENTAUR("Centaur Cohort", new String[][]{
+				{"Hoplite"},
+				{"Peltast"},
+				{"Myrmidon"},
+				{"Myrmidon"},
+				{"Cataphract"},
+				{"Septenrion"},
+				{"Praetorian"},
+				{"Paragon"}},
+				new String[]{"Despot Rule", "Common Rule", "Council Rule", "Republic Rule"}),
+		KHREE("Aracoix Kh'ree", new String[][]{
+				{"Duriacor"},
+				{"Exarch"},
+				{"Tetrarch"},
+				{"Dimarch"},
+				{"Elnarch"},
+				{"Illiarch"},
+				{"Tellotharch"},
+				{"Erentar"},
+				{"Araceos"},
+				{"Hierarch"}},
 
-				new String[] {"Despot Rule", "Common Rule", "Council Rule", "Republic Rule"});
+				new String[]{"Despot Rule", "Common Rule", "Council Rule", "Republic Rule"});
+
+		private final String name;
+		private final String[][] ranks;    //Stored Rank#->Gender(M,F)
+		private final String[] leadershipTypes;
 
 		GuildType(String name, String[][] ranks, String[] leadershipTypes) {
 			this.name = name;
@@ -2484,9 +2497,89 @@ public class Enum {
 			this.leadershipTypes = leadershipTypes;
 		}
 
-		private final String name;
-		private final String[][] ranks;	//Stored Rank#->Gender(M,F)
-		private final String[] leadershipTypes;
+		public static GuildType getGuildTypeFromCharter(ItemBase itemBase) {
+
+			GuildType charterType;
+
+			// Must be a valid charter object
+
+			if (itemBase.getType().equals(ItemType.GUILDCHARTER) == false)
+				return GuildType.NONE;    //No guild Type
+
+			// No switches on long in java.  Cast to int
+			// when refactor to long uuid's.  Loss won't matter
+			// with values this small.
+
+			switch (itemBase.getUUID()) {
+
+				case 559:
+					charterType = GuildType.CATHEDRAL;
+					break;
+				case 560:
+					charterType = GuildType.MILITARY;
+					break;
+				case 561:
+					charterType = GuildType.TEMPLE;
+					break;
+				case 562:
+					charterType = GuildType.BARBARIAN;
+					break;
+				case 563:
+					charterType = GuildType.RANGER;
+					break;
+				case 564:
+					charterType = GuildType.AMAZON;
+					break;
+				case 565:
+					charterType = GuildType.NOBLE;
+					break;
+				case 566:
+					charterType = GuildType.WIZARD;
+					break;
+				case 567:
+					charterType = GuildType.MERCENARY;
+					break;
+				case 568:
+					charterType = GuildType.THIEVES;
+					break;
+				case 569:
+					charterType = GuildType.DWARF;
+					break;
+				case 570:
+					charterType = GuildType.HIGHCOURT;
+					break;
+				case 571:
+					charterType = GuildType.VIRAKT;
+					break;
+				case 572:
+					charterType = GuildType.SCOURGE;
+					break;
+				case 573:
+					charterType = GuildType.KHREE;
+					break;
+				case 574:
+					charterType = GuildType.CENTAUR;
+					break;
+				case 575:
+					charterType = GuildType.UNHOLY;
+					break;
+				case 576:
+					charterType = GuildType.PIRATE;
+					break;
+				case 577:
+					charterType = GuildType.BRIALIA;
+					break;
+
+				default:
+					charterType = GuildType.HERALD;
+			}
+
+			return charterType;
+		}
+
+		public static GuildType getGuildTypeFromInt(int i) {
+			return GuildType.values()[i];
+		}
 
 		public String getCharterName() {
 			return this.name;
@@ -2497,11 +2590,11 @@ public class Enum {
 		}
 
 		public String getRankForGender(int rank, boolean male) {
-			if(ranks.length < rank) {
+			if (ranks.length < rank) {
 				return "";
 			}
 
-			if(ranks[rank].length != 1 && !male) {
+			if (ranks[rank].length != 1 && !male) {
 				return ranks[rank][1];
 			}
 			return ranks[rank][0];
@@ -2509,90 +2602,6 @@ public class Enum {
 
 		public String getLeadershipType(int i) {
 			return leadershipTypes[i];
-		}
-
-		public static GuildType getGuildTypeFromCharter(ItemBase itemBase) {
-
-			GuildType charterType;
-
-			// Must be a valid charter object
-
-			if(itemBase.getType().equals(ItemType.GUILDCHARTER) == false)
-				return GuildType.NONE;	//No guild Type
-
-			// No switches on long in java.  Cast to int
-			// when refactor to long uuid's.  Loss won't matter
-			// with values this small.
-
-			switch (itemBase.getUUID()) {
-
-			case 559:
-				charterType = GuildType.CATHEDRAL;
-				break;
-			case 560:
-				charterType = GuildType.MILITARY;
-				break;
-			case 561:
-				charterType = GuildType.TEMPLE;
-				break;
-			case 562:
-				charterType = GuildType.BARBARIAN;
-				break;
-			case 563:
-				charterType = GuildType.RANGER;
-				break;
-			case 564:
-				charterType = GuildType.AMAZON;
-				break;
-			case 565:
-				charterType = GuildType.NOBLE;
-				break;
-			case 566:
-				charterType = GuildType.WIZARD;
-				break;
-			case 567:
-				charterType = GuildType.MERCENARY;
-				break;
-			case 568:
-				charterType = GuildType.THIEVES;
-				break;
-			case 569:
-				charterType = GuildType.DWARF;
-				break;
-			case 570:
-				charterType = GuildType.HIGHCOURT;
-				break;
-			case 571:
-				charterType = GuildType.VIRAKT;
-				break;
-			case 572:
-				charterType = GuildType.SCOURGE;
-				break;
-			case 573:
-				charterType = GuildType.KHREE;
-				break;
-			case 574:
-				charterType = GuildType.CENTAUR;
-				break;
-			case 575:
-				charterType = GuildType.UNHOLY;
-				break;
-			case 576:
-				charterType = GuildType.PIRATE;
-				break;
-			case 577:
-				charterType = GuildType.BRIALIA;
-				break;
-
-			default:
-				charterType = GuildType.HERALD;
-			}
-
-			return charterType;
-		}
-
-		public static GuildType getGuildTypeFromInt(int i) {
-			return GuildType.values()[i];
 		}
 
 	}
@@ -2604,75 +2613,62 @@ public class Enum {
 	}
 
 	public enum MinionType {
-		AELFBORNGUARD(951,1637, MinionClass.MELEE, "Guard","Aelfborn"),
-		AELFBORNMAGE(952, 1635, MinionClass.MAGE,"Adept","Aelfborn"),
-		AMAZONGUARD(1500,1670, MinionClass.MELEE,"Guard","Amazon"),
-		AMAZONMAGE(1502, 1638, MinionClass.MAGE,"Fury","Amazon"),
-		ARACOIXGUARD(1600,1672,MinionClass.MELEE, "Guard","Aracoix"), //used guard captain equipset.
-		ARACOIXMAGE(1602,885,MinionClass.MAGE,"Adept","Aracoix"),
-		CENTAURGUARD(1650,1642, MinionClass.MELEE,"Guard","Centaur"),
-		CENTAURMAGE(1652, 1640, MinionClass.MAGE,"Druid","Centaur"),
-		DWARVENARCHER(845,1644, MinionClass.ARCHER, "Marksman","Dwarven"),
-		DWARVENGUARD(1050,1666, MinionClass.MELEE,"Guard","Dwarven"),
-		DWARVENMAGE(1052, 1643, MinionClass.MAGE,"War Priest","Dwarven"),
-		ELFGUARD(1180,1671, MinionClass.MELEE,"Guard","Elven"), //old 1645
-		ELFMAGE(1182, 1667, MinionClass.MAGE,"Adept","Elven"),
-		FORESTGUARD(1550,1668, MinionClass.MELEE,"Guard","Forest"), //captain changed to guard equipset
-		FORESTMAGE(1552, 436, MinionClass.MAGE,"Adept","Forest"),
-		HOLYGUARD(1525,1658, MinionClass.MELEE,"Guard","Holy Church"),
-		HOLYMAGE(1527, 1646, MinionClass.MAGE,"Prelate","Holy Church"),
-		HUMANARCHER(846,1654,MinionClass.ARCHER, "Archer","Human"),
-		HUMANGUARD(840,1665, MinionClass.MELEE, "Guard","Human"),
-		HUMANMAGE(848, 1655, MinionClass.MAGE,"Adept","Human"),
-		IREKEIGUARD(1350,1659, MinionClass.MELEE,"Guard","Irekei"),
-		IREKEIMAGE(1352, 1660, MinionClass.MAGE,"Adept","Irekei"),
-		MINOTAURARCHER(1701,0,MinionClass.ARCHER,"Archer","Minotaur"),
-		MINOTAURGUARD(1700,1673,MinionClass.MELEE,"Guard","Minotaur"),
-		NORTHMANGUARD(1250,1669, MinionClass.MELEE,"Guard","Northman"),
-		NORTHMANMAGE(1252, 1650, MinionClass.MAGE,"Runecaster","Northman"),
-		SHADEGUARD(1450,1662, MinionClass.MELEE,"Guard","Shade"),
-		SHADEMAGE(1452, 1664, MinionClass.MAGE,"Adept","Shade"),
-		TEMPLARGUARD(841,1564,MinionClass.MELEE,"Marksman","Templar"),
-		TEMPLEGUARD(1575,1652, MinionClass.MELEE,"Guard","Temple"),
-		TEMPLEMAGE(1577, 1656, MinionClass.MAGE,"Confessor","Temple"),
-		UNDEADGUARD(980100,1674,MinionClass.MELEE,"Guard","Undead"),
-		UNDEADMAGE(980102,1675,MinionClass.MAGE,"Adept","Undead"),
-		WEREWOLFGUARD(980104,0,MinionClass.MELEE,"Guard","Werewolf"),
-		WEREBEARGUARD(980103,0,MinionClass.MELEE,"Guard","Werebear");
+		AELFBORNGUARD(951, 1637, MinionClass.MELEE, "Guard", "Aelfborn"),
+		AELFBORNMAGE(952, 1635, MinionClass.MAGE, "Adept", "Aelfborn"),
+		AMAZONGUARD(1500, 1670, MinionClass.MELEE, "Guard", "Amazon"),
+		AMAZONMAGE(1502, 1638, MinionClass.MAGE, "Fury", "Amazon"),
+		ARACOIXGUARD(1600, 1672, MinionClass.MELEE, "Guard", "Aracoix"), //used guard captain equipset.
+		ARACOIXMAGE(1602, 885, MinionClass.MAGE, "Adept", "Aracoix"),
+		CENTAURGUARD(1650, 1642, MinionClass.MELEE, "Guard", "Centaur"),
+		CENTAURMAGE(1652, 1640, MinionClass.MAGE, "Druid", "Centaur"),
+		DWARVENARCHER(845, 1644, MinionClass.ARCHER, "Marksman", "Dwarven"),
+		DWARVENGUARD(1050, 1666, MinionClass.MELEE, "Guard", "Dwarven"),
+		DWARVENMAGE(1052, 1643, MinionClass.MAGE, "War Priest", "Dwarven"),
+		ELFGUARD(1180, 1671, MinionClass.MELEE, "Guard", "Elven"), //old 1645
+		ELFMAGE(1182, 1667, MinionClass.MAGE, "Adept", "Elven"),
+		FORESTGUARD(1550, 1668, MinionClass.MELEE, "Guard", "Forest"), //captain changed to guard equipset
+		FORESTMAGE(1552, 436, MinionClass.MAGE, "Adept", "Forest"),
+		HOLYGUARD(1525, 1658, MinionClass.MELEE, "Guard", "Holy Church"),
+		HOLYMAGE(1527, 1646, MinionClass.MAGE, "Prelate", "Holy Church"),
+		HUMANARCHER(846, 1654, MinionClass.ARCHER, "Archer", "Human"),
+		HUMANGUARD(840, 1665, MinionClass.MELEE, "Guard", "Human"),
+		HUMANMAGE(848, 1655, MinionClass.MAGE, "Adept", "Human"),
+		IREKEIGUARD(1350, 1659, MinionClass.MELEE, "Guard", "Irekei"),
+		IREKEIMAGE(1352, 1660, MinionClass.MAGE, "Adept", "Irekei"),
+		MINOTAURARCHER(1701, 0, MinionClass.ARCHER, "Archer", "Minotaur"),
+		MINOTAURGUARD(1700, 1673, MinionClass.MELEE, "Guard", "Minotaur"),
+		NORTHMANGUARD(1250, 1669, MinionClass.MELEE, "Guard", "Northman"),
+		NORTHMANMAGE(1252, 1650, MinionClass.MAGE, "Runecaster", "Northman"),
+		SHADEGUARD(1450, 1662, MinionClass.MELEE, "Guard", "Shade"),
+		SHADEMAGE(1452, 1664, MinionClass.MAGE, "Adept", "Shade"),
+		TEMPLARGUARD(841, 1564, MinionClass.MELEE, "Marksman", "Templar"),
+		TEMPLEGUARD(1575, 1652, MinionClass.MELEE, "Guard", "Temple"),
+		TEMPLEMAGE(1577, 1656, MinionClass.MAGE, "Confessor", "Temple"),
+		UNDEADGUARD(980100, 1674, MinionClass.MELEE, "Guard", "Undead"),
+		UNDEADMAGE(980102, 1675, MinionClass.MAGE, "Adept", "Undead"),
+		WEREWOLFGUARD(980104, 0, MinionClass.MELEE, "Guard", "Werewolf"),
+		WEREBEARGUARD(980103, 0, MinionClass.MELEE, "Guard", "Werebear");
+		public static HashMap<Integer, MinionType> ContractToMinionMap = new HashMap<>();
 		private final int captainContractID;
 		private final int equipSetID;
 		private final MinionClass minionClass;
 		private final String name;
 		private final String race;
-		
-		public static HashMap<Integer,MinionType> ContractToMinionMap = new HashMap<>();
-		
+
 		MinionType(int captainContractID, int equipSetID, MinionClass minionClass, String name, String race) {
-			
+
 			this.captainContractID = captainContractID;
 			this.equipSetID = equipSetID;
 			this.minionClass = minionClass;
 			this.name = name;
 			this.race = race;
-			
-		}
-		
-		public static void InitializeMinions(){
-			
-			for (MinionType minionType :MinionType.values())
-			ContractToMinionMap.put(minionType.captainContractID, minionType);
+
 		}
 
-		public int getCaptainContractID() {
-			return captainContractID;
-		}
+		public static void InitializeMinions() {
 
-		public int getEquipSetID() {
-			return equipSetID;
-		}
-
-		public MinionClass getMinionClass() {
-			return minionClass;
+			for (MinionType minionType : MinionType.values())
+				ContractToMinionMap.put(minionType.captainContractID, minionType);
 		}
 
 		public String getName() {
@@ -2682,16 +2678,16 @@ public class Enum {
 		public String getRace() {
 			return race;
 		}
-		
+
 	}
-	
-	public enum GridObjectType{
+
+	public enum GridObjectType {
 		STATIC,
 		DYNAMIC;
 	}
 
 	public enum SupportMsgType {
-	    NONE(0),
+		NONE(0),
 		PROTECT(1),
 		UNPROTECT(3),
 		VIEWUNPROTECTED(4),
@@ -2699,17 +2695,17 @@ public class Enum {
 		ACCEPTTAX(7),
 		CONFIRMPROTECT(8);
 
-		private final int type;
 		public static HashMap<Integer, SupportMsgType> typeLookup = new HashMap<>();
+		private final int type;
 
 		SupportMsgType(int messageType) {
 			this.type = messageType;
-		
+
 		}
 
-		public static void InitializeSupportMsgType(){
-			
-			for (SupportMsgType supportMsgType :SupportMsgType.values())
+		public static void InitializeSupportMsgType() {
+
+			for (SupportMsgType supportMsgType : SupportMsgType.values())
 				typeLookup.put(supportMsgType.type, supportMsgType);
 		}
 	}
@@ -2747,13 +2743,13 @@ public class Enum {
 			this.itemID = itemID;
 		}
 
-		public static void InitializeResourceTypes(){
+		public static void InitializeResourceTypes() {
 
-			for (ResourceType resourceType :ResourceType.values())
+			for (ResourceType resourceType : ResourceType.values())
 				resourceLookup.put(resourceType.itemID, resourceType);
 		}
 	}
-	
+
 	public enum PowerActionType {
 		ApplyEffect,
 		ApplyEffects,
@@ -2793,18 +2789,18 @@ public class Enum {
 		ADMIN;
 	}
 
-    public enum MobBehaviourType {
+	public enum MobBehaviourType {
 		None(null, false, false, false, false, false),
-        //Power
-        Power(null, false, true, true, true, false),
-        PowerHelpee(Power, false, true, true, false, true),
-        PowerHelpeeWimpy(Power, true, false, true, false, false),
-        PowerGrouperWimpy(Power, true, false, true, false, false),
-        PowerAggro(Power, false, true, true, false, true),
-        PowerAggroHelpee(Power, false, true, true, false, true),
-        //Aggro
-        Aggro(null, false, true, true, true, false),
-        AggroHelpee(Aggro, false, true, true, false, true),
+		//Power
+		Power(null, false, true, true, true, false),
+		PowerHelpee(Power, false, true, true, false, true),
+		PowerHelpeeWimpy(Power, true, false, true, false, false),
+		PowerGrouperWimpy(Power, true, false, true, false, false),
+		PowerAggro(Power, false, true, true, false, true),
+		PowerAggroHelpee(Power, false, true, true, false, true),
+		//Aggro
+		Aggro(null, false, true, true, true, false),
+		AggroHelpee(Aggro, false, true, true, false, true),
         AggroHelpeeWimpy(Aggro, true, false, true, false, false),
         AggroGrouperWimpy(Aggro, true, false, true, false, false),
         //Spell
@@ -2815,30 +2811,30 @@ public class Enum {
         SpellAggro(Spell, false, true, true, false, true),
         SpellAggroHelpee(Spell, false, true, true, false, true),
         SpellAggroHelpeeWimpy(Spell, true, false, true, false, false),
-        SpellAggroHelpeeEpic(Spell, false, true, true, false, true),
-        SpellAggroGrouperWimpy(Spell, true, false, true, false, false),
-        //Independent Types
-        SimpleStandingGuard(null, false, false, false, false, false),
-        Pet1(null, false, false, true, false, false),
-        Simple(null, false, false, true, false, false),
-        Helpee(null, false, true, true, false, true),
-        HelpeeWimpy(null, true, false, true, false, false),
-        GuardCaptain(null, false, true, true, false, false),
-        GuardMinion(GuardCaptain, false, true, true, false, false),
+		SpellAggroHelpeeEpic(Spell, false, true, true, false, true),
+		SpellAggroGrouperWimpy(Spell, true, false, true, false, false),
+		//Independent Types
+		SimpleStandingGuard(null, false, false, false, false, false),
+		Pet1(null, false, false, true, false, false),
+		Simple(null, false, false, true, false, false),
+		Helpee(null, false, true, true, false, true),
+		HelpeeWimpy(null, true, false, true, false, false),
+		GuardCaptain(null, false, true, true, false, false),
+		GuardMinion(GuardCaptain, false, true, true, false, false),
 		GuardWallArcher(null, false, true, false, false, false),
 		Wanderer(null, false, true, true, false, false),
 		HamletGuard(null, false, true, false, false, false),
 		AggroWanderer(null, false, false, true, false, false);
 
-        private static HashMap<Integer, MobBehaviourType> _behaviourTypes = new HashMap<>();
-        public MobBehaviourType BehaviourHelperType;
-        public boolean isWimpy;
-        public boolean isAgressive;
-        public boolean canRoam;
-        public boolean callsForHelp;
-        public boolean respondsToCallForHelp;
+		private static HashMap<Integer, MobBehaviourType> _behaviourTypes = new HashMap<>();
+		public MobBehaviourType BehaviourHelperType;
+		public boolean isWimpy;
+		public boolean isAgressive;
+		public boolean canRoam;
+		public boolean callsForHelp;
+		public boolean respondsToCallForHelp;
 
-        MobBehaviourType(MobBehaviourType helpeebehaviourType, boolean wimpy, boolean agressive, boolean canroam, boolean callsforhelp, boolean respondstocallforhelp) {
+		MobBehaviourType(MobBehaviourType helpeebehaviourType, boolean wimpy, boolean agressive, boolean canroam, boolean callsforhelp, boolean respondstocallforhelp) {
             this.BehaviourHelperType = helpeebehaviourType;
             this.isWimpy = wimpy;
             this.isAgressive = agressive;
