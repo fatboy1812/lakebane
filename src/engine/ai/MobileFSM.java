@@ -489,6 +489,7 @@ public class MobileFSM {
                 if (System.currentTimeMillis() > aiAgent.deathTime + MBServerStatics.DESPAWN_TIMER_WITH_LOOT) {
                     aiAgent.despawn();
                     aiAgent.deathTime = System.currentTimeMillis();
+                    return;
                 }
                 //No items in inventory.
             } else {
@@ -497,17 +498,20 @@ public class MobileFSM {
                     if (System.currentTimeMillis() > aiAgent.deathTime + MBServerStatics.DESPAWN_TIMER_ONCE_LOOTED) {
                         aiAgent.despawn();
                         aiAgent.deathTime = System.currentTimeMillis();
+                        return;
                     }
                     //Mob never had Loot.
                 } else {
                     if (System.currentTimeMillis() > aiAgent.deathTime + MBServerStatics.DESPAWN_TIMER) {
                         aiAgent.despawn();
                         aiAgent.deathTime = System.currentTimeMillis();
+                        return;
                     }
                 }
             }
         } else if (System.currentTimeMillis() > (aiAgent.deathTime + (aiAgent.spawnTime * 1000))) {
             aiAgent.respawn();
+            return;
         }
     }
 
