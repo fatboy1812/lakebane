@@ -590,7 +590,7 @@ public class Mob extends AbstractIntelligenceAgent {
         } finally {
             createLock.writeLock().unlock();
         }
-
+        parent.zoneMobSet.add(mob);
         return mob;
     }
 
