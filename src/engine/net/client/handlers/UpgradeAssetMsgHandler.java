@@ -25,130 +25,129 @@ import static engine.net.client.msg.ErrorPopupMsg.sendErrorPopup;
  */
 public class UpgradeAssetMsgHandler extends AbstractClientMsgHandler {
 
-	// Constructor
-	public UpgradeAssetMsgHandler() {
+    // Constructor
+    public UpgradeAssetMsgHandler() {
 
-		super(UpgradeAssetMessage.class);
-	}
+        super(UpgradeAssetMessage.class);
+    }
 
-	@Override
-	protected boolean _handleNetMsg(ClientNetMsg baseMsg, ClientConnection origin) throws MsgSendException {
+    @Override
+    protected boolean _handleNetMsg(ClientNetMsg baseMsg, ClientConnection origin) throws MsgSendException {
 
-		// Member variable declaration
+        // Member variable declaration
 
-		UpgradeAssetMessage msg;
-		ManageCityAssetsMsg outMsg;
-		PlayerCharacter player;
-		int buildingUUID;
-		Building buildingToRank;
-		LocalDateTime dateToUpgrade;
-		int nextRank;
-		int rankCost;
-		Dispatch dispatch;
+        UpgradeAssetMessage msg;
+        ManageCityAssetsMsg outMsg;
+        PlayerCharacter player;
+        int buildingUUID;
+        Building buildingToRank;
+        LocalDateTime dateToUpgrade;
+        int nextRank;
+        int rankCost;
+        Dispatch dispatch;
 
-		// Assign member variables
+        // Assign member variables
 
-		msg = (UpgradeAssetMessage) baseMsg;
+        msg = (UpgradeAssetMessage) baseMsg;
 
-		// Grab pointer to the requesting player
+        // Grab pointer to the requesting player
 
-		player = SessionManager.getPlayerCharacter(origin);
+        player = SessionManager.getPlayerCharacter(origin);
 
-		// Grab pointer to the building from the cache
+        // Grab pointer to the building from the cache
 
-		buildingUUID = msg.getBuildingUUID();
+        buildingUUID = msg.getBuildingUUID();
 
-		buildingToRank = (Building) DbManager.getObject(GameObjectType.Building, buildingUUID);
+        buildingToRank = (Building) DbManager.getObject(GameObjectType.Building, buildingUUID);
 
-		// Early exit if building not in cache.
+        // Early exit if building not in cache.
 
-		if (buildingToRank == null) {
-			Logger.error("Attempt to upgrade null building by " + player.getName());
-			return true;
-		}
+        if (buildingToRank == null) {
+            Logger.error("Attempt to upgrade null building by " + player.getName());
+            return true;
+        }
 
-		// Early exit for building that is already ranking
+        // Early exit for building that is already ranking
 
-		if (buildingToRank.isRanking()) {
-			Logger.error("Attempt to upgrade a building already ranking by " + player.getName());
-			return true;
-		}
+        if (buildingToRank.isRanking()) {
+            Logger.error("Attempt to upgrade a building already ranking by " + player.getName());
+            return true;
+        }
 
-		// Calculate and set time/cost to upgrade
+        // Calculate and set time/cost to upgrade
 
-		nextRank = (buildingToRank.getRank() + 1);
+        nextRank = (buildingToRank.getRank() + 1);
 
-		if (buildingToRank.getBlueprint() == null)
-			return true;
-		if (buildingToRank.getBlueprint().getMaxRank() < nextRank || nextRank == 8){
-			ErrorPopupMsg.sendErrorMsg(player, "Building is already at it's Max rank.");
-			return true;
-		}
+        if (buildingToRank.getBlueprint() == null)
+            return true;
+        if (buildingToRank.getBlueprint().getMaxRank() < nextRank || nextRank == 8) {
+            ErrorPopupMsg.sendErrorMsg(player, "Building is already at it's Max rank.");
+            return true;
+        }
 
-		rankCost = buildingToRank.getBlueprint().getRankCost(nextRank);
+        rankCost = buildingToRank.getBlueprint().getRankCost(nextRank);
 
-		// SEND NOT ENOUGH GOLD ERROR
+        // SEND NOT ENOUGH GOLD ERROR
 
-		if (!buildingToRank.hasFunds(rankCost)){
-			ErrorPopupMsg.sendErrorPopup(player, 127); // Not enough gold in strongbox
-			return true;
-		}
+        if (!buildingToRank.hasFunds(rankCost)) {
+            ErrorPopupMsg.sendErrorPopup(player, 127); // Not enough gold in strongbox
+            return true;
+        }
 
-		if (rankCost > buildingToRank.getStrongboxValue()) {
-			sendErrorPopup(player, 127);
-			return true;
-		}
+        if (rankCost > buildingToRank.getStrongboxValue()) {
+            sendErrorPopup(player, 127);
+            return true;
+        }
 
-		// Validation appears good.  Let's now process the upgrade
-		
-		try {
-			if (buildingToRank.getCity() != null){
-				buildingToRank.getCity().transactionLock.writeLock().lock();
-				try{
-					if (!buildingToRank.transferGold(-rankCost,false)) {
-						sendErrorPopup(player, 127);
-						return true;
-					}
-				}catch(Exception e){
-					Logger.error(e);
-				}finally{
-					buildingToRank.getCity().transactionLock.writeLock().unlock();
-				}
-			}else
-			if (!buildingToRank.transferGold(-rankCost,false)) {
-				sendErrorPopup(player, 127);
-				return true;
-			}
+        // Validation appears good.  Let's now process the upgrade
 
-			dateToUpgrade = LocalDateTime.now().plusHours(buildingToRank.getBlueprint().getRankTime(nextRank));
+        try {
+            if (buildingToRank.getCity() != null) {
+                buildingToRank.getCity().transactionLock.writeLock().lock();
+                try {
+                    if (!buildingToRank.transferGold(-rankCost, false)) {
+                        sendErrorPopup(player, 127);
+                        return true;
+                    }
+                } catch (Exception e) {
+                    Logger.error(e);
+                } finally {
+                    buildingToRank.getCity().transactionLock.writeLock().unlock();
+                }
+            } else if (!buildingToRank.transferGold(-rankCost, false)) {
+                sendErrorPopup(player, 127);
+                return true;
+            }
 
-			BuildingManager.setUpgradeDateTime(buildingToRank, dateToUpgrade, 0);
+            dateToUpgrade = LocalDateTime.now().plusHours(buildingToRank.getBlueprint().getRankTime(nextRank));
 
-			// Schedule upgrade job
+            BuildingManager.setUpgradeDateTime(buildingToRank, dateToUpgrade, 0);
 
-			BuildingManager.submitUpgradeJob(buildingToRank);
+            // Schedule upgrade job
 
-			// Refresh the client's manage asset window
-			// *** Refactor : We have some of these unknowns
+            BuildingManager.submitUpgradeJob(buildingToRank);
 
-			outMsg = new ManageCityAssetsMsg(player, buildingToRank);
+            // Refresh the client's manage asset window
+            // *** Refactor : We have some of these unknowns
 
-			// Action TYPE
-			outMsg.actionType = 3;
-			outMsg.setTargetType(buildingToRank.getObjectType().ordinal());
-			outMsg.setTargetID(buildingToRank.getObjectUUID());
-			outMsg.setTargetType3(buildingToRank.getObjectType().ordinal());
-			outMsg.setTargetID3(buildingToRank.getObjectUUID());
-			outMsg.setAssetName1(buildingToRank.getName());
-			outMsg.setUnknown54(1);
+            outMsg = new ManageCityAssetsMsg(player, buildingToRank);
 
-			dispatch = Dispatch.borrow(player, outMsg);
-			DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
+            // Action TYPE
+            outMsg.actionType = 3;
+            outMsg.setTargetType(buildingToRank.getObjectType().ordinal());
+            outMsg.setTargetID(buildingToRank.getObjectUUID());
+            outMsg.setTargetType3(buildingToRank.getObjectType().ordinal());
+            outMsg.setTargetID3(buildingToRank.getObjectUUID());
+            outMsg.setAssetName1(buildingToRank.getName());
+            outMsg.setUnknown54(1);
 
-		} catch (Exception e) {
-			PlaceAssetMsg.sendPlaceAssetError(player.getClientConnection(), 1, "A Serious error has occurred. Please post details for to ensure transaction integrity");
-		}
+            dispatch = Dispatch.borrow(player, outMsg);
+            DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
 
-		return true;
-	}
+        } catch (Exception e) {
+            PlaceAssetMsg.sendPlaceAssetError(player.getClientConnection(), 1, "A Serious error has occurred. Please post details for to ensure transaction integrity");
+        }
+
+        return true;
+    }
 }

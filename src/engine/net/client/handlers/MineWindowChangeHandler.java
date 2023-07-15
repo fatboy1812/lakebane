@@ -34,88 +34,88 @@ import java.time.LocalDateTime;
 
 public class MineWindowChangeHandler extends AbstractClientMsgHandler {
 
-	public MineWindowChangeHandler() {
-		super(ArcMineWindowChangeMsg.class);
-	}
+    public MineWindowChangeHandler() {
+        super(ArcMineWindowChangeMsg.class);
+    }
 
-	@Override
-	protected boolean _handleNetMsg(ClientNetMsg baseMsg, ClientConnection origin) throws MsgSendException {
+    @Override
+    protected boolean _handleNetMsg(ClientNetMsg baseMsg, ClientConnection origin) throws MsgSendException {
 
-		PlayerCharacter playerCharacter = SessionManager.getPlayerCharacter(origin);
-		ArcMineWindowChangeMsg mineWindowChangeMsg = (ArcMineWindowChangeMsg) baseMsg;
-		int newMineTime;
+        PlayerCharacter playerCharacter = SessionManager.getPlayerCharacter(origin);
+        ArcMineWindowChangeMsg mineWindowChangeMsg = (ArcMineWindowChangeMsg) baseMsg;
+        int newMineTime;
 
-		if (playerCharacter == null)
-			return true;
+        if (playerCharacter == null)
+            return true;
 
-		Building treeOfLife = BuildingManager.getBuildingFromCache(mineWindowChangeMsg.getBuildingID());
+        Building treeOfLife = BuildingManager.getBuildingFromCache(mineWindowChangeMsg.getBuildingID());
 
-		if (treeOfLife == null)
-			return true;
+        if (treeOfLife == null)
+            return true;
 
-		if (treeOfLife.getBlueprintUUID() == 0)
-			return true;
+        if (treeOfLife.getBlueprintUUID() == 0)
+            return true;
 
-		if (treeOfLife.getBlueprint().getBuildingGroup() != Enum.BuildingGroup.TOL)
-			return true;
+        if (treeOfLife.getBlueprint().getBuildingGroup() != Enum.BuildingGroup.TOL)
+            return true;
 
-		Guild mineGuild = treeOfLife.getGuild();
+        Guild mineGuild = treeOfLife.getGuild();
 
-		if (mineGuild.isEmptyGuild())
-			return true;
+        if (mineGuild.isEmptyGuild())
+            return true;
 
-		if (!Guild.sameGuild(mineGuild, playerCharacter.getGuild()))
-			return true;  //must be same guild
+        if (!Guild.sameGuild(mineGuild, playerCharacter.getGuild()))
+            return true;  //must be same guild
 
-		if (GuildStatusController.isInnerCouncil(playerCharacter.getGuildStatus()) == false) // is this only GL?
-			return true;
+        if (GuildStatusController.isInnerCouncil(playerCharacter.getGuildStatus()) == false) // is this only GL?
+            return true;
 
-		newMineTime = mineWindowChangeMsg.getTime();
+        newMineTime = mineWindowChangeMsg.getTime();
 
-		// Sanity check for possible slider value
+        // Sanity check for possible slider value
 
-		if (newMineTime == 24)
-			newMineTime = 0;
+        if (newMineTime == 24)
+            newMineTime = 0;
 
-		// Enforce time restriction between WOO edits
+        // Enforce time restriction between WOO edits
 
-		if (mineGuild.wooWasModified) {
-			ErrorPopupMsg.sendErrorMsg(playerCharacter, "You can only modify your WOO once per day.");
-			return true;
-		}
+        if (mineGuild.wooWasModified) {
+            ErrorPopupMsg.sendErrorMsg(playerCharacter, "You can only modify your WOO once per day.");
+            return true;
+        }
 
-		//hodge podge sanity check to make sure they don't set it before early window and is not set at late window.
+        //hodge podge sanity check to make sure they don't set it before early window and is not set at late window.
 
-		if (newMineTime < MBServerStatics.MINE_EARLY_WINDOW &&
-				newMineTime != MBServerStatics.MINE_LATE_WINDOW) {
-			ErrorPopupMsg.sendErrorMsg(playerCharacter, "Mine time is outside the NA Woo window.");
-			return true;
-	}
+        if (newMineTime < MBServerStatics.MINE_EARLY_WINDOW &&
+                newMineTime != MBServerStatics.MINE_LATE_WINDOW) {
+            ErrorPopupMsg.sendErrorMsg(playerCharacter, "Mine time is outside the NA Woo window.");
+            return true;
+        }
 
-		// Cannot set a time to a window that has closed if mines are currently open.
+        // Cannot set a time to a window that has closed if mines are currently open.
 
-		if (LocalDateTime.now().getHour() >= MBServerStatics.MINE_EARLY_WINDOW &&
-				LocalDateTime.now().getHour() != MBServerStatics.MINE_LATE_WINDOW) {
+        if (LocalDateTime.now().getHour() >= MBServerStatics.MINE_EARLY_WINDOW &&
+                LocalDateTime.now().getHour() != MBServerStatics.MINE_LATE_WINDOW) {
 
-			if (newMineTime <= LocalDateTime.now().getHour())
-				ErrorPopupMsg.sendErrorMsg(playerCharacter, "Cannot set mines to a previous window.");
-			return true;
-		}
+            if (newMineTime <= LocalDateTime.now().getHour())
+                ErrorPopupMsg.sendErrorMsg(playerCharacter, "Cannot set mines to a previous window.");
+            return true;
+        }
 
-		// Update guild mine time
+        // Update guild mine time
 
-		if (!DbManager.GuildQueries.UPDATE_MINETIME(mineGuild.getObjectUUID(), newMineTime)) {
-			Logger.error("MineWindowChange", "Failed to update mine time for guild " + mineGuild.getObjectUUID());
-			ChatManager.chatGuildError(playerCharacter, "Failed to update the mine time");
-			return true;
-		}
+        if (!DbManager.GuildQueries.UPDATE_MINETIME(mineGuild.getObjectUUID(), newMineTime)) {
+            Logger.error("MineWindowChange", "Failed to update mine time for guild " + mineGuild.getObjectUUID());
+            ChatManager.chatGuildError(playerCharacter, "Failed to update the mine time");
+            return true;
+        }
 
-		mineGuild.setMineTime(newMineTime);
-		mineGuild.wooWasModified = true;
+        mineGuild.setMineTime(newMineTime);
+        mineGuild.wooWasModified = true;
 
-		ChatManager.chatGuildInfo(playerCharacter, "Mine time updated.");
-            
-		return true;
-	}
+        ChatManager.chatGuildInfo(playerCharacter, "Mine time updated.");
+
+        return true;
+    }
 
 }

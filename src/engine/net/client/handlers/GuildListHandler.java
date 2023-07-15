@@ -16,21 +16,21 @@ import engine.net.client.msg.guild.GuildListMsg;
 
 public class GuildListHandler extends AbstractClientMsgHandler {
 
-	public GuildListHandler() {
-		super(GuildListMsg.class);
-	}
+    public GuildListHandler() {
+        super(GuildListMsg.class);
+    }
 
-	@Override
-	protected boolean _handleNetMsg(ClientNetMsg baseMsg, ClientConnection origin) throws MsgSendException {
+    @Override
+    protected boolean _handleNetMsg(ClientNetMsg baseMsg, ClientConnection origin) throws MsgSendException {
 //		GuildListMsg msg = (GuildListMsg) baseMsg;
-		
-		// GuildListMsg msg = new GuildListMsg(origin);
-		// GuildTableList gtl = new GuildTableList();
-		// gtl.setUUID(pc.getUUID()); gtl.setName(pc.getName());
-		// msg.add(gtl);
-		// origin.sendMsg(msg);
-		
-		return true;
-	}
+
+        // GuildListMsg msg = new GuildListMsg(origin);
+        // GuildTableList gtl = new GuildTableList();
+        // gtl.setUUID(pc.getUUID()); gtl.setName(pc.getName());
+        // msg.add(gtl);
+        // origin.sendMsg(msg);
+
+        return true;
+    }
 
 }

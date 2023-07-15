@@ -39,8 +39,7 @@ public class AddGoldToTradeWindowMsg extends ClientNetMsg {
      * past the limit) then this constructor Throws that Exception to the
      * caller.
      */
-    public AddGoldToTradeWindowMsg(AbstractConnection origin, ByteBufferReader reader)
-             {
+    public AddGoldToTradeWindowMsg(AbstractConnection origin, ByteBufferReader reader) {
         super(Protocol.TRADEADDGOLD, origin, reader);
     }
 
@@ -48,8 +47,7 @@ public class AddGoldToTradeWindowMsg extends ClientNetMsg {
      * Deserializes the subclass specific items to the supplied NetMsgWriter.
      */
     @Override
-    protected void _deserialize(ByteBufferReader reader)
-             {
+    protected void _deserialize(ByteBufferReader reader) {
         unknown01 = reader.getInt();
         playerCompID = reader.getLong();
         amount = reader.getInt();

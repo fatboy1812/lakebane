@@ -24,10 +24,10 @@ public enum TradeManager {
     public static void tradeRequest(TradeRequestMsg msg, ClientConnection origin) {
 
         PlayerCharacter source = origin.getPlayerCharacter();
-      
+
         if (source == null)
-        	return;
-        
+            return;
+
         source.getCharItemManager().tradeRequest(msg);
 
     }
@@ -36,17 +36,17 @@ public enum TradeManager {
     public static void acceptTradeRequest(AcceptTradeRequestMsg msg, ClientConnection origin) {
 
         PlayerCharacter source = origin.getPlayerCharacter();
-     
+
         if (source == null)
-        	return;
-        
+            return;
+
         try {
-			source.getCharItemManager().acceptTradeRequest(msg);
-		} catch (Exception e) {
-			Logger.error(e);
-			// TODO Auto-generated catch block
-			}
-        
+            source.getCharItemManager().acceptTradeRequest(msg);
+        } catch (Exception e) {
+            Logger.error(e);
+            // TODO Auto-generated catch block
+        }
+
     }
 
     public static void rejectTradeRequest(RejectTradeRequestMsg msg, ClientConnection origin) {
@@ -54,16 +54,16 @@ public enum TradeManager {
     }
 
     public static void addItemToTradeWindow(AddItemToTradeWindowMsg msg, ClientConnection origin) {
-    	
-    	
+
+
         PlayerCharacter source = origin.getPlayerCharacter();
         if (source == null || !source.isAlive())
             return;
-        try{
+        try {
             source.getCharItemManager().addItemToTradeWindow(msg);
 
-        }catch(Exception e){
-        	Logger.error(e);
+        } catch (Exception e) {
+            Logger.error(e);
         }
 
     }
@@ -74,18 +74,17 @@ public enum TradeManager {
 
         if (source == null || !source.isAlive())
             return;
-        
-        
+
 
         CharacterItemManager sourceItemMan = source.getCharItemManager();
 
         if (sourceItemMan == null)
             return;
-        
-        try{
+
+        try {
             sourceItemMan.addGoldToTradeWindow(msg);
-        }catch(Exception e){
-        	Logger.error(e);
+        } catch (Exception e) {
+            Logger.error(e);
         }
     }
 
@@ -102,11 +101,11 @@ public enum TradeManager {
             return;
 
         try {
-			sourceItemMan.commitToTrade(msg);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-		Logger.error(e);
-		}
+            sourceItemMan.commitToTrade(msg);
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            Logger.error(e);
+        }
     }
 
     public static void uncommitToTrade(UncommitToTradeMsg msg, ClientConnection origin) {
@@ -120,17 +119,16 @@ public enum TradeManager {
 
         if (sourceItemMan == null)
             return;
-        
+
         try {
-			sourceItemMan.uncommitToTrade(msg);
-		} catch (Exception e) {
-			// TODO Auto-generated catch block
-			Logger.error(e);
-		}
+            sourceItemMan.uncommitToTrade(msg);
+        } catch (Exception e) {
+            // TODO Auto-generated catch block
+            Logger.error(e);
+        }
 
     }
 
-    
 
     public static void closeTradeWindow(CloseTradeWindowMsg msg, ClientConnection origin) {
 
@@ -145,10 +143,10 @@ public enum TradeManager {
             return;
 
         try {
-        	sourceItemMan.closeTradeWindow(msg, true);
+            sourceItemMan.closeTradeWindow(msg, true);
         } catch (Exception e) {
-        	// TODO Auto-generated catch block
-        	Logger.error(e);
+            // TODO Auto-generated catch block
+            Logger.error(e);
         }
     }
 

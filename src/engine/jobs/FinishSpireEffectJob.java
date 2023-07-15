@@ -21,12 +21,12 @@ public class FinishSpireEffectJob extends AbstractEffectJob {
 
     @Override
     protected void doJob() {
-        
+
         PlayerCharacter pc = (PlayerCharacter) target;
-        
+
         if (pc == null)
             return;
-        
+
         pc.endEffectNoPower(Integer.toString(eb.getUUID()));
 
     }

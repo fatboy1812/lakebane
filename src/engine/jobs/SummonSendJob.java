@@ -28,14 +28,14 @@ public class SummonSendJob extends AbstractScheduleJob {
 
     @Override
     protected void doJob() {
-        
-        if (this.source == null) 
+
+        if (this.source == null)
             return;
 
         //clear summon send timer
         ConcurrentHashMap<String, JobContainer> timers = this.source.getTimers();
-        
-        if (timers != null && timers.containsKey("SummonSend")) 
+
+        if (timers != null && timers.containsKey("SummonSend"))
             timers.remove("SummonSend");
 
     }

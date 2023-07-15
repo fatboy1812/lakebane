@@ -21,31 +21,31 @@ import java.util.ArrayList;
 
 public class dbBoonHandler extends dbHandlerBase {
 
-	public dbBoonHandler() {
-	}
+    public dbBoonHandler() {
+    }
 
 
-	public ArrayList<Boon> GET_BOON_AMOUNTS_FOR_ITEMBASE(int itemBaseUUID) {
+    public ArrayList<Boon> GET_BOON_AMOUNTS_FOR_ITEMBASE(int itemBaseUUID) {
 
-		ArrayList<Boon> boons = new ArrayList<>();
-		Boon thisBoon;
+        ArrayList<Boon> boons = new ArrayList<>();
+        Boon thisBoon;
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `static_item_boons`  WHERE `itemBaseID` = ?")) {
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `static_item_boons`  WHERE `itemBaseID` = ?")) {
 
-			preparedStatement.setInt(1, itemBaseUUID);
+            preparedStatement.setInt(1, itemBaseUUID);
 
-			ResultSet rs = preparedStatement.executeQuery();
+            ResultSet rs = preparedStatement.executeQuery();
 
-			while (rs.next()) {
-				thisBoon = new Boon(rs);
-				boons.add(thisBoon);
-			}
+            while (rs.next()) {
+                thisBoon = new Boon(rs);
+                boons.add(thisBoon);
+            }
 
-		} catch (SQLException e) {
-			Logger.error(e);
-		}
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
 
-		return boons;
-	}
+        return boons;
+    }
 }

@@ -29,50 +29,50 @@ import java.sql.SQLException;
 
 public class SummonPowerAction extends AbstractPowerAction {
 
-	/**
-	 * ResultSet Constructor
-	 */
-	public SummonPowerAction(ResultSet rs) throws SQLException {
-		super(rs);
-	}
+    /**
+     * ResultSet Constructor
+     */
+    public SummonPowerAction(ResultSet rs) throws SQLException {
+        super(rs);
+    }
 
-	@Override
-	protected void _startAction(AbstractCharacter source, AbstractWorldObject awo, Vector3fImmutable targetLoc, int trains, ActionsBase ab,
-			PowersBase pb) {
+    @Override
+    protected void _startAction(AbstractCharacter source, AbstractWorldObject awo, Vector3fImmutable targetLoc, int trains, ActionsBase ab,
+                                PowersBase pb) {
 
-		if (source == null || awo == null || !(awo.getObjectType().equals(Enum.GameObjectType.PlayerCharacter)) || !(source.getObjectType().equals(Enum.GameObjectType.PlayerCharacter)))
-			return;
+        if (source == null || awo == null || !(awo.getObjectType().equals(Enum.GameObjectType.PlayerCharacter)) || !(source.getObjectType().equals(Enum.GameObjectType.PlayerCharacter)))
+            return;
 
-		PlayerCharacter target = (PlayerCharacter) awo;
+        PlayerCharacter target = (PlayerCharacter) awo;
 
-		ClientConnection conn = SessionManager.getClientConnection(target);
+        ClientConnection conn = SessionManager.getClientConnection(target);
 
-		if (conn == null)
-			return;
+        if (conn == null)
+            return;
 
-		// TODO get location of summoning player
-		Zone zone = ZoneManager.findSmallestZone(source.getLoc());
-		String location = "Somewhere";
+        // TODO get location of summoning player
+        Zone zone = ZoneManager.findSmallestZone(source.getLoc());
+        String location = "Somewhere";
 
-		if (zone != null)
-			location = zone.getName();
+        if (zone != null)
+            location = zone.getName();
 
-		RecvSummonsRequestMsg rsrm = new RecvSummonsRequestMsg(source.getObjectType().ordinal(), source.getObjectUUID(), source.getFirstName(),
-				location, false);
+        RecvSummonsRequestMsg rsrm = new RecvSummonsRequestMsg(source.getObjectType().ordinal(), source.getObjectUUID(), source.getFirstName(),
+                location, false);
 
-		Dispatch dispatch = Dispatch.borrow(target, rsrm);
-		DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
+        Dispatch dispatch = Dispatch.borrow(target, rsrm);
+        DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
 
-	}
+    }
 
-	@Override
-	protected void _handleChant(AbstractCharacter source, AbstractWorldObject target, Vector3fImmutable targetLoc, int trains, ActionsBase ab, PowersBase pb) {
-	}
+    @Override
+    protected void _handleChant(AbstractCharacter source, AbstractWorldObject target, Vector3fImmutable targetLoc, int trains, ActionsBase ab, PowersBase pb) {
+    }
 
-	@Override
-	protected void _startAction(AbstractCharacter source, AbstractWorldObject awo, Vector3fImmutable targetLoc,
-			int numTrains, ActionsBase ab, PowersBase pb, int duration) {
-		// TODO Auto-generated method stub
+    @Override
+    protected void _startAction(AbstractCharacter source, AbstractWorldObject awo, Vector3fImmutable targetLoc,
+                                int numTrains, ActionsBase ab, PowersBase pb, int duration) {
+        // TODO Auto-generated method stub
 
-	}
+    }
 }

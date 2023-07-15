@@ -30,197 +30,194 @@ import java.util.Collection;
  */
 public enum SimulationManager {
 
-	SERVERHEARTBEAT;
+    SERVERHEARTBEAT;
 
-	private static SimulationManager instance = null;
+    private static final long CITY_PULSE = 2000;
+    private static final long RUNEGATE_PULSE = 3000;
+    private static final long UPDATE_PULSE = 1000;
+    private static final long FlIGHT_PULSE = 100;
+    public static Duration executionTime = Duration.ofNanos(1);
+    public static Duration executionMax = Duration.ofNanos(1);
+    private static SimulationManager instance = null;
+    private long _cityPulseTime = System.currentTimeMillis() + CITY_PULSE;
+    private long _runegatePulseTime = System.currentTimeMillis()
+            + RUNEGATE_PULSE;
+    private long _updatePulseTime = System.currentTimeMillis() + UPDATE_PULSE;
+    private long _flightPulseTime = System.currentTimeMillis() + FlIGHT_PULSE;
 
-	private static final long CITY_PULSE = 2000;
-	private static final long RUNEGATE_PULSE = 3000;
-	private static final long UPDATE_PULSE = 1000;
-	private static final long FlIGHT_PULSE = 100;
+    private SimulationManager() {
 
-	private long _cityPulseTime = System.currentTimeMillis() + CITY_PULSE;
-	private long _runegatePulseTime = System.currentTimeMillis()
-			+ RUNEGATE_PULSE;
-	private long _updatePulseTime = System.currentTimeMillis() + UPDATE_PULSE;
-	private long _flightPulseTime = System.currentTimeMillis() + FlIGHT_PULSE;
+        // don't allow instantiation.
+    }
 
-	public static Duration executionTime = Duration.ofNanos(1);
-	public static Duration executionMax = Duration.ofNanos(1);
+    public static String getPopulationString() {
 
-	private SimulationManager() {
+        String popString = "";
 
-		// don't allow instantiation.
-	}
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement getPopString = connection.prepareStatement("CALL GET_POPULATION_STRING()");) {
 
-	public static String getPopulationString() {
+            ResultSet rs = getPopString.executeQuery();
 
-		String popString = "";
+            if (rs.next())
+                popString = rs.getString("popstring");
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement getPopString = connection.prepareStatement("CALL GET_POPULATION_STRING()");) {
+        } catch (SQLException e) {
+            Logger.error(e.toString());
+        }
 
-			ResultSet rs = getPopString.executeQuery();
+        return popString;
+    }
 
-			if (rs.next())
-				popString = rs.getString("popstring");
+    /*
+     * Update the simulation. *** Important: Whatever you do in here, do it damn
+     * quick!
+     */
+    public void tick() {
 
-		} catch (SQLException e) {
-			Logger.error(e.toString());
-		}
+        /*
+         * As we're on the main thread we must be sure to catch any possible
+         * errors.
+         *
+         * IF something does occur, disable that particular heartbeat. Better
+         * runegates stop working than the game itself!
+         */
 
-		return popString;
-	}
+        Instant startTime = Instant.now();
 
-	/*
-	 * Update the simulation. *** Important: Whatever you do in here, do it damn
-	 * quick!
-	 */
-	public void tick() {
+        try {
+            if ((_flightPulseTime != 0)
+                    && (System.currentTimeMillis() > _flightPulseTime))
+                pulseFlight();
+        } catch (Exception e) {
+            Logger.error(
+                    "Fatal error in City Pulse: DISABLED. Error Message : "
+                            + e.getMessage());
+        }
+        try {
 
-		/*
-		 * As we're on the main thread we must be sure to catch any possible
-		 * errors.
-		 *
-		 * IF something does occur, disable that particular heartbeat. Better
-		 * runegates stop working than the game itself!
-		 */
-		
-		Instant startTime = Instant.now();
+            if ((_updatePulseTime != 0)
+                    && (System.currentTimeMillis() > _updatePulseTime))
+                pulseUpdate();
+        } catch (Exception e) {
+            Logger.error(
+                    "Fatal error in Update Pulse: DISABLED");
+            //  _runegatePulseTime = 0;
+        }
 
-		try {
-			if ((_flightPulseTime != 0)
-					&& (System.currentTimeMillis() > _flightPulseTime))
-				pulseFlight();
-		} catch (Exception e) {
-			Logger.error(
-					"Fatal error in City Pulse: DISABLED. Error Message : "
-							+ e.getMessage());
-		}
-		try {
+        try {
+            if ((_runegatePulseTime != 0)
+                    && (System.currentTimeMillis() > _runegatePulseTime))
+                pulseRunegates();
+        } catch (Exception e) {
+            Logger.error(
+                    "Fatal error in Runegate Pulse: DISABLED");
+            _runegatePulseTime = 0;
+        }
 
-			if ((_updatePulseTime != 0)
-					&& (System.currentTimeMillis() > _updatePulseTime))
-				pulseUpdate();
-		} catch (Exception e) {
-			Logger.error(
-					"Fatal error in Update Pulse: DISABLED");
-			//  _runegatePulseTime = 0;
-		}
+        try {
+            if ((_cityPulseTime != 0)
+                    && (System.currentTimeMillis() > _cityPulseTime))
+                pulseCities();
+        } catch (Exception e) {
+            Logger.error(
+                    "Fatal error in City Pulse: DISABLED. Error Message : "
+                            + e.getMessage());
+            e.printStackTrace();
 
-		try {
-			if ((_runegatePulseTime != 0)
-					&& (System.currentTimeMillis() > _runegatePulseTime))
-				pulseRunegates();
-		} catch (Exception e) {
-			Logger.error(
-					"Fatal error in Runegate Pulse: DISABLED");
-			_runegatePulseTime = 0;
-		}
+        }
 
-		try {
-			if ((_cityPulseTime != 0)
-					&& (System.currentTimeMillis() > _cityPulseTime))
-				pulseCities();
-		} catch (Exception e) {
-			Logger.error(
-					"Fatal error in City Pulse: DISABLED. Error Message : "
-							+ e.getMessage());
-			e.printStackTrace();
-	
-		}
+        SimulationManager.executionTime = Duration.between(startTime, Instant.now());
 
-		SimulationManager.executionTime = Duration.between(startTime, Instant.now());
+        if (executionTime.compareTo(executionMax) > 0)
+            executionMax = executionTime;
+    }
 
-		if (executionTime.compareTo(executionMax) > 0)
-			executionMax = executionTime;
-	}
+    /*
+     * Mainline simulation update method: handles movement and regen for all
+     * player characters
+     */
 
-	/*
-	 * Mainline simulation update method: handles movement and regen for all
-	 * player characters
-	 */
+    private void pulseUpdate() {
 
-	private void pulseUpdate() {
+        Collection<AbstractGameObject> playerList;
 
-		Collection<AbstractGameObject> playerList;
+        playerList = DbManager.getList(GameObjectType.PlayerCharacter);
 
-		playerList = DbManager.getList(GameObjectType.PlayerCharacter);
+        // Call update() on each player in game
 
-		// Call update() on each player in game
+        if (playerList == null)
+            return;
 
-		if (playerList == null)
-			return;
+        for (AbstractGameObject ago : playerList) {
+            PlayerCharacter player = (PlayerCharacter) ago;
 
-		for (AbstractGameObject ago : playerList) {
-			PlayerCharacter player = (PlayerCharacter)ago;
-
-			if (player == null)
-				continue;
-			player.update();
-		}
+            if (player == null)
+                continue;
+            player.update();
+        }
 
         _updatePulseTime = System.currentTimeMillis() + 500;
-	}
-	
-	private void pulseFlight() {
+    }
 
-		Collection<AbstractGameObject> playerList;
+    private void pulseFlight() {
 
-		playerList = DbManager.getList(GameObjectType.PlayerCharacter);
+        Collection<AbstractGameObject> playerList;
 
-		// Call update() on each player in game
+        playerList = DbManager.getList(GameObjectType.PlayerCharacter);
 
-		if (playerList == null)
-			return;
+        // Call update() on each player in game
 
-		for (AbstractGameObject ago : playerList) {
-			PlayerCharacter player = (PlayerCharacter)ago;
+        if (playerList == null)
+            return;
 
-			if (player == null)
-				continue;
-			
-			
-			player.updateFlight();
-		}
+        for (AbstractGameObject ago : playerList) {
+            PlayerCharacter player = (PlayerCharacter) ago;
+
+            if (player == null)
+                continue;
+
+
+            player.updateFlight();
+        }
 
         _flightPulseTime = System.currentTimeMillis() + FlIGHT_PULSE;
-	}
+    }
 
-	private void pulseCities() {
+    private void pulseCities() {
 
-		City city;
+        City city;
 
-		// *** Refactor: Need a list cached somewhere as it doesn't change very
-		// often at all.  Have a cityListIsDirty boolean that gets set if it
-		// needs an update.  Will speed up this method a great deal.
+        // *** Refactor: Need a list cached somewhere as it doesn't change very
+        // often at all.  Have a cityListIsDirty boolean that gets set if it
+        // needs an update.  Will speed up this method a great deal.
 
-		Collection<AbstractGameObject> cityList = DbManager.getList(Enum.GameObjectType.City);
+        Collection<AbstractGameObject> cityList = DbManager.getList(Enum.GameObjectType.City);
 
-		if (cityList == null) {
-			Logger.info( "City List null");
-			return;
-		}
+        if (cityList == null) {
+            Logger.info("City List null");
+            return;
+        }
 
-		for (AbstractGameObject cityObject : cityList) {
-			city = (City) cityObject;
-				city.onEnter();
-		}
+        for (AbstractGameObject cityObject : cityList) {
+            city = (City) cityObject;
+            city.onEnter();
+        }
 
-		_cityPulseTime = System.currentTimeMillis() + CITY_PULSE;
-	}
+        _cityPulseTime = System.currentTimeMillis() + CITY_PULSE;
+    }
 
-	/*
-	 * Method runs proximity collision detection for all active portals on the
-	 * game's Runegates
-	 */
-	private void pulseRunegates() {
+    /*
+     * Method runs proximity collision detection for all active portals on the
+     * game's Runegates
+     */
+    private void pulseRunegates() {
 
-		for (Runegate runegate : Runegate._runegates.values()) {
-			runegate.collidePortals();
-		}
+        for (Runegate runegate : Runegate._runegates.values()) {
+            runegate.collidePortals();
+        }
 
-		_runegatePulseTime = System.currentTimeMillis() + RUNEGATE_PULSE;
+        _runegatePulseTime = System.currentTimeMillis() + RUNEGATE_PULSE;
 
-	}
+    }
 }

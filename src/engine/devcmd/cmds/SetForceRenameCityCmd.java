@@ -7,7 +7,6 @@
 //                www.magicbane.com
 
 
-
 package engine.devcmd.cmds;
 
 import engine.devcmd.AbstractDevCmd;
@@ -20,35 +19,35 @@ import engine.objects.Zone;
 
 public class SetForceRenameCityCmd extends AbstractDevCmd {
 
-	public SetForceRenameCityCmd() {
+    public SetForceRenameCityCmd() {
         super("forcerename");
     }
 
-	@Override
-	protected void _doCmd(PlayerCharacter pc, String[] words,
-			AbstractGameObject target) {
-		
-		Zone zone = ZoneManager.findSmallestZone(pc.getLoc());
-		if (zone == null)
-			return;
-		boolean rename = words[0].equalsIgnoreCase("true") ? true : false;
-		if (zone.getPlayerCityUUID() == 0)
-			return;
-		City city = City.getCity(zone.getPlayerCityUUID());
-		if (city == null)
-			return;
-		city.setForceRename(rename);
-	
-	}
+    @Override
+    protected void _doCmd(PlayerCharacter pc, String[] words,
+                          AbstractGameObject target) {
 
-	@Override
-	protected String _getHelpString() {
-		return "Temporarily Changes SubRace";
-	}
+        Zone zone = ZoneManager.findSmallestZone(pc.getLoc());
+        if (zone == null)
+            return;
+        boolean rename = words[0].equalsIgnoreCase("true") ? true : false;
+        if (zone.getPlayerCityUUID() == 0)
+            return;
+        City city = City.getCity(zone.getPlayerCityUUID());
+        if (city == null)
+            return;
+        city.setForceRename(rename);
 
-	@Override
-	protected String _getUsageString() {
-		return "' /subrace mobBaseID";
-	}
+    }
+
+    @Override
+    protected String _getHelpString() {
+        return "Temporarily Changes SubRace";
+    }
+
+    @Override
+    protected String _getUsageString() {
+        return "' /subrace mobBaseID";
+    }
 
 }

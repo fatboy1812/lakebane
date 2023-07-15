@@ -37,7 +37,7 @@ public class ChatFilterMsg extends ClientNetMsg {
      * past the limit) then this constructor Throws that Exception to the
      * caller.
      */
-    public ChatFilterMsg(AbstractConnection origin, ByteBufferReader reader)  {
+    public ChatFilterMsg(AbstractConnection origin, ByteBufferReader reader) {
         super(Protocol.CHANNELMUTE, origin, reader);
     }
 
@@ -54,7 +54,7 @@ public class ChatFilterMsg extends ClientNetMsg {
      * Deserializes the subclass specific items from the supplied NetMsgReader.
      */
     @Override
-    protected void _deserialize(ByteBufferReader reader)  {
+    protected void _deserialize(ByteBufferReader reader) {
         this.channel = reader.getInt();
         this.mute = reader.get();
     }
@@ -63,11 +63,11 @@ public class ChatFilterMsg extends ClientNetMsg {
         return this.channel;
     }
 
-	public byte getMute() {
-		return mute;
-	}
+    public byte getMute() {
+        return mute;
+    }
 
-	public void setMute(byte mute) {
-		this.mute = mute;
-	}
+    public void setMute(byte mute) {
+        this.mute = mute;
+    }
 }

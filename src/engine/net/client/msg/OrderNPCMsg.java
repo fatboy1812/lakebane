@@ -7,7 +7,6 @@
 //                www.magicbane.com
 
 
-
 package engine.net.client.msg;
 
 import engine.Enum.GameObjectType;
@@ -21,182 +20,178 @@ import java.util.ArrayList;
 
 public class OrderNPCMsg extends ClientNetMsg {
 
-	// 2 = manage this asset.  20 = manage entire city
-	private int objectType;
-	private int npcUUID;
-	private int buildingUUID;
-	private int unknown02;
-	private ArrayList<Vector3fImmutable> patrolPoints;
-	private ArrayList<Vector3fImmutable> sentryPoints;
-	private int patrolSize;
-	private int sentrySize;
+    // 2 = manage this asset.  20 = manage entire city
+    private int objectType;
+    private int npcUUID;
+    private int buildingUUID;
+    private int unknown02;
+    private ArrayList<Vector3fImmutable> patrolPoints;
+    private ArrayList<Vector3fImmutable> sentryPoints;
+    private int patrolSize;
+    private int sentrySize;
 
-	private int actionType;
-	private float buySellPercent;
+    private int actionType;
+    private float buySellPercent;
 
-	/**
-	 * This is the general purpose constructor
-	 */
-	public OrderNPCMsg() {
-		super(Protocol.ORDERNPC);
-		this.actionType = 0;
-		this.unknown02 = 0;
-		this.npcUUID = 0;
-		this.buildingUUID = 0;
+    /**
+     * This is the general purpose constructor
+     */
+    public OrderNPCMsg() {
+        super(Protocol.ORDERNPC);
+        this.actionType = 0;
+        this.unknown02 = 0;
+        this.npcUUID = 0;
+        this.buildingUUID = 0;
 
-	}
+    }
 
-	/**
-	 * This constructor is used by NetMsgFactory. It attempts to deserialize the
-	 * ByteBuffer into a message. If a BufferUnderflow occurs (based on reading
-	 * past the limit) then this constructor Throws that Exception to the
-	 * caller.
-	 */
-	public OrderNPCMsg(AbstractConnection origin, ByteBufferReader reader)
-			 {
-		super(Protocol.ORDERNPC, origin, reader);
-	}
+    /**
+     * This constructor is used by NetMsgFactory. It attempts to deserialize the
+     * ByteBuffer into a message. If a BufferUnderflow occurs (based on reading
+     * past the limit) then this constructor Throws that Exception to the
+     * caller.
+     */
+    public OrderNPCMsg(AbstractConnection origin, ByteBufferReader reader) {
+        super(Protocol.ORDERNPC, origin, reader);
+    }
 
-	/**
-	 * Deserializes the subclass specific items to the supplied NetMsgWriter.
-	 */
-	@Override
-	protected void _deserialize(ByteBufferReader reader)
-			 {
-		actionType = reader.getInt();
-		if (this.actionType == 28){
-			this.handleCityCommand(reader);
-			return;
-		}
-		unknown02 = reader.getInt();
-		this.objectType = reader.getInt(); // Object Type Padding
-		npcUUID = reader.getInt();
-		reader.getInt(); // Object Type Padding
-		buildingUUID = reader.getInt();
-		this.buySellPercent = reader.getFloat();
-                 if (actionType > 6 && actionType < 13)
-			reader.getInt();
+    /**
+     * Deserializes the subclass specific items to the supplied NetMsgWriter.
+     */
+    @Override
+    protected void _deserialize(ByteBufferReader reader) {
+        actionType = reader.getInt();
+        if (this.actionType == 28) {
+            this.handleCityCommand(reader);
+            return;
+        }
+        unknown02 = reader.getInt();
+        this.objectType = reader.getInt(); // Object Type Padding
+        npcUUID = reader.getInt();
+        reader.getInt(); // Object Type Padding
+        buildingUUID = reader.getInt();
+        this.buySellPercent = reader.getFloat();
+        if (actionType > 6 && actionType < 13)
+            reader.getInt();
 
 
+    }
 
-	}
-
-	/**
-	 * Serializes the subclass specific items from the supplied NetMsgReader.
-	 */
-	@Override
-	protected void _serialize(ByteBufferWriter writer) {
-		writer.putInt(actionType);
-		writer.putInt(unknown02);
-		writer.putInt(GameObjectType.NPC.ordinal());
-		writer.putInt(npcUUID);
-		writer.putInt(GameObjectType.Building.ordinal());
-		writer.putInt(buildingUUID);
-		writer.putFloat(this.buySellPercent);
-		writer.putInt(0);
-
-
-	}
-
-	private void handleCityCommand(ByteBufferReader reader){
-		reader.getInt();
-		reader.getInt();
-		reader.getInt();
-		reader.getInt();
-		this.buildingUUID = reader.getInt();
-		reader.get();
-		reader.get();
-		reader.getInt();
-		patrolSize = reader.getInt();
-		if (patrolSize > 0){
-			this.patrolPoints = new ArrayList<>();
-			for (int i = 0;i<patrolSize;i++){
-				float x = reader.getFloat();
-				float y = reader.getFloat();
-				float z = reader.getFloat();
-				if (this.patrolPoints.size() < 4)
-					this.patrolPoints.add(new Vector3fImmutable(x,y,z));
-			}
-		}
-		sentrySize = reader.getInt();
-		if (sentrySize > 0){
-			this.sentryPoints = new ArrayList<>();
-			for (int i = 0;i<sentrySize;i++){
-				float x = reader.getFloat();
-				float y = reader.getFloat();
-				float z = reader.getFloat();
-				if (this.sentryPoints.size() < 4)
-					this.sentryPoints.add(new Vector3fImmutable(x,y,z));
-			}
-		}
-		reader.getInt();
-		reader.getInt();
-	}
-
-	/**
-	 * @return the npcUUID
-	 */
-	public int getNpcUUID() {
-		return npcUUID;
-	}
+    /**
+     * Serializes the subclass specific items from the supplied NetMsgReader.
+     */
+    @Override
+    protected void _serialize(ByteBufferWriter writer) {
+        writer.putInt(actionType);
+        writer.putInt(unknown02);
+        writer.putInt(GameObjectType.NPC.ordinal());
+        writer.putInt(npcUUID);
+        writer.putInt(GameObjectType.Building.ordinal());
+        writer.putInt(buildingUUID);
+        writer.putFloat(this.buySellPercent);
+        writer.putInt(0);
 
 
+    }
 
-	public int getActionType() {
-		return actionType;
-	}
+    private void handleCityCommand(ByteBufferReader reader) {
+        reader.getInt();
+        reader.getInt();
+        reader.getInt();
+        reader.getInt();
+        this.buildingUUID = reader.getInt();
+        reader.get();
+        reader.get();
+        reader.getInt();
+        patrolSize = reader.getInt();
+        if (patrolSize > 0) {
+            this.patrolPoints = new ArrayList<>();
+            for (int i = 0; i < patrolSize; i++) {
+                float x = reader.getFloat();
+                float y = reader.getFloat();
+                float z = reader.getFloat();
+                if (this.patrolPoints.size() < 4)
+                    this.patrolPoints.add(new Vector3fImmutable(x, y, z));
+            }
+        }
+        sentrySize = reader.getInt();
+        if (sentrySize > 0) {
+            this.sentryPoints = new ArrayList<>();
+            for (int i = 0; i < sentrySize; i++) {
+                float x = reader.getFloat();
+                float y = reader.getFloat();
+                float z = reader.getFloat();
+                if (this.sentryPoints.size() < 4)
+                    this.sentryPoints.add(new Vector3fImmutable(x, y, z));
+            }
+        }
+        reader.getInt();
+        reader.getInt();
+    }
+
+    /**
+     * @return the npcUUID
+     */
+    public int getNpcUUID() {
+        return npcUUID;
+    }
 
 
-	public int getBuildingUUID() {
-		return buildingUUID;
-	}
+    public int getActionType() {
+        return actionType;
+    }
 
-	/**
-	 * @param buildingUUID the buildingUUID to set
-	 */
-	public void setBuildingUUID(int buildingUUID) {
-		this.buildingUUID = buildingUUID;
-	}
 
-	public float getBuySellPercent() {
-		return buySellPercent;
-	}
+    public int getBuildingUUID() {
+        return buildingUUID;
+    }
 
-	public void setBuySellPercent(float buySellPercent) {
-		this.buySellPercent = buySellPercent;
-	}
+    /**
+     * @param buildingUUID the buildingUUID to set
+     */
+    public void setBuildingUUID(int buildingUUID) {
+        this.buildingUUID = buildingUUID;
+    }
 
-	public int getObjectType() {
-		return objectType;
-	}
+    public float getBuySellPercent() {
+        return buySellPercent;
+    }
 
-	public void setObjectType(int objectType) {
-		this.objectType = objectType;
-	}
+    public void setBuySellPercent(float buySellPercent) {
+        this.buySellPercent = buySellPercent;
+    }
 
-	public ArrayList<Vector3fImmutable> getPatrolPoints() {
-		return patrolPoints;
-	}
+    public int getObjectType() {
+        return objectType;
+    }
 
-	public ArrayList<Vector3fImmutable> getSentryPoints() {
-		return sentryPoints;
-	}
+    public void setObjectType(int objectType) {
+        this.objectType = objectType;
+    }
 
-	public int getPatrolSize() {
-		return patrolSize;
-	}
+    public ArrayList<Vector3fImmutable> getPatrolPoints() {
+        return patrolPoints;
+    }
 
-	public void setPatrolSize(int patrolSize) {
-		this.patrolSize = patrolSize;
-	}
+    public ArrayList<Vector3fImmutable> getSentryPoints() {
+        return sentryPoints;
+    }
 
-	public int getSentrySize() {
-		return sentrySize;
-	}
+    public int getPatrolSize() {
+        return patrolSize;
+    }
 
-	public void setSentrySize(int sentrySize) {
-		this.sentrySize = sentrySize;
-	}
+    public void setPatrolSize(int patrolSize) {
+        this.patrolSize = patrolSize;
+    }
+
+    public int getSentrySize() {
+        return sentrySize;
+    }
+
+    public void setSentrySize(int sentrySize) {
+        this.sentrySize = sentrySize;
+    }
 
 }
 

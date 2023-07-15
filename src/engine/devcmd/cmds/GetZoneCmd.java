@@ -19,48 +19,49 @@ import java.util.ArrayList;
 
 public class GetZoneCmd extends AbstractDevCmd {
 
-	public GetZoneCmd() {
+    public GetZoneCmd() {
         super("getzone");
     }
 
-	@Override
-	protected void _doCmd(PlayerCharacter pcSender, String[] words,
-			AbstractGameObject target) {
-		if (pcSender == null) return;
+    @Override
+    protected void _doCmd(PlayerCharacter pcSender, String[] words,
+                          AbstractGameObject target) {
+        if (pcSender == null)
+            return;
 
-		if (words.length != 1) {
-			this.sendUsage(pcSender);
-			return;
-		}
+        if (words.length != 1) {
+            this.sendUsage(pcSender);
+            return;
+        }
 
-		ArrayList<Zone> allIn = new ArrayList<>();
-		switch (words[0].toLowerCase()) {
-		case "all":
-			throwbackInfo(pcSender, "All zones currently in");
-			allIn = ZoneManager.getAllZonesIn(pcSender.getLoc());
-			break;
-		case "smallest":
-			throwbackInfo(pcSender, "Smallest zone currently in");
-			Zone zone = ZoneManager.findSmallestZone(pcSender.getLoc());
-			allIn.add(zone);
-			break;
-		default:
-			this.sendUsage(pcSender);
-			return;
-		}
+        ArrayList<Zone> allIn = new ArrayList<>();
+        switch (words[0].toLowerCase()) {
+            case "all":
+                throwbackInfo(pcSender, "All zones currently in");
+                allIn = ZoneManager.getAllZonesIn(pcSender.getLoc());
+                break;
+            case "smallest":
+                throwbackInfo(pcSender, "Smallest zone currently in");
+                Zone zone = ZoneManager.findSmallestZone(pcSender.getLoc());
+                allIn.add(zone);
+                break;
+            default:
+                this.sendUsage(pcSender);
+                return;
+        }
 
-		for (Zone zone : allIn)
-			throwbackInfo(pcSender, zone.getName() + "; UUID: " + zone.getObjectUUID() + ", loadNum: " + zone.getLoadNum());
-	}
+        for (Zone zone : allIn)
+            throwbackInfo(pcSender, zone.getName() + "; UUID: " + zone.getObjectUUID() + ", loadNum: " + zone.getLoadNum());
+    }
 
-	@Override
-	protected String _getUsageString() {
-		return "' /getzone smallest/all'";
-	}
+    @Override
+    protected String _getUsageString() {
+        return "' /getzone smallest/all'";
+    }
 
-	@Override
-	protected String _getHelpString() {
-		return "lists what zones a player is in";
-	}
+    @Override
+    protected String _getHelpString() {
+        return "lists what zones a player is in";
+    }
 
 }

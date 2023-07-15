@@ -71,73 +71,6 @@ public class Hasher {
         alphabet_ = consistentShuffle(alphabet_.replaceAll(" ", ""), salt_);
     }
 
-    public String encrypt(long... numbers) {
-        return encode(numbers, alphabet_, salt_, minHashLength_);
-    }
-
-    public long[] decrypt(String hash) {
-        return decode(hash);
-    }
-
-    private String encode(long[] numbers, String alphabet, String salt, int minHashLength) {
-        String ret = "";
-        String seps = consistentShuffle(join(seps_, ""), join(numbers, ""));
-        char lotteryChar = 0;
-
-        for (int i = 0; i < numbers.length; i++) {
-            if (i == 0) {
-                String lotterySalt = join(numbers, "-");
-                for (long number : numbers) {
-                    lotterySalt += "-" + (number + 1) * 2;
-                }
-                String lottery = consistentShuffle(alphabet, lotterySalt);
-                lotteryChar = lottery.charAt(0);
-                ret += lotteryChar;
-
-                alphabet = lotteryChar + alphabet.replaceAll(String.valueOf(lotteryChar), "");
-            }
-
-            alphabet = consistentShuffle(alphabet, ((int) lotteryChar & 12345) + salt);
-            ret += hash(numbers[i], alphabet);
-
-            if (i + 1 < numbers.length) {
-                ret += seps.charAt((int) ((numbers[i] + i) % seps.length()));
-            }
-        }
-
-        if (ret.length() < minHashLength) {
-            int firstIndex = 0;
-            for (int i = 0; i < numbers.length; i++) {
-                firstIndex += (i + 1) * numbers[i];
-            }
-
-            int guardIndex = firstIndex % guards_.size();
-            char guard = guards_.get(guardIndex);
-            ret = guard + ret;
-
-            if (ret.length() < minHashLength) {
-                guardIndex = (guardIndex + ret.length()) % guards_.size();
-                guard = guards_.get(guardIndex);
-                ret += guard;
-            }
-        }
-
-        while (ret.length() < minHashLength) {
-            long[] padArray = new long[]{alphabet.charAt(1), alphabet.charAt(0)};
-            String padLeft = encode(padArray, alphabet, salt, 0);
-            String padRight = encode(padArray, alphabet, join(padArray, ""), 0);
-
-            ret = padLeft + ret + padRight;
-            int excess = ret.length() - minHashLength;
-            if (excess > 0) {
-                ret = ret.substring(excess / 2, excess / 2 + minHashLength);
-            }
-            alphabet = consistentShuffle(alphabet, salt + ret);
-        }
-
-        return ret;
-    }
-
     private static String hash(long number, String alphabet) {
         String hash = "";
 
@@ -158,54 +91,6 @@ public class Hasher {
         }
 
         return number;
-    }
-
-    private long[] decode(String hash) {
-        List<Long> ret = new ArrayList<>();
-        String originalHash = hash;
-
-        if (hash != null && !hash.isEmpty()) {
-            String alphabet = "";
-            char lotteryChar = 0;
-
-            for (char guard : guards_) {
-                hash = hash.replaceAll(String.valueOf(guard), " ");
-            }
-
-            String[] hashSplit = hash.split(" ");
-
-            hash = hashSplit[hashSplit.length == 3 || hashSplit.length == 2 ? 1 : 0];
-
-            for (char sep : seps_) {
-                hash = hash.replaceAll(String.valueOf(sep), " ");
-            }
-
-            String[] hashArray = hash.split(" ");
-            for (int i = 0; i < hashArray.length; i++) {
-                String subHash = hashArray[i];
-
-                if (subHash != null && !subHash.isEmpty()) {
-                    if (i == 0) {
-                        lotteryChar = hash.charAt(0);
-                        subHash = subHash.substring(1);
-                        alphabet = lotteryChar + alphabet_.replaceAll(String.valueOf(lotteryChar), "");
-                    }
-                }
-
-                if (alphabet.length() > 0) {
-                    alphabet = consistentShuffle(alphabet, ((int) lotteryChar & 12345) + salt_);
-                    ret.add(unhash(subHash, alphabet));
-                }
-            }
-        }
-
-        long[] numbers = longListToPrimitiveArray(ret);
-
-        if (!encrypt(numbers).equals(originalHash)) {
-            return new long[0];
-        }
-
-        return numbers;
     }
 
     private static String consistentShuffle(String alphabet, String salt) {
@@ -252,18 +137,6 @@ public class Hasher {
             }
         }
         return ret;
-    }
-
-    public String getSalt() {
-        return salt_;
-    }
-
-    public String getAlphabet() {
-        return alphabet_;
-    }
-
-    public int getMinHashLength() {
-        return minHashLength_;
     }
 
     public static String getVersion() {
@@ -378,5 +251,132 @@ public class Hasher {
             eax = eax ^ ecx;
             return eax;
         }
+    }
+
+    public String encrypt(long... numbers) {
+        return encode(numbers, alphabet_, salt_, minHashLength_);
+    }
+
+    public long[] decrypt(String hash) {
+        return decode(hash);
+    }
+
+    private String encode(long[] numbers, String alphabet, String salt, int minHashLength) {
+        String ret = "";
+        String seps = consistentShuffle(join(seps_, ""), join(numbers, ""));
+        char lotteryChar = 0;
+
+        for (int i = 0; i < numbers.length; i++) {
+            if (i == 0) {
+                String lotterySalt = join(numbers, "-");
+                for (long number : numbers) {
+                    lotterySalt += "-" + (number + 1) * 2;
+                }
+                String lottery = consistentShuffle(alphabet, lotterySalt);
+                lotteryChar = lottery.charAt(0);
+                ret += lotteryChar;
+
+                alphabet = lotteryChar + alphabet.replaceAll(String.valueOf(lotteryChar), "");
+            }
+
+            alphabet = consistentShuffle(alphabet, ((int) lotteryChar & 12345) + salt);
+            ret += hash(numbers[i], alphabet);
+
+            if (i + 1 < numbers.length) {
+                ret += seps.charAt((int) ((numbers[i] + i) % seps.length()));
+            }
+        }
+
+        if (ret.length() < minHashLength) {
+            int firstIndex = 0;
+            for (int i = 0; i < numbers.length; i++) {
+                firstIndex += (i + 1) * numbers[i];
+            }
+
+            int guardIndex = firstIndex % guards_.size();
+            char guard = guards_.get(guardIndex);
+            ret = guard + ret;
+
+            if (ret.length() < minHashLength) {
+                guardIndex = (guardIndex + ret.length()) % guards_.size();
+                guard = guards_.get(guardIndex);
+                ret += guard;
+            }
+        }
+
+        while (ret.length() < minHashLength) {
+            long[] padArray = new long[]{alphabet.charAt(1), alphabet.charAt(0)};
+            String padLeft = encode(padArray, alphabet, salt, 0);
+            String padRight = encode(padArray, alphabet, join(padArray, ""), 0);
+
+            ret = padLeft + ret + padRight;
+            int excess = ret.length() - minHashLength;
+            if (excess > 0) {
+                ret = ret.substring(excess / 2, excess / 2 + minHashLength);
+            }
+            alphabet = consistentShuffle(alphabet, salt + ret);
+        }
+
+        return ret;
+    }
+
+    private long[] decode(String hash) {
+        List<Long> ret = new ArrayList<>();
+        String originalHash = hash;
+
+        if (hash != null && !hash.isEmpty()) {
+            String alphabet = "";
+            char lotteryChar = 0;
+
+            for (char guard : guards_) {
+                hash = hash.replaceAll(String.valueOf(guard), " ");
+            }
+
+            String[] hashSplit = hash.split(" ");
+
+            hash = hashSplit[hashSplit.length == 3 || hashSplit.length == 2 ? 1 : 0];
+
+            for (char sep : seps_) {
+                hash = hash.replaceAll(String.valueOf(sep), " ");
+            }
+
+            String[] hashArray = hash.split(" ");
+            for (int i = 0; i < hashArray.length; i++) {
+                String subHash = hashArray[i];
+
+                if (subHash != null && !subHash.isEmpty()) {
+                    if (i == 0) {
+                        lotteryChar = hash.charAt(0);
+                        subHash = subHash.substring(1);
+                        alphabet = lotteryChar + alphabet_.replaceAll(String.valueOf(lotteryChar), "");
+                    }
+                }
+
+                if (alphabet.length() > 0) {
+                    alphabet = consistentShuffle(alphabet, ((int) lotteryChar & 12345) + salt_);
+                    ret.add(unhash(subHash, alphabet));
+                }
+            }
+        }
+
+        long[] numbers = longListToPrimitiveArray(ret);
+
+        if (!encrypt(numbers).equals(originalHash)) {
+            return new long[0];
+        }
+
+        return numbers;
+    }
+
+    public String getSalt() {
+        return salt_;
+    }
+
+    public String getAlphabet() {
+        return alphabet_;
+    }
+
+    public int getMinHashLength() {
+        return minHashLength_;
     }
 }

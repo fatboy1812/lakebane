@@ -20,104 +20,104 @@ import org.pmw.tinylog.Logger;
  */
 public class ChannelMuteMsgHandler extends AbstractClientMsgHandler {
 
-	// Instance variables
+    // Instance variables
 
-	public ChannelMuteMsgHandler() {
-		super(ChatFilterMsg.class);
+    public ChannelMuteMsgHandler() {
+        super(ChatFilterMsg.class);
 
-	}
+    }
 
-	@Override
-	protected boolean _handleNetMsg(ClientNetMsg baseMsg, ClientConnection origin) throws MsgSendException {
-
-		return true;
-	}
-
-	private static void AbandonSingleAsset(PlayerCharacter sourcePlayer,
+    private static void AbandonSingleAsset(PlayerCharacter sourcePlayer,
                                            Building targetBuilding) {
 
-		// Transfer the building asset ownership and refresh all clients
+        // Transfer the building asset ownership and refresh all clients
 
-		DbManager.BuildingQueries.CLEAR_FRIENDS_LIST(targetBuilding.getObjectUUID());
-		targetBuilding.getFriends().clear();
+        DbManager.BuildingQueries.CLEAR_FRIENDS_LIST(targetBuilding.getObjectUUID());
+        targetBuilding.getFriends().clear();
 
-		DbManager.BuildingQueries.CLEAR_CONDEMNED_LIST(targetBuilding.getObjectUUID());
-		targetBuilding.getCondemned().clear();
-		targetBuilding.setOwner(null);
-		targetBuilding.refreshGuild();
-	}
+        DbManager.BuildingQueries.CLEAR_CONDEMNED_LIST(targetBuilding.getObjectUUID());
+        targetBuilding.getCondemned().clear();
+        targetBuilding.setOwner(null);
+        targetBuilding.refreshGuild();
+    }
 
-	private void AbandonAllCityObjects(PlayerCharacter sourcePlayer,
-			Building targetBuilding) {
-		Guild sourceGuild;
-		Zone cityZone;
+    @Override
+    protected boolean _handleNetMsg(ClientNetMsg baseMsg, ClientConnection origin) throws MsgSendException {
 
-		sourceGuild = sourcePlayer.getGuild();
+        return true;
+    }
 
-		if (sourceGuild == null)
-			return;
+    private void AbandonAllCityObjects(PlayerCharacter sourcePlayer,
+                                       Building targetBuilding) {
+        Guild sourceGuild;
+        Zone cityZone;
 
-		if (sourceGuild.getSubGuildList().size() > 0) {
-			ChatManager.chatCityError(sourcePlayer, "You Cannot abandon a nation city.");
-			return;
-		}
+        sourceGuild = sourcePlayer.getGuild();
 
-		cityZone = ZoneManager.findSmallestZone(targetBuilding.getLoc());
+        if (sourceGuild == null)
+            return;
 
-		// Can't abandon a tree not within a player city zone
-		if (cityZone.isPlayerCity() == false)
-			return;
+        if (sourceGuild.getSubGuildList().size() > 0) {
+            ChatManager.chatCityError(sourcePlayer, "You Cannot abandon a nation city.");
+            return;
+        }
 
-		if (targetBuilding.getCity().hasBeenTransfered == true) {
-			ChatManager.chatCityError(sourcePlayer, "City can only be abandoned once per rebooting.");
-			return;
-		}
+        cityZone = ZoneManager.findSmallestZone(targetBuilding.getLoc());
 
-		// Guild no longer owns his tree.
-		if (!DbManager.GuildQueries.SET_GUILD_OWNED_CITY(sourceGuild.getObjectUUID(), 0)) {
-			Logger.error( "Failed to update Owned City to Database");
-			return;
-		}
+        // Can't abandon a tree not within a player city zone
+        if (cityZone.isPlayerCity() == false)
+            return;
 
-		sourceGuild.setCityUUID(0);
-		sourceGuild.setGuildState(GuildState.Errant);
-		sourceGuild.setNation(null);
+        if (targetBuilding.getCity().hasBeenTransfered == true) {
+            ChatManager.chatCityError(sourcePlayer, "City can only be abandoned once per rebooting.");
+            return;
+        }
 
-		// Transfer the city assets
-		TransferCityAssets(sourcePlayer, targetBuilding);
+        // Guild no longer owns his tree.
+        if (!DbManager.GuildQueries.SET_GUILD_OWNED_CITY(sourceGuild.getObjectUUID(), 0)) {
+            Logger.error("Failed to update Owned City to Database");
+            return;
+        }
 
-		GuildManager.updateAllGuildTags(sourceGuild);
-		GuildManager.updateAllGuildBinds(sourceGuild, null);
+        sourceGuild.setCityUUID(0);
+        sourceGuild.setGuildState(GuildState.Errant);
+        sourceGuild.setNation(null);
 
-	}
+        // Transfer the city assets
+        TransferCityAssets(sourcePlayer, targetBuilding);
 
-	private void TransferCityAssets(PlayerCharacter sourcePlayer,
-			Building cityTOL) {
+        GuildManager.updateAllGuildTags(sourceGuild);
+        GuildManager.updateAllGuildBinds(sourceGuild, null);
 
-		Zone cityZone;
+    }
 
-		// Build list of buildings within this parent zone
-		cityZone = ZoneManager.findSmallestZone(cityTOL.getLoc());
+    private void TransferCityAssets(PlayerCharacter sourcePlayer,
+                                    Building cityTOL) {
 
-		for (Building cityBuilding : cityZone.zoneBuildingSet) {
+        Zone cityZone;
 
-			Blueprint cityBlueprint;
-			cityBlueprint = cityBuilding.getBlueprint();
+        // Build list of buildings within this parent zone
+        cityZone = ZoneManager.findSmallestZone(cityTOL.getLoc());
 
-			// Buildings without blueprints cannot be abandoned
-			if (cityBlueprint == null)
-				continue;
+        for (Building cityBuilding : cityZone.zoneBuildingSet) {
 
-			// Transfer ownership of valid city assets
-			if ((cityBlueprint.getBuildingGroup() == BuildingGroup.TOL)
-					|| (cityBlueprint.getBuildingGroup() == BuildingGroup.SPIRE)
-					|| (cityBlueprint.getBuildingGroup() == BuildingGroup.BARRACK)
-					|| (cityBlueprint.isWallPiece())
-					|| (cityBuilding.getBlueprint().getBuildingGroup() == BuildingGroup.SHRINE))
-				AbandonSingleAsset(sourcePlayer, cityBuilding);
+            Blueprint cityBlueprint;
+            cityBlueprint = cityBuilding.getBlueprint();
 
-		}
+            // Buildings without blueprints cannot be abandoned
+            if (cityBlueprint == null)
+                continue;
 
-	}
+            // Transfer ownership of valid city assets
+            if ((cityBlueprint.getBuildingGroup() == BuildingGroup.TOL)
+                    || (cityBlueprint.getBuildingGroup() == BuildingGroup.SPIRE)
+                    || (cityBlueprint.getBuildingGroup() == BuildingGroup.BARRACK)
+                    || (cityBlueprint.isWallPiece())
+                    || (cityBuilding.getBlueprint().getBuildingGroup() == BuildingGroup.SHRINE))
+                AbandonSingleAsset(sourcePlayer, cityBuilding);
+
+        }
+
+    }
 
 }

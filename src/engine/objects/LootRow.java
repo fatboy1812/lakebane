@@ -11,53 +11,53 @@ package engine.objects;
 
 public class LootRow {
 
-	private int valueOne;
-	private int valueTwo;
-	private int valueThree;
-	private String action;
+    private int valueOne;
+    private int valueTwo;
+    private int valueThree;
+    private String action;
 
 
-	/**
-	 * Generic Constructor
-	 */
-	public LootRow(int valueOne, int valueTwo, int valueThree, String action) {
-		this.valueOne = valueOne;
-		this.valueTwo = valueTwo;
-		this.valueThree = valueThree;
-		this.action = action;
-	
-	}
+    /**
+     * Generic Constructor
+     */
+    public LootRow(int valueOne, int valueTwo, int valueThree, String action) {
+        this.valueOne = valueOne;
+        this.valueTwo = valueTwo;
+        this.valueThree = valueThree;
+        this.action = action;
 
-	public int getValueOne() {
-		return this.valueOne;
-	}
+    }
 
-	public int getValueTwo() {
-		return this.valueTwo;
-	}
+    public int getValueOne() {
+        return this.valueOne;
+    }
 
-	public int getValueThree() {
-		return this.valueThree;
-	}
+    public void setValueOne(int value) {
+        this.valueOne = value;
+    }
 
-	public String getAction() {
-		return this.action;
-	}
+    public int getValueTwo() {
+        return this.valueTwo;
+    }
 
-	public void setValueOne(int value) {
-		this.valueOne = value;
-	}
+    public void setValueTwo(int value) {
+        this.valueTwo = value;
+    }
 
-	public void setValueTwo(int value) {
-		this.valueTwo = value;
-	}
+    public int getValueThree() {
+        return this.valueThree;
+    }
 
-	public void setValueThree(int value) {
-		this.valueThree = value;
-	}
+    public void setValueThree(int value) {
+        this.valueThree = value;
+    }
 
-	public void setAction(String value) {
-		this.action = value;
-	}
+    public String getAction() {
+        return this.action;
+    }
+
+    public void setAction(String value) {
+        this.action = value;
+    }
 
 }

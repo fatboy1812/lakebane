@@ -22,10 +22,10 @@ public class GroupUpdateHandler extends AbstractClientMsgHandler {
 
     @Override
     protected boolean _handleNetMsg(ClientNetMsg baseMsg,
-            ClientConnection origin) throws MsgSendException {
+                                    ClientConnection origin) throws MsgSendException {
 
-		//GroupUpdateMsg msg = (GroupUpdateMsg) baseMsg;
-		// not sure what to do with these as we spend our time sending them
+        //GroupUpdateMsg msg = (GroupUpdateMsg) baseMsg;
+        // not sure what to do with these as we spend our time sending them
         // to the whole group ourselves
         return true;
     }

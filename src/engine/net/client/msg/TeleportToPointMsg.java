@@ -18,204 +18,198 @@ import engine.objects.AbstractWorldObject;
 
 public class TeleportToPointMsg extends ClientNetMsg {
 
-	private int sourceType;
-	private int sourceUUID;
-	private float endLat;
-	private float endLon;
-	private float endAlt;
-	private int targetType;
-	private int targetUUID;
-	private int unknown01;
-	private int unknown02;
+    private int sourceType;
+    private int sourceUUID;
+    private float endLat;
+    private float endLon;
+    private float endAlt;
+    private int targetType;
+    private int targetUUID;
+    private int unknown01;
+    private int unknown02;
 
-	/**
-	 * This is the general purpose constructor.
-	 */
-	public TeleportToPointMsg(AbstractWorldObject ago, float endLat, float endAlt, float endLon, long targetID, int unknown01, int unknown02) {
-		super(Protocol.TELEPORT);
+    /**
+     * This is the general purpose constructor.
+     */
+    public TeleportToPointMsg(AbstractWorldObject ago, float endLat, float endAlt, float endLon, long targetID, int unknown01, int unknown02) {
+        super(Protocol.TELEPORT);
 
-		this.sourceType = ago.getObjectType().ordinal();
-		this.sourceUUID = ago.getObjectUUID();
-		this.endLat = endLat;
-		this.endAlt = endAlt;
-		this.endLon = endLon;
-		if (targetID != 0){
-			this.targetType = GameObjectType.Building.ordinal();
-			this.targetUUID = (int) targetID;
-		} else {
-			this.targetType = 0;
-			this.targetUUID = 0;
-		}
-
-
-		this.unknown01 = unknown01;
-		this.unknown02 = unknown02;
-
-		if (ago.region != null) {
-			this.targetType = GameObjectType.Building.ordinal();
-			this.targetUUID = ago.region.parentBuildingID;
-			this.unknown01 = ago.region.level;
-			this.unknown02 = ago.region.room;
-		}
-	}
-
-	/**
-	 * This is the general purpose constructor.
-	 */
-	public TeleportToPointMsg() {
-		super(Protocol.TELEPORT);
-	}
-
-	/**
-	 * This constructor is used by NetMsgFactory. It attempts to deserialize the
-	 * ByteBuffer into a message. If a BufferUnderflow occurs (based on reading
-	 * past the limit) then this constructor Throws that Exception to the
-	 * caller.
-	 */
-	public TeleportToPointMsg(AbstractConnection origin, ByteBufferReader reader)  {
-		super(Protocol.TELEPORT, origin, reader);
-	}
-
-	/**
-	 * Serializes the subclass specific items to the supplied NetMsgWriter.
-	 */
-	@Override
-	protected void _serialize(ByteBufferWriter writer) {
-		writer.putInt(this.sourceType);
-		writer.putInt(this.sourceUUID);
-		writer.putFloat(this.endLat);
-		writer.putFloat(this.endAlt);
-		writer.putFloat(this.endLon);
-		writer.putInt(this.targetType);
-		writer.putInt(this.targetUUID);
-		writer.putInt(this.unknown01);
-		writer.putInt(this.unknown02);
-	}
-
-	/**
-	 * Deserializes the subclass specific items from the supplied NetMsgReader.
-	 */
-	@Override
-	protected void _deserialize(ByteBufferReader reader)  {
-		this.sourceType = reader.getInt();
-		this.sourceUUID = reader.getInt();
-		this.endLat = reader.getInt();
-		this.endAlt = reader.getInt();
-		this.endLon = reader.getInt();
-		this.targetType = reader.getInt();
-		this.targetUUID = reader.getInt();
-		this.unknown01 = reader.getInt();
-		this.unknown02 = reader.getInt();
-	}
+        this.sourceType = ago.getObjectType().ordinal();
+        this.sourceUUID = ago.getObjectUUID();
+        this.endLat = endLat;
+        this.endAlt = endAlt;
+        this.endLon = endLon;
+        if (targetID != 0) {
+            this.targetType = GameObjectType.Building.ordinal();
+            this.targetUUID = (int) targetID;
+        } else {
+            this.targetType = 0;
+            this.targetUUID = 0;
+        }
 
 
-	/**
-	 * @return the endLat
-	 */
-	public float getEndLat() {
-		return endLat;
-	}
+        this.unknown01 = unknown01;
+        this.unknown02 = unknown02;
 
-	/**
-	 * @param endLat
-	 *            the endLat to set
-	 */
-	public void setEndLat(float endLat) {
-		this.endLat = endLat;
-	}
+        if (ago.region != null) {
+            this.targetType = GameObjectType.Building.ordinal();
+            this.targetUUID = ago.region.parentBuildingID;
+            this.unknown01 = ago.region.level;
+            this.unknown02 = ago.region.room;
+        }
+    }
 
-	/**
-	 * @return the endLon
-	 */
-	public float getEndLon() {
-		return endLon;
-	}
+    /**
+     * This is the general purpose constructor.
+     */
+    public TeleportToPointMsg() {
+        super(Protocol.TELEPORT);
+    }
 
-	/**
-	 * @param endLon
-	 *            the endLon to set
-	 */
-	public void setEndLon(float endLon) {
-		this.endLon = endLon;
-	}
+    /**
+     * This constructor is used by NetMsgFactory. It attempts to deserialize the
+     * ByteBuffer into a message. If a BufferUnderflow occurs (based on reading
+     * past the limit) then this constructor Throws that Exception to the
+     * caller.
+     */
+    public TeleportToPointMsg(AbstractConnection origin, ByteBufferReader reader) {
+        super(Protocol.TELEPORT, origin, reader);
+    }
 
-	/**
-	 * @return the endAlt
-	 */
-	public float getEndAlt() {
-		return endAlt;
-	}
+    /**
+     * Serializes the subclass specific items to the supplied NetMsgWriter.
+     */
+    @Override
+    protected void _serialize(ByteBufferWriter writer) {
+        writer.putInt(this.sourceType);
+        writer.putInt(this.sourceUUID);
+        writer.putFloat(this.endLat);
+        writer.putFloat(this.endAlt);
+        writer.putFloat(this.endLon);
+        writer.putInt(this.targetType);
+        writer.putInt(this.targetUUID);
+        writer.putInt(this.unknown01);
+        writer.putInt(this.unknown02);
+    }
 
-	/**
-	 * @param endAlt
-	 *            the endAlt to set
-	 */
-	public void setEndAlt(float endAlt) {
-		this.endAlt = endAlt;
-	}
+    /**
+     * Deserializes the subclass specific items from the supplied NetMsgReader.
+     */
+    @Override
+    protected void _deserialize(ByteBufferReader reader) {
+        this.sourceType = reader.getInt();
+        this.sourceUUID = reader.getInt();
+        this.endLat = reader.getInt();
+        this.endAlt = reader.getInt();
+        this.endLon = reader.getInt();
+        this.targetType = reader.getInt();
+        this.targetUUID = reader.getInt();
+        this.unknown01 = reader.getInt();
+        this.unknown02 = reader.getInt();
+    }
 
 
+    /**
+     * @return the endLat
+     */
+    public float getEndLat() {
+        return endLat;
+    }
 
-	/**
-	 * @return the unknown01
-	 */
-	public int getUnknown01() {
-		return unknown01;
-	}
+    /**
+     * @param endLat the endLat to set
+     */
+    public void setEndLat(float endLat) {
+        this.endLat = endLat;
+    }
 
-	/**
-	 * @param unknown01
-	 *            the unknown01 to set
-	 */
-	public void setUnknown01(int unknown01) {
-		this.unknown01 = unknown01;
-	}
+    /**
+     * @return the endLon
+     */
+    public float getEndLon() {
+        return endLon;
+    }
 
-	/**
-	 * @return the unknown02
-	 */
-	public int getUnknown02() {
-		return unknown02;
-	}
+    /**
+     * @param endLon the endLon to set
+     */
+    public void setEndLon(float endLon) {
+        this.endLon = endLon;
+    }
 
-	/**
-	 * @param unknown02
-	 *            the unknown02 to set
-	 */
-	public void setUnknown02(int unknown02) {
-		this.unknown02 = unknown02;
-	}
+    /**
+     * @return the endAlt
+     */
+    public float getEndAlt() {
+        return endAlt;
+    }
 
-	public int getSourceType() {
-		return sourceType;
-	}
+    /**
+     * @param endAlt the endAlt to set
+     */
+    public void setEndAlt(float endAlt) {
+        this.endAlt = endAlt;
+    }
 
-	public void setSourceType(int sourceType) {
-		this.sourceType = sourceType;
-	}
 
-	public int getSourceUUID() {
-		return sourceUUID;
-	}
+    /**
+     * @return the unknown01
+     */
+    public int getUnknown01() {
+        return unknown01;
+    }
 
-	public void setSourceUUID(int sourceUUID) {
-		this.sourceUUID = sourceUUID;
-	}
+    /**
+     * @param unknown01 the unknown01 to set
+     */
+    public void setUnknown01(int unknown01) {
+        this.unknown01 = unknown01;
+    }
 
-	public int getTargetType() {
-		return targetType;
-	}
+    /**
+     * @return the unknown02
+     */
+    public int getUnknown02() {
+        return unknown02;
+    }
 
-	public void setTargetType(int targetType) {
-		this.targetType = targetType;
-	}
+    /**
+     * @param unknown02 the unknown02 to set
+     */
+    public void setUnknown02(int unknown02) {
+        this.unknown02 = unknown02;
+    }
 
-	public int getTargetUUID() {
-		return targetUUID;
-	}
+    public int getSourceType() {
+        return sourceType;
+    }
 
-	public void setTargetUUID(int targetUUID) {
-		this.targetUUID = targetUUID;
-	}
+    public void setSourceType(int sourceType) {
+        this.sourceType = sourceType;
+    }
+
+    public int getSourceUUID() {
+        return sourceUUID;
+    }
+
+    public void setSourceUUID(int sourceUUID) {
+        this.sourceUUID = sourceUUID;
+    }
+
+    public int getTargetType() {
+        return targetType;
+    }
+
+    public void setTargetType(int targetType) {
+        this.targetType = targetType;
+    }
+
+    public int getTargetUUID() {
+        return targetUUID;
+    }
+
+    public void setTargetUUID(int targetUUID) {
+        this.targetUUID = targetUUID;
+    }
 
 }

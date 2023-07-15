@@ -44,8 +44,7 @@ public class CharacterRecord extends DataRecord {
 
         if (characterRecord == null) {
             characterRecord = new CharacterRecord(player);
-        }
-        else {
+        } else {
             characterRecord.recordType = Enum.DataRecordType.CHARACTER;
             characterRecord.player = player;
 

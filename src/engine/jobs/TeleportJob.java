@@ -23,8 +23,8 @@ public class TeleportJob extends AbstractScheduleJob {
     private final NPC npc;
     private final PlayerCharacter pc;
     private final Vector3fImmutable loc;
-    private int oldLiveCounter;
     private final boolean setSafeMode;
+    private int oldLiveCounter;
 
     public TeleportJob(PlayerCharacter pc, NPC npc, Vector3fImmutable loc, ClientConnection origin, boolean setSafeMode) {
         super();
@@ -40,23 +40,23 @@ public class TeleportJob extends AbstractScheduleJob {
 
     @Override
     protected void doJob() {
-        
+
         if (this.pc == null || this.npc == null || this.origin == null)
             return;
 
         if (!pc.isAlive() || this.oldLiveCounter != pc.getLiveCounter())
             return;
-        
+
         if (pc.getLoc().distanceSquared2D(npc.getLoc()) > MBServerStatics.NPC_TALK_RANGE * MBServerStatics.NPC_TALK_RANGE) {
             ErrorPopupMsg.sendErrorPopup(pc, 114);
             return;
         }
 
         pc.teleport(loc);
-        
+
         if (this.setSafeMode)
             pc.setSafeMode();
-        
+
     }
 
     @Override

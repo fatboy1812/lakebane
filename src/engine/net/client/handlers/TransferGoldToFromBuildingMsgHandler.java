@@ -26,90 +26,90 @@ import org.pmw.tinylog.Logger;
 
 public class TransferGoldToFromBuildingMsgHandler extends AbstractClientMsgHandler {
 
-	public TransferGoldToFromBuildingMsgHandler() {
-		super(TransferGoldToFromBuildingMsg.class);
-	}
+    public TransferGoldToFromBuildingMsgHandler() {
+        super(TransferGoldToFromBuildingMsg.class);
+    }
 
-	@Override
-	protected boolean _handleNetMsg(ClientNetMsg baseMsg, ClientConnection origin) throws MsgSendException {
+    @Override
+    protected boolean _handleNetMsg(ClientNetMsg baseMsg, ClientConnection origin) throws MsgSendException {
 
-		PlayerCharacter player;
-		Building building;
-		CharacterItemManager itemMan;
-		Item goldItem;
-		TransferGoldToFromBuildingMsg msg;
-		Dispatch dispatch;
+        PlayerCharacter player;
+        Building building;
+        CharacterItemManager itemMan;
+        Item goldItem;
+        TransferGoldToFromBuildingMsg msg;
+        Dispatch dispatch;
 
-		player = SessionManager.getPlayerCharacter(origin);
+        player = SessionManager.getPlayerCharacter(origin);
 
-		if (player == null)
-			return true;
+        if (player == null)
+            return true;
 
-		msg = (TransferGoldToFromBuildingMsg) baseMsg;
+        msg = (TransferGoldToFromBuildingMsg) baseMsg;
 
-		building =  BuildingManager.getBuildingFromCache(msg.getObjectID());
+        building = BuildingManager.getBuildingFromCache(msg.getObjectID());
 
-		if (building == null)
-			return true;
+        if (building == null)
+            return true;
 
-		if (msg.getDirection() == 2){
+        if (msg.getDirection() == 2) {
 
-			if(!ManageCityAssetMsgHandler.playerCanManageNotFriends(player, building))
-				return true;
-			if (building.setReserve(msg.getUnknown01(),player)){
-				 dispatch = Dispatch.borrow(player, msg);
-				DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.SECONDARY);
-			}
-			
-			return true;
-		}
+            if (!ManageCityAssetMsgHandler.playerCanManageNotFriends(player, building))
+                return true;
+            if (building.setReserve(msg.getUnknown01(), player)) {
+                dispatch = Dispatch.borrow(player, msg);
+                DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.SECONDARY);
+            }
 
-		//        if (building.getTimeStamp(MBServerStatics.STRONGBOX_DELAY_STRING) > System.currentTimeMillis()){
-		//        	ErrorPopupMsg.sendErrorMsg(player, MBServerStatics.STRONGBOX_DELAY_OUTPUT);
-		//        	return true;
-		//        }
+            return true;
+        }
 
-		//building.getTimestamps().put(MBServerStatics.STRONGBOX_DELAY_STRING, System.currentTimeMillis() + MBServerStatics.ONE_MINUTE);
+        //        if (building.getTimeStamp(MBServerStatics.STRONGBOX_DELAY_STRING) > System.currentTimeMillis()){
+        //        	ErrorPopupMsg.sendErrorMsg(player, MBServerStatics.STRONGBOX_DELAY_OUTPUT);
+        //        	return true;
+        //        }
 
-		itemMan = player.getCharItemManager();
+        //building.getTimestamps().put(MBServerStatics.STRONGBOX_DELAY_STRING, System.currentTimeMillis() + MBServerStatics.ONE_MINUTE);
 
-		goldItem = itemMan.getGoldInventory();
+        itemMan = player.getCharItemManager();
 
-		if (goldItem == null) {
-			Logger.error("Could not access gold item");
-			return true;
-		}
+        goldItem = itemMan.getGoldInventory();
 
-
-		// Update in-game gold values for player and building
+        if (goldItem == null) {
+            Logger.error("Could not access gold item");
+            return true;
+        }
 
 
-		try {
+        // Update in-game gold values for player and building
 
 
-			if (!itemMan.transferGoldToFromBuilding(msg.getAmount(), building))
-				return true;
+        try {
 
 
-			UpdateGoldMsg ugm = new UpdateGoldMsg(player);
-			ugm.configure();
-			dispatch = Dispatch.borrow(player, ugm);
-			DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
-
-			// Refresh the player's inventory if it's currently open
-
-			// Refresh the tree's window to update strongbox
+            if (!itemMan.transferGoldToFromBuilding(msg.getAmount(), building))
+                return true;
 
 
-			msg.setAmount(building.getStrongboxValue());
-			dispatch = Dispatch.borrow(player, msg);
-			DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
+            UpdateGoldMsg ugm = new UpdateGoldMsg(player);
+            ugm.configure();
+            dispatch = Dispatch.borrow(player, ugm);
+            DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
 
-		} catch (Exception e) {
-			PlaceAssetMsg.sendPlaceAssetError(player.getClientConnection(), 1, "A Serious error has occurred. Please post details for to ensure transaction integrity");
-		}
+            // Refresh the player's inventory if it's currently open
 
-		return true;
-	}
+            // Refresh the tree's window to update strongbox
+
+
+            msg.setAmount(building.getStrongboxValue());
+            dispatch = Dispatch.borrow(player, msg);
+            DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
+
+        } catch (Exception e) {
+            PlaceAssetMsg.sendPlaceAssetError(player.getClientConnection(), 1, "A Serious error has occurred. Please post details for to ensure transaction integrity");
+        }
+
+        return true;
+    }
 
 }

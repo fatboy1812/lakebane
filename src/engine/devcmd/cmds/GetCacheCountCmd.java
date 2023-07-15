@@ -16,25 +16,25 @@ import engine.objects.PlayerCharacter;
 
 public class GetCacheCountCmd extends AbstractDevCmd {
 
-	public GetCacheCountCmd() {
+    public GetCacheCountCmd() {
         super("getcachecount");
         this.addCmdString("getcachecount");
     }
 
-	@Override
-	protected void _doCmd(PlayerCharacter pcSender, String[] args,
-			AbstractGameObject target) {
-		DbManager.printCacheCount(pcSender);
-	}
+    @Override
+    protected void _doCmd(PlayerCharacter pcSender, String[] args,
+                          AbstractGameObject target) {
+        DbManager.printCacheCount(pcSender);
+    }
 
-	@Override
-	protected String _getUsageString() {
+    @Override
+    protected String _getUsageString() {
         return "' /getcachecount'";
-	}
+    }
 
-	@Override
-	protected String _getHelpString() {
+    @Override
+    protected String _getHelpString() {
         return "Get a count of the objects in the cache";
-	}
+    }
 
 }

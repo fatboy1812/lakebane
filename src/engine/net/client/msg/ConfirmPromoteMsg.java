@@ -19,7 +19,6 @@ import engine.net.client.Protocol;
 public class ConfirmPromoteMsg extends ClientNetMsg {
 
 
-
     /**
      * This is the general purpose constructor.
      *
@@ -35,7 +34,7 @@ public class ConfirmPromoteMsg extends ClientNetMsg {
      * past the limit) then this constructor Throws that Exception to the
      * caller.
      */
-    public ConfirmPromoteMsg(AbstractConnection origin, ByteBufferReader reader)  {
+    public ConfirmPromoteMsg(AbstractConnection origin, ByteBufferReader reader) {
         super(Protocol.CONFIRMPROMOTE, origin, reader);
     }
 
@@ -50,6 +49,6 @@ public class ConfirmPromoteMsg extends ClientNetMsg {
      * Deserializes the subclass specific items from the supplied NetMsgReader.
      */
     @Override
-    protected void _deserialize(ByteBufferReader reader)  {
+    protected void _deserialize(ByteBufferReader reader) {
     }
 }

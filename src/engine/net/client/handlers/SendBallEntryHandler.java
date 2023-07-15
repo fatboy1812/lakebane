@@ -14,34 +14,33 @@ import engine.net.client.ClientConnection;
 import engine.net.client.msg.ClientNetMsg;
 import engine.net.client.msg.SendBallEntryMessage;
 import engine.objects.PlayerCharacter;
+
 public class SendBallEntryHandler extends AbstractClientMsgHandler {
 
-	public SendBallEntryHandler() {
-		super(SendBallEntryMessage.class);
-	}
+    public SendBallEntryHandler() {
+        super(SendBallEntryMessage.class);
+    }
 
-	@Override
-	protected boolean _handleNetMsg(ClientNetMsg baseMsg,
-			ClientConnection origin) throws MsgSendException {
-		
-		PlayerCharacter player = origin.getPlayerCharacter();
-		
-		if (player == null)
-			return true;
-		
+    public static void HandleAddBall(PlayerCharacter player, SendBallEntryMessage msg) {
+        //currently not handled.
 
-		SendBallEntryMessage msg = (SendBallEntryMessage)baseMsg;
-		
-			HandleAddBall(player,msg);
-			
-		return true;
-	}
-	
+    }
 
-	
-	public static void HandleAddBall(PlayerCharacter player, SendBallEntryMessage msg){
-		//currently not handled.
-	
-	}
-	
+    @Override
+    protected boolean _handleNetMsg(ClientNetMsg baseMsg,
+                                    ClientConnection origin) throws MsgSendException {
+
+        PlayerCharacter player = origin.getPlayerCharacter();
+
+        if (player == null)
+            return true;
+
+
+        SendBallEntryMessage msg = (SendBallEntryMessage) baseMsg;
+
+        HandleAddBall(player, msg);
+
+        return true;
+    }
+
 }

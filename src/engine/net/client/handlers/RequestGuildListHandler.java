@@ -26,30 +26,30 @@ import engine.objects.PlayerCharacter;
 
 public class RequestGuildListHandler extends AbstractClientMsgHandler {
 
-	public RequestGuildListHandler() {
-		super(ReqGuildListMsg.class);
-	}
+    public RequestGuildListHandler() {
+        super(ReqGuildListMsg.class);
+    }
 
-	@Override
-	protected boolean _handleNetMsg(ClientNetMsg baseMsg, ClientConnection origin) throws MsgSendException {
+    @Override
+    protected boolean _handleNetMsg(ClientNetMsg baseMsg, ClientConnection origin) throws MsgSendException {
         Dispatch dispatch;
 
-		// get PlayerCharacter of person accepting invite
-		PlayerCharacter pc = SessionManager.getPlayerCharacter(
-				origin);
-		if (pc == null)
-			return true;
-		
-		if (GuildStatusController.isGuildLeader(pc.getGuildStatus()) == false){
-			ErrorPopupMsg.sendErrorMsg(pc, "You do not have such authority!");
-		}
-		SendGuildEntryMsg msg = new SendGuildEntryMsg(pc);
+        // get PlayerCharacter of person accepting invite
+        PlayerCharacter pc = SessionManager.getPlayerCharacter(
+                origin);
+        if (pc == null)
+            return true;
+
+        if (GuildStatusController.isGuildLeader(pc.getGuildStatus()) == false) {
+            ErrorPopupMsg.sendErrorMsg(pc, "You do not have such authority!");
+        }
+        SendGuildEntryMsg msg = new SendGuildEntryMsg(pc);
 
 
         dispatch = Dispatch.borrow(pc, msg);
         DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
 
-		return true;
-	}
+        return true;
+    }
 
 }

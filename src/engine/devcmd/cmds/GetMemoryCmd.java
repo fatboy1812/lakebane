@@ -15,43 +15,44 @@ import engine.objects.PlayerCharacter;
 
 public class GetMemoryCmd extends AbstractDevCmd {
 
-	public GetMemoryCmd() {
+    public GetMemoryCmd() {
         super("getmemory");
     }
 
-	@Override
-	protected void _doCmd(PlayerCharacter pcSender, String[] words,
-			AbstractGameObject target) {
-		if (pcSender == null) return;
+    public static String getMemoryOutput(long memory) {
+        String out = "";
+        if (memory > 1073741824)
+            return (memory / 1073741824) + "GB";
+        else if (memory > 1048576)
+            return (memory / 1048576) + "MB";
+        else if (memory > 1024)
+            return (memory / 1048576) + "KB";
+        else
+            return memory + "B";
+    }
 
-		String hSize = getMemoryOutput(Runtime.getRuntime().totalMemory());
-		String mhSize = getMemoryOutput(Runtime.getRuntime().maxMemory());
-		String fhSize = getMemoryOutput(Runtime.getRuntime().freeMemory());
+    @Override
+    protected void _doCmd(PlayerCharacter pcSender, String[] words,
+                          AbstractGameObject target) {
+        if (pcSender == null)
+            return;
 
-		String out = "Heap Size: " + hSize + ", Max Heap Size: " + mhSize + ", Free Heap Size: " + fhSize;
-		throwbackInfo(pcSender, out);
-	}
+        String hSize = getMemoryOutput(Runtime.getRuntime().totalMemory());
+        String mhSize = getMemoryOutput(Runtime.getRuntime().maxMemory());
+        String fhSize = getMemoryOutput(Runtime.getRuntime().freeMemory());
 
-	public static String getMemoryOutput(long memory) {
-		String out = "";
-		if (memory > 1073741824)
-			return (memory / 1073741824) + "GB";
-		else if (memory > 1048576)
-			return (memory / 1048576) + "MB";
-		else if (memory > 1024)
-			return (memory / 1048576) + "KB";
-		else
-			return memory + "B";
-	}
+        String out = "Heap Size: " + hSize + ", Max Heap Size: " + mhSize + ", Free Heap Size: " + fhSize;
+        throwbackInfo(pcSender, out);
+    }
 
-	@Override
-	protected String _getUsageString() {
-		return "' /getmemory'";
-	}
+    @Override
+    protected String _getUsageString() {
+        return "' /getmemory'";
+    }
 
-	@Override
-	protected String _getHelpString() {
-		return "lists memory usage";
-	}
+    @Override
+    protected String _getHelpString() {
+        return "lists memory usage";
+    }
 
 }

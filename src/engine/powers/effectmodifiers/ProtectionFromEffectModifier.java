@@ -17,26 +17,29 @@ import java.sql.SQLException;
 
 public class ProtectionFromEffectModifier extends AbstractEffectModifier {
 
-	public ProtectionFromEffectModifier(ResultSet rs) throws SQLException {
-		super(rs);
-	}
+    public ProtectionFromEffectModifier(ResultSet rs) throws SQLException {
+        super(rs);
+    }
 
-	@Override
-	protected void _applyEffectModifier(AbstractCharacter source, AbstractWorldObject awo, int trains, AbstractEffectJob effect) {
+    @Override
+    protected void _applyEffectModifier(AbstractCharacter source, AbstractWorldObject awo, int trains, AbstractEffectJob effect) {
 
-	}
+    }
 
-	@Override
-	public void applyBonus(AbstractCharacter ac, int trains) {
-		PlayerBonuses bonus = ac.getBonuses();
-		if (bonus == null)
-			return;
-		bonus.setFloat(this, trains);
-	//	bonus.setBool(this, true);
-	}
+    @Override
+    public void applyBonus(AbstractCharacter ac, int trains) {
+        PlayerBonuses bonus = ac.getBonuses();
+        if (bonus == null)
+            return;
+        bonus.setFloat(this, trains);
+        //	bonus.setBool(this, true);
+    }
 
-	@Override
-	public void applyBonus(Item item, int trains) {}
-	@Override
-	public void applyBonus(Building building, int trains) {}
+    @Override
+    public void applyBonus(Item item, int trains) {
+    }
+
+    @Override
+    public void applyBonus(Building building, int trains) {
+    }
 }

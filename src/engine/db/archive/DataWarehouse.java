@@ -35,12 +35,12 @@ public class DataWarehouse implements Runnable {
         // If WarehousePush is disabled
         // then early exit
 
-        if ( ConfigManager.MB_WORLD_WAREHOUSE_PUSH.getValue().equalsIgnoreCase("false")) {
+        if (ConfigManager.MB_WORLD_WAREHOUSE_PUSH.getValue().equalsIgnoreCase("false")) {
             Logger.info("Warehouse Remote Connection disabled along with push");
             return;
         }
 
-        Logger.info( "Configuring remote Database Connection Pool...");
+        Logger.info("Configuring remote Database Connection Pool...");
         configureRemoteConnectionPool();
     }
 
@@ -188,6 +188,24 @@ public class DataWarehouse implements Runnable {
         return false;
     }
 
+    private static void configureRemoteConnectionPool() {
+
+        HikariConfig config = new HikariConfig();
+
+        config.setMaximumPoolSize(1); // Only the server talks to remote, so yeah.
+        config.setJdbcUrl(ConfigManager.MB_WAREHOUSE_ADDR.getValue());
+        config.setUsername(ConfigManager.MB_WAREHOUSE_USER.getValue());
+        config.setPassword(ConfigManager.MB_WAREHOUSE_PASS.getValue());
+        config.addDataSourceProperty("characterEncoding", "utf8");
+        config.addDataSourceProperty("cachePrepStmts", "true");
+        config.addDataSourceProperty("prepStmtCacheSize", "250");
+        config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
+
+        remoteConnectionPool = new HikariDataSource(config); // setup the connection pool
+
+        Logger.info("remote warehouse connection configured");
+    }
+
     public void run() {
 
         // Working variable set
@@ -201,7 +219,7 @@ public class DataWarehouse implements Runnable {
         RealmRecord realmRecord;
         MineRecord mineRecord;
 
-        Logger.info( "DataWarehouse is running.");
+        Logger.info("DataWarehouse is running.");
 
         while (true) {
 
@@ -261,30 +279,12 @@ public class DataWarehouse implements Runnable {
                         mineRecord.release();
                         break;
                     default:
-                        Logger.error( "Unhandled record type");
+                        Logger.error("Unhandled record type");
                         break;
 
                 } // end switch
             }
         }
-    }
-
-    private static void configureRemoteConnectionPool() {
-
-        HikariConfig config = new HikariConfig();
-
-        config.setMaximumPoolSize(1); // Only the server talks to remote, so yeah.
-        config.setJdbcUrl(ConfigManager.MB_WAREHOUSE_ADDR.getValue());
-        config.setUsername(ConfigManager.MB_WAREHOUSE_USER.getValue());
-        config.setPassword(ConfigManager.MB_WAREHOUSE_PASS.getValue());
-        config.addDataSourceProperty("characterEncoding", "utf8");
-        config.addDataSourceProperty("cachePrepStmts", "true");
-        config.addDataSourceProperty("prepStmtCacheSize", "250");
-        config.addDataSourceProperty("prepStmtCacheSqlLimit", "2048");
-
-        remoteConnectionPool = new HikariDataSource(config); // setup the connection pool
-
-        Logger.info("remote warehouse connection configured");
     }
 
 }

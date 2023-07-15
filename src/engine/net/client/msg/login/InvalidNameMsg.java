@@ -19,71 +19,71 @@ import engine.server.world.WorldServer;
 
 public class InvalidNameMsg extends ClientNetMsg {
 
-	private String FirstName;
-	private String LastName;
-	private int errorCode;
-	private int serverID;
-	/**
-	 * This is the general purpose constructor.
-	 */
-	public InvalidNameMsg(String FirstName, String LastName,
-			int errorCode) {
-		super(Protocol.NAMEVERIFY);
-		this.FirstName = FirstName;
-		this.LastName = LastName;
-		this.errorCode = errorCode;
-	}
+    private String FirstName;
+    private String LastName;
+    private int errorCode;
+    private int serverID;
 
-	/**
-	 * This constructor is used by NetMsgFactory. It attempts to deserialize the ByteBuffer into a message. If a BufferUnderflow occurs (based on reading past the limit) then this constructor Throws that Exception to the caller.
-	 */
-	public InvalidNameMsg(AbstractConnection origin, ByteBufferReader reader)
-			 {
-		super(Protocol.NAMEVERIFY, origin, reader);
-	}
+    /**
+     * This is the general purpose constructor.
+     */
+    public InvalidNameMsg(String FirstName, String LastName,
+                          int errorCode) {
+        super(Protocol.NAMEVERIFY);
+        this.FirstName = FirstName;
+        this.LastName = LastName;
+        this.errorCode = errorCode;
+    }
 
-	/**
-	 * Serializes the subclass specific items to the supplied ByteBufferWriter.
-	 */
-	@Override
-	protected void _serialize(ByteBufferWriter writer) {
-		writer.putString(this.FirstName);
+    /**
+     * This constructor is used by NetMsgFactory. It attempts to deserialize the ByteBuffer into a message. If a BufferUnderflow occurs (based on reading past the limit) then this constructor Throws that Exception to the caller.
+     */
+    public InvalidNameMsg(AbstractConnection origin, ByteBufferReader reader) {
+        super(Protocol.NAMEVERIFY, origin, reader);
+    }
+
+    /**
+     * Serializes the subclass specific items to the supplied ByteBufferWriter.
+     */
+    @Override
+    protected void _serialize(ByteBufferWriter writer) {
+        writer.putString(this.FirstName);
         writer.putString(this.LastName);
         writer.putInt(WorldServer.worldMapID);
         writer.putInt(errorCode);
-	}
+    }
 
-	/**
-	 * Deserializes the subclass specific items from the supplied ByteBufferReader.
-	 */
-	@Override
-	protected void _deserialize(ByteBufferReader reader)  {
-		this.FirstName = reader.getString();
-		this.LastName = reader.getString();
-		this.serverID = reader.getInt();
-		reader.monitorInt(0, "InvalidNameMsg 01");
-	}
+    /**
+     * Deserializes the subclass specific items from the supplied ByteBufferReader.
+     */
+    @Override
+    protected void _deserialize(ByteBufferReader reader) {
+        this.FirstName = reader.getString();
+        this.LastName = reader.getString();
+        this.serverID = reader.getInt();
+        reader.monitorInt(0, "InvalidNameMsg 01");
+    }
 
 
-	/**
-	 * @return the firstName
-	 */
-	public String getFirstName() {
-		return FirstName;
-	}
+    /**
+     * @return the firstName
+     */
+    public String getFirstName() {
+        return FirstName;
+    }
 
-	/**
-	 * @return the lastName
-	 */
-	public String getLastName() {
-		return LastName;
-	}
+    /**
+     * @return the lastName
+     */
+    public String getLastName() {
+        return LastName;
+    }
 
-	/**
-	 * @return the errorCode
-	 */
-	public int getErrorCode() {
-		return errorCode;
-	}
+    /**
+     * @return the errorCode
+     */
+    public int getErrorCode() {
+        return errorCode;
+    }
 
 }

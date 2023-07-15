@@ -7,22 +7,22 @@
 //                www.magicbane.com
 
 
- package engine.jobs;
+package engine.jobs;
 
 import engine.gameManager.SessionManager;
 import engine.job.AbstractJob;
 
 public class CSessionCleanupJob extends AbstractJob {
 
-	private final String secKey;
+    private final String secKey;
 
-	public CSessionCleanupJob(String key) {
-		super();
-		this.secKey = key;
-	}
+    public CSessionCleanupJob(String key) {
+        super();
+        this.secKey = key;
+    }
 
-	@Override
-	protected void doJob() {
-		SessionManager.cSessionCleanup(secKey);
-	}
+    @Override
+    protected void doJob() {
+        SessionManager.cSessionCleanup(secKey);
+    }
 }

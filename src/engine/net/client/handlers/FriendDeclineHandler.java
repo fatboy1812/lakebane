@@ -22,42 +22,40 @@ import engine.objects.PlayerCharacter;
 
 public class FriendDeclineHandler extends AbstractClientMsgHandler {
 
-	public FriendDeclineHandler() {
-		super(DeclineFriendMsg.class);
-	}
+    public FriendDeclineHandler() {
+        super(DeclineFriendMsg.class);
+    }
 
-	@Override
-	protected boolean _handleNetMsg(ClientNetMsg baseMsg,
-			ClientConnection origin) throws MsgSendException {
-		
-		PlayerCharacter player = origin.getPlayerCharacter();
-		
-		if (player == null)
-			return true;
-		
+    //change to Request
+    public static void HandleDeclineFriend(PlayerCharacter player, DeclineFriendMsg msg) {
+        PlayerCharacter sourceFriend = SessionManager.getPlayerCharacterByLowerCaseName(msg.sourceName);
 
-		DeclineFriendMsg msg = (DeclineFriendMsg)baseMsg;
-		
-		
-			HandleDeclineFriend(player,msg);
-			
-		return true;
-	}
-	
+        if (sourceFriend == null) {
+            ErrorPopupMsg.sendErrorMsg(player, "Could not find player " + msg.sourceName);
+            return;
+        }
 
-	
-	//change to Request
-	public static void HandleDeclineFriend(PlayerCharacter player, DeclineFriendMsg msg){
-		PlayerCharacter sourceFriend = SessionManager.getPlayerCharacterByLowerCaseName(msg.sourceName);
-		
-		if (sourceFriend == null){
-			ErrorPopupMsg.sendErrorMsg(player, "Could not find player " + msg.sourceName);
-			return;
-		}
-	
-	Dispatch dispatch = Dispatch.borrow(sourceFriend, msg);
-	DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.SECONDARY);
-	
-	}
-	
+        Dispatch dispatch = Dispatch.borrow(sourceFriend, msg);
+        DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.SECONDARY);
+
+    }
+
+    @Override
+    protected boolean _handleNetMsg(ClientNetMsg baseMsg,
+                                    ClientConnection origin) throws MsgSendException {
+
+        PlayerCharacter player = origin.getPlayerCharacter();
+
+        if (player == null)
+            return true;
+
+
+        DeclineFriendMsg msg = (DeclineFriendMsg) baseMsg;
+
+
+        HandleDeclineFriend(player, msg);
+
+        return true;
+    }
+
 }

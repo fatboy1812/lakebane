@@ -48,7 +48,7 @@ public class TrashRequestHandler {
 
             // Anounce event in septic tank channel
 
-            outString = "```\n" +  trashCount + " Player Character were for to deleted due to verified cheatings. \n\n";
+            outString = "```\n" + trashCount + " Player Character were for to deleted due to verified cheatings. \n\n";
             outString += MagicBot.database.getTrashList() + "\n\n";
             outString += RobotSpeak.getRobotInsult() + "\n```";
 

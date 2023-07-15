@@ -64,7 +64,7 @@ public class LookupRequestHandler {
             User discordUser = MagicBot.jda.getUserById(userAccount.discordAccount);
 
             if (discordUser != null)
-                outString += discordUser.getName() + discordUser.getDiscriminator() +
+                outString += discordUser.getName() +
                         "/" + userAccount.discordAccount + "     ";
             else
                 outString += userAccount.discordAccount + " *N/A*     ";

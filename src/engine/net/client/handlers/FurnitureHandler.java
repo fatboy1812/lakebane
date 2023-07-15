@@ -20,29 +20,29 @@ import engine.objects.PlayerCharacter;
 
 public class FurnitureHandler extends AbstractClientMsgHandler {
 
-	public FurnitureHandler() {
-		super(FurnitureMsg.class);
-	}
+    public FurnitureHandler() {
+        super(FurnitureMsg.class);
+    }
 
-	@Override
-	protected boolean _handleNetMsg(ClientNetMsg baseMsg,
-			ClientConnection origin) throws MsgSendException {
+    @Override
+    protected boolean _handleNetMsg(ClientNetMsg baseMsg,
+                                    ClientConnection origin) throws MsgSendException {
 
-		FurnitureMsg msg = (FurnitureMsg) baseMsg;
+        FurnitureMsg msg = (FurnitureMsg) baseMsg;
 
-		PlayerCharacter pc = origin.getPlayerCharacter();
-		if (pc == null) {
-			return false;
-		}
-		
-		if (msg.getType() == 1)
-		msg.setType(2);
-		
-		if (msg.getType() == 3)
-			msg.setType(2);
-		 Dispatch dispatch = Dispatch.borrow(pc, msg);
-         DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.SECONDARY);
-		return true;
-	}
+        PlayerCharacter pc = origin.getPlayerCharacter();
+        if (pc == null) {
+            return false;
+        }
+
+        if (msg.getType() == 1)
+            msg.setType(2);
+
+        if (msg.getType() == 3)
+            msg.setType(2);
+        Dispatch dispatch = Dispatch.borrow(pc, msg);
+        DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.SECONDARY);
+        return true;
+    }
 
 }

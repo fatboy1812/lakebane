@@ -304,7 +304,7 @@ public enum GroupManager {
 
     public static boolean goldSplit(PlayerCharacter pc, Item item, ClientConnection origin, AbstractWorldObject tar) {
         if (item == null || pc == null || tar == null || item.getItemBase() == null) {
-            Logger.error( "null something");
+            Logger.error("null something");
             return false;
         }
 
@@ -321,7 +321,7 @@ public enum GroupManager {
 
         //get group members
 
-        for (PlayerCharacter groupMember: group.getMembers()){
+        for (PlayerCharacter groupMember : group.getMembers()) {
             if (pc.getLoc().distanceSquared2D(groupMember.getLoc()) > MBServerStatics.CHARACTER_LOAD_RANGE * MBServerStatics.CHARACTER_LOAD_RANGE)
                 continue;
 
@@ -343,25 +343,22 @@ public enum GroupManager {
         int dif = total - (size * amount);
 
         if (AbstractWorldObject.IsAbstractCharacter(tar)) {
-        }
-        else if (tar.getObjectType().equals(Enum.GameObjectType.Corpse)) {
+        } else if (tar.getObjectType().equals(Enum.GameObjectType.Corpse)) {
             Corpse corpse = (Corpse) tar;
             corpse.getInventory().remove(item);
-        }
-        else {
+        } else {
             Logger.error("target not corpse or character");
             return false;
         }
 
-        if (item.getObjectType() == Enum.GameObjectType.MobLoot){
-            if (tar.getObjectType() == Enum.GameObjectType.Mob){
-                ((Mob)tar).getCharItemManager().delete(item);
-            }else
+        if (item.getObjectType() == Enum.GameObjectType.MobLoot) {
+            if (tar.getObjectType() == Enum.GameObjectType.Mob) {
+                ((Mob) tar).getCharItemManager().delete(item);
+            } else
                 item.setNumOfItems(0);
-        }else
+        } else
             item.setNumOfItems(0);
         for (PlayerCharacter splitPlayer : playersSplit) {
-
 
 
             int amt = (group.isGroupLead(splitPlayer)) ? (amount + dif) : amount;

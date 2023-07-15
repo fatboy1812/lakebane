@@ -25,53 +25,53 @@ import engine.objects.PlayerCharacter;
 
 public class LeaveGuildHandler extends AbstractClientMsgHandler {
 
-	public LeaveGuildHandler() {
-		super(LeaveGuildMsg.class);
-	}
+    public LeaveGuildHandler() {
+        super(LeaveGuildMsg.class);
+    }
 
-	@Override
-	protected boolean _handleNetMsg(ClientNetMsg baseMsg, ClientConnection origin) throws MsgSendException {
-		LeaveGuildMsg msg = (LeaveGuildMsg) baseMsg;
-		Dispatch dispatch;
+    @Override
+    protected boolean _handleNetMsg(ClientNetMsg baseMsg, ClientConnection origin) throws MsgSendException {
+        LeaveGuildMsg msg = (LeaveGuildMsg) baseMsg;
+        Dispatch dispatch;
 
-		// get PlayerCharacter of person leaving invite
+        // get PlayerCharacter of person leaving invite
 
-		PlayerCharacter playerCharacter = SessionManager.getPlayerCharacter(origin);
+        PlayerCharacter playerCharacter = SessionManager.getPlayerCharacter(origin);
 
-		if (playerCharacter == null)
-			return true;
+        if (playerCharacter == null)
+            return true;
 
-		// Guild leader can't leave guild. must pass GL or disband
+        // Guild leader can't leave guild. must pass GL or disband
 
-		if (GuildStatusController.isGuildLeader(playerCharacter.getGuildStatus())) {
-			msg.setMessage("You must switch leadership of your guild before leaving!");
-			dispatch = Dispatch.borrow(playerCharacter, msg);
-			DispatchMessage.dispatchMsgDispatch(dispatch, engine.Enum.DispatchChannel.SECONDARY);
-			return true;
-		}
+        if (GuildStatusController.isGuildLeader(playerCharacter.getGuildStatus())) {
+            msg.setMessage("You must switch leadership of your guild before leaving!");
+            dispatch = Dispatch.borrow(playerCharacter, msg);
+            DispatchMessage.dispatchMsgDispatch(dispatch, engine.Enum.DispatchChannel.SECONDARY);
+            return true;
+        }
 
-		// Release all mine claims
+        // Release all mine claims
 
-		Mine.releaseMineClaims(playerCharacter);
+        Mine.releaseMineClaims(playerCharacter);
 
-		// get old Guild
-		Guild oldGuild = playerCharacter.getGuild();
+        // get old Guild
+        Guild oldGuild = playerCharacter.getGuild();
 
-		if (oldGuild == null || oldGuild.isEmptyGuild()) {
-			return true;
-		}
+        if (oldGuild == null || oldGuild.isEmptyGuild()) {
+            return true;
+        }
 
-		// Send left guild message to rest of guild
-		ChatManager.chatGuildInfo(oldGuild, playerCharacter.getFirstName() + " has left the guild.");
+        // Send left guild message to rest of guild
+        ChatManager.chatGuildInfo(oldGuild, playerCharacter.getFirstName() + " has left the guild.");
 
-		oldGuild.removePlayer(playerCharacter, GuildHistoryType.LEAVE);
+        oldGuild.removePlayer(playerCharacter, GuildHistoryType.LEAVE);
 
-		// Send message back to client
-		msg.setMessage("You have left the guild.");
-		dispatch = Dispatch.borrow(playerCharacter, msg);
-		DispatchMessage.dispatchMsgDispatch(dispatch, engine.Enum.DispatchChannel.SECONDARY);
+        // Send message back to client
+        msg.setMessage("You have left the guild.");
+        dispatch = Dispatch.borrow(playerCharacter, msg);
+        DispatchMessage.dispatchMsgDispatch(dispatch, engine.Enum.DispatchChannel.SECONDARY);
 
-		return true;
-	}
+        return true;
+    }
 
 }

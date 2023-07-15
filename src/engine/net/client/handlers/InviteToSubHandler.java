@@ -27,107 +27,107 @@ import engine.objects.PlayerCharacter;
 
 public class InviteToSubHandler extends AbstractClientMsgHandler {
 
-	public InviteToSubHandler() {
-		super(InviteToSubMsg.class);
-	}
+    public InviteToSubHandler() {
+        super(InviteToSubMsg.class);
+    }
 
-	@Override
-	protected boolean _handleNetMsg(ClientNetMsg baseMsg, ClientConnection origin) throws MsgSendException {
+    private static void sendChat(PlayerCharacter source, String msg) {
+        ChatManager.chatGuildError(source, msg);
+    }
 
-		PlayerCharacter source;
-		PlayerCharacter target;
-		Guild sourceGuild;
-		Guild targetGuild;
-		InviteToSubMsg msg = (InviteToSubMsg) baseMsg;
-		Dispatch dispatch;
+    @Override
+    protected boolean _handleNetMsg(ClientNetMsg baseMsg, ClientConnection origin) throws MsgSendException {
 
-		source = SessionManager.getPlayerCharacter(origin);
+        PlayerCharacter source;
+        PlayerCharacter target;
+        Guild sourceGuild;
+        Guild targetGuild;
+        InviteToSubMsg msg = (InviteToSubMsg) baseMsg;
+        Dispatch dispatch;
 
-		if (source == null)
-			return true;
+        source = SessionManager.getPlayerCharacter(origin);
 
-		target = (PlayerCharacter) DbManager.getObject(GameObjectType.PlayerCharacter, msg.getTargetUUID());
+        if (source == null)
+            return true;
 
-		if (target == null) {
-			ErrorPopupMsg.sendErrorMsg(source, "A Serious error has occured. Please post details for to ensure transaction integrity");
-			return true;
-		}
+        target = (PlayerCharacter) DbManager.getObject(GameObjectType.PlayerCharacter, msg.getTargetUUID());
 
-		//Ignore invites to sub if ignoring player
+        if (target == null) {
+            ErrorPopupMsg.sendErrorMsg(source, "A Serious error has occured. Please post details for to ensure transaction integrity");
+            return true;
+        }
 
-		if (target.isIgnoringPlayer(source))
-			return true;
+        //Ignore invites to sub if ignoring player
 
-		sourceGuild = source.getGuild();
-		targetGuild = target.getGuild();
+        if (target.isIgnoringPlayer(source))
+            return true;
 
-		//source must be in guild
+        sourceGuild = source.getGuild();
+        targetGuild = target.getGuild();
 
-		if (sourceGuild == null) {
-			sendChat(source, "You must be in a guild to invite to sub.");
-			return true;
-		}
+        //source must be in guild
 
-		if (sourceGuild.isEmptyGuild()){
-			sendChat(source, "You must be in a guild to invite to sub.");
-			return true;
-		}
+        if (sourceGuild == null) {
+            sendChat(source, "You must be in a guild to invite to sub.");
+            return true;
+        }
 
-		//source must be GL or IC
+        if (sourceGuild.isEmptyGuild()) {
+            sendChat(source, "You must be in a guild to invite to sub.");
+            return true;
+        }
 
-		if (GuildStatusController.isInnerCouncil(source.getGuildStatus()) == false) {
-			sendChat(source, "Only guild leadership can invite to sub.");
-			return true;
-		}
+        //source must be GL or IC
 
-		if (sourceGuild.getNation().isEmptyGuild())
-			return true;
+        if (GuildStatusController.isInnerCouncil(source.getGuildStatus()) == false) {
+            sendChat(source, "Only guild leadership can invite to sub.");
+            return true;
+        }
 
-		//target must be in a guild
+        if (sourceGuild.getNation().isEmptyGuild())
+            return true;
 
-		if (targetGuild == null)
-			return true;
-		
-		if (sourceGuild.equals(targetGuild))
-			return true;
+        //target must be in a guild
 
-		//target must be GL or IC
+        if (targetGuild == null)
+            return true;
 
-		if (GuildStatusController.isInnerCouncil(target.getGuildStatus()) == false && GuildStatusController.isGuildLeader(target.getGuildStatus()) == false) {
-			sendChat(source, "Target player is not guild leadership.");
-			return true;
-		}
+        if (sourceGuild.equals(targetGuild))
+            return true;
 
-		//Can't already be same nation or errant
-		//source guild is limited to 7 subs
-		//TODO this should be based on TOL rank
+        //target must be GL or IC
+
+        if (GuildStatusController.isInnerCouncil(target.getGuildStatus()) == false && GuildStatusController.isGuildLeader(target.getGuildStatus()) == false) {
+            sendChat(source, "Target player is not guild leadership.");
+            return true;
+        }
+
+        //Can't already be same nation or errant
+        //source guild is limited to 7 subs
+        //TODO this should be based on TOL rank
 
 
-		if (!sourceGuild.canSubAGuild(targetGuild)) {
-			sendChat(source, "This Guild can't be subbed.");
-			return true;
-		}
+        if (!sourceGuild.canSubAGuild(targetGuild)) {
+            sendChat(source, "This Guild can't be subbed.");
+            return true;
+        }
 
-		//all tests passed, let's send invite.
+        //all tests passed, let's send invite.
 
-		if (target.getClientConnection() != null) {
-			msg.setGuildTag(sourceGuild.getGuildTag());
-			msg.setGuildName(sourceGuild.getName());
-			msg.setGuildUUID(sourceGuild.getObjectUUID());
-			msg.setUnknown02(1);
+        if (target.getClientConnection() != null) {
+            msg.setGuildTag(sourceGuild.getGuildTag());
+            msg.setGuildName(sourceGuild.getName());
+            msg.setGuildUUID(sourceGuild.getObjectUUID());
+            msg.setUnknown02(1);
 
-			dispatch = Dispatch.borrow(target, msg);
-			DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
+            dispatch = Dispatch.borrow(target, msg);
+            DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
 
-		} else {
-			sendChat(source, "Failed to send sub invite to target.");
-			return true;
-		}
+        } else {
+            sendChat(source, "Failed to send sub invite to target.");
+            return true;
+        }
 
-		return true;
-	}
-
-	private static void sendChat(PlayerCharacter source, String msg) {
-		ChatManager.chatGuildError(source, msg);
-	}
+        return true;
+    }
 }

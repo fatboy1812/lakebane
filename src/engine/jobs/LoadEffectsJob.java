@@ -18,31 +18,31 @@ import java.util.ArrayList;
 
 public class LoadEffectsJob extends AbstractJob {
 
-	ArrayList<AbstractWorldObject> acsToLoad;
-	ClientConnection originToSend;
+    ArrayList<AbstractWorldObject> acsToLoad;
+    ClientConnection originToSend;
 
-	public LoadEffectsJob(ArrayList<AbstractWorldObject> acsToLoad, ClientConnection origin) {
-		this.acsToLoad = acsToLoad;
-		this.originToSend = origin;
+    public LoadEffectsJob(ArrayList<AbstractWorldObject> acsToLoad, ClientConnection origin) {
+        this.acsToLoad = acsToLoad;
+        this.originToSend = origin;
 
-	}
+    }
 
-	@Override
-	protected void doJob() {
-		if (this.originToSend == null) {
-			return;
-		}
+    @Override
+    protected void doJob() {
+        if (this.originToSend == null) {
+            return;
+        }
 
-		for (AbstractWorldObject awo : this.acsToLoad) {
+        for (AbstractWorldObject awo : this.acsToLoad) {
 
-			if (AbstractWorldObject.IsAbstractCharacter(awo)) {
-				AbstractCharacter acToLoad = (AbstractCharacter) awo;
-				acToLoad.sendAllEffects(this.originToSend);
+            if (AbstractWorldObject.IsAbstractCharacter(awo)) {
+                AbstractCharacter acToLoad = (AbstractCharacter) awo;
+                acToLoad.sendAllEffects(this.originToSend);
 
-			}
+            }
 
-		}
+        }
 
-	}
+    }
 
 }

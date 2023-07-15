@@ -39,10 +39,11 @@ public class ChatChannelHandler {
 
         if (chatText.startsWith("-r "))
             outString =
-                "```\n" + "Hello Players \n\n" +
-                        chatText.substring(3) + "\n\n" +
-                        RobotSpeak.getRobotSpeak() + "\n```";
-        else outString = chatText;
+                    "```\n" + "Hello Players \n\n" +
+                            chatText.substring(3) + "\n\n" +
+                            RobotSpeak.getRobotSpeak() + "\n```";
+        else
+            outString = chatText;
 
         // Write string to changelog channel
 

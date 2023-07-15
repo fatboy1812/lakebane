@@ -7,9 +7,6 @@
 //                www.magicbane.com
 
 
-
-
-
 // • ▌ ▄ ·.  ▄▄▄·  ▄▄ • ▪   ▄▄· ▄▄▄▄·  ▄▄▄·  ▐▄▄▄  ▄▄▄ .
 // ·██ ▐███▪▐█ ▀█ ▐█ ▀ ▪██ ▐█ ▌▪▐█ ▀█▪▐█ ▀█ •█▌ ▐█▐▌·
 // ▐█ ▌▐▌▐█·▄█▀▀█ ▄█ ▀█▄▐█·██ ▄▄▐█▀▀█▄▄█▀▀█ ▐█▐ ▐▌▐▀▀▀
@@ -57,12 +54,12 @@ public class ChangeRankHandler extends AbstractClientMsgHandler {
         if (msg.getPlayerUUID() == 0)
             targetPlayer = sourcePlayer;
 
-	//updateSource will generate a new promote/demote screen for sourcePlayer
+        //updateSource will generate a new promote/demote screen for sourcePlayer
         //updateTarget will sync guild info for the target and all players in range
-        
+
         boolean updateSource = false, updateTarget = false;
 
-        if (sourcePlayer == null ||GuildStatusController.isInnerCouncil(sourcePlayer.getGuildStatus()) == false)
+        if (sourcePlayer == null || GuildStatusController.isInnerCouncil(sourcePlayer.getGuildStatus()) == false)
             return true;
 
         if (targetPlayer != null && (targetPlayer.getGuild().equals(sourcePlayer.getGuild()) == false))
@@ -88,8 +85,8 @@ public class ChangeRankHandler extends AbstractClientMsgHandler {
 
             ChatManager.chatGuildInfo(sourcePlayer.getGuild(),
                     targetName + " has been "
-                    + ((msg.getNewRank() > msg.getPreviousRank()) ? "pro" : "de") + "moted to "
-                    + t.getRankForGender(msg.getNewRank(), isMale) + '!');
+                            + ((msg.getNewRank() > msg.getPreviousRank()) ? "pro" : "de") + "moted to "
+                            + t.getRankForGender(msg.getNewRank(), isMale) + '!');
             updateSource = true;
         }
 
@@ -117,10 +114,10 @@ public class ChangeRankHandler extends AbstractClientMsgHandler {
             taxUpdate = (GuildStatusController.isTaxCollector(targetPlayer.getGuildStatus()) != (msg.getTax() > 0)) && GuildStatusController.isGuildLeader(sourcePlayer.getGuildStatus());
 
             //This logic branch only executes if targetPlayer has passed a null check...
-            if (icUpdate){
-            	 targetPlayer.setInnerCouncil(msg.getIc() > 0);
-            	targetPlayer.setFullMember(true);
-            	targetPlayer.incVer();
+            if (icUpdate) {
+                targetPlayer.setInnerCouncil(msg.getIc() > 0);
+                targetPlayer.setFullMember(true);
+                targetPlayer.incVer();
             }
 
             if (recruitUpdate)
@@ -136,8 +133,8 @@ public class ChangeRankHandler extends AbstractClientMsgHandler {
         if (icUpdate) {
             ChatManager.chatGuildInfo(sourcePlayer.getGuild(),
                     (msg.getIc() > 0)
-                    ? targetName + " has been appointed to the inner council."
-                    : targetName + " is no longer a member of the inner council.");
+                            ? targetName + " has been appointed to the inner council."
+                            : targetName + " is no longer a member of the inner council.");
 
             updateSource = true;
             updateTarget = true;

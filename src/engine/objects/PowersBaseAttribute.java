@@ -7,7 +7,7 @@
 //                www.magicbane.com
 
 
- package engine.objects;
+package engine.objects;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -15,51 +15,51 @@ import java.sql.SQLException;
 
 public class PowersBaseAttribute extends AbstractGameObject {
 
-	private final short attributeID;
-	private final short modValue;
-	private final short castTime;
-	private final short duration;
-	private final short recycleTime;
+    private final short attributeID;
+    private final short modValue;
+    private final short castTime;
+    private final short duration;
+    private final short recycleTime;
 
-	/**
-	 * ResultSet Constructor
-	 */
-	public PowersBaseAttribute(ResultSet rs) throws SQLException {
-		super(rs);
+    /**
+     * ResultSet Constructor
+     */
+    public PowersBaseAttribute(ResultSet rs) throws SQLException {
+        super(rs);
 
-		this.attributeID = rs.getShort("attributeID");
-		this.modValue = rs.getShort("modValue");
-		this.castTime = rs.getShort("castTime");
-		this.duration = rs.getShort("duration");
-		this.recycleTime = rs.getShort("recycleTime");
-	}
+        this.attributeID = rs.getShort("attributeID");
+        this.modValue = rs.getShort("modValue");
+        this.castTime = rs.getShort("castTime");
+        this.duration = rs.getShort("duration");
+        this.recycleTime = rs.getShort("recycleTime");
+    }
 
-	/*
-	 * Getters
-	 */
-	public short getAttributeID() {
-		return attributeID;
-	}
+    /*
+     * Getters
+     */
+    public short getAttributeID() {
+        return attributeID;
+    }
 
-	public short getModValue() {
-		return modValue;
-	}
+    public short getModValue() {
+        return modValue;
+    }
 
-	public short getCastTime() {
-		return castTime;
-	}
+    public short getCastTime() {
+        return castTime;
+    }
 
-	public short getDuration() {
-		return duration;
-	}
+    public short getDuration() {
+        return duration;
+    }
 
-	public short getRecycleTime() {
-		return recycleTime;
-	}
+    public short getRecycleTime() {
+        return recycleTime;
+    }
 
 
-	@Override
-	public void updateDatabase() {
-		// TODO Create update logic.
-	}
+    @Override
+    public void updateDatabase() {
+        // TODO Create update logic.
+    }
 }

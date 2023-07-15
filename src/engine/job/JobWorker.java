@@ -16,94 +16,94 @@ import java.util.Queue;
 
 
 public class JobWorker extends ControlledRunnable {
-	private final int workerId;
+    private final int workerId;
 
-	private final Queue<AbstractJob> jobWaitQueue;
-	private final Queue<JobWorker> jobWorkerList;
-		
-	private AbstractJob currentJob;
+    private final Queue<AbstractJob> jobWaitQueue;
+    private final Queue<JobWorker> jobWorkerList;
 
-	public JobWorker(final int workerID, int priorityQueue,
-			Queue<AbstractJob> jobWaitQueue,
-			Queue<JobWorker> jobWorkerList) {
-		super("JobWorker_" +  priorityQueue + '_' +  workerID);
-		
-		workerId = workerID;
-		this.jobWaitQueue = jobWaitQueue;
-		this.jobWorkerList = jobWorkerList;
-	}
+    private AbstractJob currentJob;
 
-	@Override
-	protected boolean _Run() {
+    public JobWorker(final int workerID, int priorityQueue,
+                     Queue<AbstractJob> jobWaitQueue,
+                     Queue<JobWorker> jobWorkerList) {
+        super("JobWorker_" + priorityQueue + '_' + workerID);
 
-		while (this.runCmd) {
-			// Access to Queue is synchronized internal to JobManager
-			this.currentJob = this.jobWaitQueue.poll();
+        workerId = workerID;
+        this.jobWaitQueue = jobWaitQueue;
+        this.jobWorkerList = jobWorkerList;
+    }
 
-			if (this.currentJob == null) {
-				try {
-					// use self as MUTEX
-					synchronized (this) {
-						this.jobWorkerList.add(this);
-						this.wait();
-					}
+    @Override
+    protected boolean _Run() {
 
-				} catch (InterruptedException e) {
-					Logger.error(this.getThreadName(), e.getClass()
-							.getSimpleName()
-							+ ": " + e.getMessage());
-					break;
+        while (this.runCmd) {
+            // Access to Queue is synchronized internal to JobManager
+            this.currentJob = this.jobWaitQueue.poll();
 
-				} 
-			} else {
+            if (this.currentJob == null) {
+                try {
+                    // use self as MUTEX
+                    synchronized (this) {
+                        this.jobWorkerList.add(this);
+                        this.wait();
+                    }
 
-				// execute the new job..
-				this.currentJob.executeJob(this.getThreadName());
-				this.currentJob = null;
-			}
+                } catch (InterruptedException e) {
+                    Logger.error(this.getThreadName(), e.getClass()
+                            .getSimpleName()
+                            + ": " + e.getMessage());
+                    break;
 
-		}
-		return true;
-	}
+                }
+            } else {
 
-	@Override
-	protected boolean _postRun() {
-		return true;
-	}
+                // execute the new job..
+                this.currentJob.executeJob(this.getThreadName());
+                this.currentJob = null;
+            }
 
-	@Override
-	protected boolean _preRun() {
-		return true;
-	}
+        }
+        return true;
+    }
 
-	@Override
-	protected void _shutdown() {
-	}
+    @Override
+    protected boolean _postRun() {
+        return true;
+    }
 
-	@Override
-	protected void _startup() {
-		//this.logDirectINFO(this.getThreadName(), "Starting up...");
-	}
+    @Override
+    protected boolean _preRun() {
+        return true;
+    }
 
-	public final int getWorkerId() {
-		return workerId;
-	}
+    @Override
+    protected void _shutdown() {
+    }
 
-	public final AbstractJob getCurrentJob() {
-		return currentJob;
-	}
+    @Override
+    protected void _startup() {
+        //this.logDirectINFO(this.getThreadName(), "Starting up...");
+    }
 
-	public final boolean hasCurrentJob() {
+    public final int getWorkerId() {
+        return workerId;
+    }
+
+    public final AbstractJob getCurrentJob() {
+        return currentJob;
+    }
+
+    public final boolean hasCurrentJob() {
         return (currentJob != null);
-	}
+    }
 
-	protected void EmergencyStop() {
-		this.runCmd = false;
-		String out = "Stack Trace";
-		for(StackTraceElement e : this.getThisThread().getStackTrace()) {
-			out += " -> " + e.toString();
-		}
-		Logger.info(out);
-		this.getThisThread().interrupt();
-	}
+    protected void EmergencyStop() {
+        this.runCmd = false;
+        String out = "Stack Trace";
+        for (StackTraceElement e : this.getThisThread().getStackTrace()) {
+            out += " -> " + e.toString();
+        }
+        Logger.info(out);
+        this.getThisThread().interrupt();
+    }
 }

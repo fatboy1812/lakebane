@@ -24,7 +24,7 @@ public enum ChatChannel {
     ADMINLOG("MB_MAGICBOT_ADMINLOG");
 
     public final String configName;
-    public  long channelID;
+    public long channelID;
     public TextChannel textChannel;
 
     ChatChannel(String configName) {

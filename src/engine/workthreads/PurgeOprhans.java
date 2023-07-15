@@ -56,7 +56,7 @@ public class PurgeOprhans implements Runnable {
             }
 
         } catch (Exception e) {
-            Logger.error( e.toString());
+            Logger.error(e.toString());
         }
 
         Logger.info("Thread is exiting with " + recordsDeleted.toString() + " items deleted");

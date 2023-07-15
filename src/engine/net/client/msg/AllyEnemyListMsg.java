@@ -21,102 +21,101 @@ import engine.objects.GuildTag;
 import engine.objects.PlayerCharacter;
 
 
-
 public class AllyEnemyListMsg extends ClientNetMsg {
 
 
-	private int guildID;
+    private int guildID;
 
 
-	public AllyEnemyListMsg(PlayerCharacter player) {
-		super(Protocol.ALLYENEMYLIST);
-		this.guildID = player.getGuildUUID();
+    public AllyEnemyListMsg(PlayerCharacter player) {
+        super(Protocol.ALLYENEMYLIST);
+        this.guildID = player.getGuildUUID();
 
-	}
+    }
 
-	public AllyEnemyListMsg() {
-		super(Protocol.ALLYENEMYLIST);
-	}
-
-
-	/**
-	 * This constructor is used by NetMsgFactory. It attempts to deserialize the
-	 * ByteBuffer into a message. If a BufferUnderflow occurs (based on reading
-	 * past the limit) then this constructor Throws that Exception to the
-	 * caller.
-	 */
-	public AllyEnemyListMsg(AbstractConnection origin, ByteBufferReader reader)  {
-		super(Protocol.ALLYENEMYLIST, origin, reader);
-	}
-	//CALL THIS AFTER SANITY CHECKS AND BEFORE UPDATING HEALTH/GOLD.
+    public AllyEnemyListMsg() {
+        super(Protocol.ALLYENEMYLIST);
+    }
 
 
-	/**
-	 * Deserializes the subclass specific items from the supplied NetMsgReader.
-	 */
-	@Override
-	protected void _deserialize(ByteBufferReader reader)  {
-		reader.getInt();
-		this.guildID = reader.getInt();
-	}
+    /**
+     * This constructor is used by NetMsgFactory. It attempts to deserialize the
+     * ByteBuffer into a message. If a BufferUnderflow occurs (based on reading
+     * past the limit) then this constructor Throws that Exception to the
+     * caller.
+     */
+    public AllyEnemyListMsg(AbstractConnection origin, ByteBufferReader reader) {
+        super(Protocol.ALLYENEMYLIST, origin, reader);
+    }
+    //CALL THIS AFTER SANITY CHECKS AND BEFORE UPDATING HEALTH/GOLD.
 
 
-	// Precache and configure this message before we serialize it
+    /**
+     * Deserializes the subclass specific items from the supplied NetMsgReader.
+     */
+    @Override
+    protected void _deserialize(ByteBufferReader reader) {
+        reader.getInt();
+        this.guildID = reader.getInt();
+    }
 
 
-	/**
-	 * Serializes the subclass specific items to the supplied NetMsgWriter.
-	 */
-	@Override
-	protected void _serialize(ByteBufferWriter writer) throws SerializationException {
-
-		writer.putInt(GameObjectType.Guild.ordinal());
-		writer.putInt(this.guildID);
-
-		Guild guild = Guild.getGuild(this.guildID);
-
-		writer.putInt(guild.getAllyList().size());
-
-		for (Guild ally: guild.getAllyList()){
-			writer.putInt(GameObjectType.Guild.ordinal());//guildType
-			writer.putInt(ally.getObjectUUID());//GuildID
-			writer.putString(ally.getName());
-			GuildTag._serializeForDisplay(ally.getGuildTag(),writer);
-			writer.put((byte)0);
-		}
+    // Precache and configure this message before we serialize it
 
 
-		writer.putInt(guild.getEnemyList().size());
+    /**
+     * Serializes the subclass specific items to the supplied NetMsgWriter.
+     */
+    @Override
+    protected void _serialize(ByteBufferWriter writer) throws SerializationException {
 
-		for (Guild enemy: guild.getEnemyList()){
-			writer.putInt(GameObjectType.Guild.ordinal());//guildType
-			writer.putInt(enemy.getObjectUUID());//GuildID
-			writer.putString(enemy.getName());
-			GuildTag._serializeForDisplay(enemy.getGuildTag(),writer);
-			writer.put((byte)1);
-		}
+        writer.putInt(GameObjectType.Guild.ordinal());
+        writer.putInt(this.guildID);
+
+        Guild guild = Guild.getGuild(this.guildID);
+
+        writer.putInt(guild.getAllyList().size());
+
+        for (Guild ally : guild.getAllyList()) {
+            writer.putInt(GameObjectType.Guild.ordinal());//guildType
+            writer.putInt(ally.getObjectUUID());//GuildID
+            writer.putString(ally.getName());
+            GuildTag._serializeForDisplay(ally.getGuildTag(), writer);
+            writer.put((byte) 0);
+        }
 
 
-		writer.putInt(guild.getRecommendList().size());
-		for (Guild recommended: guild.getRecommendList()){
+        writer.putInt(guild.getEnemyList().size());
 
-			GuildAlliances guildAlliance = guild.guildAlliances.get(recommended.getObjectUUID());
-			writer.putInt(GameObjectType.Guild.ordinal());//guildType
-			writer.putInt(recommended.getObjectUUID());//GuildID
-			writer.putString(recommended.getName());
-			GuildTag._serializeForDisplay(recommended.getGuildTag(),writer);
-			writer.put((byte)1); // ?
-			writer.putString(guildAlliance.getRecommender()); // recommender name.
-			writer.put((byte) (guildAlliance.isAlly()?1:0)); //ally 1 enemy 0
+        for (Guild enemy : guild.getEnemyList()) {
+            writer.putInt(GameObjectType.Guild.ordinal());//guildType
+            writer.putInt(enemy.getObjectUUID());//GuildID
+            writer.putString(enemy.getName());
+            GuildTag._serializeForDisplay(enemy.getGuildTag(), writer);
+            writer.put((byte) 1);
+        }
 
-		}
 
-		writer.put((byte)1);
+        writer.putInt(guild.getRecommendList().size());
+        for (Guild recommended : guild.getRecommendList()) {
 
-	}
+            GuildAlliances guildAlliance = guild.guildAlliances.get(recommended.getObjectUUID());
+            writer.putInt(GameObjectType.Guild.ordinal());//guildType
+            writer.putInt(recommended.getObjectUUID());//GuildID
+            writer.putString(recommended.getName());
+            GuildTag._serializeForDisplay(recommended.getGuildTag(), writer);
+            writer.put((byte) 1); // ?
+            writer.putString(guildAlliance.getRecommender()); // recommender name.
+            writer.put((byte) (guildAlliance.isAlly() ? 1 : 0)); //ally 1 enemy 0
 
-	public int getGuildID() {
-		return guildID;
-	}
+        }
+
+        writer.put((byte) 1);
+
+    }
+
+    public int getGuildID() {
+        return guildID;
+    }
 
 }

@@ -7,9 +7,6 @@
 //                www.magicbane.com
 
 
-
-
-
 // • ▌ ▄ ·.  ▄▄▄·  ▄▄ • ▪   ▄▄· ▄▄▄▄·  ▄▄▄·  ▐▄▄▄  ▄▄▄ .
 // ·██ ▐███▪▐█ ▀█ ▐█ ▀ ▪██ ▐█ ▌▪▐█ ▀█▪▐█ ▀█ •█▌ ▐█▐▌·
 // ▐█ ▌▐▌▐█·▄█▀▀█ ▄█ ▀█▄▐█·██ ▄▄▐█▀▀█▄▄█▀▀█ ▐█▐ ▐▌▐▀▀▀
@@ -43,80 +40,80 @@ import org.joda.time.DateTime;
 
 public class AcceptInviteToGuildHandler extends AbstractClientMsgHandler {
 
-	public AcceptInviteToGuildHandler() {
-		super(AcceptInviteToGuildMsg.class);
-	}
+    public AcceptInviteToGuildHandler() {
+        super(AcceptInviteToGuildMsg.class);
+    }
 
-	@Override
-	protected boolean _handleNetMsg(ClientNetMsg baseMsg, ClientConnection origin) throws MsgSendException {
+    @Override
+    protected boolean _handleNetMsg(ClientNetMsg baseMsg, ClientConnection origin) throws MsgSendException {
 
-		PlayerCharacter player;
-		AcceptInviteToGuildMsg msg;
-		Guild guild;
+        PlayerCharacter player;
+        AcceptInviteToGuildMsg msg;
+        Guild guild;
 
-		msg = (AcceptInviteToGuildMsg) baseMsg;
+        msg = (AcceptInviteToGuildMsg) baseMsg;
 
-		// get PlayerCharacter of person accepting invite
+        // get PlayerCharacter of person accepting invite
 
-		player = SessionManager.getPlayerCharacter(origin);
+        player = SessionManager.getPlayerCharacter(origin);
 
-		if (player == null)
-			return true;
+        if (player == null)
+            return true;
 
-		guild = (Guild) DbManager.getObject(GameObjectType.Guild, msg.getGuildUUID());
+        guild = (Guild) DbManager.getObject(GameObjectType.Guild, msg.getGuildUUID());
 
 
-		if (guild == null)
-			return true;
+        if (guild == null)
+            return true;
 
-		if (guild.getGuildType() == null){
-			ErrorPopupMsg.sendErrorPopup(player, GuildManager.NO_CHARTER_FOUND);
-			return true;
-		}
+        if (guild.getGuildType() == null) {
+            ErrorPopupMsg.sendErrorPopup(player, GuildManager.NO_CHARTER_FOUND);
+            return true;
+        }
 
-		// verify they accepted for the correct guild
+        // verify they accepted for the correct guild
 
-		if (player.getLastGuildToInvite() != msg.getGuildUUID())
-			return true;
+        if (player.getLastGuildToInvite() != msg.getGuildUUID())
+            return true;
 
-		if ( (player.getGuild() != null) &&
-				(player.getGuild().isEmptyGuild() == false)) {
-			ChatManager.chatGuildError(player,
-					"You already belongs to a guild!");
-			return true;
-		}
+        if ((player.getGuild() != null) &&
+                (player.getGuild().isEmptyGuild() == false)) {
+            ChatManager.chatGuildError(player,
+                    "You already belongs to a guild!");
+            return true;
+        }
 
-		// verify they are acceptable level for guild
+        // verify they are acceptable level for guild
 
-		if (player.getLevel() < guild.getRepledgeMin() || player.getLevel() > guild.getRepledgeMax())
-			return true;
+        if (player.getLevel() < guild.getRepledgeMin() || player.getLevel() > guild.getRepledgeMax())
+            return true;
 
-		// Add player to guild
-		player.setGuild(guild);
+        // Add player to guild
+        player.setGuild(guild);
 
-		// Cleanup guild stuff
-		player.resetGuildStatuses();
+        // Cleanup guild stuff
+        player.resetGuildStatuses();
 
-		Dispatch dispatch = Dispatch.borrow(player, msg);
-		DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
+        Dispatch dispatch = Dispatch.borrow(player, msg);
+        DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
 
-		DispatchMessage.sendToAllInRange(player, new GuildInfoMsg(player, guild, 2));
+        DispatchMessage.sendToAllInRange(player, new GuildInfoMsg(player, guild, 2));
 
-		player.incVer();
+        player.incVer();
 
-		//Add to guild History
+        //Add to guild History
 
-		if (player.getGuild() != null){
-			if (DbManager.GuildQueries.ADD_TO_GUILDHISTORY(player.getGuildUUID(), player, DateTime.now(), GuildHistoryType.JOIN)){
-				GuildHistory guildHistory = new GuildHistory(player.getGuildUUID(),player.getGuild().getName(),DateTime.now(), GuildHistoryType.JOIN) ;
-				player.getGuildHistory().add(guildHistory);
-			}
-		}
+        if (player.getGuild() != null) {
+            if (DbManager.GuildQueries.ADD_TO_GUILDHISTORY(player.getGuildUUID(), player, DateTime.now(), GuildHistoryType.JOIN)) {
+                GuildHistory guildHistory = new GuildHistory(player.getGuildUUID(), player.getGuild().getName(), DateTime.now(), GuildHistoryType.JOIN);
+                player.getGuildHistory().add(guildHistory);
+            }
+        }
 
-		// Send guild join message
+        // Send guild join message
 
-		ChatManager.chatGuildInfo(player, player.getFirstName() + " has joined the guild");
-		return true;
-	}
+        ChatManager.chatGuildInfo(player, player.getFirstName() + " has joined the guild");
+        return true;
+    }
 
 }

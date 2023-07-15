@@ -15,105 +15,103 @@ import java.util.HashMap;
 
 public class Runegate {
 
-	// Runegate class Instance variables
-	public static HashMap<Integer, Runegate>  _runegates = new HashMap<>();
+    // Runegate class Instance variables
+    public static HashMap<Integer, Runegate> _runegates = new HashMap<>();
 
-	public Portal[] _portals;
-	public Building gateBuilding;
+    public Portal[] _portals;
+    public Building gateBuilding;
 
-	private Runegate(Building gateBuilding) {
+    private Runegate(Building gateBuilding) {
 
-		this._portals = new Portal[8];
-		this.gateBuilding = gateBuilding;
+        this._portals = new Portal[8];
+        this.gateBuilding = gateBuilding;
 
-		// Load portals for this runegate portals from the database
+        // Load portals for this runegate portals from the database
 
-		configurePortals();
+        configurePortals();
 
-		// Chaos, Khar and Oblivion are on by default
+        // Chaos, Khar and Oblivion are on by default
 
-		_portals[Enum.PortalType.CHAOS.ordinal()].activate(false);
-		_portals[Enum.PortalType.OBLIV.ordinal()].activate(false);
-		_portals[Enum.PortalType.MERCHANT.ordinal()].activate(false);
+        _portals[Enum.PortalType.CHAOS.ordinal()].activate(false);
+        _portals[Enum.PortalType.OBLIV.ordinal()].activate(false);
+        _portals[Enum.PortalType.MERCHANT.ordinal()].activate(false);
 
-	}
+    }
 
-	public void activatePortal(Enum.PortalType portalType) {
+    public static void loadAllRunegates() {
 
-		this._portals[portalType.ordinal()].activate(true);
+        ArrayList<Integer> gateList;
 
-	}
+        gateList = DbManager.RunegateQueries.GET_RUNEGATE_LIST();
 
-	public void deactivatePortal(Enum.PortalType portalType) {
+        for (int gateID : gateList) {
 
-		this._portals[portalType.ordinal()].deactivate();
+            Building gateBuilding = (Building) DbManager.getObject(Enum.GameObjectType.Building, gateID);
 
-	}
+            Runegate runegate = new Runegate(gateBuilding);
+            _runegates.put(gateID, runegate);
+        }
 
+    }
 
-	public Portal[] getPortals() {
+    public static ArrayList<String> GetAllOpenGateIDStrings() {
+        ArrayList<String> openGateIDStrings = new ArrayList<>();
 
-		return this._portals;
+        openGateIDStrings.add("TRA-003");
+        openGateIDStrings.add("TRA-004");
+        openGateIDStrings.add("TRA-005");
+        openGateIDStrings.add("TRA-006");
+        openGateIDStrings.add("TRA-007");
+        openGateIDStrings.add("TRA-008");
+        openGateIDStrings.add("TRA-009");
+        openGateIDStrings.add("TRA-010");
+        return openGateIDStrings;
+    }
 
-	}
+    public void activatePortal(Enum.PortalType portalType) {
 
-	public void collidePortals() {
+        this._portals[portalType.ordinal()].activate(true);
 
-		for (Portal portal : this.getPortals()) {
+    }
 
-			if (portal.isActive())
-				portal.collide();
-		}
-	}
+    public void deactivatePortal(Enum.PortalType portalType) {
 
-	public static void loadAllRunegates() {
+        this._portals[portalType.ordinal()].deactivate();
 
-	ArrayList<Integer>	gateList;
+    }
 
-	gateList = DbManager.RunegateQueries.GET_RUNEGATE_LIST();
+    public Portal[] getPortals() {
 
-	for (int gateID : gateList) {
+        return this._portals;
 
-		Building gateBuilding = (Building) DbManager.getObject(Enum.GameObjectType.Building, gateID);
+    }
 
-		Runegate runegate = new Runegate(gateBuilding);
-		_runegates.put(gateID, runegate);
-	}
+    public void collidePortals() {
 
-	}
+        for (Portal portal : this.getPortals()) {
 
-	public void configurePortals() {
+            if (portal.isActive())
+                portal.collide();
+        }
+    }
 
-		ArrayList<Portal> portalList = DbManager.RunegateQueries.GET_PORTAL_LIST(this.gateBuilding.getObjectUUID());
+    public void configurePortals() {
 
-		for (Portal portal : portalList) {
-			this._portals[portal.portalType.ordinal()] = portal;
-		}
-	}
+        ArrayList<Portal> portalList = DbManager.RunegateQueries.GET_PORTAL_LIST(this.gateBuilding.getObjectUUID());
 
-	public void _serializeForEnterWorld(ByteBufferWriter writer) {
+        for (Portal portal : portalList) {
+            this._portals[portal.portalType.ordinal()] = portal;
+        }
+    }
 
-		writer.putInt(gateBuilding.getObjectType().ordinal());
-		writer.putInt(gateBuilding.getObjectUUID());
-		writer.putString(gateBuilding.getParentZone().getName());
-		writer.putFloat(gateBuilding.getLoc().getLat());
-		writer.putFloat(gateBuilding.getLoc().getAlt());
-		writer.putFloat(gateBuilding.getLoc().getLong());
-	}
+    public void _serializeForEnterWorld(ByteBufferWriter writer) {
 
-	
-	public static ArrayList<String> GetAllOpenGateIDStrings(){
-		ArrayList<String> openGateIDStrings = new ArrayList<>();
-		
-		openGateIDStrings.add("TRA-003");
-		openGateIDStrings.add("TRA-004");
-		openGateIDStrings.add("TRA-005");
-		openGateIDStrings.add("TRA-006");
-		openGateIDStrings.add("TRA-007");
-		openGateIDStrings.add("TRA-008");
-		openGateIDStrings.add("TRA-009");
-		openGateIDStrings.add("TRA-010");
-		return openGateIDStrings;
-	}
+        writer.putInt(gateBuilding.getObjectType().ordinal());
+        writer.putInt(gateBuilding.getObjectUUID());
+        writer.putString(gateBuilding.getParentZone().getName());
+        writer.putFloat(gateBuilding.getLoc().getLat());
+        writer.putFloat(gateBuilding.getLoc().getAlt());
+        writer.putFloat(gateBuilding.getLoc().getLong());
+    }
 
 }

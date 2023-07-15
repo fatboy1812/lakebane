@@ -36,8 +36,8 @@ public enum RealmMap {
     // Spatial hashmap.  Used for determining which Realm
     // a player is currently located within.
 
-    public static int[][] _realmImageMap;
     private static final HashMap<Color, Integer> _rgbToIDMap = new HashMap<>();
+    public static int[][] _realmImageMap;
 
     public static int getRealmIDByColor(Color color) {
 

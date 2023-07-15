@@ -18,52 +18,50 @@ import engine.net.client.msg.ClientNetMsg;
 
 public class DisbandGroupMsg extends ClientNetMsg {
 
-	private int unknown01;
+    private int unknown01;
 
-	/**
-	 * This is the general purpose constructor.
-	 */
-	public DisbandGroupMsg() {
-		super(Protocol.GROUPDISBAND);
-	}
+    /**
+     * This is the general purpose constructor.
+     */
+    public DisbandGroupMsg() {
+        super(Protocol.GROUPDISBAND);
+    }
 
-	/**
-	 * This constructor is used by NetMsgFactory. It attempts to deserialize the ByteBuffer into a message. If a BufferUnderflow occurs (based on reading past the limit) then this constructor Throws that Exception to the caller.
-	 */
-	public DisbandGroupMsg(AbstractConnection origin, ByteBufferReader reader)
-			 {
-		super(Protocol.GROUPDISBAND, origin, reader);
-	}
+    /**
+     * This constructor is used by NetMsgFactory. It attempts to deserialize the ByteBuffer into a message. If a BufferUnderflow occurs (based on reading past the limit) then this constructor Throws that Exception to the caller.
+     */
+    public DisbandGroupMsg(AbstractConnection origin, ByteBufferReader reader) {
+        super(Protocol.GROUPDISBAND, origin, reader);
+    }
 
-	/**
-	 * Serializes the subclass specific items to the supplied ByteBufferWriter.
-	 */
-	@Override
-	protected void _serialize(ByteBufferWriter writer) {
-		writer.putInt(this.unknown01);
-	}
+    /**
+     * Serializes the subclass specific items to the supplied ByteBufferWriter.
+     */
+    @Override
+    protected void _serialize(ByteBufferWriter writer) {
+        writer.putInt(this.unknown01);
+    }
 
-	/**
-	 * Deserializes the subclass specific items from the supplied ByteBufferReader.
-	 */
-	@Override
-	protected void _deserialize(ByteBufferReader reader)  {
-		this.unknown01 = reader.getInt();
-	}
+    /**
+     * Deserializes the subclass specific items from the supplied ByteBufferReader.
+     */
+    @Override
+    protected void _deserialize(ByteBufferReader reader) {
+        this.unknown01 = reader.getInt();
+    }
 
-	/**
-	 * @return the unknown01
-	 */
-	public int getUnknown01() {
-		return unknown01;
-	}
+    /**
+     * @return the unknown01
+     */
+    public int getUnknown01() {
+        return unknown01;
+    }
 
-	/**
-	 * @param unknown01
-	 *            the unknown01 to set
-	 */
-	public void setUnknown01(int unknown01) {
-		this.unknown01 = unknown01;
-	}
+    /**
+     * @param unknown01 the unknown01 to set
+     */
+    public void setUnknown01(int unknown01) {
+        this.unknown01 = unknown01;
+    }
 
 }

@@ -23,60 +23,62 @@ import java.sql.SQLException;
 
 public class InvisibleEffectModifier extends AbstractEffectModifier {
 
-	public InvisibleEffectModifier(ResultSet rs) throws SQLException {
-		super(rs);
-	}
+    public InvisibleEffectModifier(ResultSet rs) throws SQLException {
+        super(rs);
+    }
 
-	@Override
-	protected void _applyEffectModifier(AbstractCharacter source, AbstractWorldObject awo, int trains, AbstractEffectJob effect) {
+    @Override
+    protected void _applyEffectModifier(AbstractCharacter source, AbstractWorldObject awo, int trains, AbstractEffectJob effect) {
 
-		if (awo.getObjectType().equals(Enum.GameObjectType.PlayerCharacter)) {
-			PlayerCharacter pc = (PlayerCharacter) awo;
+        if (awo.getObjectType().equals(Enum.GameObjectType.PlayerCharacter)) {
+            PlayerCharacter pc = (PlayerCharacter) awo;
 
-			if (effect == null)
-				return;
+            if (effect == null)
+                return;
 
-			PowersBase pb = effect.getPower();
-			if (pb == null)
-				return;
+            PowersBase pb = effect.getPower();
+            if (pb == null)
+                return;
 
-			ActionsBase ab = effect.getAction();
+            ActionsBase ab = effect.getAction();
 
-			if (ab == null)
-				return;
+            if (ab == null)
+                return;
 
-			//send invis message to everyone around.
-			ClientConnection origin = SessionManager.getClientConnection(pc);
-			if (origin == null)
-				return;
+            //send invis message to everyone around.
+            ClientConnection origin = SessionManager.getClientConnection(pc);
+            if (origin == null)
+                return;
 
-			ab.getDurationInSeconds(trains);
+            ab.getDurationInSeconds(trains);
 
-			pc.setHidden(trains);
+            pc.setHidden(trains);
 
-			pc.setTimeStampNow("Invis");
+            pc.setTimeStampNow("Invis");
 
-		}
-		else {
-			Logger.error( "Cannot go invis on a non player.");
-		}
-	}
+        } else {
+            Logger.error("Cannot go invis on a non player.");
+        }
+    }
 
-	@Override
-	public void applyBonus(AbstractCharacter ac, int trains) {
-		if (ac == null)
-			return;
-		PlayerBonuses bonus = ac.getBonuses();
-		if (bonus != null)
-			bonus.updateIfHigher(this, (float)trains);
+    @Override
+    public void applyBonus(AbstractCharacter ac, int trains) {
+        if (ac == null)
+            return;
+        PlayerBonuses bonus = ac.getBonuses();
+        if (bonus != null)
+            bonus.updateIfHigher(this, (float) trains);
 
-		//remove pets
-		if (ac.getObjectType().equals(Enum.GameObjectType.PlayerCharacter))
-			((PlayerCharacter)ac).dismissPet();
-	}
+        //remove pets
+        if (ac.getObjectType().equals(Enum.GameObjectType.PlayerCharacter))
+            ((PlayerCharacter) ac).dismissPet();
+    }
 
-	@Override
-	public void applyBonus(Item item, int trains) {}
-	@Override
-	public void applyBonus(Building building, int trains) {}
+    @Override
+    public void applyBonus(Item item, int trains) {
+    }
+
+    @Override
+    public void applyBonus(Building building, int trains) {
+    }
 }

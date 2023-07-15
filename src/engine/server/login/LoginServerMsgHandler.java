@@ -44,6 +44,18 @@ public class LoginServerMsgHandler implements NetMsgHandler {
         this.server = server;
     }
 
+    public static void sendInvalidNameMsg(String firstName, String lastName, int errorCode, ClientConnection clientConnection) {
+
+        InvalidNameMsg invalidNameMessage;
+
+        if (firstName.length() > 256 || lastName.length() > 256)
+            invalidNameMessage = new InvalidNameMsg(firstName, lastName, errorCode);
+        else
+            invalidNameMessage = new InvalidNameMsg(firstName, lastName, errorCode);
+
+        clientConnection.sendMsg(invalidNameMessage);
+    }
+
     /*
      * =========================================================================
      * Client Messages
@@ -124,7 +136,7 @@ public class LoginServerMsgHandler implements NetMsgHandler {
         cMajorVer = vim.getMajorVersion();
         cMinorVer = vim.getMinorVersion();
 
-       if (!cMajorVer.equals(this.server.getDefaultVersionInfo().getMajorVersion())) {
+        if (!cMajorVer.equals(this.server.getDefaultVersionInfo().getMajorVersion())) {
             this.KickToLogin(MBServerStatics.LOGINERROR_INCORRECT_CLIENT_VERSION, "Major Version Failure: " + cMajorVer, cc);
             return;
         }
@@ -139,7 +151,7 @@ public class LoginServerMsgHandler implements NetMsgHandler {
             return;
         }
 
-        if (cMinorVer.length()  < 8 || cMinorVer.length()  > 16) {
+        if (cMinorVer.length() < 8 || cMinorVer.length() > 16) {
             this.KickToLogin(MBServerStatics.LOGINERROR_INCORRECT_CLIENT_VERSION, "Minor Version Failure: ", cc);
             return;
         }
@@ -149,7 +161,7 @@ public class LoginServerMsgHandler implements NetMsgHandler {
         cc.machineID = cMinorVer;
 
         //  send fake right back to the client
-        outVim = new VersionInfoMsg(vim.getMajorVersion(), this.server.getDefaultVersionInfo().getMinorVersion() );
+        outVim = new VersionInfoMsg(vim.getMajorVersion(), this.server.getDefaultVersionInfo().getMinorVersion());
         cc.sendMsg(outVim);
     }
 
@@ -186,9 +198,9 @@ public class LoginServerMsgHandler implements NetMsgHandler {
                 return;
             }
 
-                Logger.info("AutoRegister: " + uname + "/" + pass);
-                DbManager.AccountQueries.CREATE_SINGLE(uname, pass);
-                account = DbManager.AccountQueries.GET_ACCOUNT(uname);
+            Logger.info("AutoRegister: " + uname + "/" + pass);
+            DbManager.AccountQueries.CREATE_SINGLE(uname, pass);
+            account = DbManager.AccountQueries.GET_ACCOUNT(uname);
 
             if (account == null) {
                 this.KickToLogin(MBServerStatics.LOGINERROR_INVALID_USERNAME_PASSWORD, "Could not find account (" + uname + ')', clientConnection);
@@ -351,18 +363,6 @@ public class LoginServerMsgHandler implements NetMsgHandler {
             Logger.error(e);
             this.sendCharacterSelectScreen(session, true);
         }
-    }
-
-    public static void sendInvalidNameMsg(String firstName, String lastName, int errorCode, ClientConnection clientConnection) {
-
-        InvalidNameMsg invalidNameMessage;
-
-        if (firstName.length() > 256 || lastName.length() > 256)
-            invalidNameMessage = new InvalidNameMsg(firstName, lastName, errorCode);
-        else
-            invalidNameMessage = new InvalidNameMsg(firstName, lastName, errorCode);
-
-        clientConnection.sendMsg(invalidNameMessage);
     }
 
     private void DeleteCharacter(DeleteCharacterMsg msg, ClientConnection origin) {

@@ -18,64 +18,61 @@ import engine.objects.PlayerCharacter;
  */
 public class AllyEnemyListMsgHandler extends AbstractClientMsgHandler {
 
-	public AllyEnemyListMsgHandler() {
-		super(AllyEnemyListMsg.class);
-	}
+    public AllyEnemyListMsgHandler() {
+        super(AllyEnemyListMsg.class);
+    }
 
-	@Override
-	protected boolean _handleNetMsg(ClientNetMsg baseMsg, ClientConnection origin) throws MsgSendException {
+    private static void showAllyEnemyList(Guild fromGuild, Guild toGuild, AllyEnemyListMsg msg, ClientConnection origin) {
 
-		// Member variable declaration
+        // Member variable declaration
+        Dispatch dispatch;
 
-		PlayerCharacter player;
-		AllyEnemyListMsg msg;
+        // Member variable assignment
 
+        if (fromGuild == null)
+            return;
 
-		// Member variable assignment
+        if (toGuild == null)
+            return;
+        dispatch = Dispatch.borrow(origin.getPlayerCharacter(), msg);
+        DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
 
-		msg = (AllyEnemyListMsg) baseMsg;
-
-		player = SessionManager.getPlayerCharacter(origin);
-
-		if (player == null)
-			return true;
-
-
-		AllyEnemyListMsgHandler.showAllyEnemyList(player.getGuild(), Guild.getGuild(msg.getGuildID()), msg, origin);
-
+        //		UpdateClientAlliancesMsg ucam = new UpdateClientAlliancesMsg();
+        //
+        //		dispatch = Dispatch.borrow(origin.getPlayerCharacter(), ucam);
+        //		DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
 
 
+    }
 
-		//		dispatch = Dispatch.borrow(player, baseMsg);
-		//		DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
+    @Override
+    protected boolean _handleNetMsg(ClientNetMsg baseMsg, ClientConnection origin) throws MsgSendException {
 
-		return true;
+        // Member variable declaration
 
-	}
-
-	private static void showAllyEnemyList(Guild fromGuild, Guild toGuild, AllyEnemyListMsg msg, ClientConnection origin) {
-
-		// Member variable declaration
-		Dispatch dispatch;
-
-		// Member variable assignment
-
-		if (fromGuild == null)
-			return;
-
-		if (toGuild == null)
-			return;
-		dispatch = Dispatch.borrow(origin.getPlayerCharacter(), msg);
-		DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
-
-		//		UpdateClientAlliancesMsg ucam = new UpdateClientAlliancesMsg();
-		//
-		//		dispatch = Dispatch.borrow(origin.getPlayerCharacter(), ucam);
-		//		DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
+        PlayerCharacter player;
+        AllyEnemyListMsg msg;
 
 
-	}
+        // Member variable assignment
 
+        msg = (AllyEnemyListMsg) baseMsg;
+
+        player = SessionManager.getPlayerCharacter(origin);
+
+        if (player == null)
+            return true;
+
+
+        AllyEnemyListMsgHandler.showAllyEnemyList(player.getGuild(), Guild.getGuild(msg.getGuildID()), msg, origin);
+
+
+        //		dispatch = Dispatch.borrow(player, baseMsg);
+        //		DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
+
+        return true;
+
+    }
 
 
 }

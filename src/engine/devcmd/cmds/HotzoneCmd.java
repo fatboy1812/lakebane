@@ -7,7 +7,6 @@
 //                www.magicbane.com
 
 
-
 package engine.devcmd.cmds;
 
 import engine.devcmd.AbstractDevCmd;
@@ -63,6 +62,7 @@ public class HotzoneCmd extends AbstractDevCmd {
 
         return;
     }
+
     @Override
     protected String _getHelpString() {
         return "Use no arguments to see the current hotzone or \"random\" to change it randomly.";

@@ -25,16 +25,17 @@ public class MobileFSMManager {
     private static final MobileFSMManager INSTANCE = new MobileFSMManager();
     public static Duration executionTime = Duration.ofNanos(1);
     public static Duration executionMax = Duration.ofNanos(1);
-    private volatile boolean alive;
-    private long timeOfKill = -1;
-
     //AI variables moved form mb_server_statics
     public static int AI_BASE_AGGRO_RANGE = 60;
     public static int AI_DROP_AGGRO_RANGE = 60;
     public static int AI_RECALL_RANGE = 400;
     public static int AI_PULSE_MOB_THRESHOLD = 200;
+    public static int AI_THREAD_SLEEP = 1000;
     public static int AI_PATROL_DIVISOR = 15;
     public static int AI_POWER_DIVISOR = 20;
+    public static float AI_MAX_ANGLE = 10f;
+    private volatile boolean alive;
+    private long timeOfKill = -1;
 
 
     private MobileFSMManager() {

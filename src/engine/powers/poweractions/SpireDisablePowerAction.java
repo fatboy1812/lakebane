@@ -25,65 +25,64 @@ import java.sql.SQLException;
 
 public class SpireDisablePowerAction extends AbstractPowerAction {
 
-	/**
-	 * ResultSet Constructor
-	 */
-	public SpireDisablePowerAction(ResultSet rs) throws SQLException {
-		super(rs);
-	}
+    /**
+     * ResultSet Constructor
+     */
+    public SpireDisablePowerAction(ResultSet rs) throws SQLException {
+        super(rs);
+    }
 
-	@Override
-	protected void _startAction(AbstractCharacter source, AbstractWorldObject awo, Vector3fImmutable targetLoc, int trains, ActionsBase ab, PowersBase pb) {
-		if (awo == null)
-			return;
+    @Override
+    protected void _startAction(AbstractCharacter source, AbstractWorldObject awo, Vector3fImmutable targetLoc, int trains, ActionsBase ab, PowersBase pb) {
+        if (awo == null)
+            return;
 
-		if (source == null)
-			return;
+        if (source == null)
+            return;
 
-		PlayerCharacter pc = null;
+        PlayerCharacter pc = null;
 
-		if (source.getObjectType() == GameObjectType.PlayerCharacter)
-			pc = (PlayerCharacter)source;
-		else
-			return;
+        if (source.getObjectType() == GameObjectType.PlayerCharacter)
+            pc = (PlayerCharacter) source;
+        else
+            return;
 
-		if (awo.getObjectType() != GameObjectType.Building)
-			return;
-
-
-		//Check if Building is Spire.
-
-		Building spire = (Building)awo;
-
-		if ((spire.getBlueprintUUID() == 0) ||
-				(spire.getBlueprint() != null && spire.getBlueprint().getBuildingGroup() != BuildingGroup.SPIRE)) {
-			ChatManager.chatSystemError((PlayerCharacter)source, "This Building is not a spire.");
-			return;
-		}
-
-		if (!spire.isSpireIsActive())
-			return;
-
-		spire.disableSpire(false);
-
-		if (trains > 20)
-			trains = 20;
-
-		long duration = trains * 4500 + 30000;
-		spire.setTimeStamp("DISABLED", System.currentTimeMillis() + duration);
+        if (awo.getObjectType() != GameObjectType.Building)
+            return;
 
 
+        //Check if Building is Spire.
 
-	}
+        Building spire = (Building) awo;
 
-	@Override
-	protected void _handleChant(AbstractCharacter source, AbstractWorldObject target, Vector3fImmutable targetLoc, int trains, ActionsBase ab, PowersBase pb) {
-	}
+        if ((spire.getBlueprintUUID() == 0) ||
+                (spire.getBlueprint() != null && spire.getBlueprint().getBuildingGroup() != BuildingGroup.SPIRE)) {
+            ChatManager.chatSystemError((PlayerCharacter) source, "This Building is not a spire.");
+            return;
+        }
 
-	@Override
-	protected void _startAction(AbstractCharacter source, AbstractWorldObject awo, Vector3fImmutable targetLoc,
-			int numTrains, ActionsBase ab, PowersBase pb, int duration) {
-		// TODO Auto-generated method stub
+        if (!spire.isSpireIsActive())
+            return;
 
-	}
+        spire.disableSpire(false);
+
+        if (trains > 20)
+            trains = 20;
+
+        long duration = trains * 4500 + 30000;
+        spire.setTimeStamp("DISABLED", System.currentTimeMillis() + duration);
+
+
+    }
+
+    @Override
+    protected void _handleChant(AbstractCharacter source, AbstractWorldObject target, Vector3fImmutable targetLoc, int trains, ActionsBase ab, PowersBase pb) {
+    }
+
+    @Override
+    protected void _startAction(AbstractCharacter source, AbstractWorldObject awo, Vector3fImmutable targetLoc,
+                                int numTrains, ActionsBase ab, PowersBase pb, int duration) {
+        // TODO Auto-generated method stub
+
+    }
 }

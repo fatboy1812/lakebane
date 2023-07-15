@@ -26,372 +26,371 @@ import java.util.ArrayList;
 
 public class OpenFriendsCondemnListMsgHandler extends AbstractClientMsgHandler {
 
-	public OpenFriendsCondemnListMsgHandler() {
-		super(OpenFriendsCondemnListMsg.class);
-	}
-
-	@Override
-	protected boolean _handleNetMsg(ClientNetMsg baseMsg, ClientConnection origin) throws MsgSendException {
-
-		PlayerCharacter player = SessionManager.getPlayerCharacter(origin);
-		Building sourceBuilding;
-		OpenFriendsCondemnListMsg msg;
-		OpenFriendsCondemnListMsg openFriendsCondemnListMsg;
-		Enum.FriendListType friendListType;
-		Dispatch dispatch;
-
-		if (player == null)
-			return true;
-
-		msg = (OpenFriendsCondemnListMsg) baseMsg;
-		openFriendsCondemnListMsg = new OpenFriendsCondemnListMsg(msg);
-		friendListType = Enum.FriendListType.getListTypeByID(msg.getMessageType());
-		
-		if (friendListType == null){
-			Logger.error("Invalid FriendListType for messageType " + msg.getMessageType());
-			return true;
-		}
-
-		switch (friendListType) {
-		case VIEWHERALDRY: // Heraldry
-			
-			Heraldry.ValidateHeraldry(player.getObjectUUID());
-			OpenFriendsCondemnListMsg outMsg = new OpenFriendsCondemnListMsg(msg);
-			outMsg.setOrigin(origin);
-			outMsg.setMessageType(2);
-			dispatch = Dispatch.borrow(player, outMsg);
-			DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.SECONDARY);
-		break;
-		
-		case ADDHERALDRY:
-			Heraldry.ValidateHeraldry(player.getObjectUUID());
-			if (msg.getPlayerID() <= 0){
-				//ErrorPopupMsg.sendErrorMsg(player, "Invalid Heraldry Object.");
-				return true;
-			}
-			AbstractCharacter toAdd = null;
-			if (msg.getPlayerType() == GameObjectType.PlayerCharacter.ordinal())
-				toAdd = PlayerCharacter.getFromCache(msg.getPlayerID());
-			else if (msg.getPlayerType() == GameObjectType.NPC.ordinal())
-				toAdd = NPC.getFromCache(msg.getPlayerID());
-			else if (msg.getPlayerType() == GameObjectType.Mob.ordinal())
-				toAdd = Mob.getFromCache(msg.getPlayerID());
-			else{
-				ErrorPopupMsg.sendErrorMsg(player, "Invalid Heraldry Object.");
-				return true;
-			}
-			
-			if (toAdd == null){
-				ErrorPopupMsg.sendErrorMsg(player, "Invalid Heraldry Object.");
-				return true;
-			}
-			
-			Heraldry.AddToHeraldy(player.getObjectUUID(), toAdd);
-			
-			
-			 outMsg = new OpenFriendsCondemnListMsg(msg);
-			outMsg.setOrigin(origin);
-			outMsg.setMessageType(2);
-			dispatch = Dispatch.borrow(player, outMsg);
-			DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.SECONDARY);
-
-			break;
-		case REMOVEHERALDRY:
-			Heraldry.ValidateHeraldry(player.getObjectUUID());
-			Heraldry.RemoveFromHeraldy(player.getObjectUUID(), msg.getPlayerID());
-				
-			
-			 outMsg = new OpenFriendsCondemnListMsg(msg);
-				outMsg.setOrigin(origin);
-				outMsg.setMessageType(2);
-				dispatch = Dispatch.borrow(player, outMsg);
-				DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.SECONDARY);
-				
-			break;
-
-		case DEALTHS: // Death List
-			openFriendsCondemnListMsg.updateMsg(8, new ArrayList<>(player.pvpDeaths));
-			dispatch = Dispatch.borrow(player, openFriendsCondemnListMsg);
-			DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
-			break;
-
-		case KILLS: // Kill List
-			openFriendsCondemnListMsg.updateMsg(10, new ArrayList<>(player.pvpKills));
-			dispatch = Dispatch.borrow(player, openFriendsCondemnListMsg);
-			DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
-			break;
-
-		case VIEWCONDEMN:
-
-			sourceBuilding = BuildingManager.getBuildingFromCache(msg.getBuildingID());
-
-			if (sourceBuilding == null)
-				return true;
+    public OpenFriendsCondemnListMsgHandler() {
+        super(OpenFriendsCondemnListMsg.class);
+    }
+
+    @Override
+    protected boolean _handleNetMsg(ClientNetMsg baseMsg, ClientConnection origin) throws MsgSendException {
+
+        PlayerCharacter player = SessionManager.getPlayerCharacter(origin);
+        Building sourceBuilding;
+        OpenFriendsCondemnListMsg msg;
+        OpenFriendsCondemnListMsg openFriendsCondemnListMsg;
+        Enum.FriendListType friendListType;
+        Dispatch dispatch;
+
+        if (player == null)
+            return true;
+
+        msg = (OpenFriendsCondemnListMsg) baseMsg;
+        openFriendsCondemnListMsg = new OpenFriendsCondemnListMsg(msg);
+        friendListType = Enum.FriendListType.getListTypeByID(msg.getMessageType());
+
+        if (friendListType == null) {
+            Logger.error("Invalid FriendListType for messageType " + msg.getMessageType());
+            return true;
+        }
+
+        switch (friendListType) {
+            case VIEWHERALDRY: // Heraldry
+
+                Heraldry.ValidateHeraldry(player.getObjectUUID());
+                OpenFriendsCondemnListMsg outMsg = new OpenFriendsCondemnListMsg(msg);
+                outMsg.setOrigin(origin);
+                outMsg.setMessageType(2);
+                dispatch = Dispatch.borrow(player, outMsg);
+                DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.SECONDARY);
+                break;
+
+            case ADDHERALDRY:
+                Heraldry.ValidateHeraldry(player.getObjectUUID());
+                if (msg.getPlayerID() <= 0) {
+                    //ErrorPopupMsg.sendErrorMsg(player, "Invalid Heraldry Object.");
+                    return true;
+                }
+                AbstractCharacter toAdd = null;
+                if (msg.getPlayerType() == GameObjectType.PlayerCharacter.ordinal())
+                    toAdd = PlayerCharacter.getFromCache(msg.getPlayerID());
+                else if (msg.getPlayerType() == GameObjectType.NPC.ordinal())
+                    toAdd = NPC.getFromCache(msg.getPlayerID());
+                else if (msg.getPlayerType() == GameObjectType.Mob.ordinal())
+                    toAdd = Mob.getFromCache(msg.getPlayerID());
+                else {
+                    ErrorPopupMsg.sendErrorMsg(player, "Invalid Heraldry Object.");
+                    return true;
+                }
+
+                if (toAdd == null) {
+                    ErrorPopupMsg.sendErrorMsg(player, "Invalid Heraldry Object.");
+                    return true;
+                }
 
-			openFriendsCondemnListMsg = new OpenFriendsCondemnListMsg(12, sourceBuilding.getCondemned(), sourceBuilding.reverseKOS);
-			openFriendsCondemnListMsg.configure();
-			dispatch = Dispatch.borrow(player, openFriendsCondemnListMsg);
-			DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
+                Heraldry.AddToHeraldy(player.getObjectUUID(), toAdd);
 
-			//msg.updateMsg(12, DbManager.GuildQueries.)
-			break;
-			//REMOVE CONDEMN
-		case REMOVECONDEMN:
 
-			sourceBuilding = BuildingManager.getBuildingFromCache(msg.getBuildingID());
+                outMsg = new OpenFriendsCondemnListMsg(msg);
+                outMsg.setOrigin(origin);
+                outMsg.setMessageType(2);
+                dispatch = Dispatch.borrow(player, outMsg);
+                DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.SECONDARY);
 
-			if (sourceBuilding == null)
-				return true;
+                break;
+            case REMOVEHERALDRY:
+                Heraldry.ValidateHeraldry(player.getObjectUUID());
+                Heraldry.RemoveFromHeraldy(player.getObjectUUID(), msg.getPlayerID());
 
-			if (!BuildingManager.PlayerCanControlNotOwner(sourceBuilding, player))
-				return true;
 
-			Condemned removeCondemn = sourceBuilding.getCondemned().get(msg.getRemoveFriendID());
+                outMsg = new OpenFriendsCondemnListMsg(msg);
+                outMsg.setOrigin(origin);
+                outMsg.setMessageType(2);
+                dispatch = Dispatch.borrow(player, outMsg);
+                DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.SECONDARY);
 
-			if (removeCondemn == null)
-				return true;
+                break;
 
-			if (!DbManager.BuildingQueries.REMOVE_FROM_CONDEMNED_LIST(removeCondemn.getParent(), removeCondemn.getPlayerUID(), removeCondemn.getGuildUID(), removeCondemn.getFriendType()))
-				return true;
+            case DEALTHS: // Death List
+                openFriendsCondemnListMsg.updateMsg(8, new ArrayList<>(player.pvpDeaths));
+                dispatch = Dispatch.borrow(player, openFriendsCondemnListMsg);
+                DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
+                break;
 
-			sourceBuilding.getCondemned().remove(msg.getRemoveFriendID());
-			dispatch = Dispatch.borrow(player, msg);
-			DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
-			break;
+            case KILLS: // Kill List
+                openFriendsCondemnListMsg.updateMsg(10, new ArrayList<>(player.pvpKills));
+                dispatch = Dispatch.borrow(player, openFriendsCondemnListMsg);
+                DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
+                break;
 
-		case TOGGLEACTIVE:
+            case VIEWCONDEMN:
 
-			sourceBuilding = BuildingManager.getBuildingFromCache(msg.getBuildingID());
+                sourceBuilding = BuildingManager.getBuildingFromCache(msg.getBuildingID());
 
-			if (sourceBuilding == null)
-				return true;
+                if (sourceBuilding == null)
+                    return true;
 
-			if (!BuildingManager.PlayerCanControlNotOwner(sourceBuilding, player))
-				return true;
+                openFriendsCondemnListMsg = new OpenFriendsCondemnListMsg(12, sourceBuilding.getCondemned(), sourceBuilding.reverseKOS);
+                openFriendsCondemnListMsg.configure();
+                dispatch = Dispatch.borrow(player, openFriendsCondemnListMsg);
+                DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
 
-			Condemned condemn = sourceBuilding.getCondemned().get(msg.getRemoveFriendID());
+                //msg.updateMsg(12, DbManager.GuildQueries.)
+                break;
+            //REMOVE CONDEMN
+            case REMOVECONDEMN:
 
-			if (condemn == null)
-				return true;
+                sourceBuilding = BuildingManager.getBuildingFromCache(msg.getBuildingID());
 
-			condemn.setActive(msg.isReverseKOS());
-			openFriendsCondemnListMsg.setReverseKOS(condemn.isActive());
-			dispatch = Dispatch.borrow(player, msg);
-			DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
-			break;
-		case REVERSEKOS:
+                if (sourceBuilding == null)
+                    return true;
 
+                if (!BuildingManager.PlayerCanControlNotOwner(sourceBuilding, player))
+                    return true;
 
-			sourceBuilding = BuildingManager.getBuildingFromCache(msg.getBuildingID());
+                Condemned removeCondemn = sourceBuilding.getCondemned().get(msg.getRemoveFriendID());
 
-			if (sourceBuilding == null)
-				return true;
+                if (removeCondemn == null)
+                    return true;
 
-			if (!BuildingManager.PlayerCanControlNotOwner(sourceBuilding, player))
-				return true;
+                if (!DbManager.BuildingQueries.REMOVE_FROM_CONDEMNED_LIST(removeCondemn.getParent(), removeCondemn.getPlayerUID(), removeCondemn.getGuildUID(), removeCondemn.getFriendType()))
+                    return true;
 
-			if (!sourceBuilding.setReverseKOS(msg.isReverseKOS()))
-				return true;
-			break;
+                sourceBuilding.getCondemned().remove(msg.getRemoveFriendID());
+                dispatch = Dispatch.borrow(player, msg);
+                DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
+                break;
 
-			//ADD GUILD CONDEMN
-		case ADDCONDEMN:
+            case TOGGLEACTIVE:
 
-			sourceBuilding = BuildingManager.getBuildingFromCache(msg.getBuildingID());
+                sourceBuilding = BuildingManager.getBuildingFromCache(msg.getBuildingID());
 
-			if (sourceBuilding == null)
-				return true;
+                if (sourceBuilding == null)
+                    return true;
 
-			if (!BuildingManager.PlayerCanControlNotOwner(sourceBuilding, player))
-				return true;
+                if (!BuildingManager.PlayerCanControlNotOwner(sourceBuilding, player))
+                    return true;
 
-			switch (msg.getInviteType()) {
-			case 2:
+                Condemned condemn = sourceBuilding.getCondemned().get(msg.getRemoveFriendID());
 
-				if (msg.getPlayerID() == 0)
-					return true;
-				
-				if (msg.getPlayerType() != GameObjectType.PlayerCharacter.ordinal())
-					return true;
+                if (condemn == null)
+                    return true;
 
-				PlayerCharacter playerCharacter = PlayerCharacter.getFromCache(msg.getPlayerID());
+                condemn.setActive(msg.isReverseKOS());
+                openFriendsCondemnListMsg.setReverseKOS(condemn.isActive());
+                dispatch = Dispatch.borrow(player, msg);
+                DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
+                break;
+            case REVERSEKOS:
 
-				if (playerCharacter == null)
-					return true;
 
-				if (Guild.sameNationExcludeErrant(sourceBuilding.getGuild(), playerCharacter.getGuild()))
-					return true;
+                sourceBuilding = BuildingManager.getBuildingFromCache(msg.getBuildingID());
 
-				if (sourceBuilding.getCondemned().containsKey(playerCharacter.getObjectUUID()))
-					return true;
+                if (sourceBuilding == null)
+                    return true;
 
-				if (!DbManager.BuildingQueries.ADD_TO_CONDEMNLIST(sourceBuilding.getObjectUUID(), playerCharacter.getObjectUUID(), msg.getGuildID(), msg.getInviteType())) {
-					Logger.debug( "Failed to add Condemned: " + playerCharacter.getFirstName() + " to Building With UID " + sourceBuilding.getObjectUUID());
-					return true;
-				}
+                if (!BuildingManager.PlayerCanControlNotOwner(sourceBuilding, player))
+                    return true;
 
-				sourceBuilding.getCondemned().put(playerCharacter.getObjectUUID(), new Condemned(playerCharacter.getObjectUUID(), sourceBuilding.getObjectUUID(), msg.getGuildID(), msg.getInviteType()));
-				break;
-			case 4:
-				if (msg.getGuildID() == 0)
-					return true;
+                if (!sourceBuilding.setReverseKOS(msg.isReverseKOS()))
+                    return true;
+                break;
 
-				if (sourceBuilding.getCondemned().containsKey(msg.getGuildID()))
-					return true;
+            //ADD GUILD CONDEMN
+            case ADDCONDEMN:
 
-				Guild condemnedGuild = Guild.getGuild(msg.getGuildID());
+                sourceBuilding = BuildingManager.getBuildingFromCache(msg.getBuildingID());
 
-				if (condemnedGuild == null)
-					return true;
+                if (sourceBuilding == null)
+                    return true;
 
-				if (!DbManager.BuildingQueries.ADD_TO_CONDEMNLIST(sourceBuilding.getObjectUUID(), msg.getPlayerID(), condemnedGuild.getObjectUUID(), msg.getInviteType())) {
-					Logger.debug("Failed to add Condemned: " + condemnedGuild.getName() + " to Building With UID " + sourceBuilding.getObjectUUID());
-					return true;
-				}
+                if (!BuildingManager.PlayerCanControlNotOwner(sourceBuilding, player))
+                    return true;
 
-				sourceBuilding.getCondemned().put(condemnedGuild.getObjectUUID(), new Condemned(msg.getPlayerID(), sourceBuilding.getObjectUUID(), condemnedGuild.getObjectUUID(), msg.getInviteType()));
-				break;
-			case 5:
-				if (msg.getNationID() == 0)
-					return true;
+                switch (msg.getInviteType()) {
+                    case 2:
 
-				if (sourceBuilding.getCondemned().containsKey(msg.getNationID()))
-					return true;
+                        if (msg.getPlayerID() == 0)
+                            return true;
 
-				Guild condemnedNation = Guild.getGuild(msg.getNationID());
+                        if (msg.getPlayerType() != GameObjectType.PlayerCharacter.ordinal())
+                            return true;
 
-				if (condemnedNation == null)
-					return true;
+                        PlayerCharacter playerCharacter = PlayerCharacter.getFromCache(msg.getPlayerID());
 
-				if (!DbManager.BuildingQueries.ADD_TO_CONDEMNLIST(sourceBuilding.getObjectUUID(), msg.getPlayerID(), condemnedNation.getObjectUUID(), msg.getInviteType())) {
-					Logger.debug( "Failed to add Condemned: " + condemnedNation.getName() + " to Building With UID " + sourceBuilding.getObjectUUID());
-					return true;
-				}
+                        if (playerCharacter == null)
+                            return true;
 
-				sourceBuilding.getCondemned().put(condemnedNation.getObjectUUID(), new Condemned(msg.getPlayerID(), sourceBuilding.getObjectUUID(), condemnedNation.getObjectUUID(), msg.getInviteType()));
-				break;
+                        if (Guild.sameNationExcludeErrant(sourceBuilding.getGuild(), playerCharacter.getGuild()))
+                            return true;
 
-			}
+                        if (sourceBuilding.getCondemned().containsKey(playerCharacter.getObjectUUID()))
+                            return true;
 
-			openFriendsCondemnListMsg = new OpenFriendsCondemnListMsg(12, sourceBuilding.getCondemned(), sourceBuilding.reverseKOS);
-			openFriendsCondemnListMsg.configure();
-			dispatch = Dispatch.borrow(player, openFriendsCondemnListMsg);
-			DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
-			break;
+                        if (!DbManager.BuildingQueries.ADD_TO_CONDEMNLIST(sourceBuilding.getObjectUUID(), playerCharacter.getObjectUUID(), msg.getGuildID(), msg.getInviteType())) {
+                            Logger.debug("Failed to add Condemned: " + playerCharacter.getFirstName() + " to Building With UID " + sourceBuilding.getObjectUUID());
+                            return true;
+                        }
 
-			//ADD FRIEND BUILDING
-		case ADDFRIEND:
-			sourceBuilding =  BuildingManager.getBuildingFromCache(msg.getBuildingID());
+                        sourceBuilding.getCondemned().put(playerCharacter.getObjectUUID(), new Condemned(playerCharacter.getObjectUUID(), sourceBuilding.getObjectUUID(), msg.getGuildID(), msg.getInviteType()));
+                        break;
+                    case 4:
+                        if (msg.getGuildID() == 0)
+                            return true;
 
-			if (sourceBuilding == null)
-				return true;
+                        if (sourceBuilding.getCondemned().containsKey(msg.getGuildID()))
+                            return true;
 
-			if (msg.getGuildID() == 0)
-				return true;
+                        Guild condemnedGuild = Guild.getGuild(msg.getGuildID());
 
-			if (!BuildingManager.PlayerCanControlNotOwner(sourceBuilding, player))
-				return true;
-			
-			PlayerCharacter playerCharacter = null;
+                        if (condemnedGuild == null)
+                            return true;
 
-		
+                        if (!DbManager.BuildingQueries.ADD_TO_CONDEMNLIST(sourceBuilding.getObjectUUID(), msg.getPlayerID(), condemnedGuild.getObjectUUID(), msg.getInviteType())) {
+                            Logger.debug("Failed to add Condemned: " + condemnedGuild.getName() + " to Building With UID " + sourceBuilding.getObjectUUID());
+                            return true;
+                        }
 
-			Guild guildInvited = Guild.getGuild(msg.getGuildID());
+                        sourceBuilding.getCondemned().put(condemnedGuild.getObjectUUID(), new Condemned(msg.getPlayerID(), sourceBuilding.getObjectUUID(), condemnedGuild.getObjectUUID(), msg.getInviteType()));
+                        break;
+                    case 5:
+                        if (msg.getNationID() == 0)
+                            return true;
 
-			if (guildInvited == null)
-				return true;
+                        if (sourceBuilding.getCondemned().containsKey(msg.getNationID()))
+                            return true;
 
-			//Check to see if the invited is already on the friends list.
-			switch (msg.getInviteType()) {
-			case 7:
-				playerCharacter = PlayerCharacter.getFromCache(msg.getPlayerID());
-				if (playerCharacter == null)
-					return true;
-				if (sourceBuilding.getFriends().containsKey(playerCharacter.getObjectUUID()))
-					return true;
-				break;
-			case 8:
-			case 9:
-				if (sourceBuilding.getFriends().containsKey(guildInvited.getObjectUUID()))
-					return true;
-				break;
-			}
+                        Guild condemnedNation = Guild.getGuild(msg.getNationID());
 
-			if (!DbManager.BuildingQueries.ADD_TO_FRIENDS_LIST(sourceBuilding.getObjectUUID(), msg.getPlayerID(), guildInvited.getObjectUUID(), msg.getInviteType())) {
-				Logger.debug( "Failed to add Friend: " + playerCharacter.getFirstName() + " to Building With UID " + sourceBuilding.getObjectUUID());
-				return true;
-			}
+                        if (condemnedNation == null)
+                            return true;
 
-			switch (msg.getInviteType()) {
-			case 7:
-				sourceBuilding.getFriends().put(playerCharacter.getObjectUUID(), new BuildingFriends(playerCharacter.getObjectUUID(), sourceBuilding.getObjectUUID(), playerCharacter.getGuild().getObjectUUID(), 7));
-				break;
-			case 8:
-				sourceBuilding.getFriends().put(guildInvited.getObjectUUID(), new BuildingFriends(msg.getPlayerID(), sourceBuilding.getObjectUUID(), guildInvited.getObjectUUID(), 8));
-				break;
-			case 9:
-				sourceBuilding.getFriends().put(guildInvited.getObjectUUID(), new BuildingFriends(msg.getPlayerID(), sourceBuilding.getObjectUUID(), guildInvited.getObjectUUID(), 9));
-				break;
-			}
+                        if (!DbManager.BuildingQueries.ADD_TO_CONDEMNLIST(sourceBuilding.getObjectUUID(), msg.getPlayerID(), condemnedNation.getObjectUUID(), msg.getInviteType())) {
+                            Logger.debug("Failed to add Condemned: " + condemnedNation.getName() + " to Building With UID " + sourceBuilding.getObjectUUID());
+                            return true;
+                        }
 
-			openFriendsCondemnListMsg = new OpenFriendsCondemnListMsg(26, sourceBuilding.getFriends());
-			openFriendsCondemnListMsg.configure();
+                        sourceBuilding.getCondemned().put(condemnedNation.getObjectUUID(), new Condemned(msg.getPlayerID(), sourceBuilding.getObjectUUID(), condemnedNation.getObjectUUID(), msg.getInviteType()));
+                        break;
 
-			dispatch = Dispatch.borrow(player, openFriendsCondemnListMsg);
-			DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
-			break;
-			//REMOVE from friends list.
-		case REMOVEFRIEND:
-			sourceBuilding = BuildingManager.getBuildingFromCache(msg.getBuildingID());
+                }
 
-			if (sourceBuilding == null)
-				return true;
+                openFriendsCondemnListMsg = new OpenFriendsCondemnListMsg(12, sourceBuilding.getCondemned(), sourceBuilding.reverseKOS);
+                openFriendsCondemnListMsg.configure();
+                dispatch = Dispatch.borrow(player, openFriendsCondemnListMsg);
+                DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
+                break;
 
-			if (!BuildingManager.PlayerCanControlNotOwner(sourceBuilding, player))
-				return true;
+            //ADD FRIEND BUILDING
+            case ADDFRIEND:
+                sourceBuilding = BuildingManager.getBuildingFromCache(msg.getBuildingID());
 
-			BuildingFriends friend = sourceBuilding.getFriends().get(msg.getRemoveFriendID());
+                if (sourceBuilding == null)
+                    return true;
 
-			if (friend == null)
-				return true;
+                if (msg.getGuildID() == 0)
+                    return true;
 
-			if (!DbManager.BuildingQueries.REMOVE_FROM_FRIENDS_LIST(sourceBuilding.getObjectUUID(), friend.getPlayerUID(), friend.getGuildUID(), friend.getFriendType())) {
-				Logger.debug( "Failed to remove Friend: " + msg.getRemoveFriendID() + " from Building With UID " + sourceBuilding.getObjectUUID());
-				return true;
-			}
-			sourceBuilding.getFriends().remove(msg.getRemoveFriendID());
+                if (!BuildingManager.PlayerCanControlNotOwner(sourceBuilding, player))
+                    return true;
 
-			openFriendsCondemnListMsg = new OpenFriendsCondemnListMsg(26, sourceBuilding.getFriends());
-			openFriendsCondemnListMsg.configure();
-			dispatch = Dispatch.borrow(player, openFriendsCondemnListMsg);
-			DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
+                PlayerCharacter playerCharacter = null;
 
-			break;
-			//view Friends
-		case VIEWFRIENDS:
 
-			Building building = BuildingManager.getBuildingFromCache(msg.getBuildingID());
+                Guild guildInvited = Guild.getGuild(msg.getGuildID());
 
-			if (building == null)
-				return true;
+                if (guildInvited == null)
+                    return true;
 
-			if (!BuildingManager.PlayerCanControlNotOwner(building, player))
-				return true;
+                //Check to see if the invited is already on the friends list.
+                switch (msg.getInviteType()) {
+                    case 7:
+                        playerCharacter = PlayerCharacter.getFromCache(msg.getPlayerID());
+                        if (playerCharacter == null)
+                            return true;
+                        if (sourceBuilding.getFriends().containsKey(playerCharacter.getObjectUUID()))
+                            return true;
+                        break;
+                    case 8:
+                    case 9:
+                        if (sourceBuilding.getFriends().containsKey(guildInvited.getObjectUUID()))
+                            return true;
+                        break;
+                }
 
-			//this message is sent twice back?????
+                if (!DbManager.BuildingQueries.ADD_TO_FRIENDS_LIST(sourceBuilding.getObjectUUID(), msg.getPlayerID(), guildInvited.getObjectUUID(), msg.getInviteType())) {
+                    Logger.debug("Failed to add Friend: " + playerCharacter.getFirstName() + " to Building With UID " + sourceBuilding.getObjectUUID());
+                    return true;
+                }
 
-			openFriendsCondemnListMsg = new OpenFriendsCondemnListMsg(26, building.getFriends());
-			openFriendsCondemnListMsg.configure();
+                switch (msg.getInviteType()) {
+                    case 7:
+                        sourceBuilding.getFriends().put(playerCharacter.getObjectUUID(), new BuildingFriends(playerCharacter.getObjectUUID(), sourceBuilding.getObjectUUID(), playerCharacter.getGuild().getObjectUUID(), 7));
+                        break;
+                    case 8:
+                        sourceBuilding.getFriends().put(guildInvited.getObjectUUID(), new BuildingFriends(msg.getPlayerID(), sourceBuilding.getObjectUUID(), guildInvited.getObjectUUID(), 8));
+                        break;
+                    case 9:
+                        sourceBuilding.getFriends().put(guildInvited.getObjectUUID(), new BuildingFriends(msg.getPlayerID(), sourceBuilding.getObjectUUID(), guildInvited.getObjectUUID(), 9));
+                        break;
+                }
 
+                openFriendsCondemnListMsg = new OpenFriendsCondemnListMsg(26, sourceBuilding.getFriends());
+                openFriendsCondemnListMsg.configure();
 
-			dispatch = Dispatch.borrow(player, openFriendsCondemnListMsg);
-			DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
-			break;
+                dispatch = Dispatch.borrow(player, openFriendsCondemnListMsg);
+                DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
+                break;
+            //REMOVE from friends list.
+            case REMOVEFRIEND:
+                sourceBuilding = BuildingManager.getBuildingFromCache(msg.getBuildingID());
 
-		default:
-			break;
-		}
-		return false;
-	}
+                if (sourceBuilding == null)
+                    return true;
+
+                if (!BuildingManager.PlayerCanControlNotOwner(sourceBuilding, player))
+                    return true;
+
+                BuildingFriends friend = sourceBuilding.getFriends().get(msg.getRemoveFriendID());
+
+                if (friend == null)
+                    return true;
+
+                if (!DbManager.BuildingQueries.REMOVE_FROM_FRIENDS_LIST(sourceBuilding.getObjectUUID(), friend.getPlayerUID(), friend.getGuildUID(), friend.getFriendType())) {
+                    Logger.debug("Failed to remove Friend: " + msg.getRemoveFriendID() + " from Building With UID " + sourceBuilding.getObjectUUID());
+                    return true;
+                }
+                sourceBuilding.getFriends().remove(msg.getRemoveFriendID());
+
+                openFriendsCondemnListMsg = new OpenFriendsCondemnListMsg(26, sourceBuilding.getFriends());
+                openFriendsCondemnListMsg.configure();
+                dispatch = Dispatch.borrow(player, openFriendsCondemnListMsg);
+                DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
+
+                break;
+            //view Friends
+            case VIEWFRIENDS:
+
+                Building building = BuildingManager.getBuildingFromCache(msg.getBuildingID());
+
+                if (building == null)
+                    return true;
+
+                if (!BuildingManager.PlayerCanControlNotOwner(building, player))
+                    return true;
+
+                //this message is sent twice back?????
+
+                openFriendsCondemnListMsg = new OpenFriendsCondemnListMsg(26, building.getFriends());
+                openFriendsCondemnListMsg.configure();
+
+
+                dispatch = Dispatch.borrow(player, openFriendsCondemnListMsg);
+                DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
+                break;
+
+            default:
+                break;
+        }
+        return false;
+    }
 
 }

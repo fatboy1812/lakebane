@@ -100,7 +100,7 @@ public class HeightMap {
         float numOfBuckets = this.heightmapImage.getWidth() - 1;
         float calculatedWidth = this.fullExtentsX / numOfBuckets;
         this.bucketWidthX = calculatedWidth;
-        this.bucketWidthY =  this.bucketWidthX; // This makes no sense.
+        this.bucketWidthY = this.bucketWidthX; // This makes no sense.
 
         // Generate pixel array from image data
 
@@ -142,7 +142,7 @@ public class HeightMap {
         this.bucketWidthX = 1;
         this.bucketWidthY = 1;
 
-        this.pixelColorValues = new int[this.fullExtentsX + 1][this.fullExtentsY+1];
+        this.pixelColorValues = new int[this.fullExtentsX + 1][this.fullExtentsY + 1];
 
         for (int y = 0; y <= this.fullExtentsY; y++) {
             for (int x = 0; x <= this.fullExtentsX; x++) {
@@ -153,7 +153,7 @@ public class HeightMap {
 
         HeightMap.heightmapByLoadNum.put(this.zoneLoadID, this);
     }
-    
+
     public HeightMap(Zone zone) {
 
         this.heightMapID = 999999;
@@ -180,7 +180,7 @@ public class HeightMap {
         this.bucketWidthX = 1;
         this.bucketWidthY = 1;
 
-        this.pixelColorValues = new int[this.fullExtentsX+1][this.fullExtentsY+1];
+        this.pixelColorValues = new int[this.fullExtentsX + 1][this.fullExtentsY + 1];
 
         for (int y = 0; y <= this.fullExtentsY; y++) {
             for (int x = 0; x <= this.fullExtentsX; x++) {
@@ -197,95 +197,13 @@ public class HeightMap {
         HeightMap.PlayerCityHeightMap = new HeightMap();
 
     }
-    
+
     public static void GenerateCustomHeightMap(Zone zone) {
 
         HeightMap heightMap = new HeightMap(zone);
-        
+
         HeightMap.heightmapByLoadNum.put(zone.getLoadNum(), heightMap);
 
-    }
-
-    public Vector2f getGridSquare(Vector2f zoneLoc) {
-
-        if (zoneLoc.x < 0)
-            zoneLoc.setX(0);
-
-        if (zoneLoc.x > this.fullExtentsX - 1)
-            zoneLoc.setX((this.fullExtentsX - 1) + .9999999f);
-
-        if (zoneLoc.y < 0)
-            zoneLoc.setY(0);
-
-        if (zoneLoc.y > this.fullExtentsY - 1)
-            zoneLoc.setY((this.fullExtentsY - 1) + .9999999f);
-
-        float xBucket = (zoneLoc.x / this.bucketWidthX);
-        float yBucket = (zoneLoc.y / this.bucketWidthY);
-
-        return new Vector2f(xBucket, yBucket);
-    }
-
-    public float getInterpolatedTerrainHeight(Vector2f zoneLoc) {
-
-        Vector2f gridSquare;
-
-        if (zoneLoc.x < 0 || zoneLoc.x > this.fullExtentsX)
-            return -1;
-
-        if (zoneLoc.y < 0 || zoneLoc.y > this.fullExtentsY)
-            return -1;
-        
-        int maxX = (int) (this.fullExtentsX / this.bucketWidthX);
-        int maxY = (int) (this.fullExtentsY / this.bucketWidthY);
-
-        //flip the Y so it grabs from the bottom left instead of top left.
-        //zoneLoc.setY(maxZoneHeight - zoneLoc.y);
-
-        gridSquare = getGridSquare(zoneLoc);
-
-        int gridX = (int) gridSquare.x;
-        int gridY = (int) (gridSquare.y);
-        
-        if (gridX > maxX)
-        	gridX = maxX;
-        if (gridY > maxY)
-        	gridY = maxY;
-
-        float offsetX = (gridSquare.x - gridX);
-        float offsetY = gridSquare.y - gridY;
-
-        //get height of the 4 vertices.
-
-        float topLeftHeight = 0;
-        float topRightHeight = 0;
-        float bottomLeftHeight = 0;
-        float bottomRightHeight = 0;
-        
-        int nextY = gridY +1;
-        int nextX = gridX + 1;
-        
-        if (nextY > maxY)
-        	nextY = gridY;
-        
-        if (nextX > maxX)
-        	nextX = gridX;
-        
-        topLeftHeight = pixelColorValues[gridX][gridY];
-        topRightHeight = pixelColorValues[nextX][gridY];
-        bottomLeftHeight = pixelColorValues[gridX][nextY];
-        bottomRightHeight = pixelColorValues[nextX][nextY];
-
-        float interpolatedHeight;
-
-        interpolatedHeight = topRightHeight * (1 - offsetY) * (offsetX);
-        interpolatedHeight += (bottomRightHeight * offsetY * offsetX);
-        interpolatedHeight += (bottomLeftHeight * (1 - offsetX) * offsetY);
-        interpolatedHeight += (topLeftHeight * (1 - offsetX) * (1 - offsetY));
-
-        interpolatedHeight *= (float) this.maxHeight / 256;  // Scale height
-
-        return interpolatedHeight;
     }
 
     public static Zone getNextZoneWithTerrain(Zone zone) {
@@ -505,48 +423,6 @@ public class HeightMap {
         return realWorldAltitude;
     }
 
-    public float getInterpolatedTerrainHeight(Vector3fImmutable zoneLoc3f) {
-
-        Vector2f zoneLoc = new Vector2f(zoneLoc3f.x, zoneLoc3f.z);
-
-        Vector2f gridSquare;
-
-        if (zoneLoc.x < 0 || zoneLoc.x > this.fullExtentsX)
-            return -1;
-
-        if (zoneLoc.y < 0 || zoneLoc.y > this.fullExtentsY)
-            return -1;
-
-        //flip the Y so it grabs from the bottom left instead of top left.
-        //zoneLoc.setY(maxZoneHeight - zoneLoc.y);
-
-        gridSquare = getGridSquare(zoneLoc);
-
-        int gridX = (int) gridSquare.x;
-        int gridY = (int) (gridSquare.y);
-
-        float offsetX = (gridSquare.x - gridX);
-        float offsetY = gridSquare.y - gridY;
-
-        //get height of the 4 vertices.
-
-        float topLeftHeight = pixelColorValues[gridX][gridY];
-        float topRightHeight = pixelColorValues[gridX + 1][gridY];
-        float bottomLeftHeight = pixelColorValues[gridX][gridY + 1];
-        float bottomRightHeight = pixelColorValues[gridX + 1][gridY + 1];
-
-        float interpolatedHeight;
-
-        interpolatedHeight = topRightHeight * (1 - offsetY) * (offsetX);
-        interpolatedHeight += (bottomRightHeight * offsetY * offsetX);
-        interpolatedHeight += (bottomLeftHeight * (1 - offsetX) * offsetY);
-        interpolatedHeight += (topLeftHeight * (1 - offsetX) * (1 - offsetY));
-
-        interpolatedHeight *= (float) this.maxHeight / 256;  // Scale height
-
-        return interpolatedHeight;
-    }
-
     public static float getOutsetHeight(float interpolatedAltitude, Zone zone, Vector3fImmutable worldLocation) {
 
         Vector2f parentLoc;
@@ -620,6 +496,170 @@ public class HeightMap {
         return outsetALt;
     }
 
+    public static Vector2f getGridOffset(Vector2f gridSquare) {
+
+        int floorX = (int) gridSquare.x;
+        int floorY = (int) gridSquare.y;
+
+        return new Vector2f(gridSquare.x - floorX, gridSquare.y - floorY);
+
+    }
+
+    public static void loadAlHeightMaps() {
+
+        // Load the heightmaps into staging hashmap keyed by HashMapID
+
+        DbManager.HeightMapQueries.LOAD_ALL_HEIGHTMAPS();
+
+        //generate static player city heightmap.
+
+        HeightMap.GeneratePlayerCityHeightMap();
+
+
+        // Clear all heightmap image data as it's no longer needed.
+
+        for (HeightMap heightMap : HeightMap.heightmapByLoadNum.values()) {
+            heightMap.heightmapImage = null;
+        }
+
+        Logger.info(HeightMap.heightmapByLoadNum.size() + " Heightmaps cached.");
+    }
+
+    public static boolean isLocUnderwater(Vector3fImmutable currentLoc) {
+
+        float localAltitude = HeightMap.getWorldHeight(currentLoc);
+        Zone zone = ZoneManager.findSmallestZone(currentLoc);
+
+        if (localAltitude < zone.getSeaLevel())
+            return true;
+
+        return false;
+    }
+
+    public Vector2f getGridSquare(Vector2f zoneLoc) {
+
+        if (zoneLoc.x < 0)
+            zoneLoc.setX(0);
+
+        if (zoneLoc.x > this.fullExtentsX - 1)
+            zoneLoc.setX((this.fullExtentsX - 1) + .9999999f);
+
+        if (zoneLoc.y < 0)
+            zoneLoc.setY(0);
+
+        if (zoneLoc.y > this.fullExtentsY - 1)
+            zoneLoc.setY((this.fullExtentsY - 1) + .9999999f);
+
+        float xBucket = (zoneLoc.x / this.bucketWidthX);
+        float yBucket = (zoneLoc.y / this.bucketWidthY);
+
+        return new Vector2f(xBucket, yBucket);
+    }
+
+    public float getInterpolatedTerrainHeight(Vector2f zoneLoc) {
+
+        Vector2f gridSquare;
+
+        if (zoneLoc.x < 0 || zoneLoc.x > this.fullExtentsX)
+            return -1;
+
+        if (zoneLoc.y < 0 || zoneLoc.y > this.fullExtentsY)
+            return -1;
+
+        int maxX = (int) (this.fullExtentsX / this.bucketWidthX);
+        int maxY = (int) (this.fullExtentsY / this.bucketWidthY);
+
+        //flip the Y so it grabs from the bottom left instead of top left.
+        //zoneLoc.setY(maxZoneHeight - zoneLoc.y);
+
+        gridSquare = getGridSquare(zoneLoc);
+
+        int gridX = (int) gridSquare.x;
+        int gridY = (int) (gridSquare.y);
+
+        if (gridX > maxX)
+            gridX = maxX;
+        if (gridY > maxY)
+            gridY = maxY;
+
+        float offsetX = (gridSquare.x - gridX);
+        float offsetY = gridSquare.y - gridY;
+
+        //get height of the 4 vertices.
+
+        float topLeftHeight = 0;
+        float topRightHeight = 0;
+        float bottomLeftHeight = 0;
+        float bottomRightHeight = 0;
+
+        int nextY = gridY + 1;
+        int nextX = gridX + 1;
+
+        if (nextY > maxY)
+            nextY = gridY;
+
+        if (nextX > maxX)
+            nextX = gridX;
+
+        topLeftHeight = pixelColorValues[gridX][gridY];
+        topRightHeight = pixelColorValues[nextX][gridY];
+        bottomLeftHeight = pixelColorValues[gridX][nextY];
+        bottomRightHeight = pixelColorValues[nextX][nextY];
+
+        float interpolatedHeight;
+
+        interpolatedHeight = topRightHeight * (1 - offsetY) * (offsetX);
+        interpolatedHeight += (bottomRightHeight * offsetY * offsetX);
+        interpolatedHeight += (bottomLeftHeight * (1 - offsetX) * offsetY);
+        interpolatedHeight += (topLeftHeight * (1 - offsetX) * (1 - offsetY));
+
+        interpolatedHeight *= (float) this.maxHeight / 256;  // Scale height
+
+        return interpolatedHeight;
+    }
+
+    public float getInterpolatedTerrainHeight(Vector3fImmutable zoneLoc3f) {
+
+        Vector2f zoneLoc = new Vector2f(zoneLoc3f.x, zoneLoc3f.z);
+
+        Vector2f gridSquare;
+
+        if (zoneLoc.x < 0 || zoneLoc.x > this.fullExtentsX)
+            return -1;
+
+        if (zoneLoc.y < 0 || zoneLoc.y > this.fullExtentsY)
+            return -1;
+
+        //flip the Y so it grabs from the bottom left instead of top left.
+        //zoneLoc.setY(maxZoneHeight - zoneLoc.y);
+
+        gridSquare = getGridSquare(zoneLoc);
+
+        int gridX = (int) gridSquare.x;
+        int gridY = (int) (gridSquare.y);
+
+        float offsetX = (gridSquare.x - gridX);
+        float offsetY = gridSquare.y - gridY;
+
+        //get height of the 4 vertices.
+
+        float topLeftHeight = pixelColorValues[gridX][gridY];
+        float topRightHeight = pixelColorValues[gridX + 1][gridY];
+        float bottomLeftHeight = pixelColorValues[gridX][gridY + 1];
+        float bottomRightHeight = pixelColorValues[gridX + 1][gridY + 1];
+
+        float interpolatedHeight;
+
+        interpolatedHeight = topRightHeight * (1 - offsetY) * (offsetX);
+        interpolatedHeight += (bottomRightHeight * offsetY * offsetX);
+        interpolatedHeight += (bottomLeftHeight * (1 - offsetX) * offsetY);
+        interpolatedHeight += (topLeftHeight * (1 - offsetX) * (1 - offsetY));
+
+        interpolatedHeight *= (float) this.maxHeight / 256;  // Scale height
+
+        return interpolatedHeight;
+    }
+
     private void generatePixelData() {
 
         Color color;
@@ -638,38 +678,9 @@ public class HeightMap {
 
     }
 
-    public static Vector2f getGridOffset(Vector2f gridSquare) {
-
-        int floorX = (int) gridSquare.x;
-        int floorY = (int) gridSquare.y;
-
-        return new Vector2f(gridSquare.x - floorX, gridSquare.y - floorY);
-
-    }
-
     public float getScaledHeightForColor(float color) {
 
         return (color / 256) * this.maxHeight;
-    }
-
-    public static void loadAlHeightMaps() {
-
-        // Load the heightmaps into staging hashmap keyed by HashMapID
-
-        DbManager.HeightMapQueries.LOAD_ALL_HEIGHTMAPS();
-
-        //generate static player city heightmap.
-
-        HeightMap.GeneratePlayerCityHeightMap();
-        
-  
-        // Clear all heightmap image data as it's no longer needed.
-
-        for (HeightMap heightMap : HeightMap.heightmapByLoadNum.values()) {
-            heightMap.heightmapImage = null;
-        }
-        
-        Logger.info(HeightMap.heightmapByLoadNum.size() + " Heightmaps cached.");
     }
 
     public float getBucketWidthX() {
@@ -690,17 +701,6 @@ public class HeightMap {
 
     public float getSeaLevel() {
         return seaLevel;
-    }
-
-    public static boolean isLocUnderwater(Vector3fImmutable currentLoc) {
-
-        float localAltitude = HeightMap.getWorldHeight(currentLoc);
-        Zone zone = ZoneManager.findSmallestZone(currentLoc);
-
-        if (localAltitude < zone.getSeaLevel())
-            return true;
-
-        return false;
     }
 
 }

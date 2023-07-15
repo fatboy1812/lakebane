@@ -23,10 +23,10 @@ public class RemoveCorpseJob extends AbstractScheduleJob {
 
     @Override
     protected void doJob() {
-        
+
         if (this.corpse != null)
             Corpse.removeCorpse(corpse, true);
-        
+
     }
 
     @Override

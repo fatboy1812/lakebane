@@ -25,49 +25,49 @@ import java.sql.SQLException;
 
 public class CharmPowerAction extends AbstractPowerAction {
 
-	private int levelCap;
-	private int levelCapRamp;
+    private int levelCap;
+    private int levelCapRamp;
 
-	public CharmPowerAction(ResultSet rs) throws SQLException {
-		super(rs);
-		this.levelCap = rs.getInt("levelCap");
-		this.levelCapRamp = rs.getInt("levelCapRamp");
-	}
+    public CharmPowerAction(ResultSet rs) throws SQLException {
+        super(rs);
+        this.levelCap = rs.getInt("levelCap");
+        this.levelCapRamp = rs.getInt("levelCapRamp");
+    }
 
-	@Override
-	protected void _startAction(AbstractCharacter source, AbstractWorldObject awo, Vector3fImmutable targetLoc, int trains, ActionsBase ab, PowersBase pb) {
+    @Override
+    protected void _startAction(AbstractCharacter source, AbstractWorldObject awo, Vector3fImmutable targetLoc, int trains, ActionsBase ab, PowersBase pb) {
 
-		if (source == null || awo == null || !(awo.getObjectType().equals(Enum.GameObjectType.Mob)) || !(source.getObjectType().equals(Enum.GameObjectType.PlayerCharacter)))
-			return;
+        if (source == null || awo == null || !(awo.getObjectType().equals(Enum.GameObjectType.Mob)) || !(source.getObjectType().equals(Enum.GameObjectType.PlayerCharacter)))
+            return;
 
-		PlayerCharacter owner = (PlayerCharacter) source;
-		ClientConnection origin = owner.getClientConnection();
+        PlayerCharacter owner = (PlayerCharacter) source;
+        ClientConnection origin = owner.getClientConnection();
 
-		if (origin == null)
-			return;
+        if (origin == null)
+            return;
 
-		//verify is mob, not pet or guard
-		Mob mob = (Mob) awo;
-		if (!mob.isMob())
-			return;
+        //verify is mob, not pet or guard
+        Mob mob = (Mob) awo;
+        if (!mob.isMob())
+            return;
 
-		//make sure mob isn't too high level
-		int cap = this.levelCap + (this.levelCapRamp * trains);
-		if (mob.getLevel() > cap && pb.getToken() != 1577464266)
-			return;
+        //make sure mob isn't too high level
+        int cap = this.levelCap + (this.levelCapRamp * trains);
+        if (mob.getLevel() > cap && pb.getToken() != 1577464266)
+            return;
 
-		//turn mob into pet.
-		owner.commandSiegeMinion(mob);
-	}
+        //turn mob into pet.
+        owner.commandSiegeMinion(mob);
+    }
 
-	@Override
-	protected void _handleChant(AbstractCharacter source, AbstractWorldObject target, Vector3fImmutable targetLoc, int trains, ActionsBase ab, PowersBase pb) {
-	}
+    @Override
+    protected void _handleChant(AbstractCharacter source, AbstractWorldObject target, Vector3fImmutable targetLoc, int trains, ActionsBase ab, PowersBase pb) {
+    }
 
-	@Override
-	protected void _startAction(AbstractCharacter source, AbstractWorldObject awo, Vector3fImmutable targetLoc,
-			int numTrains, ActionsBase ab, PowersBase pb, int duration) {
-		// TODO Auto-generated method stub
+    @Override
+    protected void _startAction(AbstractCharacter source, AbstractWorldObject awo, Vector3fImmutable targetLoc,
+                                int numTrains, ActionsBase ab, PowersBase pb, int duration) {
+        // TODO Auto-generated method stub
 
-	}
+    }
 }

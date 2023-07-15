@@ -24,7 +24,7 @@ public class AddItemToTradeWindowMsg extends ClientNetMsg {
     private int playerID;
     private int itemID;
     private int itemType;
- 
+
 
     /**
      * This is the general purpose constructor
@@ -44,8 +44,7 @@ public class AddItemToTradeWindowMsg extends ClientNetMsg {
      * past the limit) then this constructor Throws that Exception to the
      * caller.
      */
-    public AddItemToTradeWindowMsg(AbstractConnection origin, ByteBufferReader reader)
-             {
+    public AddItemToTradeWindowMsg(AbstractConnection origin, ByteBufferReader reader) {
         super(Protocol.TRADEADDOBJECT, origin, reader);
     }
 
@@ -53,8 +52,7 @@ public class AddItemToTradeWindowMsg extends ClientNetMsg {
      * Deserializes the subclass specific items to the supplied NetMsgWriter.
      */
     @Override
-    protected void _deserialize(ByteBufferReader reader)
-             {
+    protected void _deserialize(ByteBufferReader reader) {
         unknown01 = reader.getInt();
         playerType = reader.getInt();
         playerID = reader.getInt();
@@ -89,32 +87,29 @@ public class AddItemToTradeWindowMsg extends ClientNetMsg {
         this.unknown01 = unknown01;
     }
 
-  
 
-   
+    public int getPlayerType() {
+        return playerType;
+    }
 
-	public int getPlayerType() {
-		return playerType;
-	}
+    public void setPlayerType(int playerType) {
+        this.playerType = playerType;
+    }
 
-	public void setPlayerType(int playerType) {
-		this.playerType = playerType;
-	}
+    public int getPlayerID() {
+        return playerID;
+    }
 
-	public int getPlayerID() {
-		return playerID;
-	}
+    public void setPlayerID(int playerID) {
+        this.playerID = playerID;
+    }
 
-	public void setPlayerID(int playerID) {
-		this.playerID = playerID;
-	}
+    public int getItemID() {
+        return itemID;
+    }
 
-	public int getItemID() {
-		return itemID;
-	}
-
-	public void setItemID(int itemID) {
-		this.itemID = itemID;
-	}
+    public void setItemID(int itemID) {
+        this.itemID = itemID;
+    }
 
 }

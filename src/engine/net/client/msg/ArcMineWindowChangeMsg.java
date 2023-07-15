@@ -28,7 +28,7 @@ public class ArcMineWindowChangeMsg extends ClientNetMsg {
      * past the limit) then this constructor Throws that Exception to the
      * caller.
      */
-    public ArcMineWindowChangeMsg(AbstractConnection origin, ByteBufferReader reader)  {
+    public ArcMineWindowChangeMsg(AbstractConnection origin, ByteBufferReader reader) {
         super(Protocol.ARCMINEWINDOWCHANGE, origin, reader);
     }
 
@@ -36,7 +36,7 @@ public class ArcMineWindowChangeMsg extends ClientNetMsg {
      * Deserializes the subclass specific items from the supplied NetMsgReader.
      */
     @Override
-    protected void _deserialize(ByteBufferReader reader)  {
+    protected void _deserialize(ByteBufferReader reader) {
         this.time = reader.getInt();
         this.buildingType = reader.getInt();
         this.buildingID = reader.getInt();
@@ -56,12 +56,12 @@ public class ArcMineWindowChangeMsg extends ClientNetMsg {
         return this.time;
     }
 
-    public int getBuildingID() {
-        return this.buildingID;
-    }
-
     public void setTime(int value) {
         this.time = value;
+    }
+
+    public int getBuildingID() {
+        return this.buildingID;
     }
 
     public void setBuildingID(int value) {

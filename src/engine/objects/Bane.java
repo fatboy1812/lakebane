@@ -7,7 +7,6 @@
 //                www.magicbane.com
 
 
-
 package engine.objects;
 
 import engine.Enum;
@@ -42,17 +41,16 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public final class Bane {
 
+    public static ConcurrentHashMap<Integer, Bane> banes = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_LOW);
     private final int cityUUID;
-    private int ownerUUID;
     private final int stoneUUID;
+    private int ownerUUID;
     private DateTime placementDate = null;
     private DateTime liveDate = null;
     private BaneDefaultTimeJob defaultTimeJob;
-    private ActivateBaneJob activateBaneJob;
 
     // Internal cache for banes
-    
-    public static ConcurrentHashMap<Integer, Bane> banes = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_LOW);
+    private ActivateBaneJob activateBaneJob;
 
     /**
      * ResultSet Constructor
@@ -121,17 +119,17 @@ public final class Bane {
         baningGuild = player.getGuild();
 
         if (baningGuild.getNation().isEmptyGuild()) {
-            PlaceAssetMsg.sendPlaceAssetError( origin, 55, ""); // You must be in a Nation
+            PlaceAssetMsg.sendPlaceAssetError(origin, 55, ""); // You must be in a Nation
             return false;
         }
 
         if (baningGuild.getNation().isNPCGuild()) {
-            PlaceAssetMsg.sendPlaceAssetError( origin, 72, ""); // Cannot be in an NPC nation
+            PlaceAssetMsg.sendPlaceAssetError(origin, 72, ""); // Cannot be in an NPC nation
             return false;
         }
 
         if (GuildStatusController.isInnerCouncil(player.getGuildStatus()) == false) {
-            PlaceAssetMsg.sendPlaceAssetError( origin, 10, ""); // You must be a guild leader
+            PlaceAssetMsg.sendPlaceAssetError(origin, 10, ""); // You must be a guild leader
             return false;
         }
 
@@ -147,17 +145,17 @@ public final class Bane {
         targetCity = ZoneManager.getCityAtLocation(player.getLoc());
 
         if (targetCity == null) {
-            PlaceAssetMsg.sendPlaceAssetError( origin, 59, ""); // No city to siege at this location!
+            PlaceAssetMsg.sendPlaceAssetError(origin, 59, ""); // No city to siege at this location!
             return false;
         }
 
         if (targetCity.isSafeHold()) {
-            PlaceAssetMsg.sendPlaceAssetError( origin, 15, ""); // Cannot place assets in peace zone
+            PlaceAssetMsg.sendPlaceAssetError(origin, 15, ""); // Cannot place assets in peace zone
             return false;
         }
 
         if (targetCity.getRank() > rank) {
-            PlaceAssetMsg.sendPlaceAssetError( origin, 60, ""); // Bane rank is too low
+            PlaceAssetMsg.sendPlaceAssetError(origin, 60, ""); // Bane rank is too low
             return false;
         }
 
@@ -172,22 +170,22 @@ public final class Bane {
         }
 
         if (baningGuild.getNation() == targetCity.getGuild().getNation()) {
-            PlaceAssetMsg.sendPlaceAssetError( origin, 20, ""); //Cannot bane yourself!
+            PlaceAssetMsg.sendPlaceAssetError(origin, 20, ""); //Cannot bane yourself!
             return false;
         }
 
         if (targetCity.getTOL() == null) {
-            PlaceAssetMsg.sendPlaceAssetError( origin, 65, ""); // Cannot find tree to target
+            PlaceAssetMsg.sendPlaceAssetError(origin, 65, ""); // Cannot find tree to target
             return false;
         }
 
         if (targetCity.getBane() != null) {
-            PlaceAssetMsg.sendPlaceAssetError( origin, 23, ""); // Tree is already baned.
+            PlaceAssetMsg.sendPlaceAssetError(origin, 23, ""); // Tree is already baned.
             return false;
         }
 
         if (getBaneByAttackerGuild(baningGuild) != null) {
-            PlaceAssetMsg.sendPlaceAssetError( origin, 1, "Your guild has already placed a bane!");
+            PlaceAssetMsg.sendPlaceAssetError(origin, 1, "Your guild has already placed a bane!");
             return false;
         }
 
@@ -196,12 +194,12 @@ public final class Bane {
         // A nation can only have 3 concurrent banes
 
         if (nationBanes.size() == 3) {
-            PlaceAssetMsg.sendPlaceAssetError( origin, 64, ""); // Your nation is already at war and your limit has been reached
+            PlaceAssetMsg.sendPlaceAssetError(origin, 64, ""); // Your nation is already at war and your limit has been reached
             return false;
         }
 
         if (targetCity.isLocationOnCityGrid(player.getLoc()) == true) {
-            PlaceAssetMsg.sendPlaceAssetError( origin, 1, "Cannot place banestone on city grid.");
+            PlaceAssetMsg.sendPlaceAssetError(origin, 1, "Cannot place banestone on city grid.");
             return false;
         }
 
@@ -249,7 +247,7 @@ public final class Bane {
 
         targetCity.getTOL().addEffectBit((1 << 16));
         targetCity.getTOL().updateEffects();
-        
+
         Vector3fImmutable movePlayerOutsideStone = player.getLoc();
         movePlayerOutsideStone = movePlayerOutsideStone.setX(movePlayerOutsideStone.x + 10);
         movePlayerOutsideStone = movePlayerOutsideStone.setZ(movePlayerOutsideStone.z + 10);
@@ -271,6 +269,84 @@ public final class Bane {
         return true;
     }
 
+    public static Bane getBane(int cityUUID) {
+
+        Bane outBane;
+
+        // Check cache first
+
+        outBane = banes.get(cityUUID);
+
+        // Last resort attempt to load from database
+
+        if (outBane == null)
+            outBane = DbManager.BaneQueries.LOAD_BANE(cityUUID);
+        else
+            return outBane;
+
+        // As we loaded from the db, store it in the internal cache
+
+        if (outBane != null)
+            banes.put(cityUUID, outBane);
+
+        return outBane;
+    }
+
+    public static Bane getBaneByAttackerGuild(Guild guild) {
+
+
+        if (guild == null || guild.isEmptyGuild())
+            return null;
+        ArrayList<Bane> baneList;
+
+        baneList = new ArrayList<>(banes.values());
+
+        for (Bane bane : baneList) {
+            if (bane.getOwner().getGuild().equals(guild))
+                return bane;
+        }
+
+        return null;
+    }
+
+    public static ArrayList<Bane> getBanesByNation(Guild guild) {
+
+        ArrayList<Bane> baneList;
+        ArrayList<Bane> returnList;
+
+        baneList = new ArrayList<>(banes.values());
+        returnList = new ArrayList<>();
+
+        for (Bane bane : baneList) {
+            if (bane.getOwner().getGuild().getNation().equals(guild))
+                returnList.add(bane);
+        }
+
+        return returnList;
+    }
+
+    public static void addBane(Bane bane) {
+
+        Bane.banes.put(bane.cityUUID, bane);
+
+    }
+
+    public static Bane makeBane(PlayerCharacter owner, City city, Building stone) {
+
+        Bane newBane;
+
+        if (DbManager.BaneQueries.CREATE_BANE(city, owner, stone) == false) {
+            Logger.error("Error writing to database");
+            return null;
+        }
+
+        newBane = DbManager.BaneQueries.LOAD_BANE(city.getObjectUUID());
+
+        return newBane;
+    }
+
+    //Call this to prematurely end a bane
+
     public SiegePhase getSiegePhase() {
 
         SiegePhase phase;
@@ -281,15 +357,17 @@ public final class Bane {
         }
 
         if (DateTime.now().isAfter(this.liveDate)) {
-            phase = SiegePhase.WAR; //war 
+            phase = SiegePhase.WAR; //war
             return phase;
         }
 
         // If code reaches this point we are in standoff mode.
-        phase = SiegePhase.STANDOFF; //standoff   
+        phase = SiegePhase.STANDOFF; //standoff
 
         return phase;
     }
+
+    // Cache access
 
     private void setDefaultTime() {
 
@@ -314,6 +392,81 @@ public final class Bane {
             JobScheduler.getInstance().scheduleJob(bdtj, timeToSetDefault.getMillis());
             this.defaultTimeJob = bdtj;
         }
+    }
+
+    //Returns a guild's bane
+
+    /*
+     * Getters
+     */
+    public City getCity() {
+        return City.getCity(this.cityUUID);
+    }
+
+    public PlayerCharacter getOwner() {
+        return (PlayerCharacter) DbManager.getObject(Enum.GameObjectType.PlayerCharacter, ownerUUID);
+    }
+
+    public boolean remove() {
+
+        Building baneStone;
+
+        baneStone = this.getStone();
+
+        if (baneStone == null) {
+            Logger.debug("Removing bane without a stone.");
+            return false;
+        }
+
+        // Reassert protection contracts
+
+        this.getCity().protectionEnforced = true;
+
+        // Remove visual effects on Bane and TOL.
+
+        this.getStone().removeAllVisualEffects();
+        this.getStone().updateEffects();
+
+        this.getCity().getTOL().removeAllVisualEffects();
+        this.getCity().getTOL().updateEffects();
+
+        // Remove bane from the database
+
+        if (DbManager.BaneQueries.REMOVE_BANE(this) == false) {
+            Logger.error("Database call failed for city UUID: " + this.getCity().getObjectUUID());
+            return false;
+        }
+
+        // Remove bane from ingame cache
+
+        Bane.banes.remove(cityUUID);
+
+        // Delete stone from database
+
+        if (DbManager.BuildingQueries.DELETE_FROM_DATABASE(baneStone) == false) {
+            Logger.error("Database error when deleting stone object");
+            return false;
+        }
+
+        // Remove object from simulation
+
+        baneStone.removeFromCache();
+        WorldGrid.RemoveWorldObject(baneStone);
+        WorldGrid.removeObject(baneStone);
+        return true;
+    }
+
+    public final DateTime getPlacementDate() {
+        return placementDate;
+    }
+
+    public final boolean isAccepted() {
+
+        return (this.getSiegePhase() != SiegePhase.CHALLENGE);
+    }
+
+    public final DateTime getLiveDate() {
+        return liveDate;
     }
 
     public void setLiveDate(DateTime baneTime) {
@@ -364,166 +517,11 @@ public final class Bane {
             JobScheduler.getInstance().scheduleJob(abtj, this.liveDate.getMillis());
             this.activateBaneJob = abtj;
         } else {
-            Logger.debug( "error with city " + this.getCity().getName());
+            Logger.debug("error with city " + this.getCity().getName());
             ChatManager.chatGuildInfo(this.getOwner().getGuild(), "A Serious error has occurred. Please post details for to ensure transaction integrity");
             ChatManager.chatGuildInfo(this.getCity().getGuild(), "A Serious error has occurred. Please post details for to ensure transaction integrity");
         }
 
-    }
-
-    /*
-     * Getters
-     */
-    public City getCity() {
-        return City.getCity(this.cityUUID);
-    }
-
-    public PlayerCharacter getOwner() {
-        return (PlayerCharacter) DbManager.getObject(Enum.GameObjectType.PlayerCharacter, ownerUUID);
-    }
-
-    //Call this to prematurely end a bane
-    
-    public boolean remove() {
-
-        Building baneStone;
-
-        baneStone = this.getStone();
-
-        if (baneStone == null) {
-            Logger.debug("Removing bane without a stone.");
-            return false;
-        }
-
-        // Reassert protection contracts
-        
-        this.getCity().protectionEnforced = true;
-
-        // Remove visual effects on Bane and TOL.
-        
-        this.getStone().removeAllVisualEffects();
-        this.getStone().updateEffects();
-
-        this.getCity().getTOL().removeAllVisualEffects();
-        this.getCity().getTOL().updateEffects();
-        
-        // Remove bane from the database
-        
-        if (DbManager.BaneQueries.REMOVE_BANE(this) == false) {
-            Logger.error("Database call failed for city UUID: " + this.getCity().getObjectUUID());
-            return false;
-        }
-
-        // Remove bane from ingame cache
-
-        Bane.banes.remove(cityUUID);
-        
-        // Delete stone from database
-        
-        if (DbManager.BuildingQueries.DELETE_FROM_DATABASE(baneStone) == false) {
-            Logger.error( "Database error when deleting stone object");
-            return false;
-        }
-
-        // Remove object from simulation
-        
-        baneStone.removeFromCache();
-        WorldGrid.RemoveWorldObject(baneStone);
-        WorldGrid.removeObject(baneStone);
-        return true;
-    }
-
-    // Cache access
-    
-    public static Bane getBane(int cityUUID) {
-
-        Bane outBane;
-
-        // Check cache first
-
-        outBane = banes.get(cityUUID);
-
-        // Last resort attempt to load from database
-
-        if (outBane == null)
-            outBane = DbManager.BaneQueries.LOAD_BANE(cityUUID);
-        else
-            return outBane;
-
-        // As we loaded from the db, store it in the internal cache
-
-        if (outBane != null)
-            banes.put(cityUUID, outBane);
-
-        return outBane;
-    }
-
-    //Returns a guild's bane
-    
-    public static Bane getBaneByAttackerGuild(Guild guild) {
-            
-    	
-    	if (guild == null || guild.isEmptyGuild())
-    		return null;
-        ArrayList<Bane> baneList;
-        
-        baneList = new ArrayList<>(banes.values());
-        
-            for (Bane bane : baneList) {
-                if (bane.getOwner().getGuild().equals(guild))
-                    return bane;
-            }
-            
-        return null;
-    }
-
-    public static ArrayList<Bane> getBanesByNation(Guild guild) {
-
-        ArrayList<Bane> baneList;
-        ArrayList<Bane> returnList;
-        
-        baneList = new ArrayList<>(banes.values());
-        returnList = new ArrayList<>();
-        
-            for (Bane bane : baneList) {
-                if (bane.getOwner().getGuild().getNation().equals(guild))
-                    returnList.add(bane);
-            }
-            
-        return returnList;
-        }
-
-    public static void addBane(Bane bane) {
-
-        Bane.banes.put(bane.cityUUID, bane);
-
-    }
-
-    public static Bane makeBane(PlayerCharacter owner, City city, Building stone) {
-
-        Bane newBane;
-
-        if (DbManager.BaneQueries.CREATE_BANE(city, owner, stone) == false) {
-            Logger.error("Error writing to database");
-            return null;
-        }
-
-        newBane = DbManager.BaneQueries.LOAD_BANE(city.getObjectUUID());
-
-        return newBane;
-    }
-
-    public final DateTime getPlacementDate() {
-        return placementDate;
-    }
-
-    public final boolean isAccepted() {
-
-        return (this.getSiegePhase() != SiegePhase.CHALLENGE);
-    }
-
-    public final DateTime getLiveDate() {
-        return liveDate;
     }
 
     public final void endBane(SiegeResult siegeResult) {
@@ -533,9 +531,9 @@ public final class Bane {
         // No matter what the outcome of a bane, we re-asset
         // protection contracts at this time.  They don't quite
         // matter if the city falls, as they are invalidated.
-        
+
         this.getCity().protectionEnforced = true;
-        
+
         switch (siegeResult) {
             case DEFEND:
 
@@ -548,19 +546,19 @@ public final class Bane {
                 if (baneRemoved) {
 
                     // Update seieges withstood
-                
+
                     this.getCity().setSiegesWithstood(this.getCity().getSiegesWithstood() + 1);
-                    
+
                     // Notify players
-                    
-                ChatSystemMsg msg = new ChatSystemMsg(null, "[Bane Channel]" + this.getCity().getGuild().getName() + " has rallied against " + this.getOwner().getGuild().getName() + ". The siege on " + this.getCity().getCityName() + " has been broken!");
-                msg.setMessageType(4);
-                msg.setChannel(engine.Enum.ChatChannelType.SYSTEM.getChannelID());
-        
-                DispatchMessage.dispatchMsgToAll(msg);
-                
+
+                    ChatSystemMsg msg = new ChatSystemMsg(null, "[Bane Channel]" + this.getCity().getGuild().getName() + " has rallied against " + this.getOwner().getGuild().getName() + ". The siege on " + this.getCity().getCityName() + " has been broken!");
+                    msg.setMessageType(4);
+                    msg.setChannel(engine.Enum.ChatChannelType.SYSTEM.getChannelID());
+
+                    DispatchMessage.dispatchMsgToAll(msg);
+
                 }
-                
+
                 break;
             case CAPTURE:
 
@@ -572,11 +570,11 @@ public final class Bane {
 
                 if (baneRemoved) {
 
-                ChatSystemMsg msg = new ChatSystemMsg(null, "[Bane Channel]" + this.getOwner().getGuild().getName() + " have defeated " + this.getCity().getGuild().getName() + " and captured " + this.getCity().getCityName() + '!');
-                msg.setMessageType(4);
-                msg.setChannel(engine.Enum.ChatChannelType.SYSTEM.getChannelID());
-        
-                DispatchMessage.dispatchMsgToAll(msg);
+                    ChatSystemMsg msg = new ChatSystemMsg(null, "[Bane Channel]" + this.getOwner().getGuild().getName() + " have defeated " + this.getCity().getGuild().getName() + " and captured " + this.getCity().getCityName() + '!');
+                    msg.setMessageType(4);
+                    msg.setChannel(engine.Enum.ChatChannelType.SYSTEM.getChannelID());
+
+                    DispatchMessage.dispatchMsgToAll(msg);
                 }
                 break;
             case DESTROY:
@@ -589,11 +587,11 @@ public final class Bane {
 
                 if (baneRemoved) {
 
-                ChatSystemMsg msg = new ChatSystemMsg(null, "[Bane Channel]" + this.getOwner().getGuild().getName() + " have defeated " + this.getCity().getGuild().getName() + " and razed " + this.getCity().getCityName() + '!');
-                msg.setMessageType(4);
-                msg.setChannel(engine.Enum.ChatChannelType.SYSTEM.getChannelID());
-                
-                DispatchMessage.dispatchMsgToAll(msg);
+                    ChatSystemMsg msg = new ChatSystemMsg(null, "[Bane Channel]" + this.getOwner().getGuild().getName() + " have defeated " + this.getCity().getGuild().getName() + " and razed " + this.getCity().getCityName() + '!');
+                    msg.setMessageType(4);
+                    msg.setChannel(engine.Enum.ChatChannelType.SYSTEM.getChannelID());
+
+                    DispatchMessage.dispatchMsgToAll(msg);
                 }
                 break;
         }
@@ -601,12 +599,12 @@ public final class Bane {
         Zone cityZone = this.getCity().getParent();
 
         if (cityZone == null)
-        	return;
+            return;
 
         //UNPROTECT ALL SIEGE EQUIPMENT AFTER A BANE
-        for (Building toUnprotect: cityZone.zoneBuildingSet){
-        	if (toUnprotect.getBlueprint() != null && toUnprotect.getBlueprint().isSiegeEquip() && toUnprotect.assetIsProtected() == true)
-        	toUnprotect.setProtectionState(ProtectionState.NONE);
+        for (Building toUnprotect : cityZone.zoneBuildingSet) {
+            if (toUnprotect.getBlueprint() != null && toUnprotect.getBlueprint().isSiegeEquip() && toUnprotect.assetIsProtected() == true)
+                toUnprotect.setProtectionState(ProtectionState.NONE);
         }
 
     }
@@ -618,7 +616,7 @@ public final class Bane {
         if (this.getOwner() == null)
             return isErrant;
 
-       
+
         if (this.getOwner().getGuild().isEmptyGuild() == true)
             return isErrant;
 

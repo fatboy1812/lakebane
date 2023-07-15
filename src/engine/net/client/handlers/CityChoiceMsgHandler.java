@@ -22,48 +22,48 @@ import engine.objects.PlayerCharacter;
 
 public class CityChoiceMsgHandler extends AbstractClientMsgHandler {
 
-	public CityChoiceMsgHandler() {
-		super(CityChoiceMsg.class);
-	}
+    public CityChoiceMsgHandler() {
+        super(CityChoiceMsg.class);
+    }
 
-	@Override
-	protected boolean _handleNetMsg(ClientNetMsg baseMsg, ClientConnection origin) throws MsgSendException {
+    @Override
+    protected boolean _handleNetMsg(ClientNetMsg baseMsg, ClientConnection origin) throws MsgSendException {
 
-		PlayerCharacter player = origin.getPlayerCharacter();
-		Dispatch dispatch;
+        PlayerCharacter player = origin.getPlayerCharacter();
+        Dispatch dispatch;
 
-		CityChoiceMsg msg = (CityChoiceMsg) baseMsg;
+        CityChoiceMsg msg = (CityChoiceMsg) baseMsg;
 
-		if (player == null)
-			return true;
+        if (player == null)
+            return true;
 
-		switch (msg.getMsgType()) {
-			case 5:
-				TeleportRepledgeListMsg trlm = new TeleportRepledgeListMsg(player, false);
-				trlm.configure();
-				dispatch = Dispatch.borrow(player, trlm);
-				DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.SECONDARY);
-				break;
-			case 3:
-				City city = City.getCity(msg.getCityID());
+        switch (msg.getMsgType()) {
+            case 5:
+                TeleportRepledgeListMsg trlm = new TeleportRepledgeListMsg(player, false);
+                trlm.configure();
+                dispatch = Dispatch.borrow(player, trlm);
+                DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.SECONDARY);
+                break;
+            case 3:
+                City city = City.getCity(msg.getCityID());
 
-				if (city == null)
-					return true;
+                if (city == null)
+                    return true;
 
-				Guild cityGuild = city.getGuild();
+                Guild cityGuild = city.getGuild();
 
-				if (cityGuild == null)
-					return true;
+                if (cityGuild == null)
+                    return true;
 
-				if (player.getLevel() < cityGuild.getRepledgeMin() || player.getLevel() > cityGuild.getRepledgeMax())
-					return true;
+                if (player.getLevel() < cityGuild.getRepledgeMin() || player.getLevel() > cityGuild.getRepledgeMax())
+                    return true;
 
-				//if repledge, reguild the player but set his building now.
+                //if repledge, reguild the player but set his building now.
 
-				GuildManager.joinGuild(player, cityGuild, city.getObjectUUID(), Enum.GuildHistoryType.JOIN);
-				break;
-		}
+                GuildManager.joinGuild(player, cityGuild, city.getObjectUUID(), Enum.GuildHistoryType.JOIN);
+                break;
+        }
 
-		return true;
-	}
+        return true;
+    }
 }

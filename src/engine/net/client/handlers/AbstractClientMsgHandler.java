@@ -10,24 +10,25 @@ import engine.net.client.msg.ClientNetMsg;
  */
 
 public abstract class AbstractClientMsgHandler {
-	private final Class<? extends ClientNetMsg> handler;
-	
-	public AbstractClientMsgHandler(Class<? extends ClientNetMsg> handler) {
-		this.handler = handler;
-	}
-	
-	public boolean handleNetMsg(ClientNetMsg msg) {
-            
-            boolean executionSucceded;
-                
-		try {
-			executionSucceded = _handleNetMsg(msg, (ClientConnection) msg.getOrigin());
-		} catch (MsgSendException e) {
-			e.printStackTrace();
-			executionSucceded = false;
-		}
-		
-		return executionSucceded;
-	}
-        
-protected abstract boolean _handleNetMsg(ClientNetMsg msg, ClientConnection origin) throws MsgSendException;}
+    private final Class<? extends ClientNetMsg> handler;
+
+    public AbstractClientMsgHandler(Class<? extends ClientNetMsg> handler) {
+        this.handler = handler;
+    }
+
+    public boolean handleNetMsg(ClientNetMsg msg) {
+
+        boolean executionSucceded;
+
+        try {
+            executionSucceded = _handleNetMsg(msg, (ClientConnection) msg.getOrigin());
+        } catch (MsgSendException e) {
+            e.printStackTrace();
+            executionSucceded = false;
+        }
+
+        return executionSucceded;
+    }
+
+    protected abstract boolean _handleNetMsg(ClientNetMsg msg, ClientConnection origin) throws MsgSendException;
+}

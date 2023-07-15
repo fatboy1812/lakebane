@@ -26,99 +26,99 @@ import java.sql.SQLException;
 
 public class OpenGatePowerAction extends AbstractPowerAction {
 
-	/**
-	 * ResultSet Constructor
-	 */
-	public OpenGatePowerAction(ResultSet rs) throws SQLException {
-		super(rs);
-	}
+    /**
+     * ResultSet Constructor
+     */
+    public OpenGatePowerAction(ResultSet rs) throws SQLException {
+        super(rs);
+    }
 
-	public OpenGatePowerAction(int uUID, String iDString, String type, boolean isAggressive, long validItemFlags) {
-		super(uUID, iDString, type, isAggressive, validItemFlags);
-		// TODO Auto-generated constructor stub
-	}
+    public OpenGatePowerAction(int uUID, String iDString, String type, boolean isAggressive, long validItemFlags) {
+        super(uUID, iDString, type, isAggressive, validItemFlags);
+        // TODO Auto-generated constructor stub
+    }
 
-	@Override
-	protected void _startAction(AbstractCharacter source, AbstractWorldObject awo, Vector3fImmutable targetLoc, int trains, ActionsBase ab, PowersBase pb) {
+    @Override
+    protected void _startAction(AbstractCharacter source, AbstractWorldObject awo, Vector3fImmutable targetLoc, int trains, ActionsBase ab, PowersBase pb) {
 
-		
-		if (awo.getObjectType().equals(GameObjectType.Building) == false)
-			return;
 
-		Building targetBuilding = (Building) awo;
-		int token;
+        if (awo.getObjectType().equals(GameObjectType.Building) == false)
+            return;
 
-		// Sanity check.
+        Building targetBuilding = (Building) awo;
+        int token;
 
-		if (source == null || awo == null || !(awo.getObjectType().equals(Enum.GameObjectType.Building)) || pb == null)
-			return;
+        // Sanity check.
 
-		// Make sure building has a blueprint
+        if (source == null || awo == null || !(awo.getObjectType().equals(Enum.GameObjectType.Building)) || pb == null)
+            return;
 
-		if (targetBuilding.getBlueprintUUID() == 0)
-			return;
+        // Make sure building has a blueprint
 
-		// Make sure building is actually a runegate.
+        if (targetBuilding.getBlueprintUUID() == 0)
+            return;
 
-		if (targetBuilding.getBlueprint().getBuildingGroup() != BuildingGroup.RUNEGATE)
-			return;
+        // Make sure building is actually a runegate.
 
-		// Which portal was opened?
+        if (targetBuilding.getBlueprint().getBuildingGroup() != BuildingGroup.RUNEGATE)
+            return;
 
-		token = pb.getToken();
-		PortalType portalType = PortalType.AIR;
+        // Which portal was opened?
 
-		switch (token) {
-		case 428937084: //Death Gate
-			portalType = PortalType.OBLIV;
-			break;
+        token = pb.getToken();
+        PortalType portalType = PortalType.AIR;
 
-		case 429756284: //Chaos Gate
-			portalType = PortalType.CHAOS;
-			break;
+        switch (token) {
+            case 428937084: //Death Gate
+                portalType = PortalType.OBLIV;
+                break;
 
-		case 429723516: //Khar Gate
-			portalType = PortalType.MERCHANT;
-			break;
+            case 429756284: //Chaos Gate
+                portalType = PortalType.CHAOS;
+                break;
 
-		case 429559676: //Spirit Gate
-			portalType = PortalType.SPIRIT;
-			break;
+            case 429723516: //Khar Gate
+                portalType = PortalType.MERCHANT;
+                break;
 
-		case 429592444: //Water Gate
-			portalType = PortalType.WATER;
-			break;
+            case 429559676: //Spirit Gate
+                portalType = PortalType.SPIRIT;
+                break;
 
-		case 429428604: //Fire Gate
-			portalType = PortalType.FIRE;
-			break;
+            case 429592444: //Water Gate
+                portalType = PortalType.WATER;
+                break;
 
-		case 429526908: //Air Gate
-			portalType = PortalType.AIR;
-			break;
+            case 429428604: //Fire Gate
+                portalType = PortalType.FIRE;
+                break;
 
-		case 429625212: //Earth Gate
-			portalType = PortalType.EARTH;
-			break;
+            case 429526908: //Air Gate
+                portalType = PortalType.AIR;
+                break;
 
-		default:
-		}
+            case 429625212: //Earth Gate
+                portalType = PortalType.EARTH;
+                break;
 
-		// Which runegate was clicked on?
+            default:
+        }
 
-		Runegate runeGate = Runegate._runegates.get(targetBuilding.getObjectUUID());
-		runeGate.activatePortal(portalType);
+        // Which runegate was clicked on?
 
-	}
+        Runegate runeGate = Runegate._runegates.get(targetBuilding.getObjectUUID());
+        runeGate.activatePortal(portalType);
 
-	@Override
-	protected void _handleChant(AbstractCharacter source, AbstractWorldObject target, Vector3fImmutable targetLoc, int trains, ActionsBase ab, PowersBase pb) {
-	}
+    }
 
-	@Override
-	protected void _startAction(AbstractCharacter source, AbstractWorldObject awo, Vector3fImmutable targetLoc,
-			int numTrains, ActionsBase ab, PowersBase pb, int duration) {
-		// TODO Auto-generated method stub
+    @Override
+    protected void _handleChant(AbstractCharacter source, AbstractWorldObject target, Vector3fImmutable targetLoc, int trains, ActionsBase ab, PowersBase pb) {
+    }
 
-	}
+    @Override
+    protected void _startAction(AbstractCharacter source, AbstractWorldObject awo, Vector3fImmutable targetLoc,
+                                int numTrains, ActionsBase ab, PowersBase pb, int duration) {
+        // TODO Auto-generated method stub
+
+    }
 }

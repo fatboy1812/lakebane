@@ -44,8 +44,7 @@ public class RealmRecord extends DataRecord {
         if (realmRecord == null) {
             realmRecord = new RealmRecord(realm);
             realmRecord.eventType = eventType;
-        }
-        else {
+        } else {
             realmRecord.recordType = Enum.DataRecordType.REALM;
             realmRecord.eventType = eventType;
             realmRecord.realm = realm;
@@ -57,7 +56,7 @@ public class RealmRecord extends DataRecord {
         realmRecord.charterType = Enum.CharterType.getCharterTypeByID(realmRecord.realm.getCharterType()).name();
 
         if (realmRecord.eventType.equals(Enum.RecordEventType.CAPTURE))
-            realmRecord.eventDateTime =  realm.ruledSince;
+            realmRecord.eventDateTime = realm.ruledSince;
         else
             realmRecord.eventDateTime = LocalDateTime.now();
 
@@ -122,7 +121,7 @@ public class RealmRecord extends DataRecord {
         outStatement.setString(4, cityHash);
         outStatement.setString(5, guildHash);
         outStatement.setString(6, eventType.name());
-        outStatement.setTimestamp(7,  Timestamp.valueOf(this.eventDateTime));
+        outStatement.setTimestamp(7, Timestamp.valueOf(this.eventDateTime));
 
         return outStatement;
     }

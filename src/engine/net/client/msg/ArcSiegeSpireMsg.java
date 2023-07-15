@@ -7,7 +7,6 @@
 //                www.magicbane.com
 
 
-
 package engine.net.client.msg;
 
 
@@ -28,7 +27,7 @@ public class ArcSiegeSpireMsg extends ClientNetMsg {
      * past the limit) then this constructor Throws that Exception to the
      * caller.
      */
-    public ArcSiegeSpireMsg(AbstractConnection origin, ByteBufferReader reader)  {
+    public ArcSiegeSpireMsg(AbstractConnection origin, ByteBufferReader reader) {
         super(Protocol.ARCSIEGESPIRE, origin, reader);
     }
 
@@ -40,7 +39,7 @@ public class ArcSiegeSpireMsg extends ClientNetMsg {
      * Deserializes the subclass specific items from the supplied NetMsgReader.
      */
     @Override
-    protected void _deserialize(ByteBufferReader reader)  {
+    protected void _deserialize(ByteBufferReader reader) {
         reader.getInt(); // object type padding
         this.buildingUUID = reader.getInt();
     }
@@ -56,5 +55,5 @@ public class ArcSiegeSpireMsg extends ClientNetMsg {
     public int getBuildingUUID() {
         return buildingUUID;
     }
- 
+
 }

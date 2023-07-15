@@ -21,66 +21,67 @@ import java.util.ArrayList;
 
 /**
  * Vault inventory contents
+ *
  * @author Eighty
  */
 public class ShowVaultInventoryMsg extends ClientNetMsg {
 
-	PlayerCharacter pc;
-	int accountType;
-	int accountID;
+    PlayerCharacter pc;
+    int accountType;
+    int accountID;
 
-	int npcType;
-	int npcID;
+    int npcType;
+    int npcID;
 
 
-	/**
-	 * This is the general purpose constructor.
-	 */
-	public ShowVaultInventoryMsg(PlayerCharacter pc, Account account, NPC npc) {
-		super(Protocol.SHOWVAULTINVENTORY);
-		this.pc = pc;
-		this.accountType = account.getObjectType().ordinal();
-		this.accountID = account.getObjectUUID();
-		this.npcType = npc.getObjectType().ordinal();
-		this.npcID = npc.getObjectUUID();
-	}
+    /**
+     * This is the general purpose constructor.
+     */
+    public ShowVaultInventoryMsg(PlayerCharacter pc, Account account, NPC npc) {
+        super(Protocol.SHOWVAULTINVENTORY);
+        this.pc = pc;
+        this.accountType = account.getObjectType().ordinal();
+        this.accountID = account.getObjectUUID();
+        this.npcType = npc.getObjectType().ordinal();
+        this.npcID = npc.getObjectUUID();
+    }
 
-	/**
-	 * Serializes the subclass specific items from the supplied NetMsgReader.
-	 */
-	@Override
-	protected void _serialize(ByteBufferWriter writer)
-			throws SerializationException {
+    /**
+     * This constructor is used by NetMsgFactory. It attempts to deserialize the ByteBuffer into a message. If a BufferUnderflow occurs (based on reading past the limit) then this constructor Throws that Exception to the caller.
+     */
+    public ShowVaultInventoryMsg(AbstractConnection origin,
+                                 ByteBufferReader reader) {
+        super(Protocol.SHOWVAULTINVENTORY, origin, reader);
+    }
 
-		writer.putInt(accountType);
-		writer.putInt(accountID);
-		writer.putInt(npcType);
-		writer.putInt(npcID);
-		writer.putString(pc.getFirstName());
+    /**
+     * Serializes the subclass specific items from the supplied NetMsgReader.
+     */
+    @Override
+    protected void _serialize(ByteBufferWriter writer)
+            throws SerializationException {
 
-		ArrayList<Item> vault = pc.getAccount().getVault();
+        writer.putInt(accountType);
+        writer.putInt(accountID);
+        writer.putInt(npcType);
+        writer.putInt(npcID);
+        writer.putString(pc.getFirstName());
 
-		Item.putList(writer, vault, false, pc.getObjectUUID());
-		writer.putInt(AbstractCharacter.getVaultCapacity());
-	}
+        ArrayList<Item> vault = pc.getAccount().getVault();
 
-	/**
-	 * This constructor is used by NetMsgFactory. It attempts to deserialize the ByteBuffer into a message. If a BufferUnderflow occurs (based on reading past the limit) then this constructor Throws that Exception to the caller.
-	 */
-	public ShowVaultInventoryMsg(AbstractConnection origin,
-			ByteBufferReader reader)  {
-		super(Protocol.SHOWVAULTINVENTORY, origin, reader);
-	}
+        Item.putList(writer, vault, false, pc.getObjectUUID());
+        writer.putInt(AbstractCharacter.getVaultCapacity());
+    }
 
-	/**
-	 * Deserializes the subclass specific items to the supplied NetMsgWriter.
-	 */
-	@Override
-	protected void _deserialize(ByteBufferReader reader)  {
-	}
+    /**
+     * Deserializes the subclass specific items to the supplied NetMsgWriter.
+     */
+    @Override
+    protected void _deserialize(ByteBufferReader reader) {
+    }
 
-	@Override
-	protected int getPowerOfTwoBufferSize() {
-		return 17;
-	}
+    @Override
+    protected int getPowerOfTwoBufferSize() {
+        return 17;
+    }
 }

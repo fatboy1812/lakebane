@@ -24,116 +24,108 @@ import engine.objects.Zone;
  */
 public class RepairBuildingMsgHandler extends AbstractClientMsgHandler {
 
-	public RepairBuildingMsgHandler() {
-		super(RepairBuildingMsg.class);
-	}
+    public RepairBuildingMsgHandler() {
+        super(RepairBuildingMsg.class);
+    }
 
-	@Override
-	protected boolean _handleNetMsg(ClientNetMsg baseMsg, ClientConnection origin) throws MsgSendException {
+    private static void RepairBuilding(Building targetBuilding, ClientConnection origin, RepairBuildingMsg msg) {
 
-		// Member variable declaration
+        // Member variable declaration
 
-		PlayerCharacter player;
-		Building targetBuilding;
-		RepairBuildingMsg msg;
+        Zone serverZone;
+        Dispatch dispatch;
 
+        // Member variable assignment
 
-		// Member variable assignment
+        if (targetBuilding == null)
+            return;
 
-		msg = (RepairBuildingMsg) baseMsg;
+        if (!targetBuilding.hasFunds(BuildingManager.GetRepairCost(targetBuilding)))
+            return;
 
-		player = SessionManager.getPlayerCharacter(origin);
+        PlayerCharacter pc = origin.getPlayerCharacter();
 
-		if (player == null)
-			return true;
+        serverZone = ZoneManager.findSmallestZone(pc.getLoc());
 
-
-
-		switch (msg.getType()) {
-		case 0:
-			targetBuilding =  BuildingManager.getBuildingFromCache(msg.getBuildingID());
-			RepairBuilding(targetBuilding, origin, msg);
-			break;
-
-			//		targetBuilding.createFurniture(item.getItemBase().getUseID(), 0, msg.getFurnitureLoc(), Vector3f.ZERO, 0, player);
+        if (serverZone.getPlayerCityUUID() == 0 && targetBuilding.getBlueprint() != null && targetBuilding.getBlueprint().getBuildingGroup() != BuildingGroup.MINE)
+            return;
 
 
-		}
+        City city = City.GetCityFromCache(serverZone.getPlayerCityUUID());
+
+        if (city != null) {
+            if (city.getBane() != null && city.protectionEnforced == false)
+                return;
+
+        }
+
+        //cannot repair mines during 24/7 activity.
+
+        if (targetBuilding.getBlueprint() != null && targetBuilding.getBlueprint().getBuildingGroup() == BuildingGroup.MINE) {
+            return;
+        }
 
 
+        int maxHP = (int) targetBuilding.getMaxHitPoints();
+        int repairCost = BuildingManager.GetRepairCost(targetBuilding);
+        int missingHealth = (int) BuildingManager.GetMissingHealth(targetBuilding);
+
+        if (!targetBuilding.transferGold(-repairCost, false))
+            return;
+
+        targetBuilding.modifyHealth(BuildingManager.GetMissingHealth(targetBuilding), null);
+
+        UpdateObjectMsg uom = new UpdateObjectMsg(targetBuilding, 3);
+
+        dispatch = Dispatch.borrow(origin.getPlayerCharacter(), uom);
+        DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
 
 
-		//		dispatch = Dispatch.borrow(player, baseMsg);
-		//		DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
-
-		return true;
-
-	}
-
-	private static void RepairBuilding(Building targetBuilding, ClientConnection origin, RepairBuildingMsg msg) {
-
-		// Member variable declaration
-
-		Zone serverZone;
-		Dispatch dispatch;
-
-		// Member variable assignment
-
-		if (targetBuilding == null)
-			return;
-
-		if (!targetBuilding.hasFunds(BuildingManager.GetRepairCost(targetBuilding)))
-			return;
-
-		PlayerCharacter pc = origin.getPlayerCharacter();
-
-		serverZone = ZoneManager.findSmallestZone(pc.getLoc());
-
-		if (serverZone.getPlayerCityUUID() == 0 && targetBuilding.getBlueprint() != null && targetBuilding.getBlueprint().getBuildingGroup() != BuildingGroup.MINE)
-			return;
+        RepairBuildingMsg rbm = new RepairBuildingMsg(targetBuilding.getObjectUUID(), maxHP, missingHealth, repairCost, targetBuilding.getStrongboxValue());
 
 
-		City city = City.GetCityFromCache(serverZone.getPlayerCityUUID());
+        dispatch = Dispatch.borrow(origin.getPlayerCharacter(), rbm);
+        DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
+    }
 
-		if (city != null){
-			if(city.getBane() != null && city.protectionEnforced == false)
-				return;
+    @Override
+    protected boolean _handleNetMsg(ClientNetMsg baseMsg, ClientConnection origin) throws MsgSendException {
 
-		}
+        // Member variable declaration
 
-		//cannot repair mines during 24/7 activity.
-
-		if (targetBuilding.getBlueprint() != null && targetBuilding.getBlueprint().getBuildingGroup() == BuildingGroup.MINE){
-			return;
-		}
-
+        PlayerCharacter player;
+        Building targetBuilding;
+        RepairBuildingMsg msg;
 
 
+        // Member variable assignment
+
+        msg = (RepairBuildingMsg) baseMsg;
+
+        player = SessionManager.getPlayerCharacter(origin);
+
+        if (player == null)
+            return true;
 
 
-		int maxHP = (int) targetBuilding.getMaxHitPoints();
-		int repairCost = BuildingManager.GetRepairCost(targetBuilding);
-		int missingHealth = (int) BuildingManager.GetMissingHealth(targetBuilding);
+        switch (msg.getType()) {
+            case 0:
+                targetBuilding = BuildingManager.getBuildingFromCache(msg.getBuildingID());
+                RepairBuilding(targetBuilding, origin, msg);
+                break;
 
-		if (!targetBuilding.transferGold(-repairCost,false))
-			return;
-
-		targetBuilding.modifyHealth(BuildingManager.GetMissingHealth(targetBuilding), null);
-
-		UpdateObjectMsg uom = new UpdateObjectMsg(targetBuilding,3);
-
-		dispatch = Dispatch.borrow(origin.getPlayerCharacter(), uom);
-		DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
+            //		targetBuilding.createFurniture(item.getItemBase().getUseID(), 0, msg.getFurnitureLoc(), Vector3f.ZERO, 0, player);
 
 
+        }
 
-		RepairBuildingMsg rbm = new RepairBuildingMsg( targetBuilding.getObjectUUID(),  maxHP, missingHealth, repairCost, targetBuilding.getStrongboxValue());
 
+        //		dispatch = Dispatch.borrow(player, baseMsg);
+        //		DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
 
-		dispatch = Dispatch.borrow(origin.getPlayerCharacter(), rbm);
-		DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
-	}
+        return true;
 
+    }
 
 
 }

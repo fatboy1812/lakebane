@@ -13,54 +13,50 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 
-public class MobBaseEffects  {
+public class MobBaseEffects {
 
-	private int mobBaseID;
-	private int token;
-	private int rank;
-	private int reqLvl;
-	
-
-
-	/**
-	 * ResultSet Constructor
-	 */
-	public MobBaseEffects(ResultSet rs) throws SQLException {
-		this.token = rs.getInt("token");
-		this.rank = rs.getInt("rank");
-		this.reqLvl = rs.getInt("reqLvl");
-	}
+    private int mobBaseID;
+    private int token;
+    private int rank;
+    private int reqLvl;
 
 
-	/**
-	 * @return the mobBaseID
-	 */
-	public int getMobBaseID() {
-		return mobBaseID;
-	}
+    /**
+     * ResultSet Constructor
+     */
+    public MobBaseEffects(ResultSet rs) throws SQLException {
+        this.token = rs.getInt("token");
+        this.rank = rs.getInt("rank");
+        this.reqLvl = rs.getInt("reqLvl");
+    }
 
 
-
-	public void setMobBaseID(int mobBaseID) {
-		this.mobBaseID = mobBaseID;
-	}
-
-
-	public int getToken() {
-		return token;
-	}
+    /**
+     * @return the mobBaseID
+     */
+    public int getMobBaseID() {
+        return mobBaseID;
+    }
 
 
-	public int getRank() {
-		return rank;
-	}
+    public void setMobBaseID(int mobBaseID) {
+        this.mobBaseID = mobBaseID;
+    }
 
 
+    public int getToken() {
+        return token;
+    }
 
-	public int getReqLvl() {
-		return reqLvl;
-	}
 
+    public int getRank() {
+        return rank;
+    }
+
+
+    public int getReqLvl() {
+        return reqLvl;
+    }
 
 
 }

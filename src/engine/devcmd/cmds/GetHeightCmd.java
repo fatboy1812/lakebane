@@ -7,7 +7,6 @@
 //                www.magicbane.com
 
 
-
 package engine.devcmd.cmds;
 
 import engine.InterestManagement.HeightMap;
@@ -41,7 +40,7 @@ public class GetHeightCmd extends AbstractDevCmd {
 
         Zone zone = ZoneManager.findSmallestZone(pc.getLoc());
         this.throwbackInfo(pc, "Water Level : " + zone.getSeaLevel());
-        this.throwbackInfo(pc, "Character Water Level Above : " + (pc.getCharacterHeight() + height - zone.getSeaLevel()) );
+        this.throwbackInfo(pc, "Character Water Level Above : " + (pc.getCharacterHeight() + height - zone.getSeaLevel()));
 
         if (end)
             return;
@@ -62,9 +61,9 @@ public class GetHeightCmd extends AbstractDevCmd {
 
 
         //find the next parents heightmap if the currentzone heightmap is null.
-        while (heightMap == null){
+        while (heightMap == null) {
 
-            if (currentZone == ZoneManager.getSeaFloor()){
+            if (currentZone == ZoneManager.getSeaFloor()) {
                 this.throwbackInfo(pc, "Could not find a heightmap to get height.");
                 break;
             }
@@ -76,9 +75,9 @@ public class GetHeightCmd extends AbstractDevCmd {
         }
 
 
-        if ( (heightMap == null) || (currentZone == ZoneManager.getSeaFloor()) ) {
-            this.throwbackInfo(pc, currentZone.getName() + " has no heightmap " );
-            this.throwbackInfo(pc, "Current altitude: " + currentZone.absY );
+        if ((heightMap == null) || (currentZone == ZoneManager.getSeaFloor())) {
+            this.throwbackInfo(pc, currentZone.getName() + " has no heightmap ");
+            this.throwbackInfo(pc, "Current altitude: " + currentZone.absY);
             return;
         }
 
@@ -86,8 +85,6 @@ public class GetHeightCmd extends AbstractDevCmd {
 
         Vector3fImmutable seaFloorLocalLoc = ZoneManager.worldToLocal(pc.getLoc(), ZoneManager.getSeaFloor());
         this.throwbackInfo(pc, "SeaFloor Local : " + seaFloorLocalLoc.x + " , " + seaFloorLocalLoc.y);
-
-
 
 
         this.throwbackInfo(pc, "Local Zone Location : " + zoneLoc.x + " , " + zoneLoc.y);
@@ -99,10 +96,11 @@ public class GetHeightCmd extends AbstractDevCmd {
         Vector2f parentZoneLoc = ZoneManager.worldToZoneSpace(pc.getLoc(), currentZone.getParent());
         this.throwbackInfo(pc, "Parent Zone Location from Bottom Left : " + parentZoneLoc);
 
-        if ((parentZone != null ) && (parentZone.getHeightMap() != null)) {
+        if ((parentZone != null) && (parentZone.getHeightMap() != null)) {
             parentLoc = ZoneManager.worldToZoneSpace(pc.getLoc(), parentZone);
-            parentGrid = parentZone.getHeightMap().getGridSquare( parentLoc);
-        } else parentGrid = new Vector2f(-1,-1);
+            parentGrid = parentZone.getHeightMap().getGridSquare(parentLoc);
+        } else
+            parentGrid = new Vector2f(-1, -1);
 
         gridSquare = heightMap.getGridSquare(zoneLoc);
         gridOffset = HeightMap.getGridOffset(gridSquare);
@@ -110,7 +108,7 @@ public class GetHeightCmd extends AbstractDevCmd {
         float interaltitude = currentZone.getHeightMap().getInterpolatedTerrainHeight(zoneLoc);
 
         this.throwbackInfo(pc, currentZone.getName());
-        this.throwbackInfo(pc, "Current Grid Square: " + gridSquare.x + " , " + gridSquare.y );
+        this.throwbackInfo(pc, "Current Grid Square: " + gridSquare.x + " , " + gridSquare.y);
         this.throwbackInfo(pc, "Grid Offset: " + gridOffset.x + " , " + gridOffset.y);
         this.throwbackInfo(pc, "Parent Grid: " + parentGrid.x + " , " + parentGrid.y);
 
@@ -126,15 +124,15 @@ public class GetHeightCmd extends AbstractDevCmd {
         float realWorldAltitude = interaltitude + currentZone.getWorldAltitude();
 
         //OUTSET
-        if (parentZone != null){
+        if (parentZone != null) {
             float parentXRadius = currentZone.getBounds().getHalfExtents().x;
             float parentZRadius = currentZone.getBounds().getHalfExtents().y;
 
             float offsetX = Math.abs((localLocFromCenter.x / parentXRadius));
             float offsetZ = Math.abs((localLocFromCenter.z / parentZRadius));
 
-            float bucketScaleX = 100/parentXRadius;
-            float bucketScaleZ = 200/parentZRadius;
+            float bucketScaleX = 100 / parentXRadius;
+            float bucketScaleZ = 200 / parentZRadius;
 
             float outsideGridSizeX = 1 - bucketScaleX; //32/256
             float outsideGridSizeZ = 1 - bucketScaleZ;
@@ -143,7 +141,7 @@ public class GetHeightCmd extends AbstractDevCmd {
             double scale;
 
 
-            if (offsetX > outsideGridSizeX && offsetX > offsetZ){
+            if (offsetX > outsideGridSizeX && offsetX > offsetZ) {
                 weight = (offsetX - outsideGridSizeX) / bucketScaleX;
                 scale = Math.atan2((.5 - weight) * 3.1415927, 1);
 
@@ -164,7 +162,7 @@ public class GetHeightCmd extends AbstractDevCmd {
                 outsetALt += currentZone.getParent().getAbsY();
                 realWorldAltitude = outsetALt;
 
-            }else if (offsetZ > outsideGridSizeZ){
+            } else if (offsetZ > outsideGridSizeZ) {
 
                 weight = (offsetZ - outsideGridSizeZ) / bucketScaleZ;
                 scale = Math.atan2((.5 - weight) * 3.1415927, 1);
@@ -184,8 +182,6 @@ public class GetHeightCmd extends AbstractDevCmd {
                 realWorldAltitude = outsetALt;
 
 
-
-
             }
         }
 
@@ -196,7 +192,7 @@ public class GetHeightCmd extends AbstractDevCmd {
         strMod += 1f;
 
         float radius = 0;
-        switch (pc.getRaceID()){
+        switch (pc.getRaceID()) {
             case 2017:
                 radius = 3.1415927f;
             case 2000:
@@ -210,12 +206,9 @@ public class GetHeightCmd extends AbstractDevCmd {
         strMod -= .5f;
 
 
-
         realWorldAltitude += strMod;
 
         this.throwbackInfo(pc, "interpolated height with World: " + realWorldAltitude);
-
-
 
 
     }

@@ -27,7 +27,7 @@ public class DisbandGroupHandler extends AbstractClientMsgHandler {
 
     @Override
     protected boolean _handleNetMsg(ClientNetMsg baseMsg, ClientConnection origin) throws MsgSendException {
-        
+
         PlayerCharacter source = SessionManager.getPlayerCharacter(origin);
         if (source == null) {
             return false;

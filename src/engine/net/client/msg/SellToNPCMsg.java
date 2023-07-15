@@ -23,93 +23,91 @@ import engine.net.client.Protocol;
  */
 public class SellToNPCMsg extends ClientNetMsg {
 
-	int npcType;
-	int npcID;
-	int itemType;
-	int itemID;
-	int unknown01;
+    int npcType;
+    int npcID;
+    int itemType;
+    int itemID;
+    int unknown01;
 
-	/**
-	 * This is the general purpose constructor
-	 */
-	public SellToNPCMsg() {
-		super(Protocol.SELLOBJECT);
-	}
+    /**
+     * This is the general purpose constructor
+     */
+    public SellToNPCMsg() {
+        super(Protocol.SELLOBJECT);
+    }
 
-	/**
-	 * This constructor is used by NetMsgFactory. It attempts to deserialize the
-	 * ByteBuffer into a message. If a BufferUnderflow occurs (based on reading
-	 * past the limit) then this constructor Throws that Exception to the
-	 * caller.
-	 */
-	public SellToNPCMsg(AbstractConnection origin, ByteBufferReader reader)
-			 {
-		super(Protocol.SELLOBJECT, origin, reader);
-	}
+    /**
+     * This constructor is used by NetMsgFactory. It attempts to deserialize the
+     * ByteBuffer into a message. If a BufferUnderflow occurs (based on reading
+     * past the limit) then this constructor Throws that Exception to the
+     * caller.
+     */
+    public SellToNPCMsg(AbstractConnection origin, ByteBufferReader reader) {
+        super(Protocol.SELLOBJECT, origin, reader);
+    }
 
-	/**
-	 * Deserializes the subclass specific items to the supplied NetMsgWriter.
-	 */
-	@Override
-	protected void _deserialize(ByteBufferReader reader)
-			 {
-		this.npcType = reader.getInt();
-		this.npcID = reader.getInt();
-		this.itemType = reader.getInt();
-		this.itemID = reader.getInt();
-		this.unknown01 = reader.getInt();
-	}
+    /**
+     * Deserializes the subclass specific items to the supplied NetMsgWriter.
+     */
+    @Override
+    protected void _deserialize(ByteBufferReader reader) {
+        this.npcType = reader.getInt();
+        this.npcID = reader.getInt();
+        this.itemType = reader.getInt();
+        this.itemID = reader.getInt();
+        this.unknown01 = reader.getInt();
+    }
 
-	/**
-	 * Serializes the subclass specific items from the supplied NetMsgReader.
-	 */
-	@Override
-	protected void _serialize(ByteBufferWriter writer)
-			throws SerializationException {
-		writer.putInt(this.npcType);
-		writer.putInt(this.npcID);
-		writer.putInt(this.itemType);
-		writer.putInt(this.itemID);
-		writer.putInt(this.unknown01);
-	}
+    /**
+     * Serializes the subclass specific items from the supplied NetMsgReader.
+     */
+    @Override
+    protected void _serialize(ByteBufferWriter writer)
+            throws SerializationException {
+        writer.putInt(this.npcType);
+        writer.putInt(this.npcID);
+        writer.putInt(this.itemType);
+        writer.putInt(this.itemID);
+        writer.putInt(this.unknown01);
+    }
 
-	public int getNPCType() {
-		return this.npcType;
-	}
+    public int getNPCType() {
+        return this.npcType;
+    }
 
-	public int getNPCID() {
-		return this.npcID;
-	}
+    public void setNPCType(int value) {
+        this.npcType = value;
+    }
 
-	public int getItemType() {
-		return this.itemType;
-	}
+    public int getNPCID() {
+        return this.npcID;
+    }
 
-	public int getItemID() {
-		return this.itemID;
-	}
+    public void setNPCID(int value) {
+        this.npcID = value;
+    }
 
-	public int getUnknown01() {
-		return this.unknown01;
-	}
+    public int getItemType() {
+        return this.itemType;
+    }
 
-	public void setNPCType(int value) {
-		this.npcType = value;
-	}
+    public void setItemType(int value) {
+        this.itemType = value;
+    }
 
-	public void setNPCID(int value) {
-		this.npcID = value;
-	}
+    public int getItemID() {
+        return this.itemID;
+    }
 
-	public void setItemType(int value) {
-		this.itemType = value;
-	}
+    public void setItemID(int value) {
+        this.itemID = value;
+    }
 
-	public void setItemID(int value) {
-		this.itemID = value;
-	}
+    public int getUnknown01() {
+        return this.unknown01;
+    }
 
-	public void setUnknown01(int value) {
-		this.unknown01 = value;
-	}
+    public void setUnknown01(int value) {
+        this.unknown01 = value;
+    }
 }

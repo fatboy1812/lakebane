@@ -20,23 +20,26 @@ import java.sql.SQLException;
 
 public class AmbidexterityEffectModifier extends AbstractEffectModifier {
 
-	public AmbidexterityEffectModifier(ResultSet rs) throws SQLException {
-		super(rs);
-	}
+    public AmbidexterityEffectModifier(ResultSet rs) throws SQLException {
+        super(rs);
+    }
 
-	@Override
-	protected void _applyEffectModifier(AbstractCharacter source, AbstractWorldObject awo, int trains, AbstractEffectJob effect) {
+    @Override
+    protected void _applyEffectModifier(AbstractCharacter source, AbstractWorldObject awo, int trains, AbstractEffectJob effect) {
 
-	}
+    }
 
-	@Override
-	public void applyBonus(AbstractCharacter ac, int trains) {
-		PlayerBonuses bonus = ac.getBonuses();
-		bonus.setBool(ModType.Ambidexterity, SourceType.None, true);
-	}
+    @Override
+    public void applyBonus(AbstractCharacter ac, int trains) {
+        PlayerBonuses bonus = ac.getBonuses();
+        bonus.setBool(ModType.Ambidexterity, SourceType.None, true);
+    }
 
-	@Override
-	public void applyBonus(Item item, int trains) {}
-	@Override
-	public void applyBonus(Building building, int trains) {}
+    @Override
+    public void applyBonus(Item item, int trains) {
+    }
+
+    @Override
+    public void applyBonus(Building building, int trains) {
+    }
 }

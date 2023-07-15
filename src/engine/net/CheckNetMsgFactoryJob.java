@@ -15,39 +15,39 @@ import org.pmw.tinylog.Logger;
 
 public class CheckNetMsgFactoryJob extends AbstractJob {
 
-	private final AbstractConnection conn;
+    private final AbstractConnection conn;
 
-	public CheckNetMsgFactoryJob(AbstractConnection conn) {
-		super();
-		this.conn = conn;
-	}
+    public CheckNetMsgFactoryJob(AbstractConnection conn) {
+        super();
+        this.conn = conn;
+    }
 
-	@Override
-	protected void doJob() {
-		NetMsgFactory factory = conn.getFactory();
+    @Override
+    protected void doJob() {
+        NetMsgFactory factory = conn.getFactory();
 
-		// Make any/all msg possible
-		factory.parseBuffer();
-	
-		// get and route.
-		AbstractNetMsg msg = factory.getMsg();
-		while (msg != null) {
-			
-			// Conditionally check to see if origin is set.
-			if (msg.getOrigin() == null) {
-				Logger.warn(msg.getClass().getSimpleName() + " had a NULL for its 'origin'.");
-				msg.setOrigin(this.conn);
-			}
+        // Make any/all msg possible
+        factory.parseBuffer();
 
-			 if (msg instanceof engine.net.client.msg.ClientNetMsg) {
-				ConfigManager.handler.handleClientMsg((ClientNetMsg) msg);
+        // get and route.
+        AbstractNetMsg msg = factory.getMsg();
+        while (msg != null) {
 
-			} else {
-				Logger.error("Unrouteable message of type '" + msg.getClass().getSimpleName() + '\'');
-			}
+            // Conditionally check to see if origin is set.
+            if (msg.getOrigin() == null) {
+                Logger.warn(msg.getClass().getSimpleName() + " had a NULL for its 'origin'.");
+                msg.setOrigin(this.conn);
+            }
 
-			msg = factory.getMsg();
-		}
-	}
+            if (msg instanceof engine.net.client.msg.ClientNetMsg) {
+                ConfigManager.handler.handleClientMsg((ClientNetMsg) msg);
+
+            } else {
+                Logger.error("Unrouteable message of type '" + msg.getClass().getSimpleName() + '\'');
+            }
+
+            msg = factory.getMsg();
+        }
+    }
 
 }

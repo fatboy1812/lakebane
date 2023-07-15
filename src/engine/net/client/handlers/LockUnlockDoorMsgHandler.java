@@ -18,7 +18,7 @@ import org.pmw.tinylog.Logger;
  * @Author:
  * @Summary: Processes application protocol message which handle
  * lock and unlock door requests to and from the client.
- * 
+ *
  */
 
 public class LockUnlockDoorMsgHandler extends AbstractClientMsgHandler {
@@ -31,14 +31,14 @@ public class LockUnlockDoorMsgHandler extends AbstractClientMsgHandler {
     protected boolean _handleNetMsg(ClientNetMsg baseMsg, ClientConnection origin) throws MsgSendException {
 
         // Member variable declarations
-        
+
         PlayerCharacter player;
         Building targetBuilding;
         int doorNum;
         LockUnlockDoorMsg msg;
 
         // Member variable assignment
-        
+
         msg = (LockUnlockDoorMsg) baseMsg;
         player = SessionManager.getPlayerCharacter(origin);
         targetBuilding = BuildingManager.getBuilding((int) msg.getTargetID());
@@ -59,9 +59,9 @@ public class LockUnlockDoorMsgHandler extends AbstractClientMsgHandler {
         doorNum = Blueprint.getDoorNumberbyMesh(msg.getDoorID());
 
         // Debugging code
-        
+
         // Logger.debug("DoorLockUnlock", "Door mesh: " + msg.getDoorID() + " Door number: " + doorNum);
-        
+
         boolean stateChanged;
 
         if (targetBuilding.isDoorLocked(doorNum)) {

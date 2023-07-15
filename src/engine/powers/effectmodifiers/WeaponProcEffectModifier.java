@@ -22,26 +22,29 @@ import java.sql.SQLException;
 
 public class WeaponProcEffectModifier extends AbstractEffectModifier {
 
-	public WeaponProcEffectModifier(ResultSet rs) throws SQLException {
-		super(rs);
-	}
+    public WeaponProcEffectModifier(ResultSet rs) throws SQLException {
+        super(rs);
+    }
 
-	@Override
-	protected void _applyEffectModifier(AbstractCharacter source, AbstractWorldObject awo, int trains, AbstractEffectJob effect) {
+    @Override
+    protected void _applyEffectModifier(AbstractCharacter source, AbstractWorldObject awo, int trains, AbstractEffectJob effect) {
 
-	}
+    }
 
-	@Override
-	public void applyBonus(AbstractCharacter ac, int trains) {
+    @Override
+    public void applyBonus(AbstractCharacter ac, int trains) {
 
-	}
+    }
 
-	@Override
-	public void applyBonus(Item item, int trains) {}
-	@Override
-	public void applyBonus(Building building, int trains) {}
+    @Override
+    public void applyBonus(Item item, int trains) {
+    }
 
-	public void applyProc(AbstractCharacter ac, AbstractWorldObject target) {
-		PowersManager.applyPower(ac, target, Vector3fImmutable.ZERO, this.string1, (int)this.percentMod, false);
-	}
+    @Override
+    public void applyBonus(Building building, int trains) {
+    }
+
+    public void applyProc(AbstractCharacter ac, AbstractWorldObject target) {
+        PowersManager.applyPower(ac, target, Vector3fImmutable.ZERO, this.string1, (int) this.percentMod, false);
+    }
 }

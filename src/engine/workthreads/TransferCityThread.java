@@ -39,7 +39,7 @@ public class TransferCityThread implements Runnable {
         this.newOwner = newOwner;
     }
 
-    public void run(){
+    public void run() {
 
         Guild formerGuild;
         ArrayList<Guild> subGuildList;
@@ -81,7 +81,7 @@ public class TransferCityThread implements Runnable {
         city.claim(newOwner);
 
         //Set name of City to attacker's guild name
-        BuildingManager.setUpgradeDateTime(city.getTOL(),null, 0);
+        BuildingManager.setUpgradeDateTime(city.getTOL(), null, 0);
         city.getTOL().setName(newOwner.getGuild().getName());
 
         // Send updated cityZone to players
@@ -94,6 +94,6 @@ public class TransferCityThread implements Runnable {
         City.lastCityUpdate = System.currentTimeMillis();
 
         Logger.info("uuid:" + city.getObjectUUID() + "transferred from " + formerGuild.getName() +
-                       " to " + newOwner.getGuild().getName());
+                " to " + newOwner.getGuild().getName());
     }
 }

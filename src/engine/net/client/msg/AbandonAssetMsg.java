@@ -28,7 +28,7 @@ public class AbandonAssetMsg extends ClientNetMsg {
      * past the limit) then this constructor Throws that Exception to the
      * caller.
      */
-    public AbandonAssetMsg(AbstractConnection origin, ByteBufferReader reader){
+    public AbandonAssetMsg(AbstractConnection origin, ByteBufferReader reader) {
         super(Protocol.ABANDONASSET, origin, reader);
     }
 
@@ -36,7 +36,7 @@ public class AbandonAssetMsg extends ClientNetMsg {
      * Deserializes the subclass specific items from the supplied NetMsgReader.
      */
     @Override
-    protected void _deserialize(ByteBufferReader reader)  {
+    protected void _deserialize(ByteBufferReader reader) {
         this.pad = reader.getInt();
         this.objectType = reader.getInt();
         this.objectUUID = reader.getInt();
@@ -60,10 +60,6 @@ public class AbandonAssetMsg extends ClientNetMsg {
         this.objectType = value;
     }
 
-    public void setPad(int value) {
-        this.pad = value;
-    }
-
     public int getUUID() {
         return objectUUID;
 
@@ -71,5 +67,9 @@ public class AbandonAssetMsg extends ClientNetMsg {
 
     public int getPad() {
         return pad;
+    }
+
+    public void setPad(int value) {
+        this.pad = value;
     }
 }

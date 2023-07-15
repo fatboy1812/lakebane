@@ -18,101 +18,101 @@ import java.util.HashSet;
 
 public class Portal {
 
-	private boolean active;
-	public Enum.PortalType portalType;
-	public Building  sourceGate;
-	public Building  targetGate;
-	public final Vector3fImmutable portalLocation;
-	private long lastActive = 0;
+    public final Vector3fImmutable portalLocation;
+    public Enum.PortalType portalType;
+    public Building sourceGate;
+    public Building targetGate;
+    private boolean active;
+    private long lastActive = 0;
 
-	public Portal(Building sourceGate, PortalType portalType, Building targetGate) {
-		Vector3fImmutable tmpLocation;
+    public Portal(Building sourceGate, PortalType portalType, Building targetGate) {
+        Vector3fImmutable tmpLocation;
 
-		this.active = false;
-		this.sourceGate = sourceGate;
-		this.targetGate = targetGate;
-		this.portalType = portalType;
+        this.active = false;
+        this.sourceGate = sourceGate;
+        this.targetGate = targetGate;
+        this.portalType = portalType;
 
-		tmpLocation = sourceGate.getLoc().add(new Vector3fImmutable(portalType.offset.x, 6, portalType.offset.y));
+        tmpLocation = sourceGate.getLoc().add(new Vector3fImmutable(portalType.offset.x, 6, portalType.offset.y));
 
-		// Rotate portal by gate rotation
+        // Rotate portal by gate rotation
 
-		tmpLocation = Vector3fImmutable.rotateAroundPoint(sourceGate.getLoc(), tmpLocation, sourceGate.getBounds().getQuaternion().angleY);
+        tmpLocation = Vector3fImmutable.rotateAroundPoint(sourceGate.getLoc(), tmpLocation, sourceGate.getBounds().getQuaternion().angleY);
 
-		this.portalLocation = tmpLocation;
-	}
+        this.portalLocation = tmpLocation;
+    }
 
-	public boolean isActive() {
+    public boolean isActive() {
 
-		return this.active;
+        return this.active;
 
-	}
+    }
 
-	public void deactivate() {
+    public void deactivate() {
 
-		// Remove effect bit from the runegate building, which turns off this
-		// portal type's particle effect
+        // Remove effect bit from the runegate building, which turns off this
+        // portal type's particle effect
 
-		sourceGate.removeEffectBit(portalType.effectFlag);
-		this.active = false;
-		sourceGate.updateEffects();
-	}
+        sourceGate.removeEffectBit(portalType.effectFlag);
+        this.active = false;
+        sourceGate.updateEffects();
+    }
 
-	public void activate(boolean autoClose) {
+    public void activate(boolean autoClose) {
 
-		Building sourceBuilding;
-
-
-		// Apply  effect bit to the runegate building, which turns on this
-		// portal type's particle effect
+        Building sourceBuilding;
 
 
-		sourceGate.addEffectBit(portalType.effectFlag);
-		this.lastActive = System.currentTimeMillis();
-		this.active = true;
+        // Apply  effect bit to the runegate building, which turns on this
+        // portal type's particle effect
 
-		// Do not update effects at bootstrap as it
-		// tries to send a dispatch.
 
-		if (ConfigManager.worldServer.isRunning == true)
-			sourceGate.updateEffects();
+        sourceGate.addEffectBit(portalType.effectFlag);
+        this.lastActive = System.currentTimeMillis();
+        this.active = true;
 
-		if (autoClose == true) {
+        // Do not update effects at bootstrap as it
+        // tries to send a dispatch.
+
+        if (ConfigManager.worldServer.isRunning == true)
+            sourceGate.updateEffects();
+
+        if (autoClose == true) {
             CloseGateJob cgj = new CloseGateJob(sourceGate, portalType);
-			JobScheduler.getInstance().scheduleJob(cgj, MBServerStatics.RUNEGATE_CLOSE_TIME);
-		}
-	}
+            JobScheduler.getInstance().scheduleJob(cgj, MBServerStatics.RUNEGATE_CLOSE_TIME);
+        }
+    }
 
-	public void collide() {
+    public void collide() {
 
-		HashSet<AbstractWorldObject> playerList;
+        HashSet<AbstractWorldObject> playerList;
 
-		playerList = WorldGrid.getObjectsInRangePartial(this.portalLocation, 2, MBServerStatics.MASK_PLAYER);
+        playerList = WorldGrid.getObjectsInRangePartial(this.portalLocation, 2, MBServerStatics.MASK_PLAYER);
 
-		if (playerList.isEmpty())
-			return;
+        if (playerList.isEmpty())
+            return;
 
-		for (AbstractWorldObject player : playerList) {
+        for (AbstractWorldObject player : playerList) {
 
-			onEnter((PlayerCharacter) player);
+            onEnter((PlayerCharacter) player);
 
-		}
-	}
+        }
+    }
 
-	public void onEnter(PlayerCharacter player) {
+    public void onEnter(PlayerCharacter player) {
 
-		if (player.getTimeStamp("lastMoveGate") < this.lastActive)
-			return;
+        if (player.getTimeStamp("lastMoveGate") < this.lastActive)
+            return;
 
-        	player.teleport(targetGate.getLoc());
-    		player.setSafeMode();
-		
-	}
+        player.teleport(targetGate.getLoc());
+        player.setSafeMode();
 
-	/**
-	 * @return the portalLocation
-	 */
-	public Vector3fImmutable getPortalLocation() {
-		return portalLocation;
-	}
+    }
+
+    /**
+     * @return the portalLocation
+     */
+    public Vector3fImmutable getPortalLocation() {
+        return portalLocation;
+    }
 }

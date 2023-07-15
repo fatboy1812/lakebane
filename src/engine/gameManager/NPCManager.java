@@ -199,7 +199,6 @@ public enum NPCManager {
     }
 
 
-
     public static void removeSiegeMinions(Mob mobile) {
 
         for (Mob toRemove : mobile.siegeMinionMap.keySet()) {

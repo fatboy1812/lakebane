@@ -7,7 +7,6 @@
 //                www.magicbane.com
 
 
-
 package engine.devcmd.cmds;
 
 import engine.Enum.GameObjectType;
@@ -21,75 +20,75 @@ import java.util.ArrayList;
 
 public class SlotTestCmd extends AbstractDevCmd {
 
-	public SlotTestCmd() {
+    public SlotTestCmd() {
         super("slottest");
     }
 
-	@Override
-	protected void _doCmd(PlayerCharacter playerCharacter, String[] args,
-			AbstractGameObject target) {
+    @Override
+    protected void _doCmd(PlayerCharacter playerCharacter, String[] args,
+                          AbstractGameObject target) {
 
-		ArrayList<BuildingLocation> buildingLocations;
-		String outString = "Available Slots\r\n";
+        ArrayList<BuildingLocation> buildingLocations;
+        String outString = "Available Slots\r\n";
 
-		if (target == null)
-			return;
+        if (target == null)
+            return;
 
-		if (target.getObjectType() != GameObjectType.Building)
-			return;
+        if (target.getObjectType() != GameObjectType.Building)
+            return;
 
-		Building building = (Building) target;
+        Building building = (Building) target;
 
-		buildingLocations = BuildingManager._slotLocations.get(building.meshUUID);
+        buildingLocations = BuildingManager._slotLocations.get(building.meshUUID);
 
-		if (buildingLocations == null) {
-			outString = "No slot information for mesh: " + building.meshUUID;
-			ChatManager.chatSystemInfo(playerCharacter, outString);
-			return;
-		}
+        if (buildingLocations == null) {
+            outString = "No slot information for mesh: " + building.meshUUID;
+            ChatManager.chatSystemInfo(playerCharacter, outString);
+            return;
+        }
 
-		// Goto slot location
+        // Goto slot location
 
-		if (args[0].isEmpty() == false) {
+        if (args[0].isEmpty() == false) {
 
-			int slot = Integer.parseInt(args[0]);
-			Vector3fImmutable slotLocation;
-			BuildingLocation buildingLocation = BuildingManager._slotLocations.get(building.meshUUID).get(slot - 1);
-			slotLocation = building.getLoc().add(buildingLocation.getLocation());
-			slotLocation = Vector3fImmutable.rotateAroundPoint(building.getLoc(), slotLocation, building.getBounds().getQuaternion().angleY);
-			playerCharacter.teleport(slotLocation);
-			return;
-		}
+            int slot = Integer.parseInt(args[0]);
+            Vector3fImmutable slotLocation;
+            BuildingLocation buildingLocation = BuildingManager._slotLocations.get(building.meshUUID).get(slot - 1);
+            slotLocation = building.getLoc().add(buildingLocation.getLocation());
+            slotLocation = Vector3fImmutable.rotateAroundPoint(building.getLoc(), slotLocation, building.getBounds().getQuaternion().angleY);
+            playerCharacter.teleport(slotLocation);
+            return;
+        }
 
 
-		for (BuildingLocation buildingLocation : BuildingManager._slotLocations.get(building.meshUUID))
-			outString += buildingLocation.getSlot() + buildingLocation.getLocation().toString() + "\r\n";
+        for (BuildingLocation buildingLocation : BuildingManager._slotLocations.get(building.meshUUID))
+            outString += buildingLocation.getSlot() + buildingLocation.getLocation().toString() + "\r\n";
 
-		outString += "\r\nNext Available Slot: " + BuildingManager.getAvailableSlot(building);
+        outString += "\r\nNext Available Slot: " + BuildingManager.getAvailableSlot(building);
 
-		if (building.getHirelings().isEmpty() == false) {
+        if (building.getHirelings().isEmpty() == false) {
 
-			outString += "\r\n\r\n";
-			outString += "Hirelings List:";
+            outString += "\r\n\r\n";
+            outString += "Hirelings List:";
 
-			for (AbstractCharacter hireling : building.getHirelings().keySet())
-				outString += "\r\n" + hireling.getName() + " slot : " + building.getHirelings().get(hireling);
+            for (AbstractCharacter hireling : building.getHirelings().keySet())
+                outString += "\r\n" + hireling.getName() + " slot : " + building.getHirelings().get(hireling);
 
-		}
+        }
 
-		ChatManager.chatSystemInfo(playerCharacter,outString);
+        ChatManager.chatSystemInfo(playerCharacter, outString);
 
-	}
+    }
 
-	@Override
-	protected String _getHelpString() {
-		return "Displays slot information for building";
-	}
+    @Override
+    protected String _getHelpString() {
+        return "Displays slot information for building";
+    }
 
-	@Override
-	protected String _getUsageString() {
-		return "./slottest <target builing> n";
+    @Override
+    protected String _getUsageString() {
+        return "./slottest <target builing> n";
 
-	}
+    }
 
 }

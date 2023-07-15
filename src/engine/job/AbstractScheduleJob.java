@@ -7,22 +7,22 @@
 //                www.magicbane.com
 
 
- package engine.job;
+package engine.job;
 
 
 public abstract class AbstractScheduleJob extends AbstractJob {
 
-	public AbstractScheduleJob() {
-		super();
-	}
+    public AbstractScheduleJob() {
+        super();
+    }
 
-	@Override
-	protected abstract void doJob();
+    @Override
+    protected abstract void doJob();
 
-	public void cancelJob() {
-		JobScheduler.getInstance().cancelScheduledJob(this);
-		_cancelJob();
-	}
+    public void cancelJob() {
+        JobScheduler.getInstance().cancelScheduledJob(this);
+        _cancelJob();
+    }
 
-	protected abstract void _cancelJob();
+    protected abstract void _cancelJob();
 }

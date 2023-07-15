@@ -25,7 +25,7 @@ public class BonusCalcJob extends AbstractJob {
     protected void doJob() {
         if (this.ac != null) {
             this.ac.applyBonuses();
-           
+
         }
     }
 }

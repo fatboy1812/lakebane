@@ -21,7 +21,7 @@ public class Network {
     public static final MultisizeByteBufferPool byteBufferPool = new MultisizeByteBufferPool();
 
     public static void init() {
-		//Force a few to be created.
+        //Force a few to be created.
 
         //Small (2^10-15)
         for (int a = 10; a < 16; ++a) {

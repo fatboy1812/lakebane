@@ -45,36 +45,35 @@ public class RegisterAccountHandler {
             return;
         }
 
-        // if user supplied argument let's validate it.
-        // otherwise build an account name based on their discord account.
+        // User must supply an account name
 
         if (args.length != 1) {
 
-            // Build account name using Discord name along with their discriminator.
+            MagicBot.sendResponse(event,
+                    "Your supplied account name does not compute.\n" +
+                            "Account names must satisfy following regex:\n" +
+                            "^[\\p{Alnum}]{6,20}$");
+            return;
+        }
 
-            accountName = discordUserName.replaceAll("\\s+", "");
-            accountName += "#" + event.getAuthor().getDiscriminator();
-        } else {
+        // Validate account name with regex
 
-            // Validate account name with regex
+        accountName = args[0].replaceAll("\\s+", "");
 
-            accountName = args[0].replaceAll("\\s+", "");
+        if (MagicBot.accountNameRegex.matcher(accountName).matches() == false) {
 
-            if (MagicBot.accountNameRegex.matcher(accountName).matches() == false) {
+            MagicBot.sendResponse(event,
+                    "Your supplied account name does not compute.\n" +
+                            "Account names must satisfy following regex:\n" +
+                            "^[\\p{Alnum}]{6,20}$");
+            return;
+        }
 
-                MagicBot.sendResponse(event,
-                        "Your supplied account name does not compute.\n" +
-                                "Account names must satisfy following regex:\n" +
-                                "^[\\p{Alnum}]{6,20}$");
-                return;
-            }
-
-            if (accountName.toLowerCase().equals("accountname")) {
-                MagicBot.sendResponse(event,
-                        "accountname is not valid account name.\n" +
-                                "Have brain player!");
-                return;
-            }
+        if (accountName.equalsIgnoreCase("accountname")) {
+            MagicBot.sendResponse(event,
+                    "accountname is not valid account name.\n" +
+                            "Have brain player!");
+            return;
         }
 
         // Make sure account doesn't already exist.

@@ -28,286 +28,285 @@ import static engine.Enum.PvpHistoryType;
 
 public class PvpRecord extends DataRecord {
 
-	private static final LinkedBlockingQueue<PvpRecord> recordPool = new LinkedBlockingQueue<>();
-
-	private PlayerCharacter player;
-	private PlayerCharacter victim;
-	private Vector3fImmutable location;
-	private boolean pvpExp;
+    private static final LinkedBlockingQueue<PvpRecord> recordPool = new LinkedBlockingQueue<>();
 
-	private PvpRecord(PlayerCharacter player, PlayerCharacter victim, Vector3fImmutable location, boolean pvpExp) {
-		this.recordType = DataRecordType.PVP;
-		this.player = player;
-		this.victim = victim;
-		this.location = new Vector3fImmutable(location);
-		this.pvpExp = pvpExp;
-	}
+    private PlayerCharacter player;
+    private PlayerCharacter victim;
+    private Vector3fImmutable location;
+    private boolean pvpExp;
 
-	public static PvpRecord borrow(PlayerCharacter player, PlayerCharacter victim, Vector3fImmutable location, boolean pvpExp) {
+    private PvpRecord(PlayerCharacter player, PlayerCharacter victim, Vector3fImmutable location, boolean pvpExp) {
+        this.recordType = DataRecordType.PVP;
+        this.player = player;
+        this.victim = victim;
+        this.location = new Vector3fImmutable(location);
+        this.pvpExp = pvpExp;
+    }
 
-		PvpRecord pvpRecord;
+    public static PvpRecord borrow(PlayerCharacter player, PlayerCharacter victim, Vector3fImmutable location, boolean pvpExp) {
 
-		pvpRecord = recordPool.poll();
+        PvpRecord pvpRecord;
 
-		if (pvpRecord == null) {
-			pvpRecord = new PvpRecord(player, victim, location, pvpExp);
-		}
-		else {
-			pvpRecord.recordType = DataRecordType.PVP;
-			pvpRecord.player = player;
-			pvpRecord.victim = victim;
-			pvpRecord.location = new Vector3fImmutable(location);
-			pvpRecord.pvpExp = pvpExp;
-		}
+        pvpRecord = recordPool.poll();
 
-		return pvpRecord;
-	}
+        if (pvpRecord == null) {
+            pvpRecord = new PvpRecord(player, victim, location, pvpExp);
+        } else {
+            pvpRecord.recordType = DataRecordType.PVP;
+            pvpRecord.player = player;
+            pvpRecord.victim = victim;
+            pvpRecord.location = new Vector3fImmutable(location);
+            pvpRecord.pvpExp = pvpExp;
+        }
 
-	private static PreparedStatement buildHistoryStatement(Connection connection, int charUUID, PvpHistoryType historyType) throws SQLException {
+        return pvpRecord;
+    }
 
-		PreparedStatement outStatement = null;
-		String queryString = "";
+    private static PreparedStatement buildHistoryStatement(Connection connection, int charUUID, PvpHistoryType historyType) throws SQLException {
 
-		switch (historyType) {
-		case KILLS:
-			queryString = "SELECT DISTINCT `victim_id`, `datetime` FROM warehouse_pvphistory where char_id = ? " +
-					"ORDER BY `datetime` DESC LIMIT 10";
-			break;
-		case DEATHS:
-			queryString = "SELECT DISTINCT `char_id`,`datetime` FROM warehouse_pvphistory where `victim_id` = ? " +
-					"ORDER BY `datetime` DESC LIMIT 10";
-			break;
-		}
+        PreparedStatement outStatement = null;
+        String queryString = "";
 
-		outStatement = connection.prepareStatement(queryString);
-		outStatement.setString(1, DataWarehouse.hasher.encrypt(charUUID));
+        switch (historyType) {
+            case KILLS:
+                queryString = "SELECT DISTINCT `victim_id`, `datetime` FROM warehouse_pvphistory where char_id = ? " +
+                        "ORDER BY `datetime` DESC LIMIT 10";
+                break;
+            case DEATHS:
+                queryString = "SELECT DISTINCT `char_id`,`datetime` FROM warehouse_pvphistory where `victim_id` = ? " +
+                        "ORDER BY `datetime` DESC LIMIT 10";
+                break;
+        }
 
-		return outStatement;
-	}
+        outStatement = connection.prepareStatement(queryString);
+        outStatement.setString(1, DataWarehouse.hasher.encrypt(charUUID));
 
-	public static LinkedList<Integer> getCharacterPvPHistory(int charUUID, PvpHistoryType historyType) {
+        return outStatement;
+    }
 
-		// Member variable declaration
+    public static LinkedList<Integer> getCharacterPvPHistory(int charUUID, PvpHistoryType historyType) {
 
-		LinkedList<Integer> outList = new LinkedList<>();
+        // Member variable declaration
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement statement = buildHistoryStatement(connection, charUUID, historyType);
-			 ResultSet rs = statement.executeQuery()) {
+        LinkedList<Integer> outList = new LinkedList<>();
 
-			while (rs.next()) {
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement statement = buildHistoryStatement(connection, charUUID, historyType);
+             ResultSet rs = statement.executeQuery()) {
 
-				switch (historyType) {
-					case KILLS:
-						outList.add((int) DataWarehouse.hasher.decrypt(rs.getString("victim_id"))[0]);
-						break;
-					case DEATHS:
-						outList.add((int) DataWarehouse.hasher.decrypt(rs.getString("char_id"))[0]);
-						break;
-				}
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		return outList;
-	}
+            while (rs.next()) {
 
-	private static PreparedStatement buildLuaHistoryQueryStatement(Connection connection, int charUUID) throws SQLException {
+                switch (historyType) {
+                    case KILLS:
+                        outList.add((int) DataWarehouse.hasher.decrypt(rs.getString("victim_id"))[0]);
+                        break;
+                    case DEATHS:
+                        outList.add((int) DataWarehouse.hasher.decrypt(rs.getString("char_id"))[0]);
+                        break;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return outList;
+    }
 
-		PreparedStatement outStatement = null;
-		String queryString = "CALL `pvpHistory`(?)";
+    private static PreparedStatement buildLuaHistoryQueryStatement(Connection connection, int charUUID) throws SQLException {
 
-		outStatement = connection.prepareStatement(queryString);
-		outStatement.setString(1, DataWarehouse.hasher.encrypt(charUUID));
+        PreparedStatement outStatement = null;
+        String queryString = "CALL `pvpHistory`(?)";
 
-		return outStatement;
-	}
+        outStatement = connection.prepareStatement(queryString);
+        outStatement.setString(1, DataWarehouse.hasher.encrypt(charUUID));
 
-	public static String getPvpHistoryString(int charUUID) {
+        return outStatement;
+    }
 
-		String outString;
-		String dividerString;
+    public static String getPvpHistoryString(int charUUID) {
 
-		String newLine = System.getProperty("line.separator");
+        String outString;
+        String dividerString;
 
-		outString = "[LUA_PVP() DATA WAREHOUSE]" + newLine;
-		dividerString = "--------------------------------" + newLine;
+        String newLine = System.getProperty("line.separator");
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement statement = buildLuaHistoryQueryStatement(connection, charUUID);
-			 ResultSet rs = statement.executeQuery()) {
+        outString = "[LUA_PVP() DATA WAREHOUSE]" + newLine;
+        dividerString = "--------------------------------" + newLine;
 
-			while (rs.next()) {
-
-				int killCount;
-				int deathCount;
-				float killRatio;
-
-				outString += "Total Magicbane murdered souls: " + rs.getInt("TOTALDEATHS") + newLine;
-				outString += dividerString;
-				outString += String.format("%-8s %-8s %-8s %-8s %n", "Period", "Kills", "Deaths", "K/D");
-				outString += dividerString;
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement statement = buildLuaHistoryQueryStatement(connection, charUUID);
+             ResultSet rs = statement.executeQuery()) {
 
-				killCount = rs.getInt("KILLCOUNT");
-				deathCount = rs.getInt("DEATHCOUNT");
-
-				if (deathCount == 0)
-					killRatio = (float) killCount;
-				else
-					killRatio = (float) killCount / deathCount;
-
-				try {
-					outString += String.format("%-8s %-8d %-8d %.2f %n", "Total", killCount, deathCount, killRatio);
-
-					killCount = rs.getInt("DAILYKILLS");
-					deathCount = rs.getInt("DAILYDEATHS");
-
-					if (deathCount == 0)
-						killRatio = (float) killCount;
-					else
-						killRatio = (float) killCount / deathCount;
+            while (rs.next()) {
+
+                int killCount;
+                int deathCount;
+                float killRatio;
+
+                outString += "Total Magicbane murdered souls: " + rs.getInt("TOTALDEATHS") + newLine;
+                outString += dividerString;
+                outString += String.format("%-8s %-8s %-8s %-8s %n", "Period", "Kills", "Deaths", "K/D");
+                outString += dividerString;
 
-					outString += String.format("%-8s %-8d %-8d %.2f %n", "24hrs", killCount, deathCount, killRatio);
+                killCount = rs.getInt("KILLCOUNT");
+                deathCount = rs.getInt("DEATHCOUNT");
+
+                if (deathCount == 0)
+                    killRatio = (float) killCount;
+                else
+                    killRatio = (float) killCount / deathCount;
+
+                try {
+                    outString += String.format("%-8s %-8d %-8d %.2f %n", "Total", killCount, deathCount, killRatio);
+
+                    killCount = rs.getInt("DAILYKILLS");
+                    deathCount = rs.getInt("DAILYDEATHS");
 
-					killCount = rs.getInt("HOURLYKILLS");
-					deathCount = rs.getInt("HOURLYDEATHS");
+                    if (deathCount == 0)
+                        killRatio = (float) killCount;
+                    else
+                        killRatio = (float) killCount / deathCount;
 
-					if (deathCount == 0)
-						killRatio = (float) killCount;
-					else
-						killRatio = (float) killCount / deathCount;
+                    outString += String.format("%-8s %-8d %-8d %.2f %n", "24hrs", killCount, deathCount, killRatio);
 
-					outString += String.format("%-8s %-8d %-8d %.2f %n", "1hr", killCount, deathCount, killRatio);
-				} catch (Exception e) {
-					Logger.error(e.toString());
-				}
-			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
+                    killCount = rs.getInt("HOURLYKILLS");
+                    deathCount = rs.getInt("HOURLYDEATHS");
 
-		return outString;
-	}
+                    if (deathCount == 0)
+                        killRatio = (float) killCount;
+                    else
+                        killRatio = (float) killCount / deathCount;
 
-	public static PreparedStatement buildPvpPushStatement(Connection connection, ResultSet rs) throws SQLException {
+                    outString += String.format("%-8s %-8d %-8d %.2f %n", "1hr", killCount, deathCount, killRatio);
+                } catch (Exception e) {
+                    Logger.error(e.toString());
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
-		PreparedStatement outStatement = null;
-		String queryString = "INSERT INTO `warehouse_pvphistory` (`event_number`, `char_id`, `char_guild_id`, `char_nation_id`, `char_level`," +
-				" `victim_id`, `victim_guild_id`, `victim_nation_id`, `victim_level`," +
-				" `zone_id`, `zone_name`, `loc_x`, `loc_y`, `gave_exp`, `datetime`) " +
-				" VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+        return outString;
+    }
 
-		outStatement = connection.prepareStatement(queryString);
+    public static PreparedStatement buildPvpPushStatement(Connection connection, ResultSet rs) throws SQLException {
 
-		// Bind record data
+        PreparedStatement outStatement = null;
+        String queryString = "INSERT INTO `warehouse_pvphistory` (`event_number`, `char_id`, `char_guild_id`, `char_nation_id`, `char_level`," +
+                " `victim_id`, `victim_guild_id`, `victim_nation_id`, `victim_level`," +
+                " `zone_id`, `zone_name`, `loc_x`, `loc_y`, `gave_exp`, `datetime`) " +
+                " VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
-		outStatement.setInt(1, rs.getInt("event_number"));
-		outStatement.setString(2, rs.getString("char_id"));
-		outStatement.setString(3, rs.getString("char_guild_id"));
-		outStatement.setString(4, rs.getString("char_nation_id"));
-		outStatement.setInt(5, rs.getInt("char_level"));
+        outStatement = connection.prepareStatement(queryString);
 
-		// Bind victim data
+        // Bind record data
 
-		outStatement.setString(6, rs.getString("victim_id"));
-		outStatement.setString(7, rs.getString("victim_guild_id"));
-		outStatement.setString(8, rs.getString("victim_nation_id"));
-		outStatement.setInt(9, rs.getInt("victim_level"));
+        outStatement.setInt(1, rs.getInt("event_number"));
+        outStatement.setString(2, rs.getString("char_id"));
+        outStatement.setString(3, rs.getString("char_guild_id"));
+        outStatement.setString(4, rs.getString("char_nation_id"));
+        outStatement.setInt(5, rs.getInt("char_level"));
 
-		outStatement.setString(10, rs.getString("zone_id"));
-		outStatement.setString(11, rs.getString("zone_name"));
-		outStatement.setFloat(12, rs.getFloat("loc_x"));
-		outStatement.setFloat(13, rs.getFloat("loc_y"));
-		outStatement.setBoolean(14, rs.getBoolean("gave_exp"));
-		outStatement.setTimestamp(15, rs.getTimestamp("datetime"));
+        // Bind victim data
 
-		return outStatement;
-	}
+        outStatement.setString(6, rs.getString("victim_id"));
+        outStatement.setString(7, rs.getString("victim_guild_id"));
+        outStatement.setString(8, rs.getString("victim_nation_id"));
+        outStatement.setInt(9, rs.getInt("victim_level"));
 
-	public static PreparedStatement buildPvpQueryStatement(Connection connection) throws SQLException {
+        outStatement.setString(10, rs.getString("zone_id"));
+        outStatement.setString(11, rs.getString("zone_name"));
+        outStatement.setFloat(12, rs.getFloat("loc_x"));
+        outStatement.setFloat(13, rs.getFloat("loc_y"));
+        outStatement.setBoolean(14, rs.getBoolean("gave_exp"));
+        outStatement.setTimestamp(15, rs.getTimestamp("datetime"));
 
-		PreparedStatement outStatement = null;
-		String queryString = "SELECT * FROM `warehouse_pvphistory` WHERE `event_number` > ?";
-		outStatement = connection.prepareStatement(queryString);
-		outStatement.setInt(1, WarehousePushThread.pvpIndex);
-		return outStatement;
-	}
+        return outStatement;
+    }
 
-	void reset() {
-		this.player = null;
-		this.victim = null;
-		this.location = Vector3fImmutable.ZERO;
-		pvpExp = false;
-	}
+    public static PreparedStatement buildPvpQueryStatement(Connection connection) throws SQLException {
 
-	public void release() {
-		this.reset();
-		recordPool.add(this);
-	}
+        PreparedStatement outStatement = null;
+        String queryString = "SELECT * FROM `warehouse_pvphistory` WHERE `event_number` > ?";
+        outStatement = connection.prepareStatement(queryString);
+        outStatement.setInt(1, WarehousePushThread.pvpIndex);
+        return outStatement;
+    }
 
-	private PreparedStatement buildPvPInsertStatement(Connection connection) throws SQLException {
+    void reset() {
+        this.player = null;
+        this.victim = null;
+        this.location = Vector3fImmutable.ZERO;
+        pvpExp = false;
+    }
 
-		Guild charGuild;
-		Guild victimGuild;
-		Zone zone;
-		PreparedStatement outStatement = null;
+    public void release() {
+        this.reset();
+        recordPool.add(this);
+    }
 
-		String queryString = "INSERT INTO `warehouse_pvphistory` (`char_id`, `char_guild_id`, `char_nation_id`, `char_level`," +
-				" `victim_id`, `victim_guild_id`, `victim_nation_id`, `victim_level`," +
-				" `zone_id`, `zone_name`, `loc_x`, `loc_y`, `gave_exp`, `datetime`) " +
-				" VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+    private PreparedStatement buildPvPInsertStatement(Connection connection) throws SQLException {
 
-		outStatement = connection.prepareStatement(queryString);
+        Guild charGuild;
+        Guild victimGuild;
+        Zone zone;
+        PreparedStatement outStatement = null;
 
-		charGuild = this.player.getGuild();
-		victimGuild = this.victim.getGuild();
+        String queryString = "INSERT INTO `warehouse_pvphistory` (`char_id`, `char_guild_id`, `char_nation_id`, `char_level`," +
+                " `victim_id`, `victim_guild_id`, `victim_nation_id`, `victim_level`," +
+                " `zone_id`, `zone_name`, `loc_x`, `loc_y`, `gave_exp`, `datetime`) " +
+                " VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
-		// Use a proxy in the situation where a char guild is null (errant)
+        outStatement = connection.prepareStatement(queryString);
 
-		
-		// Retrieve the zone name where the PvP event occurred
+        charGuild = this.player.getGuild();
+        victimGuild = this.victim.getGuild();
 
-		zone = ZoneManager.findSmallestZone(this.location);
+        // Use a proxy in the situation where a char guild is null (errant)
 
-		outStatement.setString(1, DataWarehouse.hasher.encrypt(this.player.getObjectUUID()));
-		outStatement.setString(2, DataWarehouse.hasher.encrypt(charGuild.getObjectUUID()));
-		outStatement.setString(3, DataWarehouse.hasher.encrypt(charGuild.getNation().getObjectUUID()));
-		outStatement.setInt(4, this.player.getLevel());
 
-		// Bind victim data
+        // Retrieve the zone name where the PvP event occurred
 
-		outStatement.setString(5, DataWarehouse.hasher.encrypt(this.victim.getObjectUUID()));
-		outStatement.setString(6, DataWarehouse.hasher.encrypt(victimGuild.getObjectUUID()));
-		outStatement.setString(7, DataWarehouse.hasher.encrypt(victimGuild.getNation().getObjectUUID()));
-		outStatement.setInt(8, this.victim.getLevel());
+        zone = ZoneManager.findSmallestZone(this.location);
 
-		outStatement.setString(9, DataWarehouse.hasher.encrypt(zone.getObjectUUID()));
-		outStatement.setString(10, zone.getName());
-		outStatement.setFloat(11, this.location.getX());
-		outStatement.setFloat(12, -this.location.getZ()); // flip sign on 'y' coordinate
-		outStatement.setBoolean(13, this.pvpExp);
-		outStatement.setTimestamp(14, Timestamp.valueOf(LocalDateTime.now()));
+        outStatement.setString(1, DataWarehouse.hasher.encrypt(this.player.getObjectUUID()));
+        outStatement.setString(2, DataWarehouse.hasher.encrypt(charGuild.getObjectUUID()));
+        outStatement.setString(3, DataWarehouse.hasher.encrypt(charGuild.getNation().getObjectUUID()));
+        outStatement.setInt(4, this.player.getLevel());
 
-		return outStatement;
-	}
+        // Bind victim data
 
+        outStatement.setString(5, DataWarehouse.hasher.encrypt(this.victim.getObjectUUID()));
+        outStatement.setString(6, DataWarehouse.hasher.encrypt(victimGuild.getObjectUUID()));
+        outStatement.setString(7, DataWarehouse.hasher.encrypt(victimGuild.getNation().getObjectUUID()));
+        outStatement.setInt(8, this.victim.getLevel());
 
-	public void write() {
+        outStatement.setString(9, DataWarehouse.hasher.encrypt(zone.getObjectUUID()));
+        outStatement.setString(10, zone.getName());
+        outStatement.setFloat(11, this.location.getX());
+        outStatement.setFloat(12, -this.location.getZ()); // flip sign on 'y' coordinate
+        outStatement.setBoolean(13, this.pvpExp);
+        outStatement.setTimestamp(14, Timestamp.valueOf(LocalDateTime.now()));
 
-		try (Connection connection = DbManager.getConnection();
-			 PreparedStatement statement = buildPvPInsertStatement(connection)) {
+        return outStatement;
+    }
 
-			statement.execute();
 
-		} catch (SQLException e) {
-			Logger.error(e.toString());
-		}
+    public void write() {
 
-		// Warehouse record for this pvp event written if code path reaches here.
-		// Time to update the respective kill counters.
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement statement = buildPvPInsertStatement(connection)) {
 
-		CharacterRecord.advanceKillCounter(this.player);
-		CharacterRecord.advanceDeathCounter(this.victim);
+            statement.execute();
 
-	}
+        } catch (SQLException e) {
+            Logger.error(e.toString());
+        }
+
+        // Warehouse record for this pvp event written if code path reaches here.
+        // Time to update the respective kill counters.
+
+        CharacterRecord.advanceKillCounter(this.player);
+        CharacterRecord.advanceDeathCounter(this.victim);
+
+    }
 }

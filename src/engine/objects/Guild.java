@@ -43,9 +43,21 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class Guild extends AbstractWorldObject {
 
+    private static Guild errantGuild;
+    private static Guild errantNation;
     private final String name;
-    private Guild nation;
     private final GuildTag guildTag;
+    private final int charter;
+    private final String leadershipType; // Have to see how this is sent to the client
+    private final int repledgeMin;
+    private final int repledgeMax;
+    private final int repledgeKick;
+    private final int teleportMin;
+    private final int teleportMax;
+    private final ConcurrentHashMap<Integer, Condemned> guildCondemned = new ConcurrentHashMap<>();
+    public boolean wooWasModified;
+    public HashMap<Integer, GuildAlliances> guildAlliances = new HashMap<>();
+    private Guild nation;
     // TODO add these to database
     private String motto = "";
     private String motd = "";
@@ -53,14 +65,7 @@ public class Guild extends AbstractWorldObject {
     private String nmotd = "";
     private int guildLeaderUUID;
     private int realmsOwned;
-    private final int charter;
     private int cityUUID = 0;
-    private final String leadershipType; // Have to see how this is sent to the client
-    private final int repledgeMin;
-    private final int repledgeMax;
-    private final int repledgeKick;
-    private final int teleportMin;
-    private final int teleportMax;
     private int mineTime;
     private ArrayList<PlayerCharacter> banishList;
     private ArrayList<PlayerCharacter> characterKOSList;
@@ -71,15 +76,8 @@ public class Guild extends AbstractWorldObject {
     private ArrayList<Guild> subGuildList;
     private int nationUUID = 0;
     private GuildState guildState = GuildState.Errant;
-    private final ConcurrentHashMap<Integer, Condemned> guildCondemned = new ConcurrentHashMap<>();
     private String hash;
     private boolean ownerIsNPC;
-
-    private static Guild errantGuild;
-    private static Guild errantNation;
-
-    public boolean wooWasModified;
-    public HashMap<Integer, GuildAlliances> guildAlliances = new HashMap<>();
 
     /**
      * No Id Constructor
@@ -181,11 +179,251 @@ public class Guild extends AbstractWorldObject {
         this.hash = rs.getString("hash");
     }
 
-    public void setNation(Guild nation) {
-        if (nation == null)
-            this.nation = Guild.getErrantGuild();
+    public static AbstractCharacter GetGL(Guild guild) {
+        if (guild == null)
+            return null;
+
+        if (guild.guildLeaderUUID == 0)
+            return null;
+
+        if (guild.ownerIsNPC)
+            return NPC.getFromCache(guild.guildLeaderUUID);
+
+        return PlayerCharacter.getFromCache(guild.guildLeaderUUID);
+    }
+
+    public static boolean sameGuild(Guild a, Guild b) {
+        if (a == null || b == null)
+            return false;
+        return a.getObjectUUID() == b.getObjectUUID();
+    }
+
+    public static boolean sameGuildExcludeErrant(Guild a, Guild b) {
+        if (a == null || b == null)
+            return false;
+        if (a.isEmptyGuild() || b.isEmptyGuild())
+            return false;
+        return a.getObjectUUID() == b.getObjectUUID();
+    }
+
+    public static boolean sameGuildIncludeErrant(Guild a, Guild b) {
+        if (a == null || b == null)
+            return false;
+        if (a.isEmptyGuild() || b.isEmptyGuild())
+            return true;
+        return a.getObjectUUID() == b.getObjectUUID();
+    }
+
+    public static boolean sameNation(Guild a, Guild b) {
+        if (a == null || b == null)
+            return false;
+        if (a.getObjectUUID() == b.getObjectUUID())
+            return true;
+        if (a.nation == null || b.nation == null)
+            return false;
+        return a.nation.getObjectUUID() == b.nation.getObjectUUID();
+    }
+
+    public static boolean sameNationExcludeErrant(Guild a, Guild b) {
+        if (a == null || b == null)
+            return false;
+        if (a.getObjectUUID() == b.getObjectUUID())
+            return true;
+        if (a.nation == null || b.nation == null)
+            return false;
+        return a.nation.getObjectUUID() == b.nation.getObjectUUID() && !a.nation.isEmptyGuild();
+    }
+
+    public static boolean isTaxCollector(int uuid) {
+        //TODO add the handling for this later
+        return false;
+    }
+
+    public static boolean canSwearIn(Guild toSub) {
+
+        boolean canSwear = false;
+
+        switch (toSub.guildState) {
+
+            case Protectorate:
+            case Petitioner:
+                canSwear = true;
+                break;
+            default:
+                canSwear = false;
+        }
+
+        return canSwear;
+    }
+
+    public static void _serializeForClientMsg(Guild guild, ByteBufferWriter writer) {
+        Guild.serializeForClientMsg(guild, writer, null, false);
+    }
+
+    public static void serializeForClientMsg(Guild guild, ByteBufferWriter writer, PlayerCharacter pc, boolean reshowGuild) {
+        writer.putInt(guild.getObjectType().ordinal());
+        writer.putInt(guild.getObjectUUID());
+        writer.putInt(guild.nation.getObjectType().ordinal());
+        writer.putInt(guild.nation.getObjectUUID());
+
+        if (pc == null) {
+            writer.putInt(0);
+            writer.putInt(0);
+            writer.putInt(0); // Defaults
+            writer.putInt(0); // Defaults
+        } else {
+            writer.putString(guild.name);
+            writer.putString(guild.nation.name);
+            writer.putInt(GuildStatusController.getTitle(pc.getGuildStatus())); // TODO Double check this is
+            // title and rank
+            if (GuildStatusController.isGuildLeader(pc.getGuildStatus()))
+                writer.putInt(PlayerCharacter.GetPlayerRealmTitle(pc));
+            else
+                writer.putInt(GuildStatusController.getRank(pc.getGuildStatus()));
+            //writer.putInt(GuildStatusController.getRank(pc.getGuildStatus()));
+        }
+
+        City ownedCity = guild.getOwnedCity();
+
+        if (ownedCity != null) {
+            Realm realm = guild.getOwnedCity().getRealm();
+            if (realm != null && realm.getRulingCity() != null) {
+                if (realm.getRulingCity().equals(ownedCity)) {
+                    writer.putInt(realm.getCharterType());
+                } else
+                    writer.putInt(0);
+            } else {
+                writer.putInt(0);
+            }
+        } else
+            writer.putInt(0);
+
+        writer.putFloat(200);
+        writer.putFloat(200); // Pad
+
+        GuildTag._serializeForDisplay(guild.guildTag, writer);
+        GuildTag._serializeForDisplay(guild.nation.guildTag, writer);
+        if (reshowGuild) {
+            writer.putInt(1);
+            writer.putInt(guild.getObjectType().ordinal());
+            writer.putInt(guild.getObjectUUID());
+
+        } else
+            writer.putInt(0); // Pad
+    }
+
+    public static void serializeForTrack(Guild guild, ByteBufferWriter writer) {
+        Guild.serializeGuildForTrack(guild, writer);
+        if (guild.nation != null)
+            Guild.serializeGuildForTrack(guild.nation, writer);
         else
-            this.nation = nation;
+            Guild.addErrantForTrack(writer);
+    }
+
+    public static void serializeGuildForTrack(Guild guild, ByteBufferWriter writer) {
+        writer.putInt(guild.getObjectType().ordinal());
+        writer.putInt(guild.getObjectUUID());
+        writer.put((byte) 1);
+        GuildTag._serializeForDisplay(guild.guildTag, writer);
+    }
+
+    public static void serializeErrantForTrack(ByteBufferWriter writer) {
+        addErrantForTrack(writer); //Guild
+        addErrantForTrack(writer); //Nation
+    }
+
+    private static void addErrantForTrack(ByteBufferWriter writer) {
+        writer.putInt(0); //type
+        writer.putInt(0); //ID
+        writer.put((byte) 1);
+        writer.putInt(16); //Tags
+        writer.putInt(16);
+        writer.putInt(16);
+        writer.putInt(0);
+        writer.putInt(0);
+    }
+
+    public static Guild getErrantGuild() {
+
+        if (Guild.errantGuild == null)
+            Guild.errantGuild = new Guild("None", Guild.getErrantNation(), 0,
+                    "Anarchy", GuildTag.ERRANT, 0);
+
+        return Guild.errantGuild;
+    }
+
+    public static Guild getErrantNation() {
+        if (Guild.errantNation == null)
+            Guild.errantNation = new Guild("None", null, 10, "Despot Rule", GuildTag.ERRANT, 0);
+        return Guild.errantNation;
+    }
+
+    public static Guild getGuild(final int objectUUID) {
+
+        if (objectUUID == 0)
+            return Guild.getErrantGuild();
+        Guild guild = (Guild) DbManager.getFromCache(Enum.GameObjectType.Guild, objectUUID);
+        if (guild != null)
+            return guild;
+
+        Guild dbGuild = DbManager.GuildQueries.GET_GUILD(objectUUID);
+
+        if (dbGuild == null)
+            return Guild.getErrantGuild();
+        else
+            return dbGuild;
+    }
+
+    public static void UpdateClientAlliances(Guild toUpdate) {
+        UpdateClientAlliancesMsg ucam = new UpdateClientAlliancesMsg(toUpdate);
+
+
+        for (PlayerCharacter player : SessionManager.getAllActivePlayerCharacters()) {
+
+            if (Guild.sameGuild(player.getGuild(), toUpdate)) {
+                Dispatch dispatch = Dispatch.borrow(player, ucam);
+                DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
+            }
+
+
+        }
+    }
+
+    public static void UpdateClientAlliancesForPlayer(PlayerCharacter toUpdate) {
+        UpdateClientAlliancesMsg ucam = new UpdateClientAlliancesMsg(toUpdate.getGuild());
+        Dispatch dispatch = Dispatch.borrow(toUpdate, ucam);
+        DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
+
+
+    }
+
+    public static Guild getFromCache(int id) {
+        return (Guild) DbManager.getFromCache(GameObjectType.Guild, id);
+    }
+
+    public static ArrayList<PlayerCharacter> GuildRoster(Guild guild) {
+        ArrayList<PlayerCharacter> roster = new ArrayList<>();
+        if (guild == null)
+            return roster;
+
+        if (guild.isEmptyGuild())
+            return roster;
+
+        if (DbManager.getList(GameObjectType.PlayerCharacter) == null)
+            return roster;
+        for (AbstractGameObject ago : DbManager.getList(GameObjectType.PlayerCharacter)) {
+            PlayerCharacter toAdd = (PlayerCharacter) ago;
+
+            if (!toAdd.getGuild().equals(guild))
+                continue;
+
+            if (toAdd.isDeleted())
+                continue;
+
+            roster.add(toAdd);
+
+        }
+        return roster;
     }
 
     /*
@@ -209,6 +447,13 @@ public class Guild extends AbstractWorldObject {
 
     public boolean isNation() {
         return this.nation != null && this.cityUUID != 0 && this.nation == this;
+    }
+
+    public void setNation(Guild nation) {
+        if (nation == null)
+            this.nation = Guild.getErrantGuild();
+        else
+            this.nation = nation;
     }
 
     public City getOwnedCity() {
@@ -255,29 +500,35 @@ public class Guild extends AbstractWorldObject {
         return charter;
     }
 
+    /*
+     * Utils
+     */
+
     public int getGuildLeaderUUID() {
         return this.guildLeaderUUID;
     }
 
-    public static AbstractCharacter GetGL(Guild guild) {
-        if (guild == null)
-            return null;
-
-        if (guild.guildLeaderUUID == 0)
-            return null;
-
-        if (guild.ownerIsNPC)
-            return NPC.getFromCache(guild.guildLeaderUUID);
-
-        return PlayerCharacter.getFromCache(guild.guildLeaderUUID);
+    /*
+     * Setters
+     */
+    public void setGuildLeaderUUID(int value) {
+        this.guildLeaderUUID = value;
     }
 
     public String getMOTD() {
         return this.motd;
     }
 
+    public void setMOTD(String value) {
+        this.motd = value;
+    }
+
     public String getICMOTD() {
         return this.icmotd;
+    }
+
+    public void setICMOTD(String value) {
+        this.icmotd = value;
     }
 
     public boolean isNPCGuild() {
@@ -310,10 +561,11 @@ public class Guild extends AbstractWorldObject {
     }
 
     /*
-     * Setters
+     * Serialization
      */
-    public void setGuildLeaderUUID(int value) {
-        this.guildLeaderUUID = value;
+
+    public void setMineTime(int mineTime) {
+        this.mineTime = mineTime;
     }
 
     public boolean setGuildLeader(AbstractCharacter ac) {
@@ -356,14 +608,6 @@ public class Guild extends AbstractWorldObject {
         return true;
     }
 
-    public void setMOTD(String value) {
-        this.motd = value;
-    }
-
-    public void setICMOTD(String value) {
-        this.icmotd = value;
-    }
-
     public int getBgc1() {
         if (this.guildTag != null)
             return this.guildTag.backgroundColor01;
@@ -395,65 +639,14 @@ public class Guild extends AbstractWorldObject {
         return 0;
     }
 
-    /*
-     * Utils
-     */
-
     public boolean isEmptyGuild() {
         return this.getObjectUUID() == Guild.errantGuild.getObjectUUID();
 
     }
 
-    public static boolean sameGuild(Guild a, Guild b) {
-        if (a == null || b == null)
-            return false;
-        return a.getObjectUUID() == b.getObjectUUID();
-    }
-
-    public static boolean sameGuildExcludeErrant(Guild a, Guild b) {
-        if (a == null || b == null)
-            return false;
-        if (a.isEmptyGuild() || b.isEmptyGuild())
-            return false;
-        return a.getObjectUUID() == b.getObjectUUID();
-    }
-
-    public static boolean sameGuildIncludeErrant(Guild a, Guild b) {
-        if (a == null || b == null)
-            return false;
-        if (a.isEmptyGuild() || b.isEmptyGuild())
-            return true;
-        return a.getObjectUUID() == b.getObjectUUID();
-    }
-
-    public static boolean sameNation(Guild a, Guild b) {
-        if (a == null || b == null)
-            return false;
-        if (a.getObjectUUID() == b.getObjectUUID())
-            return true;
-        if (a.nation == null || b.nation == null)
-            return false;
-        return a.nation.getObjectUUID() == b.nation.getObjectUUID();
-    }
-
-    public static boolean sameNationExcludeErrant(Guild a, Guild b) {
-        if (a == null || b == null)
-            return false;
-        if (a.getObjectUUID() == b.getObjectUUID())
-            return true;
-        if (a.nation == null || b.nation == null)
-            return false;
-        return a.nation.getObjectUUID() == b.nation.getObjectUUID() && !a.nation.isEmptyGuild();
-    }
-
     public boolean isGuildLeader(int uuid) {
 
         return (this.guildLeaderUUID == uuid);
-    }
-
-    public static boolean isTaxCollector(int uuid) {
-        //TODO add the handling for this later
-        return false;
     }
 
     /**
@@ -574,103 +767,6 @@ public class Guild extends AbstractWorldObject {
         return canSub;
     }
 
-    public static boolean canSwearIn(Guild toSub) {
-
-        boolean canSwear = false;
-
-        switch (toSub.guildState) {
-
-            case Protectorate:
-            case Petitioner:
-                canSwear = true;
-                break;
-            default:
-                canSwear = false;
-        }
-
-        return canSwear;
-    }
-
-    /*
-     * Serialization
-     */
-
-    public static void _serializeForClientMsg(Guild guild, ByteBufferWriter writer) {
-        Guild.serializeForClientMsg(guild, writer, null, false);
-    }
-
-    public static void serializeForClientMsg(Guild guild, ByteBufferWriter writer, PlayerCharacter pc, boolean reshowGuild) {
-        writer.putInt(guild.getObjectType().ordinal());
-        writer.putInt(guild.getObjectUUID());
-        writer.putInt(guild.nation.getObjectType().ordinal());
-        writer.putInt(guild.nation.getObjectUUID());
-
-        if (pc == null) {
-            writer.putInt(0);
-            writer.putInt(0);
-            writer.putInt(0); // Defaults
-            writer.putInt(0); // Defaults
-        } else {
-            writer.putString(guild.name);
-            writer.putString(guild.nation.name);
-            writer.putInt(GuildStatusController.getTitle(pc.getGuildStatus())); // TODO Double check this is
-            // title and rank
-            if (GuildStatusController.isGuildLeader(pc.getGuildStatus()))
-                writer.putInt(PlayerCharacter.GetPlayerRealmTitle(pc));
-            else
-                writer.putInt(GuildStatusController.getRank(pc.getGuildStatus()));
-            //writer.putInt(GuildStatusController.getRank(pc.getGuildStatus()));
-        }
-
-        City ownedCity = guild.getOwnedCity();
-
-        if (ownedCity != null) {
-            Realm realm = guild.getOwnedCity().getRealm();
-            if (realm != null && realm.getRulingCity() != null) {
-                if (realm.getRulingCity().equals(ownedCity)) {
-                    writer.putInt(realm.getCharterType());
-                } else
-                    writer.putInt(0);
-            } else {
-                writer.putInt(0);
-            }
-        } else
-            writer.putInt(0);
-
-        writer.putFloat(200);
-        writer.putFloat(200); // Pad
-
-        GuildTag._serializeForDisplay(guild.guildTag, writer);
-        GuildTag._serializeForDisplay(guild.nation.guildTag, writer);
-        if (reshowGuild) {
-            writer.putInt(1);
-            writer.putInt(guild.getObjectType().ordinal());
-            writer.putInt(guild.getObjectUUID());
-
-        } else
-            writer.putInt(0); // Pad
-    }
-
-    public static void serializeForTrack(Guild guild, ByteBufferWriter writer) {
-        Guild.serializeGuildForTrack(guild, writer);
-        if (guild.nation != null)
-            Guild.serializeGuildForTrack(guild.nation, writer);
-        else
-            Guild.addErrantForTrack(writer);
-    }
-
-    public static void serializeGuildForTrack(Guild guild, ByteBufferWriter writer) {
-        writer.putInt(guild.getObjectType().ordinal());
-        writer.putInt(guild.getObjectUUID());
-        writer.put((byte) 1);
-        GuildTag._serializeForDisplay(guild.guildTag, writer);
-    }
-
-    public static void serializeErrantForTrack(ByteBufferWriter writer) {
-        addErrantForTrack(writer); //Guild
-        addErrantForTrack(writer); //Nation
-    }
-
     public int getRealmsOwnedFlag() {
         int flag = 0;
         switch (realmsOwned) {
@@ -694,17 +790,6 @@ public class Guild extends AbstractWorldObject {
         return flag;
     }
 
-    private static void addErrantForTrack(ByteBufferWriter writer) {
-        writer.putInt(0); //type
-        writer.putInt(0); //ID
-        writer.put((byte) 1);
-        writer.putInt(16); //Tags
-        writer.putInt(16);
-        writer.putInt(16);
-        writer.putInt(0);
-        writer.putInt(0);
-    }
-
     public void serializeForPlayer(ByteBufferWriter writer) {
         writer.putInt(this.getObjectType().ordinal());
         writer.putInt(this.getObjectUUID());
@@ -712,38 +797,6 @@ public class Guild extends AbstractWorldObject {
         writer.putInt(this.nation.getObjectUUID());
 
     }
-
-    public static Guild getErrantGuild() {
-
-        if (Guild.errantGuild == null)
-            Guild.errantGuild = new Guild("None", Guild.getErrantNation(), 0,
-                    "Anarchy", GuildTag.ERRANT, 0);
-
-        return Guild.errantGuild;
-    }
-
-    public static Guild getErrantNation() {
-        if (Guild.errantNation == null)
-            Guild.errantNation = new Guild("None", null, 10, "Despot Rule", GuildTag.ERRANT, 0);
-        return Guild.errantNation;
-    }
-
-    public static Guild getGuild(final int objectUUID) {
-
-        if (objectUUID == 0)
-            return Guild.getErrantGuild();
-        Guild guild = (Guild) DbManager.getFromCache(Enum.GameObjectType.Guild, objectUUID);
-        if (guild != null)
-            return guild;
-
-        Guild dbGuild = DbManager.GuildQueries.GET_GUILD(objectUUID);
-
-        if (dbGuild == null)
-            return Guild.getErrantGuild();
-        else
-            return dbGuild;
-    }
-
 
     @Override
     public void updateDatabase() {
@@ -943,14 +996,9 @@ public class Guild extends AbstractWorldObject {
 
     }
 
-    public void setMineTime(int mineTime) {
-        this.mineTime = mineTime;
-    }
-
     public ConcurrentHashMap<Integer, Condemned> getGuildCondemned() {
         return guildCondemned;
     }
-
 
     public String getHash() {
         return hash;
@@ -1182,17 +1230,17 @@ public class Guild extends AbstractWorldObject {
     }
 
     public synchronized boolean removeGuildFromAlliance(Guild toRemove) {
-		this.allyList.remove(toRemove);
+        this.allyList.remove(toRemove);
         return true;
     }
 
     public synchronized boolean removeGuildFromEnemy(Guild toRemove) {
-		this.enemyList.remove(toRemove);
+        this.enemyList.remove(toRemove);
         return true;
     }
 
     public synchronized boolean removeGuildFromRecommended(Guild toRemove) {
-		this.recommendList.remove(toRemove);
+        this.recommendList.remove(toRemove);
         return true;
     }
 
@@ -1217,58 +1265,6 @@ public class Guild extends AbstractWorldObject {
 
         return true;
 
-    }
-
-    public static void UpdateClientAlliances(Guild toUpdate) {
-        UpdateClientAlliancesMsg ucam = new UpdateClientAlliancesMsg(toUpdate);
-
-
-        for (PlayerCharacter player : SessionManager.getAllActivePlayerCharacters()) {
-
-            if (Guild.sameGuild(player.getGuild(), toUpdate)) {
-                Dispatch dispatch = Dispatch.borrow(player, ucam);
-                DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
-            }
-
-
-        }
-    }
-
-    public static void UpdateClientAlliancesForPlayer(PlayerCharacter toUpdate) {
-        UpdateClientAlliancesMsg ucam = new UpdateClientAlliancesMsg(toUpdate.getGuild());
-        Dispatch dispatch = Dispatch.borrow(toUpdate, ucam);
-        DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
-
-
-    }
-
-    public static Guild getFromCache(int id) {
-        return (Guild) DbManager.getFromCache(GameObjectType.Guild, id);
-    }
-
-    public static ArrayList<PlayerCharacter> GuildRoster(Guild guild) {
-        ArrayList<PlayerCharacter> roster = new ArrayList<>();
-        if (guild == null)
-            return roster;
-
-        if (guild.isEmptyGuild())
-            return roster;
-
-        if (DbManager.getList(GameObjectType.PlayerCharacter) == null)
-            return roster;
-        for (AbstractGameObject ago : DbManager.getList(GameObjectType.PlayerCharacter)) {
-            PlayerCharacter toAdd = (PlayerCharacter) ago;
-
-            if (!toAdd.getGuild().equals(guild))
-                continue;
-
-            if (toAdd.isDeleted())
-                continue;
-
-            roster.add(toAdd);
-
-        }
-        return roster;
     }
 
 

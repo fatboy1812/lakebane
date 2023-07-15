@@ -117,7 +117,7 @@ public enum ConfigManager {
                 Logger.info(configSetting.name() + ":" + configSetting.getValue());
             else {
                 Logger.error("Missing Config: " + configSetting.name());
-                Logger.error("This codebase requires >= MagicBox v1.3");
+                Logger.error("This codebase requires >= MagicBox v1.5");
                 Logger.error("docker pull magicbane/magicbox:latest");
                 return false;
             }
@@ -132,8 +132,11 @@ public enum ConfigManager {
 
     // Get the value associated with this enumeration
 
-    public  String getValue() {
-      return configMap.get(this.name());
+    public String getValue() {
+        return configMap.get(this.name());
     }
-    public  void  setValue(String value) { configMap.put(this.name(), value); }
+
+    public void setValue(String value) {
+        configMap.put(this.name(), value);
+    }
 }

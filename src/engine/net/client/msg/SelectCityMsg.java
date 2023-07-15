@@ -20,74 +20,75 @@ import engine.objects.PlayerCharacter;
 
 public class SelectCityMsg extends ClientNetMsg {
 
-	private PlayerCharacter pc;
-	private boolean isTeleport;
+    private PlayerCharacter pc;
+    private boolean isTeleport;
 
-	/**
-	 * This is the general purpose constructor.
-	 */
-	public SelectCityMsg(PlayerCharacter pc, boolean isTeleport) {
-		super(Protocol.SELECTCITY);
-		this.pc = pc;
-		this.isTeleport = isTeleport;
-	}
+    /**
+     * This is the general purpose constructor.
+     */
+    public SelectCityMsg(PlayerCharacter pc, boolean isTeleport) {
+        super(Protocol.SELECTCITY);
+        this.pc = pc;
+        this.isTeleport = isTeleport;
+    }
 
-	/**
-	 * This constructor is used by NetMsgFactory. It attempts to deserialize the
-	 * ByteBuffer into a message. If a BufferUnderflow occurs (based on reading
-	 * past the limit) then this constructor Throws that Exception to the
-	 * caller.
-	 */
-	public SelectCityMsg(AbstractConnection origin, ByteBufferReader reader)  {
-		super(Protocol.SELECTCITY, origin, reader);
-	}
+    /**
+     * This constructor is used by NetMsgFactory. It attempts to deserialize the
+     * ByteBuffer into a message. If a BufferUnderflow occurs (based on reading
+     * past the limit) then this constructor Throws that Exception to the
+     * caller.
+     */
+    public SelectCityMsg(AbstractConnection origin, ByteBufferReader reader) {
+        super(Protocol.SELECTCITY, origin, reader);
+    }
 
-	/**
-	 * Copy constructor
-	 */
-	public SelectCityMsg(SelectCityMsg msg) {
-		super(Protocol.SELECTCITY);
-		this.pc = msg.pc;
-		this.isTeleport = msg.isTeleport;
-	}
+    /**
+     * Copy constructor
+     */
+    public SelectCityMsg(SelectCityMsg msg) {
+        super(Protocol.SELECTCITY);
+        this.pc = msg.pc;
+        this.isTeleport = msg.isTeleport;
+    }
 
-	/**
-	 * @see AbstractNetMsg#getPowerOfTwoBufferSize()
-	 */
-	@Override
-	protected int getPowerOfTwoBufferSize() {
-		// Larger size for historically larger opcodes
-		return (12);
-	}
-	/**
-	 * Deserializes the subclass specific items from the supplied ByteBufferReader.
-	 */
-	@Override
-	protected void _deserialize(ByteBufferReader reader)  {
-		//Do we even want to try this?
-	}
+    /**
+     * @see AbstractNetMsg#getPowerOfTwoBufferSize()
+     */
+    @Override
+    protected int getPowerOfTwoBufferSize() {
+        // Larger size for historically larger opcodes
+        return (12);
+    }
 
-	/**
-	 * Serializes the subclass specific items to the supplied ByteBufferWriter.
-	 */
-	@Override
-	protected void _serialize(ByteBufferWriter writer) {
-	writer.put((byte)0);
-	}
+    /**
+     * Deserializes the subclass specific items from the supplied ByteBufferReader.
+     */
+    @Override
+    protected void _deserialize(ByteBufferReader reader) {
+        //Do we even want to try this?
+    }
 
-	public PlayerCharacter pc() {
-		return this.pc;
-	}
+    /**
+     * Serializes the subclass specific items to the supplied ByteBufferWriter.
+     */
+    @Override
+    protected void _serialize(ByteBufferWriter writer) {
+        writer.put((byte) 0);
+    }
 
-	public boolean isTeleport() {
-		return this.isTeleport;
-	}
+    public PlayerCharacter pc() {
+        return this.pc;
+    }
 
-	public void setPC(PlayerCharacter pc) {
-		this.pc = pc;
-	}
+    public boolean isTeleport() {
+        return this.isTeleport;
+    }
 
-	public void setIsTeleport(boolean value) {
-		this.isTeleport = value;
-	}
+    public void setPC(PlayerCharacter pc) {
+        this.pc = pc;
+    }
+
+    public void setIsTeleport(boolean value) {
+        this.isTeleport = value;
+    }
 }

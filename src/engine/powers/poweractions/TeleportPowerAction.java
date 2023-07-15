@@ -28,89 +28,89 @@ import java.sql.SQLException;
 
 public class TeleportPowerAction extends AbstractPowerAction {
 
-	private boolean ignoreNoTeleSpire;
+    private boolean ignoreNoTeleSpire;
 
-	public TeleportPowerAction(ResultSet rs) throws SQLException {
-		super(rs);
+    public TeleportPowerAction(ResultSet rs) throws SQLException {
+        super(rs);
 
-		int flags = rs.getInt("flags");
-		this.ignoreNoTeleSpire = ((flags & 32768) != 0) ? true : false;
-	}
+        int flags = rs.getInt("flags");
+        this.ignoreNoTeleSpire = ((flags & 32768) != 0) ? true : false;
+    }
 
-	public boolean ignoreNoTeleSpire() {
-		return this.ignoreNoTeleSpire;
-	}
+    private static void failTeleport(PowersBase pb, AbstractCharacter awo) {
 
-	@Override
-	protected void _startAction(AbstractCharacter source, AbstractWorldObject awo, Vector3fImmutable targetLoc, int trains, ActionsBase ab, PowersBase pb) {
+        if (pb == null || awo == null || (!(awo.getObjectType().equals(Enum.GameObjectType.PlayerCharacter))))
+            return;
 
-		if (!AbstractWorldObject.IsAbstractCharacter(awo))
-			return;
+        //teleport failed. Reset teleport power
+        PowersManager.finishRecycleTime(pb.getToken(), (PlayerCharacter) awo, true);
+    }
 
-		AbstractCharacter awoac = (AbstractCharacter) awo;
+    public boolean ignoreNoTeleSpire() {
+        return this.ignoreNoTeleSpire;
+    }
 
-		//verify targetLoc within range
+    @Override
+    protected void _startAction(AbstractCharacter source, AbstractWorldObject awo, Vector3fImmutable targetLoc, int trains, ActionsBase ab, PowersBase pb) {
 
-		if (awo.getLoc().distanceSquared2D(targetLoc) >  MBServerStatics.MAX_TELEPORT_RANGE *  MBServerStatics.MAX_TELEPORT_RANGE) {
-			if (awo.equals(source))
-				failTeleport(pb, awoac);
-			return;
-		}
-		
-		if (source.getBonuses().getBool(ModType.BlockedPowerType, SourceType.TELEPORT))
-			return;
+        if (!AbstractWorldObject.IsAbstractCharacter(awo))
+            return;
 
-		City city = ZoneManager.getCityAtLocation(targetLoc);
+        AbstractCharacter awoac = (AbstractCharacter) awo;
 
-		// Intentionally fail if target location is not on
-		// the actual city zone.
-		if (city != null)
-		if (city.isLocationOnCityZone(targetLoc) == false)
-			city = null;
+        //verify targetLoc within range
 
-		if (city != null){
+        if (awo.getLoc().distanceSquared2D(targetLoc) > MBServerStatics.MAX_TELEPORT_RANGE * MBServerStatics.MAX_TELEPORT_RANGE) {
+            if (awo.equals(source))
+                failTeleport(pb, awoac);
+            return;
+        }
 
-			for (String eff : city.getEffects().keySet()){
+        if (source.getBonuses().getBool(ModType.BlockedPowerType, SourceType.TELEPORT))
+            return;
 
-				Effect spireEffect = city.getEffects().get(eff);
+        City city = ZoneManager.getCityAtLocation(targetLoc);
 
-				for (AbstractEffectModifier aem : spireEffect.getEffectModifiers()){
+        // Intentionally fail if target location is not on
+        // the actual city zone.
+        if (city != null)
+            if (city.isLocationOnCityZone(targetLoc) == false)
+                city = null;
 
-					if (aem.getType().equals("TELEPORT") &&  !this.ignoreNoTeleSpire){
-						if (awo.equals(source))
-							failTeleport(pb, awoac);
-						return;
-					}
-				}
-			}
-		}
+        if (city != null) {
 
-		//TODO verify target loc is valid loc
-		
-		Regions region = Regions.GetRegionForTeleport(targetLoc);
+            for (String eff : city.getEffects().keySet()) {
 
-		if (region != null && !region.isOutside())
-			return;
+                Effect spireEffect = city.getEffects().get(eff);
 
-		MovementManager.translocate(awoac,targetLoc, region);
-	}
+                for (AbstractEffectModifier aem : spireEffect.getEffectModifiers()) {
 
-	private static void failTeleport(PowersBase pb, AbstractCharacter awo) {
+                    if (aem.getType().equals("TELEPORT") && !this.ignoreNoTeleSpire) {
+                        if (awo.equals(source))
+                            failTeleport(pb, awoac);
+                        return;
+                    }
+                }
+            }
+        }
 
-		if (pb == null || awo == null || (!(awo.getObjectType().equals(Enum.GameObjectType.PlayerCharacter))))
-			return;
+        //TODO verify target loc is valid loc
 
-		//teleport failed. Reset teleport power
-		PowersManager.finishRecycleTime(pb.getToken(), (PlayerCharacter) awo, true);
-	}
+        Regions region = Regions.GetRegionForTeleport(targetLoc);
 
-	@Override
-	protected void _handleChant(AbstractCharacter source, AbstractWorldObject target, Vector3fImmutable targetLoc, int trains, ActionsBase ab, PowersBase pb) {
-	}
+        if (region != null && !region.isOutside())
+            return;
 
-	@Override
-	protected void _startAction(AbstractCharacter source, AbstractWorldObject awo, Vector3fImmutable targetLoc,
-			int numTrains, ActionsBase ab, PowersBase pb, int duration) {
-		// TODO Auto-generated method stub
-	}
+        MovementManager.translocate(awoac, targetLoc, region);
+    }
+
+    @Override
+    protected void _handleChant(AbstractCharacter source, AbstractWorldObject target, Vector3fImmutable targetLoc, int trains, ActionsBase ab, PowersBase pb) {
+    }
+
+    @Override
+    protected void _startAction(AbstractCharacter source, AbstractWorldObject awo, Vector3fImmutable targetLoc,
+                                int numTrains, ActionsBase ab, PowersBase pb, int duration) {
+        // TODO Auto-generated method stub
+    }
 }

@@ -63,7 +63,7 @@ public class ApplyEffectMsg extends ClientNetMsg {
      * This is the general purpose constructor.
      */
     public ApplyEffectMsg(AbstractWorldObject source, AbstractWorldObject target, int numTrains, int effectID, int duration,
-            int powerUsedID, String powerUsedName) {
+                          int powerUsedID, String powerUsedName) {
         super(Protocol.POWERACTION);
         this.numTrains = numTrains;
         this.effectID = effectID;
@@ -99,7 +99,7 @@ public class ApplyEffectMsg extends ClientNetMsg {
      * past the limit) then this constructor Throws that Exception to the
      * caller.
      */
-    public ApplyEffectMsg(AbstractConnection origin, ByteBufferReader reader)  {
+    public ApplyEffectMsg(AbstractConnection origin, ByteBufferReader reader) {
         super(Protocol.POWERACTION, origin, reader);
     }
 
@@ -125,9 +125,7 @@ public class ApplyEffectMsg extends ClientNetMsg {
         if (this.unknown06 == (byte) 1) {
             writer.putInt(this.effectSourceType);
             writer.putInt(this.effectSourceID);
-        }
-           
-        	else {
+        } else {
             writer.putInt(this.powerUsedID);
         }
 
@@ -138,7 +136,7 @@ public class ApplyEffectMsg extends ClientNetMsg {
      * Deserializes the subclass specific items from the supplied NetMsgReader.
      */
     @Override
-    protected void _deserialize(ByteBufferReader reader)  {
+    protected void _deserialize(ByteBufferReader reader) {
         this.numTrains = reader.getInt();
         this.effectID = reader.getInt();
 
@@ -162,84 +160,84 @@ public class ApplyEffectMsg extends ClientNetMsg {
         return this.numTrains;
     }
 
-    public int getEffectID() {
-        return this.effectID;
-    }
-
-    public int getSourceType() {
-        return this.sourceType;
-    }
-
-    public int getSourceID() {
-        return this.sourceID;
-    }
-
-    public int getTargetType() {
-        return this.targetType;
-    }
-
-    public int getTargetID() {
-        return this.targetID;
-    }
-
-    public int getUnknown02() {
-        return this.unknown02;
-    }
-
-    public int getUnknown03() {
-        return this.unknown03;
-    }
-
-    public int getDuration() {
-        return this.duration;
-    }
-
-    public int getUnknown05() {
-        return this.unknown05;
-    }
-
-    public byte getUnknown06() {
-        return this.unknown06;
-    }
-
     public void setNumTrains(int value) {
         this.numTrains = value;
+    }
+
+    public int getEffectID() {
+        return this.effectID;
     }
 
     public void setEffectID(int value) {
         this.effectID = value;
     }
 
+    public int getSourceType() {
+        return this.sourceType;
+    }
+
     public void setSourceType(int value) {
         this.sourceType = value;
+    }
+
+    public int getSourceID() {
+        return this.sourceID;
     }
 
     public void setSourceID(int value) {
         this.sourceID = value;
     }
 
+    public int getTargetType() {
+        return this.targetType;
+    }
+
     public void setTargetType(int value) {
         this.targetType = value;
+    }
+
+    public int getTargetID() {
+        return this.targetID;
     }
 
     public void setTargetID(int value) {
         this.targetID = value;
     }
 
+    public int getUnknown02() {
+        return this.unknown02;
+    }
+
     public void setUnknown02(int value) {
         this.unknown02 = value;
+    }
+
+    public int getUnknown03() {
+        return this.unknown03;
     }
 
     public void setUnknown03(int value) {
         this.unknown03 = value;
     }
 
+    public int getDuration() {
+        return this.duration;
+    }
+
     public void setDuration(int value) {
         this.duration = value;
     }
 
+    public int getUnknown05() {
+        return this.unknown05;
+    }
+
     public void setUnknown05(int value) {
         this.unknown05 = value;
+    }
+
+    public byte getUnknown06() {
+        return this.unknown06;
     }
 
     public void setUnknown06(byte value) {
@@ -255,10 +253,10 @@ public class ApplyEffectMsg extends ClientNetMsg {
     }
 
     public void setEffectSourceType(int effectSourceType) {
-		this.effectSourceType = effectSourceType;
-	}
+        this.effectSourceType = effectSourceType;
+    }
 
     public void setEffectSourceID(int effectSourceID) {
-		this.effectSourceID = effectSourceID;
-	}
+        this.effectSourceID = effectSourceID;
+    }
 }

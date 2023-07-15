@@ -23,65 +23,65 @@ import engine.objects.AbstractGameObject;
  * @author Burfo
  */
 public class ReqBankInventoryMsg extends ClientNetMsg {
-	
-	private int playerType;
-	private int playerID;
-	private long unknown01; // possibly NPC ID?
 
-	/**
-	 * This is the general purpose constructor.
-	 */
-	public ReqBankInventoryMsg(AbstractGameObject ago, long unknown01) {
-		super(Protocol.OKCOSTTOOPENBANK);
-		this.playerType = ago.getObjectType().ordinal();
-		this.playerID = ago.getObjectUUID();
-		this.unknown01 = unknown01;
-	}
+    private int playerType;
+    private int playerID;
+    private long unknown01; // possibly NPC ID?
 
-	/**
-	 * This constructor is used by NetMsgFactory. It attempts to deserialize the
-	 * ByteBuffer into a message. If a BufferUnderflow occurs (based on reading
-	 * past the limit) then this constructor Throws that Exception to the
-	 * caller.
-	 */
-	public ReqBankInventoryMsg(AbstractConnection origin, ByteBufferReader reader)  {
-		super(Protocol.OKCOSTTOOPENBANK, origin, reader);
-	}
+    /**
+     * This is the general purpose constructor.
+     */
+    public ReqBankInventoryMsg(AbstractGameObject ago, long unknown01) {
+        super(Protocol.OKCOSTTOOPENBANK);
+        this.playerType = ago.getObjectType().ordinal();
+        this.playerID = ago.getObjectUUID();
+        this.unknown01 = unknown01;
+    }
 
-	/**
-	 * Deserializes the subclass specific items to the supplied NetMsgWriter.
-	 */
-	@Override
-	protected void _deserialize(ByteBufferReader reader)  {
-		playerType = reader.getInt();
-		playerID = reader.getInt();
-		unknown01 = reader.getLong();
-	}
+    /**
+     * This constructor is used by NetMsgFactory. It attempts to deserialize the
+     * ByteBuffer into a message. If a BufferUnderflow occurs (based on reading
+     * past the limit) then this constructor Throws that Exception to the
+     * caller.
+     */
+    public ReqBankInventoryMsg(AbstractConnection origin, ByteBufferReader reader) {
+        super(Protocol.OKCOSTTOOPENBANK, origin, reader);
+    }
 
-	/**
-	 * Serializes the subclass specific items from the supplied NetMsgReader.
-	 */
-	@Override
-	protected void _serialize(ByteBufferWriter writer) throws SerializationException {
-		writer.putInt(playerType);
-		writer.putInt(playerID);
-		writer.putLong(unknown01);
-	}
+    /**
+     * Deserializes the subclass specific items to the supplied NetMsgWriter.
+     */
+    @Override
+    protected void _deserialize(ByteBufferReader reader) {
+        playerType = reader.getInt();
+        playerID = reader.getInt();
+        unknown01 = reader.getLong();
+    }
 
-	public int getPlayerType() {
-		return playerType;
-	}
+    /**
+     * Serializes the subclass specific items from the supplied NetMsgReader.
+     */
+    @Override
+    protected void _serialize(ByteBufferWriter writer) throws SerializationException {
+        writer.putInt(playerType);
+        writer.putInt(playerID);
+        writer.putLong(unknown01);
+    }
 
-	public void setPlayerType(int playerType) {
-		this.playerType = playerType;
-	}
+    public int getPlayerType() {
+        return playerType;
+    }
 
-	public int getPlayerID() {
-		return playerID;
-	}
+    public void setPlayerType(int playerType) {
+        this.playerType = playerType;
+    }
 
-	public void setPlayerID(int playerID) {
-		this.playerID = playerID;
-	}
-        
+    public int getPlayerID() {
+        return playerID;
+    }
+
+    public void setPlayerID(int playerID) {
+        this.playerID = playerID;
+    }
+
 }

@@ -79,6 +79,7 @@ public class Mob extends AbstractIntelligenceAgent {
     public ArrayList<Vector3fImmutable> patrolPoints;
     public int lastPatrolPointIndex = 0;
     public long stopPatrolTime = 0;
+    public City guardedCity;
     protected int dbID; //the database ID
     protected int loadID;
     protected boolean isMob;
@@ -100,7 +101,6 @@ public class Mob extends AbstractIntelligenceAgent {
     private DeferredPowerJob weaponPower;
     private DateTime upgradeDateTime = null;
     private boolean lootSync = false;
-    public City guardedCity;
 
     /**
      * No Id Constructor
@@ -374,7 +374,7 @@ public class Mob extends AbstractIntelligenceAgent {
             writer.putFloat(1.0f);
         }
 
-            writer.putVector3f(mob.getLoc());
+        writer.putVector3f(mob.getLoc());
 
         //Rotation
         float radians = (float) Math.acos(mob.getRot().y) * 2;
@@ -807,12 +807,12 @@ public class Mob extends AbstractIntelligenceAgent {
         guardCaptain.siegeMinionMap.put(mob, slot);
         mob.deathTime = System.currentTimeMillis();
         mob.npcOwner = guardCaptain;
-        mob.spawnTime = (int)(-2.500 * guardCaptain.building.getRank() + 22.5) * 60;
+        mob.spawnTime = (int) (-2.500 * guardCaptain.building.getRank() + 22.5) * 60;
         mob.BehaviourType = Enum.MobBehaviourType.GuardMinion;
         mob.guardedCity = guardCaptain.guardedCity;
         mob.parentZone = parent;
         parent.zoneMobSet.add(mob);
-        MovementManager.translocate(mob,guardCaptain.bindLoc,guardCaptain.region);
+        MovementManager.translocate(mob, guardCaptain.bindLoc, guardCaptain.region);
         mob.bindLoc = guardCaptain.bindLoc;
         return mob;
     }
@@ -1309,7 +1309,7 @@ public class Mob extends AbstractIntelligenceAgent {
                 this.playerAgroMap.clear();
 
                 this.timeToSpawnSiege = System.currentTimeMillis() + 60 * 15 * 1000;
-                if(this.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardMinion.ordinal()) {
+                if (this.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardMinion.ordinal()) {
                     this.spawnTime = (int) (-2.500 * ((Mob) this.npcOwner).building.getRank() + 22.5) * 60;
                 }
                 if (this.isPet()) {
@@ -1397,12 +1397,12 @@ public class Mob extends AbstractIntelligenceAgent {
         NPCManager.applyRuneSetEffects(this);
         this.recalculateStats();
         this.setHealth(this.healthMax);
-        if(this.building == null && this.npcOwner != null && ((Mob)this.npcOwner).BehaviourType.ordinal() == MobBehaviourType.GuardCaptain.ordinal()){
-            this.building = ((Mob)this.npcOwner).building;
-        } else if(this.building != null){
+        if (this.building == null && this.npcOwner != null && ((Mob) this.npcOwner).BehaviourType.ordinal() == MobBehaviourType.GuardCaptain.ordinal()) {
+            this.building = ((Mob) this.npcOwner).building;
+        } else if (this.building != null) {
             this.region = BuildingManager.GetRegion(this.building, bindLoc.x, bindLoc.y, bindLoc.z);
         }
-        MovementManager.translocate(this,this.bindLoc, this.region);
+        MovementManager.translocate(this, this.bindLoc, this.region);
         if (!this.isSiege && !this.isPlayerGuard && contract == null)
             loadInventory();
 
@@ -1967,7 +1967,7 @@ public class Mob extends AbstractIntelligenceAgent {
             Bounds mobBounds = Bounds.borrow();
             mobBounds.setBounds(this.getLoc());
             this.setBounds(mobBounds);
-            if(this.contract != null && this.contract.getContractID() == 910){
+            if (this.contract != null && this.contract.getContractID() == 910) {
                 this.isPlayerGuard = true;
                 this.BehaviourType = MobBehaviourType.GuardCaptain;
                 this.spawnTime = 900;
@@ -1988,8 +1988,8 @@ public class Mob extends AbstractIntelligenceAgent {
 
                     Vector3fImmutable newPatrolPoint = Vector3fImmutable.getRandomPointInCircle(this.getBindLoc(), patrolRadius);
                     this.patrolPoints.add(newPatrolPoint);
-                    if(i == 1)
-                        MovementManager.translocate(this,newPatrolPoint,null);
+                    if (i == 1)
+                        MovementManager.translocate(this, newPatrolPoint, null);
                 }
             }
             if (this.BehaviourType == null)
@@ -1999,8 +1999,7 @@ public class Mob extends AbstractIntelligenceAgent {
                 if (NPC.ISWallArcher(this.getContract())) {
                     this.BehaviourType = MobBehaviourType.GuardWallArcher;
                     this.spawnTime = 450;
-                }
-                else {
+                } else {
                     this.BehaviourType = MobBehaviourType.GuardCaptain;
                     this.spawnTime = 900;
                     this.guardedCity = ZoneManager.getCityAtLocation(this.bindLoc);

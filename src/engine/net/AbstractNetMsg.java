@@ -24,14 +24,12 @@ import java.util.concurrent.ConcurrentHashMap;
  * MBServer Server Suite components. Note that since the NetMsgs sent to/from
  * the SBClient do NOT include a MsgLen or DataLen parameter, special
  * serialization/deserialization must be implemented.
- *
  */
 public abstract class AbstractNetMsg {
 
+    private static ConcurrentHashMap<Protocol, NetMsgStat> stats = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_HIGH);
     protected final Protocol protocolMsg;
     private AbstractConnection origin;
-
-    private static ConcurrentHashMap<Protocol, NetMsgStat> stats = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_HIGH);
 
     /**
      * This is the general purpose constructor.
@@ -64,8 +62,7 @@ public abstract class AbstractNetMsg {
      * @param reader
      */
     protected AbstractNetMsg(Protocol protocolMsg, AbstractConnection origin,
-                             ByteBufferReader reader)
-             {
+                             ByteBufferReader reader) {
         this.protocolMsg = protocolMsg;
         this.origin = origin;
 
@@ -74,6 +71,13 @@ public abstract class AbstractNetMsg {
             this._deserialize(reader);
         } catch (NullPointerException e) {
             Logger.error(e);
+        }
+    }
+
+    private static void allocHeader(ByteBufferWriter writer, int bytes) {
+        byte zero = 0; // prevents the int->byte cast
+        for (int h = 0; h < bytes; ++h) {
+            writer.put(zero);
         }
     }
 
@@ -115,7 +119,7 @@ public abstract class AbstractNetMsg {
         int upperPow = lowerPow + 4;
 
         ByteBuffer bb = null;
-        
+
         int startPos = 0;
         ByteBufferWriter writer = null;
 
@@ -148,7 +152,7 @@ public abstract class AbstractNetMsg {
 
             } catch (BufferOverflowException boe) {
                 Logger.error("BufferSize PowerOfTwo: " + i
-                        + " is too small for " + protocolMsg != null? protocolMsg.name() : this.getClass().getName() +  ", trying again with " + (i + 1));
+                        + " is too small for " + protocolMsg != null ? protocolMsg.name() : this.getClass().getName() + ", trying again with " + (i + 1));
 
                 //Return buffer.
 
@@ -158,38 +162,31 @@ public abstract class AbstractNetMsg {
             } catch (Exception e) {
 
                 //Return buffer.
-            	Logger.error(e);
-            	e.printStackTrace();
+                Logger.error(e);
+                e.printStackTrace();
 
                 Network.byteBufferPool.putBuffer(bb);
                 return null;
             }
 
-			// This shouldn't throw any errors since this part of the BB has
+            // This shouldn't throw any errors since this part of the BB has
             // already been allocated
 
             this.writeHeaderAt(startPos, writer);
             return writer.getBb();
         }
 
-		// If we get here, its not a successful serialization and lastError
+        // If we get here, its not a successful serialization and lastError
         // should be set
 
         return null;
-    }
-
-    private static void allocHeader(ByteBufferWriter writer, int bytes) {
-        byte zero = 0; // prevents the int->byte cast
-        for (int h = 0; h < bytes; ++h) {
-            writer.put(zero);
-        }
     }
 
     /**
      * Function allows for setting other than default initial Buffer size for
      * the Serializer. Override and return the size of the buffer in power of
      * two bytes.
-     *
+     * <p>
      * Example, if you would like a buffer of 65535, then return 16 from this
      * value since 2^16 = 65535
      *
@@ -210,10 +207,8 @@ public abstract class AbstractNetMsg {
      * Forces subclasses to implement how to write its own header into a
      * byteBuffer
      *
-     * @param startPos
-     * - starting position for the header write
-     * @param writer
-     * - ByteBufferWriter to write the header to.
+     * @param startPos - starting position for the header write
+     * @param writer   - ByteBufferWriter to write the header to.
      */
     protected abstract void writeHeaderAt(int startPos, ByteBufferWriter writer);
 

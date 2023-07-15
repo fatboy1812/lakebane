@@ -24,9 +24,9 @@ import engine.objects.PlayerCharacter;
  */
 public class AckBankWindowOpenedMsg extends ClientNetMsg {
 
-	private int playerType;
-	private int playerID;
-	private long unknown01; // possibly NPC ID?
+    private int playerType;
+    private int playerID;
+    private long unknown01; // possibly NPC ID?
     private long unknown02;
 
     /**
@@ -46,7 +46,7 @@ public class AckBankWindowOpenedMsg extends ClientNetMsg {
      * past the limit) then this constructor Throws that Exception to the
      * caller.
      */
-    public AckBankWindowOpenedMsg(AbstractConnection origin, ByteBufferReader reader)  {
+    public AckBankWindowOpenedMsg(AbstractConnection origin, ByteBufferReader reader) {
         super(Protocol.COSTTOOPENBANK, origin, reader);
     }
 
@@ -54,9 +54,9 @@ public class AckBankWindowOpenedMsg extends ClientNetMsg {
      * Deserializes the subclass specific items to the supplied NetMsgWriter.
      */
     @Override
-    protected void _deserialize(ByteBufferReader reader)  {
-    	playerType = reader.getInt();
-    	playerID = reader.getInt();
+    protected void _deserialize(ByteBufferReader reader) {
+        playerType = reader.getInt();
+        playerID = reader.getInt();
         unknown01 = reader.getLong();
         unknown02 = reader.getLong();
     }
@@ -66,25 +66,26 @@ public class AckBankWindowOpenedMsg extends ClientNetMsg {
      */
     @Override
     protected void _serialize(ByteBufferWriter writer) throws SerializationException {
-    	writer.putInt(playerType);
-    	writer.putInt(playerID);
+        writer.putInt(playerType);
+        writer.putInt(playerID);
         writer.putLong(unknown01);
         writer.putLong(unknown02);
     }
+
     public int getPlayerID() {
-		return playerID;
-	}
+        return playerID;
+    }
 
-	public void setPlayerID(int playerID) {
-		this.playerID = playerID;
-	}
+    public void setPlayerID(int playerID) {
+        this.playerID = playerID;
+    }
 
-	public int getPlayerType() {
-		return playerType;
-	}
+    public int getPlayerType() {
+        return playerType;
+    }
 
-	public void setPlayerType(int playerType) {
-		this.playerType = playerType;
-	}
+    public void setPlayerType(int playerType) {
+        this.playerType = playerType;
+    }
 
 }

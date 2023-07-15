@@ -19,21 +19,21 @@ import engine.objects.PlayerCharacter;
 
 public class GuildCreationOptionsHandler extends AbstractClientMsgHandler {
 
-	public GuildCreationOptionsHandler() {
-		super(GuildCreationOptionsMsg.class);
-	}
+    public GuildCreationOptionsHandler() {
+        super(GuildCreationOptionsMsg.class);
+    }
 
-	@Override
-	protected boolean _handleNetMsg(ClientNetMsg baseMsg, ClientConnection origin) throws MsgSendException {
-		GuildCreationOptionsMsg msg = (GuildCreationOptionsMsg) baseMsg;
+    @Override
+    protected boolean _handleNetMsg(ClientNetMsg baseMsg, ClientConnection origin) throws MsgSendException {
+        GuildCreationOptionsMsg msg = (GuildCreationOptionsMsg) baseMsg;
         PlayerCharacter sourcePlayer = origin.getPlayerCharacter();
         Dispatch dispatch;
 
-		if(msg.getScreenType() == 1) {
-			msg.setScreenType(3);
-		} else if(msg.getScreenType() == 2) {
-			msg.setScreenType(4);
-		}
+        if (msg.getScreenType() == 1) {
+            msg.setScreenType(3);
+        } else if (msg.getScreenType() == 2) {
+            msg.setScreenType(4);
+        }
 
         if (sourcePlayer == null)
             return true;
@@ -41,7 +41,7 @@ public class GuildCreationOptionsHandler extends AbstractClientMsgHandler {
         dispatch = Dispatch.borrow(sourcePlayer, msg);
         DispatchMessage.dispatchMsgDispatch(dispatch, engine.Enum.DispatchChannel.SECONDARY);
 
-		return true;
-	}
+        return true;
+    }
 
 }

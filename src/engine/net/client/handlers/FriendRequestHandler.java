@@ -23,47 +23,43 @@ import engine.objects.PlayerCharacter;
 
 public class FriendRequestHandler extends AbstractClientMsgHandler {
 
-	public FriendRequestHandler() {
-		super(FriendRequestMsg.class);
-	}
+    public FriendRequestHandler() {
+        super(FriendRequestMsg.class);
+    }
 
-	@Override
-	protected boolean _handleNetMsg(ClientNetMsg baseMsg,
-			ClientConnection origin) throws MsgSendException {
-		
-		PlayerCharacter player = origin.getPlayerCharacter();
-		
-		if (player == null)
-			return true;
-		
+    public static void HandleRequestFriend(PlayerCharacter player, FriendRequestMsg msg) {
+        PlayerCharacter targetFriend = SessionManager.getPlayerCharacterByLowerCaseName(msg.friendName);
 
-		FriendRequestMsg msg = (FriendRequestMsg)baseMsg;
-		
-			HandleRequestFriend(player,msg);
-			
-		return true;
-	}
-	
+        if (targetFriend == null) {
+            ErrorPopupMsg.sendErrorMsg(player, "Could not find player " + msg.friendName);
+            return;
+        }
 
-	
-	public static void HandleRequestFriend(PlayerCharacter player, FriendRequestMsg msg){
-	PlayerCharacter targetFriend = SessionManager.getPlayerCharacterByLowerCaseName(msg.friendName);
-	
-	if (targetFriend == null){
-		ErrorPopupMsg.sendErrorMsg(player, "Could not find player " + msg.friendName);
-		return;
-	}
-	
-	if (targetFriend.equals(player))
-		return;
-	
-	
-	
-	
-	Dispatch dispatch = Dispatch.borrow(targetFriend, msg);
-	DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.SECONDARY);
-	ChatManager.chatSystemInfo(player, "Your friend request has been sent.");
-	
-	}
-	
+        if (targetFriend.equals(player))
+            return;
+
+
+        Dispatch dispatch = Dispatch.borrow(targetFriend, msg);
+        DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.SECONDARY);
+        ChatManager.chatSystemInfo(player, "Your friend request has been sent.");
+
+    }
+
+    @Override
+    protected boolean _handleNetMsg(ClientNetMsg baseMsg,
+                                    ClientConnection origin) throws MsgSendException {
+
+        PlayerCharacter player = origin.getPlayerCharacter();
+
+        if (player == null)
+            return true;
+
+
+        FriendRequestMsg msg = (FriendRequestMsg) baseMsg;
+
+        HandleRequestFriend(player, msg);
+
+        return true;
+    }
+
 }

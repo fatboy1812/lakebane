@@ -9,7 +9,6 @@
 package engine.gameManager;
 
 import engine.Enum.*;
-import engine.ai.MobileFSM;
 import engine.exception.MsgSendException;
 import engine.job.JobContainer;
 import engine.job.JobScheduler;
@@ -28,7 +27,6 @@ import engine.server.MBServerStatics;
 import org.pmw.tinylog.Logger;
 
 import java.util.HashSet;
-import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -37,6 +35,8 @@ import static engine.math.FastMath.sqr;
 public enum CombatManager {
 
 	COMBATMANAGER;
+
+	public static int animation = 0;
 
 	/**
 	 * Message sent by player to attack something.
@@ -60,7 +60,7 @@ public enum CombatManager {
 
 		//source must match player this account belongs to
 		if (player.getObjectUUID() != msg.getSourceID() || player.getObjectType().ordinal() != msg.getSourceType()) {
-			Logger.error("Msg Source ID " + msg.getSourceID() + " Does not Match Player ID " + player.getObjectUUID() );
+			Logger.error("Msg Source ID " + msg.getSourceID() + " Does not Match Player ID " + player.getObjectUUID());
 
 			return;
 		}
@@ -73,7 +73,7 @@ public enum CombatManager {
 			target = BuildingManager.getBuildingFromCache(msg.getTargetID());
 		} else if (targetType == GameObjectType.Mob.ordinal()) {
 			target = Mob.getFromCache(msg.getTargetID());
-		}else{
+		} else {
 			player.setCombatTarget(null);
 			return; //not valid type to attack
 		}
@@ -137,7 +137,7 @@ public enum CombatManager {
 			}
 		}
 		City playerCity = ZoneManager.getCityAtLocation(playerCharacter.getLoc());
-		if( playerCity != null && playerCity.getGuild().getNation().equals(playerCharacter.getGuild().getNation()) == false && playerCity.cityOutlaws.contains(playerCharacter.getObjectUUID()) == false)
+		if (playerCity != null && playerCity.getGuild().getNation().equals(playerCharacter.getGuild().getNation()) == false && playerCity.cityOutlaws.contains(playerCharacter.getObjectUUID()) == false)
 			playerCity.cityOutlaws.add(playerCharacter.getObjectUUID());
 	}
 
@@ -173,7 +173,7 @@ public enum CombatManager {
 			pet.setCombatTarget(null);
 			return; //not valid type to attack
 		}
-		
+
 		if (pet.equals(target))
 			return;
 
@@ -184,10 +184,9 @@ public enum CombatManager {
 			return;
 
 
-
 		//set sources target
 		pet.setCombatTarget(target);
-        //		setFirstHitCombatTarget(player,target);
+		//		setFirstHitCombatTarget(player,target);
 
 		//put in combat if not already
 		if (!pet.isCombat())
@@ -292,10 +291,10 @@ public enum CombatManager {
 
 			AbstractWorldObject target = abstractCharacter.getCombatTarget();
 
-			if (target == null){
+			if (target == null) {
 				return 0;
 			}
-				
+
 
 			//target must be valid type
 			if (AbstractWorldObject.IsAbstractCharacter(target)) {
@@ -303,11 +302,9 @@ public enum CombatManager {
 				//must be alive, attackable and in World
 				if (!tar.isAlive()) {
 					return 0;
-				}
-				else if (tar.isSafeMode()) {
+				} else if (tar.isSafeMode()) {
 					return 0;
-				}
-				else if (!tar.isActive()) {
+				} else if (!tar.isActive()) {
 					return 0;
 				}
 
@@ -327,8 +324,7 @@ public enum CombatManager {
 						}
 					}
 				}
-			}
-			else if (target.getObjectType().equals(GameObjectType.Building)) {
+			} else if (target.getObjectType().equals(GameObjectType.Building)) {
 				Building tar = (Building) target;
 
 				// Cannot attack an invuln building
@@ -337,16 +333,14 @@ public enum CombatManager {
 					return 0;
 				}
 
-			}
-			else {
+			} else {
 				return 0; //only characters and buildings may be attacked
 			}
 
 			//source must be in world and alive
 			if (!abstractCharacter.isActive()) {
 				return 0;
-			}
-			else if (!abstractCharacter.isAlive()) {
+			} else if (!abstractCharacter.isAlive()) {
 				return 0;
 			}
 
@@ -384,13 +378,11 @@ public enum CombatManager {
 			ItemBase wb = null;
 			if (weapon == null) {
 				isWeapon = false;
-			}
-			else {
+			} else {
 				ItemBase ib = weapon.getItemBase();
 				if (ib == null || !ib.getType().equals(ItemType.WEAPON)) {
 					isWeapon = false;
-				}
-				else {
+				} else {
 					wb = ib;
 				}
 			}
@@ -405,17 +397,14 @@ public enum CombatManager {
 						ItemBase ib = weaponOff.getItemBase();
 						if (ib == null || !ib.getType().equals(ItemType.WEAPON)) {
 							hasNoWeapon = true;
-						}
-						else {
+						} else {
 							// debugCombat(ac, "mainhand, weapon in other hand");
 							return 1; //no need to attack with this hand
 						}
-					}
-					else {
+					} else {
 						hasNoWeapon = true;
 					}
-				}
-				else {
+				} else {
 					if (equipped.get(MBServerStatics.SLOT_MAINHAND) == null) {
 						// debgCombat(ac, "offhand, weapon in other hand");
 						return 1; //no need to attack with this hand
@@ -439,8 +428,7 @@ public enum CombatManager {
 					// debugCombat(ac, "Not enough stamina to attack");
 					attackFailure = true;
 				}
-			}
-			else if (abstractCharacter.getStamina() < wb.getWeight()) {
+			} else if (abstractCharacter.getStamina() < wb.getWeight()) {
 				// debugCombat(ac, "Not enough stamina to attack");
 				attackFailure = true;
 			}
@@ -453,7 +441,7 @@ public enum CombatManager {
 			//		}
 			//see if attacker is stunned. If so, stop here
 			bonus = abstractCharacter.getBonuses();
-			if (bonus != null && bonus.getBool(ModType.Stunned,SourceType.None)) {
+			if (bonus != null && bonus.getBool(ModType.Stunned, SourceType.None)) {
 				// debugCombat(ac, "Cannot attack while stunned");
 				attackFailure = true;
 			}
@@ -462,13 +450,12 @@ public enum CombatManager {
 			float range;
 			if (hasNoWeapon) {
 				range = MBServerStatics.NO_WEAPON_RANGE;
-			}
-			else {
+			} else {
 				range = getWeaponRange(wb);
-				if (bonus != null){
+				if (bonus != null) {
 					float buffRange = 1;
-					buffRange += bonus.getFloat(ModType.WeaponRange, SourceType.None) *.01f;
-					range*= buffRange;
+					buffRange += bonus.getFloat(ModType.WeaponRange, SourceType.None) * .01f;
+					range *= buffRange;
 				}
 			}
 
@@ -504,8 +491,7 @@ public enum CombatManager {
 			if (!attackFailure) {
 				if (hasNoWeapon || abstractCharacter.getObjectType().equals(GameObjectType.Mob)) {
 					createTimer(abstractCharacter, slot, 20, true); //2 second for no weapon
-				}
-				else {
+				} else {
 					int wepSpeed = (int) (wb.getSpeed());
 					if (weapon != null && weapon.getBonusPercent(ModType.WeaponSpeed, SourceType.None) != 0f) //add weapon speed bonus
 					{
@@ -525,14 +511,13 @@ public enum CombatManager {
 					return 0;
 
 				attack(abstractCharacter, target, weapon, wb, (slot == MBServerStatics.SLOT_MAINHAND) ? true : false);
-			}
-			else {
+			} else {
 				// changed this to half a second to make combat attempts more aggressive than movement sync
 				createTimer(abstractCharacter, slot, 5, false); //0.5 second timer if attack fails
 				//System.out.println("Attack attempt failed");
 			}
 
-		}  catch(Exception e) {
+		} catch (Exception e) {
 			return 0;
 		}
 		return 2;
@@ -576,7 +561,7 @@ public enum CombatManager {
 			job = JobScheduler.getInstance().scheduleJob(aj, (time * 100));
 			timers.put("Attack" + slot, job);
 		} else {
-			Logger.error( "Unable to find Timers for Character " + ac.getObjectUUID());
+			Logger.error("Unable to find Timers for Character " + ac.getObjectUUID());
 		}
 	}
 
@@ -601,8 +586,7 @@ public enum CombatManager {
 				atr = ac.getAtrHandOne();
 				minDamage = ac.getMinDamageHandOne();
 				maxDamage = ac.getMaxDamageHandOne();
-			}
-			else {
+			} else {
 				atr = ac.getAtrHandTwo();
 				minDamage = ac.getMinDamageHandTwo();
 				maxDamage = ac.getMaxDamageHandTwo();
@@ -612,20 +596,20 @@ public enum CombatManager {
 
 			if (target.getObjectTypeMask() == MBServerStatics.MASK_RAT)
 				tarIsRat = true;
-			else if (target.getObjectType() == GameObjectType.PlayerCharacter){
-				PlayerCharacter pTar = (PlayerCharacter)target;
-				for (Effect eff: pTar.getEffects().values()){
-					if (eff.getPowerToken() == 429513599 || eff.getPowerToken() == 429415295){
+			else if (target.getObjectType() == GameObjectType.PlayerCharacter) {
+				PlayerCharacter pTar = (PlayerCharacter) target;
+				for (Effect eff : pTar.getEffects().values()) {
+					if (eff.getPowerToken() == 429513599 || eff.getPowerToken() == 429415295) {
 						tarIsRat = true;
 					}
 				}
 			}
 
 			//Dont think we need to do this anymore.
-			if (tarIsRat){
+			if (tarIsRat) {
 				//strip away current % dmg buffs then add with rat %
-				if (ac.getBonuses().getFloatPercentAll(ModType.Slay, SourceType.Rat) != 0){
-					
+				if (ac.getBonuses().getFloatPercentAll(ModType.Slay, SourceType.Rat) != 0) {
+
 
 					float percent = 1 + ac.getBonuses().getFloatPercentAll(ModType.Slay, SourceType.Rat);
 
@@ -640,8 +624,7 @@ public enum CombatManager {
 			//subtract stamina
 			if (wb == null) {
 				ac.modifyStamina(-0.5f, ac, true);
-			}
-			else {
+			} else {
 				float stam = wb.getWeight() / 3;
 				stam = (stam < 1) ? 1 : stam;
 				ac.modifyStamina(-(stam), ac, true);
@@ -655,8 +638,7 @@ public enum CombatManager {
 			if (target.getObjectType().equals(GameObjectType.PlayerCharacter) && target.getObjectUUID() != ac.getObjectUUID() && ac.getObjectType() == GameObjectType.PlayerCharacter) {
 				ac.setTimeStamp("LastCombatPlayer", System.currentTimeMillis());
 				((PlayerCharacter) target).setTimeStamp("LastCombatPlayer", System.currentTimeMillis());
-			}
-			else {
+			} else {
 				ac.setTimeStamp("LastCombatMob", System.currentTimeMillis());
 			}
 
@@ -665,20 +647,20 @@ public enum CombatManager {
 			//Get defense for target
 			float defense;
 			if (target.getObjectType().equals(GameObjectType.Building)) {
-				
-				if (BuildingManager.getBuildingFromCache(target.getObjectUUID()) == null){
+
+				if (BuildingManager.getBuildingFromCache(target.getObjectUUID()) == null) {
 					ac.setCombatTarget(null);
 					return;
 				}
 				defense = 0;
 
-				Building building = (Building)target;
-				if (building.getParentZone() != null && building.getParentZone().isPlayerCity()){
+				Building building = (Building) target;
+				if (building.getParentZone() != null && building.getParentZone().isPlayerCity()) {
 
-					if (System.currentTimeMillis() > building.getTimeStamp("CallForHelp")){
+					if (System.currentTimeMillis() > building.getTimeStamp("CallForHelp")) {
 						building.getTimestamps().put("CallForHelp", System.currentTimeMillis() + 15000);
 						int count = 0;
-						for (Mob mob:building.getParentZone().zoneMobSet){
+						for (Mob mob : building.getParentZone().zoneMobSet) {
 							if (!mob.isPlayerGuard())
 								continue;
 							if (mob.getCombatTarget() != null)
@@ -694,11 +676,10 @@ public enum CombatManager {
 								count++;
 
 							mob.setCombatTarget(ac);
-                        }
+						}
 					}
 				}
-			}
-			else {
+			} else {
 				AbstractCharacter tar = (AbstractCharacter) target;
 				defense = tar.getDefenseRating();
 				//Handle target attacking back if in combat and has no other target
@@ -712,11 +693,9 @@ public enum CombatManager {
 			float dif = atr - defense;
 			if (dif > 100) {
 				chance = 94;
-			}
-			else if (dif < -100) {
+			} else if (dif < -100) {
 				chance = 4;
-			}
-			else {
+			} else {
 				chance = (int) ((0.45 * dif) + 49);
 			}
 
@@ -755,11 +734,11 @@ public enum CombatManager {
 						dpj.attack(target, attackRange);
 
 						if (dpj.getPower() != null && (dpj.getPowerToken() == -1851459567 || dpj.getPowerToken() == -1851489518))
-							((PlayerCharacter)ac).setWeaponPower(dpj);
+							((PlayerCharacter) ac).setWeaponPower(dpj);
 					}
 				}
 				//check to apply second backstab.
-				if (ac.getObjectType().equals(GameObjectType.PlayerCharacter) && !mainHand){
+				if (ac.getObjectType().equals(GameObjectType.PlayerCharacter) && !mainHand) {
 					dpj = ((PlayerCharacter) ac).getWeaponPower();
 					if (dpj != null && dpj.getPower() != null && (dpj.getPowerToken() == -1851459567 || dpj.getPowerToken() == -1851489518)) {
 						float attackRange = getWeaponRange(wb);
@@ -780,7 +759,7 @@ public enum CombatManager {
 							if (!target.isAlive())
 								return;
 
-							sendPassiveDefenseMessage(ac, wb, target, MBServerStatics.COMBAT_SEND_BLOCK, dpj,mainHand);
+							sendPassiveDefenseMessage(ac, wb, target, MBServerStatics.COMBAT_SEND_BLOCK, dpj, mainHand);
 							passiveFired = true;
 						}
 
@@ -789,7 +768,7 @@ public enum CombatManager {
 							if (canTestParry(ac, target) && testPassive(ac, tarAc, "Parry")) {
 								if (!target.isAlive())
 									return;
-								sendPassiveDefenseMessage(ac, wb, target, MBServerStatics.COMBAT_SEND_PARRY, dpj,mainHand);
+								sendPassiveDefenseMessage(ac, wb, target, MBServerStatics.COMBAT_SEND_PARRY, dpj, mainHand);
 								passiveFired = true;
 							}
 						}
@@ -804,7 +783,7 @@ public enum CombatManager {
 							if (!target.isAlive())
 								return;
 
-							sendPassiveDefenseMessage(ac, wb, target, MBServerStatics.COMBAT_SEND_DODGE, dpj,mainHand);
+							sendPassiveDefenseMessage(ac, wb, target, MBServerStatics.COMBAT_SEND_DODGE, dpj, mainHand);
 							passiveFired = true;
 						}
 					}
@@ -827,11 +806,9 @@ public enum CombatManager {
 				DamageType damageType;
 				if (wb != null) {
 					damageType = wb.getDamageType();
-				}
-				else if (ac.getObjectType().equals(GameObjectType.Mob) && ((Mob) ac).isSiege()) {
+				} else if (ac.getObjectType().equals(GameObjectType.Mob) && ((Mob) ac).isSiege()) {
 					damageType = DamageType.Siege;
-				}
-				else {
+				} else {
 					damageType = DamageType.Crush;
 				}
 
@@ -842,14 +819,13 @@ public enum CombatManager {
 
 				if (tarAc != null) {
 					resists = tarAc.getResists();
-				}
-				else if (target.getObjectType().equals(GameObjectType.Building)) {
+				} else if (target.getObjectType().equals(GameObjectType.Building)) {
 					resists = ((Building) target).getResists();
 				}
 
 				//make sure target is not immune to damage type;
 				if (resists != null && resists.immuneTo(damageType)) {
-					sendCombatMessage(ac, target, 0f, wb, dpj,mainHand);
+					sendCombatMessage(ac, target, 0f, wb, dpj, mainHand);
 					return;
 				}
 
@@ -865,8 +841,7 @@ public enum CombatManager {
 
 				if (wb != null) {
 					damage = calculateDamage(ac, tarAc, minDamage, maxDamage, damageType, resists);
-				}
-				else {
+				} else {
 					damage = calculateDamage(ac, tarAc, minDamage, maxDamage, damageType, resists);
 				}
 
@@ -887,10 +862,9 @@ public enum CombatManager {
 					if (tarAc.getHealth() > 0)
 						d = tarAc.modifyHealth(-damage, ac, false);
 
-				}
-				else if (target.getObjectType().equals(GameObjectType.Building)) {
-					
-					if (BuildingManager.getBuildingFromCache(target.getObjectUUID()) == null){
+				} else if (target.getObjectType().equals(GameObjectType.Building)) {
+
+					if (BuildingManager.getBuildingFromCache(target.getObjectUUID()) == null) {
 						ac.setCombatTarget(null);
 						return;
 					}
@@ -910,7 +884,7 @@ public enum CombatManager {
 
 				//test double death fix
 				if (d != 0) {
-					sendCombatMessage(ac, target, damage, wb, dpj,mainHand); //send damage message
+					sendCombatMessage(ac, target, damage, wb, dpj, mainHand); //send damage message
 				}
 
 				errorTrack = 14;
@@ -945,8 +919,7 @@ public enum CombatManager {
 				if (ac.isAlive() && tarAc != null && tarAc.isAlive()) {
 					handleDamageShields(ac, tarAc, damage);
 				}
-			}
-			else {
+			} else {
 				int animationOverride = 0;
 				// Apply Weapon power effect if any.
 				// don't try to apply twice if dual wielding.
@@ -958,9 +931,8 @@ public enum CombatManager {
 						PowersBase wp = dpj.getPower();
 						if (wp.requiresHitRoll() == false) {
 							float attackRange = getWeaponRange(wb);
-							dpj.attack(target,attackRange);
-						}
-						else {
+							dpj.attack(target, attackRange);
+						} else {
 							((PlayerCharacter) ac).setWeaponPower(null);
 						}
 
@@ -973,7 +945,7 @@ public enum CombatManager {
 				errorTrack = 17;
 
 				//miss, Send miss message
-				sendCombatMessage(ac, target, 0f, wb, dpj,mainHand);
+				sendCombatMessage(ac, target, 0f, wb, dpj, mainHand);
 
 				//if attacker is player, set last attack timestamp
 				if (ac.getObjectType().equals(GameObjectType.PlayerCharacter)) {
@@ -1026,7 +998,6 @@ public enum CombatManager {
 			return false;
 
 
-
 		Item tarOff = tarItem.getItemFromEquipped(2);
 
 
@@ -1060,7 +1031,7 @@ public enum CombatManager {
 
 		//Damage is calculated twice to average a more central point
 		float damage = ThreadLocalRandom.current().nextFloat() * range;
-		damage = (damage + (ThreadLocalRandom.current().nextFloat() * range)) *.5f;
+		damage = (damage + (ThreadLocalRandom.current().nextFloat() * range)) * .5f;
 
 		//put it back between min and max
 		damage += minDamage;
@@ -1075,37 +1046,35 @@ public enum CombatManager {
 
 	private static void sendPassiveDefenseMessage(AbstractCharacter source, ItemBase wb, AbstractWorldObject target, int passiveType, DeferredPowerJob dpj, boolean mainHand) {
 
-		int swingAnimation =  getSwingAnimation(wb, dpj,mainHand);
+		int swingAnimation = getSwingAnimation(wb, dpj, mainHand);
 
-		if (dpj != null){
-			if(PowersManager.AnimationOverrides.containsKey(dpj.getAction().getEffectID()))
+		if (dpj != null) {
+			if (PowersManager.AnimationOverrides.containsKey(dpj.getAction().getEffectID()))
 				swingAnimation = PowersManager.AnimationOverrides.get(dpj.getAction().getEffectID());
 		}
-		TargetedActionMsg cmm = new TargetedActionMsg(source,swingAnimation, target, passiveType);
+		TargetedActionMsg cmm = new TargetedActionMsg(source, swingAnimation, target, passiveType);
 		DispatchMessage.sendToAllInRange(target, cmm);
 
 	}
 
 	private static void sendCombatMessage(AbstractCharacter source, AbstractWorldObject target, float damage, ItemBase wb, DeferredPowerJob dpj, boolean mainHand) {
 
-		int swingAnimation =  getSwingAnimation(wb, dpj,mainHand);
+		int swingAnimation = getSwingAnimation(wb, dpj, mainHand);
 
-		if (dpj != null){
-			if(PowersManager.AnimationOverrides.containsKey(dpj.getAction().getEffectID()))
+		if (dpj != null) {
+			if (PowersManager.AnimationOverrides.containsKey(dpj.getAction().getEffectID()))
 				swingAnimation = PowersManager.AnimationOverrides.get(dpj.getAction().getEffectID());
 		}
 
-		if (source.getObjectType() == GameObjectType.PlayerCharacter){
-			for (Effect eff: source.getEffects().values()){
-				if (eff.getPower() != null && (eff.getPower().getToken() == 429506943 || eff.getPower().getToken() == 429408639 || eff.getPower().getToken() == 429513599 ||eff.getPower().getToken() ==  429415295))
+		if (source.getObjectType() == GameObjectType.PlayerCharacter) {
+			for (Effect eff : source.getEffects().values()) {
+				if (eff.getPower() != null && (eff.getPower().getToken() == 429506943 || eff.getPower().getToken() == 429408639 || eff.getPower().getToken() == 429513599 || eff.getPower().getToken() == 429415295))
 					swingAnimation = 0;
 			}
 		}
 		TargetedActionMsg cmm = new TargetedActionMsg(source, target, damage, swingAnimation);
 		DispatchMessage.sendToAllInRange(target, cmm);
 	}
-
-	public static int animation = 0;
 
 	public static int getSwingAnimation(ItemBase wb, DeferredPowerJob dpj, boolean mainHand) {
 		int token = 0;
@@ -1125,57 +1094,56 @@ public enum CombatManager {
 		if (wb == null) {
 			return 75;
 		}
-		if (mainHand){
-			if (wb.getAnimations().size() > 0){
+		if (mainHand) {
+			if (wb.getAnimations().size() > 0) {
 				int animation = wb.getAnimations().get(0);
 				int random = ThreadLocalRandom.current().nextInt(wb.getAnimations().size());
-				try{
+				try {
 					animation = wb.getAnimations().get(random);
 					return animation;
-				}catch(Exception e){
-					Logger.error( e.getMessage());
+				} catch (Exception e) {
+					Logger.error(e.getMessage());
 					return wb.getAnimations().get(0);
 
 				}
 
-			}else if (wb.getOffHandAnimations().size() > 0){
+			} else if (wb.getOffHandAnimations().size() > 0) {
 				int animation = wb.getOffHandAnimations().get(0);
 				int random = ThreadLocalRandom.current().nextInt(wb.getOffHandAnimations().size());
-				try{
+				try {
 					animation = wb.getOffHandAnimations().get(random);
 					return animation;
-				}catch(Exception e){
-					Logger.error( e.getMessage());
+				} catch (Exception e) {
+					Logger.error(e.getMessage());
 					return wb.getOffHandAnimations().get(0);
 
 				}
 			}
-		}else{
-			if (wb.getOffHandAnimations().size() > 0){
+		} else {
+			if (wb.getOffHandAnimations().size() > 0) {
 				int animation = wb.getOffHandAnimations().get(0);
 				int random = ThreadLocalRandom.current().nextInt(wb.getOffHandAnimations().size());
-				try{
+				try {
 					animation = wb.getOffHandAnimations().get(random);
 					return animation;
-				}catch(Exception e){
-					Logger.error( e.getMessage());
+				} catch (Exception e) {
+					Logger.error(e.getMessage());
 					return wb.getOffHandAnimations().get(0);
 
 				}
-			}else
-				if (wb.getAnimations().size() > 0){
-					int animation = wb.getAnimations().get(0);
-					int random = ThreadLocalRandom.current().nextInt(wb.getAnimations().size());
-					try{
-						animation = wb.getAnimations().get(random);
-						return animation;
-					}catch(Exception e){
-						Logger.error( e.getMessage());
-						return wb.getAnimations().get(0);
-
-					}
+			} else if (wb.getAnimations().size() > 0) {
+				int animation = wb.getAnimations().get(0);
+				int random = ThreadLocalRandom.current().nextInt(wb.getAnimations().size());
+				try {
+					animation = wb.getAnimations().get(random);
+					return animation;
+				} catch (Exception e) {
+					Logger.error(e.getMessage());
+					return wb.getAnimations().get(0);
 
 				}
+
+			}
 		}
 
 
@@ -1290,7 +1258,7 @@ public enum CombatManager {
 
 		UpdateStateMsg rwss = new UpdateStateMsg();
 		rwss.setPlayer(pc);
-		DispatchMessage.dispatchMsgToInterestArea(pc, rwss,  DispatchChannel.PRIMARY, MBServerStatics.CHARACTER_LOAD_RANGE, true,false);
+		DispatchMessage.dispatchMsgToInterestArea(pc, rwss, DispatchChannel.PRIMARY, MBServerStatics.CHARACTER_LOAD_RANGE, true, false);
 	}
 
 	public static boolean NotInRange(AbstractCharacter ac, AbstractWorldObject target, float range) {
@@ -1313,16 +1281,16 @@ public enum CombatManager {
 		if (ac.equals(tarAc)) {
 			return;
 		}
-		
+
 		if (tarAc.isMoving() && tarAc.getObjectType().equals(GameObjectType.PlayerCharacter))
 			return;
-		
+
 		if (!tarAc.isAlive() || !ac.isAlive())
 			return;
 		boolean isCombat = tarAc.isCombat();
 		//If target in combat and has no target, then attack back
 		AbstractWorldObject awoCombTar = tarAc.getCombatTarget();
-		if ((tarAc.isCombat() && awoCombTar == null) || (isCombat && awoCombTar != null && (!awoCombTar.isAlive() ||tarAc.isCombat() && NotInRange(tarAc, awoCombTar, tarAc.getRange()))) || (tarAc != null && tarAc.getObjectType() == GameObjectType.Mob && ((Mob) tarAc).isSiege())) {
+		if ((tarAc.isCombat() && awoCombTar == null) || (isCombat && awoCombTar != null && (!awoCombTar.isAlive() || tarAc.isCombat() && NotInRange(tarAc, awoCombTar, tarAc.getRange()))) || (tarAc != null && tarAc.getObjectType() == GameObjectType.Mob && ((Mob) tarAc).isSiege())) {
 			// we are in combat with no valid target
 			if (tarAc.getObjectType().equals(GameObjectType.PlayerCharacter)) {
 				PlayerCharacter pc = (PlayerCharacter) tarAc;
@@ -1341,7 +1309,7 @@ public enum CombatManager {
 			Mob pet = ((PlayerCharacter) tarAc).getPet();
 			if (pet != null && pet.assist() && pet.getCombatTarget() == null) {
 				pet.setCombatTarget(ac);
-            }
+			}
 		}
 
 		//Handle Mob Retaliate.
@@ -1353,7 +1321,7 @@ public enum CombatManager {
 				return;
 			retaliater.setCombatTarget(ac);
 
-        }
+		}
 	}
 
 	public static void handleDamageShields(AbstractCharacter ac, AbstractCharacter target, float damage) {
@@ -1385,7 +1353,7 @@ public enum CombatManager {
 				//apply Damage back
 				ac.modifyHealth(-total, target, true);
 
-				TargetedActionMsg cmm = new TargetedActionMsg(ac,ac, total, 0);
+				TargetedActionMsg cmm = new TargetedActionMsg(ac, ac, total, 0);
 				DispatchMessage.sendToAllInRange(target, cmm);
 
 			}
@@ -1395,32 +1363,32 @@ public enum CombatManager {
 	public static float calcHitBox(AbstractWorldObject ac) {
 		//TODO Figure out how Str Affects HitBox
 		float hitBox = 1;
-		switch(ac.getObjectType()){
-		case PlayerCharacter:
-			PlayerCharacter pc = (PlayerCharacter)ac;
-			if (MBServerStatics.COMBAT_TARGET_HITBOX_DEBUG) {
-				Logger.info("Hit box radius for " + pc.getFirstName() + " is " + ((int) pc.statStrBase / 20f));
-			}
-			hitBox = 1.5f + (int) ((PlayerCharacter) ac).statStrBase / 20f;
-			break;
+		switch (ac.getObjectType()) {
+			case PlayerCharacter:
+				PlayerCharacter pc = (PlayerCharacter) ac;
+				if (MBServerStatics.COMBAT_TARGET_HITBOX_DEBUG) {
+					Logger.info("Hit box radius for " + pc.getFirstName() + " is " + ((int) pc.statStrBase / 20f));
+				}
+				hitBox = 1.5f + (int) ((PlayerCharacter) ac).statStrBase / 20f;
+				break;
 
-		case Mob:
-			Mob mob = (Mob)ac;
-			if (MBServerStatics.COMBAT_TARGET_HITBOX_DEBUG)
-				Logger.info( "Hit box radius for " + mob.getFirstName()
-				+ " is " + ((Mob) ac).getMobBase().getHitBoxRadius());
+			case Mob:
+				Mob mob = (Mob) ac;
+				if (MBServerStatics.COMBAT_TARGET_HITBOX_DEBUG)
+					Logger.info("Hit box radius for " + mob.getFirstName()
+							+ " is " + ((Mob) ac).getMobBase().getHitBoxRadius());
 
-			hitBox = ((Mob) ac).getMobBase().getHitBoxRadius();
-			break;
-		case Building:
-			Building building = (Building)ac;
-			if (building.getBlueprint() == null)
-				return 32;
-			hitBox = Math.max(building.getBlueprint().getBuildingGroup().getExtents().x,
-					building.getBlueprint().getBuildingGroup().getExtents().y);
-			if (MBServerStatics.COMBAT_TARGET_HITBOX_DEBUG)
-				Logger.info( "Hit box radius for " + building.getName() + " is " + hitBox);
-			break;
+				hitBox = ((Mob) ac).getMobBase().getHitBoxRadius();
+				break;
+			case Building:
+				Building building = (Building) ac;
+				if (building.getBlueprint() == null)
+					return 32;
+				hitBox = Math.max(building.getBlueprint().getBuildingGroup().getExtents().x,
+						building.getBlueprint().getBuildingGroup().getExtents().y);
+				if (MBServerStatics.COMBAT_TARGET_HITBOX_DEBUG)
+					Logger.info("Hit box radius for " + building.getName() + " is " + hitBox);
+				break;
 
 		}
 		return hitBox;

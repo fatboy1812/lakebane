@@ -40,7 +40,7 @@ public class AttackCmdMsg extends ClientNetMsg {
      * past the limit) then this constructor Throws that Exception to the
      * caller.
      */
-    public AttackCmdMsg(AbstractConnection origin, ByteBufferReader reader)  {
+    public AttackCmdMsg(AbstractConnection origin, ByteBufferReader reader) {
         super(Protocol.REQUESTMELEEATTACK, origin, reader);
     }
 
@@ -59,7 +59,7 @@ public class AttackCmdMsg extends ClientNetMsg {
      * Deserializes the subclass specific items from the supplied NetMsgReader.
      */
     @Override
-    protected void _deserialize(ByteBufferReader reader)  {
+    protected void _deserialize(ByteBufferReader reader) {
         this.sourceType = reader.getInt();
         this.sourceID = reader.getInt();
         this.targetType = reader.getInt();
@@ -73,11 +73,19 @@ public class AttackCmdMsg extends ClientNetMsg {
         return sourceType;
     }
 
+    public void setSourceType(int value) {
+        this.sourceType = value;
+    }
+
     /**
      * @return the sourceID
      */
     public int getSourceID() {
         return sourceID;
+    }
+
+    public void setSourceID(int value) {
+        this.sourceID = value;
     }
 
     /**
@@ -87,23 +95,15 @@ public class AttackCmdMsg extends ClientNetMsg {
         return targetType;
     }
 
+    public void setTargetType(int value) {
+        this.targetType = value;
+    }
+
     /**
      * @return the targetID
      */
     public int getTargetID() {
         return targetID;
-    }
-
-    public void setSourceType(int value) {
-        this.sourceType = value;
-    }
-
-    public void setSourceID(int value) {
-        this.sourceID = value;
-    }
-
-    public void setTargetType(int value) {
-        this.targetType = value;
     }
 
     public void setTargetID(int value) {

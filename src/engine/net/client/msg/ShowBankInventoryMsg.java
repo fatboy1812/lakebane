@@ -29,34 +29,44 @@ import java.util.ArrayList;
  */
 public class ShowBankInventoryMsg extends ClientNetMsg {
 
-	PlayerCharacter pc;
-	long unknown01;
+    PlayerCharacter pc;
+    long unknown01;
 
-	/**
-	 * This is the general purpose constructor.
-	 */
-	public ShowBankInventoryMsg(PlayerCharacter pc, long unknown01) {
-		super(Protocol.BANKINVENTORY);
-		this.pc = pc;
-		this.unknown01 = unknown01;
-	}
+    /**
+     * This is the general purpose constructor.
+     */
+    public ShowBankInventoryMsg(PlayerCharacter pc, long unknown01) {
+        super(Protocol.BANKINVENTORY);
+        this.pc = pc;
+        this.unknown01 = unknown01;
+    }
 
-	/**
-	 * Serializes the subclass specific items from the supplied NetMsgReader.
-	 */
-	@Override
-	protected void _serialize(ByteBufferWriter writer) throws SerializationException {
+    /**
+     * This constructor is used by NetMsgFactory. It attempts to deserialize the
+     * ByteBuffer into a message. If a BufferUnderflow occurs (based on reading
+     * past the limit) then this constructor Throws that Exception to the
+     * caller.
+     */
+    public ShowBankInventoryMsg(AbstractConnection origin, ByteBufferReader reader) {
+        super(Protocol.BANKINVENTORY, origin, reader);
+    }
 
-		ArrayList<Item> bank = pc.getCharItemManager().getBank();
+    /**
+     * Serializes the subclass specific items from the supplied NetMsgReader.
+     */
+    @Override
+    protected void _serialize(ByteBufferWriter writer) throws SerializationException {
 
-		writer.put((byte) 1); // static value
-		Item.putList(writer, bank, false, pc.getObjectUUID());
-		writer.putInt(AbstractCharacter.getBankCapacity());
+        ArrayList<Item> bank = pc.getCharItemManager().getBank();
 
-		// TODO: Gold is sent last and has a slightly different structure.
-		// Everything is static except the 3 labeled lines
-		//TODO: f/Eighty: I don't think gold is sent separately.
-		//		will need to check once transfer to bank is working.
+        writer.put((byte) 1); // static value
+        Item.putList(writer, bank, false, pc.getObjectUUID());
+        writer.putInt(AbstractCharacter.getBankCapacity());
+
+        // TODO: Gold is sent last and has a slightly different structure.
+        // Everything is static except the 3 labeled lines
+        //TODO: f/Eighty: I don't think gold is sent separately.
+        //		will need to check once transfer to bank is working.
 		/*
 		00:00:00:00:
 		07:00:00:00:
@@ -85,31 +95,21 @@ public class ShowBankInventoryMsg extends ClientNetMsg {
 		58:02:00:00: unknown?
 		*/
 
-                writer.putInt(pc.getObjectType().ordinal());
-                writer.putInt(pc.getObjectUUID());
-		writer.putLong(unknown01);
-	}
+        writer.putInt(pc.getObjectType().ordinal());
+        writer.putInt(pc.getObjectUUID());
+        writer.putLong(unknown01);
+    }
 
-	/**
-	 * This constructor is used by NetMsgFactory. It attempts to deserialize the
-	 * ByteBuffer into a message. If a BufferUnderflow occurs (based on reading
-	 * past the limit) then this constructor Throws that Exception to the
-	 * caller.
-	 */
-	public ShowBankInventoryMsg(AbstractConnection origin, ByteBufferReader reader)  {
-		super(Protocol.BANKINVENTORY, origin, reader);
-	}
+    /**
+     * Deserializes the subclass specific items to the supplied NetMsgWriter.
+     */
+    @Override
+    protected void _deserialize(ByteBufferReader reader) {
+    }
 
-	/**
-	 * Deserializes the subclass specific items to the supplied NetMsgWriter.
-	 */
-	@Override
-	protected void _deserialize(ByteBufferReader reader)  {
-	}
-
-	@Override
-	protected int getPowerOfTwoBufferSize() {
-		// Larger size for historically larger opcodes
-		return 17; // 2^15 == 32,768
-	}
+    @Override
+    protected int getPowerOfTwoBufferSize() {
+        // Larger size for historically larger opcodes
+        return 17; // 2^15 == 32,768
+    }
 }

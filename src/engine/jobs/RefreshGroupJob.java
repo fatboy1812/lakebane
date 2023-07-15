@@ -18,10 +18,10 @@ import engine.objects.PlayerCharacter;
 public class RefreshGroupJob extends AbstractJob {
 
     private final PlayerCharacter pc;
+    private final boolean wholeGroup;
     private ClientConnection origin;
     private Group grp;
     private PlayerCharacter pcToRefresh;
-    private final boolean wholeGroup;
 
     public RefreshGroupJob(PlayerCharacter pc, PlayerCharacter pcToRefresh) {
         super();
@@ -52,21 +52,21 @@ public class RefreshGroupJob extends AbstractJob {
         }
 
         if (wholeGroup) {
-            
+
             // refresh everyone in the group including me
             // check that we are in the same group as when we submitted the job
-            
+
             if (GroupManager.getGroup(pc) != null && GroupManager.getGroup(pc) == grp) {
-                
-            // refresh pc's group list for just the one player that needed refreshing
-                
+
+                // refresh pc's group list for just the one player that needed refreshing
+
                 GroupManager.RefreshMyGroupList(pc, origin);
                 GroupManager.RefreshOthersGroupList(pc);
             }
 
             return;
-        } 
-        
+        }
+
         // only refresh the single player
         if (this.pcToRefresh == null)
             return;

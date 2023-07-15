@@ -40,7 +40,7 @@ public class DevRequestHandler {
 
         switch (serverCommand) {
 
-            case "build" :
+            case "build":
                 commandString = "./mbdevbuild.sh";
                 break;
             case "restart":
@@ -61,11 +61,11 @@ public class DevRequestHandler {
             case "help":
                 MagicBot.sendResponse(event,
                         "#dev build <target> (blank==master) \n" +
-                                      "#dev shutdown (Shutdown dev server)\n" +
-                                      "#dev restart (Restarts the server)\n"+
-                        "#dev debug (Restarts server in debug mode)\n" +
-                        "#dev console # (Displays # lines from console)\n" +
-                        "#dev lastout (Displays output from last command) \n");
+                                "#dev shutdown (Shutdown dev server)\n" +
+                                "#dev restart (Restarts the server)\n" +
+                                "#dev debug (Restarts server in debug mode)\n" +
+                                "#dev console # (Displays # lines from console)\n" +
+                                "#dev lastout (Displays output from last command) \n");
                 return;
             default:
                 break;
@@ -77,18 +77,19 @@ public class DevRequestHandler {
         }
 
         processBuilder = new ProcessBuilder("/bin/sh", "-c", commandString + " " + commandArgument + " > devLastOut");
-        logString = String.join(" ",processBuilder.command().toArray(new String[0]));
+        logString = String.join(" ", processBuilder.command().toArray(new String[0]));
 
         try {
-                processBuilder.start();
-            } catch (IOException e) {
-                Logger.info(e.toString());
-            }
+            processBuilder.start();
+        } catch (IOException e) {
+            Logger.info(e.toString());
+        }
 
         MagicBot.sendResponse(event, "Executed on dev: " + logString + "\n" +
-                                                   "Use #dev lastout to view results");
+                "Use #dev lastout to view results");
 
-        }
+    }
+
     private static String getLastOutput() {
 
         String outString = null;

@@ -30,77 +30,77 @@ import java.util.ArrayList;
 
 public class AcceptSubInviteHandler extends AbstractClientMsgHandler {
 
-	public AcceptSubInviteHandler() {
-		super(AcceptSubInviteMsg.class);
-	}
+    public AcceptSubInviteHandler() {
+        super(AcceptSubInviteMsg.class);
+    }
 
-	@Override
-	protected boolean _handleNetMsg(ClientNetMsg baseMsg, ClientConnection origin) throws MsgSendException {
+    @Override
+    protected boolean _handleNetMsg(ClientNetMsg baseMsg, ClientConnection origin) throws MsgSendException {
 
-		AcceptSubInviteMsg msg = (AcceptSubInviteMsg) baseMsg;
-		PlayerCharacter sourcePlayer;
-		Guild sourceGuild;
-		Guild targetGuild;
-		Dispatch dispatch;
+        AcceptSubInviteMsg msg = (AcceptSubInviteMsg) baseMsg;
+        PlayerCharacter sourcePlayer;
+        Guild sourceGuild;
+        Guild targetGuild;
+        Dispatch dispatch;
 
-		// get PlayerCharacter of person sending sub invite
+        // get PlayerCharacter of person sending sub invite
 
-		sourcePlayer = SessionManager.getPlayerCharacter(origin);
+        sourcePlayer = SessionManager.getPlayerCharacter(origin);
 
-		if (sourcePlayer == null)
-			return true;
+        if (sourcePlayer == null)
+            return true;
 
-		sourceGuild = sourcePlayer.getGuild();
-		targetGuild = (Guild) DbManager.getObject(GameObjectType.Guild, msg.guildUUID());
+        sourceGuild = sourcePlayer.getGuild();
+        targetGuild = (Guild) DbManager.getObject(GameObjectType.Guild, msg.guildUUID());
 
-		//must be source guild to sub to
+        //must be source guild to sub to
 
-		if (targetGuild == null) {
-			ErrorPopupMsg.sendErrorPopup(sourcePlayer, 45); // Failure to swear guild
-			return true;
-		}
-		if (sourceGuild == null) {
-			ErrorPopupMsg.sendErrorPopup(sourcePlayer, 45); // Failure to swear guild
-			return true;
-		}
-		
-		if (sourceGuild.equals(targetGuild))
-			return true;
+        if (targetGuild == null) {
+            ErrorPopupMsg.sendErrorPopup(sourcePlayer, 45); // Failure to swear guild
+            return true;
+        }
+        if (sourceGuild == null) {
+            ErrorPopupMsg.sendErrorPopup(sourcePlayer, 45); // Failure to swear guild
+            return true;
+        }
 
-		if (GuildStatusController.isGuildLeader(sourcePlayer.getGuildStatus()) == false) {
-			ErrorPopupMsg.sendErrorMsg(sourcePlayer, "Only a guild leader can accept fealty!");
-			return true;
-		}
+        if (sourceGuild.equals(targetGuild))
+            return true;
 
-		//source guild is limited to 7 subs
-		//TODO this should be based on TOL rank
+        if (GuildStatusController.isGuildLeader(sourcePlayer.getGuildStatus()) == false) {
+            ErrorPopupMsg.sendErrorMsg(sourcePlayer, "Only a guild leader can accept fealty!");
+            return true;
+        }
 
-		if (!targetGuild.canSubAGuild(sourceGuild)) {
-			ErrorPopupMsg.sendErrorPopup(sourcePlayer, 45); // Failure to swear guild
-			return true;
-		}
+        //source guild is limited to 7 subs
+        //TODO this should be based on TOL rank
 
-		//all tests passed, let's Handle code
-		//Update Target Guild State.
+        if (!targetGuild.canSubAGuild(sourceGuild)) {
+            ErrorPopupMsg.sendErrorPopup(sourcePlayer, 45); // Failure to swear guild
+            return true;
+        }
 
-		sourceGuild.upgradeGuildState(false);
+        //all tests passed, let's Handle code
+        //Update Target Guild State.
 
-		//Add sub so GuildMaster can Swear in.
+        sourceGuild.upgradeGuildState(false);
 
-		ArrayList<Guild> subs = targetGuild.getSubGuildList();
-		subs.add(sourceGuild);
+        //Add sub so GuildMaster can Swear in.
 
-		targetGuild.setGuildState(GuildState.Nation);
+        ArrayList<Guild> subs = targetGuild.getSubGuildList();
+        subs.add(sourceGuild);
+
+        targetGuild.setGuildState(GuildState.Nation);
 
 
-		//Let's send the message back.
+        //Let's send the message back.
 
-		msg.setUnknown02(1);
-		msg.setResponse("Your guild is now a " + sourceGuild.getGuildState().name() + '.');
-		dispatch = Dispatch.borrow(sourcePlayer, msg);
-		DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
+        msg.setUnknown02(1);
+        msg.setResponse("Your guild is now a " + sourceGuild.getGuildState().name() + '.');
+        dispatch = Dispatch.borrow(sourcePlayer, msg);
+        DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
 
-		ChatManager.chatSystemInfo(sourcePlayer, "Your guild is now a " + sourceGuild.getGuildState().name() + '.');
-		return true;
-	}
+        ChatManager.chatSystemInfo(sourcePlayer, "Your guild is now a " + sourceGuild.getGuildState().name() + '.');
+        return true;
+    }
 }

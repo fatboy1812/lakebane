@@ -19,90 +19,90 @@ import engine.objects.*;
 
 public class DestroyBuildingHandler extends AbstractClientMsgHandler {
 
-	public DestroyBuildingHandler() {
-		super(DestroyBuildingMsg.class);
-	}
+    public DestroyBuildingHandler() {
+        super(DestroyBuildingMsg.class);
+    }
 
-	@Override
-	protected boolean _handleNetMsg(ClientNetMsg baseMsg, ClientConnection origin) throws MsgSendException {
-		
-		PlayerCharacter pc = origin.getPlayerCharacter();
+    @Override
+    protected boolean _handleNetMsg(ClientNetMsg baseMsg, ClientConnection origin) throws MsgSendException {
 
-		DestroyBuildingMsg msg;
-		msg = (DestroyBuildingMsg) baseMsg;
-		Bane bane = null;
-		Blueprint blueprint;
+        PlayerCharacter pc = origin.getPlayerCharacter();
 
-		int buildingUUID = msg.getUUID();
+        DestroyBuildingMsg msg;
+        msg = (DestroyBuildingMsg) baseMsg;
+        Bane bane = null;
+        Blueprint blueprint;
 
-		Building building = BuildingManager.getBuildingFromCache(buildingUUID);
-;
-		if (pc == null || building == null)
-			return true;
+        int buildingUUID = msg.getUUID();
 
-		blueprint = building.getBlueprint();
-		City city = building.getCity();
+        Building building = BuildingManager.getBuildingFromCache(buildingUUID);
+        ;
+        if (pc == null || building == null)
+            return true;
 
-		// Can't destroy buildings without a blueprint.
+        blueprint = building.getBlueprint();
+        City city = building.getCity();
 
-		if (blueprint == null)
-			return true;
+        // Can't destroy buildings without a blueprint.
 
-		// Cannot destroy Oblivion database derived buildings.
+        if (blueprint == null)
+            return true;
 
-		if (building.getProtectionState() == Enum.ProtectionState.NPC) {
-			return true;
-		}
+        // Cannot destroy Oblivion database derived buildings.
 
-		if (!BuildingManager.PlayerCanControlNotOwner(building, pc))
-			return true;
+        if (building.getProtectionState() == Enum.ProtectionState.NPC) {
+            return true;
+        }
 
-		// Can't delete siege assets during an active bane.
+        if (!BuildingManager.PlayerCanControlNotOwner(building, pc))
+            return true;
 
-		if (city != null)
-			bane = city.getBane();
+        // Can't delete siege assets during an active bane.
 
-		if ( bane != null && bane.getSiegePhase() == Enum.SiegePhase.WAR) {
-			ErrorPopupMsg.sendErrorPopup(pc, 171);
-			return true;
-		}
+        if (city != null)
+            bane = city.getBane();
 
-		// Can't destroy a tree of life
-		if (blueprint.getBuildingGroup() == BuildingGroup.TOL)
-			return true;
+        if (bane != null && bane.getSiegePhase() == Enum.SiegePhase.WAR) {
+            ErrorPopupMsg.sendErrorPopup(pc, 171);
+            return true;
+        }
 
-		// Can't destroy a shrine
-		if (blueprint.getBuildingGroup() == BuildingGroup.SHRINE)
-			return true;
+        // Can't destroy a tree of life
+        if (blueprint.getBuildingGroup() == BuildingGroup.TOL)
+            return true;
 
-		// Cannot destroy  mines outside of normal mine mechanics
+        // Can't destroy a shrine
+        if (blueprint.getBuildingGroup() == BuildingGroup.SHRINE)
+            return true;
 
-		if (blueprint.getBuildingGroup() == BuildingGroup.MINE)
-			return true;
+        // Cannot destroy  mines outside of normal mine mechanics
 
-		// Cannot delete rungates
+        if (blueprint.getBuildingGroup() == BuildingGroup.MINE)
+            return true;
 
-		if (blueprint.getBuildingGroup() == BuildingGroup.RUNEGATE)
-			return true;
+        // Cannot delete rungates
+
+        if (blueprint.getBuildingGroup() == BuildingGroup.RUNEGATE)
+            return true;
 
 
-		// Turn off spire if destoying
-		if (blueprint.getBuildingGroup() == BuildingGroup.SPIRE)
-			building.disableSpire(true);
+        // Turn off spire if destoying
+        if (blueprint.getBuildingGroup() == BuildingGroup.SPIRE)
+            building.disableSpire(true);
 
-		if (blueprint.getBuildingGroup() == BuildingGroup.WAREHOUSE) {
-			if (city != null)
-				city.setWarehouseBuildingID(0);
-		}
+        if (blueprint.getBuildingGroup() == BuildingGroup.WAREHOUSE) {
+            if (city != null)
+                city.setWarehouseBuildingID(0);
+        }
 
-		building.setRank(-1);
-		WorldGrid.RemoveWorldObject(building);
-		WorldGrid.removeObject(building);
-		building.getParentZone().zoneBuildingSet.remove(building);
-		if(building.getBlueprint() != null && building.getBlueprint().getBuildingGroup().equals(BuildingGroup.BARRACK)){
-			building.RemoveFromBarracksList();
-		}
-		return true;
-	}
+        building.setRank(-1);
+        WorldGrid.RemoveWorldObject(building);
+        WorldGrid.removeObject(building);
+        building.getParentZone().zoneBuildingSet.remove(building);
+        if (building.getBlueprint() != null && building.getBlueprint().getBuildingGroup().equals(BuildingGroup.BARRACK)) {
+            building.RemoveFromBarracksList();
+        }
+        return true;
+    }
 
 }

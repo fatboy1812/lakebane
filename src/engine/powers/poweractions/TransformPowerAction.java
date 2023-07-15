@@ -24,48 +24,48 @@ import java.util.HashMap;
 
 public class TransformPowerAction extends AbstractPowerAction {
 
-	private String effectID;
-	private EffectsBase effect;
+    private String effectID;
+    private EffectsBase effect;
 
-	public TransformPowerAction(ResultSet rs, HashMap<String, EffectsBase> effects) throws SQLException {
-		super(rs);
+    public TransformPowerAction(ResultSet rs, HashMap<String, EffectsBase> effects) throws SQLException {
+        super(rs);
 
-		this.effectID = rs.getString("effectID");
-		this.effect = effects.get(this.effectID);
-	}
+        this.effectID = rs.getString("effectID");
+        this.effect = effects.get(this.effectID);
+    }
 
-	public String getEffectID() {
-		return this.effectID;
-	}
+    public String getEffectID() {
+        return this.effectID;
+    }
 
-	public EffectsBase getEffect() {
-		return this.effect;
-	}
+    public EffectsBase getEffect() {
+        return this.effect;
+    }
 
-	@Override
-	protected void _startAction(AbstractCharacter source, AbstractWorldObject awo, Vector3fImmutable targetLoc, int trains, ActionsBase ab, PowersBase pb) {
-		if (this.effect == null || pb == null || ab == null) {
-			//TODO log error here
-			return;
-		}
+    @Override
+    protected void _startAction(AbstractCharacter source, AbstractWorldObject awo, Vector3fImmutable targetLoc, int trains, ActionsBase ab, PowersBase pb) {
+        if (this.effect == null || pb == null || ab == null) {
+            //TODO log error here
+            return;
+        }
 
-		int duration = ab.getDuration(trains);
-		String stackType = ab.getStackType();
-		stackType = (stackType.equals("IgnoreStack")) ? Integer.toString(ab.getUUID()) : stackType;
-		FinishEffectTimeJob eff = new FinishEffectTimeJob(source, awo, stackType, trains, ab, pb, effect);
-		if (duration > 0)
-			awo.addEffect(stackType, duration, eff, effect, trains);
-		this.effect.startEffect(source, awo, trains, eff);
-	}
+        int duration = ab.getDuration(trains);
+        String stackType = ab.getStackType();
+        stackType = (stackType.equals("IgnoreStack")) ? Integer.toString(ab.getUUID()) : stackType;
+        FinishEffectTimeJob eff = new FinishEffectTimeJob(source, awo, stackType, trains, ab, pb, effect);
+        if (duration > 0)
+            awo.addEffect(stackType, duration, eff, effect, trains);
+        this.effect.startEffect(source, awo, trains, eff);
+    }
 
-	@Override
-	protected void _handleChant(AbstractCharacter source, AbstractWorldObject target, Vector3fImmutable targetLoc, int trains, ActionsBase ab, PowersBase pb) {
-	}
+    @Override
+    protected void _handleChant(AbstractCharacter source, AbstractWorldObject target, Vector3fImmutable targetLoc, int trains, ActionsBase ab, PowersBase pb) {
+    }
 
-	@Override
-	protected void _startAction(AbstractCharacter source, AbstractWorldObject awo, Vector3fImmutable targetLoc,
-			int numTrains, ActionsBase ab, PowersBase pb, int duration) {
-		// TODO Auto-generated method stub
+    @Override
+    protected void _startAction(AbstractCharacter source, AbstractWorldObject awo, Vector3fImmutable targetLoc,
+                                int numTrains, ActionsBase ab, PowersBase pb, int duration) {
+        // TODO Auto-generated method stub
 
-	}
+    }
 }
