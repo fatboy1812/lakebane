@@ -335,7 +335,10 @@ public class MobileFSM {
         //pet cleanup for errant pets
         if(mob.BehaviourType.ordinal() == Enum.MobBehaviourType.Pet1.ordinal() && mob.getOwner() == null && mob.isSiege() == false){
                 mob.despawn();
+                DbManager.removeFromCache(mob);
                 WorldGrid.removeObject(mob);
+                ZoneManager.getSeaFloor().zoneMobSet.remove(mob);
+            return;
         }
         if (mob.despawned && mob.getMobBase().getLoadID() == 13171) {
             //trebuchet spawn handler
