@@ -496,7 +496,7 @@ public class MobileFSM {
                     }
                 }
             }
-        } else if (System.currentTimeMillis() > aiAgent.deathTime + (aiAgent.spawnTime * 1000)) {
+        } else if (System.currentTimeMillis() > (aiAgent.deathTime + (aiAgent.spawnTime * 1000))) {
             aiAgent.respawn();
         }
     }
