@@ -85,9 +85,9 @@ public class CreateMobPowerAction extends AbstractPowerAction {
                 WorldGrid.RemoveWorldObject(currentPet);
                 currentPet.setCombatTarget(null);
 
-                if (currentPet.getParentZone() != null)
-                    currentPet.getParentZone().zoneMobSet.remove(currentPet);
-
+                //if (currentPet.getParentZone() != null)
+                    //currentPet.getParentZone().zoneMobSet.remove(currentPet);
+                seaFloor.zoneMobSet.remove(currentPet);
                 currentPet.playerAgroMap.clear();
 
                 try {
@@ -118,8 +118,8 @@ public class CreateMobPowerAction extends AbstractPowerAction {
 
                     currentPet.setOwner(null);
                     WorldGrid.RemoveWorldObject(currentPet);
-
-                    currentPet.getParentZone().zoneMobSet.remove(currentPet);
+                    //currentPet.getParentZone().zoneMobSet.remove(currentPet);
+                    seaFloor.zoneMobSet.remove(currentPet);
                     currentPet.playerAgroMap.clear();
                     currentPet.clearEffects();
                     //currentPet.disableIntelligence();

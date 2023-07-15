@@ -1331,9 +1331,11 @@ public class Mob extends AbstractIntelligenceAgent {
                 this.combatTarget = null;
                 this.hasLoot = false;
 
-                if (this.parentZone != null)
-                    this.parentZone.zoneMobSet.remove(this);
-
+                //if (this.parentZone != null)
+                    //this.parentZone.zoneMobSet.remove(this);
+                if(ZoneManager.getSeaFloor().zoneMobSet.contains(this)) {
+                    ZoneManager.getSeaFloor().zoneMobSet.remove(this);
+                }
                 try {
                     this.clearEffects();
                 } catch (Exception e) {
@@ -1372,7 +1374,6 @@ public class Mob extends AbstractIntelligenceAgent {
             this.combatTarget = null;
 
             this.hasLoot = this.charItemManager.getInventoryCount() > 0;
-
         } catch (Exception e) {
             Logger.error(e);
         }

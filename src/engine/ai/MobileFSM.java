@@ -332,14 +332,6 @@ public class MobileFSM {
     public static void DetermineAction(Mob mob) {
         if (mob == null)
             return;
-        //pet cleanup for errant pets
-        if(mob.BehaviourType.ordinal() == Enum.MobBehaviourType.Pet1.ordinal() && mob.getOwner() == null && mob.isSiege() == false){
-                mob.despawn();
-                DbManager.removeFromCache(mob);
-                WorldGrid.removeObject(mob);
-                ZoneManager.getSeaFloor().zoneMobSet.remove(mob);
-            return;
-        }
         if (mob.despawned && mob.getMobBase().getLoadID() == 13171) {
             //trebuchet spawn handler
             CheckForRespawn(mob);
@@ -358,7 +350,9 @@ public class MobileFSM {
             }
             CheckForRespawn(mob);
             //check to send mob home for player guards to prevent exploit of dragging guards away and then teleporting
-            CheckToSendMobHome(mob);
+            if(mob.BehaviourType.ordinal() != Enum.MobBehaviourType.Pet1.ordinal()){
+                CheckToSendMobHome(mob);
+            }
             return;
         }
         if (!mob.isAlive()) {
@@ -382,6 +376,7 @@ public class MobileFSM {
         if (mob.combatTarget != null && mob.combatTarget.isAlive() == false) {
             mob.setCombatTarget(null);
         }
+        mob.updateLocation();
         switch (mob.BehaviourType) {
             case GuardCaptain:
                 GuardCaptainLogic(mob);
@@ -440,6 +435,9 @@ public class MobileFSM {
             return;
         switch (mob.BehaviourType) {
             case Pet1:
+                if(mob.getOwner() == null){
+                    return;
+                }
                 if (!mob.playerAgroMap.containsKey(mob.getOwner().getObjectUUID())) {
                     //mob no longer has its owner loaded, translocate pet to owner
                     MovementManager.translocate(mob, mob.getOwner().getLoc(), null);
@@ -640,6 +638,11 @@ public class MobileFSM {
     }
 
     private static void PetLogic(Mob mob) {
+        if(mob.getOwner() == null && mob.isNecroPet() == false && mob.isSiege() == false){
+            if(ZoneManager.getSeaFloor().zoneMobSet.contains(mob)){
+                mob.killCharacter("no owner");
+            }
+        }
         if (mob.getCombatTarget() != null && !mob.getCombatTarget().isAlive())
             mob.setCombatTarget(null);
         if (MovementUtilities.canMove(mob) && mob.BehaviourType.canRoam)
