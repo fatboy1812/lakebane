@@ -591,6 +591,9 @@ public class Mob extends AbstractIntelligenceAgent {
             createLock.writeLock().unlock();
         }
         parent.zoneMobSet.add(mob);
+        mob.level = level;
+        mob.healthMax = mob.getMobBase().getHealthMax() * (mob.level * 0.5f);
+        mob.health.set(mob.healthMax);
         return mob;
     }
 
@@ -1952,12 +1955,14 @@ public class Mob extends AbstractIntelligenceAgent {
             this.equip = new HashMap<>(0);
         }
         // Combine mobbase and mob aggro arrays into one bitvector
-        if (this.getMobBase().notEnemy.size() > 0)
-            this.notEnemy.addAll(this.getMobBase().notEnemy);
+        //skip for pets
+        if(this.isPet() == false && this.isSummonedPet() == false && this.isNecroPet() == false) {
+            if (this.getMobBase().notEnemy.size() > 0)
+                this.notEnemy.addAll(this.getMobBase().notEnemy);
 
-        if (this.getMobBase().enemy.size() > 0)
-            this.enemy.addAll(this.getMobBase().enemy);
-
+            if (this.getMobBase().enemy.size() > 0)
+                this.enemy.addAll(this.getMobBase().enemy);
+        }
         try {
             NPCManager.applyRuneSetEffects(this);
             recalculateStats();
