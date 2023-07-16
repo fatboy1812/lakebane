@@ -147,13 +147,22 @@ public class LootManager {
             return null;
         }
         int itemTableId = selectedRow.itemTableID;
-        int minRollRange = (mob.getLevel() * 3) + mob.getParentZone().minLvl;
         //add 20 to max roll range to make dwarven HA and Sage possible
-        int maxRollRange = (mob.getLevel() * 3) + (mob.getParentZone().maxLvl * 2);
-        if (maxRollRange > 320) {
-            maxRollRange = 320;
+        int zonemin = 25;
+        int zonemax = 50;
+        if(mob.getParentZone().minLvl != 0){
+            zonemax += mob.getParentZone().minLvl;
         }
-        int roll2 = new Random().nextInt(maxRollRange - minRollRange) + minRollRange;
+        if(mob.getParentZone().maxLvl != 0){
+            zonemax += mob.getParentZone().maxLvl;
+        }
+        int minRollRange = (mob.getLevel() * 3) + zonemin;
+        int maxRollRange = (mob.getLevel() * 3) + (zonemax * 2);
+        int roll2 = new Random().nextInt(maxRollRange) + minRollRange;
+
+        if (roll2 > 320) {
+            roll2 = 320;
+        }
         ItemTableRow tableRow = itemTables.get(itemTableId).getRowForRange(roll2);
         if (tableRow == null) {
             return null;
