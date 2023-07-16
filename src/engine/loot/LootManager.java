@@ -179,22 +179,31 @@ public class LootManager {
         Enum.ItemType outType = outItem.getItemBase().getType();
         if (outType.ordinal() == Enum.ItemType.WEAPON.ordinal() || outType.ordinal() == Enum.ItemType.ARMOR.ordinal() || outType.ordinal() == Enum.ItemType.JEWELRY.ordinal()) {
             if (outItem.getItemBase().isGlass() == false) {
-                ModTypeTable prefixTable = modTypeTables.get(selectedRow.pModTable);
-                ModTypeTable suffixTable = modTypeTables.get(selectedRow.sModTable);
-                if (modTables.get(prefixTable.getRowForRange(100).modTableID) != null) {
-                    ModTable prefixModTable = modTables.get(prefixTable.getRowForRange(100).modTableID);
-                    ModTableRow prefixMod = prefixModTable.getRowForRange(new Random().nextInt(maxRollRange) + minRollRange);
-                    if (prefixMod != null && prefixMod.action.length() > 0) {
-                        outItem.setPrefix(prefixMod.action);
-                        outItem.addPermanentEnchantment(prefixMod.action, 0, prefixMod.level, true);
+                int prefixChance = ThreadLocalRandom.current().nextInt(101);
+                if(prefixChance < mob.level) {
+                    ModTypeTable prefixTable = modTypeTables.get(selectedRow.pModTable);
+
+                    int prefixroll = ThreadLocalRandom.current().nextInt(101);
+                    if (modTables.get(prefixTable.getRowForRange(prefixroll).modTableID) != null) {
+                        ModTable prefixModTable = modTables.get(prefixTable.getRowForRange(prefixroll).modTableID);
+                        ModTableRow prefixMod = prefixModTable.getRowForRange(new Random().nextInt(maxRollRange) + minRollRange);
+                        if (prefixMod != null && prefixMod.action.length() > 0) {
+                            outItem.setPrefix(prefixMod.action);
+                            outItem.addPermanentEnchantment(prefixMod.action, 0, prefixMod.level, true);
+                        }
                     }
                 }
-                if (modTables.get(suffixTable.getRowForRange(100).modTableID) != null) {
-                    ModTable suffixModTable = modTables.get(suffixTable.getRowForRange(100).modTableID);
-                    ModTableRow suffixMod = suffixModTable.getRowForRange(new Random().nextInt(maxRollRange) + minRollRange);
-                    if (suffixMod != null && suffixMod.action.length() > 0) {
-                        outItem.setSuffix(suffixMod.action);
-                        outItem.addPermanentEnchantment(suffixMod.action, 0, suffixMod.level, false);
+                int suffixChance = ThreadLocalRandom.current().nextInt(101);
+                if(suffixChance < mob.level) {
+                    int suffixroll = ThreadLocalRandom.current().nextInt(101);
+                    ModTypeTable suffixTable = modTypeTables.get(selectedRow.sModTable);
+                    if (modTables.get(suffixTable.getRowForRange(suffixroll).modTableID) != null) {
+                        ModTable suffixModTable = modTables.get(suffixTable.getRowForRange(suffixroll).modTableID);
+                        ModTableRow suffixMod = suffixModTable.getRowForRange(new Random().nextInt(maxRollRange) + minRollRange);
+                        if (suffixMod != null && suffixMod.action.length() > 0) {
+                            outItem.setSuffix(suffixMod.action);
+                            outItem.addPermanentEnchantment(suffixMod.action, 0, suffixMod.level, false);
+                        }
                     }
                 }
             }
