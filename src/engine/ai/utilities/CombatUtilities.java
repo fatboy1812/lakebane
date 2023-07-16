@@ -363,11 +363,10 @@ public class CombatUtilities {
         float damage;
         float min = 40;
         float max = 60;
-        AbstractWorldObject target = agent.getCombatTarget();
         float dmgMultiplier = 1 + agent.getBonuses().getFloatPercentAll(ModType.MeleeDamageModifier, SourceType.None);
         double minDmg = getMinDmg(min, agent, null);
         double maxDmg = getMaxDmg(max, agent, null);
-        dmgMultiplier += agent.getLevel() / 10;
+        dmgMultiplier += agent.getLevel() * 0.1f;
         range = (float) (maxDmg - minDmg);
         damage = min + ((ThreadLocalRandom.current().nextFloat() * range) + (ThreadLocalRandom.current().nextFloat() * range)) / 2;
         return (int) (damage * dmgMultiplier);

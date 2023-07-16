@@ -11,7 +11,9 @@ package engine.powers.poweractions;
 
 import engine.Enum;
 import engine.InterestManagement.WorldGrid;
+import engine.ai.utilities.MovementUtilities;
 import engine.gameManager.DbManager;
+import engine.gameManager.MovementManager;
 import engine.gameManager.NPCManager;
 import engine.gameManager.ZoneManager;
 import engine.math.Vector3fImmutable;
@@ -83,9 +85,9 @@ public class CreateMobPowerAction extends AbstractPowerAction {
                 WorldGrid.RemoveWorldObject(currentPet);
                 currentPet.setCombatTarget(null);
 
-                if (currentPet.getParentZone() != null)
-                    currentPet.getParentZone().zoneMobSet.remove(currentPet);
-
+                //if (currentPet.getParentZone() != null)
+                    //currentPet.getParentZone().zoneMobSet.remove(currentPet);
+                seaFloor.zoneMobSet.remove(currentPet);
                 currentPet.playerAgroMap.clear();
 
                 try {
@@ -116,8 +118,8 @@ public class CreateMobPowerAction extends AbstractPowerAction {
 
                     currentPet.setOwner(null);
                     WorldGrid.RemoveWorldObject(currentPet);
-
-                    currentPet.getParentZone().zoneMobSet.remove(currentPet);
+                    //currentPet.getParentZone().zoneMobSet.remove(currentPet);
+                    seaFloor.zoneMobSet.remove(currentPet);
                     currentPet.playerAgroMap.clear();
                     currentPet.clearEffects();
                     //currentPet.disableIntelligence();
@@ -153,6 +155,9 @@ public class CreateMobPowerAction extends AbstractPowerAction {
         //	if (mobID == 12021 || mobID == 12022) //Necro Pets
         //	pet.setPet(owner, true);
         owner.setPet(pet);
+        if(pet.isSiege() == false) {
+            MovementManager.translocate(pet, owner.getLoc(), owner.region);
+        }
         PetMsg pm = new PetMsg(5, pet);
         Dispatch dispatch = Dispatch.borrow(owner, pm);
         DispatchMessage.dispatchMsgDispatch(dispatch, engine.Enum.DispatchChannel.SECONDARY);

@@ -13,6 +13,7 @@ import engine.InterestManagement.WorldGrid;
 import engine.ai.utilities.CombatUtilities;
 import engine.ai.utilities.MovementUtilities;
 import engine.gameManager.*;
+import engine.math.Vector2f;
 import engine.math.Vector3f;
 import engine.math.Vector3fImmutable;
 import engine.net.DispatchMessage;
@@ -350,7 +351,9 @@ public class MobileFSM {
             }
             CheckForRespawn(mob);
             //check to send mob home for player guards to prevent exploit of dragging guards away and then teleporting
-            CheckToSendMobHome(mob);
+            if(mob.BehaviourType.ordinal() != Enum.MobBehaviourType.Pet1.ordinal()){
+                CheckToSendMobHome(mob);
+            }
             return;
         }
         if (!mob.isAlive()) {
@@ -358,7 +361,7 @@ public class MobileFSM {
             CheckForRespawn(mob);
             return;
         }
-        if (mob.playerAgroMap.isEmpty() && mob.isPlayerGuard == false)
+        if (mob.playerAgroMap.isEmpty() && mob.isPlayerGuard == false && mob.BehaviourType.ordinal() != Enum.MobBehaviourType.Pet1.ordinal())
             //no players loaded, no need to proceed
             return;
         if (mob.isCombat() && mob.getCombatTarget() == null) {
@@ -368,10 +371,13 @@ public class MobileFSM {
             DispatchMessage.sendToAllInRange(mob, rwss);
         }
         mob.updateLocation();
-        CheckToSendMobHome(mob);
+        if(mob.BehaviourType.ordinal() != Enum.MobBehaviourType.Pet1.ordinal()) {
+            CheckToSendMobHome(mob);
+        }
         if (mob.combatTarget != null && mob.combatTarget.isAlive() == false) {
             mob.setCombatTarget(null);
         }
+        mob.updateLocation();
         switch (mob.BehaviourType) {
             case GuardCaptain:
                 GuardCaptainLogic(mob);
@@ -430,6 +436,9 @@ public class MobileFSM {
             return;
         switch (mob.BehaviourType) {
             case Pet1:
+                if(mob.getOwner() == null){
+                    return;
+                }
                 if (!mob.playerAgroMap.containsKey(mob.getOwner().getObjectUUID())) {
                     //mob no longer has its owner loaded, translocate pet to owner
                     MovementManager.translocate(mob, mob.getOwner().getLoc(), null);
@@ -479,6 +488,7 @@ public class MobileFSM {
                 if (System.currentTimeMillis() > aiAgent.deathTime + MBServerStatics.DESPAWN_TIMER_WITH_LOOT) {
                     aiAgent.despawn();
                     aiAgent.deathTime = System.currentTimeMillis();
+                    return;
                 }
                 //No items in inventory.
             } else {
@@ -487,17 +497,20 @@ public class MobileFSM {
                     if (System.currentTimeMillis() > aiAgent.deathTime + MBServerStatics.DESPAWN_TIMER_ONCE_LOOTED) {
                         aiAgent.despawn();
                         aiAgent.deathTime = System.currentTimeMillis();
+                        return;
                     }
                     //Mob never had Loot.
                 } else {
                     if (System.currentTimeMillis() > aiAgent.deathTime + MBServerStatics.DESPAWN_TIMER) {
                         aiAgent.despawn();
                         aiAgent.deathTime = System.currentTimeMillis();
+                        return;
                     }
                 }
             }
-        } else if (System.currentTimeMillis() > aiAgent.deathTime + (aiAgent.spawnTime * 1000)) {
+        } else if (System.currentTimeMillis() > (aiAgent.deathTime + (aiAgent.spawnTime * 1000))) {
             aiAgent.respawn();
+            return;
         }
     }
 
@@ -568,17 +581,28 @@ public class MobileFSM {
 
     private static void chaseTarget(Mob mob) {
         mob.updateMovementState();
-        if (mob.playerAgroMap.containsKey(mob.getCombatTarget().getObjectUUID()) == false) {
-            mob.setCombatTarget(null);
-            return;
-        }
+        //if (mob.playerAgroMap.containsKey(mob.getCombatTarget().getObjectUUID()) == false) {
+        //    mob.setCombatTarget(null);
+        //    return;
+        //}
         if (CombatUtilities.inRange2D(mob, mob.getCombatTarget(), mob.getRange()) == false) {
             if (mob.getRange() > 15) {
                 mob.destination = mob.getCombatTarget().getLoc();
                 MovementUtilities.moveToLocation(mob, mob.destination, 0);
             } else {
-                mob.destination = MovementUtilities.GetDestinationToCharacter(mob, (AbstractCharacter) mob.getCombatTarget());
-                MovementUtilities.moveToLocation(mob, mob.destination, mob.getRange());
+                //check if building
+                switch (mob.getCombatTarget().getObjectType()) {
+                    case PlayerCharacter:
+                    case Mob:
+                        mob.destination = MovementUtilities.GetDestinationToCharacter(mob, (AbstractCharacter) mob.getCombatTarget());
+                        MovementUtilities.moveToLocation(mob, mob.destination, mob.getRange());
+                        break;
+                    case Building:
+                        mob.destination = mob.getCombatTarget().getLoc();
+                        MovementUtilities.moveToLocation(mob,mob.getCombatTarget().getLoc(),0);
+                        break;
+                }
+
             }
         }
     }
@@ -626,6 +650,11 @@ public class MobileFSM {
     }
 
     private static void PetLogic(Mob mob) {
+        if(mob.getOwner() == null && mob.isNecroPet() == false && mob.isSiege() == false){
+            if(ZoneManager.getSeaFloor().zoneMobSet.contains(mob)){
+                mob.killCharacter("no owner");
+            }
+        }
         if (mob.getCombatTarget() != null && !mob.getCombatTarget().isAlive())
             mob.setCombatTarget(null);
         if (MovementUtilities.canMove(mob) && mob.BehaviourType.canRoam)

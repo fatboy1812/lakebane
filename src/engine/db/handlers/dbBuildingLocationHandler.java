@@ -31,7 +31,7 @@ public class dbBuildingLocationHandler extends dbHandlerBase {
         ArrayList<BuildingLocation> buildingLocations = new ArrayList<>();
 
         try (Connection connection = DbManager.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement("select * from static_building_location " +
+             PreparedStatement preparedStatement = connection.prepareStatement("select `ID`, `BuildingID`, `type`, `slot`, `unknown`, `locX`, `locY`, `locZ`, `w`,  `rotX`, `rotY`, `rotZ` from static_building_location " +
                      "where type = 6 or type = 8 " +
                      "GROUP BY buildingID, slot " +
                      "ORDER BY buildingID, slot ASC;")) {
