@@ -13,6 +13,7 @@ import engine.InterestManagement.WorldGrid;
 import engine.ai.utilities.CombatUtilities;
 import engine.ai.utilities.MovementUtilities;
 import engine.gameManager.*;
+import engine.math.Vector2f;
 import engine.math.Vector3f;
 import engine.math.Vector3fImmutable;
 import engine.net.DispatchMessage;
@@ -589,8 +590,19 @@ public class MobileFSM {
                 mob.destination = mob.getCombatTarget().getLoc();
                 MovementUtilities.moveToLocation(mob, mob.destination, 0);
             } else {
-                mob.destination = MovementUtilities.GetDestinationToCharacter(mob, (AbstractCharacter) mob.getCombatTarget());
-                MovementUtilities.moveToLocation(mob, mob.destination, mob.getRange());
+                //check if building
+                switch (mob.getCombatTarget().getObjectType()) {
+                    case PlayerCharacter:
+                    case Mob:
+                        mob.destination = MovementUtilities.GetDestinationToCharacter(mob, (AbstractCharacter) mob.getCombatTarget());
+                        MovementUtilities.moveToLocation(mob, mob.destination, mob.getRange());
+                        break;
+                    case Building:
+                        mob.destination = mob.getCombatTarget().getLoc();
+                        MovementUtilities.moveToLocation(mob,mob.getCombatTarget().getLoc(),0);
+                        break;
+                }
+
             }
         }
     }
