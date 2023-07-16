@@ -194,7 +194,7 @@ public class LootManager {
                     ModTableRow suffixMod = suffixModTable.getRowForRange(new Random().nextInt(maxRollRange) + minRollRange);
                     if (suffixMod != null && suffixMod.action.length() > 0) {
                         outItem.setSuffix(suffixMod.action);
-                        outItem.addPermanentEnchantment(suffixMod.action, 0, suffixMod.level, true);
+                        outItem.addPermanentEnchantment(suffixMod.action, 0, suffixMod.level, false);
                     }
                 }
             }
