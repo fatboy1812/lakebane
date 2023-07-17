@@ -40,36 +40,32 @@ public class ZoneSetCmd extends AbstractDevCmd {
 
         zone = ZoneManager.findSmallestZone(playerCharacter.getLoc());
 
-        if (zone == null) {
-            throwbackError(playerCharacter, "Error:  can't find the zone you are in.");
-            return;
-        }
-
-        //get all mobs for the zone
-
         throwbackInfo(playerCharacter, zone.getName() + " (" + zone.getLoadNum() + ") " + zone.getObjectUUID());
-
-        if (words[0].equalsIgnoreCase("mob")) {
-
-            for (Mob mob : zone.zoneMobSet) {
-
-                String out = mob.getName() + '(' + mob.getDBID() + "): ";
-
-                if (mob.isAlive())
-                    out += mob.getLoc().x + "x" + mob.getLoc().z + "; isAlive: " + mob.isAlive();
-                else
-                    out += " isAlive: " + mob.isAlive();
-
-                throwbackInfo(playerCharacter, out);
-                return;
-            }
-        }
 
         // NPC
 
-        for (NPC npc : zone.zoneNPCSet) {
-            String out = npc.getName() + '(' + npc.getDBID() + "): ";
+        if (words[0].equalsIgnoreCase("mob")) {
+
+            for (NPC npc : zone.zoneNPCSet) {
+                String out = npc.getName() + '(' + npc.getDBID() + "): ";
+                throwbackInfo(playerCharacter, out);
+            }
+            return;
+        }
+
+        // Mob
+
+        for (Mob mob : zone.zoneMobSet) {
+
+            String out = mob.getName() + '(' + mob.getDBID() + "): ";
+
+            if (mob.isAlive())
+                out += mob.getLoc().x + "x" + mob.getLoc().z + "; isAlive: " + mob.isAlive();
+            else
+                out += " isAlive: " + mob.isAlive();
+
             throwbackInfo(playerCharacter, out);
+            return;
         }
 
     }
