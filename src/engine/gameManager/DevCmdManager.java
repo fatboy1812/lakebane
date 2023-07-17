@@ -42,10 +42,9 @@ public enum DevCmdManager {
 
         // Player
         DevCmdManager.registerDevCmd(new DistanceCmd());
-        ;
         DevCmdManager.registerDevCmd(new HelpCmd());
         DevCmdManager.registerDevCmd(new GetZoneCmd());
-        DevCmdManager.registerDevCmd(new GetZoneMobsCmd());
+        DevCmdManager.registerDevCmd(new ZoneSetCmd());
         DevCmdManager.registerDevCmd(new PrintBankCmd());
         DevCmdManager.registerDevCmd(new PrintEquipCmd());
         DevCmdManager.registerDevCmd(new PrintInventoryCmd());
