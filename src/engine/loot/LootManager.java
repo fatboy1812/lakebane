@@ -138,22 +138,22 @@ public class LootManager {
             }
         }
         if (inHotzone) {
-                //hotzone glass roll, 1% chance to roll on glass table
-                if (ThreadLocalRandom.current().nextInt(101) > 99) {
-                    int roll2 = TableRoll(mob.level);
-                    if (itemTables.get(126).getRowForRange(roll2) == null) {
-                        return;
-                    }
-                    ItemTableRow tableRow = itemTables.get(126).getRowForRange(roll2);
-                    int itemUUID = tableRow.cacheID;
-                    if (itemUUID == 0) {
-                        return;
-                    }
-                    MobLoot toAddHZ = new MobLoot(mob, ItemBase.getItemBase(itemUUID), false);
-                    if (toAddHZ != null)
-                        mob.getCharItemManager().addItemToInventory(toAddHZ);
+            //hotzone glass roll, 1% chance to roll on glass table
+            if (ThreadLocalRandom.current().nextInt(101) > 99) {
+                int roll2 = TableRoll(mob.level);
+                if (itemTables.get(126).getRowForRange(roll2) == null) {
+                    return;
                 }
+                ItemTableRow tableRow = itemTables.get(126).getRowForRange(roll2);
+                int itemUUID = tableRow.cacheID;
+                if (itemUUID == 0) {
+                    return;
+                }
+                MobLoot toAddHZ = new MobLoot(mob, ItemBase.getItemBase(itemUUID), false);
+                if (toAddHZ != null)
+                    mob.getCharItemManager().addItemToInventory(toAddHZ);
             }
+        }
     }
 
 
