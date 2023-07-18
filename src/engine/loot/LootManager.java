@@ -83,9 +83,9 @@ public class LootManager {
                 for (MobEquipment me : mob.getEquip().values()) {
                     if (me.getDropChance() == 0)
                         continue;
-                    float equipmentRoll = ThreadLocalRandom.current().nextFloat();
-                    float dropChance = me.getDropChance();
-                    if (equipmentRoll < dropChance * multiplier) {
+                    float equipmentRoll = ThreadLocalRandom.current().nextInt(101);
+                    float dropChance = me.getDropChance() * 100;
+                    if (equipmentRoll <= dropChance) {
                         MobLoot ml = new MobLoot(mob, me.getItemBase(), false);
                         mob.getCharItemManager().addItemToInventory(ml);
                     }
@@ -94,10 +94,10 @@ public class LootManager {
             return;
         }
         for (BootySetEntry bse : entries) {
-            int roll = ThreadLocalRandom.current().nextInt(100);
+            int roll = ThreadLocalRandom.current().nextInt(101);
             switch (bse.bootyType) {
                 case "GOLD":
-                    if (roll > (bse.dropChance * multiplier)) {
+                    if (roll * multiplier > (bse.dropChance)) {
                         //early exit, failed to hit minimum chance roll OR booty was generated from mob's death
                         break;
                     }
@@ -109,7 +109,7 @@ public class LootManager {
                     }
                     break;
                 case "LOOT":
-                    if (roll > (bse.dropChance * multiplier)) {
+                    if (roll * multiplier > (bse.dropChance)) {
                         //early exit, failed to hit minimum chance roll OR booty was generated from mob's death
                         break;
                     }
@@ -119,7 +119,10 @@ public class LootManager {
                         mob.getCharItemManager().addItemToInventory(toAdd);
                     }
                     if (inHotzone) {
-                        int lootTableID = bse.lootTable + 1;
+                        int lootTableID = bse.lootTable;
+                        if (generalItemTables.containsKey(bse.lootTable + 1)) {
+                            lootTableID = bse.lootTable + 1;
+                        }
                         MobLoot toAddHZ = getGenTableItem(lootTableID, mob);
                         if (toAddHZ != null)
                             mob.getCharItemManager().addItemToInventory(toAddHZ);
@@ -134,35 +137,39 @@ public class LootManager {
                     break;
             }
         }
+        if (inHotzone) {
+                //hotzone glass roll, 1% chance to roll on glass table
+                if (ThreadLocalRandom.current().nextInt(101) > 99) {
+                    int roll2 = TableRoll(mob.level);
+                    if (itemTables.get(126).getRowForRange(roll2) == null) {
+                        return;
+                    }
+                    ItemTableRow tableRow = itemTables.get(126).getRowForRange(roll2);
+                    int itemUUID = tableRow.cacheID;
+                    if (itemUUID == 0) {
+                        return;
+                    }
+                    MobLoot toAddHZ = new MobLoot(mob, ItemBase.getItemBase(itemUUID), false);
+                    if (toAddHZ != null)
+                        mob.getCharItemManager().addItemToInventory(toAddHZ);
+                }
+            }
     }
+
 
     public static MobLoot getGenTableItem(int genTableID, Mob mob) {
         if (genTableID == 0 || mob == null || generalItemTables.containsKey(genTableID) == false) {
             return null;
         }
         MobLoot outItem;
-        int roll = new Random().nextInt(101);
-        GenTableRow selectedRow = generalItemTables.get(genTableID).getRowForRange(roll);
+        int genRoll = new Random().nextInt(101);
+        GenTableRow selectedRow = generalItemTables.get(genTableID).getRowForRange(genRoll);
         if (selectedRow == null) {
             return null;
         }
         int itemTableId = selectedRow.itemTableID;
-        //add 20 to max roll range to make dwarven HA and Sage possible
-        int zonemin = 25;
-        int zonemax = 50;
-        if(mob.getParentZone().minLvl != 0){
-            zonemax += mob.getParentZone().minLvl;
-        }
-        if(mob.getParentZone().maxLvl != 0){
-            zonemax += mob.getParentZone().maxLvl;
-        }
-        int minRollRange = (mob.getLevel() * 3) + zonemin;
-        int maxRollRange = (mob.getLevel() * 3) + (zonemax * 2);
-        int roll2 = new Random().nextInt(maxRollRange) + minRollRange;
-
-        if (roll2 > 320) {
-            roll2 = 320;
-        }
+        //gets the 1-320 roll for this mob
+        int roll2 = TableRoll(mob.level);
         ItemTableRow tableRow = itemTables.get(itemTableId).getRowForRange(roll2);
         if (tableRow == null) {
             return null;
@@ -179,27 +186,27 @@ public class LootManager {
         Enum.ItemType outType = outItem.getItemBase().getType();
         if (outType.ordinal() == Enum.ItemType.WEAPON.ordinal() || outType.ordinal() == Enum.ItemType.ARMOR.ordinal() || outType.ordinal() == Enum.ItemType.JEWELRY.ordinal()) {
             if (outItem.getItemBase().isGlass() == false) {
-                int prefixChance = ThreadLocalRandom.current().nextInt(101);
+                int prefixChance = ThreadLocalRandom.current().nextInt(100);
                 if(prefixChance < mob.level) {
                     ModTypeTable prefixTable = modTypeTables.get(selectedRow.pModTable);
 
-                    int prefixroll = ThreadLocalRandom.current().nextInt(101);
+                    int prefixroll = ThreadLocalRandom.current().nextInt(100)-1;
                     if (modTables.get(prefixTable.getRowForRange(prefixroll).modTableID) != null) {
                         ModTable prefixModTable = modTables.get(prefixTable.getRowForRange(prefixroll).modTableID);
-                        ModTableRow prefixMod = prefixModTable.getRowForRange(new Random().nextInt(maxRollRange) + minRollRange);
+                        ModTableRow prefixMod = prefixModTable.getRowForRange(TableRoll(mob.level));
                         if (prefixMod != null && prefixMod.action.length() > 0) {
                             outItem.setPrefix(prefixMod.action);
                             outItem.addPermanentEnchantment(prefixMod.action, 0, prefixMod.level, true);
                         }
                     }
                 }
-                int suffixChance = ThreadLocalRandom.current().nextInt(101);
+                int suffixChance = ThreadLocalRandom.current().nextInt(100);
                 if(suffixChance < mob.level) {
-                    int suffixroll = ThreadLocalRandom.current().nextInt(101);
+                    int suffixroll = ThreadLocalRandom.current().nextInt(100)-1;
                     ModTypeTable suffixTable = modTypeTables.get(selectedRow.sModTable);
                     if (modTables.get(suffixTable.getRowForRange(suffixroll).modTableID) != null) {
                         ModTable suffixModTable = modTables.get(suffixTable.getRowForRange(suffixroll).modTableID);
-                        ModTableRow suffixMod = suffixModTable.getRowForRange(new Random().nextInt(maxRollRange) + minRollRange);
+                        ModTableRow suffixMod = suffixModTable.getRowForRange(TableRoll(mob.level));
                         if (suffixMod != null && suffixMod.action.length() > 0) {
                             outItem.setSuffix(suffixMod.action);
                             outItem.addPermanentEnchantment(suffixMod.action, 0, suffixMod.level, false);
@@ -210,7 +217,18 @@ public class LootManager {
         }
         return outItem;
     }
-
+    private static int TableRoll(int mobLevel){
+        int max = 210 + (mobLevel * 2);
+        if(max > 320){
+            max = 320;
+        }
+        int min = (int)(mobLevel * 2.5f);
+        int roll = ThreadLocalRandom.current().nextInt(max-min) + min;
+        if(roll >= 191){
+            int poo = 0;
+        }
+        return roll;
+    }
     public static void AddGenTableRow(int tableID, GenTableRow row) {
         if (!generalItemTables.containsKey(tableID)) {
             //create the new table
