@@ -105,6 +105,11 @@ public class MobileFSM {
                 mob.setLastAttackTime(System.currentTimeMillis() + attackDelay);
             }
         }
+        if(target.getPet() != null){
+            if(target.getPet().getCombatTarget() == null && target.getPet().assist() == true){
+                target.getPet().setCombatTarget(mob);
+            }
+        }
     }
 
     public static void AttackBuilding(Mob mob, Building target) {
@@ -432,17 +437,17 @@ public class MobileFSM {
                 return;
             }
         }
-        //look for pets to aggro;;;
-        HashSet<AbstractWorldObject> awoList = WorldGrid.getObjectsInRangePartial(aiAgent, MobileFSMManager.AI_BASE_AGGRO_RANGE, MBServerStatics.MASK_PET);
-        for (AbstractWorldObject awoMob : awoList) {
-            //dont scan self.
-            if (aiAgent.equals(awoMob))
-                continue;
-            Mob aggroMob = (Mob) awoMob;
-            //dont attack other guards
-            if (aggroMob.isPet())
+        if(aiAgent.combatTarget == null) {
+            //look for pets to aggro if no players found to aggro
+            HashSet<AbstractWorldObject> awoList = WorldGrid.getObjectsInRangePartial(aiAgent, MobileFSMManager.AI_BASE_AGGRO_RANGE, MBServerStatics.MASK_PET);
+            for (AbstractWorldObject awoMob : awoList) {
+                //dont scan self.
+                if (aiAgent.equals(awoMob))
+                    continue;
+                Mob aggroMob = (Mob) awoMob;
                 aiAgent.setCombatTarget(aggroMob);
                 return;
+            }
         }
     }
 
