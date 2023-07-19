@@ -172,6 +172,9 @@ public class MobileFSM {
                 attackDelay = 11000;
             CombatUtilities.combatCycle(mob, target, false, mob.getWeaponItemBase(false));
             mob.setLastAttackTime(System.currentTimeMillis() + attackDelay);
+            if(target.combatTarget == null){
+                target.combatTarget = mob;
+            }
         }
     }
 
@@ -429,6 +432,18 @@ public class MobileFSM {
                 return;
             }
         }
+        //look for pets to aggro;;;
+        HashSet<AbstractWorldObject> awoList = WorldGrid.getObjectsInRangePartial(aiAgent, MobileFSMManager.AI_BASE_AGGRO_RANGE, MBServerStatics.MASK_PET);
+        for (AbstractWorldObject awoMob : awoList) {
+            //dont scan self.
+            if (aiAgent.equals(awoMob))
+                continue;
+            Mob aggroMob = (Mob) awoMob;
+            //dont attack other guards
+            if (aggroMob.isPet())
+                aiAgent.setCombatTarget(aggroMob);
+                return;
+        }
     }
 
     private static void CheckMobMovement(Mob mob) {
@@ -669,6 +684,9 @@ public class MobileFSM {
                 float recoveredHealth = mob.getHealthMax() * ((1 + mob.getBonuses().getFloatPercentAll(Enum.ModType.HealthRecoverRate, Enum.SourceType.None))* 0.01f);
                 mob.setHealth(mob.getHealth() + recoveredHealth);
                 mob.getTimestamps().put("HEALTHRECOVERED",System.currentTimeMillis());
+                if(mob.getHealth() > mob.getHealthMax()){
+                    mob.setHealth(mob.getHealthMax());
+                }
             }
         }
     }
