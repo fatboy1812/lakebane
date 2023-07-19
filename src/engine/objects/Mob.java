@@ -1396,7 +1396,8 @@ public class Mob extends AbstractIntelligenceAgent {
         this.isAlive.set(true);
         this.deathTime = 0;
         this.lastBindLoc = this.bindLoc;
-        this.setLoc(this.lastBindLoc);
+        //this.setLoc(this.lastBindLoc);
+        this.setLoc(bindLoc);
         this.stopMovement(this.lastBindLoc);
         NPCManager.applyRuneSetEffects(this);
         this.recalculateStats();
@@ -1406,7 +1407,7 @@ public class Mob extends AbstractIntelligenceAgent {
         } else if (this.building != null) {
             this.region = BuildingManager.GetRegion(this.building, bindLoc.x, bindLoc.y, bindLoc.z);
         }
-        MovementManager.translocate(this, this.bindLoc, this.region);
+        //MovementManager.translocate(this, this.bindLoc, this.region);
         if (!this.isSiege && !this.isPlayerGuard && contract == null)
             loadInventory();
 

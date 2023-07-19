@@ -377,7 +377,10 @@ public class MobileFSM {
         if (mob.combatTarget != null && mob.combatTarget.isAlive() == false) {
             mob.setCombatTarget(null);
         }
-        mob.updateLocation();
+        //mob.updateLocation();
+        if(mob.isMoving()){
+            mob.setLoc(mob.getMovementLoc());
+        }
         switch (mob.BehaviourType) {
             case GuardCaptain:
                 GuardCaptainLogic(mob);
