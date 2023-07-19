@@ -97,7 +97,7 @@ public class LootManager {
             int roll = ThreadLocalRandom.current().nextInt(101);
             switch (bse.bootyType) {
                 case "GOLD":
-                    if (roll >= (bse.dropChance * multiplier)) {
+                    if (roll > (bse.dropChance * multiplier)) {
                         //early exit, failed to hit minimum chance roll OR booty was generated from mob's death
                         break;
                     }
@@ -109,7 +109,7 @@ public class LootManager {
                     }
                     break;
                 case "LOOT":
-                    if (roll >= (bse.dropChance * multiplier)) {
+                    if (roll > (bse.dropChance * multiplier)) {
                         //early exit, failed to hit minimum chance roll OR booty was generated from mob's death
                         break;
                     }
