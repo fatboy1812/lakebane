@@ -1489,6 +1489,9 @@ public class Mob extends AbstractIntelligenceAgent {
         float s;
 
         h = this.mobBase.getHealthMax();
+        if(this.isPet()){
+            h = this.level * 0.5f * 120;
+        }
         m = this.statSpiCurrent;
         s = this.statConCurrent;
 

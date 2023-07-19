@@ -18,6 +18,7 @@
 
 package engine.powers.poweractions;
 
+import com.sun.prism.impl.ps.BaseShaderContext;
 import engine.Enum.GameObjectType;
 import engine.Enum.ModType;
 import engine.Enum.SourceType;
@@ -140,10 +141,17 @@ public class ApplyEffectPowerAction extends AbstractPowerAction {
                     ((Mob) awo).setCombatTarget(source);
                     ChatSystemMsg msg = ChatManager.CombatInfo(source, awo);
                     DispatchMessage.sendToAllInRange(source, msg);
+                    ((Mob)awo).refresh();
+                }
+            }
+            if (awo != null && awo.getObjectType() == GameObjectType.Mob) {
+                if(((Mob)awo).isPet()) {
+                    ((Mob) awo).recalculateStats();
                 }
             }
             this.effect.startEffect(source, awo, trains, eff);
         }
+
     }
 
     protected void _applyEffectForItem(Item item, int trains) {

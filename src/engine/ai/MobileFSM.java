@@ -660,6 +660,17 @@ public class MobileFSM {
         if (MovementUtilities.canMove(mob) && mob.BehaviourType.canRoam)
             CheckMobMovement(mob);
         CheckForAttack(mob);
+        //recover health
+        if(mob.getTimestamps().containsKey("HEALTHRECOVERED") == false){
+            mob.getTimestamps().put("HEALTHRECOVERED", System.currentTimeMillis());
+        }
+        if(mob.isSit() && mob.getTimeStamp("HEALTHRECOVERED") < System.currentTimeMillis() + 3000){
+            if(mob.getHealth() < mob.getHealthMax()) {
+                float recoveredHealth = mob.getHealthMax() * ((1 + mob.getBonuses().getFloatPercentAll(Enum.ModType.HealthRecoverRate, Enum.SourceType.None))* 0.01f);
+                mob.setHealth(mob.getHealth() + recoveredHealth);
+                mob.getTimestamps().put("HEALTHRECOVERED",System.currentTimeMillis());
+            }
+        }
     }
 
     private static void HamletGuardLogic(Mob mob) {
