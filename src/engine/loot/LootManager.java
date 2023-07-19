@@ -94,9 +94,10 @@ public class LootManager {
             return;
         }
         for (BootySetEntry bse : entries) {
-            int roll = ThreadLocalRandom.current().nextInt(101);
+            int roll;
             switch (bse.bootyType) {
                 case "GOLD":
+                    roll = ThreadLocalRandom.current().nextInt(101);
                     if (roll > (bse.dropChance * multiplier)) {
                         //early exit, failed to hit minimum chance roll OR booty was generated from mob's death
                         break;
@@ -109,8 +110,10 @@ public class LootManager {
                     }
                     break;
                 case "LOOT":
+                    roll = ThreadLocalRandom.current().nextInt(101);
+                    float dropChance = bse.dropChance * multiplier;
                     if (roll > (bse.dropChance * multiplier)) {
-                        //early exit, failed to hit minimum chance roll OR booty was generated from mob's death
+                        //early exit, failed to hit minimum chance roll
                         break;
                     }
                     //iterate the booty tables and add items to mob inventory
@@ -119,14 +122,12 @@ public class LootManager {
                         mob.getCharItemManager().addItemToInventory(toAdd);
                     }
                     if (inHotzone) {
-                        int lootTableID = bse.lootTable;
                         if (generalItemTables.containsKey(bse.lootTable + 1)) {
-                            lootTableID = bse.lootTable + 1;
+                            int lootTableID = bse.lootTable + 1;
+                            MobLoot toAddHZ = getGenTableItem(lootTableID, mob);
+                            if (toAddHZ != null)
+                                mob.getCharItemManager().addItemToInventory(toAddHZ);
                         }
-                        MobLoot toAddHZ = getGenTableItem(lootTableID, mob);
-                        if (toAddHZ != null)
-                            mob.getCharItemManager().addItemToInventory(toAddHZ);
-
                     }
                     break;
                 case "ITEM":
