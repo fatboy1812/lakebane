@@ -675,8 +675,9 @@ public class MobileFSM {
                 mob.killCharacter("no owner");
             }
         }
-        if (mob.getCombatTarget() != null && !mob.getCombatTarget().isAlive())
-            mob.setCombatTarget(null);
+        if (mob.getCombatTarget() != null)
+            if(!mob.getCombatTarget().isAlive() || mob.getCombatTarget().getLoc().distanceSquared(mob.getOwner().getLoc()) > 75)
+                mob.setCombatTarget(null);
         if (MovementUtilities.canMove(mob) && mob.BehaviourType.canRoam)
             CheckMobMovement(mob);
         CheckForAttack(mob);
