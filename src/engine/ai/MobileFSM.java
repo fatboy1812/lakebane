@@ -105,6 +105,11 @@ public class MobileFSM {
                 mob.setLastAttackTime(System.currentTimeMillis() + attackDelay);
             }
         }
+        if(target.getPet() != null){
+            if(target.getPet().getCombatTarget() == null && target.getPet().assist() == true){
+                target.getPet().setCombatTarget(mob);
+            }
+        }
     }
 
     public static void AttackBuilding(Mob mob, Building target) {
@@ -172,6 +177,9 @@ public class MobileFSM {
                 attackDelay = 11000;
             CombatUtilities.combatCycle(mob, target, false, mob.getWeaponItemBase(false));
             mob.setLastAttackTime(System.currentTimeMillis() + attackDelay);
+            if(target.combatTarget == null){
+                target.combatTarget = mob;
+            }
         }
     }
 
@@ -432,6 +440,18 @@ public class MobileFSM {
                 return;
             }
         }
+        if(aiAgent.combatTarget == null) {
+            //look for pets to aggro if no players found to aggro
+            HashSet<AbstractWorldObject> awoList = WorldGrid.getObjectsInRangePartial(aiAgent, MobileFSMManager.AI_BASE_AGGRO_RANGE, MBServerStatics.MASK_PET);
+            for (AbstractWorldObject awoMob : awoList) {
+                //dont scan self.
+                if (aiAgent.equals(awoMob))
+                    continue;
+                Mob aggroMob = (Mob) awoMob;
+                aiAgent.setCombatTarget(aggroMob);
+                return;
+            }
+        }
     }
 
     private static void CheckMobMovement(Mob mob) {
@@ -658,11 +678,26 @@ public class MobileFSM {
                 mob.killCharacter("no owner");
             }
         }
-        if (mob.getCombatTarget() != null && !mob.getCombatTarget().isAlive())
-            mob.setCombatTarget(null);
+        if (mob.getCombatTarget() != null)
+            if(!mob.getCombatTarget().isAlive() || mob.getCombatTarget().getLoc().distanceSquared(mob.getOwner().getLoc()) > 75)
+                mob.setCombatTarget(null);
         if (MovementUtilities.canMove(mob) && mob.BehaviourType.canRoam)
             CheckMobMovement(mob);
         CheckForAttack(mob);
+        //recover health
+        if(mob.getTimestamps().containsKey("HEALTHRECOVERED") == false){
+            mob.getTimestamps().put("HEALTHRECOVERED", System.currentTimeMillis());
+        }
+        if(mob.isSit() && mob.getTimeStamp("HEALTHRECOVERED") < System.currentTimeMillis() + 3000){
+            if(mob.getHealth() < mob.getHealthMax()) {
+                float recoveredHealth = mob.getHealthMax() * ((1 + mob.getBonuses().getFloatPercentAll(Enum.ModType.HealthRecoverRate, Enum.SourceType.None))* 0.01f);
+                mob.setHealth(mob.getHealth() + recoveredHealth);
+                mob.getTimestamps().put("HEALTHRECOVERED",System.currentTimeMillis());
+                if(mob.getHealth() > mob.getHealthMax()){
+                    mob.setHealth(mob.getHealthMax());
+                }
+            }
+        }
     }
 
     private static void HamletGuardLogic(Mob mob) {

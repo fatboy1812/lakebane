@@ -158,6 +158,9 @@ public class CreateMobPowerAction extends AbstractPowerAction {
         if(pet.isSiege() == false) {
             MovementManager.translocate(pet, owner.getLoc(), owner.region);
         }
+        pet.recalculateStats();
+        pet.healthMax = pet.level * 0.5f * 120;
+        pet.setHealth(pet.healthMax);
         PetMsg pm = new PetMsg(5, pet);
         Dispatch dispatch = Dispatch.borrow(owner, pm);
         DispatchMessage.dispatchMsgDispatch(dispatch, engine.Enum.DispatchChannel.SECONDARY);

@@ -225,9 +225,6 @@ public class LootManager {
         }
         int min = (int)(mobLevel * 2.5f);
         int roll = ThreadLocalRandom.current().nextInt(max-min) + min;
-        if(roll >= 191){
-            int poo = 0;
-        }
         return roll;
     }
     public static void AddGenTableRow(int tableID, GenTableRow row) {
