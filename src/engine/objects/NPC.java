@@ -577,6 +577,7 @@ public class NPC extends AbstractCharacter {
         if (parent != null) {
             npcWithoutID.setRelPos(parent, spawn.x - parent.absX, spawn.y - parent.absY, spawn.z - parent.absZ);
         }
+        npcWithoutID.setLoc(new Vector3fImmutable(npcWithoutID.statLat,npcWithoutID.statAlt,npcWithoutID.statLon));
         NPC npc;
         try {
             npc = DbManager.NPCQueries.ADD_NPC(npcWithoutID, isMob);
