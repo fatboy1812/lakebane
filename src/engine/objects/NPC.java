@@ -110,7 +110,7 @@ public class NPC extends AbstractCharacter {
         this.building = building;
 
         this.parentZone = parent;
-
+        this.parentZoneID = parent.getObjectUUID();
         clearStatic();
 
         this.dbID = MBServerStatics.NO_DB_ROW_ASSIGNED_YET;
