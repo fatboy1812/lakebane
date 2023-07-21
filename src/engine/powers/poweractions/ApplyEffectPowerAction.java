@@ -17,8 +17,6 @@
 
 
 package engine.powers.poweractions;
-
-import com.sun.prism.impl.ps.BaseShaderContext;
 import engine.Enum.GameObjectType;
 import engine.Enum.ModType;
 import engine.Enum.SourceType;
