@@ -569,14 +569,22 @@ public class NPC extends AbstractCharacter {
 
         npcWithoutID.setLevel(level);
 
-        if (npcWithoutID.mobBase == null) {
+        if (npcWithoutID.mobBase == null)
             return null;
-        }
-        if (parent != null) {
-            npcWithoutID.setRelPos(parent, spawn.x - parent.absX, spawn.y - parent.absY, spawn.z - parent.absZ);
-        }
-        npcWithoutID.setLoc(new Vector3fImmutable(npcWithoutID.statLat,npcWithoutID.statAlt,npcWithoutID.statLon));
+
+        // Parent zone is required by dbhandler.  Can likely
+        // refactor that out and just use the id.
+
+        npcWithoutID.parentZone = parent;
+        npcWithoutID.parentZoneID = parent.getObjectUUID();
+
+        // NPC in a Building derives position from slot
+
+        if (npcWithoutID.building != null)
+            npcWithoutID.bindLoc = Vector3fImmutable.ZERO;
+
         NPC npc;
+
         try {
             npc = DbManager.NPCQueries.ADD_NPC(npcWithoutID, isMob);
             npc.setObjectTypeMask(MBServerStatics.MASK_NPC);
@@ -584,7 +592,6 @@ public class NPC extends AbstractCharacter {
             Logger.error(e);
             npc = null;
         }
-
 
         return npc;
     }
