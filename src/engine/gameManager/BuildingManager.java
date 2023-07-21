@@ -531,7 +531,7 @@ public enum BuildingManager {
             if (mob == null)
                 return false;
 
-            WorldGrid.addObject(mob, contractOwner);
+            mob.setLoc(mob.getLoc());
 
             return true;
         }
@@ -543,7 +543,7 @@ public enum BuildingManager {
             if (mob == null)
                 return false;
 
-            WorldGrid.addObject(mob, contractOwner);
+            mob.setLoc(mob.getLoc());
 
             return true;
         }
@@ -555,7 +555,7 @@ public enum BuildingManager {
             if (mob == null)
                 return false;
 
-            WorldGrid.addObject(mob, contractOwner);
+            mob.setLoc(mob.getLoc());
 
             return true;
         }
