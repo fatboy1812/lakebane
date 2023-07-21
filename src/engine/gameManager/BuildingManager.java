@@ -565,7 +565,7 @@ public enum BuildingManager {
         if (npc == null)
             return false;
 
-        WorldGrid.addObject(npc, contractOwner);
+        npc.setLoc(npc.getLoc());
 
         return true;
     }
