@@ -1245,6 +1245,10 @@ public class Building extends AbstractWorldObject {
         stuckLocation = stuckLocations.get(ThreadLocalRandom.current().nextInt(stuckLocations.size())).getLocation();
         stuckLocation = this.getLoc().add(stuckLocation);
 
+        // Rotate stuck position by the building rotation
+
+        stuckLocation = Vector3fImmutable.rotateAroundPoint(this.getLoc(), stuckLocation, this.getBounds().getQuaternion().angleY);
+
         return stuckLocation;
     }
 
