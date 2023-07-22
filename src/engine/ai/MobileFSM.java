@@ -544,7 +544,7 @@ public class MobileFSM {
         if (mob.getCombatTarget() == null) {
             return;
         }
-        if (mob.getCombatTarget().getObjectType().equals(Enum.GameObjectType.PlayerCharacter) && MovementUtilities.inRangeDropAggro(mob, (PlayerCharacter) mob.getCombatTarget()) == false) {
+        if (mob.getCombatTarget().getObjectType().equals(Enum.GameObjectType.PlayerCharacter) && MovementUtilities.inRangeDropAggro(mob, (PlayerCharacter) mob.getCombatTarget()) == false && mob.BehaviourType.ordinal() != Enum.MobBehaviourType.Pet1.ordinal()) {
             mob.setCombatTarget(null);
             if (mob.isCombat()) {
                 mob.setCombat(false);
@@ -604,10 +604,6 @@ public class MobileFSM {
 
     private static void chaseTarget(Mob mob) {
         mob.updateMovementState();
-        if (mob.playerAgroMap.containsKey(mob.getCombatTarget().getObjectUUID()) == false) {
-            mob.setCombatTarget(null);
-            return;
-        }
         if (CombatUtilities.inRange2D(mob, mob.getCombatTarget(), mob.getRange()) == false) {
             if (mob.getRange() > 15) {
                 mob.destination = mob.getCombatTarget().getLoc();
@@ -678,9 +674,6 @@ public class MobileFSM {
                 mob.killCharacter("no owner");
             }
         }
-        if (mob.getCombatTarget() != null)
-            //if(!mob.getCombatTarget().isAlive() || mob.getCombatTarget().getLoc().distanceSquared(mob.getOwner().getLoc()) > 75)
-                //mob.setCombatTarget(null);
         if (MovementUtilities.canMove(mob) && mob.BehaviourType.canRoam)
             CheckMobMovement(mob);
         CheckForAttack(mob);
