@@ -604,10 +604,10 @@ public class MobileFSM {
 
     private static void chaseTarget(Mob mob) {
         mob.updateMovementState();
-        //if (mob.playerAgroMap.containsKey(mob.getCombatTarget().getObjectUUID()) == false) {
-        //    mob.setCombatTarget(null);
-        //    return;
-        //}
+        if (mob.playerAgroMap.containsKey(mob.getCombatTarget().getObjectUUID()) == false) {
+            mob.setCombatTarget(null);
+            return;
+        }
         if (CombatUtilities.inRange2D(mob, mob.getCombatTarget(), mob.getRange()) == false) {
             if (mob.getRange() > 15) {
                 mob.destination = mob.getCombatTarget().getLoc();
@@ -679,8 +679,8 @@ public class MobileFSM {
             }
         }
         if (mob.getCombatTarget() != null)
-            if(!mob.getCombatTarget().isAlive() || mob.getCombatTarget().getLoc().distanceSquared(mob.getOwner().getLoc()) > 75)
-                mob.setCombatTarget(null);
+            //if(!mob.getCombatTarget().isAlive() || mob.getCombatTarget().getLoc().distanceSquared(mob.getOwner().getLoc()) > 75)
+                //mob.setCombatTarget(null);
         if (MovementUtilities.canMove(mob) && mob.BehaviourType.canRoam)
             CheckMobMovement(mob);
         CheckForAttack(mob);
