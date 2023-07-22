@@ -80,7 +80,7 @@ public class MobileFSM {
             if (System.currentTimeMillis() < mob.getLastAttackTime())
                 return;
             // ranged mobs cant attack while running. skip until they finally stop.
-            if (mob.isMoving())
+            if (mob.isMoving() && mob.getRange() > 20)
                 return;
             // add timer for last attack.
             ItemBase mainHand = mob.getWeaponItemBase(true);
@@ -378,18 +378,19 @@ public class MobileFSM {
             rwss.setPlayer(mob);
             DispatchMessage.sendToAllInRange(mob, rwss);
         }
-        //mob.updateLocation();
-        if(mob.isMoving() == true){
-            mob.setLoc(mob.getMovementLoc());
-        }
         if(mob.BehaviourType.ordinal() != Enum.MobBehaviourType.Pet1.ordinal()) {
             CheckToSendMobHome(mob);
         }
         if (mob.combatTarget != null && mob.combatTarget.isAlive() == false) {
             mob.setCombatTarget(null);
         }
-        //mob.updateLocation();
-        if(mob.isMoving()){
+        mob.updateLocation();
+        if(mob.getTimestamps().containsKey("MOVEMENTSYNC") == false){
+            mob.getTimestamps().put("MOVEMENTSYNC",System.currentTimeMillis());
+        }
+        if(mob.getTimeStamp("MOVEMENTSYNC") < System.currentTimeMillis() + 1000){
+            mob.getTimestamps().put("MOVEMENTSYNC",System.currentTimeMillis());
+
             mob.setLoc(mob.getMovementLoc());
         }
         switch (mob.BehaviourType) {
@@ -735,7 +736,7 @@ public class MobileFSM {
         if (mob.BehaviourType.canRoam)
             CheckMobMovement(mob);
         //check if mob can attack if it isn't wimpy
-        if (!mob.BehaviourType.isWimpy && !mob.isMoving() && mob.combatTarget != null)
+        if (!mob.BehaviourType.isWimpy && mob.combatTarget != null)
             CheckForAttack(mob);
     }
 

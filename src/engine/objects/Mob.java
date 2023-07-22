@@ -1299,6 +1299,8 @@ public class Mob extends AbstractIntelligenceAgent {
         Dispatch dispatch;
 
         try {
+            //resync corpses
+            this.setLoc(this.getMovementLoc());
             if (this.isSiege) {
                 this.deathTime = System.currentTimeMillis();
                 //this.state = STATE.Dead;
@@ -1375,8 +1377,7 @@ public class Mob extends AbstractIntelligenceAgent {
             this.combat = false;
             this.walkMode = true;
             this.combatTarget = null;
-            //resync corpses
-            this.setLoc(this.loc);
+
             this.hasLoot = this.charItemManager.getInventoryCount() > 0;
         } catch (Exception e) {
             Logger.error(e);
@@ -1385,6 +1386,7 @@ public class Mob extends AbstractIntelligenceAgent {
 
     public void respawn() {
         //Commenting out Mob ID rotation.
+        this.despawned = false;
         this.playerAgroMap.clear();
         this.setCombatTarget(null);
         this.setHealth(this.healthMax);
@@ -1396,8 +1398,7 @@ public class Mob extends AbstractIntelligenceAgent {
         this.isAlive.set(true);
         this.deathTime = 0;
         this.lastBindLoc = this.bindLoc;
-        //this.setLoc(this.lastBindLoc);
-        this.setLoc(bindLoc);
+        this.setLoc(this.lastBindLoc);
         this.stopMovement(this.lastBindLoc);
         NPCManager.applyRuneSetEffects(this);
         this.recalculateStats();
@@ -1410,7 +1411,6 @@ public class Mob extends AbstractIntelligenceAgent {
         //MovementManager.translocate(this, this.bindLoc, this.region);
         if (!this.isSiege && !this.isPlayerGuard && contract == null)
             loadInventory();
-        this.despawned = false;
     }
 
     public void despawn() {
