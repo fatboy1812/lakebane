@@ -1612,7 +1612,7 @@ public class Enum {
         ESTATE(64f, 64f),
         FORTRESS(64f, 64f),
         CITADEL(64f, 64f),
-        WALLSTRAIGHTTOWER(16f, 64),
+        WALLSTRAIGHTTOWER(32F, 64),
         WALLSTAIRS(64, 64);
 
         private final Vector2f extents;

@@ -922,11 +922,6 @@ public class Mob extends AbstractIntelligenceAgent {
 
                 this.bindLoc = building.getLoc().add(slotLocation);
 
-                // Rotate MOB by slot rotation
-
-                slotRotation = BuildingManager.getSlotLocation(building, slot).getRotation();
-                this.setRot(new Vector3f(0, slotRotation.y, 0));
-
             }
 
             // Rotate slot position by the building rotation
