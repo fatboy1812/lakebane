@@ -275,25 +275,27 @@ public class Regions {
 
 
         //Find building
-        for (AbstractWorldObject awo : WorldGrid.getObjectsInRangePartial(location, MBServerStatics.STRUCTURE_LOAD_RANGE, MBServerStatics.MASK_BUILDING)) {
+        for (AbstractWorldObject awo : WorldGrid.getObjectsInRangePartial(location, 128, MBServerStatics.MASK_BUILDING)) {
             Building building = (Building) awo;
             if (!Bounds.collide(location, building.getBounds()))
                 continue;
-
-            //find regions that intersect x and z, check if object can enter.
-            for (Regions toEnter : building.getBounds().getRegions()) {
-                if (toEnter.isPointInPolygon(location)) {
-
-                    if (region == null)
-                        region = toEnter;
-                    else // we're using a low level to high level tree structure, database not always in order low to high.
-                        //check for highest level index.
-                        if (region != null && toEnter.highLerp.y > region.highLerp.y)
-                            region = toEnter;
-
-
-                }
+            if(building != null) {
+                region = BuildingManager.GetRegion(building, location.x, location.y, location.z);
             }
+            //find regions that intersect x and z, check if object can enter.
+            //for (Regions toEnter : building.getBounds().getRegions()) {
+            //    if (toEnter.isPointInPolygon(location)) {
+
+            //        if (region == null)
+            //            region = toEnter;
+            //        else // we're using a low level to high level tree structure, database not always in order low to high.
+                        //check for highest level index.
+            //            if (region != null && toEnter.highLerp.y > region.highLerp.y)
+            //                region = toEnter;
+
+
+            //    }
+           // }
         }
         return region;
     }
