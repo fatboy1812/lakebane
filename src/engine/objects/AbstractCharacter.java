@@ -535,9 +535,10 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
     }
 
     public static void teleport(AbstractCharacter worldObject, final Vector3fImmutable targetLoc) {
+        Regions targetRegion = Regions.GetRegionForTeleport(targetLoc);
         worldObject.locationLock.writeLock().lock();
         try {
-            MovementManager.translocate(worldObject, targetLoc, null);
+            MovementManager.translocate(worldObject, targetLoc, targetRegion);
             if (worldObject.getObjectType().equals(GameObjectType.PlayerCharacter))
                 InterestManager.INTERESTMANAGER.HandleLoadForTeleport((PlayerCharacter) worldObject);
         } catch (Exception e) {
@@ -1466,9 +1467,10 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
     }
 
     public void teleport(final Vector3fImmutable targetLoc) {
+        Regions targetRegion = Regions.GetRegionForTeleport(targetLoc);
         locationLock.writeLock().lock();
         try {
-            MovementManager.translocate(this, targetLoc, null);
+            MovementManager.translocate(this, targetLoc, targetRegion);
             MovementManager.sendRWSSMsg(this);
         } catch (Exception e) {
             Logger.error(e);

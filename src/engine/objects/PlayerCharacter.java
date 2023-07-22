@@ -5502,9 +5502,10 @@ public class PlayerCharacter extends AbstractCharacter {
 
     @Override
     public final void teleport(final Vector3fImmutable targetLoc) {
+        Regions targetRegion = Regions.GetRegionForTeleport(targetLoc);
         locationLock.writeLock().lock();
         try {
-            MovementManager.translocate(this, targetLoc, null);
+            MovementManager.translocate(this, targetLoc, targetRegion);
         } catch (Exception e) {
             Logger.error(e);
         } finally {
