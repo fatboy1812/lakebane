@@ -31,7 +31,8 @@ public enum MapLoader {
         // Load image from disk
 
         try {
-            image = ImageIO.read(new File(ConfigManager.DEFAULT_DATA_DIR + "realmmaps/" + ConfigManager.MB_WORLD_REALMMAP + ".png"));
+            String mapPath = ConfigManager.DEFAULT_DATA_DIR + "realmmaps/" + ConfigManager.MB_WORLD_REALMMAP + ".png";
+            image = ImageIO.read(new File(mapPath));
 
             // Array size determined by image size
             MBServerStatics.SPATIAL_HASH_BUCKETSX = image.getWidth();
