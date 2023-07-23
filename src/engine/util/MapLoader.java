@@ -32,7 +32,7 @@ public enum MapLoader {
         // Load image from disk
 
         try {
-            mapPath = ConfigManager.DEFAULT_DATA_DIR + "realmmaps/" + ConfigManager.MB_WORLD_REALMMAP + ".png";
+            mapPath = ConfigManager.DEFAULT_DATA_DIR + "realmmaps/" + ConfigManager.MB_WORLD_REALMMAP.getValue() + ".png";
             image = ImageIO.read(new File(mapPath));
 
             // Array size determined by image size
