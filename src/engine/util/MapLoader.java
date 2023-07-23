@@ -27,11 +27,12 @@ public enum MapLoader {
         long bytesRead = 0;
         long realmsWritten = 0;
         int realmUUID;
+        String mapPath = null;
 
         // Load image from disk
 
         try {
-            String mapPath = ConfigManager.DEFAULT_DATA_DIR + "realmmaps/" + ConfigManager.MB_WORLD_REALMMAP + ".png";
+            mapPath = ConfigManager.DEFAULT_DATA_DIR + "realmmaps/" + ConfigManager.MB_WORLD_REALMMAP + ".png";
             image = ImageIO.read(new File(mapPath));
 
             // Array size determined by image size
@@ -39,7 +40,7 @@ public enum MapLoader {
             MBServerStatics.SPATIAL_HASH_BUCKETSY = image.getHeight();
             realmMap = new int[MBServerStatics.SPATIAL_HASH_BUCKETSX][MBServerStatics.SPATIAL_HASH_BUCKETSY];
         } catch (IOException e) {
-            Logger.error("Error loading realm map: " + e.toString());
+            Logger.error("Error loading realm map: " + mapPath);
             return null;
         }
 
