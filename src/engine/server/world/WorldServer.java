@@ -51,11 +51,10 @@ import org.pmw.tinylog.labelers.TimestampLabeler;
 import org.pmw.tinylog.policies.StartupPolicy;
 import org.pmw.tinylog.writers.RollingFileWriter;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
@@ -249,6 +248,19 @@ public class WorldServer {
 
 			String name = ConfigManager.MB_WORLD_NAME.getValue();
 
+			if (ConfigManager.MB_EXTERNAL_ADDR.getValue().equals("0.0.0.0")) {
+
+				// Autoconfigure External IP address.  Only used in loginserver but useful
+				// here for bootstrap display
+
+				Logger.info("AUTOCONFIG EXTERNAL IP ADDRESS");
+				URL whatismyip = new URL("http://checkip.amazonaws.com");
+
+				BufferedReader in = new BufferedReader(new InputStreamReader(
+						whatismyip.openStream()));
+				ConfigManager.MB_EXTERNAL_ADDR.setValue(in.readLine());
+			}
+
 			if (ConfigManager.MB_BIND_ADDR.getValue().equals("0.0.0.0")) {
 
 				try (final DatagramSocket socket = new DatagramSocket()) {
@@ -257,6 +269,9 @@ public class WorldServer {
 				}
 
 			}
+
+			Logger.info("External address: " + ConfigManager.MB_EXTERNAL_ADDR.getValue() + ":" + ConfigManager.MB_WORLD_PORT.getValue());
+			Logger.info("Internal address: " + ConfigManager.MB_BIND_ADDR.getValue() + ":" + ConfigManager.MB_LOGIN_PORT.getValue());
 
 			InetAddress addy = InetAddress.getByName(ConfigManager.MB_BIND_ADDR.getValue());
 			int port = Integer.parseInt(ConfigManager.MB_WORLD_PORT.getValue());

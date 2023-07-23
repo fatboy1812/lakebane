@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
 public enum ConfigManager {
 
     MB_BIND_ADDR,
-
+    MB_EXTERNAL_ADDR,
     // Database connection config
 
     MB_DATABASE_ADDRESS,
