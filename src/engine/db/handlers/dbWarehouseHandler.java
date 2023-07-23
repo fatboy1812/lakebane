@@ -492,7 +492,6 @@ public class dbWarehouseHandler extends dbHandlerBase {
         try (Connection connection = DbManager.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO `dyn_warehouse_transactions` (`warehouseUID`, `targetType`,`targetUID`, `type`,`resource`,`amount`,`date` ) VALUES (?,?,?,?,?,?,?)")) {
 
-            preparedStatement.setInt(1, amount);
             preparedStatement.setLong(1, warehouseBuildingID);
             preparedStatement.setString(2, targetType.name());
             preparedStatement.setLong(3, targetUUID);
