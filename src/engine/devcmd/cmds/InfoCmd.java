@@ -491,9 +491,9 @@ public class InfoCmd extends AbstractDevCmd {
                     output += newline;
                     output += "No building found." + newline;
                 }
-                int max = 200 + (targetMob.level * 3);
-                if(max > 320){
-                    max = 320;
+                int max = (int)(4.882 * targetMob.level + 121.0);
+                if(max > 321){
+                    max = 321;
                 }
                 int min = targetMob.level * 2;
                 output += "Min Loot Roll = " + min;
