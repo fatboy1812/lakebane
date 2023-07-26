@@ -384,15 +384,15 @@ public class MobileFSM {
         if (mob.combatTarget != null && mob.combatTarget.isAlive() == false) {
             mob.setCombatTarget(null);
         }
-        mob.updateLocation();
-        if(mob.getTimestamps().containsKey("MOVEMENTSYNC") == false){
-            mob.getTimestamps().put("MOVEMENTSYNC",System.currentTimeMillis());
-        }
-        if(mob.getTimeStamp("MOVEMENTSYNC") < System.currentTimeMillis() + 1000){
-            mob.getTimestamps().put("MOVEMENTSYNC",System.currentTimeMillis());
+        //mob.updateLocation();
+        //if(mob.getTimestamps().containsKey("MOVEMENTSYNC") == false){
+        //    mob.getTimestamps().put("MOVEMENTSYNC",System.currentTimeMillis());
+        //}
+        //if(mob.getTimeStamp("MOVEMENTSYNC") < System.currentTimeMillis() + 1000){
+        //    mob.getTimestamps().put("MOVEMENTSYNC",System.currentTimeMillis());
 
-            mob.setLoc(mob.getMovementLoc());
-        }
+        //    mob.setLoc(mob.getMovementLoc());
+        //}
         switch (mob.BehaviourType) {
             case GuardCaptain:
                 GuardCaptainLogic(mob);

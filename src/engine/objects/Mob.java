@@ -1295,7 +1295,7 @@ public class Mob extends AbstractIntelligenceAgent {
 
         try {
             //resync corpses
-            this.setLoc(this.getMovementLoc());
+            //this.setLoc(this.getMovementLoc());
             if (this.isSiege) {
                 this.deathTime = System.currentTimeMillis();
                 //this.state = STATE.Dead;
