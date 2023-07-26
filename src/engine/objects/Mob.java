@@ -1377,6 +1377,7 @@ public class Mob extends AbstractIntelligenceAgent {
         } catch (Exception e) {
             Logger.error(e);
         }
+        this.updateLocation();
     }
 
     public void respawn() {
@@ -1406,6 +1407,7 @@ public class Mob extends AbstractIntelligenceAgent {
         //MovementManager.translocate(this, this.bindLoc, this.region);
         if (!this.isSiege && !this.isPlayerGuard && contract == null)
             loadInventory();
+        this.updateLocation();
     }
 
     public void despawn() {

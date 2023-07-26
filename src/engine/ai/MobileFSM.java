@@ -43,6 +43,7 @@ public class MobileFSM {
         }
         if (target.getObjectType() == Enum.GameObjectType.PlayerCharacter && canCast(mob)) {
             if (MobCast(mob)) {
+                mob.updateLocation();
                 return;
             }
         }
@@ -62,6 +63,7 @@ public class MobileFSM {
                 AttackMob(mob, targetMob);
                 break;
         }
+        mob.updateLocation();
     }
 
     public static void AttackPlayer(Mob mob, PlayerCharacter target) {
@@ -384,15 +386,6 @@ public class MobileFSM {
         if (mob.combatTarget != null && mob.combatTarget.isAlive() == false) {
             mob.setCombatTarget(null);
         }
-        //mob.updateLocation();
-        //if(mob.getTimestamps().containsKey("MOVEMENTSYNC") == false){
-        //    mob.getTimestamps().put("MOVEMENTSYNC",System.currentTimeMillis());
-        //}
-        //if(mob.getTimeStamp("MOVEMENTSYNC") < System.currentTimeMillis() + 1000){
-        //    mob.getTimestamps().put("MOVEMENTSYNC",System.currentTimeMillis());
-
-        //    mob.setLoc(mob.getMovementLoc());
-        //}
         switch (mob.BehaviourType) {
             case GuardCaptain:
                 GuardCaptainLogic(mob);
@@ -461,6 +454,7 @@ public class MobileFSM {
     private static void CheckMobMovement(Mob mob) {
         if (!MovementUtilities.canMove(mob))
             return;
+        mob.updateLocation();
         switch (mob.BehaviourType) {
             case Pet1:
                 if(mob.getOwner() == null){
@@ -604,6 +598,7 @@ public class MobileFSM {
 
     private static void chaseTarget(Mob mob) {
         mob.updateMovementState();
+        mob.updateLocation();
         if (CombatUtilities.inRange2D(mob, mob.getCombatTarget(), mob.getRange()) == false) {
             if (mob.getRange() > 15) {
                 mob.destination = mob.getCombatTarget().getLoc();
