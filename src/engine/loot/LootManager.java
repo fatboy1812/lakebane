@@ -219,11 +219,11 @@ public class LootManager {
         return outItem;
     }
     private static int TableRoll(int mobLevel){
-        int max = 210 + (mobLevel * 2);
-        if(max > 320){
-            max = 320;
+        int max = (int)(4.882 * mobLevel + 121.0);
+        if(max > 321){
+            max = 321;
         }
-        int min = (int)(mobLevel * 2.5f);
+        int min = mobLevel * 2;
         int roll = ThreadLocalRandom.current().nextInt(max-min) + min;
         return roll;
     }

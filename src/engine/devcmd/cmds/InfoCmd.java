@@ -489,8 +489,15 @@ public class InfoCmd extends AbstractDevCmd {
                     output += "Curr Loc : " + targetMob.getLoc() + newline;
                 } else {
                     output += newline;
-                    output += "No building found.";
+                    output += "No building found." + newline;
                 }
+                int max = (int)(4.882 * targetMob.level + 121.0);
+                if(max > 321){
+                    max = 321;
+                }
+                int min = targetMob.level * 2;
+                output += "Min Loot Roll = " + min;
+                output += "Max Loot Roll = " + max;
                 break;
             case Item:  //intentional passthrough
             case MobLoot:
