@@ -628,7 +628,7 @@ public class MobileFSM {
         HashSet<AbstractWorldObject> awoList = WorldGrid.getObjectsInRangePartial(mob, 100, MBServerStatics.MASK_MOB);
         for (AbstractWorldObject awoMob : awoList) {
             //dont scan self.
-            if (mob.equals(awoMob))
+            if (mob.equals(awoMob) || mob.isGuard() == true)
                 continue;
             Mob aggroMob = (Mob) awoMob;
             //dont attack other guards
