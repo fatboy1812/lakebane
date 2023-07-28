@@ -347,7 +347,6 @@ public class MobileFSM {
             respawnQue.remove(0);
             lastRespawn = System.currentTimeMillis();
         }
-
         if (mob == null)
             return;
         if (mob.despawned && mob.getMobBase().getLoadID() == 13171) {
@@ -390,8 +389,22 @@ public class MobileFSM {
         if(mob.BehaviourType.ordinal() != Enum.MobBehaviourType.Pet1.ordinal()) {
             CheckToSendMobHome(mob);
         }
-        if (mob.combatTarget != null && mob.combatTarget.isAlive() == false) {
-            mob.setCombatTarget(null);
+        if (mob.combatTarget != null) {
+            if(mob.getCombatTarget().isAlive() == false){
+                mob.setCombatTarget(null);
+                return;
+            }
+
+            if(mob.getCombatTarget().getObjectTypeMask() == MBServerStatics.MASK_PLAYER){
+                if(mob.playerAgroMap.containsKey(mob.getCombatTarget().getObjectUUID()) == false){
+                    mob.setCombatTarget(null);
+                    return;
+                }
+                if(mob.canSee((PlayerCharacter)mob.getCombatTarget()) == false) {
+                    mob.setCombatTarget(null);
+                    return;
+                }
+            }
         }
         switch (mob.BehaviourType) {
             case GuardCaptain:
@@ -716,10 +729,10 @@ public class MobileFSM {
     }
 
     private static void DefaultLogic(Mob mob) {
-        if (mob.getObjectUUID() == 40548) {
-            int thing = 0;
-        }
         //check for players that can be aggroed if mob is agressive and has no target
+        if(mob.getCombatTarget() != null && mob.playerAgroMap.containsKey(mob.getCombatTarget().getObjectUUID()) == false){
+            mob.setCombatTarget(null);
+        }
         if (mob.BehaviourType.isAgressive) {
             AbstractWorldObject newTarget = ChangeTargetFromHateValue(mob);
             if (newTarget != null) {
