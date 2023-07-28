@@ -156,6 +156,9 @@ public class LootManager {
                     return;
                 }
                 ItemTableRow tableRow = itemTables.get(126).getRowForRange(roll2);
+                if(tableRow == null){
+                    return;
+                }
                 int itemUUID = tableRow.cacheID;
                 if (itemUUID == 0) {
                     return;
