@@ -123,7 +123,7 @@ public class LootManager {
                     //iterate the booty tables and add items to mob inventory
                     MobLoot toAdd = getGenTableItem(bse.lootTable, mob);
                     if (toAdd != null) {
-                        if(toAdd.getPrefix().isEmpty() == true && toAdd.getSuffix().isEmpty() == true){
+                        if(toAdd.getPrefix() != null && toAdd.getPrefix().isEmpty() == true && toAdd.getSuffix()!= null && toAdd.getSuffix().isEmpty() == true){
                             toAdd.setIsID(true);
                         }
                         mob.getCharItemManager().addItemToInventory(toAdd);
@@ -133,7 +133,7 @@ public class LootManager {
                             int lootTableID = bse.lootTable + 1;
                             MobLoot toAddHZ = getGenTableItem(lootTableID, mob);
                             if (toAddHZ != null)
-                                if(toAdd.getPrefix().isEmpty() == true && toAdd.getSuffix().isEmpty() == true){
+                                if(toAdd.getPrefix() != null && toAdd.getPrefix().isEmpty() == true && toAdd.getSuffix()!= null && toAdd.getSuffix().isEmpty() == true){
                                     toAdd.setIsID(true);
                                 }
                                 mob.getCharItemManager().addItemToInventory(toAddHZ);
@@ -169,66 +169,70 @@ public class LootManager {
 
 
     public static MobLoot getGenTableItem(int genTableID, Mob mob) {
-        if (genTableID == 0 || mob == null || generalItemTables.containsKey(genTableID) == false) {
-            return null;
-        }
-        MobLoot outItem;
-        int genRoll = new Random().nextInt(101);
-        GenTableRow selectedRow = generalItemTables.get(genTableID).getRowForRange(genRoll);
-        if (selectedRow == null) {
-            return null;
-        }
-        int itemTableId = selectedRow.itemTableID;
-        //gets the 1-320 roll for this mob
-        int roll2 = TableRoll(mob.level);
-        ItemTableRow tableRow = itemTables.get(itemTableId).getRowForRange(roll2);
-        if (tableRow == null) {
-            return null;
-        }
-        int itemUUID = tableRow.cacheID;
-        if (itemUUID == 0) {
-            return null;
-        }
-        if (ItemBase.getItemBase(itemUUID).getType().ordinal() == Enum.ItemType.RESOURCE.ordinal()) {
-            int amount = ThreadLocalRandom.current().nextInt(tableRow.maxSpawn - tableRow.minSpawn) + tableRow.minSpawn;
-            return new MobLoot(mob, ItemBase.getItemBase(itemUUID), amount, false);
-        }
-        outItem = new MobLoot(mob, ItemBase.getItemBase(itemUUID), false);
-        Enum.ItemType outType = outItem.getItemBase().getType();
-        if (outType.ordinal() == Enum.ItemType.WEAPON.ordinal() || outType.ordinal() == Enum.ItemType.ARMOR.ordinal() || outType.ordinal() == Enum.ItemType.JEWELRY.ordinal()) {
-            if (outItem.getItemBase().isGlass() == false) {
-                int prefixChanceRoll = ThreadLocalRandom.current().nextInt(101);
-                double prefixChance = 2.057 * mob.level - 28.67;
-                if(prefixChanceRoll < prefixChance) {
-                    ModTypeTable prefixTable = modTypeTables.get(selectedRow.pModTable);
+        try {
+            if (genTableID == 0 || mob == null || generalItemTables.containsKey(genTableID) == false) {
+                return null;
+            }
+            MobLoot outItem;
+            int genRoll = new Random().nextInt(101);
+            GenTableRow selectedRow = generalItemTables.get(genTableID).getRowForRange(genRoll);
+            if (selectedRow == null) {
+                return null;
+            }
+            int itemTableId = selectedRow.itemTableID;
+            //gets the 1-320 roll for this mob
+            int roll2 = TableRoll(mob.level);
+            ItemTableRow tableRow = itemTables.get(itemTableId).getRowForRange(roll2);
+            if (tableRow == null) {
+                return null;
+            }
+            int itemUUID = tableRow.cacheID;
+            if (itemUUID == 0) {
+                return null;
+            }
+            if (ItemBase.getItemBase(itemUUID).getType().ordinal() == Enum.ItemType.RESOURCE.ordinal()) {
+                int amount = ThreadLocalRandom.current().nextInt(tableRow.maxSpawn - tableRow.minSpawn) + tableRow.minSpawn;
+                return new MobLoot(mob, ItemBase.getItemBase(itemUUID), amount, false);
+            }
+            outItem = new MobLoot(mob, ItemBase.getItemBase(itemUUID), false);
+            Enum.ItemType outType = outItem.getItemBase().getType();
+            if (outType.ordinal() == Enum.ItemType.WEAPON.ordinal() || outType.ordinal() == Enum.ItemType.ARMOR.ordinal() || outType.ordinal() == Enum.ItemType.JEWELRY.ordinal()) {
+                if (outItem.getItemBase().isGlass() == false) {
+                    int prefixChanceRoll = ThreadLocalRandom.current().nextInt(101);
+                    double prefixChance = 2.057 * mob.level - 28.67;
+                    if (prefixChanceRoll < prefixChance) {
+                        ModTypeTable prefixTable = modTypeTables.get(selectedRow.pModTable);
 
-                    int prefixroll = ThreadLocalRandom.current().nextInt(101);
-                    if (modTables.get(prefixTable.getRowForRange(prefixroll).modTableID) != null) {
-                        ModTable prefixModTable = modTables.get(prefixTable.getRowForRange(prefixroll).modTableID);
-                        ModTableRow prefixMod = prefixModTable.getRowForRange(TableRoll(mob.level));
-                        if (prefixMod != null && prefixMod.action.length() > 0) {
-                            outItem.setPrefix(prefixMod.action);
-                            outItem.addPermanentEnchantment(prefixMod.action, 0, prefixMod.level, true);
+                        int prefixroll = ThreadLocalRandom.current().nextInt(101);
+                        if (modTables.get(prefixTable.getRowForRange(prefixroll).modTableID) != null) {
+                            ModTable prefixModTable = modTables.get(prefixTable.getRowForRange(prefixroll).modTableID);
+                            ModTableRow prefixMod = prefixModTable.getRowForRange(TableRoll(mob.level));
+                            if (prefixMod != null && prefixMod.action.length() > 0) {
+                                outItem.setPrefix(prefixMod.action);
+                                outItem.addPermanentEnchantment(prefixMod.action, 0, prefixMod.level, true);
+                            }
                         }
                     }
-                }
-                int suffixChanceRoll = ThreadLocalRandom.current().nextInt(101);
-                double suffixChance = 2.057 * mob.level - 28.67;
-                if(suffixChanceRoll < suffixChance) {
-                    int suffixroll = ThreadLocalRandom.current().nextInt(101);
-                    ModTypeTable suffixTable = modTypeTables.get(selectedRow.sModTable);
-                    if (modTables.get(suffixTable.getRowForRange(suffixroll).modTableID) != null) {
-                        ModTable suffixModTable = modTables.get(suffixTable.getRowForRange(suffixroll).modTableID);
-                        ModTableRow suffixMod = suffixModTable.getRowForRange(TableRoll(mob.level));
-                        if (suffixMod != null && suffixMod.action.length() > 0) {
-                            outItem.setSuffix(suffixMod.action);
-                            outItem.addPermanentEnchantment(suffixMod.action, 0, suffixMod.level, false);
+                    int suffixChanceRoll = ThreadLocalRandom.current().nextInt(101);
+                    double suffixChance = 2.057 * mob.level - 28.67;
+                    if (suffixChanceRoll < suffixChance) {
+                        int suffixroll = ThreadLocalRandom.current().nextInt(101);
+                        ModTypeTable suffixTable = modTypeTables.get(selectedRow.sModTable);
+                        if (modTables.get(suffixTable.getRowForRange(suffixroll).modTableID) != null) {
+                            ModTable suffixModTable = modTables.get(suffixTable.getRowForRange(suffixroll).modTableID);
+                            ModTableRow suffixMod = suffixModTable.getRowForRange(TableRoll(mob.level));
+                            if (suffixMod != null && suffixMod.action.length() > 0) {
+                                outItem.setSuffix(suffixMod.action);
+                                outItem.addPermanentEnchantment(suffixMod.action, 0, suffixMod.level, false);
+                            }
                         }
                     }
                 }
             }
+            return outItem;
+        }catch(Exception e){
+            return null;
         }
-        return outItem;
     }
     private static int TableRoll(int mobLevel){
         int max = (int)(4.882 * mobLevel + 121.0);
