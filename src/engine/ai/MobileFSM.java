@@ -32,8 +32,8 @@ import java.util.concurrent.ThreadLocalRandom;
 import static engine.math.FastMath.sqr;
 
 public class MobileFSM {
-    public static ArrayList<Mob> respawnQue = new ArrayList<>();
-    public static long lastRespawn = 0;
+
+
     private static void AttackTarget(Mob mob, AbstractWorldObject target) {
         if (mob == null)
             return;
@@ -342,11 +342,7 @@ public class MobileFSM {
 
     public static void DetermineAction(Mob mob) {
         //always check the respawn que, respawn 1 mob max per second to not flood the client
-        if(respawnQue.size() > 0 && lastRespawn + 100 < System.currentTimeMillis()){
-            respawnQue.get(0).respawn();
-            respawnQue.remove(0);
-            lastRespawn = System.currentTimeMillis();
-        }
+
         if (mob == null)
             return;
         if (mob.despawned && mob.getMobBase().getLoadID() == 13171) {
@@ -555,7 +551,7 @@ public class MobileFSM {
             }
         } else if (System.currentTimeMillis() > (aiAgent.deathTime + (aiAgent.spawnTime * 1000))) {
             //aiAgent.respawn();
-            respawnQue.add(aiAgent);
+            aiAgent.getParentZone().respawnQue.add(aiAgent);
         }
     }
 
