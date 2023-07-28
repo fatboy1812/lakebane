@@ -1383,7 +1383,7 @@ public class Mob extends AbstractIntelligenceAgent {
     public void respawn() {
         //Commenting out Mob ID rotation.
         this.despawned = false;
-        this.playerAgroMap.clear();
+        //this.playerAgroMap.clear();
         this.setCombatTarget(null);
         this.setHealth(this.healthMax);
         this.stamina.set(this.staminaMax);

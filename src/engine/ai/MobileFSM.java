@@ -373,9 +373,11 @@ public class MobileFSM {
             CheckForRespawn(mob);
             return;
         }
-        if (mob.playerAgroMap.isEmpty() && mob.isPlayerGuard == false && mob.BehaviourType.ordinal() != Enum.MobBehaviourType.Pet1.ordinal())
+        if (mob.playerAgroMap.isEmpty() && mob.isPlayerGuard == false && mob.BehaviourType.ordinal() != Enum.MobBehaviourType.Pet1.ordinal()) {
             //no players loaded, no need to proceed
+            mob.setCombatTarget(null);
             return;
+        }
         if (mob.isCombat() && mob.getCombatTarget() == null) {
             mob.setCombat(false);
             UpdateStateMsg rwss = new UpdateStateMsg();
@@ -402,6 +404,9 @@ public class MobileFSM {
                 }
             }
         }
+        //if(mob.getTimestamps().containsKey("LOCATIONSYNC") == false){
+        //    mob.getTimestamps().put("LOCATIONSYNC",System.currentTimeMillis());
+        //}
         switch (mob.BehaviourType) {
             case GuardCaptain:
                 GuardCaptainLogic(mob);
