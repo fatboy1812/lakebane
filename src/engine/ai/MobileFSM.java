@@ -342,7 +342,7 @@ public class MobileFSM {
 
     public static void DetermineAction(Mob mob) {
         //always check the respawn que, respawn 1 mob max per second to not flood the client
-        if(respawnQue.size() > 0 && lastRespawn + 1000 > System.currentTimeMillis()){
+        if(respawnQue.size() > 0 && lastRespawn + 100 < System.currentTimeMillis()){
             respawnQue.get(0).respawn();
             respawnQue.remove(0);
             lastRespawn = System.currentTimeMillis();

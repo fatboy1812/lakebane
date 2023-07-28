@@ -453,8 +453,9 @@ public enum InterestManager implements Runnable {
                     if (!awonpc.isAlive() && (awonpc.isPet() || awonpc.isSiege() || awonpc.isNecroPet() || awonpc.isPlayerGuard()))
                         continue;
 
-                    if (awonpc.isAlive() == false)
-                        continue;
+                    //removed, interest manager should still load mob corpses
+                    //if (awonpc.isAlive() == false)
+                    //    continue;
 
                     awonpc.playerAgroMap.put(player.getObjectUUID(), false);
                     //MobileFSM.setAwake(awonpc, false);
