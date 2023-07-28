@@ -47,6 +47,7 @@ public class LootManager {
     }
 
     public static void GenerateMobLoot(Mob mob, boolean fromDeath) {
+        try{
         //determine if mob is in hotzone
         boolean inHotzone = ZoneManager.inHotZone(mob.getLoc());
         //get multiplier form config manager
@@ -57,7 +58,7 @@ public class LootManager {
         }
         //iterate the booty sets
         if (mob.getMobBase().bootySet != 0 && NPCManager._bootySetMap.containsKey(mob.getMobBase().bootySet)) {
-            RunBootySet(NPCManager._bootySetMap.get(mob.getMobBase().bootySet), mob, multiplier, inHotzone, fromDeath);
+                RunBootySet(NPCManager._bootySetMap.get(mob.getMobBase().bootySet), mob, multiplier, inHotzone, fromDeath);
         }
         if (mob.bootySet != 0) {
             RunBootySet(NPCManager._bootySetMap.get(mob.bootySet), mob, multiplier, inHotzone, fromDeath);
@@ -74,6 +75,9 @@ public class LootManager {
                 }
 
             }
+        }
+        }  catch(Exception e){
+            //TODO catch whatever went wrong
         }
     }
 
@@ -239,8 +243,8 @@ public class LootManager {
     }
     private static int TableRoll(int mobLevel){
         int max = (int)(4.882 * mobLevel + 121.0);
-        if(max > 321){
-            max = 321;
+        if(max > 320){
+            max = 320;
         }
         int min = (int)(4.469 * mobLevel - 3.469);
         int roll = ThreadLocalRandom.current().nextInt(max-min) + min;
