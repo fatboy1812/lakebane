@@ -495,7 +495,7 @@ public class InfoCmd extends AbstractDevCmd {
                 if(max > 321){
                     max = 321;
                 }
-                int min = targetMob.level * 2;
+                int min = (int)(4.469 * targetMob.level - 3.469);
                 output += "Min Loot Roll = " + min;
                 output += "Max Loot Roll = " + max;
                 break;

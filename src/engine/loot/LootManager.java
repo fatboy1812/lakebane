@@ -223,7 +223,7 @@ public class LootManager {
         if(max > 321){
             max = 321;
         }
-        int min = mobLevel * 2;
+        int min = (int)(4.469 * mobLevel - 3.469);
         int roll = ThreadLocalRandom.current().nextInt(max-min) + min;
         return roll;
     }
