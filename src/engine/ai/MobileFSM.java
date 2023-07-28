@@ -13,7 +13,6 @@ import engine.InterestManagement.WorldGrid;
 import engine.ai.utilities.CombatUtilities;
 import engine.ai.utilities.MovementUtilities;
 import engine.gameManager.*;
-import engine.math.Vector2f;
 import engine.math.Vector3f;
 import engine.math.Vector3fImmutable;
 import engine.net.DispatchMessage;
@@ -24,7 +23,6 @@ import engine.objects.*;
 import engine.powers.ActionsBase;
 import engine.powers.PowersBase;
 import engine.server.MBServerStatics;
-
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Map.Entry;

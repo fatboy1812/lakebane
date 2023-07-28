@@ -72,6 +72,7 @@ public class LootManager {
                     chatMsg.setChannel(Enum.ChatChannelType.SYSTEM.getChannelID());
                     DispatchMessage.dispatchMsgToAll(chatMsg);
                 }
+
             }
         }
     }
@@ -87,6 +88,9 @@ public class LootManager {
                     float dropChance = me.getDropChance() * 100;
                     if (equipmentRoll <= (dropChance * multiplier)) {
                         MobLoot ml = new MobLoot(mob, me.getItemBase(), false);
+                        if(ml.getPrefix().isEmpty() == true && ml.getSuffix().isEmpty() == true){
+                            ml.setIsID(true);
+                        }
                         mob.getCharItemManager().addItemToInventory(ml);
                     }
                 }
@@ -119,6 +123,9 @@ public class LootManager {
                     //iterate the booty tables and add items to mob inventory
                     MobLoot toAdd = getGenTableItem(bse.lootTable, mob);
                     if (toAdd != null) {
+                        if(toAdd.getPrefix().isEmpty() == true && toAdd.getSuffix().isEmpty() == true){
+                            toAdd.setIsID(true);
+                        }
                         mob.getCharItemManager().addItemToInventory(toAdd);
                     }
                     if (inHotzone) {
@@ -126,6 +133,9 @@ public class LootManager {
                             int lootTableID = bse.lootTable + 1;
                             MobLoot toAddHZ = getGenTableItem(lootTableID, mob);
                             if (toAddHZ != null)
+                                if(toAdd.getPrefix().isEmpty() == true && toAdd.getSuffix().isEmpty() == true){
+                                    toAdd.setIsID(true);
+                                }
                                 mob.getCharItemManager().addItemToInventory(toAddHZ);
                         }
                     }
