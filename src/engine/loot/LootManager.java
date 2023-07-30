@@ -175,7 +175,7 @@ public class LootManager {
         if(mobLevel > 65){
             mobLevel = 65;
         }
-        int max = (int)(4.882 * mobLevel + 121.0);
+        int max = (int)(5.882 * mobLevel + 127.0);
         if(max > 320){
             max = 320;
         }
@@ -235,7 +235,8 @@ public class LootManager {
             }
         }
     public static void RollForGlass(Mob mob){
-        if (ThreadLocalRandom.current().nextInt(101) > 99) {
+        int glassRoll = ThreadLocalRandom.current().nextInt(100) + 1;
+        if (glassRoll >= 99 - mob.getRank()){
             int roll2 = TableRoll(mob.level);
             if (itemTables.get(126).getRowForRange(roll2) == null) {
                 return;
