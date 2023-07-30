@@ -104,7 +104,7 @@ public class LootManager {
                         }
                         break;
                     case "ITEM":
-                        GenerateItemLootDrop(mob,bse);
+                        GenerateItemLootDrop(mob,bse,multiplier);
                         break;
                 }
             }
@@ -175,9 +175,9 @@ public class LootManager {
         if(mobLevel > 65){
             mobLevel = 65;
         }
-        int max = (int)(5.882 * mobLevel + 127.0);
-        if(max > 320){
-            max = 320;
+        int max = (int)(4.882 * mobLevel + 127.0);
+        if(max > 321){
+            max = 321;
         }
         int min = (int)(4.469 * mobLevel - 3.469);
         int roll = ThreadLocalRandom.current().nextInt(max-min) + min;
@@ -273,7 +273,12 @@ public class LootManager {
         }
         return;
     }
-    public static void GenerateItemLootDrop(Mob mob, BootySetEntry bse){
+    public static void GenerateItemLootDrop(Mob mob, BootySetEntry bse, float multiplier){
+        int chanceRoll = ThreadLocalRandom.current().nextInt(100) + 1;
+        if (chanceRoll > bse.dropChance * multiplier) {
+            //early exit, failed to hit minimum chance roll
+            return;
+        }
         MobLoot disc = new MobLoot(mob, ItemBase.getItemBase(bse.itemBase), true);
         if (disc != null)
             mob.getCharItemManager().addItemToInventory(disc);
