@@ -93,8 +93,14 @@ public class LootManager {
                         break;
                     case "LOOT":
                         GenerateNormalLootDrop(mob,bse,multiplier);
-                        if (inHotzone) {
-                            GenerateHotzoneLootDrop(mob,bse,multiplier);
+                        if (inHotzone && mob.level < 80) {
+                            if (generalItemTables.containsKey(bse.lootTable + 1)) {
+                                GenerateHotzoneLootDrop(mob, bse, multiplier);
+                            }
+                            RollForGlass(mob);
+                        }
+                        if(mob.level > 80){
+                            RollForGlass(mob);
                         }
                         break;
                     case "ITEM":
@@ -166,6 +172,9 @@ public class LootManager {
             return outItem;
     }
     private static int TableRoll(int mobLevel){
+        if(mobLevel > 65){
+            mobLevel = 65;
+        }
         int max = (int)(4.882 * mobLevel + 121.0);
         if(max > 320){
             max = 320;
@@ -190,23 +199,33 @@ public class LootManager {
         }
     }
     public static void GenerateNormalLootDrop(Mob mob, BootySetEntry bse,float multiplier){
-        int chanceRoll = ThreadLocalRandom.current().nextInt(101);
-        if (chanceRoll > bse.dropChance) {
+        try{
+        int chanceRoll = ThreadLocalRandom.current().nextInt(100) + 1;
+        if (chanceRoll > bse.dropChance * multiplier) {
             //early exit, failed to hit minimum chance roll
             return;
         }
         //iterate the booty tables and add items to mob inventory
         MobLoot toAdd = getGenTableItem(bse.lootTable, mob);
         if (toAdd != null) {
-            if (toAdd.getPrefix() != null && toAdd.getPrefix().isEmpty() == true && toAdd.getSuffix() != null && toAdd.getSuffix().isEmpty() == true) {
+            if(toAdd.getPrefix() == null && toAdd.getSuffix() == null){
                 toAdd.setIsID(true);
             }
             mob.getCharItemManager().addItemToInventory(toAdd);
         }
+        }
+        catch(Exception e){
+            //TODO chase down loot generation error, affects roughly 2% of drops
+            int i = 0;
+        }
     }
     public static void GenerateHotzoneLootDrop(Mob mob, BootySetEntry bse, float multiplier){
-        if (generalItemTables.containsKey(bse.lootTable + 1)) {
             int lootTableID = bse.lootTable + 1;
+            int chanceRoll = ThreadLocalRandom.current().nextInt(100) + 1;
+            if (chanceRoll > bse.dropChance * multiplier) {
+                //early exit, failed to hit minimum chance roll
+                return;
+            }
             MobLoot toAdd = getGenTableItem(lootTableID, mob);
             if (toAdd != null) {
                 if (toAdd.getPrefix() != null && toAdd.getPrefix().isEmpty() == true && toAdd.getSuffix() != null && toAdd.getSuffix().isEmpty() == true) {
@@ -215,7 +234,6 @@ public class LootManager {
                 mob.getCharItemManager().addItemToInventory(toAdd);
             }
         }
-    }
     public static void RollForGlass(Mob mob){
         if (ThreadLocalRandom.current().nextInt(101) > 99) {
             int roll2 = TableRoll(mob.level);

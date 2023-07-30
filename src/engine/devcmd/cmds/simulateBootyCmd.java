@@ -87,7 +87,7 @@ public class simulateBootyCmd extends AbstractDevCmd {
                 ArrayList<Item> Offerings = new ArrayList<Item>();
                 ArrayList<Item> OtherDrops = new ArrayList<Item>();
                 int failures = 0;
-                for (int i = 0; i < 100; ++i) {
+                for (int i = 0; i < 1; ++i) {
 
                     try {
                         mob.loadInventory();
@@ -141,6 +141,9 @@ public class simulateBootyCmd extends AbstractDevCmd {
                 output += "GLASS DROPS: " + GlassItems.size() + newline;
                 output += "RUNE DROPS: " + Runes.size() + newline;
                 output += "CONTRACTS DROPS: " + Contracts.size() + newline;
+                for (Item contract : Contracts){
+                    output += contract.getName() + newline;
+                }
                 output += "RESOURCE DROPS: " + Resources.size() + newline;
                 output += "OFFERINGS DROPPED: " + Offerings.size() + newline;
                 output += "OTHER ITEMS DROPPED: " + OtherDrops.size() + newline;
