@@ -61,8 +61,8 @@ public class RepairBuildingMsgHandler extends AbstractClientMsgHandler {
 
         //cannot repair mines during 24/7 activity.
 
-        if (targetBuilding.getBlueprint() != null && targetBuilding.getBlueprint().getBuildingGroup() == BuildingGroup.MINE) {
-            return;
+        if (targetBuilding.getBlueprint() != null && targetBuilding.getBlueprint().getBuildingGroup() == BuildingGroup.MINE && targetBuilding.assetIsProtected() == false) {
+                return;
         }
 
 
