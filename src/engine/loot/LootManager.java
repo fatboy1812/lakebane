@@ -137,11 +137,12 @@ public class LootManager {
                             if (generalItemTables.containsKey(bse.lootTable + 1)) {
                                 int lootTableID = bse.lootTable + 1;
                                 MobLoot toAddHZ = getGenTableItem(lootTableID, mob);
-                                if (toAddHZ != null)
-                                    if (toAdd.getPrefix() != null && toAdd.getPrefix().isEmpty() == true && toAdd.getSuffix() != null && toAdd.getSuffix().isEmpty() == true) {
-                                        toAdd.setIsID(true);
+                                if (toAddHZ != null) {
+                                    if (toAddHZ.getPrefix() != null && toAddHZ.getPrefix().isEmpty() == true && toAddHZ.getSuffix() != null && toAddHZ.getSuffix().isEmpty() == true) {
+                                        toAddHZ.setIsID(true);
                                     }
-                                mob.getCharItemManager().addItemToInventory(toAddHZ);
+                                    mob.getCharItemManager().addItemToInventory(toAddHZ);
+                                }
                             }
                         }
                         break;
