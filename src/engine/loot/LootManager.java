@@ -53,14 +53,14 @@ public class LootManager {
         //get multiplier form config manager
         float multiplier = Float.parseFloat(ConfigManager.MB_NORMAL_DROP_RATE.getValue());
         if (inHotzone) {
-            //if mob is inside hotzone, use the hotzone gold multiplier form the config instead
+            //if mob is inside hotzone, use the hotzone multiplier from the config instead
             multiplier = Float.parseFloat(ConfigManager.MB_HOTZONE_DROP_RATE.getValue());
         }
         //iterate the booty sets
-        if (mob.getMobBase().bootySet != 0 && NPCManager._bootySetMap.containsKey(mob.getMobBase().bootySet)) {
+        if (mob.getMobBase().bootySet != 0 && NPCManager._bootySetMap.containsKey(mob.getMobBase().bootySet) == true) {
                 RunBootySet(NPCManager._bootySetMap.get(mob.getMobBase().bootySet), mob, multiplier, inHotzone, fromDeath);
         }
-        if (mob.bootySet != 0) {
+        if (mob.bootySet != 0 && NPCManager._bootySetMap.containsKey(mob.bootySet) == true) {
             RunBootySet(NPCManager._bootySetMap.get(mob.bootySet), mob, multiplier, inHotzone, fromDeath);
         }
         //lastly, check mobs inventory for godly or disc runes to send a server announcement
@@ -77,114 +77,32 @@ public class LootManager {
             }
         }
     }
-
     private static void RunBootySet(ArrayList<BootySetEntry> entries, Mob mob, float multiplier, boolean inHotzone, boolean fromDeath) {
-        int roll; // table roll
-        BootySetEntry entry = null;
-        int setCount = 0;
-        try {
             if (fromDeath) {
-                //do equipment here
-                if (mob.getEquip() != null) {
-                    for (MobEquipment me : mob.getEquip().values()) {
-                        if (me.getDropChance() == 0)
-                            continue;
-                        float equipmentRoll = ThreadLocalRandom.current().nextInt(101);
-                        float dropChance = me.getDropChance() * 100;
-                        if (equipmentRoll <= (dropChance * multiplier)) {
-                            MobLoot ml = new MobLoot(mob, me.getItemBase(), false);
-                            if (ml.getPrefix().isEmpty() == true && ml.getSuffix().isEmpty() == true) {
-                                ml.setIsID(true);
-                            }
-                            mob.getCharItemManager().addItemToInventory(ml);
-                        }
-                    }
+                DropEquipment(mob,multiplier);
+                if (inHotzone) {
+                    //all mobs in HZ get to roll for glass
+                    RollForGlass(mob);
                 }
                 return;
             }
             for (BootySetEntry bse : entries) {
-                entry = bse;
-                float dropChance = bse.dropChance * multiplier;
                 switch (bse.bootyType) {
                     case "GOLD":
-                        roll = ThreadLocalRandom.current().nextInt(101);
-                        if (roll > dropChance) {
-                            //early exit, failed to hit minimum chance roll OR booty was generated from mob's death
-                            break;
-                        }
-                        //determine and add gold to mob inventory
-                        int gold = new Random().nextInt(bse.highGold - bse.lowGold) + bse.lowGold;
-                        if (gold > 0) {
-                            MobLoot goldAmount = new MobLoot(mob, (int) (gold * multiplier));
-                            mob.getCharItemManager().addItemToInventory(goldAmount);
-                        }
+                        GenerateGoldDrop(mob,bse,multiplier);
                         break;
                     case "LOOT":
-                        roll = ThreadLocalRandom.current().nextInt(101);
-                        if (roll > dropChance) {
-                            //early exit, failed to hit minimum chance roll
-                            break;
-                        }
-                        //iterate the booty tables and add items to mob inventory
-                        MobLoot toAdd = getGenTableItem(bse.lootTable, mob);
-                        if (toAdd != null) {
-                            if (toAdd.getPrefix() != null && toAdd.getPrefix().isEmpty() == true && toAdd.getSuffix() != null && toAdd.getSuffix().isEmpty() == true) {
-                                toAdd.setIsID(true);
-                            }
-                            mob.getCharItemManager().addItemToInventory(toAdd);
-                        }
+                        GenerateNormalLootDrop(mob,bse,multiplier);
                         if (inHotzone) {
-                            if (generalItemTables.containsKey(bse.lootTable + 1)) {
-                                int lootTableID = bse.lootTable + 1;
-                                MobLoot toAddHZ = getGenTableItem(lootTableID, mob);
-                                if (toAddHZ != null) {
-                                    if (toAddHZ.getPrefix() != null && toAddHZ.getPrefix().isEmpty() == true && toAddHZ.getSuffix() != null && toAddHZ.getSuffix().isEmpty() == true) {
-                                        toAddHZ.setIsID(true);
-                                    }
-                                    mob.getCharItemManager().addItemToInventory(toAddHZ);
-                                }
-                            }
+                            GenerateHotzoneLootDrop(mob,bse,multiplier);
                         }
                         break;
                     case "ITEM":
-                        MobLoot disc = new MobLoot(mob, ItemBase.getItemBase(bse.itemBase), true);
-                        if (disc != null && !fromDeath)
-                            mob.getCharItemManager().addItemToInventory(disc);
-
+                        GenerateItemLootDrop(mob,bse);
                         break;
                 }
             }
-            if (inHotzone) {
-                //hotzone glass roll, 1% chance to roll on glass table
-                if (ThreadLocalRandom.current().nextInt(101) > 99) {
-                    int roll2 = TableRoll(mob.level);
-                    if (itemTables.get(126).getRowForRange(roll2) == null) {
-                        return;
-                    }
-                    ItemTableRow tableRow = itemTables.get(126).getRowForRange(roll2);
-                    if (tableRow == null) {
-                        return;
-                    }
-                    int itemUUID = tableRow.cacheID;
-                    if (itemUUID == 0) {
-                        return;
-                    }
-                    MobLoot toAddHZ = new MobLoot(mob, ItemBase.getItemBase(itemUUID), false);
-                    if (toAddHZ != null)
-                        mob.getCharItemManager().addItemToInventory(toAddHZ);
-                }
-            }
-            setCount++;
-        }catch(Exception e){
-            //catch crash bug
-            int tableID = entry.lootTable;
-            String bootyType = entry.bootyType;
-            int itemBase = entry.itemBase;
-            Logger.error("FAILED LOOT ROLL: TableID: " + tableID + "bootyType: " + bootyType + " itemUUID: " + itemBase);
-        }
     }
-
-
     public static MobLoot getGenTableItem(int genTableID, Mob mob) {
             if (genTableID == 0 || mob == null || generalItemTables.containsKey(genTableID) == false) {
                 return null;
@@ -256,6 +174,91 @@ public class LootManager {
         int roll = ThreadLocalRandom.current().nextInt(max-min) + min;
         return roll;
     }
+    public static void GenerateGoldDrop(Mob mob, BootySetEntry bse, float multiplier){
+        int chanceRoll = ThreadLocalRandom.current().nextInt(100) + 1;
+        if (chanceRoll > bse.dropChance) {
+            //early exit, failed to hit minimum chance roll OR booty was generated from mob's death
+            return;
+        }
+        //determine and add gold to mob inventory
+        int high = (int)(bse.highGold * multiplier);
+        int low = (int)(bse.lowGold * multiplier);
+        int gold = ThreadLocalRandom.current().nextInt(high - low) + low;
+        if (gold > 0) {
+            MobLoot goldAmount = new MobLoot(mob, (int) (gold * multiplier));
+            mob.getCharItemManager().addItemToInventory(goldAmount);
+        }
+    }
+    public static void GenerateNormalLootDrop(Mob mob, BootySetEntry bse,float multiplier){
+        int chanceRoll = ThreadLocalRandom.current().nextInt(101);
+        if (chanceRoll > bse.dropChance) {
+            //early exit, failed to hit minimum chance roll
+            return;
+        }
+        //iterate the booty tables and add items to mob inventory
+        MobLoot toAdd = getGenTableItem(bse.lootTable, mob);
+        if (toAdd != null) {
+            if (toAdd.getPrefix() != null && toAdd.getPrefix().isEmpty() == true && toAdd.getSuffix() != null && toAdd.getSuffix().isEmpty() == true) {
+                toAdd.setIsID(true);
+            }
+            mob.getCharItemManager().addItemToInventory(toAdd);
+        }
+    }
+    public static void GenerateHotzoneLootDrop(Mob mob, BootySetEntry bse, float multiplier){
+        if (generalItemTables.containsKey(bse.lootTable + 1)) {
+            int lootTableID = bse.lootTable + 1;
+            MobLoot toAdd = getGenTableItem(lootTableID, mob);
+            if (toAdd != null) {
+                if (toAdd.getPrefix() != null && toAdd.getPrefix().isEmpty() == true && toAdd.getSuffix() != null && toAdd.getSuffix().isEmpty() == true) {
+                    toAdd.setIsID(true);
+                }
+                mob.getCharItemManager().addItemToInventory(toAdd);
+            }
+        }
+    }
+    public static void RollForGlass(Mob mob){
+        if (ThreadLocalRandom.current().nextInt(101) > 99) {
+            int roll2 = TableRoll(mob.level);
+            if (itemTables.get(126).getRowForRange(roll2) == null) {
+                return;
+            }
+            ItemTableRow tableRow = itemTables.get(126).getRowForRange(roll2);
+            if (tableRow == null) {
+                return;
+            }
+            int itemUUID = tableRow.cacheID;
+            if (itemUUID == 0) {
+                return;
+            }
+            MobLoot toAddHZ = new MobLoot(mob, ItemBase.getItemBase(itemUUID), false);
+            if (toAddHZ != null)
+                mob.getCharItemManager().addItemToInventory(toAddHZ);
+        }
+    }
+    public static void DropEquipment(Mob mob, float multiplier){
+        //do equipment here
+        if (mob.getEquip() != null) {
+            for (MobEquipment me : mob.getEquip().values()) {
+                if (me.getDropChance() == 0)
+                    continue;
+                float equipmentRoll = ThreadLocalRandom.current().nextInt(101);
+                float dropChance = me.getDropChance() * 100;
+                if (equipmentRoll <= (dropChance * multiplier)) {
+                    MobLoot ml = new MobLoot(mob, me.getItemBase(), false);
+                    if (ml.getPrefix().isEmpty() == true && ml.getSuffix().isEmpty() == true) {
+                        ml.setIsID(true);
+                    }
+                    mob.getCharItemManager().addItemToInventory(ml);
+                }
+            }
+        }
+        return;
+    }
+    public static void GenerateItemLootDrop(Mob mob, BootySetEntry bse){
+        MobLoot disc = new MobLoot(mob, ItemBase.getItemBase(bse.itemBase), true);
+        if (disc != null)
+            mob.getCharItemManager().addItemToInventory(disc);
+    }
     public static void AddGenTableRow(int tableID, GenTableRow row) {
         if (!generalItemTables.containsKey(tableID)) {
             //create the new table
@@ -268,7 +271,6 @@ public class LootManager {
             toAdd.rows.add(row);
         }
     }
-
     public static void AddItemTableRow(int tableID, ItemTableRow row) {
         if (!itemTables.containsKey(tableID)) {
             //create the new table
@@ -281,7 +283,6 @@ public class LootManager {
             toAdd.rows.add(row);
         }
     }
-
     public static void AddModTypeTableRow(int tableID, ModTypeTableRow row) {
         if (!modTypeTables.containsKey(tableID)) {
             //create the new table
@@ -294,7 +295,6 @@ public class LootManager {
             toAdd.rows.add(row);
         }
     }
-
     public static void AddModTableRow(int tableID, ModTableRow row) {
         if (!modTables.containsKey(tableID)) {
             //create the new table
@@ -307,7 +307,6 @@ public class LootManager {
             toAdd.rows.add(row);
         }
     }
-
     public static class GenTable {
         public ArrayList<GenTableRow> rows = new ArrayList<GenTableRow>();
 
@@ -321,7 +320,6 @@ public class LootManager {
             return outRow;
         }
     }
-
     public static class ItemTable {
         public ArrayList<ItemTableRow> rows = new ArrayList<ItemTableRow>();
 
@@ -338,7 +336,6 @@ public class LootManager {
             return outRow;
         }
     }
-
     public static class ModTypeTable {
         public ArrayList<ModTypeTableRow> rows = new ArrayList<ModTypeTableRow>();
 
@@ -352,7 +349,6 @@ public class LootManager {
             return outRow;
         }
     }
-
     public static class ModTable {
         public ArrayList<ModTableRow> rows = new ArrayList<ModTableRow>();
 
@@ -369,7 +365,6 @@ public class LootManager {
             return outRow;
         }
     }
-
     public static class GenTableRow {
         public int minRoll;
         public int maxRoll;
@@ -385,7 +380,6 @@ public class LootManager {
             this.sModTable = rs.getInt("sModTableID");
         }
     }
-
     public static class ItemTableRow {
         public int minRoll;
         public int maxRoll;
@@ -402,7 +396,6 @@ public class LootManager {
 
         }
     }
-
     public static class ModTypeTableRow {
         public int minRoll;
         public int maxRoll;
@@ -415,7 +408,6 @@ public class LootManager {
 
         }
     }
-
     public static class ModTableRow {
         public int minRoll;
         public int maxRoll;
