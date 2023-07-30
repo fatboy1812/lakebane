@@ -114,7 +114,7 @@ public class LootManager {
                 return null;
             }
             MobLoot outItem;
-            int genRoll = new Random().nextInt(101);
+            int genRoll = new Random().nextInt(100)+1;
             GenTableRow selectedRow = generalItemTables.get(genTableID).getRowForRange(genRoll);
             if (selectedRow == null) {
                 return null;
@@ -138,12 +138,12 @@ public class LootManager {
             Enum.ItemType outType = outItem.getItemBase().getType();
             if (outType.ordinal() == Enum.ItemType.WEAPON.ordinal() || outType.ordinal() == Enum.ItemType.ARMOR.ordinal() || outType.ordinal() == Enum.ItemType.JEWELRY.ordinal()) {
                 if (outItem.getItemBase().isGlass() == false) {
-                    int prefixChanceRoll = ThreadLocalRandom.current().nextInt(101);
+                    int prefixChanceRoll = ThreadLocalRandom.current().nextInt(100)+1;
                     double prefixChance = 2.057 * mob.level - 28.67;
                     if (prefixChanceRoll < prefixChance) {
                         ModTypeTable prefixTable = modTypeTables.get(selectedRow.pModTable);
 
-                        int prefixroll = ThreadLocalRandom.current().nextInt(101);
+                        int prefixroll = ThreadLocalRandom.current().nextInt(100)+1;
                         if (modTables.get(prefixTable.getRowForRange(prefixroll).modTableID) != null) {
                             ModTable prefixModTable = modTables.get(prefixTable.getRowForRange(prefixroll).modTableID);
                             ModTableRow prefixMod = prefixModTable.getRowForRange(TableRoll(mob.level));
@@ -153,10 +153,10 @@ public class LootManager {
                             }
                         }
                     }
-                    int suffixChanceRoll = ThreadLocalRandom.current().nextInt(101);
+                    int suffixChanceRoll = ThreadLocalRandom.current().nextInt(100)+1;
                     double suffixChance = 2.057 * mob.level - 28.67;
                     if (suffixChanceRoll < suffixChance) {
-                        int suffixroll = ThreadLocalRandom.current().nextInt(101);
+                        int suffixroll = ThreadLocalRandom.current().nextInt(100)+1;
                         ModTypeTable suffixTable = modTypeTables.get(selectedRow.sModTable);
                         if (modTables.get(suffixTable.getRowForRange(suffixroll).modTableID) != null) {
                             ModTable suffixModTable = modTables.get(suffixTable.getRowForRange(suffixroll).modTableID);
