@@ -68,9 +68,12 @@ public class simulateBootyCmd extends AbstractDevCmd {
             case Mob:
                 Mob mob = (Mob) target;
                 output += "Name: " + mob.getName() + newline;
-                int minRollRange = mob.getLevel() + 0 + mob.getParentZone().minLvl;
-                int maxRollRange = (mob.getLevel() * 2) + 120 + (mob.getParentZone().maxLvl * 2);
-                output += "Roll Range: " + minRollRange + " - " + maxRollRange + newline;
+                int max = (int)(4.882 * mob.level + 127.0);
+                if(max > 320){
+                    max = 320;
+                }
+                int min = (int)(4.469 * mob.level - 3.469);
+                output += "Roll Range: " + min + " - " + max + newline;
                 output += "Special Loot:" + newline;
                 if (mob.bootySet != 0) {
                     for (BootySetEntry entry : NPCManager._bootySetMap.get(mob.bootySet)) {
@@ -141,6 +144,9 @@ public class simulateBootyCmd extends AbstractDevCmd {
                 output += "GLASS DROPS: " + GlassItems.size() + newline;
                 output += "RUNE DROPS: " + Runes.size() + newline;
                 output += "CONTRACTS DROPS: " + Contracts.size() + newline;
+                for (Item contract : Contracts){
+                    output += contract.getName() + newline;
+                }
                 output += "RESOURCE DROPS: " + Resources.size() + newline;
                 output += "OFFERINGS DROPPED: " + Offerings.size() + newline;
                 output += "OTHER ITEMS DROPPED: " + OtherDrops.size() + newline;
