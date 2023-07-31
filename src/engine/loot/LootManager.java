@@ -16,7 +16,6 @@ import engine.gameManager.ZoneManager;
 import engine.net.DispatchMessage;
 import engine.net.client.msg.chat.ChatSystemMsg;
 import engine.objects.*;
-import org.pmw.tinylog.Logger;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -80,10 +79,6 @@ public class LootManager {
     private static void RunBootySet(ArrayList<BootySetEntry> entries, Mob mob, float multiplier, boolean inHotzone, boolean fromDeath) {
             if (fromDeath) {
                 DropEquipment(mob,multiplier);
-                if (inHotzone) {
-                    //all mobs in HZ get to roll for glass
-                    RollForGlass(mob);
-                }
                 return;
             }
             for (BootySetEntry bse : entries) {
@@ -238,7 +233,7 @@ public class LootManager {
         }
     public static void RollForGlass(Mob mob){
         int glassRoll = ThreadLocalRandom.current().nextInt(100) + 1;
-        if (glassRoll >= 99 - mob.getRank()){
+        if (glassRoll >= 99) {
             int roll2 = TableRoll(mob.level);
             if (itemTables.get(126).getRowForRange(roll2) == null) {
                 return;
