@@ -97,7 +97,6 @@ public class LootManager {
                             if (generalItemTables.containsKey(bse.lootTable + 1)) {
                                 GenerateHotzoneLootDrop(mob, bse, multiplier);
                             }
-                            RollForGlass(mob);
                         }
                         if(mob.level > 80){
                             RollForGlass(mob);
@@ -107,6 +106,9 @@ public class LootManager {
                         GenerateItemLootDrop(mob,bse,multiplier);
                         break;
                 }
+            }
+            if(inHotzone){
+                RollForGlass(mob);
             }
     }
     public static MobLoot getGenTableItem(int genTableID, Mob mob) {
