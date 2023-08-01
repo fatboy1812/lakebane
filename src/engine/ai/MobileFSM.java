@@ -23,6 +23,8 @@ import engine.objects.*;
 import engine.powers.ActionsBase;
 import engine.powers.PowersBase;
 import engine.server.MBServerStatics;
+import org.pmw.tinylog.Logger;
+
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Map.Entry;
@@ -35,40 +37,43 @@ public class MobileFSM {
 
 
     private static void AttackTarget(Mob mob, AbstractWorldObject target) {
-        MobileFSMManager.getInstance().currentState = MobileFSMManager.fsmState.ATTACKTARGET;
-        if (mob == null)
-            return;
-        if (target == null || !target.isAlive()) {
-            mob.setCombatTarget(null);
-            return;
-        }
-        if (target.getObjectType() == Enum.GameObjectType.PlayerCharacter && canCast(mob)) {
-            if (MobCast(mob)) {
-                mob.updateLocation();
+        try {
+            if (mob == null)
+                return;
+            if (target == null || !target.isAlive()) {
+                mob.setCombatTarget(null);
                 return;
             }
+            if (target.getObjectType() == Enum.GameObjectType.PlayerCharacter && canCast(mob)) {
+                if (MobCast(mob)) {
+                    mob.updateLocation();
+                    return;
+                }
+            }
+            if (!CombatUtilities.inRangeToAttack(mob, target))
+                return;
+            switch (target.getObjectType()) {
+                case PlayerCharacter:
+                    PlayerCharacter targetPlayer = (PlayerCharacter) target;
+                    AttackPlayer(mob, targetPlayer);
+                    break;
+                case Building:
+                    Building targetBuilding = (Building) target;
+                    AttackBuilding(mob, targetBuilding);
+                    break;
+                case Mob:
+                    Mob targetMob = (Mob) target;
+                    AttackMob(mob, targetMob);
+                    break;
+            }
+            mob.updateLocation();
+        } catch(Exception e){
+            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: AttackTarget" + " " + e.getMessage());
         }
-        if (!CombatUtilities.inRangeToAttack(mob, target))
-            return;
-        switch (target.getObjectType()) {
-            case PlayerCharacter:
-                PlayerCharacter targetPlayer = (PlayerCharacter) target;
-                AttackPlayer(mob, targetPlayer);
-                break;
-            case Building:
-                Building targetBuilding = (Building) target;
-                AttackBuilding(mob, targetBuilding);
-                break;
-            case Mob:
-                Mob targetMob = (Mob) target;
-                AttackMob(mob, targetMob);
-                break;
-        }
-        mob.updateLocation();
     }
 
     public static void AttackPlayer(Mob mob, PlayerCharacter target) {
-        MobileFSMManager.getInstance().currentState = MobileFSMManager.fsmState.ATTACKPLAYER;
+        try{
         if (!mob.canSee(target)) {
             mob.setCombatTarget(null);
             return;
@@ -114,10 +119,13 @@ public class MobileFSM {
                 target.getPet().setCombatTarget(mob);
             }
         }
+        } catch(Exception e){
+            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: AttackPlayer" + " " + e.getMessage());
+        }
     }
 
     public static void AttackBuilding(Mob mob, Building target) {
-        MobileFSMManager.getInstance().currentState = MobileFSMManager.fsmState.ATTACKBUILDING;
+        try{
         if (target.getRank() == -1 || !target.isVulnerable() || BuildingManager.getBuildingFromCache(target.getObjectUUID()) == null) {
             mob.setCombatTarget(null);
             return;
@@ -156,10 +164,13 @@ public class MobileFSM {
             ppm.setRange(50);
             DispatchMessage.dispatchMsgToInterestArea(mob, ppm, DispatchChannel.SECONDARY, MBServerStatics.CHARACTER_LOAD_RANGE, false, false);
         }
+        } catch(Exception e){
+            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: AttackBuilding" + " " + e.getMessage());
+        }
     }
 
     public static void AttackMob(Mob mob, Mob target) {
-        MobileFSMManager.getInstance().currentState = MobileFSMManager.fsmState.ATTACKMOB;
+        try{
         if (mob.getRange() >= 30 && mob.isMoving())
             return;
         //no weapons, default mob attack speed 3 seconds.
@@ -187,10 +198,13 @@ public class MobileFSM {
                 target.combatTarget = mob;
             }
         }
+        } catch(Exception e){
+            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: AttackMob" + " " + e.getMessage());
+        }
     }
 
     private static void Patrol(Mob mob) {
-        MobileFSMManager.getInstance().currentState = MobileFSMManager.fsmState.PATROL;
+        try{
         //make sure mob is out of combat stance
         if (mob.isCombat() && mob.getCombatTarget() == null) {
             mob.setCombat(false);
@@ -237,10 +251,13 @@ public class MobileFSM {
                 }
             }
         }
+        } catch(Exception e){
+            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: AttackTarget" + " " + e.getMessage());
+        }
     }
 
     public static boolean canCast(Mob mob) {
-        MobileFSMManager.getInstance().currentState = MobileFSMManager.fsmState.CANCAST;
+        try{
         // Performs validation to determine if a
         // mobile in the proper state to cast.
         if (mob == null)
@@ -259,10 +276,14 @@ public class MobileFSM {
             mob.nextCastTime = System.currentTimeMillis();
 
         return mob.nextCastTime <= System.currentTimeMillis();
+        } catch(Exception e){
+            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: canCast" + " " + e.getMessage());
+        }
+        return false;
     }
 
     public static boolean MobCast(Mob mob) {
-        MobileFSMManager.getInstance().currentState = MobileFSMManager.fsmState.MOBCAST;
+        try{
         // Method picks a random spell from a mobile's list of powers
         // and casts it on the current target (or itself).  Validation
         // (including empty lists) is done previously within canCast();
@@ -323,11 +344,14 @@ public class MobileFSM {
             mob.nextCastTime = System.currentTimeMillis() + (long)((mobPower.getCooldown() + (MobileFSMManager.AI_POWER_DIVISOR * 1000)) * randomCooldown);
             return true;
         }
+        } catch(Exception e){
+            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: MobCast" + " " + e.getMessage());
+        }
         return false;
     }
 
     public static void MobCallForHelp(Mob mob) {
-        MobileFSMManager.getInstance().currentState = MobileFSMManager.fsmState.MOBCALLFORHELP;
+        try{
         boolean callGotResponse = false;
         if (mob.nextCallForHelp == 0) {
             mob.nextCallForHelp = System.currentTimeMillis();
@@ -346,10 +370,13 @@ public class MobileFSM {
         if (callGotResponse)
             //wait 60 seconds to call for help again
             mob.nextCallForHelp = System.currentTimeMillis() + 60000;
+        } catch(Exception e){
+            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: MobCallForHelp" + " " + e.getMessage());
+        }
     }
 
     public static void DetermineAction(Mob mob) {
-        MobileFSMManager.getInstance().currentState = MobileFSMManager.fsmState.DETERMINEACTION;
+        try{
         //always check the respawn que, respawn 1 mob max per second to not flood the client
 
         if (mob == null)
@@ -436,10 +463,13 @@ public class MobileFSM {
                 DefaultLogic(mob);
                 break;
         }
+        } catch(Exception e){
+            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: DetermineAction" + " " + e.getMessage());
+        }
     }
 
     private static void CheckForAggro(Mob aiAgent) {
-        MobileFSMManager.getInstance().currentState = MobileFSMManager.fsmState.CHECKFORAGRO;
+        try{
         //looks for and sets mobs combatTarget
         if (!aiAgent.isAlive())
             return;
@@ -484,10 +514,13 @@ public class MobileFSM {
                 return;
             }
         }
+        } catch(Exception e){
+            Logger.info(aiAgent.getObjectUUID() + " " + aiAgent.getName() + " Failed At: CheckForAggro" + " " + e.getMessage());
+        }
     }
 
     private static void CheckMobMovement(Mob mob) {
-        MobileFSMManager.getInstance().currentState = MobileFSMManager.fsmState.CHECKMOBMOVEMENT;
+        try{
         if (!MovementUtilities.canMove(mob))
             return;
         mob.updateLocation();
@@ -531,10 +564,13 @@ public class MobileFSM {
                 }
                 break;
         }
+        } catch(Exception e){
+            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: CheckMobMovement" + " " + e.getMessage());
+        }
     }
 
     private static void CheckForRespawn(Mob aiAgent) {
-        MobileFSMManager.getInstance().currentState = MobileFSMManager.fsmState.CHECKFORRESPAWN;
+        try{
         if (aiAgent.deathTime == 0) {
             aiAgent.setDeathTime(System.currentTimeMillis());
             return;
@@ -570,10 +606,13 @@ public class MobileFSM {
             //aiAgent.respawn();
             aiAgent.getParentZone().respawnQue.add(aiAgent);
         }
+        } catch(Exception e){
+            Logger.info(aiAgent.getObjectUUID() + " " + aiAgent.getName() + " Failed At: CheckForRespawn" + " " + e.getMessage());
+        }
     }
 
     public static void CheckForAttack(Mob mob) {
-        MobileFSMManager.getInstance().currentState = MobileFSMManager.fsmState.CHECKFORATTACK;
+        try{
         //checks if mob can attack based on attack timer and range
         if (mob.isAlive() == false)
             return;
@@ -598,10 +637,13 @@ public class MobileFSM {
         }
         if (System.currentTimeMillis() > mob.getLastAttackTime())
             AttackTarget(mob, mob.getCombatTarget());
+        } catch(Exception e){
+            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: CheckForAttack" + " " + e.getMessage());
+        }
     }
 
     private static void CheckToSendMobHome(Mob mob) {
-        MobileFSMManager.getInstance().currentState = MobileFSMManager.fsmState.CHECKTOSENDMOBHOME;
+        try{
         if (mob.BehaviourType.isAgressive) {
             if (mob.isPlayerGuard()) {
                 if (mob.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardCaptain.ordinal()) {
@@ -637,10 +679,13 @@ public class MobileFSM {
                 PlayerCharacter.getFromCache((int) playerEntry.getKey()).setHateValue(0);
             }
         }
+        } catch(Exception e){
+            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: CheckToSendMobHome" + " " + e.getMessage());
+        }
     }
 
     private static void chaseTarget(Mob mob) {
-        MobileFSMManager.getInstance().currentState = MobileFSMManager.fsmState.CHASETARGET;
+        try{
         mob.updateMovementState();
         mob.updateLocation();
         if (CombatUtilities.inRange2D(mob, mob.getCombatTarget(), mob.getRange()) == false) {
@@ -663,10 +708,13 @@ public class MobileFSM {
 
             }
         }
+        } catch(Exception e){
+            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: chaseTarget" + " " + e.getMessage());
+        }
     }
 
     private static void SafeGuardAggro(Mob mob) {
-        MobileFSMManager.getInstance().currentState = MobileFSMManager.fsmState.SAFEGUARDAGRO;
+        try{
         HashSet<AbstractWorldObject> awoList = WorldGrid.getObjectsInRangePartial(mob, 100, MBServerStatics.MASK_MOB);
         for (AbstractWorldObject awoMob : awoList) {
             //dont scan self.
@@ -680,18 +728,24 @@ public class MobileFSM {
                 continue;
             mob.setCombatTarget(aggroMob);
         }
+        } catch(Exception e){
+            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: SafeGuardAggro" + " " + e.getMessage());
+        }
     }
 
     public static void GuardCaptainLogic(Mob mob) {
-        MobileFSMManager.getInstance().currentState = MobileFSMManager.fsmState.GUARDCAPTAINLOGIC;
+        try{
         if (mob.getCombatTarget() == null)
             CheckForPlayerGuardAggro(mob);
         CheckMobMovement(mob);
         CheckForAttack(mob);
+        } catch(Exception e){
+            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: GuardCaptainLogic" + " " + e.getMessage());
+        }
     }
 
     public static void GuardMinionLogic(Mob mob) {
-        MobileFSMManager.getInstance().currentState = MobileFSMManager.fsmState.GUARDMINIONLOGIC;
+        try{
         if (!mob.npcOwner.isAlive() && mob.getCombatTarget() == null) {
             CheckForPlayerGuardAggro(mob);
         }
@@ -701,18 +755,24 @@ public class MobileFSM {
             mob.setCombatTarget(null);
         CheckMobMovement(mob);
         CheckForAttack(mob);
+        } catch(Exception e){
+            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: GuardMinionLogic" + " " + e.getMessage());
+        }
     }
 
     public static void GuardWallArcherLogic(Mob mob) {
-        MobileFSMManager.getInstance().currentState = MobileFSMManager.fsmState.GUARDWALLARCHERLOGIC;
+        try{
         if (mob.getCombatTarget() == null)
             CheckForPlayerGuardAggro(mob);
         else
             CheckForAttack(mob);
+        } catch(Exception e){
+            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: GuardWallArcherLogic" + " " + e.getMessage());
+        }
     }
 
     private static void PetLogic(Mob mob) {
-        MobileFSMManager.getInstance().currentState = MobileFSMManager.fsmState.PETLOGIC;
+        try{
         if(mob.getOwner() == null && mob.isNecroPet() == false && mob.isSiege() == false){
             if(ZoneManager.getSeaFloor().zoneMobSet.contains(mob)){
                 mob.killCharacter("no owner");
@@ -734,11 +794,13 @@ public class MobileFSM {
                     mob.setHealth(mob.getHealthMax());
                 }
             }
+        }} catch(Exception e){
+            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: PetLogic" + " " + e.getMessage());
         }
     }
 
     private static void HamletGuardLogic(Mob mob) {
-        MobileFSMManager.getInstance().currentState = MobileFSMManager.fsmState.HAMLETGUARDLOGIC;
+        try{
         if (mob.getCombatTarget() == null) {
             //safehold guard
             SafeGuardAggro(mob);
@@ -748,10 +810,13 @@ public class MobileFSM {
             }
         }
         CheckForAttack(mob);
+        } catch(Exception e){
+            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: HamletGuardLogic" + " " + e.getMessage());
+        }
     }
 
     private static void DefaultLogic(Mob mob) {
-        MobileFSMManager.getInstance().currentState = MobileFSMManager.fsmState.DEFAULTLOGIC;
+        try{
         //check for players that can be aggroed if mob is agressive and has no target
         if(mob.getCombatTarget() != null && mob.playerAgroMap.containsKey(mob.getCombatTarget().getObjectUUID()) == false){
             mob.setCombatTarget(null);
@@ -777,10 +842,13 @@ public class MobileFSM {
         //check if mob can attack if it isn't wimpy
         if (!mob.BehaviourType.isWimpy && mob.combatTarget != null)
             CheckForAttack(mob);
+        } catch(Exception e){
+            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: DefaultLogic" + " " + e.getMessage());
+        }
     }
 
     public static void CheckForPlayerGuardAggro(Mob mob) {
-        MobileFSMManager.getInstance().currentState = MobileFSMManager.fsmState.CHECKFORPLAYERGUARDAGRO;
+        try{
         //looks for and sets mobs combatTarget
         if (!mob.isAlive())
             return;
@@ -809,10 +877,13 @@ public class MobileFSM {
                 return;
             }
         }
+        } catch(Exception e){
+            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: CheckForPlayerGuardAggro" + e.getMessage());
+        }
     }
 
     public static Boolean GuardCanAggro(Mob mob, PlayerCharacter target) {
-        MobileFSMManager.getInstance().currentState = MobileFSMManager.fsmState.GUARDCANAGRO;
+        try{
         if (mob.getGuild().getNation().equals(target.getGuild().getNation()))
             return false;
         if (mob.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardMinion.ordinal()) {
@@ -850,11 +921,14 @@ public class MobileFSM {
                     return true;
             }
         }
+        } catch(Exception e){
+            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: GuardCanAggro" + " " + e.getMessage());
+        }
         return false;
     }
 
     public static void randomGuardPatrolPoint(Mob mob) {
-        MobileFSMManager.getInstance().currentState = MobileFSMManager.fsmState.RANDOMGUARDPATROLPOINTS;
+        try{
         if (mob.isMoving() == true) {
             //early exit for a mob who is already moving to a patrol point
             //while mob moving, update lastPatrolTime so that when they stop moving the 10 second timer can begin
@@ -890,10 +964,13 @@ public class MobileFSM {
                 }
             }
         }
+        } catch(Exception e){
+            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: randomGuardPatrolPoints" + " " + e.getMessage());
+        }
     }
 
     public static AbstractWorldObject ChangeTargetFromHateValue(Mob mob) {
-        MobileFSMManager.getInstance().currentState = MobileFSMManager.fsmState.CHANGETARGETFROMHATEVALUE;
+        try{
         float CurrentHateValue = 0;
         if (mob.getCombatTarget() != null && mob.getCombatTarget().getObjectType().equals(Enum.GameObjectType.PlayerCharacter)) {
             CurrentHateValue = ((PlayerCharacter) mob.getCombatTarget()).getHateValue();
@@ -910,5 +987,9 @@ public class MobileFSM {
             }
         }
         return mostHatedTarget;
+        } catch(Exception e){
+            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: ChangeTargetFromMostHated" + " " + e.getMessage());
+        }
+        return null;
     }
 }

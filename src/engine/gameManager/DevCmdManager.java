@@ -58,7 +58,6 @@ public enum DevCmdManager {
         DevCmdManager.registerDevCmd(new InfoCmd());
         DevCmdManager.registerDevCmd(new aiInfoCmd());
         DevCmdManager.registerDevCmd(new simulateBootyCmd());
-        DevCmdManager.registerDevCmd(new AuditAI());
         DevCmdManager.registerDevCmd(new GetHeightCmd());
 
         // Tester

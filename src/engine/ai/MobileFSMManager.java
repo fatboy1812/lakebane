@@ -34,39 +34,6 @@ public class MobileFSMManager {
     public static int AI_POWER_DIVISOR = 20;
     private volatile boolean alive;
     private long timeOfKill = -1;
-    public fsmState currentState;
-    public Mob currentMob;
-    public enum fsmState {
-        ATTACKTARGET,
-        ATTACKPLAYER,
-        ATTACKBUILDING,
-        ATTACKMOB,
-        PATROL,
-        CANCAST,
-        MOBCAST,
-        MOBCALLFORHELP,
-        DETERMINEACTION,
-        CHECKFORAGRO,
-        CHECKMOBMOVEMENT,
-        CHECKFORRESPAWN,
-        CHECKFORATTACK,
-        CHECKTOSENDMOBHOME,
-        CHASETARGET,
-        SAFEGUARDAGRO,
-        GUARDCAPTAINLOGIC,
-        GUARDMINIONLOGIC,
-        GUARDWALLARCHERLOGIC,
-        PETLOGIC,
-        HAMLETGUARDLOGIC,
-        DEFAULTLOGIC,
-        CHECKFORPLAYERGUARDAGRO,
-        GUARDCANAGRO,
-        RANDOMGUARDPATROLPOINTS,
-        CHANGETARGETFROMHATEVALUE
-    }
-    public String getFSMState(){
-        return "Executing: " + this.currentState + " on Mobile UUID: " + this.currentMob.getObjectUUID() + " " + this.currentMob.getName();
-    }
     private MobileFSMManager() {
 
         Runnable worker = new Runnable() {
@@ -150,7 +117,7 @@ public class MobileFSMManager {
                     executionMax = executionTime;
 
                 mobPulse = System.currentTimeMillis() + AI_PULSE_MOB_THRESHOLD;
-                Logger.error("MobileFSM cycle completed: " + DateTime.now());
+                Logger.info("MobileFSM cycle completed: " + DateTime.now());
             }
         }
     }
