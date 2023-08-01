@@ -95,9 +95,11 @@ public class MobileFSMManager {
                 for (Zone zone : ZoneManager.getAllZones()) {
 
                     if(zone.respawnQue.size() > 0 && zone.lastRespawn + 100 < System.currentTimeMillis()){
-                        zone.respawnQue.get(0).respawn();
-                        zone.respawnQue.remove(0);
-                        zone.lastRespawn = System.currentTimeMillis();
+                        if(zone.respawnQue.get(0) != null) {
+                            zone.respawnQue.get(0).respawn();
+                            zone.respawnQue.remove(0);
+                            zone.lastRespawn = System.currentTimeMillis();
+                        }
                     }
                     for (Mob mob : zone.zoneMobSet) {
 
