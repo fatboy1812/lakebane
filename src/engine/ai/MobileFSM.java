@@ -35,6 +35,7 @@ public class MobileFSM {
 
 
     private static void AttackTarget(Mob mob, AbstractWorldObject target) {
+        MobileFSMManager.getInstance().currentState = MobileFSMManager.fsmState.ATTACKTARGET;
         if (mob == null)
             return;
         if (target == null || !target.isAlive()) {
@@ -67,6 +68,7 @@ public class MobileFSM {
     }
 
     public static void AttackPlayer(Mob mob, PlayerCharacter target) {
+        MobileFSMManager.getInstance().currentState = MobileFSMManager.fsmState.ATTACKPLAYER;
         if (!mob.canSee(target)) {
             mob.setCombatTarget(null);
             return;
@@ -115,6 +117,7 @@ public class MobileFSM {
     }
 
     public static void AttackBuilding(Mob mob, Building target) {
+        MobileFSMManager.getInstance().currentState = MobileFSMManager.fsmState.ATTACKBUILDING;
         if (target.getRank() == -1 || !target.isVulnerable() || BuildingManager.getBuildingFromCache(target.getObjectUUID()) == null) {
             mob.setCombatTarget(null);
             return;
@@ -156,6 +159,7 @@ public class MobileFSM {
     }
 
     public static void AttackMob(Mob mob, Mob target) {
+        MobileFSMManager.getInstance().currentState = MobileFSMManager.fsmState.ATTACKMOB;
         if (mob.getRange() >= 30 && mob.isMoving())
             return;
         //no weapons, default mob attack speed 3 seconds.
@@ -186,6 +190,7 @@ public class MobileFSM {
     }
 
     private static void Patrol(Mob mob) {
+        MobileFSMManager.getInstance().currentState = MobileFSMManager.fsmState.PATROL;
         //make sure mob is out of combat stance
         if (mob.isCombat() && mob.getCombatTarget() == null) {
             mob.setCombat(false);
@@ -235,6 +240,7 @@ public class MobileFSM {
     }
 
     public static boolean canCast(Mob mob) {
+        MobileFSMManager.getInstance().currentState = MobileFSMManager.fsmState.CANCAST;
         // Performs validation to determine if a
         // mobile in the proper state to cast.
         if (mob == null)
@@ -256,6 +262,7 @@ public class MobileFSM {
     }
 
     public static boolean MobCast(Mob mob) {
+        MobileFSMManager.getInstance().currentState = MobileFSMManager.fsmState.MOBCAST;
         // Method picks a random spell from a mobile's list of powers
         // and casts it on the current target (or itself).  Validation
         // (including empty lists) is done previously within canCast();
@@ -320,6 +327,7 @@ public class MobileFSM {
     }
 
     public static void MobCallForHelp(Mob mob) {
+        MobileFSMManager.getInstance().currentState = MobileFSMManager.fsmState.MOBCALLFORHELP;
         boolean callGotResponse = false;
         if (mob.nextCallForHelp == 0) {
             mob.nextCallForHelp = System.currentTimeMillis();
@@ -341,6 +349,7 @@ public class MobileFSM {
     }
 
     public static void DetermineAction(Mob mob) {
+        MobileFSMManager.getInstance().currentState = MobileFSMManager.fsmState.DETERMINEACTION;
         //always check the respawn que, respawn 1 mob max per second to not flood the client
 
         if (mob == null)
@@ -430,6 +439,7 @@ public class MobileFSM {
     }
 
     private static void CheckForAggro(Mob aiAgent) {
+        MobileFSMManager.getInstance().currentState = MobileFSMManager.fsmState.CHECKFORAGRO;
         //looks for and sets mobs combatTarget
         if (!aiAgent.isAlive())
             return;
@@ -477,6 +487,7 @@ public class MobileFSM {
     }
 
     private static void CheckMobMovement(Mob mob) {
+        MobileFSMManager.getInstance().currentState = MobileFSMManager.fsmState.CHECKMOBMOVEMENT;
         if (!MovementUtilities.canMove(mob))
             return;
         mob.updateLocation();
@@ -523,6 +534,7 @@ public class MobileFSM {
     }
 
     private static void CheckForRespawn(Mob aiAgent) {
+        MobileFSMManager.getInstance().currentState = MobileFSMManager.fsmState.CHECKFORRESPAWN;
         if (aiAgent.deathTime == 0) {
             aiAgent.setDeathTime(System.currentTimeMillis());
             return;
@@ -561,6 +573,7 @@ public class MobileFSM {
     }
 
     public static void CheckForAttack(Mob mob) {
+        MobileFSMManager.getInstance().currentState = MobileFSMManager.fsmState.CHECKFORATTACK;
         //checks if mob can attack based on attack timer and range
         if (mob.isAlive() == false)
             return;
@@ -588,6 +601,7 @@ public class MobileFSM {
     }
 
     private static void CheckToSendMobHome(Mob mob) {
+        MobileFSMManager.getInstance().currentState = MobileFSMManager.fsmState.CHECKTOSENDMOBHOME;
         if (mob.BehaviourType.isAgressive) {
             if (mob.isPlayerGuard()) {
                 if (mob.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardCaptain.ordinal()) {
@@ -626,6 +640,7 @@ public class MobileFSM {
     }
 
     private static void chaseTarget(Mob mob) {
+        MobileFSMManager.getInstance().currentState = MobileFSMManager.fsmState.CHASETARGET;
         mob.updateMovementState();
         mob.updateLocation();
         if (CombatUtilities.inRange2D(mob, mob.getCombatTarget(), mob.getRange()) == false) {
@@ -651,6 +666,7 @@ public class MobileFSM {
     }
 
     private static void SafeGuardAggro(Mob mob) {
+        MobileFSMManager.getInstance().currentState = MobileFSMManager.fsmState.SAFEGUARDAGRO;
         HashSet<AbstractWorldObject> awoList = WorldGrid.getObjectsInRangePartial(mob, 100, MBServerStatics.MASK_MOB);
         for (AbstractWorldObject awoMob : awoList) {
             //dont scan self.
@@ -667,6 +683,7 @@ public class MobileFSM {
     }
 
     public static void GuardCaptainLogic(Mob mob) {
+        MobileFSMManager.getInstance().currentState = MobileFSMManager.fsmState.GUARDCAPTAINLOGIC;
         if (mob.getCombatTarget() == null)
             CheckForPlayerGuardAggro(mob);
         CheckMobMovement(mob);
@@ -674,6 +691,7 @@ public class MobileFSM {
     }
 
     public static void GuardMinionLogic(Mob mob) {
+        MobileFSMManager.getInstance().currentState = MobileFSMManager.fsmState.GUARDMINIONLOGIC;
         if (!mob.npcOwner.isAlive() && mob.getCombatTarget() == null) {
             CheckForPlayerGuardAggro(mob);
         }
@@ -686,6 +704,7 @@ public class MobileFSM {
     }
 
     public static void GuardWallArcherLogic(Mob mob) {
+        MobileFSMManager.getInstance().currentState = MobileFSMManager.fsmState.GUARDWALLARCHERLOGIC;
         if (mob.getCombatTarget() == null)
             CheckForPlayerGuardAggro(mob);
         else
@@ -693,6 +712,7 @@ public class MobileFSM {
     }
 
     private static void PetLogic(Mob mob) {
+        MobileFSMManager.getInstance().currentState = MobileFSMManager.fsmState.PETLOGIC;
         if(mob.getOwner() == null && mob.isNecroPet() == false && mob.isSiege() == false){
             if(ZoneManager.getSeaFloor().zoneMobSet.contains(mob)){
                 mob.killCharacter("no owner");
@@ -718,6 +738,7 @@ public class MobileFSM {
     }
 
     private static void HamletGuardLogic(Mob mob) {
+        MobileFSMManager.getInstance().currentState = MobileFSMManager.fsmState.HAMLETGUARDLOGIC;
         if (mob.getCombatTarget() == null) {
             //safehold guard
             SafeGuardAggro(mob);
@@ -730,6 +751,7 @@ public class MobileFSM {
     }
 
     private static void DefaultLogic(Mob mob) {
+        MobileFSMManager.getInstance().currentState = MobileFSMManager.fsmState.DEFAULTLOGIC;
         //check for players that can be aggroed if mob is agressive and has no target
         if(mob.getCombatTarget() != null && mob.playerAgroMap.containsKey(mob.getCombatTarget().getObjectUUID()) == false){
             mob.setCombatTarget(null);
@@ -758,6 +780,7 @@ public class MobileFSM {
     }
 
     public static void CheckForPlayerGuardAggro(Mob mob) {
+        MobileFSMManager.getInstance().currentState = MobileFSMManager.fsmState.CHECKFORPLAYERGUARDAGRO;
         //looks for and sets mobs combatTarget
         if (!mob.isAlive())
             return;
@@ -789,6 +812,7 @@ public class MobileFSM {
     }
 
     public static Boolean GuardCanAggro(Mob mob, PlayerCharacter target) {
+        MobileFSMManager.getInstance().currentState = MobileFSMManager.fsmState.GUARDCANAGRO;
         if (mob.getGuild().getNation().equals(target.getGuild().getNation()))
             return false;
         if (mob.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardMinion.ordinal()) {
@@ -830,6 +854,7 @@ public class MobileFSM {
     }
 
     public static void randomGuardPatrolPoint(Mob mob) {
+        MobileFSMManager.getInstance().currentState = MobileFSMManager.fsmState.RANDOMGUARDPATROLPOINTS;
         if (mob.isMoving() == true) {
             //early exit for a mob who is already moving to a patrol point
             //while mob moving, update lastPatrolTime so that when they stop moving the 10 second timer can begin
@@ -868,6 +893,7 @@ public class MobileFSM {
     }
 
     public static AbstractWorldObject ChangeTargetFromHateValue(Mob mob) {
+        MobileFSMManager.getInstance().currentState = MobileFSMManager.fsmState.CHANGETARGETFROMHATEVALUE;
         float CurrentHateValue = 0;
         if (mob.getCombatTarget() != null && mob.getCombatTarget().getObjectType().equals(Enum.GameObjectType.PlayerCharacter)) {
             CurrentHateValue = ((PlayerCharacter) mob.getCombatTarget()).getHateValue();
