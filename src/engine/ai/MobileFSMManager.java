@@ -14,6 +14,7 @@ import engine.gameManager.ZoneManager;
 import engine.objects.Mob;
 import engine.objects.Zone;
 import engine.util.ThreadUtils;
+import org.joda.time.DateTime;
 import org.pmw.tinylog.Logger;
 
 import java.time.Duration;
@@ -121,6 +122,7 @@ public class MobileFSMManager {
                     executionMax = executionTime;
 
                 mobPulse = System.currentTimeMillis() + AI_PULSE_MOB_THRESHOLD;
+                Logger.error("MobileFSM cycle completed: " + DateTime.now());
             }
         }
     }
