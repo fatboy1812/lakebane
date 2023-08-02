@@ -604,7 +604,9 @@ public class MobileFSM {
             }
         } else if (System.currentTimeMillis() > (aiAgent.deathTime + (aiAgent.spawnTime * 1000))) {
             //aiAgent.respawn();
-            aiAgent.getParentZone().respawnQue.add(aiAgent);
+            if(aiAgent.getParentZone().respawnQue.contains(aiAgent) == false) {
+                aiAgent.getParentZone().respawnQue.add(aiAgent);
+            }
         }
         } catch(Exception e){
             Logger.info(aiAgent.getObjectUUID() + " " + aiAgent.getName() + " Failed At: CheckForRespawn" + " " + e.getMessage());

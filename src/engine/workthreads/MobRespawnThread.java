@@ -26,6 +26,7 @@ import engine.objects.Zone;
 import org.pmw.tinylog.Logger;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.LongAdder;
 
 /**
  * Thread blocks until MagicBane dispatch messages are
@@ -41,24 +42,25 @@ public class MobRespawnThread implements Runnable {
 
     // Instance variables
 
-
     // Thread constructor
 
     public MobRespawnThread() {
-
+        Boolean isAlive = false;
         Logger.info(" MobRespawnThread thread has started!");
 
     }
 
     @Override
     public void run() {
-        for (Zone zone : ZoneManager.getAllZones()) {
-            if (zone.respawnQue.isEmpty() == false && zone.lastRespawn + 100 < System.currentTimeMillis()) {
-                if (zone.respawnQue.iterator().next() != null) {
-                    Mob respawner = zone.respawnQue.iterator().next();
-                    respawner.respawn();
-                    zone.respawnQue.remove(respawner);
-                    zone.lastRespawn = System.currentTimeMillis();
+        while(true) {
+            for (Zone zone : ZoneManager.getAllZones()) {
+                if (zone.respawnQue.isEmpty() == false && zone.lastRespawn + 100 < System.currentTimeMillis()) {
+                    if (zone.respawnQue.iterator().next() != null) {
+                        Mob respawner = zone.respawnQue.iterator().next();
+                        respawner.respawn();
+                        zone.respawnQue.remove(respawner);
+                        zone.lastRespawn = System.currentTimeMillis();
+                    }
                 }
             }
         }
