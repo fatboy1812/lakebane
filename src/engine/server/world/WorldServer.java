@@ -483,7 +483,7 @@ public class WorldServer {
 		initClientConnectionManager();
 		
 		//intiate mob respawn thread
-		Logger.info("Starting network Dispatcher");
+		Logger.info("Starting Mob Respawn Thread");
 		MobRespawnThread.startRespawnThread();
 		// Run maintenance
 
