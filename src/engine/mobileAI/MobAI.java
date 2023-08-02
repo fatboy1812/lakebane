@@ -382,6 +382,13 @@ public class MobAI {
 
         if (mob == null)
             return;
+        if(mob.getTimestamps().containsKey("lastExecution") == false){
+            mob.getTimestamps().put("lastExecution",System.currentTimeMillis());
+        }
+        if(System.currentTimeMillis() < mob.getTimeStamp("lastExecution")){
+            return;
+        }
+        mob.getTimestamps().put("lastExecution",System.currentTimeMillis() + MobAIThread.AI_PULSE_MOB_THRESHOLD);
         if (mob.despawned && mob.getMobBase().getLoadID() == 13171) {
             //trebuchet spawn handler
             CheckForRespawn(mob);
@@ -436,10 +443,6 @@ public class MobAI {
                     return;
                 }
                 if(mob.canSee((PlayerCharacter)mob.getCombatTarget()) == false) {
-                    mob.setCombatTarget(null);
-                    return;
-                }
-                if(target.getClientConnection() == null){
                     mob.setCombatTarget(null);
                     return;
                 }
@@ -705,14 +708,16 @@ public class MobAI {
                     case PlayerCharacter:
                     case Mob:
                         mob.destination = MovementUtilities.GetDestinationToCharacter(mob, (AbstractCharacter) mob.getCombatTarget());
-                        MovementUtilities.moveToLocation(mob, mob.destination, mob.getRange());
+                        MovementUtilities.moveToLocation(mob, mob.destination, mob.getRange() + 1);
                         break;
                     case Building:
                         mob.destination = mob.getCombatTarget().getLoc();
                         MovementUtilities.moveToLocation(mob,mob.getCombatTarget().getLoc(),0);
                         break;
                 }
-
+                if (CombatUtilities.inRange2D(mob, mob.getCombatTarget(), mob.getRange()) == true){
+                    mob.stopMovement(mob.getLoc());
+                }
             }
         }
         } catch(Exception e){
