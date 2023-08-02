@@ -429,13 +429,17 @@ public class MobAI {
                 mob.setCombatTarget(null);
                 return;
             }
-
             if(mob.getCombatTarget().getObjectTypeMask() == MBServerStatics.MASK_PLAYER){
-                if(mob.playerAgroMap.containsKey(mob.getCombatTarget().getObjectUUID()) == false){
+                PlayerCharacter target = (PlayerCharacter)mob.combatTarget;
+                if(mob.playerAgroMap.containsKey(target.getObjectUUID()) == false){
                     mob.setCombatTarget(null);
                     return;
                 }
                 if(mob.canSee((PlayerCharacter)mob.getCombatTarget()) == false) {
+                    mob.setCombatTarget(null);
+                    return;
+                }
+                if(target.getClientConnection() == null){
                     mob.setCombatTarget(null);
                     return;
                 }
