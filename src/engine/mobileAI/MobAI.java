@@ -1041,11 +1041,9 @@ public class MobAI {
                 else {
                     if (mob.getCombatTarget() == null) {
                         if (mob.BehaviourType == Enum.MobBehaviourType.HamletGuard)
-                            //safehold guard
-                            SafeGuardAggro(mob);
+                            SafeGuardAggro(mob);  //safehold guard
                         else
-                            //normal aggro
-                            CheckForAggro(mob);
+                            CheckForAggro(mob);   //normal aggro
                     }
                 }
             }
