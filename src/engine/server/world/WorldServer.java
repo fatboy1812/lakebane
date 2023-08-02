@@ -17,8 +17,8 @@ import engine.Enum.SupportMsgType;
 import engine.InterestManagement.HeightMap;
 import engine.InterestManagement.RealmMap;
 import engine.InterestManagement.WorldGrid;
-import engine.ai.MobileFSMManager;
-import engine.workthreads.MobRespawnThread;
+import engine.mobileAI.Threads.MobAIThread;
+import engine.mobileAI.Threads.MobRespawnThread;
 import engine.db.archive.DataWarehouse;
 import engine.exception.MsgSendException;
 import engine.gameManager.*;
@@ -459,8 +459,9 @@ public class WorldServer {
 		Logger.info("Running Heraldry Audit for Deleted Players");
 		Heraldry.AuditHeraldry();
 
-		Logger.info("Starting Mobile AI FSM");
-		MobileFSMManager.getInstance();
+		//intiate mob ai thread
+		Logger.info("Starting Mob AI Thread");
+		MobAIThread.startAIThread();
 
 		for (Zone zone : ZoneManager.getAllZones()) {
 			if (zone.getHeightMap() != null) {
@@ -485,6 +486,7 @@ public class WorldServer {
 		//intiate mob respawn thread
 		Logger.info("Starting Mob Respawn Thread");
 		MobRespawnThread.startRespawnThread();
+
 		// Run maintenance
 
 		MaintenanceManager.dailyMaintenance();

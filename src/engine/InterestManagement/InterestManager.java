@@ -458,7 +458,7 @@ public enum InterestManager implements Runnable {
                         continue;
 
                     awonpc.playerAgroMap.put(player.getObjectUUID(), false);
-                    //MobileFSM.setAwake(awonpc, false);
+                    //MobAI.setAwake(awonpc, false);
                     ((Mob) awonpc).setCombatTarget(null);
                     //				IVarController.setVariable(awonpc, "IntelligenceDisableDelay", (double) (System.currentTimeMillis() + 5000));
                     //				awonpc.enableIntelligence();
@@ -475,7 +475,7 @@ public enum InterestManager implements Runnable {
                     awonpc.playerAgroMap.put(player.getObjectUUID(), false);
 
                     if (awonpc.isMob())
-                        //MobileFSM.setAwake(awonpc, false);
+                        //MobAI.setAwake(awonpc, false);
                         ((Mob) awonpc).setCombatTarget(null);
                     //				IVarController.setVariable(awonpc, "IntelligenceDisableDelay", (double) (System.currentTimeMillis() + 5000));
                     //				awonpc.enableIntelligence();

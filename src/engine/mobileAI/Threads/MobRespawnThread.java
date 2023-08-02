@@ -16,17 +16,11 @@
 //                www.magicbane.com
 
 
-package engine.workthreads;
-
-import engine.Enum.DispatchChannel;
+package engine.mobileAI.Threads;
 import engine.gameManager.ZoneManager;
-import engine.net.Dispatch;
 import engine.objects.Mob;
 import engine.objects.Zone;
 import org.pmw.tinylog.Logger;
-
-import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.atomic.LongAdder;
 
 /**
  * Thread blocks until MagicBane dispatch messages are
@@ -45,7 +39,6 @@ public class MobRespawnThread implements Runnable {
     // Thread constructor
 
     public MobRespawnThread() {
-        Boolean isAlive = false;
         Logger.info(" MobRespawnThread thread has started!");
 
     }
@@ -66,10 +59,8 @@ public class MobRespawnThread implements Runnable {
         }
     }
     public static void startRespawnThread() {
-
         Thread respawnThread;
         respawnThread = new Thread(new MobRespawnThread());
-
         respawnThread.setName("respawnThread");
         respawnThread.start();
     }

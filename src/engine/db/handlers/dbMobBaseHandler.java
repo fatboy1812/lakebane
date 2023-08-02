@@ -10,7 +10,6 @@
 package engine.db.handlers;
 
 import engine.Enum.GameObjectType;
-import engine.ai.MobileFSMManager;
 import engine.gameManager.DbManager;
 import engine.objects.MobBase;
 import engine.objects.MobBaseEffects;

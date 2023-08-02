@@ -13,7 +13,7 @@ import ch.claude_martin.enumbitset.EnumBitSet;
 import engine.Enum;
 import engine.Enum.*;
 import engine.InterestManagement.WorldGrid;
-import engine.ai.MobileFSMManager;
+import engine.mobileAI.Threads.MobAIThread;
 import engine.exception.SerializationException;
 import engine.gameManager.*;
 import engine.job.JobScheduler;
@@ -630,7 +630,7 @@ public class Mob extends AbstractIntelligenceAgent {
 
     public static void HandleAssistedAggro(PlayerCharacter source, PlayerCharacter target) {
 
-        HashSet<AbstractWorldObject> mobsInRange = WorldGrid.getObjectsInRangePartial(source, MobileFSMManager.AI_DROP_AGGRO_RANGE, MBServerStatics.MASK_MOB);
+        HashSet<AbstractWorldObject> mobsInRange = WorldGrid.getObjectsInRangePartial(source, MobAIThread.AI_DROP_AGGRO_RANGE, MBServerStatics.MASK_MOB);
 
         for (AbstractWorldObject awo : mobsInRange) {
             Mob mob = (Mob) awo;

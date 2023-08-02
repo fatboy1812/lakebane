@@ -7,7 +7,7 @@
 //                www.magicbane.com
 
 
-package engine.ai.utilities;
+package engine.mobileAI.utilities;
 
 import engine.Enum.*;
 import engine.gameManager.ChatManager;

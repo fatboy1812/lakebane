@@ -135,7 +135,6 @@ public enum DevCmdManager {
         DevCmdManager.registerDevCmd(new SetNpcEquipSetCmd());
         DevCmdManager.registerDevCmd(new SetBuildingAltitudeCmd());
         DevCmdManager.registerDevCmd(new ResetLevelCmd());
-        DevCmdManager.registerDevCmd(new HeartbeatCmd());
         DevCmdManager.registerDevCmd(new SetNpcNameCmd());
         DevCmdManager.registerDevCmd(new SetNpcMobbaseCmd());
         DevCmdManager.registerDevCmd(new DespawnCmd());

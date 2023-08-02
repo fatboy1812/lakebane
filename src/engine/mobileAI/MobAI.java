@@ -5,13 +5,14 @@
 // ▀▀  █▪▀▀▀ ▀  ▀ ·▀▀▀▀ ▀▀▀·▀▀▀ ·▀▀▀▀  ▀  ▀ ▀▀  █▪ ▀▀▀
 //      Magicbane Emulator Project © 2013 - 2022
 //                www.magicbane.com
-package engine.ai;
+package engine.mobileAI;
 
 import engine.Enum;
 import engine.Enum.DispatchChannel;
 import engine.InterestManagement.WorldGrid;
-import engine.ai.utilities.CombatUtilities;
-import engine.ai.utilities.MovementUtilities;
+import engine.mobileAI.Threads.MobAIThread;
+import engine.mobileAI.utilities.CombatUtilities;
+import engine.mobileAI.utilities.MovementUtilities;
 import engine.gameManager.*;
 import engine.math.Vector3f;
 import engine.math.Vector3fImmutable;
@@ -33,7 +34,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 import static engine.math.FastMath.sqr;
 
-public class MobileFSM {
+public class MobAI {
 
 
     private static void AttackTarget(Mob mob, AbstractWorldObject target) {
@@ -212,7 +213,7 @@ public class MobileFSM {
             rwss.setPlayer(mob);
             DispatchMessage.sendToAllInRange(mob, rwss);
         }
-        int patrolDelay = ThreadLocalRandom.current().nextInt((int) (MobileFSMManager.AI_PATROL_DIVISOR * 0.5f), MobileFSMManager.AI_PATROL_DIVISOR) + MobileFSMManager.AI_PATROL_DIVISOR;
+        int patrolDelay = ThreadLocalRandom.current().nextInt((int) (MobAIThread.AI_PATROL_DIVISOR * 0.5f), MobAIThread.AI_PATROL_DIVISOR) + MobAIThread.AI_PATROL_DIVISOR;
         if (mob.stopPatrolTime + (patrolDelay * 1000) > System.currentTimeMillis())
             //early exit while waiting to patrol again
             return;
@@ -269,7 +270,7 @@ public class MobileFSM {
             return false;
         }
         int castRoll = ThreadLocalRandom.current().nextInt(101);
-        if(castRoll <= MobileFSMManager.AI_POWER_DIVISOR){
+        if(castRoll <= MobAIThread.AI_POWER_DIVISOR){
             return false;
         }
         if (mob.nextCastTime == 0)
@@ -341,7 +342,7 @@ public class MobileFSM {
             PowersManager.finishUseMobPower(msg, mob, 0, 0);
             // Default minimum seconds between cast = 10
             float randomCooldown = (ThreadLocalRandom.current().nextInt(150) + 100) * 0.01f;
-            mob.nextCastTime = System.currentTimeMillis() + (long)((mobPower.getCooldown() + (MobileFSMManager.AI_POWER_DIVISOR * 1000)) * randomCooldown);
+            mob.nextCastTime = System.currentTimeMillis() + (long)((mobPower.getCooldown() + (MobAIThread.AI_POWER_DIVISOR * 1000)) * randomCooldown);
             return true;
         }
         } catch(Exception e){
@@ -504,7 +505,7 @@ public class MobileFSM {
         }
         if(aiAgent.combatTarget == null) {
             //look for pets to aggro if no players found to aggro
-            HashSet<AbstractWorldObject> awoList = WorldGrid.getObjectsInRangePartial(aiAgent, MobileFSMManager.AI_BASE_AGGRO_RANGE, MBServerStatics.MASK_PET);
+            HashSet<AbstractWorldObject> awoList = WorldGrid.getObjectsInRangePartial(aiAgent, MobAIThread.AI_BASE_AGGRO_RANGE, MBServerStatics.MASK_PET);
             for (AbstractWorldObject awoMob : awoList) {
                 //dont scan self.
                 if (aiAgent.equals(awoMob))
@@ -655,7 +656,7 @@ public class MobileFSM {
                 CheckForAggro(mob);
             }
         }
-        if (mob.getCombatTarget() != null && CombatUtilities.inRange2D(mob, mob.getCombatTarget(), MobileFSMManager.AI_BASE_AGGRO_RANGE * 0.5f)) {
+        if (mob.getCombatTarget() != null && CombatUtilities.inRange2D(mob, mob.getCombatTarget(), MobAIThread.AI_BASE_AGGRO_RANGE * 0.5f)) {
             return;
         }
         if (mob.isPlayerGuard() && !mob.despawned) {
