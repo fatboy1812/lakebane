@@ -18,6 +18,7 @@ import engine.InterestManagement.HeightMap;
 import engine.InterestManagement.RealmMap;
 import engine.InterestManagement.WorldGrid;
 import engine.ai.MobileFSMManager;
+import engine.workthreads.MobRespawnThread;
 import engine.db.archive.DataWarehouse;
 import engine.exception.MsgSendException;
 import engine.gameManager.*;
@@ -57,6 +58,7 @@ import java.net.InetAddress;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -479,7 +481,10 @@ public class WorldServer {
 
 		Logger.info("Initializing Client Connection Manager");
 		initClientConnectionManager();
-
+		
+		//intiate mob respawn thread
+		Logger.info("Starting network Dispatcher");
+		MobRespawnThread.startRespawnThread();
 		// Run maintenance
 
 		MaintenanceManager.dailyMaintenance();
@@ -494,7 +499,7 @@ public class WorldServer {
 
 		// Calculate bootstrap time and rest boot time to current time.
 
-		java.time.Duration bootDuration = java.time.Duration.between(LocalDateTime.now(), bootTime);
+		Duration bootDuration = Duration.between(LocalDateTime.now(), bootTime);
 		long bootSeconds = Math.abs(bootDuration.getSeconds());
 		String boottime = String.format("%d hours %02d minutes %02d seconds", bootSeconds / 3600, (bootSeconds % 3600) / 60, (bootSeconds % 60));
 		Logger.info("Bootstrap time was " + boottime);

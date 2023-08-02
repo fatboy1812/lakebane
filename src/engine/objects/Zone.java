@@ -58,7 +58,8 @@ public class Zone extends AbstractGameObject {
     private String hash;
     private float worldAltitude = 0;
     private float seaLevel = 0;
-    public static ArrayList<Mob> respawnQue = new ArrayList<>();
+    //public static ArrayList<Mob> respawnQue = new ArrayList<>();
+    public static final Set<Mob> respawnQue = Collections.newSetFromMap(new ConcurrentHashMap<>());
     public static long lastRespawn = 0;
     /**
      * ResultSet Constructor
