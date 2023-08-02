@@ -66,7 +66,7 @@ public class MobRespawnThread implements Runnable {
     public static void startRespawnThread() {
 
         Thread respawnThread;
-        respawnThread = new Thread(new PurgeOprhans());
+        respawnThread = new Thread(new MobRespawnThread());
 
         respawnThread.setName("respawnThread");
         respawnThread.start();
