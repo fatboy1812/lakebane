@@ -45,17 +45,28 @@ public class MobRespawnThread implements Runnable {
 
     @Override
     public void run() {
-        while(true) {
-            for (Zone zone : ZoneManager.getAllZones()) {
-                if (zone.respawnQue.isEmpty() == false && zone.lastRespawn + 100 < System.currentTimeMillis()) {
-                    if (zone.respawnQue.iterator().next() != null) {
+
+        while (true) {
+
+            try {
+                for (Zone zone : ZoneManager.getAllZones()) {
+
+                    if (zone.respawnQue.isEmpty() == false && zone.lastRespawn + 100 < System.currentTimeMillis()) {
+
                         Mob respawner = zone.respawnQue.iterator().next();
+
+                        if (respawner == null)
+                            continue;
+
                         respawner.respawn();
                         zone.respawnQue.remove(respawner);
                         zone.lastRespawn = System.currentTimeMillis();
                     }
                 }
+            } catch (Exception e) {
+                Logger.error(e);
             }
+
         }
     }
     public static void startRespawnThread() {
