@@ -16,6 +16,8 @@ import engine.gameManager.ZoneManager;
 import engine.net.DispatchMessage;
 import engine.net.client.msg.chat.ChatSystemMsg;
 import engine.objects.*;
+import org.pmw.tinylog.Logger;
+
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -106,11 +108,7 @@ public class LootManager {
             }
             MobLoot outItem;
             int genRoll;
-            //if(isHotzone){
-            //    genRoll = ThreadLocalRandom.current().nextInt(32) + 77;
-            //} else {
-                genRoll = new Random().nextInt(99) + 1;
-            //}
+            genRoll = new Random().nextInt(99) + 1;
             GenTableRow selectedRow = generalItemTables.get(genTableID).getRowForRange(genRoll);
             if (selectedRow == null) {
                 return null;
@@ -134,8 +132,16 @@ public class LootManager {
             Enum.ItemType outType = outItem.getItemBase().getType();
             if (outType.ordinal() == Enum.ItemType.WEAPON.ordinal() || outType.ordinal() == Enum.ItemType.ARMOR.ordinal() || outType.ordinal() == Enum.ItemType.JEWELRY.ordinal()) {
                 if (outItem.getItemBase().isGlass() == false) {
-                    outItem = GeneratePrefix(mob,outItem,genTableID,genRoll);
+                    try {
+                        outItem = GeneratePrefix(mob, outItem, genTableID, genRoll);
+                    } catch(Exception e){
+                        Logger.error("Failed to GeneratePrefix for item: " + outItem.getName());
+                    }
+                    try{
                     outItem = GenerateSuffix(mob,outItem,genTableID,genRoll);
+                    } catch(Exception e){
+                        Logger.error("Failed to GenerateSuffix for item: " + outItem.getName());
+                    }
                 }
             }
             return outItem;
