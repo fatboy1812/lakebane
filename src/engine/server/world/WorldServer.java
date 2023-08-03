@@ -17,7 +17,8 @@ import engine.Enum.SupportMsgType;
 import engine.InterestManagement.HeightMap;
 import engine.InterestManagement.RealmMap;
 import engine.InterestManagement.WorldGrid;
-import engine.ai.MobileFSMManager;
+import engine.mobileAI.Threads.MobAIThread;
+import engine.mobileAI.Threads.MobRespawnThread;
 import engine.db.archive.DataWarehouse;
 import engine.exception.MsgSendException;
 import engine.gameManager.*;
@@ -57,6 +58,7 @@ import java.net.InetAddress;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -457,8 +459,9 @@ public class WorldServer {
 		Logger.info("Running Heraldry Audit for Deleted Players");
 		Heraldry.AuditHeraldry();
 
-		Logger.info("Starting Mobile AI FSM");
-		MobileFSMManager.getInstance();
+		//intiate mob ai thread
+		Logger.info("Starting Mob AI Thread");
+		MobAIThread.startAIThread();
 
 		for (Zone zone : ZoneManager.getAllZones()) {
 			if (zone.getHeightMap() != null) {
@@ -479,6 +482,10 @@ public class WorldServer {
 
 		Logger.info("Initializing Client Connection Manager");
 		initClientConnectionManager();
+		
+		//intiate mob respawn thread
+		Logger.info("Starting Mob Respawn Thread");
+		MobRespawnThread.startRespawnThread();
 
 		// Run maintenance
 
@@ -494,7 +501,7 @@ public class WorldServer {
 
 		// Calculate bootstrap time and rest boot time to current time.
 
-		java.time.Duration bootDuration = java.time.Duration.between(LocalDateTime.now(), bootTime);
+		Duration bootDuration = Duration.between(LocalDateTime.now(), bootTime);
 		long bootSeconds = Math.abs(bootDuration.getSeconds());
 		String boottime = String.format("%d hours %02d minutes %02d seconds", bootSeconds / 3600, (bootSeconds % 3600) / 60, (bootSeconds % 60));
 		Logger.info("Bootstrap time was " + boottime);
@@ -697,7 +704,11 @@ public class WorldServer {
 			Logger.error("Unable to find PlayerCharacter to logout");
 			return;
 		}
-
+		//remove player from loaded mobs agro maps
+		for(AbstractWorldObject awo : WorldGrid.getObjectsInRangePartial(player.getLoc(),MBServerStatics.CHARACTER_LOAD_RANGE,MBServerStatics.MASK_MOB)) {
+			Mob loadedMob = (Mob) awo;
+			loadedMob.playerAgroMap.remove(player.getObjectUUID());
+		}
 		player.getTimestamps().put("logout", System.currentTimeMillis());
 		player.setEnteredWorld(false);
 

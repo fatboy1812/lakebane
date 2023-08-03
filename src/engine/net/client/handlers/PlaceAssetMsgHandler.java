@@ -190,7 +190,7 @@ public class PlaceAssetMsgHandler extends AbstractClientMsgHandler {
             return false;
         }
 
-        Realm serverRealm = RealmMap.getRealmAtLocation(player.getLoc());
+        Realm serverRealm = RealmMap.getRealmAtLocation(city.getLoc());
 
         // Cannot place buildings on seafloor or other restricted realms
 

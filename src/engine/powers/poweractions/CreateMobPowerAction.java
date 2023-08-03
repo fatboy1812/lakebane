@@ -11,7 +11,6 @@ package engine.powers.poweractions;
 
 import engine.Enum;
 import engine.InterestManagement.WorldGrid;
-import engine.ai.utilities.MovementUtilities;
 import engine.gameManager.DbManager;
 import engine.gameManager.MovementManager;
 import engine.gameManager.NPCManager;
