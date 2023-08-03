@@ -16,8 +16,6 @@ import engine.gameManager.ZoneManager;
 import engine.net.DispatchMessage;
 import engine.net.client.msg.chat.ChatSystemMsg;
 import engine.objects.*;
-import engine.server.MBServerStatics;
-
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
