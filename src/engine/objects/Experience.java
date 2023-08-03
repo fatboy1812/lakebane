@@ -10,13 +10,14 @@
 package engine.objects;
 
 import engine.Enum.TargetColor;
-import engine.gameManager.ConfigManager;
 import engine.gameManager.ZoneManager;
 import engine.math.Vector3fImmutable;
 import engine.server.MBServerStatics;
 
 import java.util.ArrayList;
 import java.util.TreeMap;
+
+import static engine.gameManager.LootManager.LOOTMANAGER;
 
 public class Experience {
 
@@ -238,44 +239,44 @@ public class Experience {
 
     // called to determine current level based on xp
     public static int getLevel(int experience) {
+
         int expKey = ExpToLevel.floorKey(experience);
         int level = ExpToLevel.get(expKey);
-        if (level > MBServerStatics.LEVELCAP) {
+
+        if (level > MBServerStatics.LEVELCAP)
             level = MBServerStatics.LEVELCAP;
-        }
+
         return level;
     }
 
     // Get the base xp for a level
     public static int getBaseExperience(int level) {
-        if (level < LevelToExp.length) {
+
+        if (level < LevelToExp.length)
             return LevelToExp[level];
-        }
 
         int fLevel = level - 1;
         int baseXP = fLevel * fLevel * fLevel;
+
         return (int) ((fLevel < 40) ? (baseXP * 150)
                 : (baseXP * (150 + (7.6799998 * (level - 40)))));
     }
 
-    // Get XP needed for the next level
-    public static int getExpForNextLevel(int experience, int currentLevel) {
-        return (getBaseExperience(currentLevel + 1) - experience);
-    }
-
     // Max XP granted for killing a blue, yellow or orange mob
     public static float maxXPPerKill(int level) {
+
         if (level < 1)
             level = 1;
+
         if (level > 75)
             level = 75;
+
         return MaxExpPerLevel[level];
-        // return (LevelToExp[level + 1] - LevelToExp[level])/(11 + level/2);
-        // return ((((level * level)-level)*50)+16);
     }
 
     // Returns a penalty modifier depending on mob color
     public static double getConMod(AbstractCharacter pc, AbstractCharacter mob) {
+
         switch (TargetColor.getCon(pc, mob)) {
             case Red:
                 return 1.25;
@@ -299,16 +300,16 @@ public class Experience {
                                                int highestLevel) {
 
         double penalty = 0.0;
-        int adjustedGroupSize = 0;
-        int totalLevels = 0;
         int level = currPlayer.getLevel();
 
         // Group Size Penalty
+
         if (players.size() > 2)
             penalty = (players.size() - 2) * 1.5;
 
         // Calculate Penalty For Highest level -> Current Player difference, !=
         // check to prevent divide by zero error
+
         if (highestLevel != level)
             penalty += ((highestLevel - level) * .5);
 
@@ -318,6 +319,7 @@ public class Experience {
         // penalty += ((avgLevels - level) * .5);
 
         // Extra noob penalty
+
         if ((highestLevel - level) > 25)
             penalty += (highestLevel - level - 25);
 
@@ -325,7 +327,9 @@ public class Experience {
     }
 
     public static void doExperience(PlayerCharacter killer, AbstractCharacter mob, Group g) {
+
         // Check for some failure conditions
+
         if (killer == null || mob == null)
             return;
 
@@ -341,10 +345,13 @@ public class Experience {
 
             // Check if leader is within range of kill and then get leadership
             // skill
+
             Vector3fImmutable killLoc = mob.getLoc();
+
             if (killLoc.distanceSquared2D(g.getGroupLead().getLoc()) < (MBServerStatics.EXP_RANGE * MBServerStatics.EXP_RANGE)) {
                 CharacterSkill leaderskill = g.getGroupLead().skills
                         .get("Leadership");
+
                 if (leaderskill != null)
                     leadership = leaderskill.getNumTrains();
                 if (leadership > 90)
@@ -352,13 +359,18 @@ public class Experience {
             }
 
             // Check every group member for distance to see if they get xp
+
             for (PlayerCharacter pc : g.getMembers()) {
                 if (pc.isAlive()) { // Skip if the player is dead.
 
                     // Check within range
+
                     if (killLoc.distanceSquared2D(pc.getLoc()) < (MBServerStatics.EXP_RANGE * MBServerStatics.EXP_RANGE)) {
+
                         giveEXPTo.add(pc);
+
                         // Track highest level character
+
                         if (pc.getLevel() > highestLevel)
                             highestLevel = pc.getLevel();
                     }
@@ -366,34 +378,41 @@ public class Experience {
             }
 
             // Process every player in the group getting XP
+
             for (PlayerCharacter playerCharacter : giveEXPTo) {
                 if (playerCharacter.getLevel() >= MBServerStatics.LEVELCAP)
                     continue;
 
                 // Sets Max XP with server exp mod taken into account.
-                grantedExperience = (double) Float.parseFloat(ConfigManager.MB_NORMAL_EXP_RATE.getValue()) * maxXPPerKill(playerCharacter.getLevel());
+
+                grantedExperience = (double) LOOTMANAGER.NORMAL_EXP_RATE * maxXPPerKill(playerCharacter.getLevel());
 
                 // Adjust XP for Mob Level
+
                 grantedExperience *= getConMod(playerCharacter, mob);
 
                 // Process XP for this member
+
                 penalty = getGroupMemberPenalty(leadership, playerCharacter, giveEXPTo,
                         highestLevel);
 
                 // Leadership Penalty Reduction
+
                 if (leadership > 0)
                     penalty -= ((leadership) * 0.01) * penalty;
 
                 // Modify for hotzone
+
                 if (grantedExperience != 0)
                     if (ZoneManager.inHotZone(mob.getLoc()))
-                        grantedExperience *= Float.parseFloat(ConfigManager.MB_HOTZONE_EXP_RATE.getValue());
+                        grantedExperience *= LOOTMANAGER.HOTZONE_EXP_RATE;
 
                 // Check for 0 XP due to white mob, otherwise subtract penalty
                 // xp
-                if (grantedExperience == 0) {
+
+                if (grantedExperience == 0)
                     grantedExperience = 1;
-                } else {
+                else {
                     grantedExperience -= (penalty * 0.01) * grantedExperience;
 
                     // Errant Penalty Calculation
@@ -416,12 +435,12 @@ public class Experience {
                 return;
 
             // Get XP and adjust for Mob Level with world xp modifier taken into account
-            grantedExperience = (double) Float.parseFloat(ConfigManager.MB_NORMAL_EXP_RATE.getValue()) * maxXPPerKill(killer.getLevel());
+            grantedExperience = (double) LOOTMANAGER.NORMAL_EXP_RATE * maxXPPerKill(killer.getLevel());
             grantedExperience *= getConMod(killer, mob);
 
             // Modify for hotzone
             if (ZoneManager.inHotZone(mob.getLoc()))
-                grantedExperience *= Float.parseFloat(ConfigManager.MB_HOTZONE_EXP_RATE.getValue());
+                grantedExperience *= LOOTMANAGER.HOTZONE_EXP_RATE;
 
             // Errant penalty
             if (grantedExperience != 1)

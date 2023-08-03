@@ -12,7 +12,6 @@ package engine.objects;
 import engine.Enum.ItemContainerType;
 import engine.Enum.ItemType;
 import engine.Enum.OwnerType;
-import engine.gameManager.ConfigManager;
 import engine.gameManager.DbManager;
 import engine.gameManager.NPCManager;
 import engine.gameManager.ZoneManager;
@@ -24,6 +23,8 @@ import java.util.HashMap;
 import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
+
+import static engine.gameManager.LootManager.LOOTMANAGER;
 
 public class LootTable {
 
@@ -165,7 +166,7 @@ public class LootTable {
 
                 float chance = mlb.getChance() * .01f;
 
-                chance *= Float.parseFloat(ConfigManager.MB_NORMAL_DROP_RATE.getValue());
+                chance *= LOOTMANAGER.NORMAL_DROP_RATE;
 
                 calculatedLootTable = mlb.getLootTableID();
 

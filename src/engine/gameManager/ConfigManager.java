@@ -109,7 +109,6 @@ public enum ConfigManager {
 
     // Called at bootstrap: ensures that all config values are loaded.
 
-
     public static boolean init() {
 
         Logger.info("Loading config from environment...");
