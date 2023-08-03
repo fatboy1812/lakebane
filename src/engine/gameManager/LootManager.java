@@ -6,13 +6,9 @@
 //      Magicbane Emulator Project © 2013 - 2022
 //                www.magicbane.com
 
-package engine.loot;
+package engine.gameManager;
 
 import engine.Enum;
-import engine.gameManager.ConfigManager;
-import engine.gameManager.DbManager;
-import engine.gameManager.NPCManager;
-import engine.gameManager.ZoneManager;
 import engine.net.DispatchMessage;
 import engine.net.client.msg.chat.ChatSystemMsg;
 import engine.objects.*;
