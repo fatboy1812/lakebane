@@ -89,11 +89,12 @@ public class LootManager {
                     GenerateGoldDrop(mob, bse, inHotzone);
                     break;
                 case "LOOT":
+                    GenerateLootDrop(mob, bse.lootTable, bse.dropChance, multiplier);//generate normal loot drop
                     if (inHotzone) {
                         if (generalItemTables.containsKey(bse.lootTable + 1))
                             GenerateLootDrop(mob, bse.lootTable + 1, bse.dropChance,multiplier);//generate loot drop from hotzone table
-                         else
-                            GenerateLootDrop(mob, bse.lootTable, bse.dropChance, multiplier);//generate normal loot drop
+                         //else
+                            //GenerateLootDrop(mob, bse.lootTable, bse.dropChance, multiplier);//generate normal loot drop
                     }
                     break;
                 case "ITEM":
