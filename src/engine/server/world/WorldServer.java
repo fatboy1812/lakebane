@@ -337,7 +337,7 @@ public class WorldServer {
 		NPCManager.LoadAllBootySets();
 
 		// Load new loot system
-		Logger.info("Loading New Loot Tables");
+		Logger.info("Initializing Loot Manager");
 		LootManager.init();
 
 		//load old loot system (still needed for rolling for now)
