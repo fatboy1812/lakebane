@@ -13,18 +13,13 @@ import engine.Enum.ItemContainerType;
 import engine.Enum.ItemType;
 import engine.Enum.OwnerType;
 import engine.gameManager.DbManager;
-import engine.gameManager.NPCManager;
-import engine.gameManager.ZoneManager;
 import engine.server.MBServerStatics;
 import org.pmw.tinylog.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Random;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
-
-import static engine.gameManager.LootManager.LOOTMANAGER;
 
 public class LootTable {
 
@@ -33,10 +28,6 @@ public class LootTable {
     private static final ConcurrentHashMap<Integer, LootTable> modTables = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_LOW);
     private static final ConcurrentHashMap<Integer, LootTable> modGroups = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_LOW);
     private static final ConcurrentHashMap<Integer, Integer> statRuneChances = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_LOW);
-    private static final int oneDrop = 95;
-    private static final int twoDrop = 100;
-    private static final int noDropHotZone = 79;
-    private static final int oneDropHotZone = 98;
     public static boolean initialized = false;
     public static HashMap<ItemBase, Integer> itemsDroppedMap = new HashMap<>();
     public static HashMap<ItemBase, Integer> resourceDroppedMap = new HashMap<>();
@@ -79,6 +70,7 @@ public class LootTable {
 
         LootTable lootTable = new LootTable(UUID);
         lootTables.put(UUID, lootTable);
+
         return lootTable;
     }
 
@@ -111,23 +103,30 @@ public class LootTable {
     }
 
     public static LootTable getModGroup(int UUID) {
+
         if (modGroups.containsKey(UUID))
             return modGroups.get(UUID);
+
         LootTable modTable = new LootTable(UUID);
         modGroups.put(UUID, modTable);
+
         return modTable;
     }
 
     public static LootTable getModTable(int UUID) {
+
         if (modTables.containsKey(UUID))
             return modTables.get(UUID);
+
         LootTable modTypeTable = new LootTable(UUID);
         modTables.put(UUID, modTypeTable);
+
         return modTypeTable;
     }
 
     //call this on server startup to populate the tables
     public static void populateLootTables() {
+
         DbManager.LootQueries.populateLootGroups();
         DbManager.LootQueries.populateLootTables();
         DbManager.LootQueries.populateModTables();
@@ -137,580 +136,8 @@ public class LootTable {
         populateStatRuneChances();
     }
 
-    //Returns a list of random loot for a mob based on level, lootTable and hotzone
-    public static ArrayList<MobLoot> getMobLoot(Mob mobile, int mobLevel, int lootTable, boolean hotzone) {
-
-        ArrayList<MobLoot> mobLoot;
-        int calculatedLootTable;
-        int randomRoll;
-
-        mobLoot = new ArrayList<>();
-
-        // Setup default loot table if none exists
-
-        calculatedLootTable = lootTable;
-
-        LootTable.rollCount++;
-
-        if (MobLootBase.MobLootSet.get(mobile.getMobBase().getLoadID()).isEmpty()) {
-
-            randomRoll = ThreadLocalRandom.current().nextInt(100);
-
-            if (randomRoll > 90)
-                if (randomRoll > LootTable.oneDropHotZone)
-                    addMobLoot(mobile, mobLoot, mobLevel, calculatedLootTable, 1, true);
-                else
-                    addMobLoot(mobile, mobLoot, mobLevel, calculatedLootTable, 1, true);
-        } else {
-            for (MobLootBase mlb : MobLootBase.MobLootSet.get(mobile.getMobBase().getLoadID())) {
-
-                float chance = mlb.getChance() * .01f;
-
-                chance *= LOOTMANAGER.NORMAL_DROP_RATE;
-
-                calculatedLootTable = mlb.getLootTableID();
-
-                if (ThreadLocalRandom.current().nextFloat() > chance)
-                    continue;
-
-                addMobLoot(mobile, mobLoot, mobLevel, calculatedLootTable, 1, false);
-
-            }
-        }
-
-        //calculatedLootTable = lootTable;
-
-        if (calculatedLootTable <= 1)
-            calculatedLootTable = 1300;  // GENERIC WORLD
-
-        //handle hotzone random loot
-
-        if (hotzone) {
-
-            LootTable.rollCount++;
-
-            if (!MobLootBase.MobLootSet.get(mobile.getMobBase().getLoadID()).isEmpty())
-                for (MobLootBase mlb : MobLootBase.MobLootSet.get(mobile.getMobBase().getLoadID())) {
-                    if (!LootTable.lootGroups.containsKey(mlb.getLootTableID() + 1))
-                        continue;
-                    calculatedLootTable = mlb.getLootTableID();
-                    break;
-                }
-
-            randomRoll = ThreadLocalRandom.current().nextInt(100);
-
-            if (randomRoll > 90)
-                if (randomRoll > LootTable.oneDropHotZone)
-                    addMobLoot(mobile, mobLoot, mobLevel, calculatedLootTable + 1, 1, true);
-                else
-                    addMobLoot(mobile, mobLoot, mobLevel, calculatedLootTable + 1, 1, true);
-        }
-
-        //handle mob specific special loot
-
-        ArrayList bootyLoot = getBootyLoot(mobile);
-        mobLoot.addAll(bootyLoot);
-
-        return mobLoot;
-    }
-
-    public static ArrayList<MobLoot> getMobLootDeath(Mob mobile, int mobLevel, int lootTable) {
-        ArrayList<MobLoot> mobLoot = new ArrayList<>();
-
-        if (mobile == null)
-            return mobLoot;
-
-        //handle hotzone random loot
-        boolean hotzone = ZoneManager.inHotZone(mobile.getLoc());
-        if (hotzone) {
-
-            if (MobLootBase.MobLootSet.get(mobile.getMobBase().getLoadID()).isEmpty()) {
-                lootTable += 1;
-
-                if (lootTable <= 1)
-                    lootTable = 1301;  // GENERIC WORLD
-                int roll = ThreadLocalRandom.current().nextInt(100);
-                if (roll > 90)
-                    if (roll > LootTable.oneDropHotZone)
-                        addMobLoot(mobile, mobLoot, mobLevel, lootTable, 1, true);
-                    else
-                        addMobLoot(mobile, mobLoot, mobLevel, lootTable, 1, true);
-            } else {
-                for (MobLootBase mlb : MobLootBase.MobLootSet.get(mobile.getMobBase().getLoadID())) {
-                    lootTable = mlb.getLootTableID() + 1;
-                    if (!LootTable.lootGroups.containsKey(lootTable))
-                        continue;
-
-                    int roll = ThreadLocalRandom.current().nextInt(100);
-                    if (roll > 90)
-                        if (roll > LootTable.oneDropHotZone)
-                            addMobLoot(mobile, mobLoot, mobLevel, (lootTable), 1, true);
-                        else
-                            addMobLoot(mobile, mobLoot, mobLevel, (lootTable), 1, true);
-
-                    break;
-                }
-            }
-
-
-            if (mobLoot.isEmpty()) {
-
-                LootTable.rollCount++; //add another rollCount here.
-                int resourceRoll = ThreadLocalRandom.current().nextInt(100);
-                if (resourceRoll <= 5)
-                    addMobLootResources(mobile, mobLoot, mobLevel, (lootTable), 1, true);
-            }
-
-        }
-
-
-        //handle mob specific booty on death
-
-        ArrayList bootyLoot = getBootyLoot(mobile);
-        mobLoot.addAll(bootyLoot);
-
-        return mobLoot;
-    }
-
-    private static ArrayList<MobLoot> getBootyLoot(Mob mob) {
-
-        ArrayList<BootySetEntry> bootySetList;
-        ArrayList<MobLoot> mobLootList = new ArrayList<>();
-
-        if (mob.bootySet == 0)
-            return mobLootList;
-
-        bootySetList = NPCManager._bootySetMap.get(mob.bootySet);
-
-        for (BootySetEntry bootyEntry : bootySetList)
-            if (ThreadLocalRandom.current().nextInt(100) < bootyEntry.dropChance) {
-                ItemBase itemBase = ItemBase.getItemBase(bootyEntry.itemBase);
-
-                if (itemBase != null) {
-                    MobLoot mobLoot = new MobLoot(mob, itemBase, true);
-                    mobLootList.add(mobLoot);
-                }
-            }
-        return mobLootList;
-    }
-
-    //called by getMobLoot to add the actual loot
-    private static void addMobLoot(Mob mob, ArrayList<MobLoot> loot, int mobLevel, int lootTableID, int cnt, boolean hotzone) {
-
-        // Member variable declaration
-        float calculatedMobLevel;
-        int minSpawn;
-        int maxSpawn;
-        int spawnQuanity = 0;
-        int prefixValue = 0;
-        int suffixValue = 0;
-        int subTableID;
-        String modifierPrefix = "";
-        String modifierSuffix = "";
-
-        // Lookup Table Variables
-        LootTable lootTable;
-        LootRow lootRow;
-        LootTable lootGroup;
-        LootRow groupRow = null;
-        LootTable modTable;
-        LootTable modGroup;
-        LootRow modRow = null;
-
-        // Used for actual generation of items
-
-        int itemBaseUUID;
-        ItemBase itemBase = null;
-        MobLoot mobLoot;
-
-        if (!LootTable.lootGroups.containsKey(lootTableID))
-            return;
-
-        lootGroup = LootTable.lootGroups.get(lootTableID);
-
-        calculatedMobLevel = mobLevel;
-
-        if (calculatedMobLevel > 49)
-            calculatedMobLevel = 49;
-
-
-        int randomRoll = 0;
-        for (int i = 0; i < cnt; i++) {
-
-            Random random = new Random();
-
-            randomRoll = random.nextInt(100) + 1; //random roll between 1 and 100
-            groupRow = lootGroup.getLootRow(randomRoll);
-
-            if (groupRow == null)
-                return;
-
-            //get loot table for this group
-            if (!LootTable.lootTables.containsKey(groupRow.getValueOne()))
-                return;
-
-            lootTable = LootTable.lootTables.get(groupRow.getValueOne());
-
-            int minRoll = (int) ((calculatedMobLevel - 5) * 5);
-            int maxRoll = (int) ((calculatedMobLevel + 15) * 5);
-
-            if (minRoll < (int) lootTable.minRoll)
-                minRoll = (int) lootTable.minRoll;
-
-            if (maxRoll < minRoll)
-                maxRoll = minRoll;
-
-            if (maxRoll > lootTable.maxRoll)
-                maxRoll = (int) lootTable.maxRoll;
-
-            if (maxRoll > 320)
-                maxRoll = 320;
-
-            randomRoll = (int) ThreadLocalRandom.current().nextDouble(minRoll, maxRoll + 1); //Does not return Max, but does return min?
-
-            lootRow = lootTable.getLootRow(randomRoll); //get the item row from the bell's curve of level +-15
-
-            if (lootRow == null)
-                continue; //no item found for roll
-
-            itemBaseUUID = lootRow.getValueOne();
-
-            if (lootRow.getValueOne() == 0)
-                continue;
-
-            //handle quantities > 1 for resource drops
-
-            minSpawn = lootRow.getValueTwo();
-            maxSpawn = lootRow.getValueThree();
-
-            // spawnQuantity between min spawn (inclusive) and max spawn (inclusive)
-            if (maxSpawn > 1)
-                spawnQuanity = ThreadLocalRandom.current().nextInt((maxSpawn + 1 - minSpawn)) + minSpawn;
-
-            //get modifierPrefix
-
-            calculatedMobLevel = mobLevel;
-
-            if (calculatedMobLevel < 16)
-                calculatedMobLevel = 16;
-
-            if (calculatedMobLevel > 49)
-                calculatedMobLevel = 49;
-
-            int chanceMod = ThreadLocalRandom.current().nextInt(100) + 1;
-
-            if (chanceMod < 25) {
-                modGroup = LootTable.modGroups.get(groupRow.getValueTwo());
-
-                if (modGroup != null) {
-
-                    for (int a = 0; a < 10; a++) {
-                        randomRoll = ThreadLocalRandom.current().nextInt(100) + 1;
-                        modRow = modGroup.getLootRow(randomRoll);
-                        if (modRow != null)
-                            break;
-                    }
-
-                    if (modRow != null) {
-                        subTableID = modRow.getValueOne();
-
-                        if (LootTable.modTables.containsKey(subTableID)) {
-
-                            modTable = LootTable.modTables.get(subTableID);
-
-                            randomRoll = gaussianLevel((int) calculatedMobLevel);
-
-                            if (randomRoll < modTable.minRoll)
-                                randomRoll = (int) modTable.minRoll;
-
-                            if (randomRoll > modTable.maxRoll)
-                                randomRoll = (int) modTable.maxRoll;
-
-                            modRow = modTable.getLootRow(randomRoll);
-
-                            if (modRow != null) {
-                                prefixValue = modRow.getValueOne();
-                                modifierPrefix = modRow.getAction();
-                            }
-                        }
-                    }
-                }
-            } else if (chanceMod < 50) {
-                modGroup = LootTable.modGroups.get(groupRow.getValueThree());
-
-                if (modGroup != null) {
-
-                    for (int a = 0; a < 10; a++) {
-                        randomRoll = ThreadLocalRandom.current().nextInt(100) + 1;
-                        modRow = modGroup.getLootRow(randomRoll);
-                        if (modRow != null)
-                            break;
-                    }
-
-                    if (modRow != null) {
-
-                        subTableID = modRow.getValueOne();
-
-                        if (LootTable.modTables.containsKey(subTableID)) {
-
-                            modTable = LootTable.modTables.get(subTableID);
-                            randomRoll = gaussianLevel((int) calculatedMobLevel);
-
-                            if (randomRoll < modTable.minRoll)
-                                randomRoll = (int) modTable.minRoll;
-
-                            if (randomRoll > modTable.maxRoll)
-                                randomRoll = (int) modTable.maxRoll;
-
-                            modRow = modTable.getLootRow(randomRoll);
-
-                            if (modRow == null)
-                                modRow = modTable.getLootRow((int) ((modTable.minRoll + modTable.maxRoll) * .05f));
-
-
-                            if (modRow != null) {
-                                suffixValue = modRow.getValueOne();
-                                modifierSuffix = modRow.getAction();
-                            }
-                        }
-                    }
-                }
-            } else {
-                modGroup = LootTable.modGroups.get(groupRow.getValueTwo());
-
-                if (modGroup != null) {
-
-
-                    for (int a = 0; a < 10; a++) {
-                        randomRoll = ThreadLocalRandom.current().nextInt(100) + 1;
-                        modRow = modGroup.getLootRow(randomRoll);
-                        if (modRow != null)
-                            break;
-                    }
-
-
-                    if (modRow != null) {
-                        subTableID = modRow.getValueOne();
-
-                        if (LootTable.modTables.containsKey(subTableID)) {
-
-                            modTable = LootTable.modTables.get(subTableID);
-
-                            randomRoll = gaussianLevel((int) calculatedMobLevel);
-
-                            if (randomRoll < modTable.minRoll)
-                                randomRoll = (int) modTable.minRoll;
-
-                            if (randomRoll > modTable.maxRoll)
-                                randomRoll = (int) modTable.maxRoll;
-
-                            modRow = modTable.getLootRow(randomRoll);
-
-                            if (modRow == null)
-                                modRow = modTable.getLootRow((int) ((modTable.minRoll + modTable.maxRoll) * .05f));
-
-                            if (modRow != null) {
-                                prefixValue = modRow.getValueOne();
-                                modifierPrefix = modRow.getAction();
-                            }
-                        }
-                    }
-                }
-
-                //get modifierSuffix
-                modGroup = LootTable.modGroups.get(groupRow.getValueThree());
-
-                if (modGroup != null) {
-
-                    for (int a = 0; a < 10; a++) {
-                        randomRoll = ThreadLocalRandom.current().nextInt(100) + 1;
-                        modRow = modGroup.getLootRow(randomRoll);
-                        if (modRow != null)
-                            break;
-                    }
-
-                    if (modRow != null) {
-
-                        subTableID = modRow.getValueOne();
-
-                        if (LootTable.modTables.containsKey(subTableID)) {
-
-                            modTable = LootTable.modTables.get(subTableID);
-                            randomRoll = gaussianLevel((int) calculatedMobLevel);
-
-                            if (randomRoll < modTable.minRoll)
-                                randomRoll = (int) modTable.minRoll;
-
-                            if (randomRoll > modTable.maxRoll)
-                                randomRoll = (int) modTable.maxRoll;
-
-                            modRow = modTable.getLootRow(randomRoll);
-
-                            if (modRow == null)
-                                modRow = modTable.getLootRow((int) ((modTable.minRoll + modTable.maxRoll) * .05f));
-
-                            if (modRow != null) {
-                                suffixValue = modRow.getValueOne();
-                                modifierSuffix = modRow.getAction();
-                            }
-                        }
-                    }
-                }
-            }
-
-            itemBase = ItemBase.getItemBase(itemBaseUUID);
-
-            if (itemBase == null)
-                return;
-
-            //Handle logging of drops
-            LootTable.HandleDropLogs(itemBase);
-
-            if (itemBase.getType() == ItemType.OFFERING)
-                spawnQuanity = 1;
-
-            if (spawnQuanity > 0)
-                mobLoot = new MobLoot(mob, itemBase, spawnQuanity, false);
-            else
-                mobLoot = new MobLoot(mob, itemBase, false);
-
-            if (!modifierPrefix.isEmpty())
-                mobLoot.addPermanentEnchantment(modifierPrefix, 0, prefixValue, true);
-
-            if (!modifierSuffix.isEmpty())
-                mobLoot.addPermanentEnchantment(modifierSuffix, 0, suffixValue, false);
-
-            mobLoot.loadEnchantments();
-
-            loot.add(mobLoot);
-
-        }
-    }
-
-    private static void addMobLootResources(Mob mob, ArrayList<MobLoot> loot, int mobLevel, int lootTableID, int cnt, boolean hotzone) {
-
-        // Member variable declaration
-        float calculatedMobLevel;
-        int minSpawn;
-        int maxSpawn;
-        int spawnQuanity = 0;
-
-        // Lookup Table Variables
-        LootTable lootTable;
-        LootRow lootRow;
-        LootTable lootGroup;
-        LootRow groupRow = null;
-
-        // Used for actual generation of items
-        int itemBaseUUID;
-        ItemBase itemBase;
-        MobLoot mobLoot;
-
-        if (!LootTable.lootGroups.containsKey(lootTableID))
-            return;
-
-        lootGroup = LootTable.lootGroups.get(lootTableID);
-
-        calculatedMobLevel = mobLevel;
-
-        if (calculatedMobLevel > 49)
-            calculatedMobLevel = 49;
-
-        int roll = 0;
-        for (int i = 0; i < cnt; i++) {
-
-            if (lootTableID == 1901)
-                groupRow = lootGroup.getLootRow(66);
-            else if (lootTableID == 1501)
-                groupRow = lootGroup.getLootRow(98);
-            else
-                groupRow = lootGroup.getLootRow(80);
-
-            if (groupRow == null)
-                return;
-
-            //get loot table for this group
-
-            if (!LootTable.lootTables.containsKey(groupRow.getValueOne()))
-                return;
-
-            lootTable = LootTable.lootTables.get(groupRow.getValueOne());
-
-            int minRoll = (int) ((calculatedMobLevel - 5) * 5);
-            int maxRoll = (int) ((calculatedMobLevel + 15) * 5);
-
-            if (minRoll < (int) lootTable.minRoll)
-                minRoll = (int) lootTable.minRoll;
-
-            if (maxRoll < minRoll)
-                maxRoll = minRoll;
-
-            if (maxRoll > 320)
-                maxRoll = 320;
-
-            roll = ThreadLocalRandom.current().nextInt(minRoll, maxRoll + 1); //Does not return Max, but does return min?
-            lootRow = lootTable.getLootRow(roll); //get the item row from the bell's curve of level +-15
-
-            if (lootRow == null)
-                continue; //no item found for roll
-
-            itemBaseUUID = lootRow.getValueOne();
-
-            if (lootRow.getValueOne() == 0)
-                continue;
-
-            //handle quantities > 1 for resource drops
-
-            minSpawn = lootRow.getValueTwo();
-            maxSpawn = lootRow.getValueThree();
-
-            // spawnQuanity between minspawn (inclusive) and maxspawn (inclusive)
-
-            if (maxSpawn > 1)
-                spawnQuanity = ThreadLocalRandom.current().nextInt((maxSpawn + 1 - minSpawn)) + minSpawn;
-
-            itemBase = ItemBase.getItemBase(itemBaseUUID);
-
-            if (itemBase == null)
-                return;
-
-            LootTable.HandleDropLogs(itemBase);
-
-            switch (itemBase.getUUID()) {
-                case 19290:
-                    continue;
-                case 19291:
-                    continue;
-                case 19292:
-                    continue;
-                case 27530:
-                    continue;
-                case 973000:
-                    continue;
-                case 973200:
-                    continue;
-
-                case 26360:
-                    continue;
-            }
-
-            // Handle drop rates of resources/runes/contracts.
-            // We intentionally drop them in half
-
-            if (itemBase.getType() == ItemType.OFFERING)
-                spawnQuanity = 1;
-
-            if (spawnQuanity > 0)
-                mobLoot = new MobLoot(mob, itemBase, spawnQuanity, false);
-            else
-                mobLoot = new MobLoot(mob, itemBase, false);
-
-            loot.add(mobLoot);
-
-        }
-    }
-
     public static int gaussianLevel(int level) {
+
         int ret = -76;
 
         while (ret < -75 || ret > 75) {
@@ -723,6 +150,7 @@ public class LootTable {
 
     //This set's the drop chances for stat runes.
     public static void populateStatRuneChances() {
+
         //+3, Increased
         statRuneChances.put(250018, 60);
         statRuneChances.put(250009, 60);
@@ -785,74 +213,6 @@ public class LootTable {
         statRuneChances.put(250035, 60);
         statRuneChances.put(250044, 60);
         statRuneChances.put(250008, 60);
-    }
-
-    private static void HandleDropLogs(ItemBase itemBase) {
-
-        if (itemBase == null)
-            return;
-
-        LootTable.dropCount++; //item dropped, add to all item count.
-
-
-        if (LootTable.itemsDroppedMap.get(itemBase) == null) {
-            LootTable.itemsDroppedMap.put(itemBase, 1); //First time dropping, make count 1.
-        } else {
-            int dropCount = LootTable.itemsDroppedMap.get(itemBase);
-            dropCount++;
-            LootTable.itemsDroppedMap.put(itemBase, dropCount);
-        }
-
-        switch (itemBase.getType()) {
-            case RESOURCE:
-                LootTable.resourceCount++;
-
-                if (LootTable.resourceDroppedMap.get(itemBase) == null) {
-                    LootTable.resourceDroppedMap.put(itemBase, 1); //First time dropping, make count 1.
-                } else {
-                    int dropCount = LootTable.resourceDroppedMap.get(itemBase);
-                    dropCount++;
-                    LootTable.resourceDroppedMap.put(itemBase, dropCount);
-                }
-                break;
-            case RUNE:
-                LootTable.runeCount++;
-                if (LootTable.runeDroppedMap.get(itemBase) == null) {
-                    LootTable.runeDroppedMap.put(itemBase, 1); //First time dropping, make count 1.
-                } else {
-                    int dropCount = LootTable.runeDroppedMap.get(itemBase);
-                    dropCount++;
-                    LootTable.runeDroppedMap.put(itemBase, dropCount);
-                }
-                break;
-            case CONTRACT:
-                LootTable.contractCount++;
-
-                if (LootTable.contractDroppedMap.get(itemBase) == null) {
-                    LootTable.contractDroppedMap.put(itemBase, 1); //First time dropping, make count 1.
-                } else {
-                    int dropCount = LootTable.contractDroppedMap.get(itemBase);
-                    dropCount++;
-                    LootTable.contractDroppedMap.put(itemBase, dropCount);
-                }
-
-                break;
-            case WEAPON: //Glass Drop
-
-                if (itemBase.isGlass()) {
-                    LootTable.glassCount++;
-                    if (LootTable.glassDroppedMap.get(itemBase) == null) {
-                        LootTable.glassDroppedMap.put(itemBase, 1); //First time dropping, make count 1.
-                    } else {
-                        int dropCount = LootTable.glassDroppedMap.get(itemBase);
-                        dropCount++;
-                        LootTable.glassDroppedMap.put(itemBase, dropCount);
-                    }
-                }
-
-                break;
-        }
-
     }
 
     public static Item CreateGamblerItem(Item item, PlayerCharacter gambler) {
@@ -931,25 +291,25 @@ public class LootTable {
                 break;
         }
         //couldnt find group
+
         if (groupID == 0)
             return null;
-
 
         LootTable lootGroup = LootTable.lootGroups.get(groupID);
 
         if (lootGroup == null)
             return null;
+
         float calculatedMobLevel;
         int minSpawn;
         int maxSpawn;
         int spawnQuanity = 0;
-        int prefixValue = 0;
-        int suffixValue = 0;
         int subTableID;
         String modifierPrefix = "";
         String modifierSuffix = "";
 
         // Lookup Table Variables
+
         LootTable lootTable;
         LootRow lootRow;
         LootRow groupRow = null;
@@ -958,10 +318,9 @@ public class LootTable {
         LootRow modRow = null;
 
         // Used for actual generation of items
+
         int itemBaseUUID;
         ItemBase itemBase = null;
-        MobLoot mobLoot;
-
 
         int roll = ThreadLocalRandom.current().nextInt(100) + 1; //Does not return Max, but does return min?
 
@@ -976,23 +335,22 @@ public class LootTable {
 
         itemBaseUUID = lootRow.getValueOne();
 
-
         if (lootRow.getValueOne() == 0)
             return null;
 
         //handle quantities > 1 for resource drops
+
         minSpawn = lootRow.getValueTwo();
         maxSpawn = lootRow.getValueThree();
 
         // spawnQuanity between minspawn (inclusive) and maxspawn (inclusive)
+
         if (maxSpawn > 1)
             spawnQuanity = ThreadLocalRandom.current().nextInt((maxSpawn + 1 - minSpawn)) + minSpawn;
-
 
         //get modifierPrefix
 
         calculatedMobLevel = 49;
-
 
         int chanceMod = ThreadLocalRandom.current().nextInt(100) + 1;
 
@@ -1001,14 +359,12 @@ public class LootTable {
 
             if (modGroup != null) {
 
-
                 for (int a = 0; a < 10; a++) {
                     roll = ThreadLocalRandom.current().nextInt(100) + 1;
                     modRow = modGroup.getLootRow(roll);
                     if (modRow != null)
                         break;
                 }
-
 
                 if (modRow != null) {
                     subTableID = modRow.getValueOne();
@@ -1025,13 +381,10 @@ public class LootTable {
                         if (roll > modTable.maxRoll)
                             roll = (int) modTable.maxRoll;
 
-
                         modRow = modTable.getLootRow(roll);
 
-                        if (modRow != null) {
-                            prefixValue = modRow.getValueOne();
+                        if (modRow != null)
                             modifierPrefix = modRow.getAction();
-                        }
                     }
                 }
             }
@@ -1064,14 +417,11 @@ public class LootTable {
 
                         modRow = modTable.getLootRow(roll);
 
-                        if (modRow == null) {
+                        if (modRow == null)
                             modRow = modTable.getLootRow((int) ((modTable.minRoll + modTable.maxRoll) * .05f));
-                        }
 
-                        if (modRow != null) {
-                            suffixValue = modRow.getValueOne();
+                        if (modRow != null)
                             modifierSuffix = modRow.getAction();
-                        }
                     }
                 }
             }
@@ -1080,7 +430,6 @@ public class LootTable {
 
             if (modGroup != null) {
 
-
                 for (int a = 0; a < 10; a++) {
                     roll = ThreadLocalRandom.current().nextInt(100) + 1;
                     modRow = modGroup.getLootRow(roll);
@@ -1088,14 +437,13 @@ public class LootTable {
                         break;
                 }
 
-
                 if (modRow != null) {
+
                     subTableID = modRow.getValueOne();
 
                     if (LootTable.modTables.containsKey(subTableID)) {
 
                         modTable = LootTable.modTables.get(subTableID);
-
                         roll = gaussianLevel((int) calculatedMobLevel);
 
                         if (roll < modTable.minRoll)
@@ -1104,17 +452,13 @@ public class LootTable {
                         if (roll > modTable.maxRoll)
                             roll = (int) modTable.maxRoll;
 
-
                         modRow = modTable.getLootRow(roll);
 
-                        if (modRow == null) {
+                        if (modRow == null)
                             modRow = modTable.getLootRow((int) ((modTable.minRoll + modTable.maxRoll) * .05f));
-                        }
 
-                        if (modRow != null) {
-                            prefixValue = modRow.getValueOne();
+                        if (modRow != null)
                             modifierPrefix = modRow.getAction();
-                        }
                     }
                 }
             }
@@ -1148,30 +492,24 @@ public class LootTable {
 
                         modRow = modTable.getLootRow(roll);
 
-                        if (modRow == null) {
+                        if (modRow == null)
                             modRow = modTable.getLootRow((int) ((modTable.minRoll + modTable.maxRoll) * .05f));
-                        }
 
-                        if (modRow != null) {
-                            suffixValue = modRow.getValueOne();
+                        if (modRow != null)
                             modifierSuffix = modRow.getAction();
-                        }
                     }
                 }
             }
         }
 
-
         itemBase = ItemBase.getItemBase(itemBaseUUID);
         byte charges = (byte) itemBase.getNumCharges();
         short dur = (short) itemBase.getDurability();
 
-
         short weight = itemBase.getWeight();
-        if (!gambler.getCharItemManager().hasRoomInventory(weight)) {
-            return null;
-        }
 
+        if (!gambler.getCharItemManager().hasRoomInventory(weight))
+            return null;
 
         Item gambledItem = new Item(itemBase, gambler.getObjectUUID(),
                 OwnerType.PlayerCharacter, charges, charges, dur, dur,
@@ -1186,25 +524,22 @@ public class LootTable {
 
         try {
             gambledItem = DbManager.ItemQueries.ADD_ITEM(gambledItem);
-
         } catch (Exception e) {
             Logger.error(e);
         }
 
-        if (gambledItem == null) {
-
+        if (gambledItem == null)
             return null;
-        }
+
         if (!modifierPrefix.isEmpty())
             gambledItem.addPermanentEnchantment(modifierPrefix, 0);
 
         if (!modifierSuffix.isEmpty())
             gambledItem.addPermanentEnchantment(modifierSuffix, 0);
 
-
         //add item to inventory
-        gambler.getCharItemManager().addItemToInventory(gambledItem);
 
+        gambler.getCharItemManager().addItemToInventory(gambledItem);
         gambler.getCharItemManager().updateInventory();
 
         return gambledItem;
@@ -1213,6 +548,7 @@ public class LootTable {
     public void addRow(float min, float max, int valueOne, int valueTwo, int valueThree, String action) {
 
         //hackey way to set the minimum roll for SHIAT!
+
         if (min < this.minRoll)
             this.minRoll = min;
 
@@ -1223,29 +559,27 @@ public class LootTable {
         int maxInt = (int) max;
 
         //Round up min
-        if (minInt != min) {
+
+        if (minInt != min)
             min = minInt + 1;
-        }
 
         //Round down max;
+
         if (maxInt != max)
             max = maxInt;
 
-
         LootRow lootRow = new LootRow(valueOne, valueTwo, valueThree, action);
-        for (int i = (int) min; i <= max; i++) {
+
+        for (int i = (int) min; i <= max; i++)
             lootTable.put(i, lootRow);
-        }
     }
 
     public LootRow getLootRow(int probability) {
+
         if (lootTable.containsKey(probability))
             return lootTable.get(probability);
-        return null;
-    }
 
-    public ConcurrentHashMap<Integer, LootRow> getLootTable() {
-        return lootTable;
+        return null;
     }
 
 }

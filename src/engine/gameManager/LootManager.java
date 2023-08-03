@@ -46,10 +46,14 @@ public enum LootManager {
 
     public static void init() {
 
+        // Load loot tables from database.
+
         DbManager.LootQueries.LOAD_ALL_LOOTGROUPS();
         DbManager.LootQueries.LOAD_ALL_LOOTTABLES();
         DbManager.LootQueries.LOAD_ALL_MODGROUPS();
         DbManager.LootQueries.LOAD_ALL_MODTABLES();
+
+        // Cache drop rate values from Config manager.
 
         NORMAL_DROP_RATE = Float.parseFloat(ConfigManager.MB_NORMAL_DROP_RATE.getValue());
         NORMAL_EXP_RATE = Float.parseFloat(ConfigManager.MB_NORMAL_EXP_RATE.getValue());
