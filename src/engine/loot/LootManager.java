@@ -227,7 +227,6 @@ public class LootManager {
             //early exit, failed to hit minimum chance roll
             return;
         }
-        //iterate the booty tables and add items to mob inventory
         MobLoot toAdd = getGenTableItem(tableID, mob);
         if (toAdd != null) {
             if(toAdd.getPrefix() == null && toAdd.getSuffix() == null){
