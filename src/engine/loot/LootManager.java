@@ -80,26 +80,25 @@ public class LootManager {
     private static void RunBootySet(ArrayList<BootySetEntry> entries, Mob mob, float multiplier, boolean inHotzone, boolean fromDeath) {
         if (fromDeath) {
             DropEquipment(mob, multiplier);
-            return;
-        }
-        int hotzoneTable = 0;
-        for (BootySetEntry bse : entries) {
-            switch (bse.bootyType) {
-                case "GOLD":
-                    GenerateGoldDrop(mob, bse, inHotzone);
-                    break;
-                case "LOOT":
-                    GenerateLootDrop(mob, bse.lootTable, bse.dropChance, multiplier);//generate normal loot drop
-                    if (inHotzone) {
-                        if (generalItemTables.containsKey(bse.lootTable + 1))
-                            GenerateLootDrop(mob, bse.lootTable + 1, bse.dropChance,multiplier);//generate loot drop from hotzone table
-                         //else
+        } else {
+            for (BootySetEntry bse : entries) {
+                switch (bse.bootyType) {
+                    case "GOLD":
+                        GenerateGoldDrop(mob, bse, inHotzone);
+                        break;
+                    case "LOOT":
+                        GenerateLootDrop(mob, bse.lootTable, bse.dropChance, multiplier);//generate normal loot drop
+                        if (inHotzone) {
+                            if (generalItemTables.containsKey(bse.lootTable + 1))
+                                GenerateLootDrop(mob, bse.lootTable + 1, bse.dropChance, multiplier);//generate loot drop from hotzone table
+                            //else
                             //GenerateLootDrop(mob, bse.lootTable, bse.dropChance, multiplier);//generate normal loot drop
-                    }
-                    break;
-                case "ITEM":
-                    GenerateItemLootDrop(mob, bse, multiplier);
-                    break;
+                        }
+                        break;
+                    case "ITEM":
+                        GenerateItemLootDrop(mob, bse, multiplier);
+                        break;
+                }
             }
         }
     }
