@@ -100,7 +100,7 @@ public class LootManager {
             }
         }
     }
-    public static MobLoot getGenTableItem(int genTableID, Mob mob, Boolean isHotzone) {
+    public static MobLoot getGenTableItem(int genTableID, Mob mob) {
             if (genTableID == 0 || mob == null || generalItemTables.containsKey(genTableID) == false) {
                 return null;
             }
@@ -222,7 +222,7 @@ public class LootManager {
             return;
         }
         //iterate the booty tables and add items to mob inventory
-        MobLoot toAdd = getGenTableItem(tableID, mob,false);
+        MobLoot toAdd = getGenTableItem(tableID, mob);
         if (toAdd != null) {
             if(toAdd.getPrefix() == null && toAdd.getSuffix() == null){
                 toAdd.setIsID(true);
