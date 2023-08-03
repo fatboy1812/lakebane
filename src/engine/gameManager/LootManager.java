@@ -9,13 +9,12 @@
 package engine.gameManager;
 
 import engine.Enum;
+import engine.loot.*;
 import engine.net.DispatchMessage;
 import engine.net.client.msg.chat.ChatSystemMsg;
 import engine.objects.*;
 import org.pmw.tinylog.Logger;
 
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Random;
@@ -396,130 +395,4 @@ public enum LootManager {
         }
     }
 
-    public static class GenTable {
-        public ArrayList<GenTableRow> rows = new ArrayList<GenTableRow>();
-
-        public GenTableRow getRowForRange(int roll) {
-
-            GenTableRow outRow = null;
-
-            for (GenTableRow iteration : this.rows)
-                if (roll >= iteration.minRoll && roll <= iteration.maxRoll)
-                    outRow = iteration;
-
-            return outRow;
-        }
-    }
-
-    public static class ItemTable {
-        public ArrayList<ItemTableRow> rows = new ArrayList<ItemTableRow>();
-
-        public ItemTableRow getRowForRange(int roll) {
-
-            if (roll > 320)
-                roll = 320;
-
-            ItemTableRow outRow = null;
-
-            for (ItemTableRow iteration : this.rows)
-                if (roll >= iteration.minRoll && roll <= iteration.maxRoll)
-                    outRow = iteration;
-
-            return outRow;
-        }
-    }
-
-    public static class ModTypeTable {
-        public ArrayList<ModTypeTableRow> rows = new ArrayList<ModTypeTableRow>();
-
-        public ModTypeTableRow getRowForRange(int roll) {
-
-            ModTypeTableRow outRow = null;
-
-            for (ModTypeTableRow iteration : this.rows)
-                if (roll >= iteration.minRoll && roll <= iteration.maxRoll)
-                    return iteration;
-
-            return outRow;
-        }
-    }
-
-    public static class ModTable {
-        public ArrayList<ModTableRow> rows = new ArrayList<ModTableRow>();
-
-        public ModTableRow getRowForRange(int roll) {
-
-            if (roll > 320)
-                roll = 320;
-
-            ModTableRow outRow = null;
-
-            for (ModTableRow iteration : this.rows)
-                if (roll >= iteration.minRoll && roll <= iteration.maxRoll)
-                    outRow = iteration;
-
-            return outRow;
-        }
-    }
-
-    public static class GenTableRow {
-        public int minRoll;
-        public int maxRoll;
-        public int itemTableID;
-        public int pModTable;
-        public int sModTable;
-
-        public GenTableRow(ResultSet rs) throws SQLException {
-            this.minRoll = rs.getInt("minRoll");
-            this.maxRoll = rs.getInt("maxRoll");
-            this.itemTableID = rs.getInt("lootTableID");
-            this.pModTable = rs.getInt("pModTableID");
-            this.sModTable = rs.getInt("sModTableID");
-        }
-    }
-
-    public static class ItemTableRow {
-        public int minRoll;
-        public int maxRoll;
-        public int cacheID;
-        public int minSpawn;
-        public int maxSpawn;
-
-        public ItemTableRow(ResultSet rs) throws SQLException {
-            this.minRoll = rs.getInt("minRoll");
-            this.maxRoll = rs.getInt("maxRoll");
-            this.cacheID = rs.getInt("itemBaseUUID");
-            this.minSpawn = rs.getInt("minSpawn");
-            this.maxSpawn = rs.getInt("maxSpawn");
-
-        }
-    }
-
-    public static class ModTypeTableRow {
-        public int minRoll;
-        public int maxRoll;
-        public int modTableID;
-
-        public ModTypeTableRow(ResultSet rs) throws SQLException {
-            this.minRoll = rs.getInt("minRoll");
-            this.maxRoll = rs.getInt("maxRoll");
-            this.modTableID = rs.getInt("subTableID");
-
-        }
-    }
-
-    public static class ModTableRow {
-        public int minRoll;
-        public int maxRoll;
-        public String action;
-        public int level;
-
-        public ModTableRow(ResultSet rs) throws SQLException {
-            this.minRoll = rs.getInt("minRoll");
-            this.maxRoll = rs.getInt("maxRoll");
-            this.action = rs.getString("action");
-            this.level = rs.getInt("level");
-
-        }
-    }
 }

@@ -11,6 +11,10 @@ package engine.db.handlers;
 
 import engine.gameManager.DbManager;
 import engine.gameManager.LootManager;
+import engine.loot.GenTableRow;
+import engine.loot.ItemTableRow;
+import engine.loot.ModTableRow;
+import engine.loot.ModTypeTableRow;
 import engine.objects.Item;
 import engine.objects.LootTable;
 import org.pmw.tinylog.Logger;
@@ -140,7 +144,7 @@ public class dbLootTableHandler extends dbHandlerBase {
             ResultSet rs = preparedStatement.executeQuery();
 
             while (rs.next()) {
-                LootManager.GenTableRow row = new LootManager.GenTableRow(rs);
+                GenTableRow row = new GenTableRow(rs);
                 LootManager.AddGenTableRow(rs.getInt("groupID"), row);
             }
 
@@ -162,7 +166,7 @@ public class dbLootTableHandler extends dbHandlerBase {
 
             while (rs.next()) {
                 recordsRead++;
-                LootManager.ItemTableRow row = new LootManager.ItemTableRow(rs);
+                ItemTableRow row = new ItemTableRow(rs);
                 LootManager.AddItemTableRow(rs.getInt("lootTable"), row);
             }
 
@@ -183,7 +187,7 @@ public class dbLootTableHandler extends dbHandlerBase {
 
             while (rs.next()) {
                 recordsRead++;
-                LootManager.ModTypeTableRow mttr = new LootManager.ModTypeTableRow(rs);
+                ModTypeTableRow mttr = new ModTypeTableRow(rs);
                 LootManager.AddModTypeTableRow(rs.getInt("modGroup"), mttr);
             }
 
@@ -203,7 +207,7 @@ public class dbLootTableHandler extends dbHandlerBase {
 
             while (rs.next()) {
                 recordsRead++;
-                LootManager.ModTableRow mtr = new LootManager.ModTableRow(rs);
+                ModTableRow mtr = new ModTableRow(rs);
                 LootManager.AddModTableRow(rs.getInt("modTable"), mtr);
             }
 
