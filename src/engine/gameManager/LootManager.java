@@ -346,13 +346,14 @@ public enum LootManager {
                 if (me.getDropChance() == 0)
                     continue;
 
-                float equipmentRoll = ThreadLocalRandom.current().nextInt(99) + 1;
+                float equipmentRoll = ThreadLocalRandom.current().nextInt(100);
                 float dropChance = me.getDropChance() * 100;
 
                 if (equipmentRoll > dropChance)
                     continue;
 
                 MobLoot ml = new MobLoot(mob, me.getItemBase(), false);
+
                 if (ml != null) {
                     ml.setIsID(true);
                     ml.setIsID(true);
