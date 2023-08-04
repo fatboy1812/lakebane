@@ -113,7 +113,7 @@ public enum LootManager {
             return;
         }
 
-        // Iterate all entries in this bootyset and process accordingly
+        // Iterate all entries in this bootySet and process accordingly
 
         for (BootySetEntry bse : entries) {
             switch (bse.bootyType) {
@@ -122,15 +122,15 @@ public enum LootManager {
                     break;
                 case "LOOT":
 
-                    if (ThreadLocalRandom.current().nextInt(100) <= NORMAL_DROP_RATE)
-                        GenerateLootDrop(mob, bse.lootTable, bse.dropChance, multiplier, false);  //generate normal loot drop
+                    if (ThreadLocalRandom.current().nextInt(100) < NORMAL_DROP_RATE)
+                        GenerateLootDrop(mob, bse.lootTable, false);  //generate normal loot drop
 
                     // Generate hotzone loot if in hotzone
                     // Only one bite at the hotzone apple per bootyset.
 
                     if (inHotzone == true && hotzoneWasRan == false)
-                        if (generalItemTables.containsKey(bse.lootTable + 1) && ThreadLocalRandom.current().nextInt(100) <= HOTZONE_DROP_RATE) {
-                            GenerateLootDrop(mob, bse.lootTable + 1, bse.dropChance, multiplier, true);  //generate loot drop from hotzone table
+                        if (generalItemTables.containsKey(bse.lootTable + 1) && ThreadLocalRandom.current().nextInt(100) < HOTZONE_DROP_RATE) {
+                            GenerateLootDrop(mob, bse.lootTable + 1, true);  //generate loot drop from hotzone table
                             hotzoneWasRan = true;
                         }
 
@@ -334,7 +334,7 @@ public enum LootManager {
 
     }
 
-    public static void GenerateLootDrop(Mob mob, int tableID, float dropChance, float multiplier, Boolean inHotzone) {
+    public static void GenerateLootDrop(Mob mob, int tableID, Boolean inHotzone) {
 
         try {
 
@@ -353,7 +353,7 @@ public enum LootManager {
 
         //do equipment here
 
-        if (mob.getEquip() != null) {
+        if (mob.getEquip() != null)
             for (MobEquipment me : mob.getEquip().values()) {
 
                 if (me.getDropChance() == 0)
@@ -373,7 +373,6 @@ public enum LootManager {
                     mob.getCharItemManager().addItemToInventory(ml);
                 }
             }
-        }
     }
 
     public static void GenerateInventoryDrop(Mob mob, BootySetEntry bse) {
