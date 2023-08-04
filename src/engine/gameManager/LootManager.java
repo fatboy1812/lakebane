@@ -118,12 +118,12 @@ public enum LootManager {
                         break;
                     case "LOOT":
                         //always run base table loot drop
-                        GenerateLootDrop(mob, bse.lootTable, bse.dropChance, multiplier);  //generate normal loot drop
+                        GenerateLootDrop(mob, bse.lootTable, bse.dropChance, multiplier, false);  //generate normal loot drop
 
                         if (inHotzone)
                             //run another iteration for the hotzone table if in hotzone
                             if (generalItemTables.containsKey(bse.lootTable + 1))
-                                GenerateLootDrop(mob, bse.lootTable + 1, bse.dropChance, multiplier);  //generate loot drop from hotzone table
+                                GenerateLootDrop(mob, bse.lootTable + 1, bse.dropChance, multiplier, true);  //generate loot drop from hotzone table
                         break;
                     case "ITEM":
                         GenerateItemLootDrop(mob, bse, multiplier);
@@ -133,7 +133,7 @@ public enum LootManager {
         }
     }
 
-    public static MobLoot getGenTableItem(int genTableID, Mob mob) {
+    public static MobLoot getGenTableItem(int genTableID, Mob mob, Boolean inHotzone) {
 
         if (mob == null || generalItemTables.containsKey(genTableID) == false)
             return null;
@@ -153,7 +153,7 @@ public enum LootManager {
 
         //gets the 1-320 roll for this mob
 
-        int roll2 = TableRoll(mob.level);
+        int roll2 = TableRoll(mob.level,inHotzone);
 
         ItemTableRow tableRow = itemTables.get(itemTableId).getRowForRange(roll2);
 
@@ -176,12 +176,12 @@ public enum LootManager {
         if (outType.ordinal() == Enum.ItemType.WEAPON.ordinal() || outType.ordinal() == Enum.ItemType.ARMOR.ordinal() || outType.ordinal() == Enum.ItemType.JEWELRY.ordinal()) {
             if (outItem.getItemBase().isGlass() == false) {
                 try {
-                    outItem = GeneratePrefix(mob, outItem, genTableID, genRoll);
+                    outItem = GeneratePrefix(mob, outItem, genTableID, genRoll, inHotzone);
                 } catch (Exception e) {
                     Logger.error("Failed to GeneratePrefix for item: " + outItem.getName());
                 }
                 try {
-                    outItem = GenerateSuffix(mob, outItem, genTableID, genRoll);
+                    outItem = GenerateSuffix(mob, outItem, genTableID, genRoll, inHotzone);
                 } catch (Exception e) {
                     Logger.error("Failed to GenerateSuffix for item: " + outItem.getName());
                 }
@@ -190,7 +190,7 @@ public enum LootManager {
         return outItem;
     }
 
-    private static MobLoot GeneratePrefix(Mob mob, MobLoot inItem, int genTableID, int genRoll) {
+    private static MobLoot GeneratePrefix(Mob mob, MobLoot inItem, int genTableID, int genRoll, Boolean inHotzone) {
 
         int prefixChanceRoll = ThreadLocalRandom.current().nextInt(99) + 1;
         double prefixChance = 2.057 * mob.level - 28.67;
@@ -213,7 +213,7 @@ public enum LootManager {
                 if(prefixModTable == null)
                     return inItem;
 
-                ModTableRow prefixMod = prefixModTable.getRowForRange(TableRoll(mob.level));
+                ModTableRow prefixMod = prefixModTable.getRowForRange(TableRoll(mob.level, inHotzone));
                 if(prefixMod == null)
                     return inItem;
 
@@ -226,7 +226,7 @@ public enum LootManager {
         return inItem;
     }
 
-    private static MobLoot GenerateSuffix(Mob mob, MobLoot inItem, int genTableID, int genRoll) {
+    private static MobLoot GenerateSuffix(Mob mob, MobLoot inItem, int genTableID, int genRoll, Boolean inHotzone) {
 
         int suffixChanceRoll = ThreadLocalRandom.current().nextInt(99) + 1;
         double suffixChance = 2.057 * mob.level - 28.67;
@@ -249,7 +249,7 @@ public enum LootManager {
                 if(suffixModTable == null)
                     return inItem;
 
-                ModTableRow suffixMod = suffixModTable.getRowForRange(TableRoll(mob.level));
+                ModTableRow suffixMod = suffixModTable.getRowForRange(TableRoll(mob.level, inHotzone));
                 if(suffixMod == null)
                     return inItem;
 
@@ -262,7 +262,7 @@ public enum LootManager {
         return inItem;
     }
 
-    private static int TableRoll(int mobLevel) {
+    private static int TableRoll(int mobLevel, Boolean inHotzone) {
 
         if (mobLevel > 65)
             mobLevel = 65;
@@ -273,6 +273,9 @@ public enum LootManager {
             max = 319;
 
         int min = (int) (2.089 * mobLevel + 22.14);
+        if(inHotzone){
+            min += mobLevel;
+        }
 
         int roll = ThreadLocalRandom.current().nextInt(max - min) + min;
 
@@ -306,7 +309,7 @@ public enum LootManager {
 
     }
 
-    public static void GenerateLootDrop(Mob mob, int tableID, float dropChance, float multiplier) {
+    public static void GenerateLootDrop(Mob mob, int tableID, float dropChance, float multiplier, Boolean inHotzone) {
 
         try {
             int chanceRoll = ThreadLocalRandom.current().nextInt(99) + 1;
@@ -316,7 +319,7 @@ public enum LootManager {
             if (chanceRoll > dropChance * multiplier)
                 return;
 
-            MobLoot toAdd = getGenTableItem(tableID, mob);
+            MobLoot toAdd = getGenTableItem(tableID, mob, inHotzone);
 
             if (toAdd != null) {
                 mob.getCharItemManager().addItemToInventory(toAdd);
