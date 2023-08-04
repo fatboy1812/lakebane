@@ -171,7 +171,6 @@ public enum LootManager {
         outItem = new MobLoot(mob, ItemBase.getItemBase(itemUUID), false);
         Enum.ItemType outType = outItem.getItemBase().getType();
         outItem.setIsID(true);
-        outItem.setIsID(true);
         if (outType.ordinal() == Enum.ItemType.WEAPON.ordinal() || outType.ordinal() == Enum.ItemType.ARMOR.ordinal() || outType.ordinal() == Enum.ItemType.JEWELRY.ordinal()) {
             if (outItem.getItemBase().isGlass() == false) {
                 try {
@@ -220,7 +219,6 @@ public enum LootManager {
                     inItem.setPrefix(prefixMod.action);
                     inItem.addPermanentEnchantment(prefixMod.action, 0, prefixMod.level, true);
                     inItem.setIsID(false);
-                    inItem.setIsID(false);
                 }
             }
         }
@@ -258,7 +256,6 @@ public enum LootManager {
                     inItem.setSuffix(suffixMod.action);
                     inItem.addPermanentEnchantment(suffixMod.action, 0, suffixMod.level, false);
                     inItem.setIsID(false);
-                    inItem.setIsID(false);
                 }
             }
         }
@@ -276,6 +273,8 @@ public enum LootManager {
             max = 319;
 
         int min = (int)(4.469 * mobLevel - 3.469);
+        if(min < 70)
+            min = 70;
         if(inHotzone){
             min += mobLevel;
         }
@@ -349,8 +348,11 @@ public enum LootManager {
                 if (equipmentRoll > (dropChance * multiplier))
                     continue;
                 MobLoot ml = new MobLoot(mob, me.getItemBase(), false);
-                if (ml != null)
+                if (ml != null) {
+                    ml.setIsID(true);
+                    ml.setIsID(true);
                     mob.getCharItemManager().addItemToInventory(ml);
+                }
             }
         }
     }
