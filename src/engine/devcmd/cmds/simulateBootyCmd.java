@@ -90,6 +90,7 @@ public class simulateBootyCmd extends AbstractDevCmd {
                 ArrayList<Item> Offerings = new ArrayList<Item>();
                 ArrayList<Item> OtherDrops = new ArrayList<Item>();
                 int failures = 0;
+                int goldAmount = 0;
                 for (int i = 0; i < 100; ++i) {
 
                     try {
@@ -109,20 +110,16 @@ public class simulateBootyCmd extends AbstractDevCmd {
                                     Runes.add(lootItem);
                                     break;
                                 case WEAPON: //WEAPON
-                                    if (lootItem.getItemBase().isGlass()) {
+                                    if (lootItem.getItemBase().isGlass())
                                         GlassItems.add(lootItem);
-                                    } else {
+                                    else
                                         OtherDrops.add(lootItem);
-                                        if (lootItem.getName().toLowerCase().contains("crimson") || lootItem.getName().toLowerCase().contains("vorgrim") || lootItem.getName().toLowerCase().contains("bell")) {
-                                            output += lootItem.getName() + newline;
-                                        }
-                                    }
+                                    break;
+                                case GOLD:
+                                    goldAmount += lootItem.getNumOfItems();
                                     break;
                                 default:
                                     OtherDrops.add(lootItem);
-                                    if (lootItem.getName().toLowerCase().contains("crimson") || lootItem.getName().toLowerCase().contains("vorgrim") || lootItem.getName().toLowerCase().contains("bell")) {
-                                        output += lootItem.getName() + newline;
-                                    }
                                     break;
                             }
                         }
