@@ -170,7 +170,8 @@ public enum LootManager {
 
         outItem = new MobLoot(mob, ItemBase.getItemBase(itemUUID), false);
         Enum.ItemType outType = outItem.getItemBase().getType();
-
+        outItem.setIsID(true);
+        outItem.setIsID(true);
         if (outType.ordinal() == Enum.ItemType.WEAPON.ordinal() || outType.ordinal() == Enum.ItemType.ARMOR.ordinal() || outType.ordinal() == Enum.ItemType.JEWELRY.ordinal()) {
             if (outItem.getItemBase().isGlass() == false) {
                 try {
@@ -218,6 +219,8 @@ public enum LootManager {
                 if (prefixMod != null && prefixMod.action.length() > 0) {
                     inItem.setPrefix(prefixMod.action);
                     inItem.addPermanentEnchantment(prefixMod.action, 0, prefixMod.level, true);
+                    inItem.setIsID(false);
+                    inItem.setIsID(false);
                 }
             }
         }
@@ -254,6 +257,8 @@ public enum LootManager {
                 if (suffixMod != null && suffixMod.action.length() > 0) {
                     inItem.setSuffix(suffixMod.action);
                     inItem.addPermanentEnchantment(suffixMod.action, 0, suffixMod.level, false);
+                    inItem.setIsID(false);
+                    inItem.setIsID(false);
                 }
             }
         }
@@ -320,8 +325,6 @@ public enum LootManager {
             MobLoot toAdd = getGenTableItem(tableID, mob, inHotzone);
 
             if (toAdd != null) {
-                if(toAdd.getPrefix() != null || toAdd.getSuffix() != null)
-                    toAdd.setIsID(true);
                 mob.getCharItemManager().addItemToInventory(toAdd);
             }
         } catch (Exception e) {
@@ -347,8 +350,6 @@ public enum LootManager {
                     continue;
                 MobLoot ml = new MobLoot(mob, me.getItemBase(), false);
                 if (ml != null)
-                    if(ml.getPrefix() != null || ml.getSuffix() != null)
-                        ml.setIsID(true);
                     mob.getCharItemManager().addItemToInventory(ml);
             }
         }
@@ -366,8 +367,6 @@ public enum LootManager {
         MobLoot lootItem = new MobLoot(mob, ItemBase.getItemBase(bse.itemBase), true);
 
         if (lootItem != null)
-            if(lootItem.getPrefix() != null || lootItem.getSuffix() != null)
-                lootItem.setIsID(true);
             mob.getCharItemManager().addItemToInventory(lootItem);
     }
 
