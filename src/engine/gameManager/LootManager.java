@@ -135,7 +135,7 @@ public enum LootManager {
 
                     break;
                 case "ITEM":
-                    GenerateInventoryDrop(mob, bse, multiplier);
+                    GenerateInventoryDrop(mob, bse);
                     break;
             }
         }
@@ -363,13 +363,13 @@ public enum LootManager {
         }
     }
 
-    public static void GenerateInventoryDrop(Mob mob, BootySetEntry bse, float multiplier) {
+    public static void GenerateInventoryDrop(Mob mob, BootySetEntry bse) {
 
-        int chanceRoll = ThreadLocalRandom.current().nextInt(99) + 1;
+        int chanceRoll = ThreadLocalRandom.current().nextInt(100);
 
         //early exit, failed to hit minimum chance roll
 
-        if (chanceRoll > bse.dropChance * multiplier)
+        if (chanceRoll > bse.dropChance)
             return;
 
         MobLoot lootItem = new MobLoot(mob, ItemBase.getItemBase(bse.itemBase), true);
