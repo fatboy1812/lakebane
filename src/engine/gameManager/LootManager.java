@@ -100,7 +100,7 @@ public enum LootManager {
                     chatMsg.setChannel(Enum.ChatChannelType.SYSTEM.getChannelID());
                     DispatchMessage.dispatchMsgToAll(chatMsg);
                 }
-                if(it.getBaseValue() == it.getItemBase().getBaseValue())
+                if(it.getValue() == it.getItemBase().getBaseValue())
                     it.setIsID(true);
             }
         }
