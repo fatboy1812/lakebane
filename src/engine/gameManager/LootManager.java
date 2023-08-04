@@ -254,13 +254,6 @@ public enum LootManager {
 
     public static void GenerateGoldDrop(Mob mob, BootySetEntry bse, Boolean inHotzone) {
 
-        int chanceRoll = ThreadLocalRandom.current().nextInt(99) + 1;
-
-        //early exit, failed to hit minimum chance roll OR booty was generated from mob's death
-
-        if (chanceRoll > bse.dropChance)
-            return;
-
         //determine and add gold to mob inventory
 
         int high = bse.highGold;
