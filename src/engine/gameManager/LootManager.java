@@ -100,8 +100,6 @@ public enum LootManager {
                     chatMsg.setChannel(Enum.ChatChannelType.SYSTEM.getChannelID());
                     DispatchMessage.dispatchMsgToAll(chatMsg);
                 }
-                if(it.getValue() == it.getItemBase().getBaseValue())
-                    it.setIsID(true);
             }
         }
     }
@@ -322,6 +320,8 @@ public enum LootManager {
             MobLoot toAdd = getGenTableItem(tableID, mob, inHotzone);
 
             if (toAdd != null) {
+                if(toAdd.getPrefix() != null || toAdd.getSuffix() != null)
+                    toAdd.setIsID(true);
                 mob.getCharItemManager().addItemToInventory(toAdd);
             }
         } catch (Exception e) {
@@ -347,6 +347,8 @@ public enum LootManager {
                     continue;
                 MobLoot ml = new MobLoot(mob, me.getItemBase(), false);
                 if (ml != null)
+                    if(ml.getPrefix() != null || ml.getSuffix() != null)
+                        ml.setIsID(true);
                     mob.getCharItemManager().addItemToInventory(ml);
             }
         }
@@ -364,6 +366,8 @@ public enum LootManager {
         MobLoot lootItem = new MobLoot(mob, ItemBase.getItemBase(bse.itemBase), true);
 
         if (lootItem != null)
+            if(lootItem.getPrefix() != null || lootItem.getSuffix() != null)
+                lootItem.setIsID(true);
             mob.getCharItemManager().addItemToInventory(lootItem);
     }
 
