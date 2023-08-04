@@ -270,7 +270,7 @@ public enum LootManager {
         if (max > 319)
             max = 319;
 
-        int min = (int) (2.089 * mobLevel + 22.14);
+        int min = (int)(4.469 * mobLevel - 3.469);
         if(inHotzone){
             min += mobLevel;
         }
