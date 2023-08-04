@@ -138,7 +138,7 @@ public class simulateBootyCmd extends AbstractDevCmd {
                 if(ZoneManager.inHotZone(mob.getLoc())){
                     for (BootySetEntry entry : NPCManager._bootySetMap.get(mob.getMobBase().bootySet)) {
                         if(LootManager.generalItemTables.containsKey(entry.lootTable + 1) == true)
-                            output += "HOTZONE TABLE [" + entry.bootyType + "] " + entry.lootTable + 1 + newline;
+                            output += "HOTZONE TABLE [" + entry.bootyType + "] " + (entry.lootTable + 1) + newline;
                     }
                 }
                 output += "GLASS DROPS: " + GlassItems.size() + newline;
