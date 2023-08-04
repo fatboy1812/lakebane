@@ -3,10 +3,13 @@ package engine.devcmd.cmds;
 import engine.Enum;
 import engine.devcmd.AbstractDevCmd;
 import engine.gameManager.BuildingManager;
+import engine.gameManager.LootManager;
 import engine.gameManager.NPCManager;
+import engine.gameManager.ZoneManager;
 import engine.objects.*;
 
 import java.util.ArrayList;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class simulateBootyCmd extends AbstractDevCmd {
     public simulateBootyCmd() {
@@ -48,32 +51,14 @@ public class simulateBootyCmd extends AbstractDevCmd {
 
 
         Enum.GameObjectType objType = target.getObjectType();
-        int objectUUID = target.getObjectUUID();
         String output;
 
         output = "Booty Simulation:" + newline;
 
         switch (objType) {
-            case Building:
-
-                break;
-            case PlayerCharacter:
-
-                break;
-
-            case NPC:
-
-                break;
-
             case Mob:
                 Mob mob = (Mob) target;
                 output += "Name: " + mob.getName() + newline;
-                int max = (int)(4.882 * mob.level + 127.0);
-                if(max > 320){
-                    max = 320;
-                }
-                int min = (int)(4.469 * mob.level - 3.469);
-                output += "Roll Range: " + min + " - " + max + newline;
                 output += "Special Loot:" + newline;
                 if (mob.bootySet != 0) {
                     for (BootySetEntry entry : NPCManager._bootySetMap.get(mob.bootySet)) {
@@ -89,7 +74,9 @@ public class simulateBootyCmd extends AbstractDevCmd {
                 ArrayList<Item> Contracts = new ArrayList<Item>();
                 ArrayList<Item> Offerings = new ArrayList<Item>();
                 ArrayList<Item> OtherDrops = new ArrayList<Item>();
+                ArrayList<Item> EquipmentDrops = new ArrayList<Item>();
                 int failures = 0;
+                int goldAmount = 0;
                 for (int i = 0; i < 100; ++i) {
 
                     try {
@@ -109,48 +96,62 @@ public class simulateBootyCmd extends AbstractDevCmd {
                                     Runes.add(lootItem);
                                     break;
                                 case WEAPON: //WEAPON
-                                    if (lootItem.getItemBase().isGlass()) {
+                                    if (lootItem.getItemBase().isGlass())
                                         GlassItems.add(lootItem);
-                                    } else {
+                                    else
                                         OtherDrops.add(lootItem);
-                                        if (lootItem.getName().toLowerCase().contains("crimson") || lootItem.getName().toLowerCase().contains("vorgrim") || lootItem.getName().toLowerCase().contains("bell")) {
-                                            output += lootItem.getName() + newline;
-                                        }
-                                    }
+                                    break;
+                                case GOLD:
+                                    goldAmount += lootItem.getNumOfItems();
                                     break;
                                 default:
                                     OtherDrops.add(lootItem);
-                                    if (lootItem.getName().toLowerCase().contains("crimson") || lootItem.getName().toLowerCase().contains("vorgrim") || lootItem.getName().toLowerCase().contains("bell")) {
-                                        output += lootItem.getName() + newline;
-                                    }
                                     break;
                             }
                         }
                     } catch (Exception ex) {
                         failures++;
                     }
-                }
-                int respawnTime = mob.getMobBase().getSpawnTime();
-                if (mob.spawnTime > 0) {
-                    respawnTime = mob.spawnTime;
+                    if (mob.getEquip() != null) {
+                        for (MobEquipment me : mob.getEquip().values()) {
+
+                            if (me.getDropChance() == 0)
+                                continue;
+
+                            float equipmentRoll = ThreadLocalRandom.current().nextInt(99) + 1;
+                            float dropChance = me.getDropChance() * 100;
+
+                            if (equipmentRoll > (dropChance))
+                                continue;
+                            MobLoot ml = new MobLoot(mob, me.getItemBase(), false);
+                            if (ml != null)
+                                EquipmentDrops.add(ml);
+                        }
+                    }
                 }
                 output += "MobBase BootySet: " + mob.getMobBase().bootySet + newline;
                 output += "Mob BootySet: " + mob.bootySet + newline;
                 output += "Tables Rolled On: " + newline;
                 for (BootySetEntry entry : NPCManager._bootySetMap.get(mob.getMobBase().bootySet)) {
-                    output += "[" + entry.bootyType + "] " + entry.lootTable + newline;
+                    output += "NORMAL TABLE [" + entry.bootyType + "] " + entry.lootTable + newline;
                 }
-                output += "Time Required To Gain Simulated Booty: " + respawnTime * 100 + " Seconds" + newline;
+                if(ZoneManager.inHotZone(mob.getLoc())){
+                    for (BootySetEntry entry : NPCManager._bootySetMap.get(mob.getMobBase().bootySet)) {
+                        if(LootManager.generalItemTables.containsKey(entry.lootTable + 1) == true)
+                            output += "HOTZONE TABLE [" + entry.bootyType + "] " + (entry.lootTable + 1) + newline;
+                    }
+                }
                 output += "GLASS DROPS: " + GlassItems.size() + newline;
                 output += "RUNE DROPS: " + Runes.size() + newline;
                 output += "CONTRACTS DROPS: " + Contracts.size() + newline;
-                for (Item contract : Contracts){
-                    output += contract.getName() + newline;
-                }
                 output += "RESOURCE DROPS: " + Resources.size() + newline;
                 output += "OFFERINGS DROPPED: " + Offerings.size() + newline;
-                output += "OTHER ITEMS DROPPED: " + OtherDrops.size() + newline;
+                output += "ENCHANTED ITEMS DROPPED: " + OtherDrops.size() + newline;
+                output += "TOTAL GOLD DROPPED: " + goldAmount + newline;
+                output += "EQUIPMENT DROPPED: " + EquipmentDrops.size() + newline;
                 output += "FAILED ROLLS: " + failures + newline;
+                break;
+            default:
                 break;
         }
         throwbackInfo(pc, output);
