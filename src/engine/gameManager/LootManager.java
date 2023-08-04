@@ -106,27 +106,37 @@ public enum LootManager {
 
     private static void RunBootySet(ArrayList<BootySetEntry> entries, Mob mob, float multiplier, boolean inHotzone, boolean fromDeath) {
 
-        if (fromDeath)
+        boolean hotzoneWasRan = false;
+
+        if (fromDeath) {
             GenerateEquipmentDrop(mob, multiplier);
-        else {
-            for (BootySetEntry bse : entries) {
-                switch (bse.bootyType) {
-                    case "GOLD":
-                        GenerateGoldDrop(mob, bse, inHotzone);
-                        break;
-                    case "LOOT":
-                        //always run base table loot drop
+            return;
+        }
+
+        // Iterate all entries in this bootyset and process accordingly
+
+        for (BootySetEntry bse : entries) {
+            switch (bse.bootyType) {
+                case "GOLD":
+                    GenerateGoldDrop(mob, bse, inHotzone);
+                    break;
+                case "LOOT":
+
+                    if (ThreadLocalRandom.current().nextInt(100) > NORMAL_DROP_RATE)
                         GenerateLootDrop(mob, bse.lootTable, bse.dropChance, multiplier, false);  //generate normal loot drop
 
-                        //run another iteration for the hotzone table if in hotzone
-                        if (inHotzone)
-                            if (generalItemTables.containsKey(bse.lootTable + 1))
-                                GenerateLootDrop(mob, bse.lootTable + 1, bse.dropChance, multiplier, true);  //generate loot drop from hotzone table
-                        break;
-                    case "ITEM":
-                        GenerateInventoryDrop(mob, bse, multiplier);
-                        break;
-                }
+                    // Generate hotzone loot if in hotzone
+
+                    if (inHotzone == true && hotzoneWasRan == false)
+                        if (generalItemTables.containsKey(bse.lootTable + 1) && ThreadLocalRandom.current().nextInt(100) > HOTZONE_DROP_RATE) {
+                            GenerateLootDrop(mob, bse.lootTable + 1, bse.dropChance, multiplier, true);  //generate loot drop from hotzone table
+                            hotzoneWasRan = true;
+                        }
+
+                    break;
+                case "ITEM":
+                    GenerateInventoryDrop(mob, bse, multiplier);
+                    break;
             }
         }
     }
