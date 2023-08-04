@@ -89,7 +89,7 @@ public enum LootManager {
 
         //lastly, check mobs inventory for godly or disc runes to send a server announcement
 
-        if (!fromDeath) {
+        if (!fromDeath)
             for (Item it : mob.getInventory()) {
 
                 ItemBase ib = it.getItemBase();
@@ -101,7 +101,7 @@ public enum LootManager {
                     DispatchMessage.dispatchMsgToAll(chatMsg);
                 }
             }
-        }
+
     }
 
     private static void RunBootySet(ArrayList<BootySetEntry> entries, Mob mob, float multiplier, boolean inHotzone, boolean fromDeath) {
@@ -126,6 +126,7 @@ public enum LootManager {
                         GenerateLootDrop(mob, bse.lootTable, bse.dropChance, multiplier, false);  //generate normal loot drop
 
                     // Generate hotzone loot if in hotzone
+                    // Only one bite at the hotzone apple per bootyset.
 
                     if (inHotzone == true && hotzoneWasRan == false)
                         if (generalItemTables.containsKey(bse.lootTable + 1) && ThreadLocalRandom.current().nextInt(100) <= HOTZONE_DROP_RATE) {
@@ -151,17 +152,18 @@ public enum LootManager {
         int genRoll = new Random().nextInt(99) + 1;
 
         GenTableRow selectedRow = generalItemTables.get(genTableID).getRowForRange(genRoll);
+
         if (selectedRow == null)
             return null;
 
         int itemTableId = selectedRow.itemTableID;
 
-        if(itemTables.containsKey(itemTableId) == false)
+        if (itemTables.containsKey(itemTableId) == false)
             return null;
 
         //gets the 1-320 roll for this mob
 
-        int roll2 = TableRoll(mob.level,inHotzone);
+        int roll2 = TableRoll(mob.level, inHotzone);
 
         ItemTableRow tableRow = itemTables.get(itemTableId).getRowForRange(roll2);
 
@@ -181,13 +183,16 @@ public enum LootManager {
         outItem = new MobLoot(mob, ItemBase.getItemBase(itemUUID), false);
         Enum.ItemType outType = outItem.getItemBase().getType();
         outItem.setIsID(true);
+
         if (outType.ordinal() == Enum.ItemType.WEAPON.ordinal() || outType.ordinal() == Enum.ItemType.ARMOR.ordinal() || outType.ordinal() == Enum.ItemType.JEWELRY.ordinal()) {
             if (outItem.getItemBase().isGlass() == false) {
+
                 try {
                     outItem = GeneratePrefix(mob, outItem, genTableID, genRoll, inHotzone);
                 } catch (Exception e) {
                     Logger.error("Failed to GeneratePrefix for item: " + outItem.getName());
                 }
+
                 try {
                     outItem = GenerateSuffix(mob, outItem, genTableID, genRoll, inHotzone);
                 } catch (Exception e) {
@@ -206,23 +211,26 @@ public enum LootManager {
         if (prefixChanceRoll < prefixChance) {
 
             GenTableRow selectedRow = generalItemTables.get(genTableID).getRowForRange(genRoll);
-            if(selectedRow == null)
+
+            if (selectedRow == null)
                 return inItem;
 
             ModTypeTable prefixTable = modTypeTables.get(selectedRow.pModTable);
-            if(prefixTable == null)
+
+            if (prefixTable == null)
                 return inItem;
 
             int prefixroll = ThreadLocalRandom.current().nextInt(99) + 1;
 
             if (modTables.get(prefixTable.getRowForRange(prefixroll).modTableID) != null) {
-
                 ModTable prefixModTable = modTables.get(prefixTable.getRowForRange(prefixroll).modTableID);
-                if(prefixModTable == null)
+
+                if (prefixModTable == null)
                     return inItem;
 
                 ModTableRow prefixMod = prefixModTable.getRowForRange(TableRoll(mob.level, inHotzone));
-                if(prefixMod == null)
+
+                if (prefixMod == null)
                     return inItem;
 
                 if (prefixMod != null && prefixMod.action.length() > 0) {
@@ -243,23 +251,27 @@ public enum LootManager {
         if (suffixChanceRoll < suffixChance) {
 
             GenTableRow selectedRow = generalItemTables.get(genTableID).getRowForRange(genRoll);
-            if(selectedRow == null)
+
+            if (selectedRow == null)
                 return inItem;
 
             int suffixroll = ThreadLocalRandom.current().nextInt(99) + 1;
 
             ModTypeTable suffixTable = modTypeTables.get(selectedRow.sModTable);
-            if(suffixTable == null)
+
+            if (suffixTable == null)
                 return inItem;
 
             if (modTables.get(suffixTable.getRowForRange(suffixroll).modTableID) != null) {
 
                 ModTable suffixModTable = modTables.get(suffixTable.getRowForRange(suffixroll).modTableID);
-                if(suffixModTable == null)
+
+                if (suffixModTable == null)
                     return inItem;
 
                 ModTableRow suffixMod = suffixModTable.getRowForRange(TableRoll(mob.level, inHotzone));
-                if(suffixMod == null)
+
+                if (suffixMod == null)
                     return inItem;
 
                 if (suffixMod != null && suffixMod.action.length() > 0) {
@@ -282,12 +294,13 @@ public enum LootManager {
         if (max > 319)
             max = 319;
 
-        int min = (int)(4.469 * mobLevel - 3.469);
-        if(min < 70)
+        int min = (int) (4.469 * mobLevel - 3.469);
+
+        if (min < 70)
             min = 70;
-        if(inHotzone){
+
+        if (inHotzone)
             min += mobLevel;
-        }
 
         int roll = ThreadLocalRandom.current().nextInt(max - min) + min;
 
@@ -296,7 +309,7 @@ public enum LootManager {
 
     public static void GenerateGoldDrop(Mob mob, BootySetEntry bse, Boolean inHotzone) {
 
-        int chanceRoll = ThreadLocalRandom.current().nextInt(99) + 1;
+        int chanceRoll = ThreadLocalRandom.current().nextInt(100);
 
         //early exit, failed to hit minimum chance roll
 
@@ -327,9 +340,9 @@ public enum LootManager {
 
             MobLoot toAdd = getGenTableItem(tableID, mob, inHotzone);
 
-            if (toAdd != null) {
+            if (toAdd != null)
                 mob.getCharItemManager().addItemToInventory(toAdd);
-            }
+
         } catch (Exception e) {
             //TODO chase down loot generation error, affects roughly 2% of drops
             int i = 0;
