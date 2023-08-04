@@ -100,7 +100,8 @@ public enum LootManager {
                     chatMsg.setChannel(Enum.ChatChannelType.SYSTEM.getChannelID());
                     DispatchMessage.dispatchMsgToAll(chatMsg);
                 }
-
+                if (it.getEnchants().isEmpty() == true)
+                    it.setIsID(true);
             }
         }
     }
@@ -116,9 +117,11 @@ public enum LootManager {
                         GenerateGoldDrop(mob, bse, inHotzone);
                         break;
                     case "LOOT":
+                        //always run base table loot drop
                         GenerateLootDrop(mob, bse.lootTable, bse.dropChance, multiplier);  //generate normal loot drop
 
                         if (inHotzone)
+                            //run another iteration for the hotzone table if in hotzone
                             if (generalItemTables.containsKey(bse.lootTable + 1))
                                 GenerateLootDrop(mob, bse.lootTable + 1, bse.dropChance, multiplier);  //generate loot drop from hotzone table
                         break;
@@ -132,19 +135,21 @@ public enum LootManager {
 
     public static MobLoot getGenTableItem(int genTableID, Mob mob) {
 
-        if (genTableID == 0 || mob == null || generalItemTables.containsKey(genTableID) == false)
+        if (mob == null || generalItemTables.containsKey(genTableID) == false)
             return null;
 
         MobLoot outItem;
-        int genRoll;
 
-        genRoll = new Random().nextInt(99) + 1;
+        int genRoll = new Random().nextInt(99) + 1;
+
         GenTableRow selectedRow = generalItemTables.get(genTableID).getRowForRange(genRoll);
-
         if (selectedRow == null)
             return null;
 
         int itemTableId = selectedRow.itemTableID;
+
+        if(itemTables.containsKey(itemTableId) == false)
+            return null;
 
         //gets the 1-320 roll for this mob
 
@@ -193,14 +198,24 @@ public enum LootManager {
         if (prefixChanceRoll < prefixChance) {
 
             GenTableRow selectedRow = generalItemTables.get(genTableID).getRowForRange(genRoll);
+            if(selectedRow == null)
+                return inItem;
+
             ModTypeTable prefixTable = modTypeTables.get(selectedRow.pModTable);
+            if(prefixTable == null)
+                return inItem;
 
             int prefixroll = ThreadLocalRandom.current().nextInt(99) + 1;
 
             if (modTables.get(prefixTable.getRowForRange(prefixroll).modTableID) != null) {
 
                 ModTable prefixModTable = modTables.get(prefixTable.getRowForRange(prefixroll).modTableID);
+                if(prefixModTable == null)
+                    return inItem;
+
                 ModTableRow prefixMod = prefixModTable.getRowForRange(TableRoll(mob.level));
+                if(prefixMod == null)
+                    return inItem;
 
                 if (prefixMod != null && prefixMod.action.length() > 0) {
                     inItem.setPrefix(prefixMod.action);
@@ -219,13 +234,24 @@ public enum LootManager {
         if (suffixChanceRoll < suffixChance) {
 
             GenTableRow selectedRow = generalItemTables.get(genTableID).getRowForRange(genRoll);
+            if(selectedRow == null)
+                return inItem;
+
             int suffixroll = ThreadLocalRandom.current().nextInt(99) + 1;
+
             ModTypeTable suffixTable = modTypeTables.get(selectedRow.sModTable);
+            if(suffixTable == null)
+                return inItem;
 
             if (modTables.get(suffixTable.getRowForRange(suffixroll).modTableID) != null) {
 
                 ModTable suffixModTable = modTables.get(suffixTable.getRowForRange(suffixroll).modTableID);
+                if(suffixModTable == null)
+                    return inItem;
+
                 ModTableRow suffixMod = suffixModTable.getRowForRange(TableRoll(mob.level));
+                if(suffixMod == null)
+                    return inItem;
 
                 if (suffixMod != null && suffixMod.action.length() > 0) {
                     inItem.setSuffix(suffixMod.action);
@@ -246,7 +272,8 @@ public enum LootManager {
         if (max > 319)
             max = 319;
 
-        int min = (int) (4.469 * mobLevel - 3.469);
+        int min = (int) (2.089 * mobLevel + 22.14);
+
         int roll = ThreadLocalRandom.current().nextInt(max - min) + min;
 
         return roll;
@@ -256,7 +283,7 @@ public enum LootManager {
 
         int chanceRoll = ThreadLocalRandom.current().nextInt(99) + 1;
 
-        //early exit, failed to hit minimum chance roll OR booty was generated from mob's death
+        //early exit, failed to hit minimum chance roll
 
         if (chanceRoll > bse.dropChance)
             return;
@@ -270,7 +297,7 @@ public enum LootManager {
         if (inHotzone == true)
             gold = (int) (gold * HOTZONE_GOLD_RATE);
         else
-            gold = (int) (NORMAL_GOLD_RATE);
+            gold = (int) (gold * NORMAL_GOLD_RATE);
 
         if (gold > 0) {
             MobLoot goldAmount = new MobLoot(mob, gold);
@@ -292,9 +319,6 @@ public enum LootManager {
             MobLoot toAdd = getGenTableItem(tableID, mob);
 
             if (toAdd != null) {
-                if (toAdd.getPrefix() == null && toAdd.getSuffix() == null)
-                    toAdd.setIsID(true);
-
                 mob.getCharItemManager().addItemToInventory(toAdd);
             }
         } catch (Exception e) {
@@ -313,17 +337,14 @@ public enum LootManager {
                 if (me.getDropChance() == 0)
                     continue;
 
-                float equipmentRoll = ThreadLocalRandom.current().nextInt(101);
+                float equipmentRoll = ThreadLocalRandom.current().nextInt(99) + 1;
                 float dropChance = me.getDropChance() * 100;
 
-                if (equipmentRoll <= (dropChance * multiplier)) {
-                    MobLoot ml = new MobLoot(mob, me.getItemBase(), false);
-
-                    if (ml.getPrefix().isEmpty() == true && ml.getSuffix().isEmpty() == true)
-                        ml.setIsID(true);
-
+                if (equipmentRoll > (dropChance * multiplier))
+                    continue;
+                MobLoot ml = new MobLoot(mob, me.getItemBase(), false);
+                if (ml != null)
                     mob.getCharItemManager().addItemToInventory(ml);
-                }
             }
         }
     }
@@ -337,10 +358,10 @@ public enum LootManager {
         if (chanceRoll > bse.dropChance * multiplier)
             return;
 
-        MobLoot disc = new MobLoot(mob, ItemBase.getItemBase(bse.itemBase), true);
+        MobLoot lootItem = new MobLoot(mob, ItemBase.getItemBase(bse.itemBase), true);
 
-        if (disc != null)
-            mob.getCharItemManager().addItemToInventory(disc);
+        if (lootItem != null)
+            mob.getCharItemManager().addItemToInventory(lootItem);
     }
 
     public static void AddGenTableRow(int tableID, GenTableRow row) {
