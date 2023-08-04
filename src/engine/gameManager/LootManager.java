@@ -28,10 +28,10 @@ public enum LootManager {
     LOOTMANAGER;
 
     //new tables
-    private static final HashMap<Integer, GenTable> generalItemTables = new HashMap<>();
-    private static final HashMap<Integer, ItemTable> itemTables = new HashMap<>();
-    private static final HashMap<Integer, ModTypeTable> modTypeTables = new HashMap<>();
-    private static final HashMap<Integer, ModTable> modTables = new HashMap<>();
+    public static final HashMap<Integer, GenTable> generalItemTables = new HashMap<>();
+    public static final HashMap<Integer, ItemTable> itemTables = new HashMap<>();
+    public static final HashMap<Integer, ModTypeTable> modTypeTables = new HashMap<>();
+    public static final HashMap<Integer, ModTable> modTables = new HashMap<>();
 
     // Drop Rates
 

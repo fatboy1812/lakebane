@@ -3,7 +3,9 @@ package engine.devcmd.cmds;
 import engine.Enum;
 import engine.devcmd.AbstractDevCmd;
 import engine.gameManager.BuildingManager;
+import engine.gameManager.LootManager;
 import engine.gameManager.NPCManager;
+import engine.gameManager.ZoneManager;
 import engine.objects.*;
 
 import java.util.ArrayList;
@@ -135,7 +137,13 @@ public class simulateBootyCmd extends AbstractDevCmd {
                 output += "Mob BootySet: " + mob.bootySet + newline;
                 output += "Tables Rolled On: " + newline;
                 for (BootySetEntry entry : NPCManager._bootySetMap.get(mob.getMobBase().bootySet)) {
-                    output += "[" + entry.bootyType + "] " + entry.lootTable + newline;
+                    output += "NORMAL TABLE [" + entry.bootyType + "] " + entry.lootTable + newline;
+                }
+                if(ZoneManager.inHotZone(mob.getLoc())){
+                    for (BootySetEntry entry : NPCManager._bootySetMap.get(mob.getMobBase().bootySet)) {
+                        if(LootManager.generalItemTables.containsKey(entry.lootTable + 1) == true)
+                            output += "HOTZONE TABLE [" + entry.bootyType + "] " + entry.lootTable + 1 + newline;
+                    }
                 }
                 output += "Time Required To Gain Simulated Booty: " + respawnTime * 100 + " Seconds" + newline;
                 output += "GLASS DROPS: " + GlassItems.size() + newline;
