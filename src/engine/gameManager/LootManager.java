@@ -122,13 +122,13 @@ public enum LootManager {
                     break;
                 case "LOOT":
 
-                    if (ThreadLocalRandom.current().nextInt(100) > NORMAL_DROP_RATE)
+                    if (ThreadLocalRandom.current().nextInt(100) <= NORMAL_DROP_RATE)
                         GenerateLootDrop(mob, bse.lootTable, bse.dropChance, multiplier, false);  //generate normal loot drop
 
                     // Generate hotzone loot if in hotzone
 
                     if (inHotzone == true && hotzoneWasRan == false)
-                        if (generalItemTables.containsKey(bse.lootTable + 1) && ThreadLocalRandom.current().nextInt(100) > HOTZONE_DROP_RATE) {
+                        if (generalItemTables.containsKey(bse.lootTable + 1) && ThreadLocalRandom.current().nextInt(100) <= HOTZONE_DROP_RATE) {
                             GenerateLootDrop(mob, bse.lootTable + 1, bse.dropChance, multiplier, true);  //generate loot drop from hotzone table
                             hotzoneWasRan = true;
                         }
