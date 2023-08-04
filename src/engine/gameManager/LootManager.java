@@ -109,7 +109,7 @@ public enum LootManager {
         boolean hotzoneWasRan = false;
 
         if (fromDeath) {
-            GenerateEquipmentDrop(mob, multiplier);
+            GenerateEquipmentDrop(mob);
             return;
         }
 
@@ -336,7 +336,7 @@ public enum LootManager {
         }
     }
 
-    public static void GenerateEquipmentDrop(Mob mob, float multiplier) {
+    public static void GenerateEquipmentDrop(Mob mob) {
 
         //do equipment here
 
@@ -349,8 +349,9 @@ public enum LootManager {
                 float equipmentRoll = ThreadLocalRandom.current().nextInt(99) + 1;
                 float dropChance = me.getDropChance() * 100;
 
-                if (equipmentRoll > (dropChance * multiplier))
+                if (equipmentRoll > dropChance)
                     continue;
+
                 MobLoot ml = new MobLoot(mob, me.getItemBase(), false);
                 if (ml != null) {
                     ml.setIsID(true);
