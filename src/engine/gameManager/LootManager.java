@@ -107,7 +107,7 @@ public enum LootManager {
     private static void RunBootySet(ArrayList<BootySetEntry> entries, Mob mob, float multiplier, boolean inHotzone, boolean fromDeath) {
 
         if (fromDeath)
-            DropEquipment(mob, multiplier);
+            GenerateEquipmentDrop(mob, multiplier);
         else {
             for (BootySetEntry bse : entries) {
                 switch (bse.bootyType) {
@@ -118,13 +118,13 @@ public enum LootManager {
                         //always run base table loot drop
                         GenerateLootDrop(mob, bse.lootTable, bse.dropChance, multiplier, false);  //generate normal loot drop
 
+                        //run another iteration for the hotzone table if in hotzone
                         if (inHotzone)
-                            //run another iteration for the hotzone table if in hotzone
                             if (generalItemTables.containsKey(bse.lootTable + 1))
                                 GenerateLootDrop(mob, bse.lootTable + 1, bse.dropChance, multiplier, true);  //generate loot drop from hotzone table
                         break;
                     case "ITEM":
-                        GenerateItemLootDrop(mob, bse, multiplier);
+                        GenerateInventoryDrop(mob, bse, multiplier);
                         break;
                 }
             }
@@ -314,12 +314,6 @@ public enum LootManager {
     public static void GenerateLootDrop(Mob mob, int tableID, float dropChance, float multiplier, Boolean inHotzone) {
 
         try {
-            int chanceRoll = ThreadLocalRandom.current().nextInt(99) + 1;
-
-            //early exit, failed to hit minimum chance roll
-
-            if (chanceRoll > dropChance * multiplier)
-                return;
 
             MobLoot toAdd = getGenTableItem(tableID, mob, inHotzone);
 
@@ -332,7 +326,7 @@ public enum LootManager {
         }
     }
 
-    public static void DropEquipment(Mob mob, float multiplier) {
+    public static void GenerateEquipmentDrop(Mob mob, float multiplier) {
 
         //do equipment here
 
@@ -357,7 +351,7 @@ public enum LootManager {
         }
     }
 
-    public static void GenerateItemLootDrop(Mob mob, BootySetEntry bse, float multiplier) {
+    public static void GenerateInventoryDrop(Mob mob, BootySetEntry bse, float multiplier) {
 
         int chanceRoll = ThreadLocalRandom.current().nextInt(99) + 1;
 
