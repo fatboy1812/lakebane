@@ -127,10 +127,10 @@ public class LootTable {
     //call this on server startup to populate the tables
     public static void populateLootTables() {
 
-        DbManager.LootQueries.populateLootGroups();
-        DbManager.LootQueries.populateLootTables();
+        DbManager.LootQueries.populateGenTables();
+        DbManager.LootQueries.populateItemTables();
         DbManager.LootQueries.populateModTables();
-        DbManager.LootQueries.populateModGroups();
+        DbManager.LootQueries.populateModTypeTables();
 
         //preset chances for rune drops
         populateStatRuneChances();

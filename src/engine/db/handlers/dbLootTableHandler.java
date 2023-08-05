@@ -30,7 +30,7 @@ public class dbLootTableHandler extends dbHandlerBase {
 
     }
 
-    public void populateLootGroups() {
+    public void populateGenTables() {
 
         int recordsRead = 0;
 
@@ -41,7 +41,7 @@ public class dbLootTableHandler extends dbHandlerBase {
 
             while (rs.next()) {
                 recordsRead++;
-                LootTable lootTable = LootTable.getLootGroup(rs.getInt("groupID"));
+                LootTable lootTable = LootTable.getLootGroup(rs.getInt("genTable"));
                 lootTable.addRow(rs.getFloat("minRoll"), rs.getFloat("maxRoll"), rs.getInt("lootTableID"), rs.getInt("pModTableID"), rs.getInt("sModTableID"), "");
             }
 
@@ -52,7 +52,7 @@ public class dbLootTableHandler extends dbHandlerBase {
         Logger.info("read: " + recordsRead + " cached: " + LootTable.getLootGroups().size());
     }
 
-    public void populateLootTables() {
+    public void populateItemTables() {
 
         int recordsRead = 0;
 
@@ -63,7 +63,7 @@ public class dbLootTableHandler extends dbHandlerBase {
 
             while (rs.next()) {
                 recordsRead++;
-                LootTable lootTable = LootTable.getLootTable(rs.getInt("lootTable"));
+                LootTable lootTable = LootTable.getLootTable(rs.getInt("itemTable"));
                 lootTable.addRow(rs.getFloat("minRoll"), rs.getFloat("maxRoll"), rs.getInt("itemBaseUUID"), rs.getInt("minSpawn"), rs.getInt("maxSpawn"), "");
             }
 
@@ -96,7 +96,7 @@ public class dbLootTableHandler extends dbHandlerBase {
         Logger.info("read: " + recordsRead + " cached: " + LootTable.getModTables().size());
     }
 
-    public void populateModGroups() {
+    public void populateModTypeTables() {
 
         int recordsRead = 0;
 
@@ -107,7 +107,7 @@ public class dbLootTableHandler extends dbHandlerBase {
 
             while (rs.next()) {
                 recordsRead++;
-                LootTable lootTable = LootTable.getModGroup(rs.getInt("modGroup"));
+                LootTable lootTable = LootTable.getModGroup(rs.getInt("modType"));
                 lootTable.addRow(rs.getFloat("minRoll"), rs.getFloat("maxRoll"), rs.getInt("subTableID"), 0, 0, "");
             }
 
