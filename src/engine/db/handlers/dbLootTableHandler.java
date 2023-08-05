@@ -35,7 +35,7 @@ public class dbLootTableHandler extends dbHandlerBase {
         int recordsRead = 0;
 
         try (Connection connection = DbManager.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement("SELECT `groupID`, `minRoll`, `maxRoll`, `lootTableID`, `pModTableID`, `sModTableID` FROM `static_lootgroups`")) {
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT `groupID`, `minRoll`, `maxRoll`, `lootTableID`, `pModTableID`, `sModTableID` FROM `static_gentable`")) {
 
             ResultSet rs = preparedStatement.executeQuery();
 
@@ -134,12 +134,12 @@ public class dbLootTableHandler extends dbHandlerBase {
         }
     }
 
-    public void LOAD_ALL_LOOTGROUPS() {
+    public void LOAD_ALL_GENTABLES() {
 
         int recordsRead = 0;
 
         try (Connection connection = DbManager.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM static_lootgroups")) {
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM static_gentable")) {
 
             ResultSet rs = preparedStatement.executeQuery();
 
