@@ -18,32 +18,10 @@ public class SimulateBootyCmd extends AbstractDevCmd {
     protected void _doCmd(PlayerCharacter playerCharacter, String[] words,
                           AbstractGameObject target) {
 
-        // Arg Count Check
-
-        if (words.length != 1) {
-            this.sendUsage(playerCharacter);
-            return;
-        }
-
         if (playerCharacter == null)
             return;
 
         String newline = "\r\n ";
-
-        int targetID = Integer.parseInt(words[0]);
-        Mob mobile = Mob.getMob(targetID);
-
-        if (mobile == null)
-            throwbackError(playerCharacter, "Mobile with ID " + targetID
-                    + " not found");
-        else
-            target = mobile;
-
-
-        if (target == null) {
-            throwbackError(playerCharacter, "Select or supply valid mobile uuid");
-            return;
-        }
 
         String output;
 
