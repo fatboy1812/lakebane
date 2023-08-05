@@ -113,14 +113,14 @@ public enum LootManager {
                     break;
                 case "LOOT":
 
-                    if (ThreadLocalRandom.current().nextInt(1, 100 + 1) < bse.dropChance)
+                    if (ThreadLocalRandom.current().nextInt(1, 100 + 1) < (bse.dropChance * NORMAL_DROP_RATE))
                         GenerateLootDrop(mob, bse.lootTable, false);  //generate normal loot drop
 
                     // Generate hotzone loot if in hotzone
                     // Only one bite at the hotzone apple per bootyset.
 
                     if (inHotzone == true && hotzoneWasRan == false)
-                        if (generalItemTables.containsKey(bse.lootTable + 1) && ThreadLocalRandom.current().nextInt(1, 100 + 1) < bse.dropChance) {
+                        if (generalItemTables.containsKey(bse.lootTable + 1) && ThreadLocalRandom.current().nextInt(1, 100 + 1) < (bse.dropChance * HOTZONE_DROP_RATE)) {
                             GenerateLootDrop(mob, bse.lootTable + 1, true);  //generate loot drop from hotzone table
                             hotzoneWasRan = true;
                         }
