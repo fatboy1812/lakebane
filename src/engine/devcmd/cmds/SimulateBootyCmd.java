@@ -15,17 +15,17 @@ public class SimulateBootyCmd extends AbstractDevCmd {
     }
 
     @Override
-    protected void _doCmd(PlayerCharacter pc, String[] words,
+    protected void _doCmd(PlayerCharacter playerCharacter, String[] words,
                           AbstractGameObject target) {
 
         // Arg Count Check
 
         if (words.length != 1) {
-            this.sendUsage(pc);
+            this.sendUsage(playerCharacter);
             return;
         }
 
-        if (pc == null)
+        if (playerCharacter == null)
             return;
 
         String newline = "\r\n ";
@@ -34,17 +34,14 @@ public class SimulateBootyCmd extends AbstractDevCmd {
         Mob mobile = Mob.getMob(targetID);
 
         if (mobile == null)
-            throwbackError(pc, "Mobile with ID " + targetID
+            throwbackError(playerCharacter, "Mobile with ID " + targetID
                     + " not found");
         else
             target = mobile;
 
 
         if (target == null) {
-            throwbackError(pc, "Target is unknown or of an invalid type."
-                    + newline + "Type ID: 0x"
-                    + pc.getLastTargetType().toString()
-                    + "   Table ID: " + pc.getLastTargetID());
+            throwbackError(playerCharacter, "Select or supply valid mobile uuid");
             return;
         }
 
@@ -72,6 +69,7 @@ public class SimulateBootyCmd extends AbstractDevCmd {
         ArrayList<Item> Offerings = new ArrayList<Item>();
         ArrayList<Item> OtherDrops = new ArrayList<Item>();
         ArrayList<Item> EquipmentDrops = new ArrayList<Item>();
+
         int failures = 0;
         int goldAmount = 0;
 
@@ -151,7 +149,7 @@ public class SimulateBootyCmd extends AbstractDevCmd {
         output += "EQUIPMENT DROPPED: " + EquipmentDrops.size() + newline;
         output += "FAILED ROLLS: " + failures + newline;
 
-        throwbackInfo(pc, output);
+        throwbackInfo(playerCharacter, output);
     }
 
     @Override
