@@ -113,14 +113,14 @@ public enum LootManager {
                     break;
                 case "LOOT":
 
-                    if (ThreadLocalRandom.current().nextInt(100) < bse.dropChance)
+                    if (ThreadLocalRandom.current().nextInt(1, 100 + 1) < bse.dropChance)
                         GenerateLootDrop(mob, bse.lootTable, false);  //generate normal loot drop
 
                     // Generate hotzone loot if in hotzone
                     // Only one bite at the hotzone apple per bootyset.
 
                     if (inHotzone == true && hotzoneWasRan == false)
-                        if (generalItemTables.containsKey(bse.lootTable + 1) && ThreadLocalRandom.current().nextInt(100) < bse.dropChance) {
+                        if (generalItemTables.containsKey(bse.lootTable + 1) && ThreadLocalRandom.current().nextInt(1, 100 + 1) < bse.dropChance) {
                             GenerateLootDrop(mob, bse.lootTable + 1, true);  //generate loot drop from hotzone table
                             hotzoneWasRan = true;
                         }
@@ -198,11 +198,6 @@ public enum LootManager {
 
     private static MobLoot GeneratePrefix(Mob mob, MobLoot inItem, int genTableID, int genRoll, Boolean inHotzone) {
 
-        //int prefixChanceRoll = ThreadLocalRandom.current().nextInt(99) + 1;
-        //double prefixChance = 2.057 * mob.level - 28.67;
-
-        //if (prefixChanceRoll < prefixChance) {
-
             GenTableRow selectedRow = generalItemTables.get(genTableID).getRowForRange(genRoll);
 
             if (selectedRow == null)
@@ -213,7 +208,7 @@ public enum LootManager {
             if (prefixTable == null)
                 return inItem;
 
-            int prefixroll = ThreadLocalRandom.current().nextInt(99) + 1;
+        int prefixroll = ThreadLocalRandom.current().nextInt(1, 100 + 1);
 
             if (modTables.get(prefixTable.getRowForRange(prefixroll).modTableID) != null) {
                 ModTable prefixModTable = modTables.get(prefixTable.getRowForRange(prefixroll).modTableID);
@@ -237,17 +232,12 @@ public enum LootManager {
 
     private static MobLoot GenerateSuffix(Mob mob, MobLoot inItem, int genTableID, int genRoll, Boolean inHotzone) {
 
-        //int suffixChanceRoll = ThreadLocalRandom.current().nextInt(99) + 1;
-        //double suffixChance = 2.057 * mob.level - 28.67;
-
-        //if (suffixChanceRoll < suffixChance) {
-
             GenTableRow selectedRow = generalItemTables.get(genTableID).getRowForRange(genRoll);
 
             if (selectedRow == null)
                 return inItem;
 
-            int suffixroll = ThreadLocalRandom.current().nextInt(99) + 1;
+        int suffixroll = ThreadLocalRandom.current().nextInt(1, 100 + 1);
 
             ModTypeTable suffixTable = modTypeTables.get(selectedRow.sModTable);
 
@@ -300,7 +290,7 @@ public enum LootManager {
 
     public static void GenerateGoldDrop(Mob mob, BootySetEntry bse, Boolean inHotzone) {
 
-        int chanceRoll = ThreadLocalRandom.current().nextInt(100);
+        int chanceRoll = ThreadLocalRandom.current().nextInt(1, 100 + 1);
 
         //early exit, failed to hit minimum chance roll
 
@@ -349,7 +339,7 @@ public enum LootManager {
                 if (me.getDropChance() == 0)
                     continue;
 
-                float equipmentRoll = ThreadLocalRandom.current().nextInt(100);
+                float equipmentRoll = ThreadLocalRandom.current().nextInt(1, 100 + 1);
                 float dropChance = me.getDropChance() * 100;
 
                 if (equipmentRoll > dropChance)
@@ -367,7 +357,7 @@ public enum LootManager {
 
     public static void GenerateInventoryDrop(Mob mob, BootySetEntry bse) {
 
-        int chanceRoll = ThreadLocalRandom.current().nextInt(100);
+        int chanceRoll = ThreadLocalRandom.current().nextInt(1, 100 + 1);
 
         //early exit, failed to hit minimum chance roll
 
