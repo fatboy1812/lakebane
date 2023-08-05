@@ -35,14 +35,14 @@ public class dbLootTableHandler extends dbHandlerBase {
         int recordsRead = 0;
 
         try (Connection connection = DbManager.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement("SELECT `groupID`, `minRoll`, `maxRoll`, `lootTableID`, `pModTableID`, `sModTableID` FROM `static_gentables`")) {
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT `genTable`, `minRoll`, `maxRoll`, `itemTableID`, `pModTableID`, `sModTableID` FROM `static_gentables`")) {
 
             ResultSet rs = preparedStatement.executeQuery();
 
             while (rs.next()) {
                 recordsRead++;
                 LootTable lootTable = LootTable.getLootGroup(rs.getInt("genTable"));
-                lootTable.addRow(rs.getFloat("minRoll"), rs.getFloat("maxRoll"), rs.getInt("lootTableID"), rs.getInt("pModTableID"), rs.getInt("sModTableID"), "");
+                lootTable.addRow(rs.getFloat("minRoll"), rs.getFloat("maxRoll"), rs.getInt("itemTableID"), rs.getInt("pModTableID"), rs.getInt("sModTableID"), "");
             }
 
         } catch (SQLException e) {
@@ -57,7 +57,7 @@ public class dbLootTableHandler extends dbHandlerBase {
         int recordsRead = 0;
 
         try (Connection connection = DbManager.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement("SELECT `lootTable`, `minRoll`, `maxRoll`, `itemBaseUUID`, `minSpawn`, `maxSpawn` FROM `static_itemtables`")) {
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT `itemTable`, `minRoll`, `maxRoll`, `itemBaseUUID`, `minSpawn`, `maxSpawn` FROM `static_itemtables`")) {
 
             ResultSet rs = preparedStatement.executeQuery();
 
@@ -101,7 +101,7 @@ public class dbLootTableHandler extends dbHandlerBase {
         int recordsRead = 0;
 
         try (Connection connection = DbManager.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement("SELECT `modGroup`,`minRoll`,`maxRoll`,`subTableID` FROM `static_modtypetables`")) {
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT `modType`,`minRoll`,`maxRoll`,`subTableID` FROM `static_modtypetables`")) {
 
             ResultSet rs = preparedStatement.executeQuery();
 
