@@ -198,7 +198,9 @@ public enum LootManager {
                 }
             }
         }
-        if(outItem.getPrefix() != null && outItem.getPrefix().isEmpty() == false && outItem.getSuffix() != null && outItem.getSuffix().isEmpty() == false)
+        if(outItem.getPrefix() != null && outItem.getPrefix().isEmpty() == false)
+            outItem.setIsID(false);
+        if(outItem.getSuffix() != null && outItem.getSuffix().isEmpty() == false)
             outItem.setIsID(false);
         return outItem;
     }
@@ -337,7 +339,6 @@ public enum LootManager {
         try {
 
             MobLoot toAdd = getGenTableItem(tableID, mob, inHotzone);
-            toAdd.setIsID(true);
             if (toAdd != null)
                 mob.getCharItemManager().addItemToInventory(toAdd);
 
@@ -366,7 +367,6 @@ public enum LootManager {
                 MobLoot ml = new MobLoot(mob, me.getItemBase(), false);
 
                 if (ml != null) {
-                    ml.setIsID(true);
                     ml.setIsID(true);
                     mob.getCharItemManager().addItemToInventory(ml);
                 }
