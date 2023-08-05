@@ -182,8 +182,6 @@ public enum LootManager {
 
         outItem = new MobLoot(mob, ItemBase.getItemBase(itemUUID), false);
         Enum.ItemType outType = outItem.getItemBase().getType();
-        outItem.setIsID(true);
-
         if (outType.ordinal() == Enum.ItemType.WEAPON.ordinal() || outType.ordinal() == Enum.ItemType.ARMOR.ordinal() || outType.ordinal() == Enum.ItemType.JEWELRY.ordinal()) {
             if (outItem.getItemBase().isGlass() == false) {
 
@@ -200,6 +198,8 @@ public enum LootManager {
                 }
             }
         }
+        if(outItem.getPrefix() != null && outItem.getPrefix().isEmpty() == false && outItem.getSuffix() != null && outItem.getSuffix().isEmpty() == false)
+            outItem.setIsID(false);
         return outItem;
     }
 
@@ -236,7 +236,6 @@ public enum LootManager {
                 if (prefixMod != null && prefixMod.action.length() > 0) {
                     inItem.setPrefix(prefixMod.action);
                     inItem.addPermanentEnchantment(prefixMod.action, 0, prefixMod.level, true);
-                    inItem.setIsID(false);
                 }
             }
         //}
@@ -277,7 +276,6 @@ public enum LootManager {
                 if (suffixMod != null && suffixMod.action.length() > 0) {
                     inItem.setSuffix(suffixMod.action);
                     inItem.addPermanentEnchantment(suffixMod.action, 0, suffixMod.level, false);
-                    inItem.setIsID(false);
                 }
             }
         //}
