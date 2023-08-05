@@ -205,10 +205,10 @@ public enum LootManager {
 
     private static MobLoot GeneratePrefix(Mob mob, MobLoot inItem, int genTableID, int genRoll, Boolean inHotzone) {
 
-        int prefixChanceRoll = ThreadLocalRandom.current().nextInt(99) + 1;
-        double prefixChance = 2.057 * mob.level - 28.67;
+        //int prefixChanceRoll = ThreadLocalRandom.current().nextInt(99) + 1;
+        //double prefixChance = 2.057 * mob.level - 28.67;
 
-        if (prefixChanceRoll < prefixChance) {
+        //if (prefixChanceRoll < prefixChance) {
 
             GenTableRow selectedRow = generalItemTables.get(genTableID).getRowForRange(genRoll);
 
@@ -239,16 +239,16 @@ public enum LootManager {
                     inItem.setIsID(false);
                 }
             }
-        }
+        //}
         return inItem;
     }
 
     private static MobLoot GenerateSuffix(Mob mob, MobLoot inItem, int genTableID, int genRoll, Boolean inHotzone) {
 
-        int suffixChanceRoll = ThreadLocalRandom.current().nextInt(99) + 1;
-        double suffixChance = 2.057 * mob.level - 28.67;
+        //int suffixChanceRoll = ThreadLocalRandom.current().nextInt(99) + 1;
+        //double suffixChance = 2.057 * mob.level - 28.67;
 
-        if (suffixChanceRoll < suffixChance) {
+        //if (suffixChanceRoll < suffixChance) {
 
             GenTableRow selectedRow = generalItemTables.get(genTableID).getRowForRange(genRoll);
 
@@ -280,7 +280,7 @@ public enum LootManager {
                     inItem.setIsID(false);
                 }
             }
-        }
+        //}
         return inItem;
     }
 
@@ -339,7 +339,7 @@ public enum LootManager {
         try {
 
             MobLoot toAdd = getGenTableItem(tableID, mob, inHotzone);
-
+            toAdd.setIsID(true);
             if (toAdd != null)
                 mob.getCharItemManager().addItemToInventory(toAdd);
 
