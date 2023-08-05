@@ -110,13 +110,19 @@ public class SimulateBootyCmd extends AbstractDevCmd {
         output += "Tables Rolled On: " + newline;
 
         boolean hotZoneRan = false;
+        float dropRate = 1.0f;
+
+        if (ZoneManager.inHotZone(mob.getLoc()))
+            dropRate = LootManager.HOTZONE_DROP_RATE;
+        else
+            dropRate = LootManager.NORMAL_DROP_RATE;
 
         for (BootySetEntry entry : NPCManager._bootySetMap.get(mob.getMobBase().bootySet)) {
 
-            output += "NORMAL TABLE [" + entry.bootyType + "] " + entry.lootTable + ": " + entry.dropChance * LootManager.NORMAL_DROP_RATE + newline;
+            output += "NORMAL TABLE [" + entry.bootyType + "] " + entry.lootTable + ": " + entry.dropChance * dropRate + newline;
 
             if (hotZoneRan == false && ZoneManager.inHotZone(mob.getLoc()) && LootManager.generalItemTables.containsKey(entry.lootTable + 1)) {
-                output += "HOTZONE TABLE [" + entry.bootyType + "] " + (entry.lootTable + 1) + ": " + entry.dropChance * LootManager.HOTZONE_DROP_RATE + newline;
+                output += "HOTZONE TABLE [" + entry.bootyType + "] " + (entry.lootTable + 1) + ": " + entry.dropChance * dropRate + newline;
                 hotZoneRan = true;
             }
         }
