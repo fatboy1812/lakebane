@@ -49,7 +49,7 @@ public enum LootManager {
         // Load loot tables from database.
 
         DbManager.LootQueries.LOAD_ALL_GENTABLES();
-        DbManager.LootQueries.LOAD_ALL_LOOTTABLES();
+        DbManager.LootQueries.LOAD_ALL_ITEMTABLES();
         DbManager.LootQueries.LOAD_ALL_MODGROUPS();
         DbManager.LootQueries.LOAD_ALL_MODTABLES();
 

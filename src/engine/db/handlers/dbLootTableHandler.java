@@ -35,7 +35,7 @@ public class dbLootTableHandler extends dbHandlerBase {
         int recordsRead = 0;
 
         try (Connection connection = DbManager.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement("SELECT `groupID`, `minRoll`, `maxRoll`, `lootTableID`, `pModTableID`, `sModTableID` FROM `static_gentable`")) {
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT `groupID`, `minRoll`, `maxRoll`, `lootTableID`, `pModTableID`, `sModTableID` FROM `static_gentables`")) {
 
             ResultSet rs = preparedStatement.executeQuery();
 
@@ -57,7 +57,7 @@ public class dbLootTableHandler extends dbHandlerBase {
         int recordsRead = 0;
 
         try (Connection connection = DbManager.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement("SELECT `lootTable`, `minRoll`, `maxRoll`, `itemBaseUUID`, `minSpawn`, `maxSpawn` FROM `static_loottables`")) {
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT `lootTable`, `minRoll`, `maxRoll`, `itemBaseUUID`, `minSpawn`, `maxSpawn` FROM `static_itemtables`")) {
 
             ResultSet rs = preparedStatement.executeQuery();
 
@@ -139,7 +139,7 @@ public class dbLootTableHandler extends dbHandlerBase {
         int recordsRead = 0;
 
         try (Connection connection = DbManager.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM static_gentable")) {
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM static_gentables")) {
 
             ResultSet rs = preparedStatement.executeQuery();
 
@@ -155,12 +155,12 @@ public class dbLootTableHandler extends dbHandlerBase {
         Logger.info("read: " + recordsRead);
     }
 
-    public void LOAD_ALL_LOOTTABLES() {
+    public void LOAD_ALL_ITEMTABLES() {
 
         int recordsRead = 0;
 
         try (Connection connection = DbManager.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM static_loottables")) {
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM static_itemtables")) {
 
             ResultSet rs = preparedStatement.executeQuery();
 
