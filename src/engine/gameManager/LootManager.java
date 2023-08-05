@@ -70,22 +70,13 @@ public enum LootManager {
 
         boolean inHotzone = ZoneManager.inHotZone(mob.getLoc());
 
-        //get multiplier form config manager
-
-        float multiplier = NORMAL_DROP_RATE;
-
-        //if mob is inside hotzone, use the hotzone multiplier from the config instead
-
-        if (inHotzone)
-            multiplier = HOTZONE_DROP_RATE;
-
         //iterate the booty sets
 
         if (mob.getMobBase().bootySet != 0 && NPCManager._bootySetMap.containsKey(mob.getMobBase().bootySet) == true)
-            RunBootySet(NPCManager._bootySetMap.get(mob.getMobBase().bootySet), mob, multiplier, inHotzone, fromDeath);
+            RunBootySet(NPCManager._bootySetMap.get(mob.getMobBase().bootySet), mob, inHotzone, fromDeath);
 
         if (mob.bootySet != 0 && NPCManager._bootySetMap.containsKey(mob.bootySet) == true)
-            RunBootySet(NPCManager._bootySetMap.get(mob.bootySet), mob, multiplier, inHotzone, fromDeath);
+            RunBootySet(NPCManager._bootySetMap.get(mob.bootySet), mob, inHotzone, fromDeath);
 
         //lastly, check mobs inventory for godly or disc runes to send a server announcement
 
@@ -104,7 +95,7 @@ public enum LootManager {
 
     }
 
-    private static void RunBootySet(ArrayList<BootySetEntry> entries, Mob mob, float multiplier, boolean inHotzone, boolean fromDeath) {
+    private static void RunBootySet(ArrayList<BootySetEntry> entries, Mob mob, boolean inHotzone, boolean fromDeath) {
 
         boolean hotzoneWasRan = false;
 
@@ -122,14 +113,14 @@ public enum LootManager {
                     break;
                 case "LOOT":
 
-                    if (ThreadLocalRandom.current().nextInt(100) < NORMAL_DROP_RATE)
+                    if (ThreadLocalRandom.current().nextInt(100) < bse.dropChance)
                         GenerateLootDrop(mob, bse.lootTable, false);  //generate normal loot drop
 
                     // Generate hotzone loot if in hotzone
                     // Only one bite at the hotzone apple per bootyset.
 
                     if (inHotzone == true && hotzoneWasRan == false)
-                        if (generalItemTables.containsKey(bse.lootTable + 1) && ThreadLocalRandom.current().nextInt(100) < HOTZONE_DROP_RATE) {
+                        if (generalItemTables.containsKey(bse.lootTable + 1) && ThreadLocalRandom.current().nextInt(100) < bse.dropChance) {
                             GenerateLootDrop(mob, bse.lootTable + 1, true);  //generate loot drop from hotzone table
                             hotzoneWasRan = true;
                         }
