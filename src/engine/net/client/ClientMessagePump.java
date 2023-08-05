@@ -1243,6 +1243,12 @@ public class ClientMessagePump implements NetMsgHandler {
 
 
                 cost = sell.getBaseValue();
+
+                //apply damaged value reduction
+                float durabilityCurrent = sell.getDurabilityCurrent();
+                float durabilityMax = sell.getDurabilityMax();
+                float damagedModifier = durabilityCurrent / durabilityMax;
+                cost *= damagedModifier;
                 float bargain = player.getBargain();
 
                 float profit = npc.getBuyPercent(player) + bargain;
