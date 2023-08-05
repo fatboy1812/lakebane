@@ -368,6 +368,7 @@ public enum LootManager {
 
                 if (ml != null) {
                     ml.setIsID(true);
+                    ml.setDurabilityCurrent((short)(ml.getDurabilityCurrent() - ThreadLocalRandom.current().nextInt(5) + 1));
                     mob.getCharItemManager().addItemToInventory(ml);
                 }
             }
