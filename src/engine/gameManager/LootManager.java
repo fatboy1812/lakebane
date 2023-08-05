@@ -50,7 +50,7 @@ public enum LootManager {
 
         DbManager.LootQueries.LOAD_ALL_GENTABLES();
         DbManager.LootQueries.LOAD_ALL_ITEMTABLES();
-        DbManager.LootQueries.LOAD_ALL_MODGROUPS();
+        DbManager.LootQueries.LOAD_ALL_MODTYPES();
         DbManager.LootQueries.LOAD_ALL_MODTABLES();
 
         // Cache drop rate values from Config manager.

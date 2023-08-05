@@ -101,7 +101,7 @@ public class dbLootTableHandler extends dbHandlerBase {
         int recordsRead = 0;
 
         try (Connection connection = DbManager.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement("SELECT `modGroup`,`minRoll`,`maxRoll`,`subTableID` FROM `static_modgroups`")) {
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT `modGroup`,`minRoll`,`maxRoll`,`subTableID` FROM `static_modtypetables`")) {
 
             ResultSet rs = preparedStatement.executeQuery();
 
@@ -145,7 +145,7 @@ public class dbLootTableHandler extends dbHandlerBase {
 
             while (rs.next()) {
                 GenTableRow row = new GenTableRow(rs);
-                LootManager.AddGenTableRow(rs.getInt("groupID"), row);
+                LootManager.AddGenTableRow(rs.getInt("gentable"), row);
             }
 
         } catch (SQLException e) {
@@ -167,7 +167,7 @@ public class dbLootTableHandler extends dbHandlerBase {
             while (rs.next()) {
                 recordsRead++;
                 ItemTableRow row = new ItemTableRow(rs);
-                LootManager.AddItemTableRow(rs.getInt("lootTable"), row);
+                LootManager.AddItemTableRow(rs.getInt("itemTable"), row);
             }
 
         } catch (SQLException e) {
@@ -177,18 +177,18 @@ public class dbLootTableHandler extends dbHandlerBase {
         Logger.info("read: " + recordsRead);
     }
 
-    public void LOAD_ALL_MODGROUPS() {
+    public void LOAD_ALL_MODTYPES() {
         int recordsRead = 0;
 
         try (Connection connection = DbManager.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM static_modgroups")) {
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM static_modtypetables")) {
 
             ResultSet rs = preparedStatement.executeQuery();
 
             while (rs.next()) {
                 recordsRead++;
                 ModTypeTableRow mttr = new ModTypeTableRow(rs);
-                LootManager.AddModTypeTableRow(rs.getInt("modGroup"), mttr);
+                LootManager.AddModTypeTableRow(rs.getInt("modType"), mttr);
             }
 
         } catch (SQLException e) {

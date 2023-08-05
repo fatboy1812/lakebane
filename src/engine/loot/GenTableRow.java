@@ -13,7 +13,7 @@ public class GenTableRow {
     public GenTableRow(ResultSet rs) throws SQLException {
         this.minRoll = rs.getInt("minRoll");
         this.maxRoll = rs.getInt("maxRoll");
-        this.itemTableID = rs.getInt("lootTableID");
+        this.itemTableID = rs.getInt("itemTableID");
         this.pModTable = rs.getInt("pModTableID");
         this.sModTable = rs.getInt("sModTableID");
     }
