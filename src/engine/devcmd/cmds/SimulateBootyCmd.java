@@ -131,13 +131,17 @@ public class SimulateBootyCmd extends AbstractDevCmd {
         output += "Mob BootySet: " + mob.bootySet + newline;
         output += "Tables Rolled On: " + newline;
 
-        for (BootySetEntry entry : NPCManager._bootySetMap.get(mob.getMobBase().bootySet))
+        boolean hotZoneRan = false;
+
+        for (BootySetEntry entry : NPCManager._bootySetMap.get(mob.getMobBase().bootySet)) {
+
             output += "NORMAL TABLE [" + entry.bootyType + "] " + entry.lootTable + ": " + entry.dropChance * LootManager.NORMAL_DROP_RATE + newline;
 
-        if (ZoneManager.inHotZone(mob.getLoc()))
-            for (BootySetEntry entry : NPCManager._bootySetMap.get(mob.getMobBase().bootySet))
-                if (LootManager.generalItemTables.containsKey(entry.lootTable + 1) == true)
-                    output += "HOTZONE TABLE [" + entry.bootyType + "] " + (entry.lootTable + 1) + ": " + entry.dropChance * LootManager.HOTZONE_DROP_RATE + newline;
+            if (hotZoneRan == false && ZoneManager.inHotZone(mob.getLoc()) && LootManager.generalItemTables.containsKey(entry.lootTable + 1)) {
+                output += "HOTZONE TABLE [" + entry.bootyType + "] " + (entry.lootTable + 1) + ": " + entry.dropChance * LootManager.HOTZONE_DROP_RATE + newline;
+                hotZoneRan = true;
+            }
+        }
 
         output += "GLASS DROPS: " + GlassItems.size() + newline;
         output += "RUNE DROPS: " + Runes.size() + newline;
