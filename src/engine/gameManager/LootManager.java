@@ -98,6 +98,7 @@ public enum LootManager {
     private static void RunBootySet(ArrayList<BootySetEntry> entries, Mob mob, boolean inHotzone, boolean fromDeath) {
 
         boolean hotzoneWasRan = false;
+        float dropRate = LootManager.NORMAL_DROP_RATE;
 
         if (fromDeath) {
             GenerateEquipmentDrop(mob);
@@ -113,14 +114,19 @@ public enum LootManager {
                     break;
                 case "LOOT":
 
-                    if (ThreadLocalRandom.current().nextInt(1, 100 + 1) < (bse.dropChance * NORMAL_DROP_RATE))
+                    if (inHotzone == true)
+                        dropRate = LootManager.HOTZONE_DROP_RATE;
+                    else
+                        dropRate = LootManager.NORMAL_DROP_RATE;
+
+                    if (ThreadLocalRandom.current().nextInt(1, 100 + 1) < (bse.dropChance * dropRate))
                         GenerateLootDrop(mob, bse.lootTable, false);  //generate normal loot drop
 
                     // Generate hotzone loot if in hotzone
                     // Only one bite at the hotzone apple per bootyset.
 
                     if (inHotzone == true && hotzoneWasRan == false)
-                        if (generalItemTables.containsKey(bse.lootTable + 1) && ThreadLocalRandom.current().nextInt(1, 100 + 1) < (bse.dropChance * HOTZONE_DROP_RATE)) {
+                        if (generalItemTables.containsKey(bse.lootTable + 1) && ThreadLocalRandom.current().nextInt(1, 100 + 1) < (bse.dropChance * dropRate)) {
                             GenerateLootDrop(mob, bse.lootTable + 1, true);  //generate loot drop from hotzone table
                             hotzoneWasRan = true;
                         }
