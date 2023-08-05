@@ -179,6 +179,7 @@ public enum LootManager {
 
         outItem = new MobLoot(mob, ItemBase.getItemBase(itemUUID), false);
         Enum.ItemType outType = outItem.getItemBase().getType();
+
         if (outType.ordinal() == Enum.ItemType.WEAPON.ordinal() || outType.ordinal() == Enum.ItemType.ARMOR.ordinal() || outType.ordinal() == Enum.ItemType.JEWELRY.ordinal()) {
             if (outItem.getItemBase().isGlass() == false) {
 
@@ -195,79 +196,81 @@ public enum LootManager {
                 }
             }
         }
-        if(outItem.getPrefix() != null && outItem.getPrefix().isEmpty() == false)
+
+        if (outItem.getPrefix() != null && outItem.getPrefix().isEmpty() == false)
             outItem.setIsID(false);
-        if(outItem.getSuffix() != null && outItem.getSuffix().isEmpty() == false)
+
+        if (outItem.getSuffix() != null && outItem.getSuffix().isEmpty() == false)
             outItem.setIsID(false);
+
         return outItem;
     }
 
     private static MobLoot GeneratePrefix(Mob mob, MobLoot inItem, int genTableID, int genRoll, Boolean inHotzone) {
 
-            GenTableRow selectedRow = generalItemTables.get(genTableID).getRowForRange(genRoll);
+        GenTableRow selectedRow = generalItemTables.get(genTableID).getRowForRange(genRoll);
 
-            if (selectedRow == null)
-                return inItem;
+        if (selectedRow == null)
+            return inItem;
 
-            ModTypeTable prefixTable = modTypeTables.get(selectedRow.pModTable);
+        ModTypeTable prefixTable = modTypeTables.get(selectedRow.pModTable);
 
-            if (prefixTable == null)
-                return inItem;
+        if (prefixTable == null)
+            return inItem;
 
         int prefixroll = ThreadLocalRandom.current().nextInt(1, 100 + 1);
 
-            if (modTables.get(prefixTable.getRowForRange(prefixroll).modTableID) != null) {
-                ModTable prefixModTable = modTables.get(prefixTable.getRowForRange(prefixroll).modTableID);
+        if (modTables.get(prefixTable.getRowForRange(prefixroll).modTableID) != null) {
+            ModTable prefixModTable = modTables.get(prefixTable.getRowForRange(prefixroll).modTableID);
 
-                if (prefixModTable == null)
-                    return inItem;
+            if (prefixModTable == null)
+                return inItem;
 
-                ModTableRow prefixMod = prefixModTable.getRowForRange(TableRoll(mob.level, inHotzone));
+            ModTableRow prefixMod = prefixModTable.getRowForRange(TableRoll(mob.level, inHotzone));
 
-                if (prefixMod == null)
-                    return inItem;
+            if (prefixMod == null)
+                return inItem;
 
-                if (prefixMod != null && prefixMod.action.length() > 0) {
-                    inItem.setPrefix(prefixMod.action);
-                    inItem.addPermanentEnchantment(prefixMod.action, 0, prefixMod.level, true);
-                }
+            if (prefixMod != null && prefixMod.action.length() > 0) {
+                inItem.setPrefix(prefixMod.action);
+                inItem.addPermanentEnchantment(prefixMod.action, 0, prefixMod.level, true);
             }
+        }
         //}
         return inItem;
     }
 
     private static MobLoot GenerateSuffix(Mob mob, MobLoot inItem, int genTableID, int genRoll, Boolean inHotzone) {
 
-            GenTableRow selectedRow = generalItemTables.get(genTableID).getRowForRange(genRoll);
+        GenTableRow selectedRow = generalItemTables.get(genTableID).getRowForRange(genRoll);
 
-            if (selectedRow == null)
-                return inItem;
+        if (selectedRow == null)
+            return inItem;
 
         int suffixroll = ThreadLocalRandom.current().nextInt(1, 100 + 1);
 
-            ModTypeTable suffixTable = modTypeTables.get(selectedRow.sModTable);
+        ModTypeTable suffixTable = modTypeTables.get(selectedRow.sModTable);
 
-            if (suffixTable == null)
+        if (suffixTable == null)
+            return inItem;
+
+        if (modTables.get(suffixTable.getRowForRange(suffixroll).modTableID) != null) {
+
+            ModTable suffixModTable = modTables.get(suffixTable.getRowForRange(suffixroll).modTableID);
+
+            if (suffixModTable == null)
                 return inItem;
 
-            if (modTables.get(suffixTable.getRowForRange(suffixroll).modTableID) != null) {
+            ModTableRow suffixMod = suffixModTable.getRowForRange(TableRoll(mob.level, inHotzone));
 
-                ModTable suffixModTable = modTables.get(suffixTable.getRowForRange(suffixroll).modTableID);
+            if (suffixMod == null)
+                return inItem;
 
-                if (suffixModTable == null)
-                    return inItem;
-
-                ModTableRow suffixMod = suffixModTable.getRowForRange(TableRoll(mob.level, inHotzone));
-
-                if (suffixMod == null)
-                    return inItem;
-
-                if (suffixMod != null && suffixMod.action.length() > 0) {
-                    inItem.setSuffix(suffixMod.action);
-                    inItem.addPermanentEnchantment(suffixMod.action, 0, suffixMod.level, false);
-                }
+            if (suffixMod != null && suffixMod.action.length() > 0) {
+                inItem.setSuffix(suffixMod.action);
+                inItem.addPermanentEnchantment(suffixMod.action, 0, suffixMod.level, false);
             }
-        //}
+        }
         return inItem;
     }
 
@@ -326,6 +329,7 @@ public enum LootManager {
         try {
 
             MobLoot toAdd = getGenTableItem(tableID, mob, inHotzone);
+
             if (toAdd != null)
                 mob.getCharItemManager().addItemToInventory(toAdd);
 
@@ -355,7 +359,7 @@ public enum LootManager {
 
                 if (ml != null) {
                     ml.setIsID(true);
-                    ml.setDurabilityCurrent((short)(ml.getDurabilityCurrent() - ThreadLocalRandom.current().nextInt(5) + 1));
+                    ml.setDurabilityCurrent((short) (ml.getDurabilityCurrent() - ThreadLocalRandom.current().nextInt(5) + 1));
                     mob.getCharItemManager().addItemToInventory(ml);
                 }
             }
