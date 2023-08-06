@@ -160,9 +160,9 @@ public enum LootManager {
 
         //gets the 1-320 roll for this mob
 
-        int roll2 = TableRoll(mob.level, inHotzone);
+        int itemTableRoll = TableRoll(mob.level, inHotzone);
 
-        ItemTableRow tableRow = itemTables.get(itemTableId).getRowForRange(roll2);
+        ItemTableRow tableRow = itemTables.get(itemTableId).getRowForRange(itemTableRoll);
 
         if (tableRow == null)
             return null;
