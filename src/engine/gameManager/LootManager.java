@@ -27,6 +27,10 @@ public enum LootManager {
 
     LOOTMANAGER;
 
+    // Newer tables
+
+    public static final HashMap<Integer, ArrayList<GenTableEntry>> _genTables = new HashMap<>();
+
     //new tables
     public static final HashMap<Integer, GenTable> generalItemTables = new HashMap<>();
     public static final HashMap<Integer, ItemTable> itemTables = new HashMap<>();
