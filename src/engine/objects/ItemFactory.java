@@ -694,8 +694,8 @@ public class ItemFactory {
             return null;
         }
 
-        prefixLootTable = LootTable.getModGroup(prefixMod);
-        suffixLootTable = LootTable.getModGroup(suffixMod);
+        prefixLootTable = LootTable.getModTypeTable(prefixMod);
+        suffixLootTable = LootTable.getModTypeTable(suffixMod);
 
         if (prefixLootTable == null || suffixLootTable == null)
             return null;

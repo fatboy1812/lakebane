@@ -23,10 +23,10 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class LootTable {
 
-    private static final ConcurrentHashMap<Integer, LootTable> lootGroups = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_LOW);
-    private static final ConcurrentHashMap<Integer, LootTable> lootTables = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_LOW);
+    private static final ConcurrentHashMap<Integer, LootTable> genTables = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_LOW);
+    private static final ConcurrentHashMap<Integer, LootTable> itemTables = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_LOW);
     private static final ConcurrentHashMap<Integer, LootTable> modTables = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_LOW);
-    private static final ConcurrentHashMap<Integer, LootTable> modGroups = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_LOW);
+    private static final ConcurrentHashMap<Integer, LootTable> modTypeTables = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_LOW);
     private static final ConcurrentHashMap<Integer, Integer> statRuneChances = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_LOW);
     public static boolean initialized = false;
     public static HashMap<ItemBase, Integer> itemsDroppedMap = new HashMap<>();
@@ -55,21 +55,21 @@ public class LootTable {
 
     public static LootTable getGenTable(int UUID) {
 
-        if (lootGroups.containsKey(UUID))
-            return lootGroups.get(UUID);
+        if (genTables.containsKey(UUID))
+            return genTables.get(UUID);
 
         LootTable lootGroup = new LootTable(UUID);
-        lootGroups.put(UUID, lootGroup);
+        genTables.put(UUID, lootGroup);
         return lootGroup;
     }
 
-    public static LootTable getLootTable(int UUID) {
+    public static LootTable getItemTable(int UUID) {
 
-        if (lootTables.containsKey(UUID))
-            return lootTables.get(UUID);
+        if (itemTables.containsKey(UUID))
+            return itemTables.get(UUID);
 
         LootTable lootTable = new LootTable(UUID);
-        lootTables.put(UUID, lootTable);
+        itemTables.put(UUID, lootTable);
 
         return lootTable;
     }
@@ -77,15 +77,15 @@ public class LootTable {
     /**
      * @return the lootGroups
      */
-    public static ConcurrentHashMap<Integer, LootTable> getLootGroups() {
-        return lootGroups;
+    public static ConcurrentHashMap<Integer, LootTable> getGenTables() {
+        return genTables;
     }
 
     /**
      * @return the lootTables
      */
-    public static ConcurrentHashMap<Integer, LootTable> getLootTables() {
-        return lootTables;
+    public static ConcurrentHashMap<Integer, LootTable> getItemTables() {
+        return itemTables;
     }
 
     /**
@@ -98,17 +98,17 @@ public class LootTable {
     /**
      * @return the modGroups
      */
-    public static ConcurrentHashMap<Integer, LootTable> getModGroups() {
-        return modGroups;
+    public static ConcurrentHashMap<Integer, LootTable> getModTypeTables() {
+        return modTypeTables;
     }
 
-    public static LootTable getModGroup(int UUID) {
+    public static LootTable getModTypeTable(int UUID) {
 
-        if (modGroups.containsKey(UUID))
-            return modGroups.get(UUID);
+        if (modTypeTables.containsKey(UUID))
+            return modTypeTables.get(UUID);
 
         LootTable modTable = new LootTable(UUID);
-        modGroups.put(UUID, modTable);
+        modTypeTables.put(UUID, modTable);
 
         return modTable;
     }
@@ -132,8 +132,6 @@ public class LootTable {
         DbManager.LootQueries.populateModTables();
         DbManager.LootQueries.populateModTypeTables();
 
-        //preset chances for rune drops
-        populateStatRuneChances();
     }
 
     public static int gaussianLevel(int level) {
@@ -146,73 +144,6 @@ public class LootTable {
 
         return (level * 5) + ret;
 
-    }
-
-    //This set's the drop chances for stat runes.
-    public static void populateStatRuneChances() {
-
-        //+3, Increased
-        statRuneChances.put(250018, 60);
-        statRuneChances.put(250009, 60);
-        statRuneChances.put(250027, 60);
-        statRuneChances.put(250036, 60);
-        statRuneChances.put(250000, 60);
-
-        //+5, Enhanced
-        statRuneChances.put(250019, 60);
-        statRuneChances.put(250010, 60);
-        statRuneChances.put(250028, 60);
-        statRuneChances.put(250037, 60);
-        statRuneChances.put(250001, 60);
-
-        //+10 Exceptional
-        statRuneChances.put(250020, 60);
-        statRuneChances.put(250011, 60);
-        statRuneChances.put(250029, 60);
-        statRuneChances.put(250038, 60);
-        statRuneChances.put(250002, 60);
-
-        //+15, Amazing
-        statRuneChances.put(250021, 60);
-        statRuneChances.put(250012, 60);
-        statRuneChances.put(250030, 60);
-        statRuneChances.put(250039, 60);
-        statRuneChances.put(250003, 60);
-
-        //+20, Incredible
-        statRuneChances.put(250022, 60);
-        statRuneChances.put(250013, 60);
-        statRuneChances.put(250031, 60);
-        statRuneChances.put(250040, 60);
-        statRuneChances.put(250004, 60);
-
-        //+25, Great
-        statRuneChances.put(250023, 60);
-        statRuneChances.put(250014, 60);
-        statRuneChances.put(250032, 60);
-        statRuneChances.put(250041, 60);
-        statRuneChances.put(250005, 60);
-
-        //+30, Heroic
-        statRuneChances.put(250024, 60);
-        statRuneChances.put(250015, 60);
-        statRuneChances.put(250033, 60);
-        statRuneChances.put(250042, 60);
-        statRuneChances.put(250006, 60);
-
-        //+35, Legendary
-        statRuneChances.put(250025, 60);
-        statRuneChances.put(250016, 60);
-        statRuneChances.put(250034, 60);
-        statRuneChances.put(250043, 60);
-        statRuneChances.put(250007, 60);
-
-        //+40, of the Gods
-        statRuneChances.put(250026, 60);
-        statRuneChances.put(250017, 60);
-        statRuneChances.put(250035, 60);
-        statRuneChances.put(250044, 60);
-        statRuneChances.put(250008, 60);
     }
 
     public static Item CreateGamblerItem(Item item, PlayerCharacter gambler) {
@@ -295,7 +226,7 @@ public class LootTable {
         if (groupID == 0)
             return null;
 
-        LootTable lootGroup = LootTable.lootGroups.get(groupID);
+        LootTable lootGroup = LootTable.genTables.get(groupID);
 
         if (lootGroup == null)
             return null;
@@ -326,7 +257,7 @@ public class LootTable {
 
         groupRow = lootGroup.getLootRow(roll);
 
-        lootTable = LootTable.lootTables.get(groupRow.getValueOne());
+        lootTable = LootTable.itemTables.get(groupRow.getValueOne());
         roll = ThreadLocalRandom.current().nextInt(100) + 1;
         lootRow = lootTable.getLootRow(roll + 220); //get the item row from the bell's curve of level +-15
 
@@ -355,7 +286,7 @@ public class LootTable {
         int chanceMod = ThreadLocalRandom.current().nextInt(100) + 1;
 
         if (chanceMod < 25) {
-            modGroup = LootTable.modGroups.get(groupRow.getValueTwo());
+            modGroup = LootTable.modTypeTables.get(groupRow.getValueTwo());
 
             if (modGroup != null) {
 
@@ -389,7 +320,7 @@ public class LootTable {
                 }
             }
         } else if (chanceMod < 50) {
-            modGroup = LootTable.modGroups.get(groupRow.getValueThree());
+            modGroup = LootTable.modTypeTables.get(groupRow.getValueThree());
 
             if (modGroup != null) {
 
@@ -426,7 +357,7 @@ public class LootTable {
                 }
             }
         } else {
-            modGroup = LootTable.modGroups.get(groupRow.getValueTwo());
+            modGroup = LootTable.modTypeTables.get(groupRow.getValueTwo());
 
             if (modGroup != null) {
 
@@ -464,7 +395,7 @@ public class LootTable {
             }
 
             //get modifierSuffix
-            modGroup = LootTable.modGroups.get(groupRow.getValueThree());
+            modGroup = LootTable.modTypeTables.get(groupRow.getValueThree());
 
             if (modGroup != null) {
 

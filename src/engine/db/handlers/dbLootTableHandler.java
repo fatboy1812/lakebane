@@ -49,7 +49,7 @@ public class dbLootTableHandler extends dbHandlerBase {
             Logger.error(e);
         }
 
-        Logger.info("read: " + recordsRead + " cached: " + LootTable.getLootGroups().size());
+        Logger.info("read: " + recordsRead + " cached: " + LootTable.getGenTables().size());
     }
 
     public void populateItemTables() {
@@ -63,7 +63,7 @@ public class dbLootTableHandler extends dbHandlerBase {
 
             while (rs.next()) {
                 recordsRead++;
-                LootTable lootTable = LootTable.getLootTable(rs.getInt("itemTable"));
+                LootTable lootTable = LootTable.getItemTable(rs.getInt("itemTable"));
                 lootTable.addRow(rs.getFloat("minRoll"), rs.getFloat("maxRoll"), rs.getInt("itemBaseUUID"), rs.getInt("minSpawn"), rs.getInt("maxSpawn"), "");
             }
 
@@ -71,7 +71,7 @@ public class dbLootTableHandler extends dbHandlerBase {
             Logger.error(e);
         }
 
-        Logger.info("read: " + recordsRead + " cached: " + LootTable.getLootTables().size());
+        Logger.info("read: " + recordsRead + " cached: " + LootTable.getItemTables().size());
     }
 
     public void populateModTables() {
@@ -107,7 +107,7 @@ public class dbLootTableHandler extends dbHandlerBase {
 
             while (rs.next()) {
                 recordsRead++;
-                LootTable lootTable = LootTable.getModGroup(rs.getInt("modType"));
+                LootTable lootTable = LootTable.getModTypeTable(rs.getInt("modType"));
                 lootTable.addRow(rs.getFloat("minRoll"), rs.getFloat("maxRoll"), rs.getInt("subTableID"), 0, 0, "");
             }
 
@@ -115,7 +115,7 @@ public class dbLootTableHandler extends dbHandlerBase {
             Logger.error(e);
         }
 
-        Logger.info("read: " + recordsRead + " cached: " + LootTable.getModGroups().size());
+        Logger.info("read: " + recordsRead + " cached: " + LootTable.getModTypeTables().size());
     }
 
     public void LOAD_ENCHANT_VALUES() {
