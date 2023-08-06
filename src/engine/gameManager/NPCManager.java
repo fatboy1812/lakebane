@@ -25,7 +25,7 @@ public enum NPCManager {
     }
 
     public static void LoadAllBootySets() {
-        _bootySetMap = DbManager.LootQueries.LOAD_BOOTY_FOR_MOBS();
+        _bootySetMap = DbManager.LootQueries.LOAD_BOOTY_TABLES();
     }
 
     public static void applyRuneSetEffects(Mob mob) {

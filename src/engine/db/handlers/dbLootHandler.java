@@ -29,7 +29,46 @@ public class dbLootHandler extends dbHandlerBase {
 
     }
 
-    public HashMap<Integer, ArrayList<BootySetEntry>> LOAD_BOOTY_FOR_MOBS() {
+    public HashMap<Integer, ArrayList<GenTableEntry>> LOAD_GEN_ITEM_TABLES() {
+
+        HashMap<Integer, ArrayList<GenTableEntry>> genTables = new HashMap<>();
+        GenTableEntry genTableEntry;
+
+        int genTableID;
+        int recordsRead = 0;
+
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT `genTable`, `minRoll`, `maxRoll`, `itemTableID`, `pModTableID`, `sModTableID` FROM `static_gentables`")) {
+
+            ResultSet rs = preparedStatement.executeQuery();
+
+            while (rs.next()) {
+
+                recordsRead++;
+
+                genTableID = rs.getInt("bootySet");
+                genTableEntry = new GenTableEntry(rs);
+
+                if (genTables.get(genTableID) == null) {
+                    ArrayList<GenTableEntry> genItemList = new ArrayList<>();
+                    genItemList.add(genTableEntry);
+                    genTables.put(genTableID, genItemList);
+                } else {
+                    ArrayList<GenTableEntry> genItemList = genTables.get(genTableID);
+                    genItemList.add(genTableEntry);
+                    genTables.put(genTableID, genItemList);
+                }
+            }
+        } catch (SQLException e) {
+            Logger.error(e);
+            return genTables;
+        }
+
+        Logger.info("read: " + recordsRead + " cached: " + genTables.size());
+        return genTables;
+    }
+
+    public HashMap<Integer, ArrayList<BootySetEntry>> LOAD_BOOTY_TABLES() {
 
         HashMap<Integer, ArrayList<BootySetEntry>> bootySets = new HashMap<>();
         BootySetEntry bootySetEntry;
