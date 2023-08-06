@@ -10,7 +10,7 @@
 package engine.db.handlers;
 
 import engine.gameManager.DbManager;
-import engine.objects.BootySetEntry;
+import engine.loot.BootySetEntry;
 import engine.objects.ItemBase;
 import org.pmw.tinylog.Logger;
 

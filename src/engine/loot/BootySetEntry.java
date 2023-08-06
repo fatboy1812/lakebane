@@ -7,7 +7,7 @@
 //                www.magicbane.com
 
 
-package engine.objects;
+package engine.loot;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;

@@ -13,6 +13,7 @@ import ch.claude_martin.enumbitset.EnumBitSet;
 import engine.Enum;
 import engine.gameManager.DbManager;
 import engine.gameManager.NPCManager;
+import engine.loot.BootySetEntry;
 import engine.server.MBServerStatics;
 
 import java.sql.ResultSet;

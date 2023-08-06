@@ -4,6 +4,7 @@ import engine.devcmd.AbstractDevCmd;
 import engine.gameManager.LootManager;
 import engine.gameManager.NPCManager;
 import engine.gameManager.ZoneManager;
+import engine.loot.BootySetEntry;
 import engine.objects.*;
 
 import java.util.ArrayList;
