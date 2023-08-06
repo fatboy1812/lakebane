@@ -483,8 +483,14 @@ public class MobAI {
 
             if (powerTokens.isEmpty())
                 return false;
-
-            int powerToken = powerTokens.get(ThreadLocalRandom.current().nextInt(powerTokens.size()));
+            int powerToken = 0;
+            if(ThreadLocalRandom.current().nextInt(1,100) < 65){
+                //use direct damage spell
+                powerToken = mob.mobPowers.get(3);
+            } else{
+                //use other random spell
+                powerToken = powerTokens.get(ThreadLocalRandom.current().nextInt(powerTokens.size() - 1));
+            }
             int powerRank = mob.mobPowers.get(powerToken);
             PowersBase mobPower = PowersManager.getPowerByToken(powerToken);
 
