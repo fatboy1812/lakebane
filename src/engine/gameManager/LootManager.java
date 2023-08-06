@@ -436,4 +436,13 @@ public enum LootManager {
         }
     }
 
+    //call this on server startup to populate the tables
+    public static void populateLootTables() {
+
+        DbManager.LootQueries.populateGenTables();
+        DbManager.LootQueries.populateItemTables();
+        DbManager.LootQueries.populateModTables();
+        DbManager.LootQueries.populateModTypeTables();
+
+    }
 }
