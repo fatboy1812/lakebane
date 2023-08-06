@@ -322,14 +322,12 @@ public class MobAI {
 
             if(mob.isPlayerGuard == true){
                 int contractID;
-                if(mob.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardMinion.ordinal()){
+                if(mob.BehaviourType.equals(Enum.MobBehaviourType.GuardMinion))
                     contractID = mob.npcOwner.contract.getContractID();
-                } else{
+                 else
                     contractID = mob.contract.getContractID();
-                }
-                if(Enum.MinionType.ContractToMinionMap.get(contractID).isMage() == false){
+                if(Enum.MinionType.ContractToMinionMap.get(contractID).isMage() == false)
                     return false;
-                }
             }
 
             if (mob.mobPowers.isEmpty())
