@@ -29,7 +29,7 @@ public enum LootManager {
 
     // Newer tables
 
-    public static final HashMap<Integer, ArrayList<GenTableEntry>> _genTables = new HashMap<>();
+    public static HashMap<Integer, ArrayList<GenTableEntry>> _genTables = new HashMap<>();
 
     //new tables
     public static final HashMap<Integer, GenTable> generalItemTables = new HashMap<>();
@@ -443,7 +443,7 @@ public enum LootManager {
     //call this on server startup to populate the tables
     public static void populateLootTables() {
 
-        DbManager.LootQueries.LOAD_GEN_ITEM_TABLES();
+        _genTables = DbManager.LootQueries.LOAD_GEN_ITEM_TABLES();
 
         DbManager.LootQueries.populateGenTables();
         DbManager.LootQueries.populateItemTables();
