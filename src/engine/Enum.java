@@ -2679,6 +2679,9 @@ public class Enum {
             return race;
         }
 
+        public Boolean isMage(){
+            return this.minionClass.ordinal() == MinionClass.MAGE.ordinal();
+        }
     }
 
     public enum GridObjectType {

@@ -320,6 +320,18 @@ public class MobAI {
             if (mob == null)
                 return false;
 
+            if(mob.isPlayerGuard == true){
+                int contractID;
+                if(mob.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardMinion.ordinal()){
+                    contractID = mob.npcOwner.contract.getContractID();
+                } else{
+                    contractID = mob.contract.getContractID();
+                }
+                if(Enum.MinionType.ContractToMinionMap.get(contractID).isMage() == false){
+                    return false;
+                }
+            }
+
             if (mob.mobPowers.isEmpty())
                 return false;
 
@@ -327,12 +339,6 @@ public class MobAI {
                 mob.setCombatTarget(null);
                 return false;
             }
-
-            //int castRoll = ThreadLocalRandom.current().nextInt(1,101);
-
-            //if (castRoll < MobAIThread.AI_POWER_DIVISOR)
-            //   return false;
-
             if (mob.nextCastTime == 0)
                 mob.nextCastTime = System.currentTimeMillis();
 
