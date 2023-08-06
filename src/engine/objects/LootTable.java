@@ -53,7 +53,7 @@ public class LootTable {
         this.lootTableID = lootTableID;
     }
 
-    public static LootTable getLootGroup(int UUID) {
+    public static LootTable getGenTable(int UUID) {
 
         if (lootGroups.containsKey(UUID))
             return lootGroups.get(UUID);

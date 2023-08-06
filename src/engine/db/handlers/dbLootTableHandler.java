@@ -41,7 +41,7 @@ public class dbLootTableHandler extends dbHandlerBase {
 
             while (rs.next()) {
                 recordsRead++;
-                LootTable lootTable = LootTable.getLootGroup(rs.getInt("genTable"));
+                LootTable lootTable = LootTable.getGenTable(rs.getInt("genTable"));
                 lootTable.addRow(rs.getFloat("minRoll"), rs.getFloat("maxRoll"), rs.getInt("itemTableID"), rs.getInt("pModTableID"), rs.getInt("sModTableID"), "");
             }
 
