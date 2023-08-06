@@ -49,7 +49,7 @@ public enum DbManager {
     public static final dbItemHandler ItemQueries = new dbItemHandler();
     public static final dbItemBaseHandler ItemBaseQueries = new dbItemBaseHandler();
     public static final dbKitHandler KitQueries = new dbKitHandler();
-    public static final dbLootTableHandler LootQueries = new dbLootTableHandler();
+    public static final dbLootHandler LootQueries = new dbLootHandler();
     public static final dbMenuHandler MenuQueries = new dbMenuHandler();
     public static final dbMineHandler MineQueries = new dbMineHandler();
     public static final dbMobHandler MobQueries = new dbMobHandler();

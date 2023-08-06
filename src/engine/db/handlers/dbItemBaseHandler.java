@@ -10,7 +10,6 @@
 package engine.db.handlers;
 
 import engine.gameManager.DbManager;
-import engine.loot.BootySetEntry;
 import engine.objects.ItemBase;
 import org.pmw.tinylog.Logger;
 
@@ -136,41 +135,4 @@ public class dbItemBaseHandler extends dbHandlerBase {
         return runeSets;
     }
 
-    public HashMap<Integer, ArrayList<BootySetEntry>> LOAD_BOOTY_FOR_MOBS() {
-
-        HashMap<Integer, ArrayList<BootySetEntry>> bootySets = new HashMap<>();
-        BootySetEntry bootySetEntry;
-        int bootySetID;
-        int recordsRead = 0;
-
-        try (Connection connection = DbManager.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM static_npc_bootySet")) {
-
-            ResultSet rs = preparedStatement.executeQuery();
-
-            while (rs.next()) {
-
-                recordsRead++;
-
-                bootySetID = rs.getInt("bootySet");
-                bootySetEntry = new BootySetEntry(rs);
-
-                if (bootySets.get(bootySetID) == null) {
-                    ArrayList<BootySetEntry> bootyList = new ArrayList<>();
-                    bootyList.add(bootySetEntry);
-                    bootySets.put(bootySetID, bootyList);
-                } else {
-                    ArrayList<BootySetEntry> bootyList = bootySets.get(bootySetID);
-                    bootyList.add(bootySetEntry);
-                    bootySets.put(bootySetID, bootyList);
-                }
-            }
-        } catch (SQLException e) {
-            Logger.error(e);
-            return bootySets;
-        }
-
-        Logger.info("read: " + recordsRead + " cached: " + bootySets.size());
-        return bootySets;
-    }
 }

@@ -11,10 +11,7 @@ package engine.db.handlers;
 
 import engine.gameManager.DbManager;
 import engine.gameManager.LootManager;
-import engine.loot.GenTableRow;
-import engine.loot.ItemTableRow;
-import engine.loot.ModTableRow;
-import engine.loot.ModTypeTableRow;
+import engine.loot.*;
 import engine.objects.Item;
 import engine.objects.LootTable;
 import org.pmw.tinylog.Logger;
@@ -23,11 +20,51 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.HashMap;
 
-public class dbLootTableHandler extends dbHandlerBase {
+public class dbLootHandler extends dbHandlerBase {
 
-    public dbLootTableHandler() {
+    public dbLootHandler() {
 
+    }
+
+    public HashMap<Integer, ArrayList<BootySetEntry>> LOAD_BOOTY_FOR_MOBS() {
+
+        HashMap<Integer, ArrayList<BootySetEntry>> bootySets = new HashMap<>();
+        BootySetEntry bootySetEntry;
+        int bootySetID;
+        int recordsRead = 0;
+
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM static_npc_bootySet")) {
+
+            ResultSet rs = preparedStatement.executeQuery();
+
+            while (rs.next()) {
+
+                recordsRead++;
+
+                bootySetID = rs.getInt("bootySet");
+                bootySetEntry = new BootySetEntry(rs);
+
+                if (bootySets.get(bootySetID) == null) {
+                    ArrayList<BootySetEntry> bootyList = new ArrayList<>();
+                    bootyList.add(bootySetEntry);
+                    bootySets.put(bootySetID, bootyList);
+                } else {
+                    ArrayList<BootySetEntry> bootyList = bootySets.get(bootySetID);
+                    bootyList.add(bootySetEntry);
+                    bootySets.put(bootySetID, bootyList);
+                }
+            }
+        } catch (SQLException e) {
+            Logger.error(e);
+            return bootySets;
+        }
+
+        Logger.info("read: " + recordsRead + " cached: " + bootySets.size());
+        return bootySets;
     }
 
     public void populateGenTables() {
