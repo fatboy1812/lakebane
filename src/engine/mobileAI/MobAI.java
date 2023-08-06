@@ -429,8 +429,8 @@ public class MobAI {
                 msg.setUnknown04(2);
 
                 PowersManager.finishUseMobPower(msg, mob, 0, 0);
-
-                mob.nextCastTime = System.currentTimeMillis() + (long) ((mobPower.getCooldown() + (MobAIThread.AI_POWER_DIVISOR * 1000)));
+                int randomCooldown = ThreadLocalRandom.current().nextInt(1,10);
+                mob.nextCastTime = System.currentTimeMillis() + (long) ((mobPower.getCooldown() + (MobAIThread.AI_POWER_DIVISOR * 1000))) + (randomCooldown * 1000);
                 return true;
             }
         } catch (Exception e) {
@@ -528,8 +528,8 @@ public class MobAI {
                 msg.setUnknown04(2);
 
                 PowersManager.finishUseMobPower(msg, mob, 0, 0);
-
-                mob.nextCastTime = System.currentTimeMillis() + (long) ((mobPower.getCooldown() + (MobAIThread.AI_POWER_DIVISOR * 1000)));
+                int randomCooldown = ThreadLocalRandom.current().nextInt(1,10);
+                mob.nextCastTime = System.currentTimeMillis() + (long) ((mobPower.getCooldown() + (MobAIThread.AI_POWER_DIVISOR * 1000))) + (randomCooldown * 1000);
                 return true;
             }
         } catch (Exception e) {
