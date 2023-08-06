@@ -18,7 +18,7 @@ public class BootySetEntry {
     public int lowGold;
     public int highGold;
     public int itemBase;
-    public int lootTable;
+    public int itemTable;
     public float dropChance;
 
     /**
@@ -30,7 +30,7 @@ public class BootySetEntry {
         this.lowGold = (rs.getInt("lowGold"));
         this.highGold = (rs.getInt("highGold"));
         this.itemBase = (rs.getInt("itemBase"));
-        this.lootTable = (rs.getInt("lootTable"));
+        this.itemTable = (rs.getInt("itemTable"));
         this.dropChance = (rs.getFloat("dropChance"));
     }
 
