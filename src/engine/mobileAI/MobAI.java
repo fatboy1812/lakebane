@@ -50,12 +50,16 @@ public class MobAI {
                 return;
             }
 
-            if (target.getObjectType() == Enum.GameObjectType.PlayerCharacter && canCast(mob))
-                if (MobCast(mob)) {
+            if (target.getObjectType() == Enum.GameObjectType.PlayerCharacter && canCast(mob)) {
+                if (mob.isPlayerGuard() == false && MobCast(mob)) {
                     mob.updateLocation();
                     return;
                 }
-
+                if (mob.isPlayerGuard() == true && GuardCast(mob)) {
+                    mob.updateLocation();
+                    return;
+                }
+            }
             if (!CombatUtilities.inRangeToAttack(mob, target))
                 return;
 
@@ -387,6 +391,105 @@ public class MobAI {
             int powerToken = powerTokens.get(ThreadLocalRandom.current().nextInt(powerTokens.size()));
             int powerRank = mob.mobPowers.get(powerToken);
 
+            PowersBase mobPower = PowersManager.getPowerByToken(powerToken);
+
+            //check for hit-roll
+
+            if (mobPower.requiresHitRoll) {
+
+                if (CombatUtilities.triggerDefense(mob, mob.getCombatTarget()))
+                    return false;
+
+                if (CombatUtilities.triggerDodge(mob, mob.getCombatTarget()))
+                    return false;
+
+                if (CombatUtilities.triggerBlock(mob, mob.getCombatTarget()))
+                    return false;
+
+                if (CombatUtilities.triggerParry(mob, mob.getCombatTarget()))
+                    return false;
+            }
+
+            // Cast the spell
+
+            if (CombatUtilities.inRange2D(mob, mob.getCombatTarget(), mobPower.getRange())) {
+
+
+                PerformActionMsg msg;
+
+                if (!mobPower.isHarmful() || mobPower.targetSelf) {
+                    PowersManager.useMobPower(mob, mob, mobPower, powerRank);
+                    msg = PowersManager.createPowerMsg(mobPower, powerRank, mob, mob);
+                }
+                else {
+                    PowersManager.useMobPower(mob, target, mobPower, powerRank);
+                    msg = PowersManager.createPowerMsg(mobPower, powerRank, mob, target);
+                }
+
+                msg.setUnknown04(2);
+
+                PowersManager.finishUseMobPower(msg, mob, 0, 0);
+
+                mob.nextCastTime = System.currentTimeMillis() + (long) ((mobPower.getCooldown() + (MobAIThread.AI_POWER_DIVISOR * 1000)));
+                return true;
+            }
+        } catch (Exception e) {
+            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: MobCast" + " " + e.getMessage());
+        }
+        return false;
+    }
+    public static boolean GuardCast(Mob mob) {
+
+        try {
+            // Method picks a random spell from a mobile's list of powers
+            // and casts it on the current target (or itself).  Validation
+            // (including empty lists) is done previously within canCast();
+
+            ArrayList<Integer> powerTokens;
+            ArrayList<Integer> purgeTokens;
+            AbstractCharacter target = (AbstractCharacter) mob.getCombatTarget();
+
+            if (mob.BehaviourType.callsForHelp)
+                MobCallForHelp(mob);
+
+            // Generate a list of tokens from the mob powers for this mobile.
+
+            powerTokens = new ArrayList<>(mob.mobPowers.keySet());
+            purgeTokens = new ArrayList<>();
+
+            // If player has this effect on them currently then remove
+            // this token from our list.
+
+            for (int powerToken : powerTokens) {
+
+                PowersBase powerBase = PowersManager.getPowerByToken(powerToken);
+
+                for (ActionsBase actionBase : powerBase.getActions()) {
+
+                    String stackType = actionBase.stackType;
+
+                    if (target.getEffects() != null && target.getEffects().containsKey(stackType))
+                        purgeTokens.add(powerToken);
+                }
+            }
+
+            powerTokens.removeAll(purgeTokens);
+
+            // Sanity check
+
+            if (powerTokens.isEmpty())
+                return false;
+            int powerToken = 0;
+            // Pick random spell from our list of powers
+            if(ThreadLocalRandom.current().nextInt(1,100) < 65){
+                //65% direct damage chance
+                powerToken = powerTokens.get(0);
+
+            } else {
+                //pull non DD spell
+                powerToken = powerTokens.get(ThreadLocalRandom.current().nextInt(1,powerTokens.size()));
+            }
+            int powerRank = mob.mobPowers.get(powerToken);
             PowersBase mobPower = PowersManager.getPowerByToken(powerToken);
 
             //check for hit-roll
