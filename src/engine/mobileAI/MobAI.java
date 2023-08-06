@@ -403,15 +403,6 @@ public class MobAI {
 
                 if (CombatUtilities.triggerDefense(mob, mob.getCombatTarget()))
                     return false;
-
-                if (CombatUtilities.triggerDodge(mob, mob.getCombatTarget()))
-                    return false;
-
-                if (CombatUtilities.triggerBlock(mob, mob.getCombatTarget()))
-                    return false;
-
-                if (CombatUtilities.triggerParry(mob, mob.getCombatTarget()))
-                    return false;
             }
 
             // Cast the spell
@@ -484,12 +475,13 @@ public class MobAI {
             if (powerTokens.isEmpty())
                 return false;
             int powerToken = 0;
-            if(ThreadLocalRandom.current().nextInt(1,100) < 65){
+            int nukeRoll = ThreadLocalRandom.current().nextInt(1,100);
+            if( nukeRoll < 65){
                 //use direct damage spell
-                powerToken = mob.mobPowers.get(3);
+                powerToken = powerTokens.get(3);
             } else{
-                //use other random spell
-                powerToken = powerTokens.get(ThreadLocalRandom.current().nextInt(powerTokens.size() - 1));
+                //use random spell
+                powerToken = powerTokens.get(ThreadLocalRandom.current().nextInt(powerTokens.size()));
             }
             int powerRank = mob.mobPowers.get(powerToken);
             PowersBase mobPower = PowersManager.getPowerByToken(powerToken);
@@ -499,15 +491,6 @@ public class MobAI {
             if (mobPower.requiresHitRoll) {
 
                 if (CombatUtilities.triggerDefense(mob, mob.getCombatTarget()))
-                    return false;
-
-                if (CombatUtilities.triggerDodge(mob, mob.getCombatTarget()))
-                    return false;
-
-                if (CombatUtilities.triggerBlock(mob, mob.getCombatTarget()))
-                    return false;
-
-                if (CombatUtilities.triggerParry(mob, mob.getCombatTarget()))
                     return false;
             }
 
