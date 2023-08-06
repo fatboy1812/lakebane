@@ -120,12 +120,12 @@ public class SimulateBootyCmd extends AbstractDevCmd {
         for (BootySetEntry entry : NPCManager._bootySetMap.get(mob.getMobBase().bootySet)) {
 
             if (entry.bootyType.equals("GOLD"))
-                output += "NORMAL TABLE [" + entry.bootyType + "] " + entry.itemTable + ": " + entry.dropChance + newline;
+                output += "NORMAL TABLE [" + entry.bootyType + "] " + entry.genTable + ": " + entry.dropChance + newline;
             else
-                output += "NORMAL TABLE [" + entry.bootyType + "] " + entry.itemTable + ": " + entry.dropChance * dropRate + newline;
+                output += "NORMAL TABLE [" + entry.bootyType + "] " + entry.genTable + ": " + entry.dropChance * dropRate + newline;
 
-            if (hotZoneRan == false && ZoneManager.inHotZone(mob.getLoc()) && LootManager.generalItemTables.containsKey(entry.itemTable + 1)) {
-                output += "HOTZONE TABLE [" + entry.bootyType + "] " + (entry.itemTable + 1) + ": " + entry.dropChance * dropRate + newline;
+            if (hotZoneRan == false && ZoneManager.inHotZone(mob.getLoc()) && LootManager.generalItemTables.containsKey(entry.genTable + 1)) {
+                output += "HOTZONE TABLE [" + entry.bootyType + "] " + (entry.genTable + 1) + ": " + entry.dropChance * dropRate + newline;
                 hotZoneRan = true;
             }
         }

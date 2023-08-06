@@ -120,14 +120,14 @@ public enum LootManager {
                         dropRate = LootManager.NORMAL_DROP_RATE;
 
                     if (ThreadLocalRandom.current().nextInt(1, 100 + 1) < (bse.dropChance * dropRate))
-                        GenerateLootDrop(mob, bse.itemTable, false);  //generate normal loot drop
+                        GenerateLootDrop(mob, bse.genTable, false);  //generate normal loot drop
 
                     // Generate hotzone loot if in hotzone
                     // Only one bite at the hotzone apple per bootyset.
 
                     if (inHotzone == true && hotzoneWasRan == false)
-                        if (generalItemTables.containsKey(bse.itemTable + 1) && ThreadLocalRandom.current().nextInt(1, 100 + 1) < (bse.dropChance * dropRate)) {
-                            GenerateLootDrop(mob, bse.itemTable + 1, true);  //generate loot drop from hotzone table
+                        if (generalItemTables.containsKey(bse.genTable + 1) && ThreadLocalRandom.current().nextInt(1, 100 + 1) < (bse.dropChance * dropRate)) {
+                            GenerateLootDrop(mob, bse.genTable + 1, true);  //generate loot drop from hotzone table
                             hotzoneWasRan = true;
                         }
 
