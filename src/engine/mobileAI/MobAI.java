@@ -1025,7 +1025,8 @@ public class MobAI {
 
                 if (aggroMob.isGuard())
                     continue;
-
+                if(aggroMob.BehaviourType.equals(Enum.MobBehaviourType.Pet1))
+                    continue;
                 if (mob.getLoc().distanceSquared2D(aggroMob.getLoc()) > sqr(50))
                     continue;
 
