@@ -283,7 +283,7 @@ public class MobAI {
 
             MovementUtilities.aiMove(mob, mob.destination, true);
 
-            if (mob.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardCaptain.ordinal()) {
+            if (mob.BehaviourType.equals(Enum.MobBehaviourType.GuardCaptain)) {
                 for (Entry<Mob, Integer> minion : mob.siegeMinionMap.entrySet()) {
 
                     //make sure mob is out of combat stance
@@ -295,7 +295,6 @@ public class MobAI {
                             rwss.setPlayer(minion.getKey());
                             DispatchMessage.sendToAllInRange(minion.getKey(), rwss);
                         }
-
                         if (MovementUtilities.canMove(minion.getKey())) {
                             Vector3f minionOffset = Formation.getOffset(2, minion.getValue() + 3);
                             minion.getKey().updateLocation();
@@ -433,6 +432,7 @@ public class MobAI {
         }
         return false;
     }
+
     public static boolean GuardCast(Mob mob) {
 
         try {
