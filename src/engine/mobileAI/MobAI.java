@@ -324,10 +324,10 @@ public class MobAI {
                 return false;
             }
 
-            int castRoll = ThreadLocalRandom.current().nextInt(101);
+            //int castRoll = ThreadLocalRandom.current().nextInt(1,101);
 
-            if (castRoll <= MobAIThread.AI_POWER_DIVISOR)
-                return false;
+            //if (castRoll < MobAIThread.AI_POWER_DIVISOR)
+            //   return false;
 
             if (mob.nextCastTime == 0)
                 mob.nextCastTime = System.currentTimeMillis();
@@ -349,7 +349,7 @@ public class MobAI {
 
             ArrayList<Integer> powerTokens;
             ArrayList<Integer> purgeTokens;
-            PlayerCharacter target = (PlayerCharacter) mob.getCombatTarget();
+            AbstractCharacter target = (AbstractCharacter) mob.getCombatTarget();
 
             if (mob.BehaviourType.callsForHelp)
                 MobCallForHelp(mob);
@@ -410,22 +410,23 @@ public class MobAI {
 
             if (CombatUtilities.inRange2D(mob, mob.getCombatTarget(), mobPower.getRange())) {
 
-                PowersManager.useMobPower(mob, (AbstractCharacter) mob.getCombatTarget(), mobPower, powerRank);
+
                 PerformActionMsg msg;
 
-                if (!mobPower.isHarmful() || mobPower.targetSelf)
+                if (!mobPower.isHarmful() || mobPower.targetSelf) {
+                    PowersManager.useMobPower(mob, mob, mobPower, powerRank);
                     msg = PowersManager.createPowerMsg(mobPower, powerRank, mob, mob);
-                else
+                }
+                else {
+                    PowersManager.useMobPower(mob, target, mobPower, powerRank);
                     msg = PowersManager.createPowerMsg(mobPower, powerRank, mob, target);
+                }
 
                 msg.setUnknown04(2);
 
                 PowersManager.finishUseMobPower(msg, mob, 0, 0);
 
-                // Default minimum seconds between cast = 10
-
-                float randomCooldown = (ThreadLocalRandom.current().nextInt(150) + 100) * 0.01f;
-                mob.nextCastTime = System.currentTimeMillis() + (long) ((mobPower.getCooldown() + (MobAIThread.AI_POWER_DIVISOR * 1000)) * randomCooldown);
+                mob.nextCastTime = System.currentTimeMillis() + (long) ((mobPower.getCooldown() + (MobAIThread.AI_POWER_DIVISOR * 1000)));
                 return true;
             }
         } catch (Exception e) {
