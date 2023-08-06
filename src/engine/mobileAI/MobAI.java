@@ -479,16 +479,8 @@ public class MobAI {
 
             if (powerTokens.isEmpty())
                 return false;
-            int powerToken = 0;
-            // Pick random spell from our list of powers
-            if(ThreadLocalRandom.current().nextInt(1,100) < 65){
-                //65% direct damage chance
-                powerToken = powerTokens.get(0);
 
-            } else {
-                //pull non DD spell
-                powerToken = powerTokens.get(ThreadLocalRandom.current().nextInt(1,powerTokens.size()));
-            }
+            int powerToken = powerTokens.get(ThreadLocalRandom.current().nextInt(powerTokens.size()));
             int powerRank = mob.mobPowers.get(powerToken);
             PowersBase mobPower = PowersManager.getPowerByToken(powerToken);
 
