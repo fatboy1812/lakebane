@@ -15,10 +15,7 @@ import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class LootTable {
-
-    private static final ConcurrentHashMap<Integer, LootTable> genTables = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_LOW);
-    private static final ConcurrentHashMap<Integer, LootTable> itemTables = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_LOW);
-    private static final ConcurrentHashMap<Integer, LootTable> modTables = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_LOW);
+private static final ConcurrentHashMap<Integer, LootTable> modTables = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_LOW);
     private static final ConcurrentHashMap<Integer, LootTable> modTypeTables = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_LOW);
     private static final ConcurrentHashMap<Integer, Integer> statRuneChances = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_LOW);
     public static boolean initialized = false;
@@ -46,54 +43,6 @@ public class LootTable {
         this.lootTableID = lootTableID;
     }
 
-    public static LootTable getGenTable(int UUID) {
-
-        if (genTables.containsKey(UUID))
-            return genTables.get(UUID);
-
-        LootTable lootGroup = new LootTable(UUID);
-        genTables.put(UUID, lootGroup);
-        return lootGroup;
-    }
-
-    public static LootTable getItemTable(int UUID) {
-
-        if (itemTables.containsKey(UUID))
-            return itemTables.get(UUID);
-
-        LootTable lootTable = new LootTable(UUID);
-        itemTables.put(UUID, lootTable);
-
-        return lootTable;
-    }
-
-    /**
-     * @return the lootGroups
-     */
-    public static ConcurrentHashMap<Integer, LootTable> getGenTables() {
-        return genTables;
-    }
-
-    /**
-     * @return the lootTables
-     */
-    public static ConcurrentHashMap<Integer, LootTable> getItemTables() {
-        return itemTables;
-    }
-
-    /**
-     * @return the modTables
-     */
-    public static ConcurrentHashMap<Integer, LootTable> getModTables() {
-        return modTables;
-    }
-
-    /**
-     * @return the modGroups
-     */
-    public static ConcurrentHashMap<Integer, LootTable> getModTypeTables() {
-        return modTypeTables;
-    }
 
     public static LootTable getModTypeTable(int UUID) {
 
