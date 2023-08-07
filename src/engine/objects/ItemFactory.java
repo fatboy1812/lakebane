@@ -696,15 +696,22 @@ public class ItemFactory {
             return null;
         }
 
-        ModTypeTableEntry prefixTable = ModTypeTableEntry.rollTable(prefixMod, ThreadLocalRandom.current().nextInt(1, 100 + 1));
-        ModTypeTableEntry suffixTable = ModTypeTableEntry.rollTable(suffixMod, ThreadLocalRandom.current().nextInt(1, 100 + 1));
+        // Roll on the tables for this vendor
+
+        ModTypeTableEntry prefixTypeTable = ModTypeTableEntry.rollTable(prefixMod, ThreadLocalRandom.current().nextInt(1, 100 + 1));
+        ModTypeTableEntry suffixTypeTable = ModTypeTableEntry.rollTable(suffixMod, ThreadLocalRandom.current().nextInt(1, 100 + 1));
+
+        // Sanity check.
+
+        if (prefixTypeTable == null || suffixTypeTable == null)
+            return null;
 
         int rollPrefix = ThreadLocalRandom.current().nextInt(1, 100 + 1);
 
         if (rollPrefix < 80) {
 
-            int randomPrefix = ThreadLocalRandom.current().nextInt(1, 100 + 1);
-            prefixEntry = ModTableEntry.rollTable(prefixTable.modTableID, randomPrefix);
+            int randomPrefix = getAdjustedRollForNPC((int) calculatedMobLevel, prefixTypeTable.minRoll, prefixTypeTable.maxRoll);
+            prefixEntry = ModTableEntry.rollTable(prefixTypeTable.modTableID, randomPrefix);
 
             if (prefixEntry != null)
                 prefix = prefixEntry.action;
@@ -715,8 +722,8 @@ public class ItemFactory {
 
         if (rollSuffix < 80) {
 
-            int randomSuffix = ThreadLocalRandom.current().nextInt(1, 100 + 1);
-            suffixEntry = ModTableEntry.rollTable(suffixTable.modTableID, randomSuffix);
+            int randomSuffix = getAdjustedRollForNPC((int) calculatedMobLevel, suffixTypeTable.minRoll, suffixTypeTable.maxRoll);
+            suffixEntry = ModTableEntry.rollTable(suffixTypeTable.modTableID, randomSuffix);
 
             if (suffixEntry != null)
                 suffix = suffixEntry.action;
@@ -761,6 +768,20 @@ public class ItemFactory {
         ItemQueue produced = ItemQueue.borrow(pi, (long) (time * Float.parseFloat(ConfigManager.MB_PRODUCTION_RATE.getValue())));
         ItemProductionManager.send(produced);
         return toRoll;
+    }
+
+    private static int getAdjustedRollForNPC(int npcLevel, int minRoll, int maxRoll) {
+        int randomRoll;
+
+        int minValue = (npcLevel - 5) * 5;
+        int maxValue = (npcLevel + 15) * 5;
+
+        minValue = Math.max(minRoll, Math.min(maxRoll, minValue));
+        maxValue = Math.max(minRoll, Math.min(maxRoll, maxValue));
+
+        randomRoll = ThreadLocalRandom.current().nextInt(minValue, maxValue + 1); //Does not return Max, but does return min?
+
+        return randomRoll;
     }
 
     public static MobLoot produceRandomRoll(NPC npc, PlayerCharacter pc, String prefixString, String suffixString, int itemID) {
