@@ -128,7 +128,6 @@ public enum DevCmdManager {
         DevCmdManager.registerDevCmd(new SetForceRenameCityCmd());
         DevCmdManager.registerDevCmd(new GotoObj());
         DevCmdManager.registerDevCmd(new convertLoc());
-        DevCmdManager.registerDevCmd(new MBDropCmd());
         DevCmdManager.registerDevCmd(new AuditHeightMapCmd());
         DevCmdManager.registerDevCmd(new UnloadFurnitureCmd());
         DevCmdManager.registerDevCmd(new SetNpcEquipSetCmd());

@@ -504,7 +504,6 @@ public class WorldServer {
 		Logger.info("Bootstrap time was " + boottime);
 
 		bootTime = LocalDateTime.now();
-		LootTable.initialized = true;
 
 		Logger.info("Running garbage collection...");
 		System.gc();
