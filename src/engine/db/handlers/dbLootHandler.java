@@ -13,7 +13,6 @@ import engine.gameManager.DbManager;
 import engine.gameManager.LootManager;
 import engine.loot.*;
 import engine.objects.Item;
-import engine.objects.LootTable;
 import org.pmw.tinylog.Logger;
 
 import java.sql.Connection;
@@ -38,7 +37,7 @@ public class dbLootHandler extends dbHandlerBase {
         int recordsRead = 0;
 
         try (Connection connection = DbManager.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement("SELECT `genTable`, `minRoll`, `maxRoll`, `itemTableID`, `pModTableID`, `sModTableID` FROM `static_gentables`")) {
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `static_gentables`")) {
 
             ResultSet rs = preparedStatement.executeQuery();
 
@@ -66,6 +65,45 @@ public class dbLootHandler extends dbHandlerBase {
 
         Logger.info("read: " + recordsRead + " cached: " + genTables.size());
         return genTables;
+    }
+
+    public HashMap<Integer, ArrayList<ItemTableEntry>> LOAD_ITEM_TABLES() {
+
+        HashMap<Integer, ArrayList<ItemTableEntry>> itemTables = new HashMap<>();
+        ItemTableEntry itemTableEntry;
+
+        int itemTableID;
+        int recordsRead = 0;
+
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `static_itemTables`")) {
+
+            ResultSet rs = preparedStatement.executeQuery();
+
+            while (rs.next()) {
+
+                recordsRead++;
+
+                itemTableID = rs.getInt("itemTable");
+                itemTableEntry = new ItemTableEntry(rs);
+
+                if (itemTables.get(itemTableID) == null) {
+                    ArrayList<ItemTableEntry> itemTableList = new ArrayList<>();
+                    itemTableList.add(itemTableEntry);
+                    itemTables.put(itemTableID, itemTableList);
+                } else {
+                    ArrayList<ItemTableEntry> itemTableList = itemTables.get(itemTableID);
+                    itemTableList.add(itemTableEntry);
+                    itemTables.put(itemTableID, itemTableList);
+                }
+            }
+        } catch (SQLException e) {
+            Logger.error(e);
+            return itemTables;
+        }
+
+        Logger.info("read: " + recordsRead + " cached: " + itemTables.size());
+        return itemTables;
     }
 
     public HashMap<Integer, ArrayList<BootySetEntry>> LOAD_BOOTY_TABLES() {
@@ -104,94 +142,6 @@ public class dbLootHandler extends dbHandlerBase {
 
         Logger.info("read: " + recordsRead + " cached: " + bootySets.size());
         return bootySets;
-    }
-
-    public void populateGenTables() {
-
-        int recordsRead = 0;
-
-        try (Connection connection = DbManager.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement("SELECT `genTable`, `minRoll`, `maxRoll`, `itemTableID`, `pModTableID`, `sModTableID` FROM `static_gentables`")) {
-
-            ResultSet rs = preparedStatement.executeQuery();
-
-            while (rs.next()) {
-                recordsRead++;
-                LootTable lootTable = LootTable.getGenTable(rs.getInt("genTable"));
-                lootTable.addRow(rs.getFloat("minRoll"), rs.getFloat("maxRoll"), rs.getInt("itemTableID"), rs.getInt("pModTableID"), rs.getInt("sModTableID"), "");
-            }
-
-        } catch (SQLException e) {
-            Logger.error(e);
-        }
-
-        Logger.info("read: " + recordsRead + " cached: " + LootTable.getGenTables().size());
-    }
-
-    public void populateItemTables() {
-
-        int recordsRead = 0;
-
-        try (Connection connection = DbManager.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement("SELECT `itemTable`, `minRoll`, `maxRoll`, `itemBaseUUID`, `minSpawn`, `maxSpawn` FROM `static_itemtables`")) {
-
-            ResultSet rs = preparedStatement.executeQuery();
-
-            while (rs.next()) {
-                recordsRead++;
-                LootTable lootTable = LootTable.getItemTable(rs.getInt("itemTable"));
-                lootTable.addRow(rs.getFloat("minRoll"), rs.getFloat("maxRoll"), rs.getInt("itemBaseUUID"), rs.getInt("minSpawn"), rs.getInt("maxSpawn"), "");
-            }
-
-        } catch (SQLException e) {
-            Logger.error(e);
-        }
-
-        Logger.info("read: " + recordsRead + " cached: " + LootTable.getItemTables().size());
-    }
-
-    public void populateModTables() {
-
-        int recordsRead = 0;
-
-        try (Connection connection = DbManager.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement("SELECT `modTable`,`minRoll`,`maxRoll`,`value`,`action` FROM `static_modtables`")) {
-
-            ResultSet rs = preparedStatement.executeQuery();
-
-            while (rs.next()) {
-                recordsRead++;
-                LootTable lootTable = LootTable.getModTable(rs.getInt("modTable"));
-                lootTable.addRow(rs.getFloat("minRoll"), rs.getFloat("maxRoll"), rs.getInt("value"), 0, 0, rs.getString("action"));
-            }
-
-        } catch (SQLException e) {
-            Logger.error(e);
-        }
-
-        Logger.info("read: " + recordsRead + " cached: " + LootTable.getModTables().size());
-    }
-
-    public void populateModTypeTables() {
-
-        int recordsRead = 0;
-
-        try (Connection connection = DbManager.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement("SELECT `modType`,`minRoll`,`maxRoll`,`subTableID` FROM `static_modtypetables`")) {
-
-            ResultSet rs = preparedStatement.executeQuery();
-
-            while (rs.next()) {
-                recordsRead++;
-                LootTable lootTable = LootTable.getModTypeTable(rs.getInt("modType"));
-                lootTable.addRow(rs.getFloat("minRoll"), rs.getFloat("maxRoll"), rs.getInt("subTableID"), 0, 0, "");
-            }
-
-        } catch (SQLException e) {
-            Logger.error(e);
-        }
-
-        Logger.info("read: " + recordsRead + " cached: " + LootTable.getModTypeTables().size());
     }
 
     public void LOAD_ENCHANT_VALUES() {
