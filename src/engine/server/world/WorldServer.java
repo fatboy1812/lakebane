@@ -340,8 +340,6 @@ public class WorldServer {
 		Logger.info("Initializing Loot Manager");
 		LootManager.init();
 
-		//load old loot system (still needed for rolling for now)
-		LootManager.populateLootTables();
 		RuneBaseAttribute.LoadAllAttributes();
 		RuneBase.LoadAllRuneBases();
 		BaseClass.LoadAllBaseClasses();

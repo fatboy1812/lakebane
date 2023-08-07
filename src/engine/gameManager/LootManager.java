@@ -30,12 +30,13 @@ public enum LootManager {
     // Newer tables
 
     public static HashMap<Integer, ArrayList<GenTableEntry>> _genTables = new HashMap<>();
+    public static HashMap<Integer, ArrayList<ItemTableEntry>> _itemTable = new HashMap<>();
 
     //new tables
-    public static final HashMap<Integer, GenTable> generalItemTables = new HashMap<>();
-    public static final HashMap<Integer, ItemTable> itemTables = new HashMap<>();
-    public static final HashMap<Integer, ModTypeTable> modTypeTables = new HashMap<>();
-    public static final HashMap<Integer, ModTable> modTables = new HashMap<>();
+    public static final HashMap<Integer, GenTable> generalItemTables = null;
+    public static final HashMap<Integer, ItemTable> itemTables = null;
+    public static final HashMap<Integer, ModTypeTable> modTypeTables = null;
+    public static final HashMap<Integer, ModTable> modTables = null;
 
     // Drop Rates
 
@@ -51,6 +52,8 @@ public enum LootManager {
     public static void init() {
 
         // Load loot tables from database.
+
+        _genTables = DbManager.LootQueries.LOAD_GEN_ITEM_TABLES();
 
         DbManager.LootQueries.LOAD_ALL_GENTABLES();
         DbManager.LootQueries.LOAD_ALL_ITEMTABLES();
@@ -440,15 +443,4 @@ public enum LootManager {
         }
     }
 
-    //call this on server startup to populate the tables
-    public static void populateLootTables() {
-
-        _genTables = DbManager.LootQueries.LOAD_GEN_ITEM_TABLES();
-
-        DbManager.LootQueries.populateGenTables();
-        DbManager.LootQueries.populateItemTables();
-        DbManager.LootQueries.populateModTables();
-        DbManager.LootQueries.populateModTypeTables();
-
-    }
 }
