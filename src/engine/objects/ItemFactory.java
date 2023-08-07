@@ -646,7 +646,7 @@ public class ItemFactory {
     }
 
 
-    public static Item randomRoll(NPC vendor, PlayerCharacter pc, int itemsToRoll, int itemID) {
+    public static Item randomRoll(NPC vendor, PlayerCharacter playerCharacter, int itemsToRoll, int itemBaseID) {
         byte itemModTable;
         int prefixMod = 0;
         int suffixMod = 0;
@@ -656,28 +656,34 @@ public class ItemFactory {
         ModTableEntry prefixEntry = null;
         ModTableEntry suffixEntry = null;
 
-        ItemBase ib = ItemBase.getItemBase(itemID);
+        ItemBase ib = ItemBase.getItemBase(itemBaseID);
 
         if (ib == null)
             return null;
 
         if (!vendor.getCharItemManager().hasRoomInventory(ib.getWeight())) {
-            if (pc != null)
-                ChatManager.chatSystemInfo(pc, vendor.getName() + " " + vendor.getContract().getName() + " Inventory is full.");
+
+            if (playerCharacter != null)
+                ChatManager.chatSystemInfo(playerCharacter, vendor.getName() + " " + vendor.getContract().getName() + " Inventory is full.");
+
             return null;
         }
 
         itemModTable = (byte) ib.getModTable();
 
         if (!vendor.getItemModTable().contains(itemModTable)) {
-            if (pc != null)
-                ErrorPopupMsg.sendErrorPopup(pc, 59);
+
+            if (playerCharacter != null)
+                ErrorPopupMsg.sendErrorPopup(playerCharacter, 59);
+
             return null;
         }
 
         for (byte temp : vendor.getItemModTable()) {
+
             if (itemModTable != temp)
                 continue;
+
             prefixMod = vendor.getModTypeTable().get(vendor.getItemModTable().indexOf(temp));
             suffixMod = vendor.getModSuffixTable().get(vendor.getItemModTable().indexOf(temp));
         }
@@ -711,6 +717,9 @@ public class ItemFactory {
 
         int rollSuffix = ThreadLocalRandom.current().nextInt(1, 100 + 1);
 
+        // Always have at least one mod on a magic rolled item.
+        // Suffix will be our backup plan.
+
         if (rollSuffix < 80 || prefixEntry == null) {
 
             int randomSuffix = LootManager.TableRoll(vendor.getLevel(), false);
@@ -720,7 +729,7 @@ public class ItemFactory {
                 suffix = suffixEntry.action;
         }
 
-        MobLoot toRoll = ItemFactory.produceRandomRoll(vendor, pc, prefix, suffix, itemID);
+        MobLoot toRoll = ItemFactory.produceRandomRoll(vendor, playerCharacter, prefix, suffix, itemBaseID);
 
         if (toRoll == null)
             return null;
@@ -739,9 +748,10 @@ public class ItemFactory {
         }
 
         // No job is submitted, as object's upgradetime field
-        // is used to determin whether or not an object has
-        // compelted rolling.  The game object exists previously
-        // to this, not when 'compelte' is pressed.
+        // is used to determine whether an object has
+        // completed rolling.  The game object exists previously
+        // to this, not when 'complete' is pressed.
+
         long upgradeTime = System.currentTimeMillis() + (long) (time * Float.parseFloat(ConfigManager.MB_PRODUCTION_RATE.getValue()));
 
         DateTime dateTime = new DateTime();
@@ -750,14 +760,17 @@ public class ItemFactory {
 
         int playerID = 0;
 
-        if (pc != null)
-            playerID = pc.getObjectUUID();
+        if (playerCharacter != null)
+            playerID = playerCharacter.getObjectUUID();
+
         DbManager.NPCQueries.ADD_TO_PRODUCTION_LIST(toRoll.getObjectUUID(), vendor.getObjectUUID(), toRoll.getItemBaseID(), dateTime, prefix, suffix, toRoll.getCustomName(), true, playerID);
+
         ProducedItem pi = new ProducedItem(toRoll.getObjectUUID(), vendor.getObjectUUID(), toRoll.getItemBaseID(), dateTime, true, prefix, suffix, toRoll.getCustomName(), playerID);
         pi.setProducedItemID(toRoll.getObjectUUID());
         pi.setAmount(itemsToRoll);
         ItemQueue produced = ItemQueue.borrow(pi, (long) (time * Float.parseFloat(ConfigManager.MB_PRODUCTION_RATE.getValue())));
         ItemProductionManager.send(produced);
+
         return toRoll;
     }
 
