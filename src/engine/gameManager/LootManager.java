@@ -32,6 +32,7 @@ public enum LootManager {
     public static HashMap<Integer, ArrayList<GenTableEntry>> _genTables = new HashMap<>();
     public static HashMap<Integer, ArrayList<ItemTableEntry>> _itemTables = new HashMap<>();
     public static HashMap<Integer, ArrayList<ModTableEntry>> _modTables = new HashMap<>();
+    public static HashMap<Integer, ArrayList<ModTypeTableEntry>> _modTypeTables = new HashMap<>();
 
     //new tables
     public static final HashMap<Integer, GenTable> generalItemTables = null;
@@ -57,6 +58,8 @@ public enum LootManager {
         _genTables = DbManager.LootQueries.LOAD_GEN_ITEM_TABLES();
         _itemTables = DbManager.LootQueries.LOAD_ITEM_TABLES();
         _modTables = DbManager.LootQueries.LOAD_MOD_TABLES();
+        _modTypeTables = DbManager.LootQueries.LOAD_MOD_TYPE_TABLES();
+
 
         DbManager.LootQueries.LOAD_ALL_GENTABLES();
         DbManager.LootQueries.LOAD_ALL_ITEMTABLES();

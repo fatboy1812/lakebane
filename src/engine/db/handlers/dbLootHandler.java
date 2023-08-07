@@ -145,6 +145,45 @@ public class dbLootHandler extends dbHandlerBase {
         return modTables;
     }
 
+    public HashMap<Integer, ArrayList<ModTypeTableEntry>> LOAD_MOD_TYPE_TABLES() {
+
+        HashMap<Integer, ArrayList<ModTypeTableEntry>> modTypeTables = new HashMap<>();
+        ModTypeTableEntry modTypeTableEntry;
+
+        int modTableID;
+        int recordsRead = 0;
+
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `static_modtypeTables`")) {
+
+            ResultSet rs = preparedStatement.executeQuery();
+
+            while (rs.next()) {
+
+                recordsRead++;
+
+                modTableID = rs.getInt("modType");
+                modTypeTableEntry = new ModTypeTableEntry(rs);
+
+                if (modTypeTables.get(modTableID) == null) {
+                    ArrayList<ModTypeTableEntry> modTypeTableList = new ArrayList<>();
+                    modTypeTableList.add(modTypeTableEntry);
+                    modTypeTables.put(modTableID, modTypeTableList);
+                } else {
+                    ArrayList<ModTypeTableEntry> modTypeTableList = modTypeTables.get(modTableID);
+                    modTypeTableList.add(modTypeTableEntry);
+                    modTypeTables.put(modTableID, modTypeTableList);
+                }
+            }
+        } catch (SQLException e) {
+            Logger.error(e);
+            return modTypeTables;
+        }
+
+        Logger.info("read: " + recordsRead + " cached: " + modTypeTables.size());
+        return modTypeTables;
+    }
+
     public HashMap<Integer, ArrayList<BootySetEntry>> LOAD_BOOTY_TABLES() {
 
         HashMap<Integer, ArrayList<BootySetEntry>> bootySets = new HashMap<>();
