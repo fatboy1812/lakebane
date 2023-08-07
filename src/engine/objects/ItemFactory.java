@@ -761,20 +761,6 @@ public class ItemFactory {
         return toRoll;
     }
 
-    private static int getAdjustedRollForNPC(int npcLevel, int minRoll, int maxRoll) {
-        int randomRoll;
-
-        int minValue = (npcLevel - 5) * 5;
-        int maxValue = (npcLevel + 15) * 5;
-
-        minValue = Math.max(minRoll, Math.min(maxRoll, minValue));
-        maxValue = Math.max(minRoll, Math.min(maxRoll, maxValue));
-
-        randomRoll = ThreadLocalRandom.current().nextInt(minValue, maxValue + 1); //Does not return Max, but does return min?
-
-        return randomRoll;
-    }
-
     public static MobLoot produceRandomRoll(NPC npc, PlayerCharacter pc, String prefixString, String suffixString, int itemID) {
 
         boolean useWarehouse = false;
