@@ -711,7 +711,7 @@ public class ItemFactory {
 
         int rollSuffix = ThreadLocalRandom.current().nextInt(1, 100 + 1);
 
-        if (rollSuffix < 80) {
+        if (rollSuffix < 80 || prefixEntry == null) {
 
             int randomSuffix = LootManager.TableRoll(vendor.getLevel(), false);
             suffixEntry = ModTableEntry.rollTable(suffixTypeTable.modTableID, randomSuffix);
