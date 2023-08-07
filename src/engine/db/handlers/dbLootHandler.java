@@ -36,7 +36,7 @@ public class dbLootHandler extends dbHandlerBase {
         int recordsRead = 0;
 
         try (Connection connection = DbManager.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `static_gentables`")) {
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `static_loot_gen`")) {
 
             ResultSet rs = preparedStatement.executeQuery();
 
@@ -44,7 +44,7 @@ public class dbLootHandler extends dbHandlerBase {
 
                 recordsRead++;
 
-                genTableID = rs.getInt("bootySet");
+                genTableID = rs.getInt("genTable");
                 genTableEntry = new GenTableEntry(rs);
 
                 if (genTables.get(genTableID) == null) {
@@ -75,7 +75,7 @@ public class dbLootHandler extends dbHandlerBase {
         int recordsRead = 0;
 
         try (Connection connection = DbManager.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `static_itemTables`")) {
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `static_loot_item`")) {
 
             ResultSet rs = preparedStatement.executeQuery();
 
@@ -114,7 +114,7 @@ public class dbLootHandler extends dbHandlerBase {
         int recordsRead = 0;
 
         try (Connection connection = DbManager.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `static_modTables`")) {
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `static_loot_mod`")) {
 
             ResultSet rs = preparedStatement.executeQuery();
 
@@ -122,7 +122,7 @@ public class dbLootHandler extends dbHandlerBase {
 
                 recordsRead++;
 
-                modTableID = rs.getInt("itemTable");
+                modTableID = rs.getInt("modTable");
                 modTableEntry = new ModTableEntry(rs);
 
                 if (modTables.get(modTableID) == null) {
@@ -153,7 +153,7 @@ public class dbLootHandler extends dbHandlerBase {
         int recordsRead = 0;
 
         try (Connection connection = DbManager.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `static_modtypeTables`")) {
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `static_loot_modtype`")) {
 
             ResultSet rs = preparedStatement.executeQuery();
 
