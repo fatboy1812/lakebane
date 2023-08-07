@@ -261,7 +261,7 @@ public enum LootManager {
         return inItem;
     }
 
-    private static int TableRoll(int mobLevel, Boolean inHotzone) {
+    public static int TableRoll(int mobLevel, Boolean inHotzone) {
 
         if (mobLevel > 65)
             mobLevel = 65;

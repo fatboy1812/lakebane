@@ -710,7 +710,7 @@ public class ItemFactory {
 
         if (rollPrefix < 80) {
 
-            int randomPrefix = getAdjustedRollForNPC((int) calculatedMobLevel, prefixTypeTable.minRoll, prefixTypeTable.maxRoll);
+            int randomPrefix = LootManager.TableRoll((int) calculatedMobLevel, false);
             prefixEntry = ModTableEntry.rollTable(prefixTypeTable.modTableID, randomPrefix);
 
             if (prefixEntry != null)
@@ -722,7 +722,7 @@ public class ItemFactory {
 
         if (rollSuffix < 80) {
 
-            int randomSuffix = getAdjustedRollForNPC((int) calculatedMobLevel, suffixTypeTable.minRoll, suffixTypeTable.maxRoll);
+            int randomSuffix = LootManager.TableRoll((int) calculatedMobLevel, false);
             suffixEntry = ModTableEntry.rollTable(suffixTypeTable.modTableID, randomSuffix);
 
             if (suffixEntry != null)
