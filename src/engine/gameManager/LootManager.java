@@ -34,12 +34,6 @@ public enum LootManager {
     public static HashMap<Integer, ArrayList<ModTableEntry>> _modTables = new HashMap<>();
     public static HashMap<Integer, ArrayList<ModTypeTableEntry>> _modTypeTables = new HashMap<>();
 
-    //new tables
-    public static final HashMap<Integer, GenTable> generalItemTables = null;
-    public static final HashMap<Integer, ItemTable> itemTables = null;
-    public static final HashMap<Integer, ModTypeTable> modTypeTables = null;
-    public static final HashMap<Integer, ModTable> modTables = null;
-
     // Drop Rates
 
     public static float NORMAL_DROP_RATE;
@@ -59,12 +53,6 @@ public enum LootManager {
         _itemTables = DbManager.LootQueries.LOAD_ITEM_TABLES();
         _modTables = DbManager.LootQueries.LOAD_MOD_TABLES();
         _modTypeTables = DbManager.LootQueries.LOAD_MOD_TYPE_TABLES();
-
-
-        DbManager.LootQueries.LOAD_ALL_GENTABLES();
-        DbManager.LootQueries.LOAD_ALL_ITEMTABLES();
-        DbManager.LootQueries.LOAD_ALL_MODTYPES();
-        DbManager.LootQueries.LOAD_ALL_MODTABLES();
 
         // Cache drop rate values from Config manager.
 
@@ -139,7 +127,7 @@ public enum LootManager {
                     // Only one bite at the hotzone apple per bootyset.
 
                     if (inHotzone == true && hotzoneWasRan == false)
-                        if (generalItemTables.containsKey(bse.genTable + 1) && ThreadLocalRandom.current().nextInt(1, 100 + 1) < (bse.dropChance * dropRate)) {
+                        if (_genTables.containsKey(bse.genTable + 1) && ThreadLocalRandom.current().nextInt(1, 100 + 1) < (bse.dropChance * dropRate)) {
                             GenerateLootDrop(mob, bse.genTable + 1, true);  //generate loot drop from hotzone table
                             hotzoneWasRan = true;
                         }
@@ -154,28 +142,28 @@ public enum LootManager {
 
     public static MobLoot getGenTableItem(int genTableID, Mob mob, Boolean inHotzone) {
 
-        if (mob == null || generalItemTables.containsKey(genTableID) == false)
+        if (mob == null || _genTables.containsKey(genTableID) == false)
             return null;
 
         MobLoot outItem;
 
         int genRoll = new Random().nextInt(99) + 1;
 
-        GenTableRow selectedRow = generalItemTables.get(genTableID).getRowForRange(genRoll);
+        GenTableEntry selectedRow = GenTableEntry.rollTable(genTableID, genRoll);
 
         if (selectedRow == null)
             return null;
 
         int itemTableId = selectedRow.itemTableID;
 
-        if (itemTables.containsKey(itemTableId) == false)
+        if (_itemTables.containsKey(itemTableId) == false)
             return null;
 
         //gets the 1-320 roll for this mob
 
         int itemTableRoll = TableRoll(mob.level, inHotzone);
 
-        ItemTableRow tableRow = itemTables.get(itemTableId).getRowForRange(itemTableRoll);
+        ItemTableEntry tableRow = ItemTableEntry.rollTable(itemTableId, itemTableRoll);
 
         if (tableRow == null)
             return null;
@@ -221,69 +209,55 @@ public enum LootManager {
 
     private static MobLoot GeneratePrefix(Mob mob, MobLoot inItem, int genTableID, int genRoll, Boolean inHotzone) {
 
-        GenTableRow selectedRow = generalItemTables.get(genTableID).getRowForRange(genRoll);
+        GenTableEntry selectedRow = GenTableEntry.rollTable(genTableID, genRoll);
 
         if (selectedRow == null)
             return inItem;
 
-        ModTypeTable prefixTable = modTypeTables.get(selectedRow.pModTable);
+        int prefixroll = ThreadLocalRandom.current().nextInt(1, 100 + 1);
+
+        ModTypeTableEntry prefixTable = ModTypeTableEntry.rollTable(selectedRow.pModTable, prefixroll);
 
         if (prefixTable == null)
             return inItem;
 
-        int prefixroll = ThreadLocalRandom.current().nextInt(1, 100 + 1);
+        ModTableEntry prefixMod = ModTableEntry.rollTable(prefixTable.modTableID, TableRoll(mob.level, inHotzone));
 
-        if (modTables.get(prefixTable.getRowForRange(prefixroll).modTableID) != null) {
-            ModTable prefixModTable = modTables.get(prefixTable.getRowForRange(prefixroll).modTableID);
+        if (prefixMod == null)
+            return inItem;
 
-            if (prefixModTable == null)
-                return inItem;
-
-            ModTableRow prefixMod = prefixModTable.getRowForRange(TableRoll(mob.level, inHotzone));
-
-            if (prefixMod == null)
-                return inItem;
-
-            if (prefixMod != null && prefixMod.action.length() > 0) {
-                inItem.setPrefix(prefixMod.action);
-                inItem.addPermanentEnchantment(prefixMod.action, 0, prefixMod.level, true);
-            }
+        if (prefixMod.action.length() > 0) {
+            inItem.setPrefix(prefixMod.action);
+            inItem.addPermanentEnchantment(prefixMod.action, 0, prefixMod.level, true);
         }
-        //}
+
         return inItem;
     }
 
     private static MobLoot GenerateSuffix(Mob mob, MobLoot inItem, int genTableID, int genRoll, Boolean inHotzone) {
 
-        GenTableRow selectedRow = generalItemTables.get(genTableID).getRowForRange(genRoll);
+        GenTableEntry selectedRow = GenTableEntry.rollTable(genTableID, genRoll);
 
         if (selectedRow == null)
             return inItem;
 
-        int suffixroll = ThreadLocalRandom.current().nextInt(1, 100 + 1);
+        int suffixRoll = ThreadLocalRandom.current().nextInt(1, 100 + 1);
 
-        ModTypeTable suffixTable = modTypeTables.get(selectedRow.sModTable);
+        ModTypeTableEntry suffixTable = ModTypeTableEntry.rollTable(selectedRow.sModTable, suffixRoll);
 
         if (suffixTable == null)
             return inItem;
 
-        if (modTables.get(suffixTable.getRowForRange(suffixroll).modTableID) != null) {
+        ModTableEntry suffixMod = ModTableEntry.rollTable(suffixTable.modTableID, TableRoll(mob.level, inHotzone));
 
-            ModTable suffixModTable = modTables.get(suffixTable.getRowForRange(suffixroll).modTableID);
+        if (suffixMod == null)
+            return inItem;
 
-            if (suffixModTable == null)
-                return inItem;
-
-            ModTableRow suffixMod = suffixModTable.getRowForRange(TableRoll(mob.level, inHotzone));
-
-            if (suffixMod == null)
-                return inItem;
-
-            if (suffixMod != null && suffixMod.action.length() > 0) {
-                inItem.setSuffix(suffixMod.action);
-                inItem.addPermanentEnchantment(suffixMod.action, 0, suffixMod.level, false);
-            }
+        if (suffixMod.action.length() > 0) {
+            inItem.setPrefix(suffixMod.action);
+            inItem.addPermanentEnchantment(suffixMod.action, 0, suffixMod.level, true);
         }
+
         return inItem;
     }
 
@@ -391,62 +365,6 @@ public enum LootManager {
 
         if (lootItem != null)
             mob.getCharItemManager().addItemToInventory(lootItem);
-    }
-
-    public static void AddGenTableRow(int tableID, GenTableRow row) {
-
-        if (!generalItemTables.containsKey(tableID)) {
-            //create the new table
-            GenTable gt = new GenTable();
-            gt.rows.add(row);
-            generalItemTables.put(tableID, gt);
-        } else {
-            //add row to existing table
-            GenTable toAdd = generalItemTables.get(tableID);
-            toAdd.rows.add(row);
-        }
-    }
-
-    public static void AddItemTableRow(int tableID, ItemTableRow row) {
-
-        if (!itemTables.containsKey(tableID)) {
-            //create the new table
-            ItemTable it = new ItemTable();
-            it.rows.add(row);
-            itemTables.put(tableID, it);
-        } else {
-            //add row to existing table
-            ItemTable toAdd = itemTables.get(tableID);
-            toAdd.rows.add(row);
-        }
-    }
-
-    public static void AddModTypeTableRow(int tableID, ModTypeTableRow row) {
-
-        if (!modTypeTables.containsKey(tableID)) {
-            //create the new table
-            ModTypeTable mtt = new ModTypeTable();
-            mtt.rows.add(row);
-            modTypeTables.put(tableID, mtt);
-        } else {
-            //add row to existing table
-            ModTypeTable toAdd = modTypeTables.get(tableID);
-            toAdd.rows.add(row);
-        }
-    }
-
-    public static void AddModTableRow(int tableID, ModTableRow row) {
-
-        if (!modTables.containsKey(tableID)) {
-            //create the new table
-            ModTable mt = new ModTable();
-            mt.rows.add(row);
-            modTables.put(tableID, mt);
-        } else {
-            //add row to existing table
-            ModTable toAdd = modTables.get(tableID);
-            toAdd.rows.add(row);
-        }
     }
 
 }

@@ -10,7 +10,6 @@
 package engine.db.handlers;
 
 import engine.gameManager.DbManager;
-import engine.gameManager.LootManager;
 import engine.loot.*;
 import engine.objects.Item;
 import org.pmw.tinylog.Logger;
@@ -238,86 +237,4 @@ public class dbLootHandler extends dbHandlerBase {
         }
     }
 
-    public void LOAD_ALL_GENTABLES() {
-
-        int recordsRead = 0;
-
-        try (Connection connection = DbManager.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM static_gentables")) {
-
-            ResultSet rs = preparedStatement.executeQuery();
-
-            while (rs.next()) {
-                GenTableRow row = new GenTableRow(rs);
-                LootManager.AddGenTableRow(rs.getInt("gentable"), row);
-            }
-
-        } catch (SQLException e) {
-            Logger.error(e);
-        }
-
-        Logger.info("read: " + recordsRead);
-    }
-
-    public void LOAD_ALL_ITEMTABLES() {
-
-        int recordsRead = 0;
-
-        try (Connection connection = DbManager.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM static_itemtables")) {
-
-            ResultSet rs = preparedStatement.executeQuery();
-
-            while (rs.next()) {
-                recordsRead++;
-                ItemTableRow row = new ItemTableRow(rs);
-                LootManager.AddItemTableRow(rs.getInt("itemTable"), row);
-            }
-
-        } catch (SQLException e) {
-            Logger.error(e);
-        }
-
-        Logger.info("read: " + recordsRead);
-    }
-
-    public void LOAD_ALL_MODTYPES() {
-        int recordsRead = 0;
-
-        try (Connection connection = DbManager.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM static_modtypetables")) {
-
-            ResultSet rs = preparedStatement.executeQuery();
-
-            while (rs.next()) {
-                recordsRead++;
-                ModTypeTableRow mttr = new ModTypeTableRow(rs);
-                LootManager.AddModTypeTableRow(rs.getInt("modType"), mttr);
-            }
-
-        } catch (SQLException e) {
-            Logger.error(e);
-        }
-        Logger.info("read: " + recordsRead);
-    }
-
-    public void LOAD_ALL_MODTABLES() {
-        int recordsRead = 0;
-
-        try (Connection connection = DbManager.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM static_modtables")) {
-
-            ResultSet rs = preparedStatement.executeQuery();
-
-            while (rs.next()) {
-                recordsRead++;
-                ModTableRow mtr = new ModTableRow(rs);
-                LootManager.AddModTableRow(rs.getInt("modTable"), mtr);
-            }
-
-        } catch (SQLException e) {
-            Logger.error(e);
-        }
-        Logger.info("read: " + recordsRead);
-    }
 }

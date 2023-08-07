@@ -125,7 +125,7 @@ public class SimulateBootyCmd extends AbstractDevCmd {
             else
                 output += "NORMAL TABLE [" + entry.bootyType + "] " + entry.genTable + ": " + entry.dropChance * dropRate + newline;
 
-            if (hotZoneRan == false && ZoneManager.inHotZone(mob.getLoc()) && LootManager.generalItemTables.containsKey(entry.genTable + 1)) {
+            if (hotZoneRan == false && ZoneManager.inHotZone(mob.getLoc()) && LootManager._genTables.containsKey(entry.genTable + 1)) {
                 output += "HOTZONE TABLE [" + entry.bootyType + "] " + (entry.genTable + 1) + ": " + entry.dropChance * dropRate + newline;
                 hotZoneRan = true;
             }
