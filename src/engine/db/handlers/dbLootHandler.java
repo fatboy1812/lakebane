@@ -106,6 +106,45 @@ public class dbLootHandler extends dbHandlerBase {
         return itemTables;
     }
 
+    public HashMap<Integer, ArrayList<ModTableEntry>> LOAD_MOD_TABLES() {
+
+        HashMap<Integer, ArrayList<ModTableEntry>> modTables = new HashMap<>();
+        ModTableEntry modTableEntry;
+
+        int modTableID;
+        int recordsRead = 0;
+
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `static_modTables`")) {
+
+            ResultSet rs = preparedStatement.executeQuery();
+
+            while (rs.next()) {
+
+                recordsRead++;
+
+                modTableID = rs.getInt("itemTable");
+                modTableEntry = new ModTableEntry(rs);
+
+                if (modTables.get(modTableID) == null) {
+                    ArrayList<ModTableEntry> modTableList = new ArrayList<>();
+                    modTableList.add(modTableEntry);
+                    modTables.put(modTableID, modTableList);
+                } else {
+                    ArrayList<ModTableEntry> modTableList = modTables.get(modTableID);
+                    modTableList.add(modTableEntry);
+                    modTables.put(modTableID, modTableList);
+                }
+            }
+        } catch (SQLException e) {
+            Logger.error(e);
+            return modTables;
+        }
+
+        Logger.info("read: " + recordsRead + " cached: " + modTables.size());
+        return modTables;
+    }
+
     public HashMap<Integer, ArrayList<BootySetEntry>> LOAD_BOOTY_TABLES() {
 
         HashMap<Integer, ArrayList<BootySetEntry>> bootySets = new HashMap<>();
