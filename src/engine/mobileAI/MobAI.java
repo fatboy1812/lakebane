@@ -476,9 +476,9 @@ public class MobAI {
                 return false;
             int powerToken = 0;
             int nukeRoll = ThreadLocalRandom.current().nextInt(1,100);
-            if( nukeRoll < 65){
+            if( nukeRoll < 55){
                 //use direct damage spell
-                powerToken = powerTokens.get(3);
+                powerToken = powerTokens.get(0);
             } else{
                 //use random spell
                 powerToken = powerTokens.get(ThreadLocalRandom.current().nextInt(powerTokens.size()));
@@ -502,8 +502,13 @@ public class MobAI {
                 PerformActionMsg msg;
 
                 if (!mobPower.isHarmful() || mobPower.targetSelf) {
-                    PowersManager.useMobPower(mob, mob, mobPower, powerRank);
-                    msg = PowersManager.createPowerMsg(mobPower, powerRank, mob, mob);
+                    if(mobPower.category.equals("DISPEL")){
+                        PowersManager.useMobPower(mob, target, mobPower, powerRank);
+                        msg = PowersManager.createPowerMsg(mobPower, powerRank, mob, target);
+                    }else {
+                        PowersManager.useMobPower(mob, mob, mobPower, powerRank);
+                        msg = PowersManager.createPowerMsg(mobPower, powerRank, mob, mob);
+                    }
                 }
                 else {
                     PowersManager.useMobPower(mob, target, mobPower, powerRank);

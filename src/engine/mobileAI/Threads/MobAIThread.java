@@ -11,7 +11,7 @@ public class MobAIThread implements Runnable{
     public static int AI_DROP_AGGRO_RANGE = 60;
     public static int AI_PULSE_MOB_THRESHOLD = 200;
     public static int AI_PATROL_DIVISOR = 15;
-    public static int AI_POWER_DIVISOR = 10;
+    public static int AI_POWER_DIVISOR = 20;
     // Thread constructor
 
     public MobAIThread() {
