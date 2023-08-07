@@ -667,15 +667,6 @@ public class ItemFactory {
             return null;
         }
 
-        float calculatedMobLevel;
-        calculatedMobLevel = vendor.getLevel();
-
-        if (calculatedMobLevel < 16)
-            calculatedMobLevel = 16;
-
-        if (calculatedMobLevel > 49)
-            calculatedMobLevel = 49;
-
         itemModTable = (byte) ib.getModTable();
 
         if (!vendor.getItemModTable().contains(itemModTable)) {
@@ -710,7 +701,7 @@ public class ItemFactory {
 
         if (rollPrefix < 80) {
 
-            int randomPrefix = LootManager.TableRoll((int) calculatedMobLevel, false);
+            int randomPrefix = LootManager.TableRoll(vendor.getLevel(), false);
             prefixEntry = ModTableEntry.rollTable(prefixTypeTable.modTableID, randomPrefix);
 
             if (prefixEntry != null)
@@ -722,7 +713,7 @@ public class ItemFactory {
 
         if (rollSuffix < 80) {
 
-            int randomSuffix = LootManager.TableRoll((int) calculatedMobLevel, false);
+            int randomSuffix = LootManager.TableRoll(vendor.getLevel(), false);
             suffixEntry = ModTableEntry.rollTable(suffixTypeTable.modTableID, randomSuffix);
 
             if (suffixEntry != null)
