@@ -21,7 +21,6 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public class dbMobBaseHandler extends dbHandlerBase {
 
@@ -70,24 +69,6 @@ public class dbMobBaseHandler extends dbHandlerBase {
             Logger.error(e);
         }
         return mobbaseList;
-    }
-    public HashMap<Integer, Integer> LOAD_STATIC_POWERS(int mobBaseUUID) {
-
-        HashMap<Integer, Integer> powersList = new HashMap<>();
-
-        try (Connection connection = DbManager.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `static_npc_mobbase_powers` WHERE `mobbaseUUID`=?")) {
-
-            preparedStatement.setInt(1, mobBaseUUID);
-            ResultSet rs = preparedStatement.executeQuery();
-
-            while (rs.next())
-                powersList.put(rs.getInt("token"), rs.getInt("rank"));
-
-        } catch (SQLException e) {
-            Logger.error(e);
-        }
-        return powersList;
     }
 
     public ArrayList<MobBaseEffects> GET_RUNEBASE_EFFECTS(int runeID) {

@@ -349,7 +349,7 @@ public class WorldServer {
 		DbManager.MobBaseQueries.GET_ALL_MOBBASES();
 
 		Logger.info("Loading Mob Powers for MobBases");
-		PowersManager.LoadAllMobPowers();
+		PowersManager.AllMobPowers = DbManager.PowerQueries.LOAD_MOB_POWERS();
 
 		Logger.info("Loading item enchants");
 		DbManager.LootQueries.LOAD_ENCHANT_VALUES();

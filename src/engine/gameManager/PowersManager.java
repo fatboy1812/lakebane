@@ -55,7 +55,7 @@ public enum PowersManager {
     public static HashMap<String, Integer> ActionTokenByIDString = new HashMap<>();
     public static HashMap<Integer, AbstractEffectModifier> modifiersByToken = new HashMap<>();
     public static HashMap<String, Integer> AnimationOverrides = new HashMap<>();
-    public static HashMap<Integer, HashMap<Integer, Integer>> AllMobPowers = new HashMap<>();
+    public static HashMap<Integer, ArrayList<MobPowerEntry>> AllMobPowers = new HashMap<>();
     private static JobScheduler js;
 
     private PowersManager() {
@@ -2778,26 +2778,6 @@ public enum PowersManager {
         }
     }
 
-    public static void LoadAllMobPowers() {
-
-        int count = 0;
-
-        for (AbstractGameObject mobBaseAgo : DbManager.getList(GameObjectType.MobBase)) {
-
-            int mobBaseID = ((MobBase) mobBaseAgo).getLoadID();
-
-            HashMap powersList = DbManager.MobBaseQueries.LOAD_STATIC_POWERS(mobBaseID);
-
-            if (powersList.isEmpty())
-                continue;
-            ;
-
-            AllMobPowers.put(mobBaseID, powersList);
-            count++;
-        }
-
-        Logger.info("Powers loaded for " + count + " Mobbases/");
-    }
 }
 
 

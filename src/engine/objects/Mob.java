@@ -29,6 +29,7 @@ import engine.net.DispatchMessage;
 import engine.net.client.msg.PetMsg;
 import engine.net.client.msg.PlaceAssetMsg;
 import engine.powers.EffectsBase;
+import engine.powers.MobPowerEntry;
 import engine.server.MBServerStatics;
 import org.joda.time.DateTime;
 import org.pmw.tinylog.Logger;
@@ -1950,19 +1951,23 @@ public class Mob extends AbstractIntelligenceAgent {
         // Powers from mobbase
 
         if (PowersManager.AllMobPowers.containsKey(this.getMobBaseID()))
-            mobPowers.putAll(PowersManager.AllMobPowers.get(this.getMobBaseID()));
+            for (MobPowerEntry mobPowerEntry : PowersManager.AllMobPowers.get(this.getMobBaseID()))
+                mobPowers.put(mobPowerEntry.token, mobPowerEntry.rank);
 
         // Powers from contract
 
         if (PowersManager.AllMobPowers.containsKey(this.contract.getContractID()))
-            mobPowers.putAll(PowersManager.AllMobPowers.get(this.contract.getContractID()));
+            for (MobPowerEntry mobPowerEntry : PowersManager.AllMobPowers.get(this.contract.getContractID()))
+                mobPowers.put(mobPowerEntry.token, mobPowerEntry.rank);
 
         if (this.equip == null) {
             Logger.error("Null equipset returned for uuid " + currentID);
             this.equip = new HashMap<>(0);
         }
+
         // Combine mobbase and mob aggro arrays into one bitvector
         //skip for pets
+
         if (this.isPet() == false && this.isSummonedPet() == false && this.isNecroPet() == false) {
             if (this.getMobBase().notEnemy.size() > 0)
                 this.notEnemy.addAll(this.getMobBase().notEnemy);
@@ -1970,6 +1975,7 @@ public class Mob extends AbstractIntelligenceAgent {
             if (this.getMobBase().enemy.size() > 0)
                 this.enemy.addAll(this.getMobBase().enemy);
         }
+
         try {
             NPCManager.applyRuneSetEffects(this);
             recalculateStats();
@@ -1980,6 +1986,7 @@ public class Mob extends AbstractIntelligenceAgent {
             Bounds mobBounds = Bounds.borrow();
             mobBounds.setBounds(this.getLoc());
             this.setBounds(mobBounds);
+
             if (this.contract != null && this.contract.getContractID() == 910) {
                 this.isPlayerGuard = true;
                 this.BehaviourType = MobBehaviourType.GuardCaptain;
@@ -1990,6 +1997,7 @@ public class Mob extends AbstractIntelligenceAgent {
 
             if (!this.isGuard() && !this.isPlayerGuard() && !this.isPet() && !this.isNecroPet() && !this.isSummonedPet() && !this.isCharmedPet()) {
                 this.patrolPoints = new ArrayList<>();
+
                 for (int i = 0; i < 5; ++i) {
                     float patrolRadius = this.getSpawnRadius();
 
@@ -2001,10 +2009,12 @@ public class Mob extends AbstractIntelligenceAgent {
 
                     Vector3fImmutable newPatrolPoint = Vector3fImmutable.getRandomPointInCircle(this.getBindLoc(), patrolRadius);
                     this.patrolPoints.add(newPatrolPoint);
+
                     if (i == 1)
                         MovementManager.translocate(this, newPatrolPoint, null);
                 }
             }
+
             if (this.BehaviourType == null)
                 this.BehaviourType = this.getMobBase().fsm;
 
@@ -2047,10 +2057,6 @@ public class Mob extends AbstractIntelligenceAgent {
 
     public void setSiege(boolean isSiege) {
         this.isSiege = isSiege;
-    }
-
-    public long getTimeToSpawnSiege() {
-        return timeToSpawnSiege;
     }
 
     public void setTimeToSpawnSiege(long timeToSpawnSiege) {
