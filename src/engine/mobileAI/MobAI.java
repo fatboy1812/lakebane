@@ -1069,14 +1069,14 @@ public class MobAI {
     public static void GuardMinionLogic(Mob mob) {
 
         try {
-            if (!mob.npcOwner.isAlive() && mob.getCombatTarget() == null)
+            if (!mob.npcOwner.isAlive() && mob.getCombatTarget() == null) {
                 CheckForPlayerGuardAggro(mob);
-
-            if (mob.npcOwner.getCombatTarget() != null)
-                mob.setCombatTarget(mob.npcOwner.getCombatTarget());
-            else
-                mob.setCombatTarget(null);
-
+            }else {
+                if (mob.npcOwner.getCombatTarget() != null)
+                    mob.setCombatTarget(mob.npcOwner.getCombatTarget());
+                else
+                    mob.setCombatTarget(null);
+            }
             CheckMobMovement(mob);
             CheckForAttack(mob);
         } catch (Exception e) {
