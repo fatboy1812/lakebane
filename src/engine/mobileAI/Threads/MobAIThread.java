@@ -25,6 +25,7 @@ public class MobAIThread implements Runnable{
     public void run() {
         //cache config value for mobile casting delay
         AI_CAST_FREQUENCY = Float.parseFloat(ConfigManager.MB_AI_CAST_FREQUENCY.getValue());
+        AI_BASE_AGGRO_RANGE = (int)(60 * Float.parseFloat(ConfigManager.MB_AI_AGGRO_RANGE.getValue()));
         while (true) {
             for (Zone zone : ZoneManager.getAllZones()) {
 
