@@ -45,7 +45,7 @@ public class dbPowerHandler extends dbHandlerBase {
 
                 recordsRead++;
 
-                mobbaseID = rs.getInt("mobbaseID");
+                mobbaseID = rs.getInt("mobbaseUUID");
                 mobPowerEntry = new MobPowerEntry(rs);
 
                 if (mobPowers.get(mobbaseID) == null) {
