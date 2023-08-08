@@ -11,9 +11,7 @@ package engine.devcmd.cmds;
 
 import engine.Enum.GameObjectType;
 import engine.devcmd.AbstractDevCmd;
-import engine.gameManager.BuildingManager;
 import engine.objects.AbstractGameObject;
-import engine.objects.Building;
 import engine.objects.Mob;
 import engine.objects.PlayerCharacter;
 
@@ -30,55 +28,40 @@ public class aiInfoCmd extends AbstractDevCmd {
     }
 
     @Override
-    protected void _doCmd(PlayerCharacter pc, String[] words,
+    protected void _doCmd(PlayerCharacter playerCharacter, String[] words,
                           AbstractGameObject target) {
+
         // Arg Count Check
+
         if (words.length != 1) {
-            this.sendUsage(pc);
+            this.sendUsage(playerCharacter);
             return;
         }
-        if (pc == null) {
+
+        if (playerCharacter == null)
             return;
-        }
 
         String newline = "\r\n ";
 
-        try {
-            int targetID = Integer.parseInt(words[0]);
-            Building b = BuildingManager.getBuilding(targetID);
-            if (b == null)
-                throwbackError(pc, "Building with ID " + targetID
-                        + " not found");
-            else
-                target = b;
-        } catch (Exception e) {
-        }
-
-        if (target == null) {
-            throwbackError(pc, "Target is unknown or of an invalid type."
-                    + newline + "Type ID: 0x"
-                    + pc.getLastTargetType().toString()
-                    + "   Table ID: " + pc.getLastTargetID());
-            return;
-        }
-
 
         GameObjectType objType = target.getObjectType();
-        int objectUUID = target.getObjectUUID();
         String output;
 
         if (objType != GameObjectType.Mob) {
             output = "Please Select A Mob For AI Info" + newline;
-        } else {
-            Mob mob = (Mob) target;
-            output = "Mob AI Information:" + newline;
-            output += mob.getName() + newline;
-            if (mob.BehaviourType != null) {
-                output += "BehaviourType: " + mob.BehaviourType.toString() + newline;
-                if (mob.BehaviourType.BehaviourHelperType != null) {
-                    output += "Behaviour Helper Type: " + mob.BehaviourType.BehaviourHelperType.toString() + newline;
-                } else {
-                    output += "Behaviour Helper Type: NULL" + newline;
+            throwbackInfo(playerCharacter, output);
+            return;
+        }
+
+        Mob mob = (Mob) target;
+        output = "Mob AI Information:" + newline;
+        output += mob.getName() + newline;
+        if (mob.BehaviourType != null) {
+            output += "BehaviourType: " + mob.BehaviourType.toString() + newline;
+            if (mob.BehaviourType.BehaviourHelperType != null) {
+                output += "Behaviour Helper Type: " + mob.BehaviourType.BehaviourHelperType.toString() + newline;
+            } else {
+                output += "Behaviour Helper Type: NULL" + newline;
                 }
                 output += "Wimpy: " + mob.BehaviourType.isWimpy + newline;
                 output += "Agressive: " + mob.BehaviourType.isAgressive + newline;
@@ -90,18 +73,21 @@ public class aiInfoCmd extends AbstractDevCmd {
             }
             output += "Aggro Range: " + mob.getAggroRange() + newline;
             output += "Player Aggro Map Size: " + mob.playerAgroMap.size() + newline;
-            if (mob.playerAgroMap.size() > 0) {
-                output += "Players Loaded:" + newline;
-            }
-            for (Map.Entry<Integer, Boolean> entry : mob.playerAgroMap.entrySet()) {
-                output += "Player ID: " + entry.getKey() + " Is Safemode: " + entry.getValue() + newline;
-            }
-            if (mob.getCombatTarget() != null)
-                output += "Current Target: " + mob.getCombatTarget().getName() + newline;
-            else
-                output += "Current Target: NULL" + newline;
+        if (mob.playerAgroMap.size() > 0) {
+            output += "Players Loaded:" + newline;
         }
-        throwbackInfo(pc, output);
+        for (Map.Entry<Integer, Boolean> entry : mob.playerAgroMap.entrySet()) {
+            output += "Player ID: " + entry.getKey() + " Is Safemode: " + entry.getValue() + newline;
+        }
+        if (mob.getCombatTarget() != null)
+            output += "Current Target: " + mob.getCombatTarget().getName() + newline;
+        else
+            output += "Current Target: NULL" + newline;
+
+        for (int token : mob.mobPowers.keySet())
+            output += token + newline;
+
+        throwbackInfo(playerCharacter, output);
     }
 
     @Override
