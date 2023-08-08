@@ -57,7 +57,7 @@ public enum DevCmdManager {
         DevCmdManager.registerDevCmd(new PrintLocationCmd());
         DevCmdManager.registerDevCmd(new InfoCmd());
         DevCmdManager.registerDevCmd(new aiInfoCmd());
-        DevCmdManager.registerDevCmd(new simulateBootyCmd());
+        DevCmdManager.registerDevCmd(new SimulateBootyCmd());
         DevCmdManager.registerDevCmd(new GetHeightCmd());
 
         // Tester
@@ -128,8 +128,6 @@ public enum DevCmdManager {
         DevCmdManager.registerDevCmd(new SetForceRenameCityCmd());
         DevCmdManager.registerDevCmd(new GotoObj());
         DevCmdManager.registerDevCmd(new convertLoc());
-        DevCmdManager.registerDevCmd(new GetMobBaseLoot());
-        DevCmdManager.registerDevCmd(new MBDropCmd());
         DevCmdManager.registerDevCmd(new AuditHeightMapCmd());
         DevCmdManager.registerDevCmd(new UnloadFurnitureCmd());
         DevCmdManager.registerDevCmd(new SetNpcEquipSetCmd());

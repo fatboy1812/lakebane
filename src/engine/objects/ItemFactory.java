@@ -14,6 +14,8 @@ import engine.Enum.ItemContainerType;
 import engine.Enum.ItemType;
 import engine.Enum.OwnerType;
 import engine.gameManager.*;
+import engine.loot.ModTableEntry;
+import engine.loot.ModTypeTableEntry;
 import engine.net.ItemProductionManager;
 import engine.net.ItemQueue;
 import engine.net.client.ClientConnection;
@@ -644,47 +646,44 @@ public class ItemFactory {
     }
 
 
-    public static Item randomRoll(NPC vendor, PlayerCharacter pc, int itemsToRoll, int itemID) {
+    public static Item randomRoll(NPC vendor, PlayerCharacter playerCharacter, int itemsToRoll, int itemBaseID) {
         byte itemModTable;
         int prefixMod = 0;
         int suffixMod = 0;
-        LootTable prefixLootTable;
-        LootTable suffixLootTable;
-        String suffix = "";
         String prefix = "";
-        MobLoot toRoll;
+        String suffix = "";
 
-        ItemBase ib = ItemBase.getItemBase(itemID);
+        ModTableEntry prefixEntry = null;
+        ModTableEntry suffixEntry = null;
+
+        ItemBase ib = ItemBase.getItemBase(itemBaseID);
 
         if (ib == null)
             return null;
 
         if (!vendor.getCharItemManager().hasRoomInventory(ib.getWeight())) {
-            if (pc != null)
-                ChatManager.chatSystemInfo(pc, vendor.getName() + " " + vendor.getContract().getName() + " Inventory is full.");
+
+            if (playerCharacter != null)
+                ChatManager.chatSystemInfo(playerCharacter, vendor.getName() + " " + vendor.getContract().getName() + " Inventory is full.");
+
             return null;
         }
-
-        float calculatedMobLevel;
-        calculatedMobLevel = vendor.getLevel();
-
-        if (calculatedMobLevel < 16)
-            calculatedMobLevel = 16;
-
-        if (calculatedMobLevel > 49)
-            calculatedMobLevel = 49;
 
         itemModTable = (byte) ib.getModTable();
 
         if (!vendor.getItemModTable().contains(itemModTable)) {
-            if (pc != null)
-                ErrorPopupMsg.sendErrorPopup(pc, 59);
+
+            if (playerCharacter != null)
+                ErrorPopupMsg.sendErrorPopup(playerCharacter, 59);
+
             return null;
         }
 
         for (byte temp : vendor.getItemModTable()) {
+
             if (itemModTable != temp)
                 continue;
+
             prefixMod = vendor.getModTypeTable().get(vendor.getItemModTable().indexOf(temp));
             suffixMod = vendor.getModSuffixTable().get(vendor.getItemModTable().indexOf(temp));
         }
@@ -694,187 +693,43 @@ public class ItemFactory {
             return null;
         }
 
-        prefixLootTable = LootTable.getModGroup(prefixMod);
-        suffixLootTable = LootTable.getModGroup(suffixMod);
+        // Roll on the tables for this vendor
 
-        if (prefixLootTable == null || suffixLootTable == null)
+        ModTypeTableEntry prefixTypeTable = ModTypeTableEntry.rollTable(prefixMod, ThreadLocalRandom.current().nextInt(1, 100 + 1));
+        ModTypeTableEntry suffixTypeTable = ModTypeTableEntry.rollTable(suffixMod, ThreadLocalRandom.current().nextInt(1, 100 + 1));
+
+        // Sanity check.
+
+        if (prefixTypeTable == null || suffixTypeTable == null)
             return null;
 
-        int rollPrefix = ThreadLocalRandom.current().nextInt(100);
+        int rollPrefix = ThreadLocalRandom.current().nextInt(1, 100 + 1);
 
         if (rollPrefix < 80) {
-            int randomPrefix = ThreadLocalRandom.current().nextInt(100) + 1;
-            LootRow prefixLootRow = prefixLootTable.getLootRow(randomPrefix);
 
-            if (prefixLootRow != null) {
-                LootTable prefixTypeTable = LootTable.getModTable(prefixLootRow.getValueOne());
+            int randomPrefix = LootManager.TableRoll(vendor.getLevel(), false);
+            prefixEntry = ModTableEntry.rollTable(prefixTypeTable.modTableID, randomPrefix);
 
-                int minRoll = (int) ((calculatedMobLevel - 5) * 5);
-                int maxRoll = (int) ((calculatedMobLevel + 15) * 5);
+            if (prefixEntry != null)
+                prefix = prefixEntry.action;
 
-                if (minRoll < (int) prefixTypeTable.minRoll)
-                    minRoll = (int) prefixTypeTable.minRoll;
-
-                if (maxRoll < minRoll)
-                    maxRoll = minRoll;
-
-                if (maxRoll > prefixTypeTable.maxRoll)
-                    maxRoll = (int) prefixTypeTable.maxRoll;
-
-                if (maxRoll > 320)
-                    maxRoll = 320;
-
-                int randomPrefix1 = (int) ThreadLocalRandom.current().nextDouble(minRoll, maxRoll + 1); //Does not return Max, but does return min?
-
-                if (randomPrefix1 < prefixTypeTable.minRoll)
-                    randomPrefix1 = (int) prefixTypeTable.minRoll;
-
-                if (randomPrefix1 > prefixTypeTable.maxRoll)
-                    randomPrefix1 = (int) prefixTypeTable.maxRoll;
-
-                LootRow prefixTypelootRow = prefixTypeTable.getLootRow(randomPrefix1);
-
-                if (prefixTypelootRow == null)
-                    prefixTypelootRow = prefixTypeTable.getLootRow((int) ((prefixTypeTable.maxRoll + prefixTypeTable.minRoll) * .05f));
-
-                if (prefixTypelootRow != null) {
-                    prefix = prefixTypelootRow.getAction();
-                }
-            }
         }
 
-        int rollSuffix = ThreadLocalRandom.current().nextInt(100);
+        int rollSuffix = ThreadLocalRandom.current().nextInt(1, 100 + 1);
 
-        if (rollSuffix < 80) {
+        // Always have at least one mod on a magic rolled item.
+        // Suffix will be our backup plan.
 
-            int randomSuffix = ThreadLocalRandom.current().nextInt(100) + 1;
-            LootRow suffixLootRow = suffixLootTable.getLootRow(randomSuffix);
+        if (rollSuffix < 80 || prefixEntry == null) {
 
-            if (suffixLootRow != null) {
+            int randomSuffix = LootManager.TableRoll(vendor.getLevel(), false);
+            suffixEntry = ModTableEntry.rollTable(suffixTypeTable.modTableID, randomSuffix);
 
-                LootTable suffixTypeTable = LootTable.getModTable(suffixLootRow.getValueOne());
-
-                if (suffixTypeTable != null) {
-                    int minRoll = (int) ((calculatedMobLevel - 5) * 5);
-                    int maxRoll = (int) ((calculatedMobLevel + 15) * 5);
-
-                    if (minRoll < (int) suffixTypeTable.minRoll)
-                        minRoll = (int) suffixTypeTable.minRoll;
-
-                    if (maxRoll < minRoll)
-                        maxRoll = minRoll;
-
-                    if (maxRoll > suffixTypeTable.maxRoll)
-                        maxRoll = (int) suffixTypeTable.maxRoll;
-
-                    if (maxRoll > 320)
-                        maxRoll = 320;
-
-                    int randomSuffix1 = (int) ThreadLocalRandom.current().nextDouble(minRoll, maxRoll + 1); //Does not return Max, but does return min?
-
-                    if (randomSuffix1 < suffixTypeTable.minRoll)
-                        randomSuffix1 = (int) suffixTypeTable.minRoll;
-
-                    if (randomSuffix1 > suffixTypeTable.maxRoll)
-                        randomSuffix1 = (int) suffixTypeTable.maxRoll;
-
-                    LootRow suffixTypelootRow = suffixTypeTable.getLootRow(randomSuffix1);
-
-                    if (suffixTypelootRow != null) {
-                        suffix = suffixTypelootRow.getAction();
-                    }
-                }
-            }
+            if (suffixEntry != null)
+                suffix = suffixEntry.action;
         }
 
-        if (prefix.isEmpty() && suffix.isEmpty()) {
-
-            rollPrefix = ThreadLocalRandom.current().nextInt(100);
-
-            if (rollPrefix < 50) {
-
-                int randomPrefix = ThreadLocalRandom.current().nextInt(100) + 1;
-                LootRow prefixLootRow = prefixLootTable.getLootRow(randomPrefix);
-
-                if (prefixLootRow != null) {
-
-                    LootTable prefixTypeTable = LootTable.getModTable(prefixLootRow.getValueOne());
-
-                    int minRoll = (int) ((calculatedMobLevel) * 5);
-                    int maxRoll = (int) ((calculatedMobLevel + 15) * 5);
-
-                    if (minRoll < (int) prefixTypeTable.minRoll)
-                        minRoll = (int) prefixTypeTable.minRoll;
-
-                    if (maxRoll < minRoll)
-                        maxRoll = minRoll;
-
-                    if (maxRoll > prefixTypeTable.maxRoll)
-                        maxRoll = (int) prefixTypeTable.maxRoll;
-
-                    if (maxRoll > 320)
-                        maxRoll = 320;
-
-                    int randomPrefix1 = (int) ThreadLocalRandom.current().nextDouble(minRoll, maxRoll + 1); //Does not return Max, but does return min?
-
-                    if (randomPrefix1 < prefixTypeTable.minRoll)
-                        randomPrefix1 = (int) prefixTypeTable.minRoll;
-
-                    if (randomPrefix1 > prefixTypeTable.maxRoll)
-                        randomPrefix1 = (int) prefixTypeTable.maxRoll;
-
-                    LootRow prefixTypelootRow = prefixTypeTable.getLootRow(randomPrefix1);
-
-                    if (prefixTypelootRow == null)
-                        prefixTypelootRow = prefixTypeTable.getLootRow((int) ((prefixTypeTable.maxRoll + prefixTypeTable.minRoll) * .05f));
-
-                    if (prefixTypelootRow != null) {
-                        prefix = prefixTypelootRow.getAction();
-                    }
-                }
-            } else {
-                int randomSuffix = ThreadLocalRandom.current().nextInt(100) + 1;
-                LootRow suffixLootRow = suffixLootTable.getLootRow(randomSuffix);
-
-                if (suffixLootRow != null) {
-
-                    LootTable suffixTypeTable = LootTable.getModTable(suffixLootRow.getValueOne());
-
-                    if (suffixTypeTable != null) {
-
-                        int minRoll = (int) ((calculatedMobLevel) * 5);
-                        int maxRoll = (int) ((calculatedMobLevel + 15) * 5);
-
-                        if (minRoll < (int) suffixTypeTable.minRoll)
-                            minRoll = (int) suffixTypeTable.minRoll;
-
-                        if (maxRoll < minRoll)
-                            maxRoll = minRoll;
-
-                        if (maxRoll > suffixTypeTable.maxRoll)
-                            maxRoll = (int) suffixTypeTable.maxRoll;
-
-                        if (maxRoll > 320)
-                            maxRoll = 320;
-
-                        int randomSuffix1 = (int) ThreadLocalRandom.current().nextDouble(minRoll, maxRoll + 1); //Does not return Max, but does return min?
-
-                        if (randomSuffix1 < suffixTypeTable.minRoll)
-                            randomSuffix1 = (int) suffixTypeTable.minRoll;
-
-                        if (randomSuffix1 > suffixTypeTable.maxRoll)
-                            randomSuffix1 = (int) suffixTypeTable.maxRoll;
-
-                        LootRow suffixTypelootRow = suffixTypeTable.getLootRow(randomSuffix1);
-
-                        if (suffixTypelootRow != null)
-                            suffix = suffixTypelootRow.getAction();
-                    }
-                }
-            }
-        }
-
-        toRoll = ItemFactory.produceRandomRoll(vendor, pc, prefix, suffix, itemID);
+        MobLoot toRoll = ItemFactory.produceRandomRoll(vendor, playerCharacter, prefix, suffix, itemBaseID);
 
         if (toRoll == null)
             return null;
@@ -893,9 +748,10 @@ public class ItemFactory {
         }
 
         // No job is submitted, as object's upgradetime field
-        // is used to determin whether or not an object has
-        // compelted rolling.  The game object exists previously
-        // to this, not when 'compelte' is pressed.
+        // is used to determine whether an object has
+        // completed rolling.  The game object exists previously
+        // to this, not when 'complete' is pressed.
+
         long upgradeTime = System.currentTimeMillis() + (long) (time * Float.parseFloat(ConfigManager.MB_PRODUCTION_RATE.getValue()));
 
         DateTime dateTime = new DateTime();
@@ -904,14 +760,17 @@ public class ItemFactory {
 
         int playerID = 0;
 
-        if (pc != null)
-            playerID = pc.getObjectUUID();
+        if (playerCharacter != null)
+            playerID = playerCharacter.getObjectUUID();
+
         DbManager.NPCQueries.ADD_TO_PRODUCTION_LIST(toRoll.getObjectUUID(), vendor.getObjectUUID(), toRoll.getItemBaseID(), dateTime, prefix, suffix, toRoll.getCustomName(), true, playerID);
+
         ProducedItem pi = new ProducedItem(toRoll.getObjectUUID(), vendor.getObjectUUID(), toRoll.getItemBaseID(), dateTime, true, prefix, suffix, toRoll.getCustomName(), playerID);
         pi.setProducedItemID(toRoll.getObjectUUID());
         pi.setAmount(itemsToRoll);
         ItemQueue produced = ItemQueue.borrow(pi, (long) (time * Float.parseFloat(ConfigManager.MB_PRODUCTION_RATE.getValue())));
         ItemProductionManager.send(produced);
+
         return toRoll;
     }
 

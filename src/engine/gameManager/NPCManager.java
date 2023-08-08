@@ -2,6 +2,7 @@ package engine.gameManager;
 
 import engine.Enum;
 import engine.InterestManagement.WorldGrid;
+import engine.loot.BootySetEntry;
 import engine.net.Dispatch;
 import engine.net.DispatchMessage;
 import engine.net.client.msg.PetMsg;
@@ -24,7 +25,7 @@ public enum NPCManager {
     }
 
     public static void LoadAllBootySets() {
-        _bootySetMap = DbManager.ItemBaseQueries.LOAD_BOOTY_FOR_MOBS();
+        _bootySetMap = DbManager.LootQueries.LOAD_BOOTY_TABLES();
     }
 
     public static void applyRuneSetEffects(Mob mob) {

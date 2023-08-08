@@ -440,9 +440,8 @@ public class ObjectActionMsgHandler extends AbstractClientMsgHandler {
                                 }
                                 break;
                             }
-
-                            LootTable.CreateGamblerItem(item, player);
-
+                            // Garbage method removed until rewritten.
+                            //  LootTable.CreateGamblerItem(item, player);
 
                             break;
 

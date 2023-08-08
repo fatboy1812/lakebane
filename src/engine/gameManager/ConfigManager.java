@@ -70,8 +70,10 @@ public enum ConfigManager {
     //drop rates
     MB_NORMAL_EXP_RATE,
     MB_NORMAL_DROP_RATE,
+    MB_NORMAL_GOLD_RATE,
     MB_HOTZONE_EXP_RATE,
     MB_HOTZONE_DROP_RATE,
+    MB_HOTZONE_GOLD_RATE,
     MB_HOTZONE_DURATION,
 
     MB_HOTZONE_MIN_LEVEL,
@@ -106,7 +108,6 @@ public enum ConfigManager {
     public static Map<ConfigManager, Pattern> regex = new HashMap<>();
 
     // Called at bootstrap: ensures that all config values are loaded.
-
 
     public static boolean init() {
 

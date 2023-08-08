@@ -17,15 +17,14 @@ import engine.Enum.SupportMsgType;
 import engine.InterestManagement.HeightMap;
 import engine.InterestManagement.RealmMap;
 import engine.InterestManagement.WorldGrid;
-import engine.mobileAI.Threads.MobAIThread;
-import engine.mobileAI.Threads.MobRespawnThread;
 import engine.db.archive.DataWarehouse;
 import engine.exception.MsgSendException;
 import engine.gameManager.*;
 import engine.job.JobContainer;
 import engine.job.JobScheduler;
 import engine.jobs.LogoutCharacterJob;
-import engine.loot.LootManager;
+import engine.mobileAI.Threads.MobAIThread;
+import engine.mobileAI.Threads.MobRespawnThread;
 import engine.net.Dispatch;
 import engine.net.DispatchMessage;
 import engine.net.ItemProductionManager;
@@ -338,11 +337,9 @@ public class WorldServer {
 		NPCManager.LoadAllBootySets();
 
 		// Load new loot system
-		Logger.info("Loading New Loot Tables");
-		LootManager.loadLootData();
+		Logger.info("Initializing Loot Manager");
+		LootManager.init();
 
-		//load old loot system (still needed for rolling for now)
-		LootTable.populateLootTables();
 		RuneBaseAttribute.LoadAllAttributes();
 		RuneBase.LoadAllRuneBases();
 		BaseClass.LoadAllBaseClasses();
@@ -507,7 +504,6 @@ public class WorldServer {
 		Logger.info("Bootstrap time was " + boottime);
 
 		bootTime = LocalDateTime.now();
-		LootTable.initialized = true;
 
 		Logger.info("Running garbage collection...");
 		System.gc();
