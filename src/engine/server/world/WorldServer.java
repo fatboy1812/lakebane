@@ -333,8 +333,8 @@ public class WorldServer {
 		Logger.info("Loading NPC and Mob Rune Sets");
 		NPCManager.LoadAllRuneSets();
 
-		Logger.info("Loading Mobile Booty Sets");
-		NPCManager.LoadAllBootySets();
+		Logger.info("Loading Booty Sets");
+		LootManager._bootySetMap = DbManager.LootQueries.LOAD_BOOTY_TABLES();
 
 		// Load new loot system
 		Logger.info("Initializing Loot Manager");

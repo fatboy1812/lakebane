@@ -2,7 +2,6 @@ package engine.devcmd.cmds;
 
 import engine.devcmd.AbstractDevCmd;
 import engine.gameManager.LootManager;
-import engine.gameManager.NPCManager;
 import engine.gameManager.ZoneManager;
 import engine.loot.BootySetEntry;
 import engine.objects.*;
@@ -33,7 +32,7 @@ public class SimulateBootyCmd extends AbstractDevCmd {
         output += "Special Loot:" + newline;
 
         if (mob.bootySet != 0) {
-            for (BootySetEntry entry : NPCManager._bootySetMap.get(mob.bootySet)) {
+            for (BootySetEntry entry : LootManager._bootySetMap.get(mob.bootySet)) {
                 ItemBase item = ItemBase.getItemBase(entry.itemBase);
                 if (item != null) {
                     output += "[" + entry.bootyType + "] " + item.getName() + " [Chance] " + entry.dropChance + newline;
@@ -118,7 +117,7 @@ public class SimulateBootyCmd extends AbstractDevCmd {
         else
             dropRate = LootManager.NORMAL_DROP_RATE;
 
-        for (BootySetEntry entry : NPCManager._bootySetMap.get(mob.getMobBase().bootySet)) {
+        for (BootySetEntry entry : LootManager._bootySetMap.get(mob.getMobBase().bootySet)) {
 
             if (entry.bootyType.equals("GOLD"))
                 output += "NORMAL TABLE [" + entry.bootyType + "] " + entry.genTable + ": " + entry.dropChance + newline;

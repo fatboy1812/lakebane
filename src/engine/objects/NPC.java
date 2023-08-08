@@ -617,7 +617,7 @@ public class NPC extends AbstractCharacter {
 
     public static boolean UpdateEquipSetID(NPC npc, int equipSetID) {
 
-        if (!NPCManager._bootySetMap.containsKey(equipSetID))
+        if (!LootManager._bootySetMap.containsKey(equipSetID))
             return false;
 
         if (!DbManager.NPCQueries.UPDATE_EQUIPSET(npc, equipSetID))
