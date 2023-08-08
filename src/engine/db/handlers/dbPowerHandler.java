@@ -95,7 +95,7 @@ public class dbPowerHandler extends dbHandlerBase {
         int recordsRead = 0;
 
         try (Connection connection = DbManager.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM static_npc_mobbase_powers")) {
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM static_npc_mobbase_powers ORDER BY `id ASC;")) {
 
             ResultSet rs = preparedStatement.executeQuery();
 
