@@ -28,6 +28,8 @@ import engine.math.AtomicFloat;
 import engine.math.Bounds;
 import engine.math.Vector3fImmutable;
 import engine.net.ByteBufferWriter;
+import engine.net.DispatchMessage;
+import engine.net.client.msg.UpdateStateMsg;
 import engine.powers.EffectsBase;
 import engine.server.MBServerStatics;
 import org.pmw.tinylog.Logger;
@@ -1160,6 +1162,23 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
     }
 
     public final void setCombatTarget(final AbstractWorldObject value) {
+        if(value.getObjectTypeMask() == MBServerStatics.MASK_MOB) {
+            if (value == null) {
+                if (this.isCombat()) {
+                    this.setCombat(false);
+                    UpdateStateMsg rwss = new UpdateStateMsg();
+                    rwss.setPlayer(this);
+                    DispatchMessage.sendToAllInRange(this, rwss);
+                } else {
+                    if (!this.isCombat()) {
+                        this.setCombat(true);
+                        UpdateStateMsg rwss = new UpdateStateMsg();
+                        rwss.setPlayer(this);
+                        DispatchMessage.sendToAllInRange(this, rwss);
+                    }
+                }
+            }
+        }
         this.combatTarget = value;
     }
 

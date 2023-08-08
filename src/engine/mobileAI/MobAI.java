@@ -235,7 +235,7 @@ public class MobAI {
                 CombatUtilities.combatCycle(mob, target, false, mob.getWeaponItemBase(false));
                 mob.setLastAttackTime(System.currentTimeMillis() + attackDelay);
                 if (target.combatTarget == null) {
-                    target.combatTarget = mob;
+                    target.setCombatTarget(mob);
                 }
             }
         } catch (Exception e) {
@@ -248,13 +248,6 @@ public class MobAI {
         try {
 
             //make sure mob is out of combat stance
-
-            if (mob.isCombat() && mob.getCombatTarget() == null) {
-                mob.setCombat(false);
-                UpdateStateMsg rwss = new UpdateStateMsg();
-                rwss.setPlayer(mob);
-                DispatchMessage.sendToAllInRange(mob, rwss);
-            }
 
             int patrolDelay = ThreadLocalRandom.current().nextInt((int) (MobAIThread.AI_PATROL_DIVISOR * 0.5f), MobAIThread.AI_PATROL_DIVISOR) + MobAIThread.AI_PATROL_DIVISOR;
 
@@ -289,12 +282,6 @@ public class MobAI {
                     //make sure mob is out of combat stance
 
                     if (minion.getKey().despawned == false) {
-                        if (minion.getKey().isCombat() && minion.getKey().getCombatTarget() == null) {
-                            minion.getKey().setCombat(false);
-                            UpdateStateMsg rwss = new UpdateStateMsg();
-                            rwss.setPlayer(minion.getKey());
-                            DispatchMessage.sendToAllInRange(minion.getKey(), rwss);
-                        }
                         if (MovementUtilities.canMove(minion.getKey())) {
                             Vector3f minionOffset = Formation.getOffset(2, minion.getValue() + 3);
                             minion.getKey().updateLocation();
@@ -655,14 +642,6 @@ public class MobAI {
                 mob.setCombatTarget(null);
                 return;
             }
-
-            if (mob.isCombat() && mob.getCombatTarget() == null) {
-                mob.setCombat(false);
-                UpdateStateMsg rwss = new UpdateStateMsg();
-                rwss.setPlayer(mob);
-                DispatchMessage.sendToAllInRange(mob, rwss);
-            }
-
             if (mob.BehaviourType.ordinal() != Enum.MobBehaviourType.Pet1.ordinal())
                 CheckToSendMobHome(mob);
 
@@ -912,23 +891,8 @@ public class MobAI {
             if (mob.getCombatTarget().getObjectType().equals(Enum.GameObjectType.PlayerCharacter) && MovementUtilities.inRangeDropAggro(mob, (PlayerCharacter) mob.getCombatTarget()) == false && mob.BehaviourType.ordinal() != Enum.MobBehaviourType.Pet1.ordinal()) {
 
                 mob.setCombatTarget(null);
-
-                if (mob.isCombat()) {
-                    mob.setCombat(false);
-                    UpdateStateMsg rwss = new UpdateStateMsg();
-                    rwss.setPlayer(mob);
-                    DispatchMessage.sendToAllInRange(mob, rwss);
-                }
                 return;
             }
-
-            if (!mob.isCombat()) {
-                mob.setCombat(true);
-                UpdateStateMsg rwss = new UpdateStateMsg();
-                rwss.setPlayer(mob);
-                DispatchMessage.sendToAllInRange(mob, rwss);
-            }
-
             if (System.currentTimeMillis() > mob.getLastAttackTime())
                 AttackTarget(mob, mob.getCombatTarget());
 
@@ -1072,7 +1036,7 @@ public class MobAI {
     public static void GuardMinionLogic(Mob mob) {
 
         try {
-            if (!mob.npcOwner.isAlive() && mob.getCombatTarget() == null) {
+            if (!mob.npcOwner.isAlive()) {
                 if(mob.getCombatTarget() == null) {
                     CheckForPlayerGuardAggro(mob);
                 }else {
@@ -1343,13 +1307,6 @@ public class MobAI {
                     //make sure mob is out of combat stance
 
                     if (minion.getKey().despawned == false) {
-                        if (minion.getKey().isCombat() && minion.getKey().getCombatTarget() == null) {
-                            minion.getKey().setCombat(false);
-                            UpdateStateMsg rwss = new UpdateStateMsg();
-                            rwss.setPlayer(minion.getKey());
-                            DispatchMessage.sendToAllInRange(minion.getKey(), rwss);
-                        }
-
                         if (MovementUtilities.canMove(minion.getKey())) {
                             Vector3f minionOffset = Formation.getOffset(2, minion.getValue() + 3);
                             minion.getKey().updateLocation();
