@@ -1955,7 +1955,7 @@ public class Mob extends AbstractIntelligenceAgent {
 
         // Powers from contract
 
-        if (PowersManager.AllMobPowers.containsKey(this.contract.getContractID()))
+        if (this.contract != null && PowersManager.AllMobPowers.containsKey(this.contract.getContractID()))
             for (MobPowerEntry mobPowerEntry : PowersManager.AllMobPowers.get(this.contract.getContractID()))
                 mobPowers.put(mobPowerEntry.token, mobPowerEntry.rank);
 
