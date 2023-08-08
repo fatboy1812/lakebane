@@ -1310,20 +1310,47 @@ public class NPC extends AbstractCharacter {
 
         if (this.canRoll == null) {
             this.canRoll = DbManager.ItemQueries.GET_ITEMS_FOR_VENDOR(this.vendorID);
-
+        }
+            HashSet<Integer> fullItemList = this.canRoll;
+            HashSet<Integer> returnIDs = new HashSet<>();
+            short maxSkill = 25;
+            switch(this.getRank()){
+                case 1:
+                    maxSkill = 25;
+                    break;
+                case 2:
+                    maxSkill = 50;
+                    break;
+                case 3:
+                case 4:
+                    maxSkill = 75;
+                    break;
+                case 5:
+                case 6:
+                    maxSkill = 100;
+                    break;
+                case 7:
+                    maxSkill = 110;
+                    break;
+            }
+            for(Integer itemID : fullItemList){
+                if(ItemBase.getItemBase(itemID).getPercentRequired() <= maxSkill){
+                    returnIDs.add(itemID);
+                }
+            }
             if (this.contract.getVendorID() == 102) {
 
                 for (int i = 0; i < this.getRank(); i++) {
                     int subID = i + 1;
-                    this.canRoll.add(910010 + subID);
+                    returnIDs.add(910010 + subID);
                 }
 
                 if (this.getRank() == 7)
-                    this.canRoll.add(910018);
+                    returnIDs.add(910018);
             }
-        }
+        //}
 
-        return this.canRoll;
+        return returnIDs;
     }
 
     public int getRollingTimeInSeconds(int itemID) {
