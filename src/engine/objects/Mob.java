@@ -60,7 +60,7 @@ public class Mob extends AbstractIntelligenceAgent {
     public boolean despawned = false;
     public Vector3fImmutable destination = Vector3fImmutable.ZERO;
     public Vector3fImmutable localLoc = Vector3fImmutable.ZERO;
-    public HashMap<Integer, Integer> mobPowers;
+    public HashMap<Integer, Integer> mobPowers = new HashMap<>();
     public MobBase mobBase;
     public int spawnTime;
     public Zone parentZone;
@@ -1947,8 +1947,15 @@ public class Mob extends AbstractIntelligenceAgent {
         }
         mobPowers = new HashMap<>();
 
+        // Powers from mobbase
+
         if (PowersManager.AllMobPowers.containsKey(this.getMobBaseID()))
-            mobPowers = PowersManager.AllMobPowers.get(this.getMobBaseID());
+            mobPowers.putAll(PowersManager.AllMobPowers.get(this.getMobBaseID()));
+
+        // Powers from contract
+
+        if (PowersManager.AllMobPowers.containsKey(this.contract.getContractID()))
+            mobPowers.putAll(PowersManager.AllMobPowers.get(this.contract.getContractID()));
 
         if (this.equip == null) {
             Logger.error("Null equipset returned for uuid " + currentID);
@@ -1956,7 +1963,7 @@ public class Mob extends AbstractIntelligenceAgent {
         }
         // Combine mobbase and mob aggro arrays into one bitvector
         //skip for pets
-        if(this.isPet() == false && this.isSummonedPet() == false && this.isNecroPet() == false) {
+        if (this.isPet() == false && this.isSummonedPet() == false && this.isNecroPet() == false) {
             if (this.getMobBase().notEnemy.size() > 0)
                 this.notEnemy.addAll(this.getMobBase().notEnemy);
 
