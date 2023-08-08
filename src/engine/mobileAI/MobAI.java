@@ -1073,7 +1073,13 @@ public class MobAI {
 
         try {
             if (!mob.npcOwner.isAlive() && mob.getCombatTarget() == null) {
-                CheckForPlayerGuardAggro(mob);
+                if(mob.getCombatTarget() == null) {
+                    CheckForPlayerGuardAggro(mob);
+                }else {
+                    AbstractWorldObject newTarget = ChangeTargetFromHateValue(mob);
+                    if (newTarget != null)
+                        mob.setCombatTarget(newTarget);
+                }
             }else {
                 if (mob.npcOwner.getCombatTarget() != null)
                     mob.setCombatTarget(mob.npcOwner.getCombatTarget());
