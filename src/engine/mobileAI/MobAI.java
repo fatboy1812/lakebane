@@ -956,10 +956,12 @@ public class MobAI {
 
         try {
 
-            mob.updateMovementState();
-            mob.updateLocation();
-
-            if (CombatUtilities.inRange2D(mob, mob.getCombatTarget(), mob.getRange()) == false) {
+            float rangeSquared = mob.getRange() * mob.getRange();
+            float distanceSquared = mob.getLoc().distanceSquared2D(mob.getCombatTarget().getLoc());
+            if(mob.isMoving() == true && distanceSquared < rangeSquared - 50) {
+                mob.destination = mob.getLoc();
+                MovementUtilities.moveToLocation(mob, mob.destination, 0);
+            } else if (CombatUtilities.inRange2D(mob, mob.getCombatTarget(), mob.getRange()) == false) {
                 if (mob.getRange() > 15) {
                     mob.destination = mob.getCombatTarget().getLoc();
                     MovementUtilities.moveToLocation(mob, mob.destination, 0);
@@ -978,11 +980,10 @@ public class MobAI {
                             MovementUtilities.moveToLocation(mob, mob.getCombatTarget().getLoc(), 0);
                             break;
                     }
-                    if (CombatUtilities.inRange2D(mob, mob.getCombatTarget(), mob.getRange()) == true) {
-                        mob.stopMovement(mob.getLoc());
-                    }
                 }
             }
+            mob.updateMovementState();
+            mob.updateLocation();
         } catch (Exception e) {
             Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: chaseTarget" + " " + e.getMessage());
         }
