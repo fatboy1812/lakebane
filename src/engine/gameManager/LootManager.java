@@ -174,7 +174,7 @@ public enum LootManager {
             return null;
 
         if (ItemBase.getItemBase(itemUUID).getType().ordinal() == Enum.ItemType.RESOURCE.ordinal()) {
-            int amount = ThreadLocalRandom.current().nextInt(tableRow.maxSpawn - tableRow.minSpawn) + tableRow.minSpawn;
+            int amount = ThreadLocalRandom.current().nextInt(tableRow.minSpawn, tableRow.maxSpawn + 1);
             return new MobLoot(mob, ItemBase.getItemBase(itemUUID), amount, false);
         }
 
@@ -279,7 +279,7 @@ public enum LootManager {
         if (inHotzone)
             min += mobLevel;
 
-        int roll = ThreadLocalRandom.current().nextInt(max - min) + min;
+        int roll = ThreadLocalRandom.current().nextInt(min, max + 1);
 
         return roll;
     }
@@ -297,7 +297,7 @@ public enum LootManager {
 
         int high = bse.highGold;
         int low = bse.lowGold;
-        int gold = ThreadLocalRandom.current().nextInt(high - low) + low;
+        int gold = ThreadLocalRandom.current().nextInt(low, high + 1);
 
         if (inHotzone == true)
             gold = (int) (gold * HOTZONE_GOLD_RATE);
