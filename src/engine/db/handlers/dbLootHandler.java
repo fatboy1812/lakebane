@@ -191,7 +191,7 @@ public class dbLootHandler extends dbHandlerBase {
         int recordsRead = 0;
 
         try (Connection connection = DbManager.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM static_npc_bootySet")) {
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM static_loot_bootySet")) {
 
             ResultSet rs = preparedStatement.executeQuery();
 
