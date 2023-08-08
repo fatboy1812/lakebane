@@ -1946,7 +1946,6 @@ public class Mob extends AbstractIntelligenceAgent {
         } catch (Exception e) {
             Logger.error(e.getMessage());
         }
-        mobPowers = new HashMap<>();
 
         // Powers from mobbase
 

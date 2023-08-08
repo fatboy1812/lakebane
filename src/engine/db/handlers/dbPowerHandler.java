@@ -86,7 +86,7 @@ public class dbPowerHandler extends dbHandlerBase {
         }
     }
 
-    public HashMap<Integer, ArrayList<MobPowerEntry>> LOAD_MOB_POWERS() {
+    public static HashMap<Integer, ArrayList<MobPowerEntry>> LOAD_MOB_POWERS() {
 
         HashMap<Integer, ArrayList<MobPowerEntry>> mobPowers = new HashMap<>();
         MobPowerEntry mobPowerEntry;

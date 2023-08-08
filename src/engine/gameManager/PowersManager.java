@@ -27,7 +27,6 @@ import engine.net.client.ClientConnection;
 import engine.net.client.msg.*;
 import engine.objects.*;
 import engine.powers.*;
-import engine.powers.effectmodifiers.AbstractEffectModifier;
 import engine.powers.poweractions.AbstractPowerAction;
 import engine.powers.poweractions.TrackPowerAction;
 import engine.server.MBServerStatics;
@@ -53,9 +52,8 @@ public enum PowersManager {
     public static HashMap<String, AbstractPowerAction> powerActionsByIDString = new HashMap<>();
     public static HashMap<Integer, AbstractPowerAction> powerActionsByID = new HashMap<>();
     public static HashMap<String, Integer> ActionTokenByIDString = new HashMap<>();
-    public static HashMap<Integer, AbstractEffectModifier> modifiersByToken = new HashMap<>();
     public static HashMap<String, Integer> AnimationOverrides = new HashMap<>();
-    public static HashMap<Integer, ArrayList<MobPowerEntry>> AllMobPowers = new HashMap<>();
+    public static HashMap<Integer, ArrayList<MobPowerEntry>> AllMobPowers;
     private static JobScheduler js;
 
     private PowersManager() {
