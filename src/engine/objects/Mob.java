@@ -39,6 +39,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -61,7 +62,7 @@ public class Mob extends AbstractIntelligenceAgent {
     public boolean despawned = false;
     public Vector3fImmutable destination = Vector3fImmutable.ZERO;
     public Vector3fImmutable localLoc = Vector3fImmutable.ZERO;
-    public HashMap<Integer, Integer> mobPowers = new HashMap<>();
+    public LinkedHashMap<Integer, Integer> mobPowers = new LinkedHashMap<>();
     public MobBase mobBase;
     public int spawnTime;
     public Zone parentZone;

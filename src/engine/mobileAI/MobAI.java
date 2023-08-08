@@ -474,6 +474,7 @@ public class MobAI {
 
             if (powerTokens.isEmpty())
                 return false;
+
             int powerToken = 0;
             int nukeRoll = ThreadLocalRandom.current().nextInt(1,100);
 
@@ -488,6 +489,7 @@ public class MobAI {
             }
 
             int powerRank = 1;
+
             switch(mob.getRank()){
                 case 1:
                     powerRank = 10;
@@ -511,6 +513,7 @@ public class MobAI {
                     powerRank = 40;
                     break;
             }
+
             PowersBase mobPower = PowersManager.getPowerByToken(powerToken);
 
             //check for hit-roll
@@ -542,6 +545,7 @@ public class MobAI {
                 msg.setUnknown04(2);
 
                 PowersManager.finishUseMobPower(msg, mob, 0, 0);
+
                 long randomCooldown = (long)((ThreadLocalRandom.current().nextInt(10,15) * 1000) * MobAIThread.AI_CAST_FREQUENCY);
                 mob.nextCastTime = System.currentTimeMillis() + randomCooldown;
                 return true;
