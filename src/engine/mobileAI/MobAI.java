@@ -1058,7 +1058,10 @@ public class MobAI {
         try {
             if (mob.getCombatTarget() == null)
                 CheckForPlayerGuardAggro(mob);
+            AbstractWorldObject newTarget = ChangeTargetFromHateValue(mob);
 
+            if (newTarget != null)
+                mob.setCombatTarget(newTarget);
             CheckMobMovement(mob);
             CheckForAttack(mob);
         } catch (Exception e) {
