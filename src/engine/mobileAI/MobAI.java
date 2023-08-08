@@ -423,7 +423,7 @@ public class MobAI {
                 msg.setUnknown04(2);
 
                 PowersManager.finishUseMobPower(msg, mob, 0, 0);
-                long randomCooldown = (long)(ThreadLocalRandom.current().nextInt(10,15) * MobAIThread.AI_CAST_FREQUENCY);
+                long randomCooldown = (long)((ThreadLocalRandom.current().nextInt(10,15) * 1000) * MobAIThread.AI_CAST_FREQUENCY);
                 mob.nextCastTime = System.currentTimeMillis() + randomCooldown;
                 return true;
             }
@@ -487,7 +487,30 @@ public class MobAI {
                 powerToken = powerTokens.get(ThreadLocalRandom.current().nextInt(powerTokens.size()));
             }
 
-            int powerRank = mob.mobPowers.get(powerToken);
+            int powerRank = 1;
+            switch(mob.getRank()){
+                case 1:
+                    powerRank = 10;
+                    break;
+                case 2:
+                    powerRank = 15;
+                    break;
+                case 3:
+                    powerRank = 20;
+                    break;
+                case 4:
+                    powerRank = 25;
+                    break;
+                case 5:
+                    powerRank = 30;
+                    break;
+                case 6:
+                    powerRank = 35;
+                    break;
+                case 7:
+                    powerRank = 40;
+                    break;
+            }
             PowersBase mobPower = PowersManager.getPowerByToken(powerToken);
 
             //check for hit-roll
@@ -519,7 +542,7 @@ public class MobAI {
                 msg.setUnknown04(2);
 
                 PowersManager.finishUseMobPower(msg, mob, 0, 0);
-                long randomCooldown = (long)(ThreadLocalRandom.current().nextInt(10,15) * MobAIThread.AI_CAST_FREQUENCY);
+                long randomCooldown = (long)((ThreadLocalRandom.current().nextInt(10,15) * 1000) * MobAIThread.AI_CAST_FREQUENCY);
                 mob.nextCastTime = System.currentTimeMillis() + randomCooldown;
                 return true;
             }
