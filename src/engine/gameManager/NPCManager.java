@@ -108,7 +108,7 @@ public enum NPCManager {
 
     public static void dismissNecroPet(Mob necroPet, boolean updateOwner) {
 
-        necroPet.combatTarget = null;
+        necroPet.setCombatTarget(null);
         necroPet.hasLoot = false;
 
         if (necroPet.parentZone != null)

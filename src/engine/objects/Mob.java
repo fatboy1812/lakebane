@@ -1305,7 +1305,7 @@ public class Mob extends AbstractIntelligenceAgent {
                 } catch (Exception e) {
                     Logger.error(e.getMessage());
                 }
-                this.combatTarget = null;
+                this.setCombatTarget(null);
                 this.hasLoot = false;
                 this.playerAgroMap.clear();
 
@@ -1329,7 +1329,7 @@ public class Mob extends AbstractIntelligenceAgent {
             } else if (this.isPet() || this.isNecroPet()) {
                 //this.state = STATE.Disabled;
 
-                this.combatTarget = null;
+                this.setCombatTarget(null);
                 this.hasLoot = false;
 
                 //if (this.parentZone != null)
@@ -1372,7 +1372,7 @@ public class Mob extends AbstractIntelligenceAgent {
 
             this.combat = false;
             this.walkMode = true;
-            this.combatTarget = null;
+            this.setCombatTarget(null);
 
             this.hasLoot = this.charItemManager.getInventoryCount() > 0;
         } catch (Exception e) {
@@ -1391,7 +1391,7 @@ public class Mob extends AbstractIntelligenceAgent {
         this.mana.set(this.manaMax);
         this.combat = false;
         this.walkMode = true;
-        this.combatTarget = null;
+        this.setCombatTarget(null);
         this.isAlive.set(true);
         this.deathTime = 0;
         this.lastBindLoc = this.bindLoc;
@@ -2079,7 +2079,7 @@ public class Mob extends AbstractIntelligenceAgent {
         PlayerCharacter player = (PlayerCharacter) ac;
 
         if (this.getCombatTarget() == null) {
-            this.combatTarget = ac;
+            this.setCombatTarget(ac);
             return;
         }
 

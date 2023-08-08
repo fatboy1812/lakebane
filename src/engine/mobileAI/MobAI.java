@@ -234,7 +234,7 @@ public class MobAI {
                     attackDelay = 11000;
                 CombatUtilities.combatCycle(mob, target, false, mob.getWeaponItemBase(false));
                 mob.setLastAttackTime(System.currentTimeMillis() + attackDelay);
-                if (target.combatTarget == null) {
+                if (target.getCombatTarget() == null) {
                     target.setCombatTarget(mob);
                 }
             }
@@ -638,14 +638,15 @@ public class MobAI {
 
             //no players loaded, no need to proceed
 
-            if (mob.playerAgroMap.isEmpty() && mob.isPlayerGuard == false && mob.BehaviourType.ordinal() != Enum.MobBehaviourType.Pet1.ordinal()) {
-                mob.setCombatTarget(null);
+            if (mob.playerAgroMap.isEmpty()) {
+                if(mob.getCombatTarget() != null)
+                    mob.setCombatTarget(null);
                 return;
             }
             if (mob.BehaviourType.ordinal() != Enum.MobBehaviourType.Pet1.ordinal())
                 CheckToSendMobHome(mob);
 
-            if (mob.combatTarget != null) {
+            if (mob.getCombatTarget() != null) {
                 if (mob.getCombatTarget().isAlive() == false) {
                     mob.setCombatTarget(null);
                     return;
@@ -653,7 +654,7 @@ public class MobAI {
 
                 if (mob.getCombatTarget().getObjectTypeMask() == MBServerStatics.MASK_PLAYER) {
 
-                    PlayerCharacter target = (PlayerCharacter) mob.combatTarget;
+                    PlayerCharacter target = (PlayerCharacter) mob.getCombatTarget();
 
                     if (mob.playerAgroMap.containsKey(target.getObjectUUID()) == false) {
                         mob.setCombatTarget(null);
@@ -745,7 +746,7 @@ public class MobAI {
 
             }
 
-            if (aiAgent.combatTarget == null) {
+            if (aiAgent.getCombatTarget() == null) {
 
                 //look for pets to aggro if no players found to aggro
 
@@ -1046,9 +1047,12 @@ public class MobAI {
                 }
             }else {
                 if (mob.npcOwner.getCombatTarget() != null)
+                    if(mob.getCombatTarget() != null && mob.getCombatTarget().equals(mob.npcOwner.getCombatTarget()) == false)
                     mob.setCombatTarget(mob.npcOwner.getCombatTarget());
                 else
-                    mob.setCombatTarget(null);
+                    if(mob.getCombatTarget() != null) {
+                        mob.setCombatTarget(null);
+                    }
             }
             CheckMobMovement(mob);
             CheckForAttack(mob);
@@ -1110,7 +1114,7 @@ public class MobAI {
 
             if (mob.getCombatTarget() == null)
                 SafeGuardAggro(mob);
-            else if (mob.combatTarget.isAlive() == false)
+            else if (mob.getCombatTarget().isAlive() == false)
                 SafeGuardAggro(mob);
 
             CheckForAttack(mob);
@@ -1151,7 +1155,7 @@ public class MobAI {
 
             //check if mob can attack if it isn't wimpy
 
-            if (!mob.BehaviourType.isWimpy && mob.combatTarget != null)
+            if (!mob.BehaviourType.isWimpy && mob.getCombatTarget() != null)
                 CheckForAttack(mob);
 
         } catch (Exception e) {
@@ -1199,7 +1203,7 @@ public class MobAI {
                 if (GuardCanAggro(mob, loadedPlayer) == false)
                     continue;
 
-                if (MovementUtilities.inRangeToAggro(mob, loadedPlayer)) {
+                if (MovementUtilities.inRangeToAggro(mob, loadedPlayer) && mob.getCombatTarget() == null) {
                     mob.setCombatTarget(loadedPlayer);
                     return;
                 }
