@@ -20,7 +20,6 @@ import engine.mobileAI.utilities.MovementUtilities;
 import engine.net.DispatchMessage;
 import engine.net.client.msg.PerformActionMsg;
 import engine.net.client.msg.PowerProjectileMsg;
-import engine.net.client.msg.UpdateStateMsg;
 import engine.objects.*;
 import engine.powers.ActionsBase;
 import engine.powers.PowersBase;
@@ -1024,10 +1023,19 @@ public class MobAI {
         try {
             if (mob.getCombatTarget() == null)
                 CheckForPlayerGuardAggro(mob);
+
             AbstractWorldObject newTarget = ChangeTargetFromHateValue(mob);
 
-            if (newTarget != null)
-                mob.setCombatTarget(newTarget);
+            if (newTarget != null) {
+
+                if (newTarget.getObjectType().equals(Enum.GameObjectType.PlayerCharacter)) {
+                    if (GuardCanAggro(mob, (PlayerCharacter) newTarget))
+                        mob.setCombatTarget(newTarget);
+                } else
+                    mob.setCombatTarget(newTarget);
+
+            }
+
             CheckMobMovement(mob);
             CheckForAttack(mob);
         } catch (Exception e) {
@@ -1039,12 +1047,22 @@ public class MobAI {
 
         try {
             if (!mob.npcOwner.isAlive()) {
+
                 if(mob.getCombatTarget() == null) {
                     CheckForPlayerGuardAggro(mob);
                 }else {
+
                     AbstractWorldObject newTarget = ChangeTargetFromHateValue(mob);
-                    if (newTarget != null)
-                        mob.setCombatTarget(newTarget);
+
+                    if (newTarget != null) {
+
+                        if (newTarget.getObjectType().equals(Enum.GameObjectType.PlayerCharacter)) {
+                            if (GuardCanAggro(mob, (PlayerCharacter) newTarget))
+                                mob.setCombatTarget(newTarget);
+                        } else
+                            mob.setCombatTarget(newTarget);
+
+                    }
                 }
             }else {
                 if (mob.npcOwner.getCombatTarget() != null)
