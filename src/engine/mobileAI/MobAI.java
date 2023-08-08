@@ -476,41 +476,42 @@ public class MobAI {
                 return false;
             int powerToken = 0;
             int nukeRoll = ThreadLocalRandom.current().nextInt(1,100);
-            if( nukeRoll < 55){
+
+            if (nukeRoll < 55) {
+
                 //use direct damage spell
-                powerToken = powerTokens.get(0);
-            } else{
+                powerToken = powerTokens.get(powerTokens.size() - 1);
+
+            } else {
                 //use random spell
                 powerToken = powerTokens.get(ThreadLocalRandom.current().nextInt(powerTokens.size()));
             }
+
             int powerRank = mob.mobPowers.get(powerToken);
             PowersBase mobPower = PowersManager.getPowerByToken(powerToken);
 
             //check for hit-roll
 
-            if (mobPower.requiresHitRoll) {
-
+            if (mobPower.requiresHitRoll)
                 if (CombatUtilities.triggerDefense(mob, mob.getCombatTarget()))
                     return false;
-            }
 
             // Cast the spell
 
             if (CombatUtilities.inRange2D(mob, mob.getCombatTarget(), mobPower.getRange())) {
 
-
                 PerformActionMsg msg;
 
                 if (!mobPower.isHarmful() || mobPower.targetSelf) {
-                    if(mobPower.category.equals("DISPEL")){
+
+                    if (mobPower.category.equals("DISPEL")) {
                         PowersManager.useMobPower(mob, target, mobPower, powerRank);
                         msg = PowersManager.createPowerMsg(mobPower, powerRank, mob, target);
-                    }else {
+                    } else {
                         PowersManager.useMobPower(mob, mob, mobPower, powerRank);
                         msg = PowersManager.createPowerMsg(mobPower, powerRank, mob, mob);
                     }
-                }
-                else {
+                } else {
                     PowersManager.useMobPower(mob, target, mobPower, powerRank);
                     msg = PowersManager.createPowerMsg(mobPower, powerRank, mob, target);
                 }
@@ -519,6 +520,7 @@ public class MobAI {
 
                 PowersManager.finishUseMobPower(msg, mob, 0, 0);
                 int randomCooldown = ThreadLocalRandom.current().nextInt(1,10);
+
                 mob.nextCastTime = System.currentTimeMillis() + (long) ((mobPower.getCooldown() + (MobAIThread.AI_POWER_DIVISOR * 1000))) + (randomCooldown * 1000);
                 return true;
             }
