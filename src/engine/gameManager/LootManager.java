@@ -377,9 +377,13 @@ public enum LootManager {
             mob.getCharItemManager().addItemToInventory(lootItem);
     }
     public static void peddleFate(AbstractCharacter character, Item gift) {
-        //get table ID here, 3010 as a test
-        int tableID = 3010;
+        //get table ID for the itembase ID
+        int tableID = 0;
+        if(_bootySetMap.get(gift.getItemBaseID()) != null)
+            tableID = _bootySetMap.get(gift.getItemBaseID()).get(ThreadLocalRandom.current().nextInt(_bootySetMap.get(gift.getItemBaseID()).size())).genTable;
 
+        //use 3010 for testing
+        //tableID = 3040;
         if(tableID == 0)
             return;
 
@@ -396,7 +400,7 @@ public enum LootManager {
         int genRoll = ThreadLocalRandom.current().nextInt(1,100 + 1);
         GenTableEntry selectedRow = GenTableEntry.rollTable(tableID, genRoll);
         if(selectedRow == null)
-        return;
+            return;
 
         //roll 220-320 for the item table selection
         int itemRoll = ThreadLocalRandom.current().nextInt(220,320 + 1);
@@ -409,31 +413,34 @@ public enum LootManager {
         if(winnings == null)
             return;
 
+        //early exit if the inventory of the player will not old the item
+        if(itemMan.hasRoomInventory(winnings.getItemBase().getWeight()) == false){
+            ChatManager.chatSay(character,"You cannot hold your winnings!",false);
+            return;
+        }
+
         //determine if the winning item needs a prefix
         if(selectedRow.pModTable != 0){
             int prefixRoll = ThreadLocalRandom.current().nextInt(220,320 + 1);
             ModTableEntry prefix = ModTableEntry.rollTable(selectedRow.pModTable, prefixRoll);
-            if(prefix != null){
+            if(prefix != null)
                 winnings.addPermanentEnchantment(prefix.action, 0, prefix.level, true);
-            }
         }
 
         //determine if the winning item needs a suffix
         if(selectedRow.sModTable != 0){
             int suffixRoll = ThreadLocalRandom.current().nextInt(220,320 + 1);
             ModTableEntry suffix = ModTableEntry.rollTable(selectedRow.sModTable, suffixRoll);
-            if(suffix != null){
+            if(suffix != null)
                 winnings.addPermanentEnchantment(suffix.action, 0, suffix.level, true);
-            }
         }
-
+        winnings.setIsID(true);
         //remove gift from inventory
-        itemMan.junk(gift);
+        itemMan.consume(gift);
 
         //add winnings to player inventory
         Item playerWinnings = winnings.promoteToItem((PlayerCharacter)character);
         itemMan.addItemToInventory(playerWinnings);
-        itemMan.updateInventory(playerWinnings,true);
+        itemMan.updateInventory();
     }
-
 }
