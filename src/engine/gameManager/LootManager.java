@@ -426,7 +426,7 @@ public enum LootManager {
         //early exit if the inventory of the player will not old the item
 
         if (itemMan.hasRoomInventory(winnings.getItemBase().getWeight()) == false) {
-            ErrorPopupMsg.sendErrorPopup(playerCharacter, 27);
+            ErrorPopupMsg.sendErrorPopup(playerCharacter, 21);
             return;
         }
 
