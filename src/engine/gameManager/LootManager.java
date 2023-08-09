@@ -141,7 +141,7 @@ public enum LootManager {
         }
     }
 
-    public static MobLoot getGenTableItem(int genTableID, Mob mob, Boolean inHotzone) {
+    public static MobLoot getGenTableItem(int genTableID, AbstractCharacter mob, Boolean inHotzone) {
 
         if (mob == null || _genTables.containsKey(genTableID) == false)
             return null;
@@ -182,33 +182,27 @@ public enum LootManager {
         outItem = new MobLoot(mob, ItemBase.getItemBase(itemUUID), false);
         Enum.ItemType outType = outItem.getItemBase().getType();
 
-        if (outType.ordinal() == Enum.ItemType.WEAPON.ordinal() || outType.ordinal() == Enum.ItemType.ARMOR.ordinal() || outType.ordinal() == Enum.ItemType.JEWELRY.ordinal()) {
-            if (outItem.getItemBase().isGlass() == false) {
 
-                try {
-                    outItem = GeneratePrefix(mob, outItem, genTableID, genRoll, inHotzone);
-                } catch (Exception e) {
-                    Logger.error("Failed to GeneratePrefix for item: " + outItem.getName());
-                }
-
-                try {
-                    outItem = GenerateSuffix(mob, outItem, genTableID, genRoll, inHotzone);
-                } catch (Exception e) {
-                    Logger.error("Failed to GenerateSuffix for item: " + outItem.getName());
-                }
+        if(selectedRow.pModTable != 0){
+            try {
+                outItem = GeneratePrefix(mob, outItem, genTableID, genRoll, inHotzone);
+                outItem.setIsID(false);
+            } catch (Exception e) {
+                Logger.error("Failed to GeneratePrefix for item: " + outItem.getName());
             }
         }
-
-        if (outItem.getPrefix() != null && outItem.getPrefix().isEmpty() == false)
-            outItem.setIsID(false);
-
-        if (outItem.getSuffix() != null && outItem.getSuffix().isEmpty() == false)
-            outItem.setIsID(false);
-
+        if(selectedRow.sModTable != 0){
+            try {
+                outItem = GenerateSuffix(mob, outItem, genTableID, genRoll, inHotzone);
+                outItem.setIsID(false);
+            } catch (Exception e) {
+                Logger.error("Failed to GenerateSuffix for item: " + outItem.getName());
+            }
+        }
         return outItem;
     }
 
-    private static MobLoot GeneratePrefix(Mob mob, MobLoot inItem, int genTableID, int genRoll, Boolean inHotzone) {
+    private static MobLoot GeneratePrefix(AbstractCharacter mob, MobLoot inItem, int genTableID, int genRoll, Boolean inHotzone) {
 
         GenTableEntry selectedRow = GenTableEntry.rollTable(genTableID, genRoll);
 
@@ -235,7 +229,7 @@ public enum LootManager {
         return inItem;
     }
 
-    private static MobLoot GenerateSuffix(Mob mob, MobLoot inItem, int genTableID, int genRoll, Boolean inHotzone) {
+    private static MobLoot GenerateSuffix(AbstractCharacter mob, MobLoot inItem, int genTableID, int genRoll, Boolean inHotzone) {
 
         GenTableEntry selectedRow = GenTableEntry.rollTable(genTableID, genRoll);
 
@@ -366,6 +360,13 @@ public enum LootManager {
 
         if (lootItem != null)
             mob.getCharItemManager().addItemToInventory(lootItem);
+    }
+    public static void peddleFate(AbstractCharacter character, int giftID){
+        int tableID = LootManager._bootySetMap.get(giftID).get(ThreadLocalRandom.current().nextInt(1,LootManager._bootySetMap.get(giftID).size() - 1)).genTable;
+        MobLoot gamblingResult= getGenTableItem(tableID,character,false);
+        if(gamblingResult != null){
+            gamblingResult.promoteToItem((PlayerCharacter)character);
+        }
     }
 
 }
