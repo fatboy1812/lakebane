@@ -19,7 +19,6 @@ import engine.powers.PowersBase;
 import org.pmw.tinylog.Logger;
 
 import java.util.ArrayList;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /*
@@ -424,25 +423,24 @@ public class ObjectActionMsgHandler extends AbstractClientMsgHandler {
                             break;
                         //ANNIVERSERY GIFT
                         case 31:
+                            // *** Disabled for now: Needs bootyset created
 
+                            //if (ib.getUUID() == 971012) {
+                            //    int random = ThreadLocalRandom.current().nextInt(ItemBase.AnniverseryGifts.size());
+                            //    int annyID = ItemBase.AnniverseryGifts.get(random);
 
-                            if (ib.getUUID() == 971012) {
-                                int random = ThreadLocalRandom.current().nextInt(ItemBase.AnniverseryGifts.size());
-                                int annyID = ItemBase.AnniverseryGifts.get(random);
+                            //    ItemBase annyIB = ItemBase.getItemBase(annyID);
+                            //    if (annyIB != null) {
+                            //        Item gift = MobLoot.createItemForPlayer(player, annyIB);
+                            //        if (gift != null) {
+                            //            itemMan.addItemToInventory(gift);
+                            //            itemMan.consume(item);
+                            //        }
+                            //    }
+                            //    break;
+                            //}
 
-                                ItemBase annyIB = ItemBase.getItemBase(annyID);
-                                if (annyIB != null) {
-                                    Item gift = MobLoot.createItemForPlayer(player, annyIB);
-                                    if (gift != null) {
-                                        itemMan.addItemToInventory(gift);
-                                        itemMan.consume(item);
-                                    }
-                                }
-                                break;
-                            }
-                            // Garbage method removed until rewritten.
-                            //  LootTable.CreateGamblerItem(item, player);
-
+                            LootManager.peddleFate(player,item);
                             break;
 
                         case 30: //water bucket

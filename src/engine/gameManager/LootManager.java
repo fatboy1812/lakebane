@@ -11,13 +11,13 @@ package engine.gameManager;
 import engine.Enum;
 import engine.loot.*;
 import engine.net.DispatchMessage;
+import engine.net.client.msg.ErrorPopupMsg;
 import engine.net.client.msg.chat.ChatSystemMsg;
 import engine.objects.*;
 import org.pmw.tinylog.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -141,14 +141,14 @@ public enum LootManager {
         }
     }
 
-    public static MobLoot getGenTableItem(int genTableID, Mob mob, Boolean inHotzone) {
+    public static MobLoot getGenTableItem(int genTableID, AbstractCharacter mob, Boolean inHotzone) {
 
         if (mob == null || _genTables.containsKey(genTableID) == false)
             return null;
 
         MobLoot outItem;
 
-        int genRoll = new Random().nextInt(99) + 1;
+        int genRoll = ThreadLocalRandom.current().nextInt(1,100 + 1);
 
         GenTableEntry selectedRow = GenTableEntry.rollTable(genTableID, genRoll);
 
@@ -161,11 +161,14 @@ public enum LootManager {
             return null;
 
         //gets the 1-320 roll for this mob
-
-        int itemTableRoll = TableRoll(mob.level, inHotzone);
-
+        int itemTableRoll = 0;
+        int objectType = mob.getObjectType().ordinal();
+        if(mob.getObjectType().ordinal() == 52) { //52 = player character
+            itemTableRoll = ThreadLocalRandom.current().nextInt(1,320 + 1);
+        } else{
+            itemTableRoll = TableRoll(mob.level, inHotzone);
+        }
         ItemTableEntry tableRow = ItemTableEntry.rollTable(itemTableId, itemTableRoll);
-
         if (tableRow == null)
             return null;
 
@@ -175,40 +178,34 @@ public enum LootManager {
             return null;
 
         if (ItemBase.getItemBase(itemUUID).getType().ordinal() == Enum.ItemType.RESOURCE.ordinal()) {
-            int amount = ThreadLocalRandom.current().nextInt(tableRow.maxSpawn - tableRow.minSpawn) + tableRow.minSpawn;
+            int amount = ThreadLocalRandom.current().nextInt(tableRow.minSpawn, tableRow.maxSpawn + 1);
             return new MobLoot(mob, ItemBase.getItemBase(itemUUID), amount, false);
         }
 
         outItem = new MobLoot(mob, ItemBase.getItemBase(itemUUID), false);
         Enum.ItemType outType = outItem.getItemBase().getType();
 
-        if (outType.ordinal() == Enum.ItemType.WEAPON.ordinal() || outType.ordinal() == Enum.ItemType.ARMOR.ordinal() || outType.ordinal() == Enum.ItemType.JEWELRY.ordinal()) {
-            if (outItem.getItemBase().isGlass() == false) {
 
-                try {
-                    outItem = GeneratePrefix(mob, outItem, genTableID, genRoll, inHotzone);
-                } catch (Exception e) {
-                    Logger.error("Failed to GeneratePrefix for item: " + outItem.getName());
-                }
-
-                try {
-                    outItem = GenerateSuffix(mob, outItem, genTableID, genRoll, inHotzone);
-                } catch (Exception e) {
-                    Logger.error("Failed to GenerateSuffix for item: " + outItem.getName());
-                }
+        if(selectedRow.pModTable != 0){
+            try {
+                outItem = GeneratePrefix(mob, outItem, genTableID, genRoll, inHotzone);
+                outItem.setIsID(false);
+            } catch (Exception e) {
+                Logger.error("Failed to GeneratePrefix for item: " + outItem.getName());
             }
         }
-
-        if (outItem.getPrefix() != null && outItem.getPrefix().isEmpty() == false)
-            outItem.setIsID(false);
-
-        if (outItem.getSuffix() != null && outItem.getSuffix().isEmpty() == false)
-            outItem.setIsID(false);
-
+        if(selectedRow.sModTable != 0){
+            try {
+                outItem = GenerateSuffix(mob, outItem, genTableID, genRoll, inHotzone);
+                outItem.setIsID(false);
+            } catch (Exception e) {
+                Logger.error("Failed to GenerateSuffix for item: " + outItem.getName());
+            }
+        }
         return outItem;
     }
 
-    private static MobLoot GeneratePrefix(Mob mob, MobLoot inItem, int genTableID, int genRoll, Boolean inHotzone) {
+    private static MobLoot GeneratePrefix(AbstractCharacter mob, MobLoot inItem, int genTableID, int genRoll, Boolean inHotzone) {
 
         GenTableEntry selectedRow = GenTableEntry.rollTable(genTableID, genRoll);
 
@@ -221,8 +218,13 @@ public enum LootManager {
 
         if (prefixTable == null)
             return inItem;
-
-        ModTableEntry prefixMod = ModTableEntry.rollTable(prefixTable.modTableID, TableRoll(mob.level, inHotzone));
+        int prefixTableRoll = 0;
+        if(mob.getObjectType().ordinal() == 52) {
+            prefixTableRoll = ThreadLocalRandom.current().nextInt(1,320 + 1);
+        } else{
+            prefixTableRoll = TableRoll(mob.level, inHotzone);
+        }
+        ModTableEntry prefixMod = ModTableEntry.rollTable(prefixTable.modTableID, prefixTableRoll);
 
         if (prefixMod == null)
             return inItem;
@@ -235,7 +237,7 @@ public enum LootManager {
         return inItem;
     }
 
-    private static MobLoot GenerateSuffix(Mob mob, MobLoot inItem, int genTableID, int genRoll, Boolean inHotzone) {
+    private static MobLoot GenerateSuffix(AbstractCharacter mob, MobLoot inItem, int genTableID, int genRoll, Boolean inHotzone) {
 
         GenTableEntry selectedRow = GenTableEntry.rollTable(genTableID, genRoll);
 
@@ -248,8 +250,13 @@ public enum LootManager {
 
         if (suffixTable == null)
             return inItem;
-
-        ModTableEntry suffixMod = ModTableEntry.rollTable(suffixTable.modTableID, TableRoll(mob.level, inHotzone));
+        int suffixTableRoll = 0;
+        if(mob.getObjectType().ordinal() == 52) {
+            suffixTableRoll = ThreadLocalRandom.current().nextInt(1,320 + 1);
+        } else{
+            suffixTableRoll = TableRoll(mob.level, inHotzone);
+        }
+        ModTableEntry suffixMod = ModTableEntry.rollTable(suffixTable.modTableID, suffixTableRoll);
 
         if (suffixMod == null)
             return inItem;
@@ -280,7 +287,7 @@ public enum LootManager {
         if (inHotzone)
             min += mobLevel;
 
-        int roll = ThreadLocalRandom.current().nextInt(max - min) + min;
+        int roll = ThreadLocalRandom.current().nextInt(min, max + 1);
 
         return roll;
     }
@@ -298,7 +305,7 @@ public enum LootManager {
 
         int high = bse.highGold;
         int low = bse.lowGold;
-        int gold = ThreadLocalRandom.current().nextInt(high - low) + low;
+        int gold = ThreadLocalRandom.current().nextInt(low, high + 1);
 
         if (inHotzone == true)
             gold = (int) (gold * HOTZONE_GOLD_RATE);
@@ -369,4 +376,87 @@ public enum LootManager {
             mob.getCharItemManager().addItemToInventory(lootItem);
     }
 
+    public static void peddleFate(PlayerCharacter playerCharacter, Item gift) {
+
+        //get table ID for the itembase ID
+
+        int tableID = 0;
+
+        if (_bootySetMap.get(gift.getItemBaseID()) != null)
+            tableID = _bootySetMap.get(gift.getItemBaseID()).get(ThreadLocalRandom.current().nextInt(_bootySetMap.get(gift.getItemBaseID()).size())).genTable;
+
+        if (tableID == 0)
+            return;
+
+        //get the character item manager
+
+        CharacterItemManager itemMan = playerCharacter.getCharItemManager();
+
+        if (itemMan == null)
+            return;
+
+        //check if player owns the gift he is trying to open
+
+        if (itemMan.doesCharOwnThisItem(gift.getObjectUUID()) == false)
+            return;
+
+        //roll 1-100 for the gen table selection
+
+        int genRoll = ThreadLocalRandom.current().nextInt(1,100 + 1);
+        GenTableEntry selectedRow = GenTableEntry.rollTable(tableID, genRoll);
+
+        if(selectedRow == null)
+            return;
+
+        //roll 220-320 for the item table selection
+
+        int itemRoll = ThreadLocalRandom.current().nextInt(220, 320 + 1);
+        ItemTableEntry selectedItem = ItemTableEntry.rollTable(selectedRow.itemTableID, itemRoll);
+
+        if (selectedItem == null)
+            return;
+
+        //create the item from the table, quantity is always 1
+
+        MobLoot winnings = new MobLoot(playerCharacter, ItemBase.getItemBase(selectedItem.cacheID), 1, false);
+
+        if (winnings == null)
+            return;
+
+        //early exit if the inventory of the player will not old the item
+
+        if (itemMan.hasRoomInventory(winnings.getItemBase().getWeight()) == false) {
+            ErrorPopupMsg.sendErrorPopup(playerCharacter, 21);
+            return;
+        }
+
+        //determine if the winning item needs a prefix
+
+        if(selectedRow.pModTable != 0){
+            int prefixRoll = ThreadLocalRandom.current().nextInt(220,320 + 1);
+            ModTableEntry prefix = ModTableEntry.rollTable(selectedRow.pModTable, prefixRoll);
+            if(prefix != null)
+                winnings.addPermanentEnchantment(prefix.action, 0, prefix.level, true);
+        }
+
+        //determine if the winning item needs a suffix
+
+        if(selectedRow.sModTable != 0){
+            int suffixRoll = ThreadLocalRandom.current().nextInt(220,320 + 1);
+            ModTableEntry suffix = ModTableEntry.rollTable(selectedRow.sModTable, suffixRoll);
+            if (suffix != null)
+                winnings.addPermanentEnchantment(suffix.action, 0, suffix.level, true);
+        }
+        winnings.setIsID(true);
+
+        //remove gift from inventory
+
+        itemMan.consume(gift);
+
+        //add winnings to player inventory
+
+        Item playerWinnings = winnings.promoteToItem((PlayerCharacter) playerCharacter);
+        itemMan.addItemToInventory(playerWinnings);
+        itemMan.updateInventory();
+    }
 }
