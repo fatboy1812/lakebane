@@ -426,20 +426,20 @@ public class ObjectActionMsgHandler extends AbstractClientMsgHandler {
                         case 31:
 
 
-                            if (ib.getUUID() == 971012) {
-                                int random = ThreadLocalRandom.current().nextInt(ItemBase.AnniverseryGifts.size());
-                                int annyID = ItemBase.AnniverseryGifts.get(random);
+                            //if (ib.getUUID() == 971012) {
+                            //    int random = ThreadLocalRandom.current().nextInt(ItemBase.AnniverseryGifts.size());
+                            //    int annyID = ItemBase.AnniverseryGifts.get(random);
 
-                                ItemBase annyIB = ItemBase.getItemBase(annyID);
-                                if (annyIB != null) {
-                                    Item gift = MobLoot.createItemForPlayer(player, annyIB);
-                                    if (gift != null) {
-                                        itemMan.addItemToInventory(gift);
-                                        itemMan.consume(item);
-                                    }
-                                }
-                                break;
-                            }
+                            //    ItemBase annyIB = ItemBase.getItemBase(annyID);
+                            //    if (annyIB != null) {
+                            //        Item gift = MobLoot.createItemForPlayer(player, annyIB);
+                            //        if (gift != null) {
+                            //            itemMan.addItemToInventory(gift);
+                            //            itemMan.consume(item);
+                            //        }
+                            //    }
+                            //    break;
+                            //}
                             // Garbage method removed until rewritten.
                             //  LootTable.CreateGamblerItem(item, player);
                                 LootManager.peddleFate(player,item.getItemBaseID());
