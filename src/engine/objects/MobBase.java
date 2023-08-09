@@ -12,7 +12,7 @@ package engine.objects;
 import ch.claude_martin.enumbitset.EnumBitSet;
 import engine.Enum;
 import engine.gameManager.DbManager;
-import engine.gameManager.NPCManager;
+import engine.gameManager.LootManager;
 import engine.loot.BootySetEntry;
 import engine.server.MBServerStatics;
 
@@ -119,7 +119,7 @@ public class MobBase extends AbstractGameObject {
         if (equipmentSetID == 0)
             return equip;
 
-        equipList = NPCManager._bootySetMap.get(equipmentSetID);
+        equipList = LootManager._bootySetMap.get(equipmentSetID);
 
         if (equipList == null)
             return equip;

@@ -1,9 +1,11 @@
 package engine.mobileAI.Threads;
 
+import engine.gameManager.ConfigManager;
 import engine.mobileAI.MobAI;
 import engine.gameManager.ZoneManager;
 import engine.objects.Mob;
 import engine.objects.Zone;
+import engine.server.MBServerStatics;
 import org.pmw.tinylog.Logger;
 
 public class MobAIThread implements Runnable{
@@ -11,7 +13,7 @@ public class MobAIThread implements Runnable{
     public static int AI_DROP_AGGRO_RANGE = 60;
     public static int AI_PULSE_MOB_THRESHOLD = 200;
     public static int AI_PATROL_DIVISOR = 15;
-    public static int AI_POWER_DIVISOR = 20;
+    public static float AI_CAST_FREQUENCY;
     // Thread constructor
 
     public MobAIThread() {
@@ -21,6 +23,9 @@ public class MobAIThread implements Runnable{
 
     @Override
     public void run() {
+        //cache config value for mobile casting delay
+        AI_CAST_FREQUENCY = Float.parseFloat(ConfigManager.MB_AI_CAST_FREQUENCY.getValue());
+        AI_BASE_AGGRO_RANGE = (int)(60 * Float.parseFloat(ConfigManager.MB_AI_AGGRO_RANGE.getValue()));
         while (true) {
             for (Zone zone : ZoneManager.getAllZones()) {
 

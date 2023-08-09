@@ -333,8 +333,8 @@ public class WorldServer {
 		Logger.info("Loading NPC and Mob Rune Sets");
 		NPCManager.LoadAllRuneSets();
 
-		Logger.info("Loading Mobile Booty Sets");
-		NPCManager.LoadAllBootySets();
+		Logger.info("Loading Booty Sets");
+		LootManager._bootySetMap = DbManager.LootQueries.LOAD_BOOTY_TABLES();
 
 		// Load new loot system
 		Logger.info("Initializing Loot Manager");
@@ -348,8 +348,8 @@ public class WorldServer {
 		Logger.info("Loading MobBases.");
 		DbManager.MobBaseQueries.GET_ALL_MOBBASES();
 
-		Logger.info("Loading Mob Powers for MobBases");
-		PowersManager.LoadAllMobPowers();
+		Logger.info("Loading Mob Powers");
+		PowersManager.AllMobPowers = DbManager.PowerQueries.LOAD_MOB_POWERS();
 
 		Logger.info("Loading item enchants");
 		DbManager.LootQueries.LOAD_ENCHANT_VALUES();

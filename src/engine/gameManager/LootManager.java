@@ -42,6 +42,7 @@ public enum LootManager {
     public static float HOTZONE_DROP_RATE;
     public static float HOTZONE_EXP_RATE;
     public static float HOTZONE_GOLD_RATE;
+    public static HashMap<Integer, ArrayList<BootySetEntry>> _bootySetMap = new HashMap<>();
 
     // Bootstrap routine to initialize the Loot Manager
 
@@ -73,11 +74,11 @@ public enum LootManager {
 
         //iterate the booty sets
 
-        if (mob.getMobBase().bootySet != 0 && NPCManager._bootySetMap.containsKey(mob.getMobBase().bootySet) == true)
-            RunBootySet(NPCManager._bootySetMap.get(mob.getMobBase().bootySet), mob, inHotzone, fromDeath);
+        if (mob.getMobBase().bootySet != 0 && _bootySetMap.containsKey(mob.getMobBase().bootySet) == true)
+            RunBootySet(_bootySetMap.get(mob.getMobBase().bootySet), mob, inHotzone, fromDeath);
 
-        if (mob.bootySet != 0 && NPCManager._bootySetMap.containsKey(mob.bootySet) == true)
-            RunBootySet(NPCManager._bootySetMap.get(mob.bootySet), mob, inHotzone, fromDeath);
+        if (mob.bootySet != 0 && _bootySetMap.containsKey(mob.bootySet) == true)
+            RunBootySet(_bootySetMap.get(mob.bootySet), mob, inHotzone, fromDeath);
 
         //lastly, check mobs inventory for godly or disc runes to send a server announcement
 

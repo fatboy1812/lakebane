@@ -20,7 +20,6 @@ import engine.mobileAI.utilities.MovementUtilities;
 import engine.net.DispatchMessage;
 import engine.net.client.msg.PerformActionMsg;
 import engine.net.client.msg.PowerProjectileMsg;
-import engine.net.client.msg.UpdateStateMsg;
 import engine.objects.*;
 import engine.powers.ActionsBase;
 import engine.powers.PowersBase;
@@ -50,12 +49,16 @@ public class MobAI {
                 return;
             }
 
-            if (target.getObjectType() == Enum.GameObjectType.PlayerCharacter && canCast(mob))
-                if (MobCast(mob)) {
+            if (target.getObjectType() == Enum.GameObjectType.PlayerCharacter && canCast(mob)) {
+                if (mob.isPlayerGuard() == false && MobCast(mob)) {
                     mob.updateLocation();
                     return;
                 }
-
+                if (mob.isPlayerGuard() == true && GuardCast(mob)) {
+                    mob.updateLocation();
+                    return;
+                }
+            }
             if (!CombatUtilities.inRangeToAttack(mob, target))
                 return;
 
@@ -230,8 +233,8 @@ public class MobAI {
                     attackDelay = 11000;
                 CombatUtilities.combatCycle(mob, target, false, mob.getWeaponItemBase(false));
                 mob.setLastAttackTime(System.currentTimeMillis() + attackDelay);
-                if (target.combatTarget == null) {
-                    target.combatTarget = mob;
+                if (target.getCombatTarget() == null) {
+                    target.setCombatTarget(mob);
                 }
             }
         } catch (Exception e) {
@@ -244,13 +247,6 @@ public class MobAI {
         try {
 
             //make sure mob is out of combat stance
-
-            if (mob.isCombat() && mob.getCombatTarget() == null) {
-                mob.setCombat(false);
-                UpdateStateMsg rwss = new UpdateStateMsg();
-                rwss.setPlayer(mob);
-                DispatchMessage.sendToAllInRange(mob, rwss);
-            }
 
             int patrolDelay = ThreadLocalRandom.current().nextInt((int) (MobAIThread.AI_PATROL_DIVISOR * 0.5f), MobAIThread.AI_PATROL_DIVISOR) + MobAIThread.AI_PATROL_DIVISOR;
 
@@ -279,19 +275,12 @@ public class MobAI {
 
             MovementUtilities.aiMove(mob, mob.destination, true);
 
-            if (mob.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardCaptain.ordinal()) {
+            if (mob.BehaviourType.equals(Enum.MobBehaviourType.GuardCaptain)) {
                 for (Entry<Mob, Integer> minion : mob.siegeMinionMap.entrySet()) {
 
                     //make sure mob is out of combat stance
 
                     if (minion.getKey().despawned == false) {
-                        if (minion.getKey().isCombat() && minion.getKey().getCombatTarget() == null) {
-                            minion.getKey().setCombat(false);
-                            UpdateStateMsg rwss = new UpdateStateMsg();
-                            rwss.setPlayer(minion.getKey());
-                            DispatchMessage.sendToAllInRange(minion.getKey(), rwss);
-                        }
-
                         if (MovementUtilities.canMove(minion.getKey())) {
                             Vector3f minionOffset = Formation.getOffset(2, minion.getValue() + 3);
                             minion.getKey().updateLocation();
@@ -316,6 +305,16 @@ public class MobAI {
             if (mob == null)
                 return false;
 
+            if(mob.isPlayerGuard == true){
+                int contractID;
+                if(mob.BehaviourType.equals(Enum.MobBehaviourType.GuardMinion))
+                    contractID = mob.npcOwner.contract.getContractID();
+                 else
+                    contractID = mob.contract.getContractID();
+                if(Enum.MinionType.ContractToMinionMap.get(contractID).isMage() == false)
+                    return false;
+            }
+
             if (mob.mobPowers.isEmpty())
                 return false;
 
@@ -323,12 +322,6 @@ public class MobAI {
                 mob.setCombatTarget(null);
                 return false;
             }
-
-            int castRoll = ThreadLocalRandom.current().nextInt(101);
-
-            if (castRoll <= MobAIThread.AI_POWER_DIVISOR)
-                return false;
-
             if (mob.nextCastTime == 0)
                 mob.nextCastTime = System.currentTimeMillis();
 
@@ -349,7 +342,7 @@ public class MobAI {
 
             ArrayList<Integer> powerTokens;
             ArrayList<Integer> purgeTokens;
-            PlayerCharacter target = (PlayerCharacter) mob.getCombatTarget();
+            AbstractCharacter target = (AbstractCharacter) mob.getCombatTarget();
 
             if (mob.BehaviourType.callsForHelp)
                 MobCallForHelp(mob);
@@ -395,37 +388,152 @@ public class MobAI {
 
                 if (CombatUtilities.triggerDefense(mob, mob.getCombatTarget()))
                     return false;
-
-                if (CombatUtilities.triggerDodge(mob, mob.getCombatTarget()))
-                    return false;
-
-                if (CombatUtilities.triggerBlock(mob, mob.getCombatTarget()))
-                    return false;
-
-                if (CombatUtilities.triggerParry(mob, mob.getCombatTarget()))
-                    return false;
             }
 
             // Cast the spell
 
             if (CombatUtilities.inRange2D(mob, mob.getCombatTarget(), mobPower.getRange())) {
 
-                PowersManager.useMobPower(mob, (AbstractCharacter) mob.getCombatTarget(), mobPower, powerRank);
+
                 PerformActionMsg msg;
 
-                if (!mobPower.isHarmful() || mobPower.targetSelf)
+                if (!mobPower.isHarmful() || mobPower.targetSelf) {
+                    PowersManager.useMobPower(mob, mob, mobPower, powerRank);
                     msg = PowersManager.createPowerMsg(mobPower, powerRank, mob, mob);
-                else
+                }
+                else {
+                    PowersManager.useMobPower(mob, target, mobPower, powerRank);
                     msg = PowersManager.createPowerMsg(mobPower, powerRank, mob, target);
+                }
+
+                msg.setUnknown04(2);
+
+                PowersManager.finishUseMobPower(msg, mob, 0, 0);
+                long randomCooldown = (long)((ThreadLocalRandom.current().nextInt(10,15) * 1000) * MobAIThread.AI_CAST_FREQUENCY);
+                mob.nextCastTime = System.currentTimeMillis() + randomCooldown;
+                return true;
+            }
+        } catch (Exception e) {
+            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: MobCast" + " " + e.getMessage());
+        }
+        return false;
+    }
+
+    public static boolean GuardCast(Mob mob) {
+
+        try {
+            // Method picks a random spell from a mobile's list of powers
+            // and casts it on the current target (or itself).  Validation
+            // (including empty lists) is done previously within canCast();
+
+            ArrayList<Integer> powerTokens;
+            ArrayList<Integer> purgeTokens;
+            AbstractCharacter target = (AbstractCharacter) mob.getCombatTarget();
+
+            if (mob.BehaviourType.callsForHelp)
+                MobCallForHelp(mob);
+
+            // Generate a list of tokens from the mob powers for this mobile.
+
+            powerTokens = new ArrayList<>(mob.mobPowers.keySet());
+            purgeTokens = new ArrayList<>();
+
+            // If player has this effect on them currently then remove
+            // this token from our list.
+
+            for (int powerToken : powerTokens) {
+
+                PowersBase powerBase = PowersManager.getPowerByToken(powerToken);
+
+                for (ActionsBase actionBase : powerBase.getActions()) {
+
+                    String stackType = actionBase.stackType;
+
+                    if (target.getEffects() != null && target.getEffects().containsKey(stackType))
+                        purgeTokens.add(powerToken);
+                }
+            }
+
+            powerTokens.removeAll(purgeTokens);
+
+            // Sanity check
+
+            if (powerTokens.isEmpty())
+                return false;
+
+            int powerToken = 0;
+            int nukeRoll = ThreadLocalRandom.current().nextInt(1,100);
+
+            if (nukeRoll < 55) {
+
+                //use direct damage spell
+                powerToken = powerTokens.get(powerTokens.size() - 1);
+
+            } else {
+                //use random spell
+                powerToken = powerTokens.get(ThreadLocalRandom.current().nextInt(powerTokens.size()));
+            }
+
+            int powerRank = 1;
+
+            switch(mob.getRank()){
+                case 1:
+                    powerRank = 10;
+                    break;
+                case 2:
+                    powerRank = 15;
+                    break;
+                case 3:
+                    powerRank = 20;
+                    break;
+                case 4:
+                    powerRank = 25;
+                    break;
+                case 5:
+                    powerRank = 30;
+                    break;
+                case 6:
+                    powerRank = 35;
+                    break;
+                case 7:
+                    powerRank = 40;
+                    break;
+            }
+
+            PowersBase mobPower = PowersManager.getPowerByToken(powerToken);
+
+            //check for hit-roll
+
+            if (mobPower.requiresHitRoll)
+                if (CombatUtilities.triggerDefense(mob, mob.getCombatTarget()))
+                    return false;
+
+            // Cast the spell
+
+            if (CombatUtilities.inRange2D(mob, mob.getCombatTarget(), mobPower.getRange())) {
+
+                PerformActionMsg msg;
+
+                if (!mobPower.isHarmful() || mobPower.targetSelf) {
+
+                    if (mobPower.category.equals("DISPEL")) {
+                        PowersManager.useMobPower(mob, target, mobPower, powerRank);
+                        msg = PowersManager.createPowerMsg(mobPower, powerRank, mob, target);
+                    } else {
+                        PowersManager.useMobPower(mob, mob, mobPower, powerRank);
+                        msg = PowersManager.createPowerMsg(mobPower, powerRank, mob, mob);
+                    }
+                } else {
+                    PowersManager.useMobPower(mob, target, mobPower, powerRank);
+                    msg = PowersManager.createPowerMsg(mobPower, powerRank, mob, target);
+                }
 
                 msg.setUnknown04(2);
 
                 PowersManager.finishUseMobPower(msg, mob, 0, 0);
 
-                // Default minimum seconds between cast = 10
-
-                float randomCooldown = (ThreadLocalRandom.current().nextInt(150) + 100) * 0.01f;
-                mob.nextCastTime = System.currentTimeMillis() + (long) ((mobPower.getCooldown() + (MobAIThread.AI_POWER_DIVISOR * 1000)) * randomCooldown);
+                long randomCooldown = (long)((ThreadLocalRandom.current().nextInt(10,15) * 1000) * MobAIThread.AI_CAST_FREQUENCY);
+                mob.nextCastTime = System.currentTimeMillis() + randomCooldown;
                 return true;
             }
         } catch (Exception e) {
@@ -529,22 +637,15 @@ public class MobAI {
 
             //no players loaded, no need to proceed
 
-            if (mob.playerAgroMap.isEmpty() && mob.isPlayerGuard == false && mob.BehaviourType.ordinal() != Enum.MobBehaviourType.Pet1.ordinal()) {
-                mob.setCombatTarget(null);
+            if (mob.playerAgroMap.isEmpty()) {
+                if(mob.getCombatTarget() != null)
+                    mob.setCombatTarget(null);
                 return;
             }
-
-            if (mob.isCombat() && mob.getCombatTarget() == null) {
-                mob.setCombat(false);
-                UpdateStateMsg rwss = new UpdateStateMsg();
-                rwss.setPlayer(mob);
-                DispatchMessage.sendToAllInRange(mob, rwss);
-            }
-
             if (mob.BehaviourType.ordinal() != Enum.MobBehaviourType.Pet1.ordinal())
                 CheckToSendMobHome(mob);
 
-            if (mob.combatTarget != null) {
+            if (mob.getCombatTarget() != null) {
                 if (mob.getCombatTarget().isAlive() == false) {
                     mob.setCombatTarget(null);
                     return;
@@ -552,7 +653,7 @@ public class MobAI {
 
                 if (mob.getCombatTarget().getObjectTypeMask() == MBServerStatics.MASK_PLAYER) {
 
-                    PlayerCharacter target = (PlayerCharacter) mob.combatTarget;
+                    PlayerCharacter target = (PlayerCharacter) mob.getCombatTarget();
 
                     if (mob.playerAgroMap.containsKey(target.getObjectUUID()) == false) {
                         mob.setCombatTarget(null);
@@ -644,7 +745,7 @@ public class MobAI {
 
             }
 
-            if (aiAgent.combatTarget == null) {
+            if (aiAgent.getCombatTarget() == null) {
 
                 //look for pets to aggro if no players found to aggro
 
@@ -790,23 +891,8 @@ public class MobAI {
             if (mob.getCombatTarget().getObjectType().equals(Enum.GameObjectType.PlayerCharacter) && MovementUtilities.inRangeDropAggro(mob, (PlayerCharacter) mob.getCombatTarget()) == false && mob.BehaviourType.ordinal() != Enum.MobBehaviourType.Pet1.ordinal()) {
 
                 mob.setCombatTarget(null);
-
-                if (mob.isCombat()) {
-                    mob.setCombat(false);
-                    UpdateStateMsg rwss = new UpdateStateMsg();
-                    rwss.setPlayer(mob);
-                    DispatchMessage.sendToAllInRange(mob, rwss);
-                }
                 return;
             }
-
-            if (!mob.isCombat()) {
-                mob.setCombat(true);
-                UpdateStateMsg rwss = new UpdateStateMsg();
-                rwss.setPlayer(mob);
-                DispatchMessage.sendToAllInRange(mob, rwss);
-            }
-
             if (System.currentTimeMillis() > mob.getLastAttackTime())
                 AttackTarget(mob, mob.getCombatTarget());
 
@@ -869,10 +955,12 @@ public class MobAI {
 
         try {
 
-            mob.updateMovementState();
-            mob.updateLocation();
-
-            if (CombatUtilities.inRange2D(mob, mob.getCombatTarget(), mob.getRange()) == false) {
+            float rangeSquared = mob.getRange() * mob.getRange();
+            float distanceSquared = mob.getLoc().distanceSquared2D(mob.getCombatTarget().getLoc());
+            if(mob.isMoving() == true && distanceSquared < rangeSquared - 50) {
+                mob.destination = mob.getLoc();
+                MovementUtilities.moveToLocation(mob, mob.destination, 0);
+            } else if (CombatUtilities.inRange2D(mob, mob.getCombatTarget(), mob.getRange()) == false) {
                 if (mob.getRange() > 15) {
                     mob.destination = mob.getCombatTarget().getLoc();
                     MovementUtilities.moveToLocation(mob, mob.destination, 0);
@@ -891,11 +979,10 @@ public class MobAI {
                             MovementUtilities.moveToLocation(mob, mob.getCombatTarget().getLoc(), 0);
                             break;
                     }
-                    if (CombatUtilities.inRange2D(mob, mob.getCombatTarget(), mob.getRange()) == true) {
-                        mob.stopMovement(mob.getLoc());
-                    }
                 }
             }
+            mob.updateMovementState();
+            mob.updateLocation();
         } catch (Exception e) {
             Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: chaseTarget" + " " + e.getMessage());
         }
@@ -919,7 +1006,8 @@ public class MobAI {
 
                 if (aggroMob.isGuard())
                     continue;
-
+                if(aggroMob.BehaviourType.equals(Enum.MobBehaviourType.Pet1))
+                    continue;
                 if (mob.getLoc().distanceSquared2D(aggroMob.getLoc()) > sqr(50))
                     continue;
 
@@ -936,6 +1024,18 @@ public class MobAI {
             if (mob.getCombatTarget() == null)
                 CheckForPlayerGuardAggro(mob);
 
+            AbstractWorldObject newTarget = ChangeTargetFromHateValue(mob);
+
+            if (newTarget != null) {
+
+                if (newTarget.getObjectType().equals(Enum.GameObjectType.PlayerCharacter)) {
+                    if (GuardCanAggro(mob, (PlayerCharacter) newTarget))
+                        mob.setCombatTarget(newTarget);
+                } else
+                    mob.setCombatTarget(newTarget);
+
+            }
+
             CheckMobMovement(mob);
             CheckForAttack(mob);
         } catch (Exception e) {
@@ -946,14 +1046,33 @@ public class MobAI {
     public static void GuardMinionLogic(Mob mob) {
 
         try {
-            if (!mob.npcOwner.isAlive() && mob.getCombatTarget() == null)
-                CheckForPlayerGuardAggro(mob);
+            if (!mob.npcOwner.isAlive()) {
 
-            if (mob.npcOwner.getCombatTarget() != null)
-                mob.setCombatTarget(mob.npcOwner.getCombatTarget());
-            else
-                mob.setCombatTarget(null);
+                if(mob.getCombatTarget() == null) {
+                    CheckForPlayerGuardAggro(mob);
+                }else {
 
+                    AbstractWorldObject newTarget = ChangeTargetFromHateValue(mob);
+
+                    if (newTarget != null) {
+
+                        if (newTarget.getObjectType().equals(Enum.GameObjectType.PlayerCharacter)) {
+                            if (GuardCanAggro(mob, (PlayerCharacter) newTarget))
+                                mob.setCombatTarget(newTarget);
+                        } else
+                            mob.setCombatTarget(newTarget);
+
+                    }
+                }
+            }else {
+                if (mob.npcOwner.getCombatTarget() != null)
+                    if(mob.getCombatTarget() != null && mob.getCombatTarget().equals(mob.npcOwner.getCombatTarget()) == false)
+                    mob.setCombatTarget(mob.npcOwner.getCombatTarget());
+                else
+                    if(mob.getCombatTarget() != null) {
+                        mob.setCombatTarget(null);
+                    }
+            }
             CheckMobMovement(mob);
             CheckForAttack(mob);
         } catch (Exception e) {
@@ -1014,7 +1133,7 @@ public class MobAI {
 
             if (mob.getCombatTarget() == null)
                 SafeGuardAggro(mob);
-            else if (mob.combatTarget.isAlive() == false)
+            else if (mob.getCombatTarget().isAlive() == false)
                 SafeGuardAggro(mob);
 
             CheckForAttack(mob);
@@ -1055,7 +1174,7 @@ public class MobAI {
 
             //check if mob can attack if it isn't wimpy
 
-            if (!mob.BehaviourType.isWimpy && mob.combatTarget != null)
+            if (!mob.BehaviourType.isWimpy && mob.getCombatTarget() != null)
                 CheckForAttack(mob);
 
         } catch (Exception e) {
@@ -1103,7 +1222,7 @@ public class MobAI {
                 if (GuardCanAggro(mob, loadedPlayer) == false)
                     continue;
 
-                if (MovementUtilities.inRangeToAggro(mob, loadedPlayer)) {
+                if (MovementUtilities.inRangeToAggro(mob, loadedPlayer) && mob.getCombatTarget() == null) {
                     mob.setCombatTarget(loadedPlayer);
                     return;
                 }
@@ -1211,13 +1330,6 @@ public class MobAI {
                     //make sure mob is out of combat stance
 
                     if (minion.getKey().despawned == false) {
-                        if (minion.getKey().isCombat() && minion.getKey().getCombatTarget() == null) {
-                            minion.getKey().setCombat(false);
-                            UpdateStateMsg rwss = new UpdateStateMsg();
-                            rwss.setPlayer(minion.getKey());
-                            DispatchMessage.sendToAllInRange(minion.getKey(), rwss);
-                        }
-
                         if (MovementUtilities.canMove(minion.getKey())) {
                             Vector3f minionOffset = Formation.getOffset(2, minion.getValue() + 3);
                             minion.getKey().updateLocation();

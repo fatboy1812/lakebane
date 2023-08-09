@@ -2,7 +2,6 @@ package engine.gameManager;
 
 import engine.Enum;
 import engine.InterestManagement.WorldGrid;
-import engine.loot.BootySetEntry;
 import engine.net.Dispatch;
 import engine.net.DispatchMessage;
 import engine.net.client.msg.PetMsg;
@@ -18,14 +17,13 @@ public enum NPCManager {
 
     NPC_MANAGER;
     public static HashMap<Integer, ArrayList<Integer>> _runeSetMap = new HashMap<>();
-    public static HashMap<Integer, ArrayList<BootySetEntry>> _bootySetMap = new HashMap<>();
 
     public static void LoadAllRuneSets() {
         _runeSetMap = DbManager.ItemBaseQueries.LOAD_RUNES_FOR_NPC_AND_MOBS();
     }
 
     public static void LoadAllBootySets() {
-        _bootySetMap = DbManager.LootQueries.LOAD_BOOTY_TABLES();
+        LootManager._bootySetMap = DbManager.LootQueries.LOAD_BOOTY_TABLES();
     }
 
     public static void applyRuneSetEffects(Mob mob) {
@@ -108,7 +106,7 @@ public enum NPCManager {
 
     public static void dismissNecroPet(Mob necroPet, boolean updateOwner) {
 
-        necroPet.combatTarget = null;
+        necroPet.setCombatTarget(null);
         necroPet.hasLoot = false;
 
         if (necroPet.parentZone != null)

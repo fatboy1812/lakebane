@@ -72,6 +72,8 @@ public enum DbManager {
     public static final dbShrineHandler ShrineQueries = new dbShrineHandler();
     public static final dbHeightMapHandler HeightMapQueries = new dbHeightMapHandler();
     public static final dbRunegateHandler RunegateQueries = new dbRunegateHandler();
+
+    public static final dbPowerHandler PowerQueries = new dbPowerHandler();
     private static final EnumMap<GameObjectType, ConcurrentHashMap<Integer, AbstractGameObject>> objectCache = new EnumMap<>(GameObjectType.class);
     public static Hasher hasher;
     private static HikariDataSource connectionPool = null;

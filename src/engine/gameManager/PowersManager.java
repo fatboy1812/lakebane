@@ -12,6 +12,7 @@ import engine.Enum.*;
 import engine.InterestManagement.HeightMap;
 import engine.InterestManagement.WorldGrid;
 import engine.db.handlers.dbEffectsBaseHandler;
+import engine.db.handlers.dbPowerHandler;
 import engine.db.handlers.dbSkillReqHandler;
 import engine.job.AbstractJob;
 import engine.job.AbstractScheduleJob;
@@ -26,13 +27,11 @@ import engine.net.client.ClientConnection;
 import engine.net.client.msg.*;
 import engine.objects.*;
 import engine.powers.*;
-import engine.powers.effectmodifiers.AbstractEffectModifier;
 import engine.powers.poweractions.AbstractPowerAction;
 import engine.powers.poweractions.TrackPowerAction;
 import engine.server.MBServerStatics;
 import org.pmw.tinylog.Logger;
 
-import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -53,9 +52,8 @@ public enum PowersManager {
     public static HashMap<String, AbstractPowerAction> powerActionsByIDString = new HashMap<>();
     public static HashMap<Integer, AbstractPowerAction> powerActionsByID = new HashMap<>();
     public static HashMap<String, Integer> ActionTokenByIDString = new HashMap<>();
-    public static HashMap<Integer, AbstractEffectModifier> modifiersByToken = new HashMap<>();
     public static HashMap<String, Integer> AnimationOverrides = new HashMap<>();
-    public static HashMap<Integer, HashMap<Integer, Integer>> AllMobPowers = new HashMap<>();
+    public static HashMap<Integer, ArrayList<MobPowerEntry>> AllMobPowers;
     private static JobScheduler js;
 
     private PowersManager() {
@@ -83,10 +81,6 @@ public enum PowersManager {
 
     public static EffectsBase getEffectByIDString(String IDString) {
         return PowersManager.effectsBaseByIDString.get(IDString);
-    }
-
-    public static AbstractPowerAction getPowerActionByID(Integer id) {
-        return PowersManager.powerActionsByID.get(id);
     }
 
     public static AbstractPowerAction getPowerActionByIDString(String IDString) {
@@ -128,8 +122,8 @@ public enum PowersManager {
         dbEffectsBaseHandler.cacheAllEffectModifiers();
 
         // Add Source Types to Effects
-        PowersManager.addAllSourceTypes();
-        PowersManager.addAllAnimationOverrides();
+        dbPowerHandler.addAllSourceTypes();
+        dbPowerHandler.addAllAnimationOverrides();
 
         // Add PowerActions
         AbstractPowerAction.getAllPowerActions(PowersManager.powerActionsByIDString, PowersManager.powerActionsByID, PowersManager.effectsBaseByIDString);
@@ -154,59 +148,6 @@ public enum PowersManager {
         ActionsBase.getActionsBase(PowersManager.powersBaseByIDString,
                 PowersManager.powerActionsByIDString);
 
-    }
-
-    private static void addAllSourceTypes() {
-        PreparedStatementShared ps = null;
-        try {
-            ps = new PreparedStatementShared("SELECT * FROM static_power_sourcetype");
-            ResultSet rs = ps.executeQuery();
-            String IDString, source;
-            while (rs.next()) {
-                IDString = rs.getString("IDString");
-                int token = DbManager.hasher.SBStringHash(IDString);
-
-
-                source = rs.getString("source").replace("-", "").trim();
-                EffectSourceType effectSourceType = EffectSourceType.GetEffectSourceType(source);
-
-                if (EffectsBase.effectSourceTypeMap.containsKey(token) == false)
-                    EffectsBase.effectSourceTypeMap.put(token, new HashSet<>());
-
-                EffectsBase.effectSourceTypeMap.get(token).add(effectSourceType);
-            }
-            rs.close();
-        } catch (Exception e) {
-            Logger.error(e);
-        } finally {
-            ps.release();
-        }
-    }
-
-    private static void addAllAnimationOverrides() {
-        PreparedStatementShared ps = null;
-        try {
-            ps = new PreparedStatementShared("SELECT * FROM static_power_animation_override");
-            ResultSet rs = ps.executeQuery();
-            String IDString;
-            int animation;
-            while (rs.next()) {
-                IDString = rs.getString("IDString");
-
-                EffectsBase eb = PowersManager.getEffectByIDString(IDString);
-                if (eb != null)
-                    IDString = eb.getIDString();
-
-                animation = rs.getInt("animation");
-                PowersManager.AnimationOverrides.put(IDString, animation);
-
-            }
-            rs.close();
-        } catch (Exception e) {
-            Logger.error(e);
-        } finally {
-            ps.release();
-        }
     }
 
     public static EffectsBase setEffectToken(int ID, int token) {
@@ -2778,26 +2719,6 @@ public enum PowersManager {
         }
     }
 
-    public static void LoadAllMobPowers() {
-
-        int count = 0;
-
-        for (AbstractGameObject mobBaseAgo : DbManager.getList(GameObjectType.MobBase)) {
-
-            int mobBaseID = ((MobBase) mobBaseAgo).getLoadID();
-
-            HashMap powersList = DbManager.MobBaseQueries.LOAD_STATIC_POWERS(mobBaseID);
-
-            if (powersList.isEmpty())
-                continue;
-            ;
-
-            AllMobPowers.put(mobBaseID, powersList);
-            count++;
-        }
-
-        Logger.info("Powers loaded for " + count + " Mobbases/");
-    }
 }
 
 

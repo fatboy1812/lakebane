@@ -29,6 +29,7 @@ import engine.net.DispatchMessage;
 import engine.net.client.msg.PetMsg;
 import engine.net.client.msg.PlaceAssetMsg;
 import engine.powers.EffectsBase;
+import engine.powers.MobPowerEntry;
 import engine.server.MBServerStatics;
 import org.joda.time.DateTime;
 import org.pmw.tinylog.Logger;
@@ -38,6 +39,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
@@ -60,7 +62,7 @@ public class Mob extends AbstractIntelligenceAgent {
     public boolean despawned = false;
     public Vector3fImmutable destination = Vector3fImmutable.ZERO;
     public Vector3fImmutable localLoc = Vector3fImmutable.ZERO;
-    public HashMap<Integer, Integer> mobPowers;
+    public LinkedHashMap<Integer, Integer> mobPowers = new LinkedHashMap<>();
     public MobBase mobBase;
     public int spawnTime;
     public Zone parentZone;
@@ -1303,7 +1305,7 @@ public class Mob extends AbstractIntelligenceAgent {
                 } catch (Exception e) {
                     Logger.error(e.getMessage());
                 }
-                this.combatTarget = null;
+                this.setCombatTarget(null);
                 this.hasLoot = false;
                 this.playerAgroMap.clear();
 
@@ -1327,7 +1329,7 @@ public class Mob extends AbstractIntelligenceAgent {
             } else if (this.isPet() || this.isNecroPet()) {
                 //this.state = STATE.Disabled;
 
-                this.combatTarget = null;
+                this.setCombatTarget(null);
                 this.hasLoot = false;
 
                 //if (this.parentZone != null)
@@ -1370,7 +1372,7 @@ public class Mob extends AbstractIntelligenceAgent {
 
             this.combat = false;
             this.walkMode = true;
-            this.combatTarget = null;
+            this.setCombatTarget(null);
 
             this.hasLoot = this.charItemManager.getInventoryCount() > 0;
         } catch (Exception e) {
@@ -1389,7 +1391,7 @@ public class Mob extends AbstractIntelligenceAgent {
         this.mana.set(this.manaMax);
         this.combat = false;
         this.walkMode = true;
-        this.combatTarget = null;
+        this.setCombatTarget(null);
         this.isAlive.set(true);
         this.deathTime = 0;
         this.lastBindLoc = this.bindLoc;
@@ -1945,24 +1947,35 @@ public class Mob extends AbstractIntelligenceAgent {
         } catch (Exception e) {
             Logger.error(e.getMessage());
         }
-        mobPowers = new HashMap<>();
+
+        // Powers from mobbase
 
         if (PowersManager.AllMobPowers.containsKey(this.getMobBaseID()))
-            mobPowers = PowersManager.AllMobPowers.get(this.getMobBaseID());
+            for (MobPowerEntry mobPowerEntry : PowersManager.AllMobPowers.get(this.getMobBaseID()))
+                mobPowers.put(mobPowerEntry.token, mobPowerEntry.rank);
+
+        // Powers from contract
+
+        if (this.contract != null && PowersManager.AllMobPowers.containsKey(this.contract.getContractID()))
+            for (MobPowerEntry mobPowerEntry : PowersManager.AllMobPowers.get(this.contract.getContractID()))
+                mobPowers.put(mobPowerEntry.token, mobPowerEntry.rank);
 
         if (this.equip == null) {
             Logger.error("Null equipset returned for uuid " + currentID);
             this.equip = new HashMap<>(0);
         }
+
         // Combine mobbase and mob aggro arrays into one bitvector
         //skip for pets
-        if(this.isPet() == false && this.isSummonedPet() == false && this.isNecroPet() == false) {
+
+        if (this.isPet() == false && this.isSummonedPet() == false && this.isNecroPet() == false) {
             if (this.getMobBase().notEnemy.size() > 0)
                 this.notEnemy.addAll(this.getMobBase().notEnemy);
 
             if (this.getMobBase().enemy.size() > 0)
                 this.enemy.addAll(this.getMobBase().enemy);
         }
+
         try {
             NPCManager.applyRuneSetEffects(this);
             recalculateStats();
@@ -1973,6 +1986,7 @@ public class Mob extends AbstractIntelligenceAgent {
             Bounds mobBounds = Bounds.borrow();
             mobBounds.setBounds(this.getLoc());
             this.setBounds(mobBounds);
+
             if (this.contract != null && this.contract.getContractID() == 910) {
                 this.isPlayerGuard = true;
                 this.BehaviourType = MobBehaviourType.GuardCaptain;
@@ -1983,6 +1997,7 @@ public class Mob extends AbstractIntelligenceAgent {
 
             if (!this.isGuard() && !this.isPlayerGuard() && !this.isPet() && !this.isNecroPet() && !this.isSummonedPet() && !this.isCharmedPet()) {
                 this.patrolPoints = new ArrayList<>();
+
                 for (int i = 0; i < 5; ++i) {
                     float patrolRadius = this.getSpawnRadius();
 
@@ -1994,10 +2009,12 @@ public class Mob extends AbstractIntelligenceAgent {
 
                     Vector3fImmutable newPatrolPoint = Vector3fImmutable.getRandomPointInCircle(this.getBindLoc(), patrolRadius);
                     this.patrolPoints.add(newPatrolPoint);
+
                     if (i == 1)
                         MovementManager.translocate(this, newPatrolPoint, null);
                 }
             }
+
             if (this.BehaviourType == null)
                 this.BehaviourType = this.getMobBase().fsm;
 
@@ -2042,10 +2059,6 @@ public class Mob extends AbstractIntelligenceAgent {
         this.isSiege = isSiege;
     }
 
-    public long getTimeToSpawnSiege() {
-        return timeToSpawnSiege;
-    }
-
     public void setTimeToSpawnSiege(long timeToSpawnSiege) {
         this.timeToSpawnSiege = timeToSpawnSiege;
     }
@@ -2066,7 +2079,7 @@ public class Mob extends AbstractIntelligenceAgent {
         PlayerCharacter player = (PlayerCharacter) ac;
 
         if (this.getCombatTarget() == null) {
-            this.combatTarget = ac;
+            this.setCombatTarget(ac);
             return;
         }
 
