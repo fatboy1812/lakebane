@@ -349,6 +349,7 @@ public enum LootManager {
                     ml.setIsID(true);
                     ml.setDurabilityCurrent((short) (ml.getDurabilityCurrent() - ThreadLocalRandom.current().nextInt(5) + 1));
                     mob.getCharItemManager().addItemToInventory(ml);
+                    break; // Exit on first successful roll.
                 }
             }
     }
