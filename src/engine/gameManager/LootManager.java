@@ -13,6 +13,7 @@ import engine.loot.*;
 import engine.net.DispatchMessage;
 import engine.net.client.msg.chat.ChatSystemMsg;
 import engine.objects.*;
+import engine.server.MBServerStatics;
 import org.pmw.tinylog.Logger;
 
 import java.util.ArrayList;
@@ -148,7 +149,7 @@ public enum LootManager {
 
         MobLoot outItem;
 
-        int genRoll = new Random().nextInt(99) + 1;
+        int genRoll = ThreadLocalRandom.current().nextInt(1,100 + 1);
 
         GenTableEntry selectedRow = GenTableEntry.rollTable(genTableID, genRoll);
 
@@ -161,11 +162,14 @@ public enum LootManager {
             return null;
 
         //gets the 1-320 roll for this mob
-
-        int itemTableRoll = TableRoll(mob.level, inHotzone);
-
+        int itemTableRoll = 0;
+        int objectType = mob.getObjectType().ordinal();
+        if(mob.getObjectType().ordinal() == 52) { //52 = player character
+            itemTableRoll = ThreadLocalRandom.current().nextInt(1,320 + 1);
+        } else{
+            itemTableRoll = TableRoll(mob.level, inHotzone);
+        }
         ItemTableEntry tableRow = ItemTableEntry.rollTable(itemTableId, itemTableRoll);
-
         if (tableRow == null)
             return null;
 
@@ -215,8 +219,13 @@ public enum LootManager {
 
         if (prefixTable == null)
             return inItem;
-
-        ModTableEntry prefixMod = ModTableEntry.rollTable(prefixTable.modTableID, TableRoll(mob.level, inHotzone));
+        int prefixTableRoll = 0;
+        if(mob.getObjectType().ordinal() == 52) {
+            prefixTableRoll = ThreadLocalRandom.current().nextInt(1,320 + 1);
+        } else{
+            prefixTableRoll = TableRoll(mob.level, inHotzone);
+        }
+        ModTableEntry prefixMod = ModTableEntry.rollTable(prefixTable.modTableID, prefixTableRoll);
 
         if (prefixMod == null)
             return inItem;
@@ -242,8 +251,13 @@ public enum LootManager {
 
         if (suffixTable == null)
             return inItem;
-
-        ModTableEntry suffixMod = ModTableEntry.rollTable(suffixTable.modTableID, TableRoll(mob.level, inHotzone));
+        int suffixTableRoll = 0;
+        if(mob.getObjectType().ordinal() == 52) {
+            suffixTableRoll = ThreadLocalRandom.current().nextInt(1,320 + 1);
+        } else{
+            suffixTableRoll = TableRoll(mob.level, inHotzone);
+        }
+        ModTableEntry suffixMod = ModTableEntry.rollTable(suffixTable.modTableID, suffixTableRoll);
 
         if (suffixMod == null)
             return inItem;
@@ -361,17 +375,28 @@ public enum LootManager {
         if (lootItem != null)
             mob.getCharItemManager().addItemToInventory(lootItem);
     }
-    public static void peddleFate(AbstractCharacter character, int giftID){
-        int tableID = 0;
-        if(LootManager._bootySetMap.get(giftID) != null) {
-            tableID = LootManager._bootySetMap.get(giftID).get(ThreadLocalRandom.current().nextInt(1, LootManager._bootySetMap.get(giftID).size() - 1)).genTable;
+    public static void peddleFate(AbstractCharacter character, Item gift){
+        if(character.getCharItemManager().inventoryContains(gift)){
+            character.getCharItemManager().getInventory().remove(gift) ;
         } else{
+            character.getCharItemManager().updateInventory();
             return;
         }
+        int tableID = 3010;
+        //if(LootManager._bootySetMap.get(giftID) != null) {
+        //    tableID = LootManager._bootySetMap.get(giftID).get(ThreadLocalRandom.current().nextInt(1, LootManager._bootySetMap.get(giftID).size() - 1)).genTable;
+        //} else{
+        //    return;
+        //}
         MobLoot gamblingResult= getGenTableItem(tableID,character,false);
+        Item winnings;
         if(gamblingResult != null){
-            gamblingResult.promoteToItem((PlayerCharacter)character);
+            winnings = gamblingResult.promoteToItem(PlayerCharacter.getPlayerCharacter(character.getObjectUUID()));
+        } else{
+            winnings = new MobLoot(character, ItemBase.getItemBase(1580008), 1, false);//item ID is coal set to amount of 1
         }
+        character.getCharItemManager().updateInventory(winnings,true);
+
     }
 
 }

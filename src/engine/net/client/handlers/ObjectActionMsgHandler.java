@@ -442,7 +442,7 @@ public class ObjectActionMsgHandler extends AbstractClientMsgHandler {
                             //}
                             // Garbage method removed until rewritten.
                             //  LootTable.CreateGamblerItem(item, player);
-                                LootManager.peddleFate(player,item.getItemBaseID());
+                                LootManager.peddleFate(player,item);
                             break;
 
                         case 30: //water bucket
