@@ -11,14 +11,13 @@ package engine.gameManager;
 import engine.Enum;
 import engine.loot.*;
 import engine.net.DispatchMessage;
+import engine.net.client.msg.ErrorPopupMsg;
 import engine.net.client.msg.chat.ChatSystemMsg;
 import engine.objects.*;
-import engine.server.MBServerStatics;
 import org.pmw.tinylog.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -376,50 +375,63 @@ public enum LootManager {
         if (lootItem != null)
             mob.getCharItemManager().addItemToInventory(lootItem);
     }
-    public static void peddleFate(AbstractCharacter character, Item gift) {
+
+    public static void peddleFate(PlayerCharacter playerCharacter, Item gift) {
+
         //get table ID for the itembase ID
+
         int tableID = 0;
-        if(_bootySetMap.get(gift.getItemBaseID()) != null)
+
+        if (_bootySetMap.get(gift.getItemBaseID()) != null)
             tableID = _bootySetMap.get(gift.getItemBaseID()).get(ThreadLocalRandom.current().nextInt(_bootySetMap.get(gift.getItemBaseID()).size())).genTable;
 
-        //use 3010 for testing
-        //tableID = 3040;
-        if(tableID == 0)
+        if (tableID == 0)
             return;
 
         //get the character item manager
-        CharacterItemManager itemMan = character.getCharItemManager();
-        if(itemMan == null)
+
+        CharacterItemManager itemMan = playerCharacter.getCharItemManager();
+
+        if (itemMan == null)
             return;
 
         //check if player owns the gift he is trying to open
-        if(itemMan.doesCharOwnThisItem(gift.getObjectUUID()) == false)
+
+        if (itemMan.doesCharOwnThisItem(gift.getObjectUUID()) == false)
             return;
 
         //roll 1-100 for the gen table selection
+
         int genRoll = ThreadLocalRandom.current().nextInt(1,100 + 1);
         GenTableEntry selectedRow = GenTableEntry.rollTable(tableID, genRoll);
+
         if(selectedRow == null)
             return;
 
         //roll 220-320 for the item table selection
-        int itemRoll = ThreadLocalRandom.current().nextInt(220,320 + 1);
-        ItemTableEntry selectedItem = ItemTableEntry.rollTable(selectedRow.itemTableID,itemRoll);
-        if(selectedItem == null)
+
+        int itemRoll = ThreadLocalRandom.current().nextInt(220, 320 + 1);
+        ItemTableEntry selectedItem = ItemTableEntry.rollTable(selectedRow.itemTableID, itemRoll);
+
+        if (selectedItem == null)
             return;
 
         //create the item from the table, quantity is always 1
-        MobLoot winnings = new MobLoot(character, ItemBase.getItemBase(selectedItem.cacheID), 1, false);
-        if(winnings == null)
+
+        MobLoot winnings = new MobLoot(playerCharacter, ItemBase.getItemBase(selectedItem.cacheID), 1, false);
+
+        if (winnings == null)
             return;
 
         //early exit if the inventory of the player will not old the item
-        if(itemMan.hasRoomInventory(winnings.getItemBase().getWeight()) == false){
-            ChatManager.chatSay(character,"You cannot hold your winnings!",false);
+
+        if (itemMan.hasRoomInventory(winnings.getItemBase().getWeight()) == false) {
+            ErrorPopupMsg.sendErrorPopup(playerCharacter, 27);
             return;
         }
 
         //determine if the winning item needs a prefix
+
         if(selectedRow.pModTable != 0){
             int prefixRoll = ThreadLocalRandom.current().nextInt(220,320 + 1);
             ModTableEntry prefix = ModTableEntry.rollTable(selectedRow.pModTable, prefixRoll);
@@ -428,18 +440,22 @@ public enum LootManager {
         }
 
         //determine if the winning item needs a suffix
+
         if(selectedRow.sModTable != 0){
             int suffixRoll = ThreadLocalRandom.current().nextInt(220,320 + 1);
             ModTableEntry suffix = ModTableEntry.rollTable(selectedRow.sModTable, suffixRoll);
-            if(suffix != null)
+            if (suffix != null)
                 winnings.addPermanentEnchantment(suffix.action, 0, suffix.level, true);
         }
         winnings.setIsID(true);
+
         //remove gift from inventory
+
         itemMan.consume(gift);
 
         //add winnings to player inventory
-        Item playerWinnings = winnings.promoteToItem((PlayerCharacter)character);
+
+        Item playerWinnings = winnings.promoteToItem((PlayerCharacter) playerCharacter);
         itemMan.addItemToInventory(playerWinnings);
         itemMan.updateInventory();
     }

@@ -19,7 +19,6 @@ import engine.powers.PowersBase;
 import org.pmw.tinylog.Logger;
 
 import java.util.ArrayList;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /*
@@ -424,7 +423,7 @@ public class ObjectActionMsgHandler extends AbstractClientMsgHandler {
                             break;
                         //ANNIVERSERY GIFT
                         case 31:
-
+                            // *** Disabled for now: Needs bootyset created
 
                             //if (ib.getUUID() == 971012) {
                             //    int random = ThreadLocalRandom.current().nextInt(ItemBase.AnniverseryGifts.size());
@@ -440,9 +439,8 @@ public class ObjectActionMsgHandler extends AbstractClientMsgHandler {
                             //    }
                             //    break;
                             //}
-                            // Garbage method removed until rewritten.
-                            //  LootTable.CreateGamblerItem(item, player);
-                                LootManager.peddleFate(player,item);
+
+                            LootManager.peddleFate(player,item);
                             break;
 
                         case 30: //water bucket
