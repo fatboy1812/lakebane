@@ -428,10 +428,12 @@ public enum LootManager {
         }
 
         //remove gift from inventory
-        itemMan.delete(gift);
+        itemMan.junk(gift);
 
         //add winnings to player inventory
-        itemMan.updateInventory(winnings.promoteToItem((PlayerCharacter)character),true);
+        Item playerWinnings = winnings.promoteToItem((PlayerCharacter)character);
+        itemMan.addItemToInventory(playerWinnings);
+        itemMan.updateInventory(playerWinnings,true);
     }
 
 }
