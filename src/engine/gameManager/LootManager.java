@@ -263,7 +263,7 @@ public enum LootManager {
             return inItem;
 
         if (suffixMod.action.length() > 0) {
-            inItem.setPrefix(suffixMod.action);
+            inItem.setSuffix(suffixMod.action);
             inItem.addPermanentEnchantment(suffixMod.action, 0, suffixMod.level, true);
         }
 
@@ -357,6 +357,7 @@ public enum LootManager {
                     ml.setIsID(true);
                     ml.setDurabilityCurrent((short) (ml.getDurabilityCurrent() - ThreadLocalRandom.current().nextInt(5) + 1));
                     mob.getCharItemManager().addItemToInventory(ml);
+                    break; // Exit on first successful roll.
                 }
             }
     }

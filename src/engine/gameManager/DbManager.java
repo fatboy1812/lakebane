@@ -295,7 +295,9 @@ public enum DbManager {
 
         HikariConfig config = new HikariConfig();
 
-        int connectionCount = (Runtime.getRuntime().availableProcessors() * 2) + 1;
+        // Magicbane requires at least 15 db connections min to boot.
+
+        int connectionCount = Math.max(15, Runtime.getRuntime().availableProcessors() * 2) + 1;
         config.setMaximumPoolSize(connectionCount);
 
         config.setJdbcUrl("jdbc:mysql://" + ConfigManager.MB_DATABASE_ADDRESS.getValue() +
