@@ -362,7 +362,12 @@ public enum LootManager {
             mob.getCharItemManager().addItemToInventory(lootItem);
     }
     public static void peddleFate(AbstractCharacter character, int giftID){
-        int tableID = LootManager._bootySetMap.get(giftID).get(ThreadLocalRandom.current().nextInt(1,LootManager._bootySetMap.get(giftID).size() - 1)).genTable;
+        int tableID = 0;
+        if(LootManager._bootySetMap.get(giftID) != null) {
+            tableID = LootManager._bootySetMap.get(giftID).get(ThreadLocalRandom.current().nextInt(1, LootManager._bootySetMap.get(giftID).size() - 1)).genTable;
+        } else{
+            return;
+        }
         MobLoot gamblingResult= getGenTableItem(tableID,character,false);
         if(gamblingResult != null){
             gamblingResult.promoteToItem((PlayerCharacter)character);
