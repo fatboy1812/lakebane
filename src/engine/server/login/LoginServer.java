@@ -357,7 +357,7 @@ public class LoginServer {
 
             }
 
-            Logger.info("External address: " + ConfigManager.MB_EXTERNAL_ADDR.getValue() + ":" + ConfigManager.MB_WORLD_PORT.getValue());
+            Logger.info("External address: " + ConfigManager.MB_EXTERNAL_ADDR.getValue() + ":" + ConfigManager.MB_LOGIN_PORT.getValue());
             Logger.info("Internal address: " + ConfigManager.MB_BIND_ADDR.getValue() + ":" + ConfigManager.MB_LOGIN_PORT.getValue());
 
             InetAddress addy = InetAddress.getByName(ConfigManager.MB_BIND_ADDR.getValue());
