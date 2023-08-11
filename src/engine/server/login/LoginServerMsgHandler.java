@@ -368,13 +368,13 @@ public class LoginServerMsgHandler implements NetMsgHandler {
     private void DeleteCharacter(DeleteCharacterMsg msg, ClientConnection origin) {
 
         try {
-            PlayerCharacter player;
+            PlayerCharacter playerCharacter;
             Session session;
 
             session = SessionManager.getSession(origin);
-            player = (PlayerCharacter) DbManager.getObject(GameObjectType.PlayerCharacter, msg.getCharacterUUID());
+            playerCharacter = PlayerCharacter.getPlayerCharacter(msg.getCharacterUUID());
 
-            if (player == null) {
+            if (playerCharacter == null) {
                 Logger.error("Delete Error: PlayerID=" + msg.getCharacterUUID() + " not found.");
                 this.sendCharacterSelectScreen(session);
                 return;
@@ -386,8 +386,8 @@ public class LoginServerMsgHandler implements NetMsgHandler {
                 return;
             }
 
-            if (player.getAccount() != origin.getAccount()) {
-                Logger.error("Delete Error: Character " + player.getName() + " does not belong to account " + origin.getAccount().getUname());
+            if (playerCharacter.getAccount().equals(session.getAccount()) == false) {
+                Logger.error("Delete Error: Character " + playerCharacter.getName() + " does not belong to account " + origin.getAccount().getUname());
                 this.sendCharacterSelectScreen(session);
                 return;
             }
@@ -395,21 +395,21 @@ public class LoginServerMsgHandler implements NetMsgHandler {
             //Can't delete as Guild Leader
             //TODO either find an error or just gdisband.
 
-            if (GuildStatusController.isGuildLeader(player.getGuildStatus())) {
+            if (GuildStatusController.isGuildLeader(playerCharacter.getGuildStatus())) {
                 this.KickToLogin(MBServerStatics.LOGINERROR_UNABLE_TO_LOGIN, "Cannot delete a guild leader.", origin);
                 return;
             }
 
             // check for active banes
 
-            if (LoginServer.getActiveBaneQuery(player)) {
-                Logger.info("Character " + player.getName() + " has unresolved bane");
+            if (LoginServer.getActiveBaneQuery(playerCharacter)) {
+                Logger.info("Character " + playerCharacter.getName() + " has unresolved bane");
                 this.KickToLogin(MBServerStatics.LOGINERROR_UNABLE_TO_LOGIN, "Player has unresolved bane.", origin);
                 return;
             }
 
-            player.getAccount().characterMap.remove(player.getObjectUUID());
-            player.deactivateCharacter();
+            playerCharacter.getAccount().characterMap.remove(playerCharacter.getObjectUUID());
+            playerCharacter.deactivateCharacter();
 
             // TODO Delete Equipment
             // Resend Character Select Screen.
