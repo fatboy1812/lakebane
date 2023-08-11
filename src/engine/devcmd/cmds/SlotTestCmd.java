@@ -60,7 +60,6 @@ public class SlotTestCmd extends AbstractDevCmd {
             return;
         }
 
-
         for (BuildingLocation buildingLocation : BuildingManager._slotLocations.get(building.meshUUID))
             outString += buildingLocation.getSlot() + buildingLocation.getLocation().toString() + "\r\n";
 
@@ -87,7 +86,7 @@ public class SlotTestCmd extends AbstractDevCmd {
 
     @Override
     protected String _getUsageString() {
-        return "./slottest <target builing> n";
+        return "./slottest <target building> n";
 
     }
 
