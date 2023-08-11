@@ -12,10 +12,7 @@ import engine.net.client.ClientConnection;
 import engine.net.client.msg.ClientNetMsg;
 import engine.net.client.msg.RepairBuildingMsg;
 import engine.net.client.msg.UpdateObjectMsg;
-import engine.objects.Building;
-import engine.objects.City;
-import engine.objects.PlayerCharacter;
-import engine.objects.Zone;
+import engine.objects.*;
 
 /*
  * @Author:
@@ -61,7 +58,7 @@ public class RepairBuildingMsgHandler extends AbstractClientMsgHandler {
 
         //cannot repair mines during 24/7 activity.
 
-        if (targetBuilding.getBlueprint() != null && targetBuilding.getBlueprint().getBuildingGroup() == BuildingGroup.MINE && targetBuilding.assetIsProtected() == false) {
+        if (targetBuilding.getBlueprint() != null && targetBuilding.getBlueprint().getBuildingGroup() == BuildingGroup.MINE && Mine.getMineFromTower(targetBuilding.getObjectUUID()).isActive == true) {
                 return;
         }
 
