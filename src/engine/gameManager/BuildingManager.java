@@ -55,6 +55,26 @@ public enum BuildingManager {
         return -1;
     }
 
+    public static int getLastAvailableSlot(Building building) {
+
+        ArrayList<BuildingLocation> slotLocations = _slotLocations.get(building.meshUUID);
+
+        // Some meshes might not have slot locations assigned.
+
+        if (slotLocations == null ||
+                slotLocations.isEmpty())
+            return -1;
+
+        int numOfSlots = _slotLocations.get(building.meshUUID).size();
+
+        for (int i = numOfSlots; i > 0; i--) {
+
+            if (!building.getHirelings().containsValue(i))
+                return i;
+        }
+        return -1;
+    }
+
     public static BuildingLocation getSlotLocation(Building building, int slot) {
 
         BuildingLocation buildingLocation = new BuildingLocation();

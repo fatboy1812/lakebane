@@ -793,8 +793,12 @@ public class NPC extends AbstractCharacter {
 
             // Get next available slot for this NPC and use it
             // to add the NPC to the building's hireling list
+            // Account for R8's having slots reversed.
 
-            slot = BuildingManager.getAvailableSlot(building);
+            if (building.getBlueprint() != null && building.getBlueprint().getBuildingGroup().equals(BuildingGroup.TOL) && building.getRank() == 8)
+                slot = BuildingManager.getLastAvailableSlot(building);
+            else
+                slot = BuildingManager.getAvailableSlot(building);
 
             if (slot == -1)
                 Logger.error("No available slot for NPC: " + this.getObjectUUID());
