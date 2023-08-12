@@ -455,7 +455,7 @@ public enum LootManager {
 
         //add winnings to player inventory
 
-        Item playerWinnings = winnings.promoteToItem((PlayerCharacter) playerCharacter);
+        Item playerWinnings = winnings.promoteToItem(playerCharacter);
         itemMan.addItemToInventory(playerWinnings);
         itemMan.updateInventory();
     }
