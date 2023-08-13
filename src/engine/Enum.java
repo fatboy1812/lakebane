@@ -1787,6 +1787,7 @@ public class Enum {
         NPCShopkeeperRune,
         NPCTrainerRune,
         Nation,
+        Petition,
         PlayerCharacter,
         PlayerInfo,
         PowerGrant,
