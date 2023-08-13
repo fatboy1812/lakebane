@@ -7,8 +7,8 @@ import engine.net.client.msg.PetitionReceivedMsg;
 
 public class PetitionReceivedMsgHandler extends AbstractClientMsgHandler {
 
-    public PetitionReceivedMsgHandler(Class<? extends ClientNetMsg> handler) {
-        super(handler);
+    public PetitionReceivedMsgHandler() {
+        super(PetitionReceivedMsg.class);
     }
 
     @Override
