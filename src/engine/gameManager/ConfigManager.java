@@ -135,7 +135,7 @@ public enum ConfigManager {
 
         if (file.exists() && !file.isDirectory()) {
 
-            String[] command = {"./mbbranch"};
+            String[] command = {"./mbbranch.sh"};
 
             try {
 
