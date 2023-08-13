@@ -85,7 +85,7 @@ public enum Protocol {
     COSTTOOPENBANK(0x135BE5E8, AckBankWindowOpenedMsg.class, null), // ACK Bank Window Opened
     CREATECHAR(0x5D18B5C8, CommitNewCharacterMsg.class, null), // Commit New Character,
     CREATEPETITION(0xD489CFED, GuildCreationFinalizeMsg.class, GuildCreationFinalizeHandler.class),    //Confirm guild creation
-    CUSTOMERPETITION(0x7F9D7D6D, PetitionReceivedMsg.class, null),
+    CUSTOMERPETITION(0x7F9D7D6D, PetitionReceivedMsg.class, PetitionReceivedMsgHandler.class),
     DELETEOBJECT(0x57F069D8, DeleteItemMsg.class, null), //Delete Item from Inventory
     DESTROYBUILDING(0x3CB6FAD3, DestroyBuildingMsg.class, DestroyBuildingHandler.class), // Destroy Building
     DISBANDGUILD(0x77AABD64, DisbandGuildMsg.class, DisbandGuildHandler.class), //Disband Guild
