@@ -750,7 +750,7 @@ public enum CombatManager {
 
                     //Handle Dodge passive
 
-                    if (!passiveFired) {
+                    if (!passiveFired)
                         if (testPassive(ac, tarAc, "Dodge")) {
 
                             if (!target.isAlive())
@@ -759,7 +759,6 @@ public enum CombatManager {
                             sendPassiveDefenseMessage(ac, wb, target, MBServerStatics.COMBAT_SEND_DODGE, dpj, mainHand);
                             passiveFired = true;
                         }
-                    }
                 }
 
                 //return if passive (Block, Parry, Dodge) fired
@@ -981,9 +980,7 @@ public enum CombatManager {
         if (acItem == null || tarItem == null)
             return false;
 
-
         Item tarOff = tarItem.getItemFromEquipped(2);
-
 
         if (tarOff == null)
             return false;
@@ -1005,7 +1002,6 @@ public enum CombatManager {
             return false;
 
         return ib.getRange() > MBServerStatics.RANGED_WEAPON_RANGE;
-
 
     }
 
