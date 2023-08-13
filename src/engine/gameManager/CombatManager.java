@@ -451,12 +451,7 @@ public enum CombatManager {
 			if (hasNoWeapon) {
 				range = MBServerStatics.NO_WEAPON_RANGE;
 			} else {
-				range = getWeaponRange(wb);
-				if (bonus != null) {
-					float buffRange = 1;
-					buffRange += bonus.getFloat(ModType.WeaponRange, SourceType.None) * .01f;
-					range *= buffRange;
-				}
+				range = getWeaponRange(wb, bonus);
 			}
 
 			if (abstractCharacter.getObjectType() == GameObjectType.Mob) {
@@ -729,15 +724,8 @@ public enum CombatManager {
 				if (ac.getObjectType().equals(GameObjectType.PlayerCharacter) && (mainHand || wb.isTwoHanded())) {
 					dpj = ((PlayerCharacter) ac).getWeaponPower();
 					if (dpj != null) {
-						float attackRange = getWeaponRange(wb);
 						PlayerBonuses bonus = ac.getBonuses();
-						if (bonus != null) {
-								float buffRange = 1;
-								buffRange += bonus.getFloat(ModType.WeaponRange, SourceType.None) * .01f;
-								attackRange *= buffRange;
-
-						}
-
+						float attackRange = getWeaponRange(wb, bonus);
 						dpj.attack(target, attackRange);
 
 						if (dpj.getPower() != null && (dpj.getPowerToken() == -1851459567 || dpj.getPowerToken() == -1851489518))
@@ -748,7 +736,7 @@ public enum CombatManager {
 				if (ac.getObjectType().equals(GameObjectType.PlayerCharacter) && !mainHand) {
 					dpj = ((PlayerCharacter) ac).getWeaponPower();
 					if (dpj != null && dpj.getPower() != null && (dpj.getPowerToken() == -1851459567 || dpj.getPowerToken() == -1851489518)) {
-						float attackRange = getWeaponRange(wb);
+						float attackRange = getWeaponRange(wb,null);
 						dpj.attack(target, attackRange);
 					}
 				}
@@ -937,15 +925,8 @@ public enum CombatManager {
 					if (dpj != null) {
 						PowersBase wp = dpj.getPower();
 						if (wp.requiresHitRoll() == false) {
-							float attackRange = getWeaponRange(wb);
 							PlayerBonuses bonus = ac.getBonuses();
-							if (bonus != null) {
-									float buffRange = 1;
-									buffRange += bonus.getFloat(ModType.WeaponRange, SourceType.None) * .01f;
-									attackRange *= buffRange;
-
-							}
-
+							float attackRange = getWeaponRange(wb,bonus);
 							dpj.attack(target, attackRange);
 						} else {
 							((PlayerCharacter) ac).setWeaponPower(null);
@@ -1230,11 +1211,14 @@ public enum CombatManager {
 			pc.setLastMobAttackTime();
 	}
 
-	public static float getWeaponRange(ItemBase weapon) {
+	public static float getWeaponRange(ItemBase weapon, PlayerBonuses bonus) {
 		if (weapon == null)
 			return 0f;
-
-		return weapon.getRange();
+		float rangeMod = 1.0f;
+		if (bonus != null) {
+			rangeMod += bonus.getFloat(ModType.WeaponRange, SourceType.None);
+		}
+		return weapon.getRange() * rangeMod;
 	}
 
 	public static void toggleCombat(ToggleCombatMsg msg, ClientConnection origin) {
