@@ -1927,11 +1927,6 @@ public class ClientMessagePump implements NetMsgHandler {
                 case GUILDTREESTATUS:
                     GuildTreeStatusMsg((GuildTreeStatusMsg) msg, origin);
                     break;
-                case CUSTOMERPETITION:
-                    Logger.info("CCR Petition received: " + msg.toString());
-                    // TODO need to send something back to client
-                    // TODO what to do with petition?
-                    break;
                 case IGNORE:
                     ((IgnoreMsg) msg).handleRequest(origin);
                     break;
