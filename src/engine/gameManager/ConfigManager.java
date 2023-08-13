@@ -150,6 +150,7 @@ public enum ConfigManager {
                     currentRepoBranch += string;
                 }
 
+                Logger.info(currentRepoBranch);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
