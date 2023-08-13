@@ -736,7 +736,7 @@ public enum CombatManager {
 				if (ac.getObjectType().equals(GameObjectType.PlayerCharacter) && !mainHand) {
 					dpj = ((PlayerCharacter) ac).getWeaponPower();
 					if (dpj != null && dpj.getPower() != null && (dpj.getPowerToken() == -1851459567 || dpj.getPowerToken() == -1851489518)) {
-						float attackRange = getWeaponRange(wb,null);
+						float attackRange = getWeaponRange(wb,bonuses);
 						dpj.attack(target, attackRange);
 					}
 				}
@@ -1216,7 +1216,8 @@ public enum CombatManager {
 			return 0f;
 		float rangeMod = 1.0f;
 		if (bonus != null) {
-			rangeMod += bonus.getFloat(ModType.WeaponRange, SourceType.None);
+			//rangeMod += bonus.getFloat(ModType.WeaponRange, SourceType.None);
+			rangeMod += bonus.getFloatPercentAll(ModType.WeaponRange, SourceType.None);
 		}
 		return weapon.getRange() * rangeMod;
 	}
