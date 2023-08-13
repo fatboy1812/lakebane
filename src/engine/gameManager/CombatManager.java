@@ -730,6 +730,13 @@ public enum CombatManager {
 					dpj = ((PlayerCharacter) ac).getWeaponPower();
 					if (dpj != null) {
 						float attackRange = getWeaponRange(wb);
+						PlayerBonuses bonus = ac.getBonuses();
+						if (bonus != null) {
+								float buffRange = 1;
+								buffRange += bonus.getFloat(ModType.WeaponRange, SourceType.None) * .01f;
+								attackRange *= buffRange;
+
+						}
 
 						dpj.attack(target, attackRange);
 
@@ -931,6 +938,14 @@ public enum CombatManager {
 						PowersBase wp = dpj.getPower();
 						if (wp.requiresHitRoll() == false) {
 							float attackRange = getWeaponRange(wb);
+							PlayerBonuses bonus = ac.getBonuses();
+							if (bonus != null) {
+									float buffRange = 1;
+									buffRange += bonus.getFloat(ModType.WeaponRange, SourceType.None) * .01f;
+									attackRange *= buffRange;
+
+							}
+
 							dpj.attack(target, attackRange);
 						} else {
 							((PlayerCharacter) ac).setWeaponPower(null);
