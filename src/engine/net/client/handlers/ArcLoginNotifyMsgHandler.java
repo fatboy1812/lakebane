@@ -67,6 +67,11 @@ public class ArcLoginNotifyMsgHandler extends AbstractClientMsgHandler {
         GuildManager.enterWorldMOTD(player);
         ChatManager.sendSystemMessage(player, ConfigManager.MB_WORLD_GREETING.getValue());
 
+        // Send branch string if available from ConfigManager.
+
+        if (ConfigManager.currentRepoBranch != "")
+            ChatManager.sendSystemMessage(player, ConfigManager.currentRepoBranch);
+
         // Set player mask for QT
         if (player.getRace() != null && player.getRace().getToken() == -524731385)
             player.setObjectTypeMask(MBServerStatics.MASK_PLAYER | MBServerStatics.MASK_UNDEAD);
