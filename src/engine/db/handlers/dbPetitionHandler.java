@@ -27,8 +27,8 @@ public class dbPetitionHandler extends dbHandlerBase {
     public void CREATE_PETITION_TABLE() {
 
         try (Connection connection = DbManager.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS dyn_petition \n" +
-                     "   petitionNumber INT AUTO_INCREMENT NOT NULL," +
+             PreparedStatement preparedStatement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS dyn_petition " +
+                     "   (petitionNumber INT AUTO_INCREMENT NOT NULL," +
                      "   petitionTime DATETIME," +
                      "   primaryType VARCHAR(50)," +
                      "   subType VARCHAR(50)," +
