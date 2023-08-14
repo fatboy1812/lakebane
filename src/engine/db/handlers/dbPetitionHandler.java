@@ -28,18 +28,18 @@ public class dbPetitionHandler extends dbHandlerBase {
 
         try (Connection connection = DbManager.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS dyn_petition \n" +
-                     "   (petitionNumber INT AUTO_INCREMENT NOT NULL,\n" +
-                     "   petitionTime DATETIME,\n" +
-                     "   primaryType VARCHAR(50),\n" +
-                     "   subType VARCHAR(50),\n" +
-                     "   message VARCHAR(255),\n" +
-                     "   accountID INT,\n" +
-                     "   account VARCHAR(255),\n" +
-                     "   characterID INT,\n" +
-                     "   `character` VARCHAR(255),\n" +
-                     "   location VARCHAR(255),\n" +
-                     "  PRIMARY KEY (petitionNumber)\n" +
-                     ") ENGINE = innodb ROW_FORMAT = DEFAULT;")) {
+                     "   petitionNumber INT AUTO_INCREMENT NOT NULL," +
+                     "   petitionTime DATETIME," +
+                     "   primaryType VARCHAR(50)," +
+                     "   subType VARCHAR(50)," +
+                     "   message VARCHAR(255)," +
+                     "   accountID INT," +
+                     "   account VARCHAR(255)," +
+                     "   characterID INT," +
+                     "   character` VARCHAR(255)," +
+                     "   location VARCHAR(255), " +
+                     "  PRIMARY KEY (petitionNumber))" +
+                     " ENGINE = innodb ROW_FORMAT = DEFAULT;")) {
 
             preparedStatement.executeQuery();
 
