@@ -49,8 +49,7 @@ public class Petition extends AbstractGameObject {
 
              //check that table exists
 
-             PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO `dyn_petition` (`petitionTime`=?, `primaryType`=?, `subType`=?, `accountID`=?, `account`=?, "
-                     + "`characterID`=?, `character`=?, `location`=?, `message`=?")) {
+             PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO `dyn_petition` (`petitionTime`=?, `primaryType`=?, `subType`=?, `accountID`=?, `account`=?, `characterID`=?, `character`=?, `location`=?, `message`=?);")) {
 
             preparedStatement.setTimestamp(1, new java.sql.Timestamp(System.currentTimeMillis()));
             preparedStatement.setString(2, Enum.PetitionType.values()[this.primaryType].name());
