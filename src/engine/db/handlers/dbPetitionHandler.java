@@ -36,7 +36,7 @@ public class dbPetitionHandler extends dbHandlerBase {
                      "   accountID INT," +
                      "   account VARCHAR(255)," +
                      "   characterID INT," +
-                     "   character` VARCHAR(255)," +
+                     "   character VARCHAR(255)," +
                      "   location VARCHAR(255), " +
                      "  PRIMARY KEY (petitionNumber))" +
                      " ENGINE = innodb ROW_FORMAT = DEFAULT;")) {
