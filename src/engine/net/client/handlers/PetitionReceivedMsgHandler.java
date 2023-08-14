@@ -14,21 +14,20 @@ public class PetitionReceivedMsgHandler extends AbstractClientMsgHandler {
 
     @Override
     protected boolean _handleNetMsg(ClientNetMsg msg, ClientConnection origin) throws MsgSendException {
-        if(msg == null)
+        if (msg == null)
             return false;
 
-        if(origin == null)
+        if (origin == null)
             return false;
 
-        Petition report = new Petition(msg,origin);
-        if(report == null){
+        Petition report = new Petition(msg, origin);
+
+        if (report == null)
             return false;
-        }
 
         try {
             report.updateDatabase();
-        }
-        catch(Exception e){
+        } catch (Exception e) {
             return false;
         }
         return true;

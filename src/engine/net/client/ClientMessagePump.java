@@ -1884,8 +1884,6 @@ public class ClientMessagePump implements NetMsgHandler {
                     break;
                 case CHECKUNIQUEGUILD:
                     break;
-                case CREATEPETITION:
-                    break;
                 case CANCELGUILDCREATION:
                     break;
                 case LEAVEREQUEST:

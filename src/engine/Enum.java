@@ -37,6 +37,33 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class Enum {
 
+    public enum PetitionType {
+        NONE,
+        GENERAL,
+        FEEDBACK,
+        STUCK,
+        HARASSMENT,
+        EXPLOIT,
+        BUG,
+        GAME_STOPPER,
+        TECH_SUPPORT;
+
+    }
+
+    public enum PetitionSubType {
+        NONE,
+        DUPE,
+        LEVELLING,
+        SKILL_GAIN,
+        KILLING,
+        POLICY,
+        OTHER,
+        VIDEO,
+        SOUND,
+        NETWORKKl
+
+    }
+
     public enum MobFlagType implements EnumBitSetHelper<MobFlagType> {
         AGGRESSIVE,
         CANROAM,

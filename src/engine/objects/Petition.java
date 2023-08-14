@@ -9,6 +9,7 @@
 
 package engine.objects;
 
+import engine.Enum;
 import engine.gameManager.DbManager;
 import engine.math.Vector3fImmutable;
 import engine.net.client.ClientConnection;
@@ -39,100 +40,30 @@ public class Petition extends AbstractGameObject {
         this.reportTime = DateTime.now();
         this.message = ((PetitionReceivedMsg) msg).getMessage();
     }
-    public static String getPrimaryTypeString(int value){
-        String primaryReportType;
-        switch(value){
-            case 1: // TYPE_GENERAL_HELP
-                primaryReportType = "GENERAL";
-                break;
-            case 2: // TYPE_FEEDBACK
-                primaryReportType = "FEEDBACK";
-                break;
-            case 3: // TYPE_STUCK
-                primaryReportType = "STUCK";
-                break;
-            case 4: // TYPE_HARASSMENT
-                primaryReportType = "HARASSMENT";
-                break;
-            case 5: // TYPE_EXPLOIT
-                primaryReportType = "EXPLOIT";
-                break;
-            case 6: // TYPE_BUG
-                primaryReportType = "BUG";
-                break;
-            case 7: // TYPE_GAME_STOPPER
-                primaryReportType = "GAME STOPPER";
-                break;
-            case 8: // TYPE_TECH_SUPPORT
-                primaryReportType = "TECH SUPPORT";
-                break;
-            default: // INVALID_TYPE cannot process this
-                primaryReportType = "NONE";
-                break;
-        }
-        return primaryReportType;
-    }
-    public static String getSecondaryTypeString(int value){
-        String subType;
-        switch (value) {
-            case 1: // SUBTYPE_EXPLOIT_DUPE
-                subType = "DUPE";
-                break;
-            case 2: // SUBTYPE_EXPLOIT_LEVELING
-                subType = "LEVELLING";
-                break;
-            case 3: // SUBTYPE_EXPLOIT_SKILL_GAIN
-                subType = "SKILL GAIN";
-                break;
-            case 4: // SUBTYPE_EXPLOIT_KILLING
-                subType = "KILLING";
-                break;
-            case 5: // SUBTYPE_EXPLOIT_POLICY
-                subType = "POLICY";
-                break;
-            case 6: // SUBTYPE_EXPLOIT_OTHER
-                subType = "OTHER";
-                break;
-            case 7: // SUBTYPE_TECH_VIDEO
-                subType = "VIDEO";
-                break;
-            case 8: // SUBTYPE_TECH_SOUND
-                subType = "SOUND";
-                break;
-            case 9: // SUBTYPE_TECH_NETWORK
-                subType = "NETWORK";
-                break;
-            case 10: // SUBTYPE_TECH_OTHER
-                subType = "OTHER";
-                break;
-            default: // INVALID_SUB_TYPE
-                subType = "NONE";
-                break;
-        }
-        return subType;
-    }
+
     public static String getLocationString(Vector3fImmutable loc){
         return loc.x + "," + loc.y + "," + loc.z;
     }
 
     @Override
     public void updateDatabase() {
+
         try (Connection connection = DbManager.getConnection();
 
              //check that table exists
 
+             PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO `dyn_petition` (`time`=?, `primaryType`=?, `subType`=?, `accountID`=?, `account`=?, "
+                     + "`characterID`=?, `character`=?, `location`=?, `message`=?")) {
 
-             PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO `dyn_petition` (`time`=?, `primaryType`=?, `subType`=?, `account`=?, "
-                     + "`character`=?, `location`=?, `message`=?, `ID`=?)")) {
-
-            preparedStatement.setString(1, this.reportTime.toString());
-            preparedStatement.setString(2, getPrimaryTypeString(this.primaryType));
-            preparedStatement.setString(3, getSecondaryTypeString(this.subType));
-            preparedStatement.setString(4, this.reportAccount.getUname());
-            preparedStatement.setString(5, this.reportPlayer.getFirstName());
-            preparedStatement.setString(6, getLocationString(this.playerLocation));
-            preparedStatement.setString(7, this.message);
-            preparedStatement.setInt(8, this.getObjectUUID());
+            preparedStatement.setTimestamp(1, new java.sql.Timestamp(System.currentTimeMillis()));
+            preparedStatement.setString(2, Enum.PetitionType.values()[this.primaryType].name());
+            preparedStatement.setString(3, Enum.PetitionSubType.values()[this.subType].name());
+            preparedStatement.setInt(4, this.reportAccount.getObjectUUID());
+            preparedStatement.setString(5, this.reportAccount.getUname());
+            preparedStatement.setInt(6, this.reportPlayer.getObjectUUID());
+            preparedStatement.setString(7, this.reportPlayer.getFirstName());
+            preparedStatement.setString(8, getLocationString(this.playerLocation));
+            preparedStatement.setString(9, this.message);
 
             preparedStatement.executeUpdate();
 
