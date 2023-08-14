@@ -39,8 +39,13 @@ public class PetitionReceivedMsgHandler extends AbstractClientMsgHandler {
             return false;
 
         try {
-            petitionReceivedMsg.petition = 2;
+            // Write petition to database
+
             DbManager.PetitionQueries.WRITE_PETITION_TO_TABLE(petition);
+
+            // Close the petition window
+
+            petitionReceivedMsg.petition = 2;
             Dispatch dispatch = Dispatch.borrow(playerCharacter, msg);
             DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
 
