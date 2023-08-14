@@ -1,6 +1,7 @@
 package engine.net.client.handlers;
 
 import engine.exception.MsgSendException;
+import engine.gameManager.DbManager;
 import engine.net.client.ClientConnection;
 import engine.net.client.msg.ClientNetMsg;
 import engine.net.client.msg.PetitionReceivedMsg;
@@ -20,13 +21,13 @@ public class PetitionReceivedMsgHandler extends AbstractClientMsgHandler {
         if (origin == null)
             return false;
 
-        Petition report = new Petition(msg, origin);
+        Petition petition = new Petition(msg, origin);
 
-        if (report == null)
+        if (petition == null)
             return false;
 
         try {
-            report.updateDatabase();
+            DbManager.PetitionQueries.WRITE_PETITION_TO_TABLE(petition);
         } catch (Exception e) {
             return false;
         }

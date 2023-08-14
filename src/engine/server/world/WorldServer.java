@@ -321,6 +321,9 @@ public class WorldServer {
 		Logger.info("Initializing NPC Profits");
 		DbManager.NPCQueries.LOAD_NPC_PROFITS();
 
+		Logger.info("Initializing Petition Table");
+		DbManager.PetitionQueries.CREATE_PETITION_TABLE();
+
 		Logger.info("Initializing MeshBounds");
 		MeshBounds.InitializeBuildingBounds();
 
