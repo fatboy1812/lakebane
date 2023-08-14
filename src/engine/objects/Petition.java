@@ -15,7 +15,6 @@ import engine.math.Vector3fImmutable;
 import engine.net.client.ClientConnection;
 import engine.net.client.msg.ClientNetMsg;
 import engine.net.client.msg.PetitionReceivedMsg;
-import org.joda.time.DateTime;
 import org.pmw.tinylog.Logger;
 
 import java.sql.Connection;
@@ -28,7 +27,6 @@ public class Petition extends AbstractGameObject {
     public Account reportAccount;
     public PlayerCharacter reportPlayer;
     public Vector3fImmutable playerLocation;
-    public DateTime reportTime;
     public String message;
 
     public Petition(ClientNetMsg msg, ClientConnection origin){
@@ -37,7 +35,6 @@ public class Petition extends AbstractGameObject {
         this.reportAccount = origin.getAccount();
         this.reportPlayer = origin.getPlayerCharacter();
         this.playerLocation = origin.getPlayerCharacter().getLoc();
-        this.reportTime = DateTime.now();
         this.message = ((PetitionReceivedMsg) msg).getMessage();
     }
 
