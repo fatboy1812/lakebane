@@ -41,7 +41,7 @@ public class dbPetitionHandler extends dbHandlerBase {
                      "  PRIMARY KEY (petitionNumber))" +
                      " ENGINE = innodb ROW_FORMAT = DEFAULT;")) {
 
-            preparedStatement.executeQuery();
+            preparedStatement.executeUpdate();
 
         } catch (SQLException e) {
             Logger.error(e);
