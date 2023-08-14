@@ -45,7 +45,9 @@ public class PetitionReceivedMsgHandler extends AbstractClientMsgHandler {
 
             // Close the petition window
 
-            petitionReceivedMsg.petition = 4;
+            if (petitionReceivedMsg.petition != 2)
+                petitionReceivedMsg.petition = 4;
+
             petitionReceivedMsg.unknownByte01 = 0;
             petitionReceivedMsg.unknown04 = 0;
 
