@@ -18,6 +18,10 @@ import engine.server.login.LoginServer;
 import engine.server.world.WorldServer;
 import org.pmw.tinylog.Logger;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.regex.Pattern;
@@ -107,11 +111,13 @@ public enum ConfigManager {
     public static LoginServer loginServer;
     public static Map<ConfigManager, Pattern> regex = new HashMap<>();
 
+    public static String currentRepoBranch = "";
+
     // Called at bootstrap: ensures that all config values are loaded.
 
     public static boolean init() {
 
-        Logger.info("Loading config from environment...");
+        Logger.info("Loading config from environment.");
 
         for (ConfigManager configSetting : ConfigManager.values())
             if (configMap.containsKey(configSetting.name()))
@@ -122,6 +128,33 @@ public enum ConfigManager {
                 Logger.error("docker pull magicbane/magicbox:latest");
                 return false;
             }
+
+        Logger.info("Determine current Repo branch");
+
+        File file = new File("mbbranch.sh");
+
+        if (file.exists() && !file.isDirectory()) {
+
+            String[] command = {"./mbbranch.sh"};
+
+            try {
+
+                Process process = Runtime.getRuntime().exec(command);
+                BufferedReader reader = new BufferedReader(new InputStreamReader(
+                        process.getInputStream()));
+                String string;
+
+                while (true) {
+                    if ((string = reader.readLine()) == null)
+                        break;
+                    currentRepoBranch += string;
+                }
+
+                Logger.info(currentRepoBranch);
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        }
 
         // compile regex here
 
