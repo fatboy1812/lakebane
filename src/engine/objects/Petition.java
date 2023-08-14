@@ -49,7 +49,7 @@ public class Petition extends AbstractGameObject {
 
              //check that table exists
 
-             PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO `dyn_petition` (`time`=?, `primaryType`=?, `subType`=?, `accountID`=?, `account`=?, "
+             PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO `dyn_petition` (`petitionTime`=?, `primaryType`=?, `subType`=?, `accountID`=?, `account`=?, "
                      + "`characterID`=?, `character`=?, `location`=?, `message`=?")) {
 
             preparedStatement.setTimestamp(1, new java.sql.Timestamp(System.currentTimeMillis()));
