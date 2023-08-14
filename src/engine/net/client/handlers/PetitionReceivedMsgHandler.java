@@ -13,6 +13,10 @@ import engine.objects.PlayerCharacter;
 
 public class PetitionReceivedMsgHandler extends AbstractClientMsgHandler {
 
+    public static final int PETITION_NEW = 1;
+    public static final int PETITION_CANCEL = 2;
+    public static final int PETITION_CLOSE = 4;
+
     public PetitionReceivedMsgHandler() {
         super(PetitionReceivedMsg.class);
     }
@@ -35,18 +39,16 @@ public class PetitionReceivedMsgHandler extends AbstractClientMsgHandler {
 
         Petition petition = new Petition(msg, origin);
 
-        if (petition == null)
-            return false;
-
         try {
             // Write petition to database
 
-            DbManager.PetitionQueries.WRITE_PETITION_TO_TABLE(petition);
+            if (petitionReceivedMsg.petition == PETITION_NEW)
+                DbManager.PetitionQueries.WRITE_PETITION_TO_TABLE(petition);
 
             // Close the petition window
 
-            if (petitionReceivedMsg.petition != 2)
-                petitionReceivedMsg.petition = 4;
+            if (petitionReceivedMsg.petition == PETITION_NEW)
+                petitionReceivedMsg.petition = PETITION_CLOSE;
 
             petitionReceivedMsg.unknownByte01 = 0;
             petitionReceivedMsg.unknown04 = 0;

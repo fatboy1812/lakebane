@@ -15,12 +15,10 @@ import engine.net.ByteBufferReader;
 import engine.net.ByteBufferWriter;
 import engine.net.client.Protocol;
 
+import static engine.net.client.handlers.PetitionReceivedMsgHandler.PETITION_NEW;
+
 
 public class PetitionReceivedMsg extends ClientNetMsg {
-
-    // TODO pull these statics out into SBEmuStatics.java
-    public static final int PETITION_NEW = 1;
-    public static final int PETITION_CANCEL = 2;
 
     public int petition;
     public int unknown01;
@@ -97,7 +95,7 @@ public class PetitionReceivedMsg extends ClientNetMsg {
             this.language = reader.getString();
             this.unknown07 = reader.getInt();
             this.message = reader.getUnicodeString();
-        } else if (petition == PETITION_CANCEL) {
+        } else {
             this.unknown01 = reader.getInt();
             this.unknown02 = reader.getInt();
             this.unknownByte01 = reader.get();
