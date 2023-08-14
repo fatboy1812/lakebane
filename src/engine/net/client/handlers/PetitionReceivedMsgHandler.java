@@ -45,8 +45,11 @@ public class PetitionReceivedMsgHandler extends AbstractClientMsgHandler {
 
             // Close the petition window
 
-            petitionReceivedMsg.petition = 1;
-            Dispatch dispatch = Dispatch.borrow(playerCharacter, msg);
+            petitionReceivedMsg.petition = 4;
+            petitionReceivedMsg.unknownByte01 = 0;
+            petitionReceivedMsg.unknown04 = 0;
+
+            Dispatch dispatch = Dispatch.borrow(playerCharacter, petitionReceivedMsg);
             DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
 
         } catch (Exception e) {

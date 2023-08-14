@@ -53,6 +53,7 @@ public class PetitionReceivedMsg extends ClientNetMsg {
     @Override
     protected void _serialize(ByteBufferWriter writer) {
         writer.putInt(this.petition);
+
         if (this.petition == PETITION_NEW) {
             writer.putInt(this.unknown01);
             writer.putInt(this.unknown02);
@@ -67,7 +68,7 @@ public class PetitionReceivedMsg extends ClientNetMsg {
             writer.putString(this.language);
             writer.putInt(this.unknown07);
             writer.putUnicodeString(message);
-        } else if (this.petition == PETITION_CANCEL) {
+        } else {
             writer.putInt(this.unknown01);
             writer.putInt(this.unknown02);
             writer.put(this.unknownByte01);
