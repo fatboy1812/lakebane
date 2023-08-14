@@ -21,12 +21,12 @@ public class Petition {
     public String message;
 
     public Petition(ClientNetMsg msg, ClientConnection origin) {
-        this.primaryType = ((PetitionReceivedMsg) msg).getType();
-        this.subType = ((PetitionReceivedMsg) msg).getSubType();
+        this.primaryType = ((PetitionReceivedMsg) msg).type;
+        this.subType = ((PetitionReceivedMsg) msg).subType;
         this.reportAccount = origin.getAccount();
         this.reportPlayer = origin.getPlayerCharacter();
         this.playerLocation = origin.getPlayerCharacter().getLoc();
-        this.message = ((PetitionReceivedMsg) msg).getMessage();
+        this.message = ((PetitionReceivedMsg) msg).message;
     }
 
 }
