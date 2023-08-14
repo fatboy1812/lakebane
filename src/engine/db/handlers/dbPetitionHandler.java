@@ -54,7 +54,7 @@ public class dbPetitionHandler extends dbHandlerBase {
 
              //check that table exists
 
-             PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO `dyn_petition` (`petitionTime`, `primaryType`, `subType`, `accountID`, `account`, `characterID`, `character`, `location`, `message`)" +
+             PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO `dyn_petition` (`petitionTime`, `primaryType`, `subType`, `accountID`, `accountName`, `characterID`, `characterName`, `location`, `message`)" +
                      " VALUES (?,?,?,?,?,?,?,?,?);")) {
 
             preparedStatement.setTimestamp(1, new java.sql.Timestamp(System.currentTimeMillis()));
