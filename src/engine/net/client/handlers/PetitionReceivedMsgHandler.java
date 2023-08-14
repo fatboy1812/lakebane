@@ -39,7 +39,6 @@ public class PetitionReceivedMsgHandler extends AbstractClientMsgHandler {
 
         Petition petition = new Petition(msg, origin);
 
-        try {
             // Write petition to database
 
             if (petitionReceivedMsg.petition == PETITION_NEW)
@@ -56,9 +55,6 @@ public class PetitionReceivedMsgHandler extends AbstractClientMsgHandler {
             Dispatch dispatch = Dispatch.borrow(playerCharacter, petitionReceivedMsg);
             DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
 
-        } catch (Exception e) {
-            return false;
-        }
         return true;
     }
 }
