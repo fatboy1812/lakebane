@@ -430,18 +430,9 @@ public class ManageNPCMsg extends ClientNetMsg {
                         }
                         ArrayList<MobLoot> itemList = npc.getRolling();
 
-                        if (itemList.isEmpty())
-                            writer.putInt(0);
-                        else {
-                            if (itemList.size() < npc.getRank())
-                                writer.putInt(itemList.size());
-                            else
-                                writer.putInt(npc.getRank());
+                            writer.putInt(itemList.size());
 
                             for (Item i : itemList) {
-
-                                if (itemList.indexOf(i) >= npc.getRank())
-                                    break;
 
                                 ItemBase ib = i.getItemBase();
 
@@ -495,7 +486,7 @@ public class ManageNPCMsg extends ClientNetMsg {
 
                                 writer.putString(i.getCustomName());
                             }
-                        }
+
 
                         writer.putInt(0);
                         writer.putInt(0);
