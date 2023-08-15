@@ -415,7 +415,7 @@ public class ManageNPCMsg extends ClientNetMsg {
                         //Begin Item list for creation.
                         writer.putInt(rollableSet.size());
 
-                        for (Integer ib : rollableSet) {
+                        for (int ib : rollableSet) {
                             ItemBase item = ItemBase.getItemBase(ib);
                             writer.put((byte) 1);
                             writer.putInt(0);
