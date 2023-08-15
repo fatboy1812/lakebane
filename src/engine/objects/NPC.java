@@ -79,7 +79,7 @@ public class NPC extends AbstractCharacter {
     // Variables NOT to be stored in db
     protected boolean isStatic = false;
     private DateTime upgradeDateTime = null;
-    private ConcurrentHashMap<Mob, Integer> siegeMinionMap = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_LOW);
+    private final ConcurrentHashMap<Mob, Integer> siegeMinionMap = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_LOW);
     private HashSet<Integer> canRoll = null;
     private int parentZoneID;
     private int equipmentSetID = 0;
@@ -1278,58 +1278,51 @@ public class NPC extends AbstractCharacter {
         return this.guild;
     }
 
-    // Method removes the npc from the game simulation
-    // and deletes it from the database.
-
-    public ArrayList<Mob> getSiegeMinions() {
-        return siegeMinions;
-    }
-
     public HashSet<Integer> getCanRoll() {
 
-        if (this.canRoll == null) {
+        if (this.canRoll == null)
             this.canRoll = DbManager.ItemQueries.GET_ITEMS_FOR_VENDOR(this.vendorID);
+
+        HashSet<Integer> fullItemList = this.canRoll;
+        HashSet<Integer> filteredItemList = new HashSet<>();
+        short maxSkill = 25;
+
+        switch (this.getRank()) {
+            case 1:
+                maxSkill = 25;
+                break;
+            case 2:
+                maxSkill = 50;
+                break;
+            case 3:
+            case 4:
+                maxSkill = 75;
+                break;
+            case 5:
+            case 6:
+                maxSkill = 100;
+                break;
+            case 7:
+                maxSkill = 110;
+                break;
         }
-            HashSet<Integer> fullItemList = this.canRoll;
-            HashSet<Integer> returnIDs = new HashSet<>();
-            short maxSkill = 25;
-            switch(this.getRank()){
-                case 1:
-                    maxSkill = 25;
-                    break;
-                case 2:
-                    maxSkill = 50;
-                    break;
-                case 3:
-                case 4:
-                    maxSkill = 75;
-                    break;
-                case 5:
-                case 6:
-                    maxSkill = 100;
-                    break;
-                case 7:
-                    maxSkill = 110;
-                    break;
-            }
-            for(Integer itemID : fullItemList){
-                if(ItemBase.getItemBase(itemID).getPercentRequired() <= maxSkill){
-                    returnIDs.add(itemID);
-                }
-            }
-            if (this.contract.getVendorID() == 102) {
 
-                for (int i = 0; i < this.getRank(); i++) {
-                    int subID = i + 1;
-                    returnIDs.add(910010 + subID);
-                }
+        for (Integer itemID : fullItemList)
+            if (ItemBase.getItemBase(itemID).getPercentRequired() <= maxSkill)
+                filteredItemList.add(itemID);
 
-                if (this.getRank() == 7)
-                    returnIDs.add(910018);
+        if (this.contract.getVendorID() == 102) {
+
+            for (int i = 0; i < this.getRank(); i++) {
+                int subID = i + 1;
+                filteredItemList.add(910010 + subID);
             }
-        //}
 
-        return returnIDs;
+            if (this.getRank() == 7)
+                filteredItemList.add(910018);
+        }
+
+        return filteredItemList;
     }
 
     public int getRollingTimeInSeconds(int itemID) {
