@@ -452,8 +452,7 @@ public class ManageNPCMsg extends ClientNetMsg {
                                 writer.putInt(0);
                                 writer.putInt(i.getItemBaseID());
                                 writer.putInt(ib.getBaseValue());
-                                long curTime = System.currentTimeMillis() / 1000;
-                                long upgradeTime = i.getDateToUpgrade() / 1000;
+
                                 long timeLife = i.getDateToUpgrade() - System.currentTimeMillis();
 
                                 timeLife /= 1000;
