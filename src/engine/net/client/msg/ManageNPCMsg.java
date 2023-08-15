@@ -26,7 +26,9 @@ import org.pmw.tinylog.Logger;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 /**
  * Order NPC
@@ -362,6 +364,7 @@ public class ManageNPCMsg extends ClientNetMsg {
                                 long curTime = System.currentTimeMillis() / 1000;
                                 long upgradeTime = (mob.deathTime + (mob.spawnTime * 1000)) / 1000;
                                 long timeLife = upgradeTime - curTime;
+
                                 if (upgradeTime * 1000 > System.currentTimeMillis()) {
                                     if (mob.npcOwner.isAlive()) {
                                         writer.put((byte) 0);//shows respawning timer
@@ -402,13 +405,14 @@ public class ManageNPCMsg extends ClientNetMsg {
                             writer.putInt(0);
                         else
                             writer.putInt(npc.getRank()); //vendor slots
+
                         writer.putInt(0); //artilerist slots
                         writer.putInt(0); //runemaster slots
 
                         writer.putInt(1); //is this static?
-                        for (int i = 0; i < 4; i++) {
+
+                        for (int i = 0; i < 4; i++)
                             writer.putInt(0); //statics
-                        }
 
                         HashSet<Integer> rollableSet = npc.getCanRoll();
 
@@ -428,17 +432,19 @@ public class ManageNPCMsg extends ClientNetMsg {
                             writer.put((byte) item.getModTable());
                             writer.put((byte) item.getModTable());//EffectItemType
                         }
-                        ArrayList<MobLoot> itemList = npc.getRolling();
 
-                            writer.putInt(itemList.size());
+                        List<MobLoot> itemList = npc.getRolling();
+                        itemList = itemList.stream().limit(npc.getRank()).collect(Collectors.toList());
 
-                            for (Item i : itemList) {
+                        writer.putInt(itemList.size());
 
-                                ItemBase ib = i.getItemBase();
+                        for (Item i : itemList) {
 
-                                writer.put((byte) 0); // ? Unknown45
-                                writer.putInt(i.getObjectType().ordinal());
-                                writer.putInt(i.getObjectUUID());
+                            ItemBase ib = i.getItemBase();
+
+                            writer.put((byte) 0); // ? Unknown45
+                            writer.putInt(i.getObjectType().ordinal());
+                            writer.putInt(i.getObjectUUID());
 
                                 writer.putInt(0);
                                 writer.putInt(i.getItemBaseID());
