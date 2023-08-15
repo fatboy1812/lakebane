@@ -44,7 +44,6 @@ public class ManageNPCMsg extends ClientNetMsg {
     private int buildingID;
     private int unknown20;
     private int unknown26;
-    private int unknown82;
     private int unknown83;
 
     /**
@@ -60,7 +59,6 @@ public class ManageNPCMsg extends ClientNetMsg {
 
         this.unknown20 = 0;
         this.unknown26 = 0;
-        this.unknown82 = 0;
         this.unknown83 = 0;
     }
 
