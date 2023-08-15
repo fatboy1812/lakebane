@@ -1271,31 +1271,6 @@ public class NPC extends AbstractCharacter {
         }
     }
 
-    public ArrayList<Building> getProtectedBuildings() {
-
-        ArrayList<Building> protectedBuildings = new ArrayList<>();
-
-        if (this.building == null)
-            return protectedBuildings;
-
-        if (this.building.getCity() == null)
-            return protectedBuildings;
-
-        for (Building b : this.building.getCity().getParent().zoneBuildingSet) {
-
-            if (b.getBlueprint() == null)
-                continue;
-
-            if (b.getProtectionState().equals(ProtectionState.CONTRACT))
-                protectedBuildings.add(b);
-
-            if (b.getProtectionState().equals(ProtectionState.PENDING))
-                protectedBuildings.add(b);
-        }
-
-        return protectedBuildings;
-    }
-
     @Override
     public Guild getGuild() {
         if (this.building != null)

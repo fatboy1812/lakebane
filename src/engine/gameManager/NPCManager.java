@@ -293,4 +293,29 @@ public enum NPCManager {
         return nameList.get(ThreadLocalRandom.current().nextInt(nameList.size()));
 
     }
+
+    public static ArrayList<Building> getProtectedBuildings(NPC npc) {
+
+        ArrayList<Building> protectedBuildings = new ArrayList<>();
+
+        if (npc.building == null)
+            return protectedBuildings;
+
+        if (npc.building.getCity() == null)
+            return protectedBuildings;
+
+        for (Building b : npc.building.getCity().getParent().zoneBuildingSet) {
+
+            if (b.getBlueprint() == null)
+                continue;
+
+            if (b.getProtectionState().equals(Enum.ProtectionState.CONTRACT))
+                protectedBuildings.add(b);
+
+            if (b.getProtectionState().equals(Enum.ProtectionState.PENDING))
+                protectedBuildings.add(b);
+        }
+
+        return protectedBuildings;
+    }
 }

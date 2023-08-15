@@ -12,6 +12,7 @@ package engine.net.client.msg;
 import engine.Enum.GameObjectType;
 import engine.Enum.MinionType;
 import engine.Enum.ProtectionState;
+import engine.gameManager.NPCManager;
 import engine.gameManager.PowersManager;
 import engine.net.AbstractConnection;
 import engine.net.ByteBufferReader;
@@ -440,7 +441,7 @@ public class ManageNPCMsg extends ClientNetMsg {
 
                         //TODO add runemaster list here
 
-                        ArrayList<Building> buildingList = npc.getProtectedBuildings();
+                        ArrayList<Building> buildingList = NPCManager.getProtectedBuildings(npc);
 
                         writer.putInt(buildingList.size());
 

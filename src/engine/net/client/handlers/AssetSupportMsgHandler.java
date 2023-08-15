@@ -5,6 +5,7 @@ import engine.Enum.SupportMsgType;
 import engine.Enum.TaxType;
 import engine.exception.MsgSendException;
 import engine.gameManager.BuildingManager;
+import engine.gameManager.NPCManager;
 import engine.gameManager.SessionManager;
 import engine.net.Dispatch;
 import engine.net.DispatchMessage;
@@ -71,7 +72,7 @@ public class AssetSupportMsgHandler extends AbstractClientMsgHandler {
 
         protectionSlots = (2 * serverCity.getRuneMaster().getRank()) + 6;
 
-        if (serverCity.getRuneMaster().getProtectedBuildings().size() >=
+        if (NPCManager.getProtectedBuildings(serverCity.getRuneMaster()).size() >=
                 protectionSlots) {
             ErrorPopupMsg.sendErrorMsg(origin.getPlayerCharacter(), "Runemaster can only protect " + protectionSlots + " structura!");
             return;
