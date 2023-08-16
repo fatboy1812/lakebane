@@ -15,6 +15,8 @@ import engine.net.ByteBufferReader;
 import engine.net.ByteBufferWriter;
 import engine.net.client.Protocol;
 
+import java.util.stream.IntStream;
+
 import static engine.net.client.handlers.PetitionReceivedMsgHandler.PETITION_NEW;
 
 
@@ -32,7 +34,7 @@ public class PetitionReceivedMsg extends ClientNetMsg {
     public int subType;
     public String compType;
     public String language;
-    public int unknown07;
+    public int stringCount;
     public String message;
 
     /**
@@ -79,8 +81,9 @@ public class PetitionReceivedMsg extends ClientNetMsg {
             this.subType = reader.getInt();
             this.compType = reader.getString();
             this.language = reader.getString();
-            this.unknown07 = reader.getInt();
-            this.message = reader.getString();
+            this.stringCount = reader.getInt();
+            IntStream.range(0, stringCount).forEach($ -> this.message += reader.getString());
+
         } else {
             this.unknown01 = reader.getInt();
             this.unknown02 = reader.getInt();
