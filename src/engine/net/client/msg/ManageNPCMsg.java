@@ -401,7 +401,7 @@ public class ManageNPCMsg extends ClientNetMsg {
 
                     } else {
 
-                        if (Contract.NoSlots(npc.getContract()))
+                        if (npc.getCanRoll().isEmpty())
                             writer.putInt(0);
                         else
                             writer.putInt(npc.getRank()); //vendor slots
