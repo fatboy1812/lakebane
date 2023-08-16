@@ -51,28 +51,12 @@ public class PetitionReceivedMsg extends ClientNetMsg {
     @Override
     protected void _serialize(ByteBufferWriter writer) {
         writer.putInt(this.petition);
+        writer.putInt(this.unknown01);
+        writer.putInt(this.unknown02);
+        writer.put(this.unknownByte01);
+        writer.putInt(this.unknown03);
+        writer.putInt(this.unknown04);
 
-        if (this.petition == PETITION_NEW) {
-            writer.putInt(this.unknown01);
-            writer.putInt(this.unknown02);
-            writer.put(this.unknownByte01);
-            writer.putInt(this.unknown03);
-            writer.putInt(this.unknown04);
-            writer.putInt(this.unknown05);
-            writer.putInt(this.unknown06);
-            writer.putInt(this.type);
-            writer.putInt(this.subType);
-            writer.putString(this.compType);
-            writer.putString(this.language);
-            writer.putInt(this.unknown07);
-            writer.putUnicodeString(message);
-        } else {
-            writer.putInt(this.unknown01);
-            writer.putInt(this.unknown02);
-            writer.put(this.unknownByte01);
-            writer.putInt(this.unknown03);
-            writer.putInt(this.unknown04);
-        }
     }
 
     /**
@@ -80,7 +64,9 @@ public class PetitionReceivedMsg extends ClientNetMsg {
      */
     @Override
     protected void _deserialize(ByteBufferReader reader) {
+
         petition = reader.getInt();
+
         if (petition == PETITION_NEW) {
             this.unknown01 = reader.getInt();
             this.unknown02 = reader.getInt();
@@ -94,7 +80,7 @@ public class PetitionReceivedMsg extends ClientNetMsg {
             this.compType = reader.getString();
             this.language = reader.getString();
             this.unknown07 = reader.getInt();
-            this.message = reader.getUnicodeString();
+            this.message = reader.getString();
         } else {
             this.unknown01 = reader.getInt();
             this.unknown02 = reader.getInt();
