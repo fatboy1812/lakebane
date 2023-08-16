@@ -37,7 +37,7 @@ public class PetitionReceivedMsgHandler extends AbstractClientMsgHandler {
         if (playerCharacter == null)
             return true;
 
-        Petition petition = new Petition(msg, origin);
+        Petition petition = new Petition(petitionReceivedMsg, origin);
 
             // Write petition to database
 

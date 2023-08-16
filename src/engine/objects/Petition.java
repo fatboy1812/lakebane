@@ -9,7 +9,6 @@
 package engine.objects;
 import engine.math.Vector3fImmutable;
 import engine.net.client.ClientConnection;
-import engine.net.client.msg.ClientNetMsg;
 import engine.net.client.msg.PetitionReceivedMsg;
 
 public class Petition {
@@ -20,13 +19,13 @@ public class Petition {
     public Vector3fImmutable playerLocation;
     public String message;
 
-    public Petition(ClientNetMsg msg, ClientConnection origin) {
-        this.primaryType = ((PetitionReceivedMsg) msg).type;
-        this.subType = ((PetitionReceivedMsg) msg).subType;
+    public Petition(PetitionReceivedMsg petitionReceivedMsg, ClientConnection origin) {
+        this.primaryType = petitionReceivedMsg.type;
+        this.subType = petitionReceivedMsg.subType;
         this.reportAccount = origin.getAccount();
         this.reportPlayer = origin.getPlayerCharacter();
         this.playerLocation = origin.getPlayerCharacter().getLoc();
-        this.message = ((PetitionReceivedMsg) msg).message;
+        this.message = petitionReceivedMsg.message;
     }
 
 }
