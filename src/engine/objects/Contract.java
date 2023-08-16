@@ -133,42 +133,6 @@ public class Contract extends AbstractGameObject {
         setBools();
     }
 
-    public static boolean NoSlots(Contract contract) {
-        switch (contract.contractID) {
-            case 830:
-            case 838:
-            case 847:
-            case 860:
-            case 866:
-            case 865:
-            case 1502003:
-            case 889:
-            case 890:
-            case 896:
-            case 974:
-            case 1064:
-            case 1172:
-            case 1267:
-            case 1368:
-            case 1468:
-            case 1520:
-            case 1528:
-            case 1553:
-            case 1578:
-            case 1617:
-            case 1667:
-            case 1712:
-            case 893:
-            case 820:
-                return true;
-
-        }
-
-        if (contract.isTrainer)
-            return true;
-        return false;
-    }
-
     //Specify if trainer, merchant, banker, etc via classID
     private void setBools() {
         DbManager.ContractQueries.LOAD_CONTRACT_INVENTORY(this);
