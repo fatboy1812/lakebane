@@ -150,7 +150,7 @@ public enum LootManager {
 
         int genRoll = ThreadLocalRandom.current().nextInt(1,100 + 1);
 
-        GenTableEntry selectedRow = GenTableEntry.rollTable(genTableID, genRoll);
+        GenTableEntry selectedRow = GenTableEntry.rollTable(genTableID, genRoll, 1.0f);
 
         if (selectedRow == null)
             return null;
@@ -207,7 +207,7 @@ public enum LootManager {
 
     private static MobLoot GeneratePrefix(AbstractCharacter mob, MobLoot inItem, int genTableID, int genRoll, Boolean inHotzone) {
 
-        GenTableEntry selectedRow = GenTableEntry.rollTable(genTableID, genRoll);
+        GenTableEntry selectedRow = GenTableEntry.rollTable(genTableID, genRoll, 1.0f);
 
         if (selectedRow == null)
             return inItem;
@@ -239,7 +239,7 @@ public enum LootManager {
 
     private static MobLoot GenerateSuffix(AbstractCharacter mob, MobLoot inItem, int genTableID, int genRoll, Boolean inHotzone) {
 
-        GenTableEntry selectedRow = GenTableEntry.rollTable(genTableID, genRoll);
+        GenTableEntry selectedRow = GenTableEntry.rollTable(genTableID, genRoll, 1.0f);
 
         if (selectedRow == null)
             return inItem;
@@ -402,8 +402,8 @@ public enum LootManager {
 
         //roll 1-100 for the gen table selection
 
-        int genRoll = ThreadLocalRandom.current().nextInt(1,100 + 1);
-        GenTableEntry selectedRow = GenTableEntry.rollTable(tableID, genRoll);
+        int genRoll = ThreadLocalRandom.current().nextInt(1, 100 + 1);
+        GenTableEntry selectedRow = GenTableEntry.rollTable(tableID, genRoll, LootManager.NORMAL_DROP_RATE);
 
         if(selectedRow == null)
             return;

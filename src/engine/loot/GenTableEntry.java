@@ -29,7 +29,7 @@ public class GenTableEntry {
         this.sModTable = rs.getInt("sModTableID");
     }
 
-    public static GenTableEntry rollTable(int genTable, int roll) {
+    public static GenTableEntry rollTable(int genTable, int roll, float dropRate) {
 
         GenTableEntry genTableEntry = null;
         List<GenTableEntry> genTableEntryList;
