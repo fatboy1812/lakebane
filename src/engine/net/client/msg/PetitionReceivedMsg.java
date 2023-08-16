@@ -82,6 +82,7 @@ public class PetitionReceivedMsg extends ClientNetMsg {
             this.compType = reader.getString();
             this.language = reader.getString();
             this.stringCount = reader.getInt();
+            this.message = "";
             IntStream.range(0, stringCount).forEach($ -> this.message += reader.getString());
 
         } else {
