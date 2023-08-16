@@ -65,7 +65,9 @@ public class dbPetitionHandler extends dbHandlerBase {
             preparedStatement.setInt(6, petition.reportPlayer.getObjectUUID());
             preparedStatement.setString(7, petition.reportPlayer.getFirstName());
             preparedStatement.setString(8, petition.playerLocation.toString());
-            preparedStatement.setString(9, petition.message);
+
+            String messageCleaned = petition.message.substring(0, Math.min(petition.message.length(), 255));
+            preparedStatement.setString(9, messageCleaned);
 
             preparedStatement.executeUpdate();
 
