@@ -263,7 +263,7 @@ public enum LootManager {
 
         if (suffixMod.action.length() > 0) {
             inItem.setSuffix(suffixMod.action);
-            inItem.addPermanentEnchantment(suffixMod.action, 0, suffixMod.level, true);
+            inItem.addPermanentEnchantment(suffixMod.action, 0, suffixMod.level, false);
         }
 
         return inItem;
