@@ -158,10 +158,14 @@ public class MinionTrainingMsgHandler extends AbstractClientMsgHandler {
                             siegeMob.setSpawnTime(10);
 
                             Building building = BuildingManager.getBuilding(((MinionTrainingMessage) baseMsg).getBuildingID());
-                            int slot = ((NPC) siegeMob.npcOwner).getSiegeMinionMap().get(siegeMob);
 
                             siegeMob.building = building;
                             siegeMob.parentZone = zone;
+
+                            // Slot siege minion
+
+                            int slot = ((NPC) siegeMob.npcOwner).getSiegeMinionMap().get(siegeMob);
+                            slot = slot + 1;  // First slot is for the captain
 
                             BuildingLocation slotLocation = BuildingManager._slotLocations.get(building.meshUUID).get(slot);
                             siegeMob.bindLoc = building.getLoc().add(slotLocation.getLocation());
