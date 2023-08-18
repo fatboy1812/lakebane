@@ -95,13 +95,13 @@ public class Mob extends AbstractIntelligenceAgent {
     private AbstractWorldObject fearedObject = null;
     private int buildingID;
     private boolean isSiege = false;
-    private long timeToSpawnSiege;
     private long lastAttackTime = 0;
     private int lastMobPowerToken = 0;
     private HashMap<Integer, MobEquipment> equip = null;
     private DeferredPowerJob weaponPower;
     private DateTime upgradeDateTime = null;
     private boolean lootSync = false;
+
 
     /**
      * No Id Constructor
@@ -1309,10 +1309,9 @@ public class Mob extends AbstractIntelligenceAgent {
                 this.hasLoot = false;
                 this.playerAgroMap.clear();
 
-                this.timeToSpawnSiege = System.currentTimeMillis() + 60 * 15 * 1000;
-                if (this.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardMinion.ordinal()) {
+                if (this.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardMinion.ordinal())
                     this.spawnTime = (int) (-2.500 * ((Mob) this.npcOwner).building.getRank() + 22.5) * 60;
-                }
+
                 if (this.isPet()) {
 
                     PlayerCharacter petOwner = this.getOwner();
@@ -1333,10 +1332,8 @@ public class Mob extends AbstractIntelligenceAgent {
                 this.hasLoot = false;
 
                 //if (this.parentZone != null)
-                    //this.parentZone.zoneMobSet.remove(this);
-                if(ZoneManager.getSeaFloor().zoneMobSet.contains(this)) {
-                    ZoneManager.getSeaFloor().zoneMobSet.remove(this);
-                }
+                //this.parentZone.zoneMobSet.remove(this);
+                ZoneManager.getSeaFloor().zoneMobSet.remove(this);
                 try {
                     this.clearEffects();
                 } catch (Exception e) {
@@ -1382,9 +1379,8 @@ public class Mob extends AbstractIntelligenceAgent {
     }
 
     public void respawn() {
-        //Commenting out Mob ID rotation.
+
         this.despawned = false;
-        //this.playerAgroMap.clear();
         this.setCombatTarget(null);
         this.setHealth(this.healthMax);
         this.stamina.set(this.staminaMax);
@@ -1397,17 +1393,22 @@ public class Mob extends AbstractIntelligenceAgent {
         this.lastBindLoc = this.bindLoc;
         this.setLoc(this.lastBindLoc);
         this.stopMovement(this.lastBindLoc);
+
         NPCManager.applyRuneSetEffects(this);
+
         this.recalculateStats();
         this.setHealth(this.healthMax);
-        if (this.building == null && this.npcOwner != null && ((Mob) this.npcOwner).BehaviourType.ordinal() == MobBehaviourType.GuardCaptain.ordinal()) {
+
+        if (this.building == null && this.npcOwner != null && ((Mob) this.npcOwner).BehaviourType.ordinal() == MobBehaviourType.GuardCaptain.ordinal())
             this.building = ((Mob) this.npcOwner).building;
-        } else if (this.building != null) {
+        else if (this.building != null)
             this.region = BuildingManager.GetRegion(this.building, bindLoc.x, bindLoc.y, bindLoc.z);
-        }
+
         //MovementManager.translocate(this, this.bindLoc, this.region);
+
         if (!this.isSiege && !this.isPlayerGuard && contract == null)
             loadInventory();
+
         this.updateLocation();
     }
 
@@ -1488,7 +1489,7 @@ public class Mob extends AbstractIntelligenceAgent {
         float s;
 
         h = this.mobBase.getHealthMax();
-        if(this.isPet()){
+        if (this.isPet()) {
             h = this.level * 0.5f * 120;
         }
         m = this.statSpiCurrent;
@@ -2057,10 +2058,6 @@ public class Mob extends AbstractIntelligenceAgent {
 
     public void setSiege(boolean isSiege) {
         this.isSiege = isSiege;
-    }
-
-    public void setTimeToSpawnSiege(long timeToSpawnSiege) {
-        this.timeToSpawnSiege = timeToSpawnSiege;
     }
 
     public void setNpcOwner(AbstractCharacter npcOwner) {

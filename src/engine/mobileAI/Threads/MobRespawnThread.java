@@ -25,9 +25,6 @@ import org.pmw.tinylog.Logger;
 
 public class MobRespawnThread implements Runnable {
 
-    // Instance variables
-
-    // Thread constructor
 
     public MobRespawnThread() {
         Logger.info(" MobRespawnThread thread has started!");

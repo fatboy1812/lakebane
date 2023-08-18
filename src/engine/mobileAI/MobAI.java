@@ -50,15 +50,18 @@ public class MobAI {
             }
 
             if (target.getObjectType() == Enum.GameObjectType.PlayerCharacter && canCast(mob)) {
+
                 if (mob.isPlayerGuard() == false && MobCast(mob)) {
                     mob.updateLocation();
                     return;
                 }
+
                 if (mob.isPlayerGuard() == true && GuardCast(mob)) {
                     mob.updateLocation();
                     return;
                 }
             }
+
             if (!CombatUtilities.inRangeToAttack(mob, target))
                 return;
 
@@ -258,7 +261,9 @@ public class MobAI {
             //guard captains inherit barracks patrol points dynamically
 
             if (mob.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardCaptain.ordinal()) {
+
                 Building barracks = mob.building;
+
                 if (barracks != null && barracks.patrolPoints != null && !barracks.getPatrolPoints().isEmpty()) {
                     mob.patrolPoints = barracks.patrolPoints;
                 } else {
@@ -275,8 +280,8 @@ public class MobAI {
 
             MovementUtilities.aiMove(mob, mob.destination, true);
 
-            if (mob.BehaviourType.equals(Enum.MobBehaviourType.GuardCaptain)) {
-                for (Entry<Mob, Integer> minion : mob.siegeMinionMap.entrySet()) {
+            if (mob.BehaviourType.equals(Enum.MobBehaviourType.GuardCaptain))
+                for (Entry<Mob, Integer> minion : mob.siegeMinionMap.entrySet())
 
                     //make sure mob is out of combat stance
 
@@ -288,8 +293,6 @@ public class MobAI {
                             MovementUtilities.aiMove(minion.getKey(), formationPatrolPoint, true);
                         }
                     }
-                }
-            }
         } catch (Exception e) {
             Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: AttackTarget" + " " + e.getMessage());
         }
@@ -306,11 +309,14 @@ public class MobAI {
                 return false;
 
             if(mob.isPlayerGuard == true){
+
                 int contractID;
+
                 if(mob.BehaviourType.equals(Enum.MobBehaviourType.GuardMinion))
                     contractID = mob.npcOwner.contract.getContractID();
                  else
                     contractID = mob.contract.getContractID();
+
                 if(Enum.MinionType.ContractToMinionMap.get(contractID).isMage() == false)
                     return false;
             }
@@ -384,24 +390,20 @@ public class MobAI {
 
             //check for hit-roll
 
-            if (mobPower.requiresHitRoll) {
-
+            if (mobPower.requiresHitRoll)
                 if (CombatUtilities.triggerDefense(mob, mob.getCombatTarget()))
                     return false;
-            }
 
             // Cast the spell
 
             if (CombatUtilities.inRange2D(mob, mob.getCombatTarget(), mobPower.getRange())) {
-
 
                 PerformActionMsg msg;
 
                 if (!mobPower.isHarmful() || mobPower.targetSelf) {
                     PowersManager.useMobPower(mob, mob, mobPower, powerRank);
                     msg = PowersManager.createPowerMsg(mobPower, powerRank, mob, mob);
-                }
-                else {
+                } else {
                     PowersManager.useMobPower(mob, target, mobPower, powerRank);
                     msg = PowersManager.createPowerMsg(mobPower, powerRank, mob, target);
                 }
@@ -410,6 +412,7 @@ public class MobAI {
 
                 PowersManager.finishUseMobPower(msg, mob, 0, 0);
                 long randomCooldown = (long)((ThreadLocalRandom.current().nextInt(10,15) * 1000) * MobAIThread.AI_CAST_FREQUENCY);
+
                 mob.nextCastTime = System.currentTimeMillis() + randomCooldown;
                 return true;
             }
@@ -642,10 +645,12 @@ public class MobAI {
                     mob.setCombatTarget(null);
                 return;
             }
+
             if (mob.BehaviourType.ordinal() != Enum.MobBehaviourType.Pet1.ordinal())
                 CheckToSendMobHome(mob);
 
             if (mob.getCombatTarget() != null) {
+
                 if (mob.getCombatTarget().isAlive() == false) {
                     mob.setCombatTarget(null);
                     return;
@@ -753,7 +758,7 @@ public class MobAI {
 
                 for (AbstractWorldObject awoMob : awoList) {
 
-                    //dont scan self.
+                    // exclude self.
 
                     if (aiAgent.equals(awoMob))
                         continue;
@@ -867,7 +872,7 @@ public class MobAI {
                     }
                 }
             } else if (System.currentTimeMillis() > (aiAgent.deathTime + (aiAgent.spawnTime * 1000))) {
-                //aiAgent.respawn();
+
                 if (Zone.respawnQue.contains(aiAgent) == false) {
                     Zone.respawnQue.add(aiAgent);
                 }
@@ -957,6 +962,7 @@ public class MobAI {
 
             float rangeSquared = mob.getRange() * mob.getRange();
             float distanceSquared = mob.getLoc().distanceSquared2D(mob.getCombatTarget().getLoc());
+
             if(mob.isMoving() == true && distanceSquared < rangeSquared - 50) {
                 mob.destination = mob.getLoc();
                 MovementUtilities.moveToLocation(mob, mob.destination, 0);
@@ -1002,12 +1008,14 @@ public class MobAI {
 
                 Mob aggroMob = (Mob) awoMob;
 
-                //dont attack other guards
+                //don't attack other guards
 
                 if (aggroMob.isGuard())
                     continue;
+
                 if(aggroMob.BehaviourType.equals(Enum.MobBehaviourType.Pet1))
                     continue;
+
                 if (mob.getLoc().distanceSquared2D(aggroMob.getLoc()) > sqr(50))
                     continue;
 
@@ -1048,9 +1056,9 @@ public class MobAI {
         try {
             if (!mob.npcOwner.isAlive()) {
 
-                if(mob.getCombatTarget() == null) {
+                if (mob.getCombatTarget() == null) {
                     CheckForPlayerGuardAggro(mob);
-                }else {
+                } else {
 
                     AbstractWorldObject newTarget = ChangeTargetFromHateValue(mob);
 
@@ -1095,10 +1103,10 @@ public class MobAI {
     private static void PetLogic(Mob mob) {
 
         try {
-            if (mob.getOwner() == null && mob.isNecroPet() == false && mob.isSiege() == false) {
+
+            if (mob.getOwner() == null && mob.isNecroPet() == false && mob.isSiege() == false)
                 if (ZoneManager.getSeaFloor().zoneMobSet.contains(mob))
                     mob.killCharacter("no owner");
-            }
 
             if (MovementUtilities.canMove(mob) && mob.BehaviourType.canRoam)
                 CheckMobMovement(mob);
@@ -1110,17 +1118,16 @@ public class MobAI {
             if (mob.getTimestamps().containsKey("HEALTHRECOVERED") == false)
                 mob.getTimestamps().put("HEALTHRECOVERED", System.currentTimeMillis());
 
-            if (mob.isSit() && mob.getTimeStamp("HEALTHRECOVERED") < System.currentTimeMillis() + 3000) {
+            if (mob.isSit() && mob.getTimeStamp("HEALTHRECOVERED") < System.currentTimeMillis() + 3000)
                 if (mob.getHealth() < mob.getHealthMax()) {
+
                     float recoveredHealth = mob.getHealthMax() * ((1 + mob.getBonuses().getFloatPercentAll(Enum.ModType.HealthRecoverRate, Enum.SourceType.None)) * 0.01f);
                     mob.setHealth(mob.getHealth() + recoveredHealth);
                     mob.getTimestamps().put("HEALTHRECOVERED", System.currentTimeMillis());
 
-                    if (mob.getHealth() > mob.getHealthMax()) {
+                    if (mob.getHealth() > mob.getHealthMax())
                         mob.setHealth(mob.getHealthMax());
-                    }
                 }
-            }
         } catch (Exception e) {
             Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: PetLogic" + " " + e.getMessage());
         }

@@ -12,7 +12,6 @@ package engine.db.handlers;
 import engine.gameManager.DbManager;
 import engine.objects.Mob;
 import engine.objects.Zone;
-import engine.server.MBServerStatics;
 import org.joda.time.DateTime;
 import org.pmw.tinylog.Logger;
 
@@ -122,10 +121,9 @@ public class dbMobHandler extends dbHandlerBase {
                 if (toCreate == null)
                     return;
 
-                if (toCreate != null) {
-                    toCreate.setTimeToSpawnSiege(System.currentTimeMillis() + MBServerStatics.FIFTEEN_MINUTES);
+                if (toCreate != null)
                     toCreate.setDeathTime(System.currentTimeMillis());
-                }
+
             }
 
         } catch (SQLException e) {

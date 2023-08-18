@@ -14,7 +14,6 @@ import engine.net.DispatchMessage;
 import engine.net.client.ClientConnection;
 import engine.net.client.msg.*;
 import engine.objects.*;
-import engine.server.MBServerStatics;
 import org.pmw.tinylog.Logger;
 
 import java.util.ArrayList;
@@ -69,7 +68,6 @@ public class MinionTrainingMsgHandler extends AbstractClientMsgHandler {
 
                         npc.getSiegeMinionMap().remove(toRemove);
 
-                        //toRemove.disableIntelligence();
                         WorldGrid.RemoveWorldObject(toRemove);
 
                         if (toRemove.getParentZone() != null)
@@ -199,9 +197,9 @@ public class MinionTrainingMsgHandler extends AbstractClientMsgHandler {
             if (npc == null)
                 return true;
 
-            Building b = BuildingManager.getBuildingFromCache(minionMsg.getBuildingID());
+            Building building = BuildingManager.getBuildingFromCache(minionMsg.getBuildingID());
 
-            if (b == null)
+            if (building == null)
                 return true;
 
             //clear minion
@@ -211,6 +209,7 @@ public class MinionTrainingMsgHandler extends AbstractClientMsgHandler {
                     if (minionMsg.getType() == 2) {
 
                         Mob toRemove = Mob.getFromCache(minionMsg.getUUID());
+
                         if (!npc.getSiegeMinionMap().containsKey(toRemove))
                             return true;
 
@@ -219,7 +218,6 @@ public class MinionTrainingMsgHandler extends AbstractClientMsgHandler {
 
                         npc.getSiegeMinionMap().remove(toRemove);
 
-                        //toRemove.disableIntelligence();
                         WorldGrid.RemoveWorldObject(toRemove);
 
                         if (toRemove.getParentZone() != null)
@@ -236,21 +234,18 @@ public class MinionTrainingMsgHandler extends AbstractClientMsgHandler {
                             DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.SECONDARY);
                         }
 
-                        // we Found the move to remove, lets break the for loop so it doesnt look for more.
-
-                        ManageCityAssetsMsg mca1 = new ManageCityAssetsMsg(player, b);
+                        ManageCityAssetsMsg mca1 = new ManageCityAssetsMsg(player, building);
                         mca1.actionType = 3;
-                        mca1.setTargetType(b.getObjectType().ordinal());
-                        mca1.setTargetID(b.getObjectUUID());
+                        mca1.setTargetType(building.getObjectType().ordinal());
+                        mca1.setTargetID(building.getObjectUUID());
 
                         mca1.setTargetType3(npc.getObjectType().ordinal());
                         mca1.setTargetID3(npc.getObjectUUID());
-                        mca1.setAssetName1(b.getName());
+                        mca1.setAssetName1(building.getName());
                         mca1.setUnknown54(1);
 
                         Dispatch dispatch = Dispatch.borrow(player, mca1);
                         DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.SECONDARY);
-                        ;
 
                         ManageNPCMsg mnm = new ManageNPCMsg(npc);
                         dispatch = Dispatch.borrow(player, mnm);
@@ -302,14 +297,14 @@ public class MinionTrainingMsgHandler extends AbstractClientMsgHandler {
                         if (!DbManager.MobQueries.ADD_TO_GUARDS(npc.getObjectUUID(), mobBase, pirateName, npc.getSiegeMinionMap().size() + 1))
                             return true;
 
-                        Mob toCreate = Mob.createGuardMob(npc, npc.getGuild(), zone, b.getLoc(), npc.getLevel(), pirateName);
+                        Mob toCreate = Mob.createGuardMob(npc, npc.getGuild(), zone, building.getLoc(), npc.getLevel(), pirateName);
 
                         if (toCreate == null)
                             return true;
 
                         //   toCreate.despawn();
+
                         if (toCreate != null) {
-                            toCreate.setTimeToSpawnSiege(System.currentTimeMillis() + MBServerStatics.FIFTEEN_MINUTES);
                             toCreate.setDeathTime(System.currentTimeMillis());
                             toCreate.parentZone.zoneMobSet.add(toCreate);
                         }
