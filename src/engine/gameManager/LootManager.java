@@ -100,7 +100,7 @@ public enum LootManager {
     private static void RunBootySet(ArrayList<BootySetEntry> entries, Mob mob, boolean inHotzone, boolean fromDeath) {
 
         boolean hotzoneWasRan = false;
-        float dropRate = LootManager.NORMAL_DROP_RATE;
+        float dropRate = 1.0f;
 
         if (fromDeath) {
             GenerateEquipmentDrop(mob);
@@ -116,10 +116,11 @@ public enum LootManager {
                     break;
                 case "LOOT":
 
+                    if (mob.getSafeZone() == false)
+                        dropRate = LootManager.NORMAL_DROP_RATE;
+
                     if (inHotzone == true)
                         dropRate = LootManager.HOTZONE_DROP_RATE;
-                    else
-                        dropRate = LootManager.NORMAL_DROP_RATE;
 
                     if (ThreadLocalRandom.current().nextInt(1, 100 + 1) < (bse.dropChance * dropRate))
                         GenerateLootDrop(mob, bse.genTable, false);  //generate normal loot drop
