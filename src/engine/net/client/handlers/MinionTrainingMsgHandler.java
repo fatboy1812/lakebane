@@ -4,7 +4,10 @@ import engine.Enum;
 import engine.Enum.DispatchChannel;
 import engine.InterestManagement.WorldGrid;
 import engine.exception.MsgSendException;
-import engine.gameManager.*;
+import engine.gameManager.BuildingManager;
+import engine.gameManager.DbManager;
+import engine.gameManager.NPCManager;
+import engine.gameManager.SessionManager;
 import engine.math.Vector3fImmutable;
 import engine.net.Dispatch;
 import engine.net.DispatchMessage;
@@ -152,17 +155,23 @@ public class MinionTrainingMsgHandler extends AbstractClientMsgHandler {
 
                         //   toCreate.despawn();
                         if (toCreate != null) {
+
                             toCreate.setSpawnTime(10);
+
                             Building building = BuildingManager.getBuilding(((MinionTrainingMessage) baseMsg).getBuildingID());
                             int slot = ((NPC) toCreate.npcOwner).getSiegeMinionMap().get(toCreate);
+
                             Vector3fImmutable slotLocation;
                             toCreate.building = building;
                             toCreate.parentZone = zone;
+
                             BuildingLocation buildingLocation = BuildingManager._slotLocations.get(building.meshUUID).get(slot);
                             slotLocation = building.getLoc().add(buildingLocation.getLocation());
                             toCreate.setBindLoc(slotLocation);
+
                             zone.zoneMobSet.add(toCreate);
-                            MovementManager.translocate(toCreate, toCreate.getBindLoc(), toCreate.npcOwner.region);
+                            toCreate.setLoc(toCreate.getBindLoc());
+                            //MovementManager.translocate(toCreate, toCreate.getBindLoc(), toCreate.npcOwner.region);
                         }
                     }
 
