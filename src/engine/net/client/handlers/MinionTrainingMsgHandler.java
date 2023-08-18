@@ -153,8 +153,8 @@ public class MinionTrainingMsgHandler extends AbstractClientMsgHandler {
 
                         if (siegeMob != null) {
 
-                            siegeMob.setSpawnTime(60 * 15);
-
+                            // siegeMob.setSpawnTime(60 * 15);
+                            siegeMob.setSpawnTime(10);
                             Building building = BuildingManager.getBuilding(((MinionTrainingMessage) baseMsg).getBuildingID());
 
                             siegeMob.building = building;
@@ -166,11 +166,9 @@ public class MinionTrainingMsgHandler extends AbstractClientMsgHandler {
                             int slot;
 
                             if (building.getBlueprint().equals(Enum.BuildingGroup.ARTYTOWER))
-                                slot = 1;
+                                slot = 2;
                             else
-                                slot = ((NPC) siegeMob.npcOwner).getSiegeMinionMap().get(siegeMob);
-
-                            slot = slot + 1;  // First slot is for the captain
+                                slot = ((NPC) siegeMob.npcOwner).getSiegeMinionMap().get(siegeMob) + 1;  // First slot is for the captain
 
                             BuildingLocation slotLocation = BuildingManager._slotLocations.get(building.meshUUID).get(slot);
                             siegeMob.bindLoc = building.getLoc().add(slotLocation.getLocation());
@@ -183,7 +181,7 @@ public class MinionTrainingMsgHandler extends AbstractClientMsgHandler {
                             siegeMob.endLoc = new Vector3fImmutable(siegeMob.bindLoc);
 
                             zone.zoneMobSet.add(siegeMob);
-                            siegeMob.setLoc(siegeMob.getBindLoc());
+                            siegeMob.setLoc(siegeMob.bindLoc);
                         }
                     }
 
