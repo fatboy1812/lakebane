@@ -152,7 +152,7 @@ public class MinionTrainingMsgHandler extends AbstractClientMsgHandler {
 
                         //   toCreate.despawn();
                         if (toCreate != null) {
-                            toCreate.setSpawnTime(60 * 15);
+                            toCreate.setSpawnTime(10);
                             Building building = BuildingManager.getBuilding(((MinionTrainingMessage) baseMsg).getBuildingID());
                             int slot = ((NPC) toCreate.npcOwner).getSiegeMinionMap().get(toCreate);
                             Vector3fImmutable slotLocation;
