@@ -60,7 +60,7 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
     protected short statSpiCurrent;
     protected short unusedStatPoints;
     protected int exp;
-    protected Vector3fImmutable bindLoc;
+    public Vector3fImmutable bindLoc;
     protected Vector3fImmutable faceDir;
     protected Guild guild;
     protected byte runningTrains;
@@ -71,7 +71,7 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
     protected boolean walkMode;
     protected boolean combat = false;
     protected Vector3fImmutable startLoc = Vector3fImmutable.ZERO;
-    protected Vector3fImmutable endLoc = Vector3fImmutable.ZERO;
+    public Vector3fImmutable endLoc = Vector3fImmutable.ZERO;
     protected boolean itemCasting = false;
     // nextEndLoc is used to store the next end location when someone is clicking
     // around the ground while other timers like changeAltitude are still

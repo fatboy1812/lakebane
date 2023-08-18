@@ -160,19 +160,18 @@ public class MinionTrainingMsgHandler extends AbstractClientMsgHandler {
                             Building building = BuildingManager.getBuilding(((MinionTrainingMessage) baseMsg).getBuildingID());
                             int slot = ((NPC) siegeMob.npcOwner).getSiegeMinionMap().get(siegeMob);
 
-                            Vector3fImmutable slotLocation;
                             siegeMob.building = building;
                             siegeMob.parentZone = zone;
 
-                            BuildingLocation buildingLocation = BuildingManager._slotLocations.get(building.meshUUID).get(slot);
-                            slotLocation = building.getLoc().add(buildingLocation.getLocation());
+                            BuildingLocation slotLocation = BuildingManager._slotLocations.get(building.meshUUID).get(slot);
+                            siegeMob.bindLoc = building.getLoc().add(slotLocation.getLocation());
 
                             // Rotate slot position by the building rotation
 
-                            slotLocation = Vector3fImmutable.rotateAroundPoint(building.getLoc(), slotLocation, building.getBounds().getQuaternion().angleY);
-                            siegeMob.setEndLoc(new Vector3fImmutable(slotLocation));
+                            siegeMob.bindLoc = Vector3fImmutable.rotateAroundPoint(building.getLoc(), siegeMob.bindLoc, building.getBounds().getQuaternion().angleY);
 
-                            siegeMob.setBindLoc(slotLocation);
+                            siegeMob.loc = new Vector3fImmutable(siegeMob.bindLoc);
+                            siegeMob.endLoc = new Vector3fImmutable(siegeMob.bindLoc);
 
                             zone.zoneMobSet.add(siegeMob);
                             siegeMob.setLoc(siegeMob.getBindLoc());

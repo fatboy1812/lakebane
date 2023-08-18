@@ -48,7 +48,7 @@ public abstract class AbstractWorldObject extends AbstractGameObject {
     public Regions region;
     public Regions landingRegion = null;
     public Vector3fImmutable lastLoc = Vector3fImmutable.ZERO;
-    protected Vector3fImmutable loc = new Vector3fImmutable(0.0f, 0.0f, 0.0f);
+    public Vector3fImmutable loc = new Vector3fImmutable(0.0f, 0.0f, 0.0f);
     protected AtomicFloat health = new AtomicFloat();
     protected boolean load = true;
     protected GridObjectType gridObjectType;
