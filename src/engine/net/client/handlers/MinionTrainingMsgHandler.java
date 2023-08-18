@@ -148,30 +148,35 @@ public class MinionTrainingMsgHandler extends AbstractClientMsgHandler {
                         if (mobBase == 0)
                             return true;
 
-                        Mob toCreate = Mob.createSiegeMob(npc, mobBase, npc.getGuild(), zone, b.getLoc(), (short) 1);
+                        Mob siegeMob = Mob.createSiegeMob(npc, mobBase, npc.getGuild(), zone, b.getLoc(), (short) 1);
 
-                        if (toCreate == null)
+                        if (siegeMob == null)
                             return true;
 
                         //   toCreate.despawn();
-                        if (toCreate != null) {
+                        if (siegeMob != null) {
 
-                            toCreate.setSpawnTime(10);
+                            siegeMob.setSpawnTime(10);
 
                             Building building = BuildingManager.getBuilding(((MinionTrainingMessage) baseMsg).getBuildingID());
-                            int slot = ((NPC) toCreate.npcOwner).getSiegeMinionMap().get(toCreate);
+                            int slot = ((NPC) siegeMob.npcOwner).getSiegeMinionMap().get(siegeMob);
 
                             Vector3fImmutable slotLocation;
-                            toCreate.building = building;
-                            toCreate.parentZone = zone;
+                            siegeMob.building = building;
+                            siegeMob.parentZone = zone;
 
                             BuildingLocation buildingLocation = BuildingManager._slotLocations.get(building.meshUUID).get(slot);
                             slotLocation = building.getLoc().add(buildingLocation.getLocation());
-                            toCreate.setBindLoc(slotLocation);
 
-                            zone.zoneMobSet.add(toCreate);
-                            toCreate.setLoc(toCreate.getBindLoc());
-                            //MovementManager.translocate(toCreate, toCreate.getBindLoc(), toCreate.npcOwner.region);
+                            // Rotate slot position by the building rotation
+
+                            slotLocation = Vector3fImmutable.rotateAroundPoint(building.getLoc(), slotLocation, building.getBounds().getQuaternion().angleY);
+                            siegeMob.setEndLoc(new Vector3fImmutable(slotLocation));
+
+                            siegeMob.setBindLoc(slotLocation);
+
+                            zone.zoneMobSet.add(siegeMob);
+                            siegeMob.setLoc(siegeMob.getBindLoc());
                         }
                     }
 
