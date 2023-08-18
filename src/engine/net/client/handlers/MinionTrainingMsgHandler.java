@@ -153,7 +153,6 @@ public class MinionTrainingMsgHandler extends AbstractClientMsgHandler {
                         if (siegeMob == null)
                             return true;
 
-                        //   toCreate.despawn();
                         if (siegeMob != null) {
 
                             siegeMob.setSpawnTime(10);
