@@ -161,8 +161,15 @@ public class MinionTrainingMsgHandler extends AbstractClientMsgHandler {
                             siegeMob.parentZone = zone;
 
                             // Slot siege minion
+                            // Can be either corner tower or bulwark.
 
-                            int slot = ((NPC) siegeMob.npcOwner).getSiegeMinionMap().get(siegeMob);
+                            int slot;
+
+                            if (building.getBlueprint().equals(Enum.BuildingGroup.ARTYTOWER))
+                                slot = 1;
+                            else
+                                slot = ((NPC) siegeMob.npcOwner).getSiegeMinionMap().get(siegeMob);
+
                             slot = slot + 1;  // First slot is for the captain
 
                             BuildingLocation slotLocation = BuildingManager._slotLocations.get(building.meshUUID).get(slot);
