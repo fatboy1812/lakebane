@@ -125,37 +125,18 @@ public class NPC extends AbstractCharacter {
             this.dbID = rs.getInt(1);
             this.currentID = this.dbID;
             this.setObjectTypeMask(MBServerStatics.MASK_NPC);
-            int contractID = rs.getInt("npc_contractID");
-            this.contract = DbManager.ContractQueries.GET_CONTRACT(contractID);
+            this.contractUUID = rs.getInt("npc_contractID");
             this.parentZoneID = rs.getInt("parent");
-
             this.gridObjectType = GridObjectType.STATIC;
             this.equipmentSetID = rs.getInt("equipmentSet");
             this.runeSetID = rs.getInt("runeSet");
 
-            if (this.equipmentSetID == 0 && this.contract != null)
-                this.equipmentSetID = this.contract.equipmentSet;
-
             this.loadID = rs.getInt("npc_raceID");
 
-            // Default to contract load ID
-
-            if (loadID == 0) {
-
-                if (this.contract != null)
-                    loadID = this.contract.getMobbaseID();
-                else {
-                    Logger.error("Invalid contract for NPC: " + this.getObjectUUID());
-                    loadID = 2100; // Default human male
-                }
-            }
-
-            this.mobBase = MobBase.getMobBase(this.loadID);
             this.level = rs.getByte("npc_level");
             this.isMob = false;
 
-            int buildingID = rs.getInt("npc_buildingID");
-            this.building = BuildingManager.getBuilding(buildingID);
+            buildingUUID = rs.getInt("npc_buildingID");
 
             // Most objects from the cache have a default buy
             // percentage of 100% which was a dupe source due
@@ -172,20 +153,7 @@ public class NPC extends AbstractCharacter {
             this.statAlt = rs.getFloat("npc_spawnY");
             this.statLon = rs.getFloat("npc_spawnZ");
 
-            int guildID = rs.getInt("npc_guildID");
-
-            if (this.building != null)
-                this.guild = this.building.getGuild();
-            else
-                this.guild = Guild.getGuild(guildID);
-
-            if (guildID != 0 && (this.guild == null || this.guild.isEmptyGuild()))
-                NPC.Oprhans.add(currentID);
-            else if (this.building == null && buildingID > 0)
-                NPC.Oprhans.add(currentID);
-
-            if (this.guild == null)
-                this.guild = Guild.getErrantGuild();
+            this.guildUUID = rs.getInt("npc_guildID");
 
             // Set upgrade date JodaTime DateTime object
             // if one exists in the database.
@@ -1053,6 +1021,40 @@ public class NPC extends AbstractCharacter {
 
         if (ConfigManager.serverType.equals(ServerType.LOGINSERVER))
             return;
+
+        this.contract = DbManager.ContractQueries.GET_CONTRACT(this.contractUUID);
+
+        if (this.equipmentSetID == 0 && this.contract != null)
+            this.equipmentSetID = this.contract.equipmentSet;
+
+        // Default to contract load ID
+
+        if (loadID == 0) {
+
+            if (this.contract != null)
+                loadID = this.contract.getMobbaseID();
+            else {
+                Logger.error("Invalid contract for NPC: " + this.getObjectUUID());
+                loadID = 2100; // Default human male
+            }
+        }
+
+        this.mobBase = MobBase.getMobBase(this.loadID);
+
+        this.building = BuildingManager.getBuilding(this.buildingUUID);
+
+        if (this.building != null)
+            this.guild = this.building.getGuild();
+        else
+            this.guild = Guild.getGuild(this.guildUUID);
+
+        if (this.guildUUID != 0 && (this.guild == null || this.guild.isEmptyGuild()))
+            NPC.Oprhans.add(currentID);
+        else if (this.building == null && this.buildingUUID > 0)
+            NPC.Oprhans.add(currentID);
+
+        if (this.guild == null)
+            this.guild = Guild.getErrantGuild();
 
         if (this.contract == null)
             return; // Early exit for npc guild owners

@@ -50,7 +50,9 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
     private final ReentrantReadWriteLock teleportLock = new ReentrantReadWriteLock();
     public short level;
     public AbstractWorldObject combatTarget;
+    public int contractUUID;
     public Contract contract;
+
     protected String firstName;
     protected String lastName;
     protected short statStrCurrent;
