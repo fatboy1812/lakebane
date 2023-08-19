@@ -1074,6 +1074,9 @@ public class NPC extends AbstractCharacter {
         if (this.building != null)
             NPCManager.slotCharacterInBuilding(this);
 
+        if (this.contract == null)
+            return; // Early exit for npc guild owners
+
         if (this.contract != null) {
             this.symbol = this.contract.getIconID();
             this.modTypeTable = this.contract.getNPCModTypeTable();
