@@ -60,9 +60,14 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
     protected short statSpiCurrent;
     protected short unusedStatPoints;
     protected int exp;
+    public int buildingUUID;
+    public Building building;
+
     public Vector3fImmutable bindLoc;
     protected Vector3fImmutable faceDir;
-    protected Guild guild;
+
+    public int guildUUID;
+    public Guild guild;
     protected byte runningTrains;
     protected ConcurrentHashMap<Integer, CharacterPower> powers;
     protected ConcurrentHashMap<String, CharacterSkill> skills;

@@ -2,6 +2,9 @@ package engine.gameManager;
 
 import engine.Enum;
 import engine.InterestManagement.WorldGrid;
+import engine.math.Quaternion;
+import engine.math.Vector3f;
+import engine.math.Vector3fImmutable;
 import engine.net.Dispatch;
 import engine.net.DispatchMessage;
 import engine.net.client.msg.PetMsg;
@@ -12,6 +15,8 @@ import org.pmw.tinylog.Logger;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.ThreadLocalRandom;
+
+import static engine.math.FastMath.acos;
 
 public enum NPCManager {
 
@@ -317,5 +322,52 @@ public enum NPCManager {
         }
 
         return protectedBuildings;
+    }
+
+    public static int slotCharacterInBuilding(AbstractCharacter abstractCharacter) {
+
+        int buildingSlot;
+
+        if (abstractCharacter.building == null)
+            return -1;
+
+        // Get next available slot for this NPC and use it
+        // to add the NPC to the building's hireling list
+        // Account for R8's having slots reversed.
+
+        if (abstractCharacter.building.getBlueprint() != null && abstractCharacter.building.getBlueprint().getBuildingGroup().equals(Enum.BuildingGroup.TOL) && abstractCharacter.building.getRank() == 8)
+            buildingSlot = BuildingManager.getLastAvailableSlot(abstractCharacter.building);
+        else
+            buildingSlot = BuildingManager.getAvailableSlot(abstractCharacter.building);
+
+        if (buildingSlot == -1)
+            Logger.error("No available slot for NPC: " + abstractCharacter.getObjectUUID());
+
+        abstractCharacter.building.getHirelings().put(abstractCharacter, buildingSlot);
+
+        // Override bind and location for  this npc derived
+        // from BuildingManager slot location data.
+
+        Vector3fImmutable slotLocation = BuildingManager.getSlotLocation(abstractCharacter.building, buildingSlot).getLocation();
+
+        abstractCharacter.bindLoc = abstractCharacter.building.getLoc().add(slotLocation);
+
+        // Rotate slot position by the building rotation
+
+        abstractCharacter.bindLoc = Vector3fImmutable.rotateAroundPoint(abstractCharacter.building.getLoc(), abstractCharacter.bindLoc, abstractCharacter.building.getBounds().getQuaternion().angleY);
+
+        abstractCharacter.loc = new Vector3fImmutable(abstractCharacter.bindLoc);
+
+        // Rotate NPC rotation by the building's rotation
+
+        Quaternion slotRotation = new Quaternion().fromAngles(0, acos(abstractCharacter.getRot().y) * 2, 0);
+        slotRotation = slotRotation.mult(abstractCharacter.building.getBounds().getQuaternion());
+        abstractCharacter.setRot(new Vector3f(0, slotRotation.y, 0));
+
+        // Configure region and floor/level for this NPC
+
+        abstractCharacter.region = BuildingManager.GetRegion(abstractCharacter.building, abstractCharacter.bindLoc.x, abstractCharacter.bindLoc.y, abstractCharacter.bindLoc.z);
+
+        return buildingSlot;
     }
 }

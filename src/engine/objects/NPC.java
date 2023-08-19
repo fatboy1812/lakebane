@@ -38,7 +38,6 @@ import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import static engine.math.FastMath.acos;
 import static engine.net.client.msg.ErrorPopupMsg.sendErrorPopup;
 import static engine.objects.MobBase.loadEquipmentSet;
 import static engine.util.StringUtils.wordCount;
@@ -51,8 +50,6 @@ public class NPC extends AbstractCharacter {
     // Used for thread safety
     public final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
     private final ArrayList<MobLoot> rolling = new ArrayList<>();
-    private final ArrayList<Mob> siegeMinions = new ArrayList<>();
-    public Building building;
     public ReentrantReadWriteLock minionLock = new ReentrantReadWriteLock();
     public ArrayList<ProducedItem> forgedItems = new ArrayList<>();
     public HashMap<Integer, MobEquipment> equip = null;
@@ -789,45 +786,8 @@ public class NPC extends AbstractCharacter {
 
         // Handle NPCs within buildings
 
-        if (this.building != null) {
-
-            // Get next available slot for this NPC and use it
-            // to add the NPC to the building's hireling list
-            // Account for R8's having slots reversed.
-
-            if (building.getBlueprint() != null && building.getBlueprint().getBuildingGroup().equals(BuildingGroup.TOL) && building.getRank() == 8)
-                slot = BuildingManager.getLastAvailableSlot(building);
-            else
-                slot = BuildingManager.getAvailableSlot(building);
-
-            if (slot == -1)
-                Logger.error("No available slot for NPC: " + this.getObjectUUID());
-
-            building.getHirelings().put(this, slot);
-
-            // Override bind and location for  this npc derived
-            // from BuildingManager slot location data.
-
-            slotLocation = BuildingManager.getSlotLocation(building, slot).getLocation();
-
-            this.bindLoc = building.getLoc().add(slotLocation);
-
-            // Rotate slot position by the building rotation
-
-            this.bindLoc = Vector3fImmutable.rotateAroundPoint(building.getLoc(), this.bindLoc, building.getBounds().getQuaternion().angleY);
-
-            this.loc = new Vector3fImmutable(bindLoc);
-
-            // Rotate NPC rotation by the building's rotation
-
-            slotRotation = new Quaternion().fromAngles(0, acos(this.getRot().y) * 2, 0);
-            slotRotation = slotRotation.mult(building.getBounds().getQuaternion());
-            this.setRot(new Vector3f(0, slotRotation.y, 0));
-
-            // Configure region and floor/level for this NPC
-
-            this.region = BuildingManager.GetRegion(this.building, bindLoc.x, bindLoc.y, bindLoc.z);
-        }
+        if (this.building != null)
+            NPCManager.slotCharacterInBuilding(this);
 
         if (this.contract != null) {
             this.symbol = this.contract.getIconID();
