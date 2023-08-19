@@ -1056,6 +1056,9 @@ public class NPC extends AbstractCharacter {
         if (ConfigManager.serverType.equals(ServerType.LOGINSERVER))
             return;
 
+        if (this.contract == null)
+            return; // Early exit for npc guild owners
+
         // Configure parent zone adding this NPC to the
         // zone collection
 
@@ -1073,9 +1076,6 @@ public class NPC extends AbstractCharacter {
 
         if (this.building != null)
             NPCManager.slotCharacterInBuilding(this);
-
-        if (this.contract == null)
-            return; // Early exit for npc guild owners
 
         if (this.contract != null) {
             this.symbol = this.contract.getIconID();
