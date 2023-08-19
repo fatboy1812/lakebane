@@ -113,33 +113,6 @@ public class NPC extends AbstractCharacter {
     }
 
     /**
-     * Normal Constructor
-     */
-    public NPC(String name, short statStrCurrent, short statDexCurrent, short statConCurrent,
-               short statIntCurrent, short statSpiCurrent, short level, int exp, boolean sit, boolean walk, boolean combat, Vector3fImmutable bindLoc,
-               Vector3fImmutable currentLoc, Vector3fImmutable faceDir, short healthCurrent, short manaCurrent, short stamCurrent, Guild guild,
-               byte runningTrains, int npcType, boolean isMob, Building building, int contractID, Zone parent, int newUUID) {
-        super(name, "", statStrCurrent, statDexCurrent, statConCurrent, statIntCurrent, statSpiCurrent, level, exp,
-                bindLoc, currentLoc, faceDir, guild, runningTrains, newUUID);
-        this.loadID = npcType;
-        this.isMob = isMob;
-
-        if (this.contract != null)
-            this.mobBase = MobBase.getMobBase(this.contract.getMobbaseID());
-        else
-            this.mobBase = MobBase.getMobBase(loadID);
-
-        this.building = building;
-        this.name = name;
-        this.buyPercent = 0.33f;
-        this.sellPercent = 1f;
-
-        this.parentZone = parent;
-        this.dbID = newUUID;
-        this.currentID = newUUID;
-    }
-
-    /**
      * ResultSet Constructor
      */
     public NPC(ResultSet rs) throws SQLException {
@@ -568,6 +541,8 @@ public class NPC extends AbstractCharacter {
 
         if (npcWithoutID.building != null)
             npcWithoutID.bindLoc = Vector3fImmutable.ZERO;
+
+        npcWithoutID.runAfterLoad(); // configure npc
 
         NPC npc;
 
