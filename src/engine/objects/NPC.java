@@ -542,8 +542,6 @@ public class NPC extends AbstractCharacter {
         if (npcWithoutID.building != null)
             npcWithoutID.bindLoc = Vector3fImmutable.ZERO;
 
-        npcWithoutID.runAfterLoad(); // configure npc
-
         NPC npc;
 
         try {
