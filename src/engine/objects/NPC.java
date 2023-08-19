@@ -104,7 +104,7 @@ public class NPC extends AbstractCharacter {
         this.buyPercent = 0.33f;
         this.sellPercent = 1f;
         this.building = building;
-
+        this.guild = guild;
         this.parentZone = parent;
         this.parentZoneID = parent.getObjectUUID();
 
