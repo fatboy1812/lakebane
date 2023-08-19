@@ -18,7 +18,6 @@ import engine.job.JobContainer;
 import engine.job.JobScheduler;
 import engine.jobs.UpgradeNPCJob;
 import engine.math.Bounds;
-import engine.math.Quaternion;
 import engine.math.Vector3f;
 import engine.math.Vector3fImmutable;
 import engine.net.ByteBufferWriter;
@@ -108,7 +107,6 @@ public class NPC extends AbstractCharacter {
 
         this.parentZone = parent;
         this.parentZoneID = parent.getObjectUUID();
-        clearStatic();
 
         this.dbID = MBServerStatics.NO_DB_ROW_ASSIGNED_YET;
         this.currentID = MBServerStatics.NO_DB_ROW_ASSIGNED_YET;
@@ -139,9 +137,6 @@ public class NPC extends AbstractCharacter {
         this.parentZone = parent;
         this.dbID = newUUID;
         this.currentID = newUUID;
-
-        initializeNPC();
-        clearStatic();
     }
 
     /**
@@ -244,12 +239,6 @@ public class NPC extends AbstractCharacter {
         } catch (Exception e) {
             Logger.error("NPC: " + this.dbID + " :" + e);
             e.printStackTrace();
-        }
-
-        try {
-            initializeNPC();
-        } catch (Exception e) {
-            Logger.error("NPC: " + this.dbID + " :" + e);
         }
 
     }
@@ -750,18 +739,7 @@ public class NPC extends AbstractCharacter {
         return currentID;
     }
 
-    private void clearStatic() {
-        this.parentZone = null;
-        this.statLat = 0f;
-        this.statLon = 0f;
-        this.statAlt = 0f;
-    }
-
     private void initializeNPC() {
-
-        int slot;
-        Vector3fImmutable slotLocation;
-        Quaternion slotRotation;
 
         if (ConfigManager.serverType.equals(ServerType.LOGINSERVER))
             return;
@@ -840,10 +818,6 @@ public class NPC extends AbstractCharacter {
     public Contract getContract() {
         return this.contract;
     }
-
-    /*
-     * Serialization
-     */
 
     public int getContractID() {
 
@@ -1107,13 +1081,64 @@ public class NPC extends AbstractCharacter {
         if (ConfigManager.serverType.equals(ServerType.LOGINSERVER))
             return;
 
-        try {
+        // Configure parent zone adding this NPC to the
+        // zone collection
 
-            this.equip = loadEquipmentSet(this.equipmentSetID);
+        this.parentZone = ZoneManager.getZoneByUUID(this.parentZoneID);
+        this.parentZone.zoneNPCSet.remove(this);
+        this.parentZone.zoneNPCSet.add(this);
 
-        } catch (Exception e) {
-            Logger.error(e.getMessage());
+        // Setup location for this NPC
+
+        this.bindLoc = new Vector3fImmutable(this.statLat, this.statAlt, this.statLon);
+        this.bindLoc = this.parentZone.getLoc().add(this.bindLoc);
+        this.loc = new Vector3fImmutable(bindLoc);
+
+        // Handle NPCs within buildings
+
+        if (this.building != null)
+            NPCManager.slotCharacterInBuilding(this);
+
+        if (this.contract != null) {
+            this.symbol = this.contract.getIconID();
+            this.modTypeTable = this.contract.getNPCModTypeTable();
+            this.modSuffixTable = this.contract.getNpcModSuffixTable();
+            this.itemModTable = this.contract.getItemModTable();
+            int VID = this.contract.getVendorID();
+
+            if (VID != 0)
+                this.vendorID = VID;
+            else
+                this.vendorID = 1; //no vendor items
         }
+
+        if (this.mobBase != null) {
+            this.healthMax = this.mobBase.getHealthMax();
+            this.manaMax = 0;
+            this.staminaMax = 0;
+            this.setHealth(this.healthMax);
+            this.mana.set(this.manaMax);
+            this.stamina.set(this.staminaMax);
+        }
+
+        if (this.parentZone.isPlayerCity())
+            if (NPC.GetNPCProfits(this) == null)
+                NPCProfits.CreateProfits(this);
+
+        //TODO set these correctly later
+        this.rangeHandOne = 8;
+        this.rangeHandTwo = -1;
+        this.minDamageHandOne = 1;
+        this.maxDamageHandOne = 4;
+        this.minDamageHandTwo = 1;
+        this.maxDamageHandTwo = 4;
+        this.atrHandOne = 300;
+        this.defenseRating = 200;
+        this.isActive = true;
+
+        this.charItemManager.load();
+
+        this.equip = loadEquipmentSet(this.equipmentSetID);
 
         if (this.equip == null)
             this.equip = new HashMap<>();
