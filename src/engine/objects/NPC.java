@@ -1306,11 +1306,13 @@ public class NPC extends AbstractCharacter {
                 maxSkill = 110;
                 break;
         }
-
-        for (Integer itemID : fullItemList)
-            if (ItemBase.getItemBase(itemID).getPercentRequired() <= maxSkill)
+        ItemBase itemBase;
+        for (Integer itemID : fullItemList) {
+            itemBase = ItemBase.getItemBase(itemID);
+            boolean exclude = itemBase.getPercentRequired() == 0 && itemBase.getType() == ItemType.WEAPON;
+            if (itemBase.getPercentRequired() <= maxSkill && !exclude)
                 filteredItemList.add(itemID);
-
+        }
         if (this.contract.getVendorID() == 102) {
 
             for (int i = 0; i < this.getRank(); i++) {
