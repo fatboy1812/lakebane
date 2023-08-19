@@ -153,8 +153,7 @@ public class MinionTrainingMsgHandler extends AbstractClientMsgHandler {
 
                         if (siegeMob != null) {
 
-                            // siegeMob.setSpawnTime(60 * 15);
-                            siegeMob.setSpawnTime(10);
+                            siegeMob.setSpawnTime(60 * 15);
                             Building building = BuildingManager.getBuilding(((MinionTrainingMessage) baseMsg).getBuildingID());
 
                             siegeMob.building = building;
