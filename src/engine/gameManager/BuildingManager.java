@@ -501,9 +501,7 @@ public enum BuildingManager {
         if (npc == null)
             return false;
 
-        npc.setBuilding(building);
-        npc.setLoc(npc.bindLoc);
-        MovementManager.sendRWSSMsg(npc);
+        MovementManager.translocate(npc, npc.bindLoc, npc.region);
 
         return true;
 
