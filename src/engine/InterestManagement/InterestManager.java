@@ -30,8 +30,6 @@ import org.pmw.tinylog.Logger;
 import java.util.ArrayList;
 import java.util.HashSet;
 
-import static engine.math.FastMath.sqr;
-
 public enum InterestManager implements Runnable {
 
     INTERESTMANAGER;
@@ -233,15 +231,6 @@ public enum InterestManager implements Runnable {
     }
 
     private void updateStaticList(PlayerCharacter player, ClientConnection origin) {
-
-        // Only update if we've moved far enough to warrant it
-
-        float distanceSquared = player.getLoc().distanceSquared2D(player.getLastStaticLoc());
-
-        if (distanceSquared > sqr(25))
-            player.setLastStaticLoc(player.getLoc());
-        else
-            return;
 
         // Get Statics in range
         HashSet<AbstractWorldObject> toLoad = WorldGrid.getObjectsInRangePartial(player.getLoc(), MBServerStatics.STRUCTURE_LOAD_RANGE,
