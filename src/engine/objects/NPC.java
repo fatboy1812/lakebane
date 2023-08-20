@@ -518,7 +518,9 @@ public class NPC extends AbstractCharacter {
 
         if (id == 0)
             return null;
+
         NPC npc = (NPC) DbManager.getFromCache(GameObjectType.NPC, id);
+
         if (npc != null)
             return npc;
 

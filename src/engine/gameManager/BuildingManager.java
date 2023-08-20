@@ -502,7 +502,7 @@ public enum BuildingManager {
             return false;
 
         npc.setBuilding(building);
-        WorldGrid.addObject(npc, contractOwner);
+        npc.setLoc(npc.bindLoc);
 
         return true;
 
