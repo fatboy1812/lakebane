@@ -54,7 +54,6 @@ public class NPC extends AbstractCharacter {
     public int runeSetID = 0;
     public int extraRune2 = 0;
     protected int loadID;
-    protected boolean isMob;
     protected MobBase mobBase;
     protected String name;
     protected int dbID;
@@ -91,7 +90,6 @@ public class NPC extends AbstractCharacter {
         super(name, "", statStrCurrent, statDexCurrent, statConCurrent, statIntCurrent, statSpiCurrent, level, exp,
                 bindLoc, currentLoc, faceDir, guild, runningTrains);
         this.loadID = npcType;
-        this.isMob = isMob;
         this.contract = DbManager.ContractQueries.GET_CONTRACT(contractID);
 
         if (this.contract != null)
@@ -133,7 +131,6 @@ public class NPC extends AbstractCharacter {
             this.loadID = rs.getInt("npc_raceID");
 
             this.level = rs.getByte("npc_level");
-            this.isMob = false;
 
             buildingUUID = rs.getInt("npc_buildingID");
 
@@ -745,10 +742,6 @@ public class NPC extends AbstractCharacter {
         this.isActive = true;
 
         this.charItemManager.load();
-    }
-
-    public boolean isMob() {
-        return this.isMob;
     }
 
     public MobBase getMobBase() {

@@ -2875,4 +2875,11 @@ public class Enum {
         }
 
     }
+
+    public enum AIAgentType {
+        MOBILE,
+        PET,
+        CHARMED,
+        GUARD;
+    }
 }

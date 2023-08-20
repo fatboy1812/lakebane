@@ -14,9 +14,9 @@ import engine.Enum.GameObjectType;
 import engine.Enum.ModType;
 import engine.Enum.SourceType;
 import engine.InterestManagement.WorldGrid;
-import engine.mobileAI.Threads.MobAIThread;
 import engine.gameManager.ZoneManager;
 import engine.math.Vector3fImmutable;
+import engine.mobileAI.Threads.MobAIThread;
 import engine.net.Dispatch;
 import engine.net.DispatchMessage;
 import engine.net.client.msg.PetMsg;
@@ -30,24 +30,11 @@ import java.util.ArrayList;
 public abstract class AbstractIntelligenceAgent extends AbstractCharacter {
     protected Vector3fImmutable lastBindLoc;
     private boolean assist = false;
-    private AbstractCharacter callForHelpAggro = null;
-    private int type = 0; //Mob: 0, Pet: 1, Guard: 2
-    private boolean clearAggro = false;
+    private Enum.AIAgentType agentType = Enum.AIAgentType.MOBILE;
 
 
     public AbstractIntelligenceAgent(ResultSet rs) throws SQLException {
         super(rs);
-    }
-
-    public AbstractIntelligenceAgent(ResultSet rs, boolean isPlayer)
-            throws SQLException {
-        super(rs, isPlayer);
-    }
-
-
-    public AbstractIntelligenceAgent(ResultSet rs,
-                                     int UUID) throws SQLException {
-        super(rs, UUID);
     }
 
     public AbstractIntelligenceAgent(String firstName,
@@ -88,106 +75,83 @@ public abstract class AbstractIntelligenceAgent extends AbstractCharacter {
 
         if (this.getObjectType().equals(GameObjectType.Mob))
             return this.getMobBase();
+
         return null;
     }
 
-    public AbstractCharacter getCallForHelpAggro() {
-        return callForHelpAggro;
-    }
-
-    public void setCallForHelpAggro(AbstractCharacter ac) {
-        this.callForHelpAggro = ac;
-    }
-
     public void setMob() {
-        this.type = 0;
+        this.agentType = Enum.AIAgentType.MOBILE;
     }
 
     public void setPet(PlayerCharacter owner, boolean summoned) {
+
         if (summoned)
-            this.type = 1; //summoned
+            this.agentType = Enum.AIAgentType.PET; //summoned
         else
-            this.type = 2; //charmed
+            this.agentType = Enum.AIAgentType.CHARMED;
+
         if (this.getObjectType().equals(GameObjectType.Mob)) {
             ((Mob) this).setOwner(owner);
         }
     }
 
-    public void setGuard() {
-        this.type = 3;
-    }
 
     public boolean isMob() {
-        return (this.type == 0);
+        return (this.agentType.equals(Enum.AIAgentType.MOBILE));
     }
 
     public boolean isPet() {
-        return (this.type == 1 || this.type == 2);
+
+        return (this.agentType.equals(Enum.AIAgentType.PET) ||
+                this.agentType.equals(Enum.AIAgentType.CHARMED));
     }
 
     public boolean isSummonedPet() {
-        return (this.type == 1);
+        return (this.agentType.equals(Enum.AIAgentType.PET));
     }
 
     public boolean isCharmedPet() {
-        return (this.type == 2);
+        return (this.agentType.equals(Enum.AIAgentType.CHARMED));
     }
 
     public boolean isGuard() {
-        return (this.type == 3);
+        return (this.agentType.equals(Enum.AIAgentType.GUARD));
     }
 
     public boolean assist() {
         return this.assist;
     }
 
-    public void setAssist(boolean value) {
-        this.assist = value;
-    }
-
     public void toggleAssist() {
-        this.assist = (this.assist) ? false : true;
+        this.assist = !this.assist;
     }
 
     public int getDBID() {
 
         if (this.getObjectType().equals(GameObjectType.Mob))
             return this.getDBID();
+
         return 0;
-    }
-
-    public boolean clearAggro() {
-        return clearAggro;
-    }
-
-    public void setClearAggro(boolean value) {
-        this.clearAggro = value;
-    }
-
-    public Vector3fImmutable getLastBindLoc() {
-        if (this.lastBindLoc == null)
-            this.lastBindLoc = this.getBindLoc();
-        return this.lastBindLoc;
     }
 
     public PlayerCharacter getOwner() {
 
         if (this.getObjectType().equals(GameObjectType.Mob))
             return this.getOwner();
+
         return null;
     }
 
     public boolean getSafeZone() {
+
         ArrayList<Zone> allIn = ZoneManager.getAllZonesIn(this.getLoc());
-        for (Zone zone : allIn) {
+
+        for (Zone zone : allIn)
             if (zone.getSafeZone() == (byte) 1)
                 return true;
-        }
-        return false;
-        //return this.safeZone;
-    }
 
-    public abstract AbstractWorldObject getFearedObject();
+        return false;
+    }
 
     public float getAggroRange() {
         float ret = MobAIThread.AI_BASE_AGGRO_RANGE;
@@ -212,9 +176,8 @@ public abstract class AbstractIntelligenceAgent extends AbstractCharacter {
             } else { //revert charmed pet
                 this.setMob();
                 this.setCombatTarget(null);
-                //				if (this.isAlive())
-                //					WorldServer.updateObject(this);
             }
+
             //clear owner
             PlayerCharacter owner = this.getOwner();
 

@@ -83,7 +83,6 @@ public class Mob extends AbstractIntelligenceAgent {
     public City guardedCity;
     protected int dbID; //the database ID
     protected int loadID;
-    protected boolean isMob;
     protected float spawnRadius;
     //used by static mobs
     protected int parentZoneID;
@@ -111,7 +110,6 @@ public class Mob extends AbstractIntelligenceAgent {
 
         this.dbID = MBServerStatics.NO_DB_ROW_ASSIGNED_YET;
         this.loadID = npcType;
-        this.isMob = isMob;
         this.mobBase = MobBase.getMobBase(loadID);
         this.currentID = MBServerStatics.NO_DB_ROW_ASSIGNED_YET;
         this.parentZone = parent;
@@ -140,7 +138,6 @@ public class Mob extends AbstractIntelligenceAgent {
         super(firstName, lastName, statStrCurrent, statDexCurrent, statConCurrent, statIntCurrent, statSpiCurrent, level, exp, sit, walk, combat, bindLoc, currentLoc, faceDir, healthCurrent, manaCurrent, stamCurrent, guild, runningTrains, newUUID);
         this.dbID = newUUID;
         this.loadID = npcType;
-        this.isMob = isMob;
 
         if (contractID == 0)
             this.contract = null;
@@ -162,7 +159,6 @@ public class Mob extends AbstractIntelligenceAgent {
         super(mobBase.getFirstName(), "", (short) 0, (short) 0, (short) 0, (short) 0, (short) 0, level, 0, false, true, false, owner.getLoc(), owner.getLoc(), owner.getFaceDir(), (short) mobBase.getHealthMax(), (short) 0, (short) 0, guild, (byte) 0, tableID);
         this.dbID = tableID;
         this.loadID = mobBase.getObjectUUID();
-        this.isMob = true;
         this.mobBase = mobBase;
         this.parentZone = parent;
         this.parentZoneID = (parent != null) ? parent.getObjectUUID() : 0;
@@ -177,7 +173,6 @@ public class Mob extends AbstractIntelligenceAgent {
         super(mobBase.getFirstName(), "", (short) 0, (short) 0, (short) 0, (short) 0, (short) 0, level, 0, false, true, false, loc, loc, Vector3fImmutable.ZERO, (short) mobBase.getHealthMax(), (short) 0, (short) 0, guild, (byte) 0, tableID);
         this.dbID = tableID;
         this.loadID = mobBase.getObjectUUID();
-        this.isMob = true;
         this.mobBase = mobBase;
         this.parentZone = parent;
         this.parentZoneID = (parent != null) ? parent.getObjectUUID() : 0;
@@ -201,7 +196,6 @@ public class Mob extends AbstractIntelligenceAgent {
             this.gridObjectType = GridObjectType.DYNAMIC;
             this.spawnRadius = rs.getFloat("mob_spawnRadius");
             this.spawnTime = rs.getInt("mob_spawnTime");
-            this.isMob = true;
             this.parentZone = null;
             this.statLat = rs.getFloat("mob_spawnX");
             this.statAlt = rs.getFloat("mob_spawnY");
@@ -1106,11 +1100,6 @@ public class Mob extends AbstractIntelligenceAgent {
             this.ownerUID = 0;
         else
             this.ownerUID = value.getObjectUUID();
-    }
-
-    @Override
-    public AbstractWorldObject getFearedObject() {
-        return this.fearedObject;
     }
 
     public void setFearedObject(AbstractWorldObject awo) {
