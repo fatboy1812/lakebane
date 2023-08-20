@@ -502,6 +502,7 @@ public enum BuildingManager {
         if (npc == null)
             return false;
 
+        npc.setLoc(npc.bindLoc);
         InterestManager.forceLoad(npc);
 
         return true;
