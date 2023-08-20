@@ -180,8 +180,7 @@ public class PlayerCharacter extends AbstractCharacter {
     private float characterHeight = 0;
     private boolean lastSwimming = false;
     private boolean isTeleporting = false;
-
-    public boolean dirtyLoad = false;
+    public boolean dirtyLoad = true;
 
     /**
      * No Id Constructor
