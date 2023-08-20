@@ -76,7 +76,6 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
     protected boolean sit = false;
     protected boolean walkMode;
     protected boolean combat = false;
-    protected Vector3fImmutable startLoc = Vector3fImmutable.ZERO;
     public Vector3fImmutable endLoc = Vector3fImmutable.ZERO;
     protected boolean itemCasting = false;
     // nextEndLoc is used to store the next end location when someone is clicking
@@ -115,7 +114,6 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
     protected int inFloorID = -1;
     protected int liveCounter = 0;
     protected int debug = 0;
-    protected Regions lastRegion = null;
     protected boolean movingUp = false;
     private float desiredAltitude = 0;
     private long takeOffTime = 0;
@@ -678,10 +676,6 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
 
     public final int getExp() {
         return this.exp;
-    }
-
-    public final void setExp(final int value) {
-        this.exp = value;
     }
 
     public final JobContainer getLastPower() {
@@ -1788,14 +1782,6 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
 
     public void setInFloorID(int inFloorID) {
         this.inFloorID = inFloorID;
-    }
-
-    public boolean isCollided() {
-        return collided;
-    }
-
-    public void setCollided(boolean collided) {
-        this.collided = collided;
     }
 
     public float getDesiredAltitude() {
