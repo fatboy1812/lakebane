@@ -12,6 +12,7 @@ package engine.gameManager;
 import engine.Enum;
 import engine.Enum.BuildingGroup;
 import engine.Enum.GameObjectType;
+import engine.InterestManagement.InterestManager;
 import engine.InterestManagement.WorldGrid;
 import engine.job.JobContainer;
 import engine.job.JobScheduler;
@@ -504,7 +505,7 @@ public enum BuildingManager {
 
         npc.setObjectTypeMask(MBServerStatics.MASK_NPC);
         npc.setLoc(npc.bindLoc);
-
+        InterestManager.setObjectDirty(npc);
         return true;
 
     }

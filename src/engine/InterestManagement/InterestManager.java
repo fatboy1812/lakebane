@@ -565,4 +565,18 @@ public enum InterestManager implements Runnable {
             Logger.error("InterestManager.updateAllMobilePlayers: " + player.getObjectUUID(), e);
         }
     }
+
+    public static void setObjectDirty(AbstractWorldObject abstractWorldObject) {
+
+        HashSet<AbstractWorldObject> playerList = WorldGrid.getObjectsInRangePartial(abstractWorldObject.getLoc(), 128, MBServerStatics.MASK_PLAYER);
+
+        if (playerList.isEmpty())
+            return;
+
+        for (AbstractWorldObject playerObject : playerList) {
+
+            PlayerCharacter playerCharacter = (PlayerCharacter) playerObject;
+            playerCharacter.dirtyLoad = true;
+        }
+    }
 }
