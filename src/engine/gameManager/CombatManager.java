@@ -1307,7 +1307,7 @@ public enum CombatManager {
 
             Mob pet = ((PlayerCharacter) tarAc).getPet();
 
-            if (pet != null && pet.assist() && pet.getCombatTarget() == null)
+            if (pet != null && pet.assist && pet.getCombatTarget() == null)
                 pet.setCombatTarget(ac);
         }
 

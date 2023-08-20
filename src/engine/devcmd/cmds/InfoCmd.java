@@ -9,6 +9,7 @@
 
 package engine.devcmd.cmds;
 
+import engine.Enum;
 import engine.Enum.BuildingGroup;
 import engine.Enum.GameObjectType;
 import engine.Enum.TargetColor;
@@ -435,7 +436,7 @@ public class InfoCmd extends AbstractDevCmd {
                 if (targetMob.isPet()) {
                     output += "isPet: true";
                     output += newline;
-                    if (targetMob.isSummonedPet())
+                    if ((targetMob.agentType.equals(Enum.AIAgentType.PET)))
                         output += "isSummonedPet: true";
                     else
                         output += "isSummonedPet: false";
@@ -443,7 +444,7 @@ public class InfoCmd extends AbstractDevCmd {
                     if (owner != null)
                         output += "     owner: " + owner.getObjectUUID();
                     output += newline;
-                    output += "assist: " + targetMob.assist() + "   resting: " + targetMob.isSit();
+                    output += "assist: " + targetMob.assist + "   resting: " + targetMob.isSit();
                     output += newline;
                 }
                 if (targetMob.getMobBase() != null) {
@@ -453,7 +454,7 @@ public class InfoCmd extends AbstractDevCmd {
                     output += newline;
 
                 }
-                if (targetMob.isMob()) {
+                if ((targetMob.agentType.equals(Enum.AIAgentType.MOBILE))) {
                     output += "SpawnRadius: " + targetMob.getSpawnRadius();
                     output += newline;
                     output += "Spawn Timer: " + targetMob.getSpawnTimeAsString();

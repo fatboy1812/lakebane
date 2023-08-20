@@ -4713,7 +4713,7 @@ public class PlayerCharacter extends AbstractCharacter {
                 DbManager.removeFromCache(currentPet);
 
             } else if (currentPet.isSiege()) {
-                currentPet.setMob();
+                currentPet.agentType = AIAgentType.MOBILE;
                 currentPet.setOwner(null);
                 currentPet.setCombatTarget(null);
                 if (currentPet.isAlive())

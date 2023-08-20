@@ -1203,7 +1203,7 @@ public enum PowersManager {
         } else if (target.getObjectType().equals(GameObjectType.Mob)) {
             Mob mob = (Mob) target;
 
-            if (pb.targetMob() && !mob.isMob() && !mob.isSiege())
+            if (pb.targetMob() && !(mob.agentType.equals(AIAgentType.MOBILE)) && !mob.isSiege())
                 return false;
             else if (pb.targetPet() && !mob.isPet() && !mob.isSiege())
                 return false;

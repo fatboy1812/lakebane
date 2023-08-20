@@ -29,8 +29,8 @@ import java.util.ArrayList;
 
 public abstract class AbstractIntelligenceAgent extends AbstractCharacter {
     protected Vector3fImmutable lastBindLoc;
-    private boolean assist = false;
-    private Enum.AIAgentType agentType = Enum.AIAgentType.MOBILE;
+    public boolean assist = false;
+    public Enum.AIAgentType agentType = Enum.AIAgentType.MOBILE;
 
 
     public AbstractIntelligenceAgent(ResultSet rs) throws SQLException {
@@ -79,10 +79,6 @@ public abstract class AbstractIntelligenceAgent extends AbstractCharacter {
         return null;
     }
 
-    public void setMob() {
-        this.agentType = Enum.AIAgentType.MOBILE;
-    }
-
     public void setPet(PlayerCharacter owner, boolean summoned) {
 
         if (summoned)
@@ -96,30 +92,10 @@ public abstract class AbstractIntelligenceAgent extends AbstractCharacter {
     }
 
 
-    public boolean isMob() {
-        return (this.agentType.equals(Enum.AIAgentType.MOBILE));
-    }
-
     public boolean isPet() {
 
         return (this.agentType.equals(Enum.AIAgentType.PET) ||
                 this.agentType.equals(Enum.AIAgentType.CHARMED));
-    }
-
-    public boolean isSummonedPet() {
-        return (this.agentType.equals(Enum.AIAgentType.PET));
-    }
-
-    public boolean isCharmedPet() {
-        return (this.agentType.equals(Enum.AIAgentType.CHARMED));
-    }
-
-    public boolean isGuard() {
-        return (this.agentType.equals(Enum.AIAgentType.GUARD));
-    }
-
-    public boolean assist() {
-        return this.assist;
     }
 
     public void toggleAssist() {
@@ -154,9 +130,12 @@ public abstract class AbstractIntelligenceAgent extends AbstractCharacter {
     }
 
     public float getAggroRange() {
+
         float ret = MobAIThread.AI_BASE_AGGRO_RANGE;
+
         if (this.bonuses != null)
             ret *= (1 + this.bonuses.getFloatPercentAll(ModType.ScanRange, SourceType.None));
+
         return ret;
     }
 
@@ -164,28 +143,31 @@ public abstract class AbstractIntelligenceAgent extends AbstractCharacter {
 
         if (this.isPet()) {
 
-            if (this.isSummonedPet()) { //delete summoned pet
+            if ((this.agentType.equals(Enum.AIAgentType.PET))) { //delete summoned pet
 
                 WorldGrid.RemoveWorldObject(this);
-                if (this.getObjectType() == GameObjectType.Mob) {
-                    //((Mob)this).state = STATE.Disabled;
+
+                if (this.getObjectType() == GameObjectType.Mob)
                     if (((Mob) this).getParentZone() != null)
                         ((Mob) this).getParentZone().zoneMobSet.remove(this);
-                }
 
             } else { //revert charmed pet
-                this.setMob();
+                this.agentType = Enum.AIAgentType.MOBILE;
                 this.setCombatTarget(null);
             }
 
             //clear owner
+
             PlayerCharacter owner = this.getOwner();
 
             //close pet window
+
             if (owner != null) {
+
                 Mob pet = owner.getPet();
-                PetMsg pm = new PetMsg(5, null);
-                Dispatch dispatch = Dispatch.borrow(owner, pm);
+
+                PetMsg petMsg = new PetMsg(5, null);
+                Dispatch dispatch = Dispatch.borrow(owner, petMsg);
                 DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
 
                 if (pet != null && pet.getObjectUUID() == this.getObjectUUID())
@@ -198,7 +180,6 @@ public abstract class AbstractIntelligenceAgent extends AbstractCharacter {
 
         }
     }
-
 
 }
 

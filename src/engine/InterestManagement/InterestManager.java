@@ -8,6 +8,7 @@
 
 package engine.InterestManagement;
 
+import engine.Enum;
 import engine.Enum.DispatchChannel;
 import engine.Enum.GameObjectType;
 import engine.gameManager.GroupManager;
@@ -474,7 +475,7 @@ public enum InterestManager implements Runnable {
 
                     awonpc.playerAgroMap.put(player.getObjectUUID(), false);
 
-                    if (awonpc.isMob())
+                    if ((awonpc.agentType.equals(Enum.AIAgentType.MOBILE)))
                         //MobAI.setAwake(awonpc, false);
                         ((Mob) awonpc).setCombatTarget(null);
                     //				IVarController.setVariable(awonpc, "IntelligenceDisableDelay", (double) (System.currentTimeMillis() + 5000));

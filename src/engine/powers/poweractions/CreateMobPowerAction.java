@@ -97,7 +97,7 @@ public class CreateMobPowerAction extends AbstractPowerAction {
 
                 //currentPet.disableIntelligence();
             } else if (currentPet != null && currentPet.isSiege()) {
-                currentPet.setMob();
+                currentPet.agentType = Enum.AIAgentType.MOBILE;
                 currentPet.setOwner(null);
                 currentPet.setCombatTarget(null);
 
@@ -124,7 +124,7 @@ public class CreateMobPowerAction extends AbstractPowerAction {
                     //currentPet.disableIntelligence();
                 } else {
                     if (currentPet.isSiege()) {
-                        currentPet.setMob();
+                        currentPet.agentType = Enum.AIAgentType.MOBILE;
                         currentPet.setOwner(null);
                         currentPet.setCombatTarget(null);
 

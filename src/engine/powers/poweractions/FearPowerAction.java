@@ -47,7 +47,7 @@ public class FearPowerAction extends AbstractPowerAction {
 
         //verify is mob, not pet or guard
         Mob mob = (Mob) awo;
-        if (!mob.isMob())
+        if (!(mob.agentType.equals(Enum.AIAgentType.MOBILE)))
             return;
 
         //make sure mob isn't too high level

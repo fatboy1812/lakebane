@@ -168,7 +168,7 @@ public enum NPCManager {
 
         for (Mob necroPet : player.necroPets)
             if (necroPet.isPet())
-                necroPet.setMob();
+                necroPet.agentType = Enum.AIAgentType.MOBILE;
     }
 
     public static void spawnNecroPet(PlayerCharacter playerCharacter, Mob mob) {

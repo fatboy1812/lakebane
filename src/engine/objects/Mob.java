@@ -1226,7 +1226,7 @@ public class Mob extends AbstractIntelligenceAgent {
                 Group g = GroupManager.getGroup((PlayerCharacter) attacker);
 
                 // Give XP, now handled inside the Experience Object
-                if (!this.isPet() && !this.isNecroPet() && !this.isSummonedPet() && !this.isPlayerGuard)
+                if (!this.isPet() && !this.isNecroPet() && !(this.agentType.equals(AIAgentType.PET)) && !this.isPlayerGuard)
                     Experience.doExperience((PlayerCharacter) attacker, this, g);
             } else if (attacker.getObjectType().equals(GameObjectType.Mob)) {
                 Mob mobAttacker = (Mob) attacker;
@@ -1236,7 +1236,7 @@ public class Mob extends AbstractIntelligenceAgent {
                     PlayerCharacter owner = mobAttacker.getOwner();
 
                     if (owner != null)
-                        if (!this.isPet() && !this.isNecroPet() && !this.isSummonedPet() && !this.isPlayerGuard) {
+                        if (!this.isPet() && !this.isNecroPet() && !(this.agentType.equals(AIAgentType.PET)) && !this.isPlayerGuard) {
                             Group g = GroupManager.getGroup(owner);
 
                             // Give XP, now handled inside the Experience Object
@@ -1958,7 +1958,7 @@ public class Mob extends AbstractIntelligenceAgent {
         // Combine mobbase and mob aggro arrays into one bitvector
         //skip for pets
 
-        if (this.isPet() == false && this.isSummonedPet() == false && this.isNecroPet() == false) {
+        if (this.isPet() == false && (this.agentType.equals(AIAgentType.PET)) == false && this.isNecroPet() == false) {
             if (this.getMobBase().notEnemy.size() > 0)
                 this.notEnemy.addAll(this.getMobBase().notEnemy);
 
@@ -1985,7 +1985,7 @@ public class Mob extends AbstractIntelligenceAgent {
             }
             //assign 5 random patrol points for regular mobs
 
-            if (!this.isGuard() && !this.isPlayerGuard() && !this.isPet() && !this.isNecroPet() && !this.isSummonedPet() && !this.isCharmedPet()) {
+            if (!(this.agentType.equals(AIAgentType.GUARD)) && !this.isPlayerGuard() && !this.isPet() && !this.isNecroPet() && !(this.agentType.equals(AIAgentType.PET)) && !(this.agentType.equals(AIAgentType.CHARMED))) {
                 this.patrolPoints = new ArrayList<>();
 
                 for (int i = 0; i < 5; ++i) {
@@ -2229,7 +2229,7 @@ public class Mob extends AbstractIntelligenceAgent {
 
         if (this.isPet()) {
 
-            if (this.isSummonedPet()) { //delete summoned pet
+            if ((this.agentType.equals(AIAgentType.PET))) { //delete summoned pet
 
                 WorldGrid.RemoveWorldObject(this);
                 DbManager.removeFromCache(this);
@@ -2239,7 +2239,7 @@ public class Mob extends AbstractIntelligenceAgent {
                         this.getParentZone().zoneMobSet.remove(this);
 
             } else { //revert charmed pet
-                this.setMob();
+                this.agentType = AIAgentType.MOBILE;
                 this.setCombatTarget(null);
             }
             //clear owner

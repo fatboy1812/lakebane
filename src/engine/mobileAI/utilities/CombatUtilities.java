@@ -322,7 +322,7 @@ public class CombatUtilities {
         float damage = 0;
 
         DamageType dt = getDamageType(agent);
-        if (agent.isSummonedPet() == true || agent.isPet() == true || agent.isNecroPet() == true) {
+        if ((agent.agentType.equals(AIAgentType.PET)) == true || agent.isPet() == true || agent.isNecroPet() == true) {
             damage = calculatePetDamage(agent);
         } else if (agent.isPlayerGuard() == true) {
             //damage = calculateGuardDamage(agent);

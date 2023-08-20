@@ -143,7 +143,7 @@ public class MobAI {
             }
 
             if (target.getPet() != null)
-                if (target.getPet().getCombatTarget() == null && target.getPet().assist() == true)
+                if (target.getPet().getCombatTarget() == null && target.getPet().assist == true)
                     target.getPet().setCombatTarget(mob);
 
         } catch (Exception e) {
@@ -1003,14 +1003,14 @@ public class MobAI {
 
                 //dont scan self.
 
-                if (mob.equals(awoMob) || mob.isGuard() == true)
+                if (mob.equals(awoMob) || (mob.agentType.equals(Enum.AIAgentType.GUARD)) == true)
                     continue;
 
                 Mob aggroMob = (Mob) awoMob;
 
                 //don't attack other guards
 
-                if (aggroMob.isGuard())
+                if ((aggroMob.agentType.equals(Enum.AIAgentType.GUARD)))
                     continue;
 
                 if(aggroMob.BehaviourType.equals(Enum.MobBehaviourType.Pet1))
