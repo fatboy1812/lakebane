@@ -168,11 +168,6 @@ public class NPC extends AbstractCharacter {
 
             this.name = rs.getString("npc_name");
 
-            // Name override for npc
-
-            if (wordCount(this.name) < 2 && this.contract != null)
-                this.name += " the " + this.contract.getName();
-
         } catch (Exception e) {
             Logger.error("NPC: " + this.dbID + " :" + e);
             e.printStackTrace();
@@ -1046,6 +1041,11 @@ public class NPC extends AbstractCharacter {
 
         if (this.contract == null)
             return; // Early exit for npc guild owners
+
+        // Name override for this npc
+
+        if (wordCount(this.name) < 2 && this.contract != null)
+            this.name += " the " + this.contract.getName();
 
         // Configure parent zone adding this NPC to the
         // zone collection
