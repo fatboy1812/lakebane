@@ -503,6 +503,7 @@ public enum BuildingManager {
 
         npc.setBuilding(building);
         npc.setLoc(npc.bindLoc);
+        MovementManager.sendRWSSMsg(npc);
 
         return true;
 
