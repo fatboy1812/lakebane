@@ -181,6 +181,8 @@ public class PlayerCharacter extends AbstractCharacter {
     private boolean lastSwimming = false;
     private boolean isTeleporting = false;
 
+    public boolean dirtyLoad = false;
+
     /**
      * No Id Constructor
      */
@@ -5501,8 +5503,10 @@ public class PlayerCharacter extends AbstractCharacter {
 
     @Override
     public final void teleport(final Vector3fImmutable targetLoc) {
+
         Regions targetRegion = Regions.GetRegionForTeleport(targetLoc);
         locationLock.writeLock().lock();
+
         try {
             MovementManager.translocate(this, targetLoc, targetRegion);
         } catch (Exception e) {
@@ -5518,7 +5522,6 @@ public class PlayerCharacter extends AbstractCharacter {
 
     public float getBargain() {
         float bargain = 0;
-
 
         CharacterSkill bargainSkill = this.getSkills().get(engine.Enum.CharacterSkills.Bargaining.name());
 

@@ -30,12 +30,13 @@ import org.pmw.tinylog.Logger;
 import java.util.ArrayList;
 import java.util.HashSet;
 
+import static engine.math.FastMath.sqr;
+
 public enum InterestManager implements Runnable {
 
     INTERESTMANAGER;
 
     private static long lastTime;
-    private static boolean keepGoing = true;
 
     InterestManager() {
         Logger.info(" Interest Management thread is running.");
@@ -155,10 +156,6 @@ public enum InterestManager implements Runnable {
         }
     }
 
-    public void shutdown() {
-        this.keepGoing = false;
-    }
-
     @Override
     public void run() {
         beginLoadJob();
@@ -168,7 +165,7 @@ public enum InterestManager implements Runnable {
 
         InterestManager.lastTime = System.currentTimeMillis();
 
-        while (InterestManager.keepGoing) {
+        while (true) {
             try {
                 updateAllPlayers();
             } catch (Exception e) {
@@ -232,11 +229,26 @@ public enum InterestManager implements Runnable {
 
     private void updateStaticList(PlayerCharacter player, ClientConnection origin) {
 
+
+        // Only update if we've moved far enough to warrant it
+
+        float distanceSquared = player.getLoc().distanceSquared2D(player.getLastStaticLoc());
+
+        if (distanceSquared > sqr(25)) {
+            player.setLastStaticLoc(player.getLoc());
+            player.dirtyLoad = true;
+        }
+
+        if (player.dirtyLoad == false)
+            return;
+
         // Get Statics in range
+
         HashSet<AbstractWorldObject> toLoad = WorldGrid.getObjectsInRangePartial(player.getLoc(), MBServerStatics.STRUCTURE_LOAD_RANGE,
                 MBServerStatics.MASK_STATIC);
 
         // get list of obects loaded that need removed
+
         HashSet<AbstractWorldObject> loadedStaticObjects = player.getLoadedStaticObjects();
 
         HashSet<AbstractWorldObject> toRemove = null;
@@ -246,11 +258,16 @@ public enum InterestManager implements Runnable {
         toRemove.removeAll(toLoad);
 
         // unload static objects now out of range
+
         if (toRemove.size() > 0) {
+
             UnloadObjectsMsg uom = new UnloadObjectsMsg();
+
             for (AbstractWorldObject obj : toRemove) {
+
                 if (obj.getObjectType().equals(GameObjectType.Building))
                     InterestManager.HandleSpecialUnload((Building) obj, origin);
+
                 if (obj != null && !obj.equals(player))
                     uom.addObject(obj);
             }
@@ -262,6 +279,7 @@ public enum InterestManager implements Runnable {
         loadedStaticObjects.removeAll(toRemove);
 
         // remove any object to load that are already loaded
+
         toLoad.removeAll(loadedStaticObjects);
 
         LoadStructureMsg lsm = new LoadStructureMsg();
@@ -269,6 +287,7 @@ public enum InterestManager implements Runnable {
         ArrayList<LoadCharacterMsg> lcmList = new ArrayList<>();
 
         for (AbstractWorldObject awo : toLoad) {
+
             if (awo.getObjectType().equals(GameObjectType.Building))
                 lsm.addObject((Building) awo);
             else if (awo.getObjectType().equals(GameObjectType.Corpse)) {
@@ -277,7 +296,6 @@ public enum InterestManager implements Runnable {
 
                 Dispatch dispatch = Dispatch.borrow(player, lcm);
                 DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.PRIMARY);
-
 
             } else if (awo.getObjectType().equals(GameObjectType.NPC)) {
                 NPC npc = (NPC) awo;
@@ -299,6 +317,7 @@ public enum InterestManager implements Runnable {
         }
 
         loadedStaticObjects.addAll(toLoad);
+        player.dirtyLoad = false;
     }
 
     private void updateMobileList(PlayerCharacter player, ClientConnection origin) {
@@ -407,17 +426,20 @@ public enum InterestManager implements Runnable {
         ArrayList<AbstractWorldObject> addToList = new ArrayList<>();
 
         for (AbstractWorldObject awo : toLoadToPlayer) {
-            // dont load yourself
+
+
             try {
-                if (awo.equals(player))
+                if (awo.equals(player))  // dont load yourself
                     continue;
 
                 if ((awo.getObjectTypeMask() & MBServerStatics.MASK_PLAYER) != 0) {
 
                     // object to load is a player
+
                     PlayerCharacter awopc = (PlayerCharacter) awo;
 
                     // dont load if invis
+
                     if (player.getSeeInvis() < awopc.getHidden())
                         continue;
 
@@ -444,15 +466,14 @@ public enum InterestManager implements Runnable {
                         continue;
 
                     //removed, interest manager should still load mob corpses
+
                     if (awonpc.despawned == true)
                         continue;
 
                     awonpc.playerAgroMap.put(player.getObjectUUID(), false);
-                    //MobAI.setAwake(awonpc, false);
                     ((Mob) awonpc).setCombatTarget(null);
-                    //				IVarController.setVariable(awonpc, "IntelligenceDisableDelay", (double) (System.currentTimeMillis() + 5000));
-                    //				awonpc.enableIntelligence();
                     lcm = new LoadCharacterMsg(awonpc, PlayerCharacter.hideNonAscii());
+
                 } else if ((awo.getObjectTypeMask() & MBServerStatics.MASK_NPC) != 0) {
                     NPC awonpc = (NPC) awo;
                     lcm = new LoadCharacterMsg(awonpc, PlayerCharacter.hideNonAscii());
@@ -465,10 +486,8 @@ public enum InterestManager implements Runnable {
                     awonpc.playerAgroMap.put(player.getObjectUUID(), false);
 
                     if ((awonpc.agentType.equals(Enum.AIAgentType.MOBILE)))
-                        //MobAI.setAwake(awonpc, false);
                         ((Mob) awonpc).setCombatTarget(null);
-                    //				IVarController.setVariable(awonpc, "IntelligenceDisableDelay", (double) (System.currentTimeMillis() + 5000));
-                    //				awonpc.enableIntelligence();
+
                     lcm = new LoadCharacterMsg(awonpc, PlayerCharacter.hideNonAscii());
                 }
 
@@ -504,6 +523,7 @@ public enum InterestManager implements Runnable {
             return;
 
         //Update static list
+
         try {
             updateStaticList(player, origin);
         } catch (Exception e) {
@@ -511,6 +531,7 @@ public enum InterestManager implements Runnable {
         }
 
         //Update mobile list
+
         try {
             updateMobileList(player, origin);
         } catch (Exception e) {
@@ -529,6 +550,7 @@ public enum InterestManager implements Runnable {
             return;
 
         //Update static list
+
         try {
             updateStaticList(player, origin);
         } catch (Exception e) {
@@ -536,6 +558,7 @@ public enum InterestManager implements Runnable {
         }
 
         //Update mobile list
+
         try {
             updateMobileList(player, origin);
         } catch (Exception e) {
