@@ -200,28 +200,28 @@ public enum InterestManager implements Runnable {
     private void updateAllPlayers() {
         // get all players
 
-        for (PlayerCharacter pc : SessionManager.getAllActivePlayerCharacters()) {
+        for (PlayerCharacter playerCharacter : SessionManager.getAllActivePlayerCharacters()) {
 
-            if (pc == null)
+            if (playerCharacter == null)
                 continue;
 
-            ClientConnection origin = pc.getClientConnection();
+            ClientConnection origin = playerCharacter.getClientConnection();
 
             if (origin == null)
                 continue;
 
-            if (!pc.isEnteredWorld())
+            if (!playerCharacter.isEnteredWorld())
                 continue;
 
-            if (pc.getTeleportLock().readLock().tryLock()) {
+            if (playerCharacter.getTeleportLock().readLock().tryLock()) {
 
                 try {
-                    updateStaticList(pc, origin);
-                    updateMobileList(pc, origin);
+                    updateStaticList(playerCharacter, origin);
+                    updateMobileList(playerCharacter, origin);
                 } catch (Exception e) {
                     Logger.error(e);
                 } finally {
-                    pc.getTeleportLock().readLock().unlock();
+                    playerCharacter.getTeleportLock().readLock().unlock();
                 }
             }
         }
@@ -522,6 +522,7 @@ public enum InterestManager implements Runnable {
         //Update static list
 
         try {
+            player.dirtyLoad = true;
             updateStaticList(player, origin);
         } catch (Exception e) {
             Logger.error("InterestManager.updateAllStaticPlayers: " + player.getObjectUUID(), e);
@@ -536,12 +537,12 @@ public enum InterestManager implements Runnable {
         }
     }
 
-    public synchronized void HandleLoadForTeleport(PlayerCharacter player) {
+    public synchronized void HandleLoadForTeleport(PlayerCharacter playerCharacter) {
 
-        if (player == null)
+        if (playerCharacter == null)
             return;
 
-        ClientConnection origin = player.getClientConnection();
+        ClientConnection origin = playerCharacter.getClientConnection();
 
         if (origin == null)
             return;
@@ -549,17 +550,18 @@ public enum InterestManager implements Runnable {
         //Update static list
 
         try {
-            updateStaticList(player, origin);
+            playerCharacter.dirtyLoad = true;
+            updateStaticList(playerCharacter, origin);
         } catch (Exception e) {
-            Logger.error("InterestManager.updateAllStaticPlayers: " + player.getObjectUUID(), e);
+            Logger.error("InterestManager.updateAllStaticPlayers: " + playerCharacter.getObjectUUID(), e);
         }
 
         //Update mobile list
 
         try {
-            updateMobileList(player, origin);
+            updateMobileList(playerCharacter, origin);
         } catch (Exception e) {
-            Logger.error("InterestManager.updateAllMobilePlayers: " + player.getObjectUUID(), e);
+            Logger.error("InterestManager.updateAllMobilePlayers: " + playerCharacter.getObjectUUID(), e);
         }
     }
 
