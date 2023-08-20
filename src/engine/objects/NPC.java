@@ -44,7 +44,6 @@ import static engine.util.StringUtils.wordCount;
 public class NPC extends AbstractCharacter {
 
     public static int SVR_CLOSE_WINDOW = 4;
-    public static ArrayList<Integer> Oprhans = new ArrayList<>();
     public static HashMap<Integer, ArrayList<String>> _pirateNames = new HashMap<>();
     // Used for thread safety
     public final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
@@ -1048,10 +1047,6 @@ public class NPC extends AbstractCharacter {
         else
             this.guild = Guild.getGuild(this.guildUUID);
 
-        if (this.guildUUID != 0 && (this.guild == null || this.guild.isEmptyGuild()))
-            NPC.Oprhans.add(currentID);
-        else if (this.building == null && this.buildingUUID > 0)
-            NPC.Oprhans.add(currentID);
 
         if (this.guild == null)
             this.guild = Guild.getErrantGuild();
