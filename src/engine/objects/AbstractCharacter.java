@@ -157,8 +157,7 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
         this.exp = exp;
         this.walkMode = true;
         this.bindLoc = bindLoc;
-        if (ConfigManager.serverType.equals(Enum.ServerType.WORLDSERVER))
-            this.setLoc(currentLoc);
+        ;
         this.faceDir = faceDir;
         this.guild = guild;
         this.runningTrains = runningTrains;
@@ -205,8 +204,6 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
         this.walkMode = true;
 
         this.bindLoc = bindLoc;
-        if (ConfigManager.serverType.equals(Enum.ServerType.WORLDSERVER))
-            this.setLoc(currentLoc);
         this.faceDir = faceDir;
         this.guild = guild;
 
@@ -283,11 +280,7 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
         this.level = (short) 0; // TODO get this from MobsBase later
         this.exp = 1;
         this.walkMode = true;
-
-        //this.bindLoc = new Vector3fImmutable(rs.getFloat("spawnX"), rs.getFloat("spawnY"), rs.getFloat("spawnZ"));
         this.bindLoc = Vector3fImmutable.ZERO;
-        //setLoc(this.bindLoc);
-
         this.faceDir = Vector3fImmutable.ZERO;
 
         this.runningTrains = (byte) 0;
@@ -367,9 +360,6 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
     public static void __serializeForClientMsg(AbstractCharacter abstractCharacter, final ByteBufferWriter writer) throws SerializationException {
     }
 
-    public static void serializeForClientMsgOtherPlayer(AbstractCharacter abstractCharacter, final ByteBufferWriter writer) throws SerializationException {
-    }
-
     public static void serializeForClientMsgOtherPlayer(AbstractCharacter abstractCharacter, final ByteBufferWriter writer, final boolean asciiLastName) throws SerializationException {
 
         switch (abstractCharacter.getObjectType()) {
@@ -405,29 +395,32 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
         }
     }
 
-    public static void runBonusesOnLoad(PlayerCharacter pc) {
+    public static void runBonusesOnLoad(PlayerCharacter playerCharacter) {
+
         // synchronized with getBonuses()
-        synchronized (pc.bonuses) {
+
+        synchronized (playerCharacter.bonuses) {
             try {
                 //run until no new bonuses are applied
 
                 // clear bonuses and reapply rune bonuses
-                if (pc.getObjectType() == GameObjectType.PlayerCharacter) {
-                    pc.bonuses.calculateRuneBaseEffects(pc);
+                if (playerCharacter.getObjectType() == GameObjectType.PlayerCharacter) {
+                    playerCharacter.bonuses.calculateRuneBaseEffects(playerCharacter);
                 } else {
-                    pc.bonuses.clearRuneBaseEffects();
+                    playerCharacter.bonuses.clearRuneBaseEffects();
                 }
 
                 // apply effect bonuses
-                for (Effect eff : pc.effects.values()) {
-                    eff.applyBonus(pc);
+
+                for (Effect eff : playerCharacter.effects.values()) {
+                    eff.applyBonus(playerCharacter);
                 }
 
                 //apply item bonuses for equipped items
                 ConcurrentHashMap<Integer, Item> equip = null;
 
-                if (pc.charItemManager != null)
-                    equip = pc.charItemManager.getEquipped();
+                if (playerCharacter.charItemManager != null)
+                    equip = playerCharacter.charItemManager.getEquipped();
 
                 if (equip != null) {
                     for (Item item : equip.values()) {
@@ -436,7 +429,7 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
                             ConcurrentHashMap<String, Effect> effects = item.getEffects();
                             if (effects != null) {
                                 for (Effect eff : effects.values()) {
-                                    eff.applyBonus(item, pc);
+                                    eff.applyBonus(item, playerCharacter);
                                 }
                             }
                         }
@@ -444,54 +437,23 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
                 }
 
                 //recalculate passive defenses
-                pc.setPassives();
+                playerCharacter.setPassives();
 
                 //flip the active bonus set for synchronization purposes
                 //do this after all bonus updates, but before recalculations.
                 // recalculate everything
                 //calculate item bonuses
-                pc.calculateItemBonuses();
+                playerCharacter.calculateItemBonuses();
 
                 //recalculate formulas
-                PlayerCharacter.recalculatePlayerStatsOnLoad(pc);
+                PlayerCharacter.recalculatePlayerStatsOnLoad(playerCharacter);
 
             } catch (Exception e) {
                 Logger.error(e);
             }
 
         }
-        // TODO remove later, for debugging.
-        //this.bonuses.printBonuses();
 
-    }
-
-    public static void SetBuildingLevelRoom(AbstractCharacter character, int buildingID, int buildingLevel, int room, Regions region) {
-        character.inBuildingID = buildingID;
-        character.inBuilding = buildingLevel;
-        character.inFloorID = room;
-        character.lastRegion = region;
-    }
-
-    public static Regions InsideBuildingRegion(AbstractCharacter player) {
-
-        Regions currentRegion = null;
-        HashSet<AbstractWorldObject> buildings = WorldGrid.getObjectsInRangePartial(player, 300, MBServerStatics.MASK_BUILDING);
-
-        for (AbstractWorldObject awo : buildings) {
-
-            Building building = (Building) awo;
-
-            if (building.getBounds() == null)
-                continue;
-
-            if (building.getBounds().getRegions() == null)
-                continue;
-
-            for (Regions region : building.getBounds().getRegions()) {
-                //TODO ADD NEW REGION CODE
-            }
-        }
-        return currentRegion;
     }
 
     public static Regions InsideBuildingRegionGoingDown(AbstractCharacter player) {
@@ -537,10 +499,6 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
 
         return canFly;
 
-    }
-
-    public static void UpdateRegion(AbstractCharacter worldObject) {
-        worldObject.region = AbstractWorldObject.GetRegionByWorldObject(worldObject);
     }
 
     public static void teleport(AbstractCharacter worldObject, final Vector3fImmutable targetLoc) {
@@ -625,10 +583,6 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
      */
     public final short getUnusedStatPoints() {
         return this.unusedStatPoints;
-    }
-
-    public final void setUnusedStatPoints(final short value) {
-        this.unusedStatPoints = value;
     }
 
     public final CharacterItemManager getCharItemManager() {
@@ -757,18 +711,6 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
         return this.timers.get("LastItem");
     }
 
-    public final void setLastItem(final JobContainer jc) {
-        if (this.timers != null) {
-            this.timers.put("LastItem", jc);
-        }
-    }
-
-    public final void clearLastItem() {
-        if (this.timers != null) {
-            this.timers.remove("LastItem");
-        }
-    }
-
     public final int getIsSittingAsInt() {
         if (!this.isAlive()) {
             return 1;
@@ -828,10 +770,6 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
 
     public final void setFaceDir(final Vector3fImmutable value) {
         this.faceDir = value;
-    }
-
-    public final Vector3fImmutable getStartLoc() {
-        return this.startLoc;
     }
 
     public final Vector3fImmutable getEndLoc() {
@@ -966,14 +904,6 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
         return this.defenseRating;
     }
 
-    public final float getRangeHandOne() {
-        return this.rangeHandOne;
-    }
-
-    public final float getRangeHandTwo() {
-        return this.rangeHandTwo;
-    }
-
     public final float getSpeedHandOne() {
         return this.speedHandOne;
     }
@@ -1049,7 +979,6 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
     public final void setLoc(final Vector3fImmutable value) {
         super.setLoc(value); // set the location in the world
         this.resetLastSetLocUpdate();
-        //Logger.info("AbstractCharacter", "Setting char location to :" + value.getX()  + " " + value.getZ());
     }
 
     public Vector3fImmutable getMovementLoc() {
@@ -1938,10 +1867,6 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
             }
         }
 
-    }
-
-    public Regions getLastRegion() {
-        return lastRegion;
     }
 
     public boolean isMovingUp() {
