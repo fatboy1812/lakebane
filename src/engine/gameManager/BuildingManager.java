@@ -12,7 +12,6 @@ package engine.gameManager;
 import engine.Enum;
 import engine.Enum.BuildingGroup;
 import engine.Enum.GameObjectType;
-import engine.InterestManagement.InterestManager;
 import engine.InterestManagement.WorldGrid;
 import engine.job.JobContainer;
 import engine.job.JobScheduler;
@@ -21,6 +20,7 @@ import engine.math.Bounds;
 import engine.math.Vector3fImmutable;
 import engine.net.client.msg.ErrorPopupMsg;
 import engine.objects.*;
+import engine.server.MBServerStatics;
 import org.pmw.tinylog.Logger;
 
 import java.time.LocalDateTime;
@@ -502,8 +502,8 @@ public enum BuildingManager {
         if (npc == null)
             return false;
 
+        npc.setObjectTypeMask(MBServerStatics.MASK_NPC);
         npc.setLoc(npc.bindLoc);
-        InterestManager.forceLoad(npc);
 
         return true;
 
