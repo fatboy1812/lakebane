@@ -188,7 +188,7 @@ public class PlayerCharacter extends AbstractCharacter {
                            short spiMod, Guild guild, byte runningTrains, Account account, Race race, BaseClass baseClass, byte skinColor, byte hairColor,
                            byte beardColor, byte hairStyle, byte beardStyle) {
         super(firstName, lastName, (short) 1, (short) 1, (short) 1, (short) 1, (short) 1, (short) 1, 0,
-                Vector3fImmutable.ZERO, Vector3fImmutable.ZERO, Vector3fImmutable.ZERO,
+                Vector3fImmutable.ZERO, Vector3fImmutable.ZERO,
                 guild, runningTrains);
 
         this.runes = new ArrayList<>();
@@ -4582,10 +4582,9 @@ public class PlayerCharacter extends AbstractCharacter {
     @Override
     public void runAfterLoad() {
 
-        // Create player bounds object
+        // Init inventory
 
-        //		if ((MBServer.getApp() instanceof engine.server.world.WorldServer))
-        //			DbManager.GuildQueries.LOAD_GUILD_HISTORY_FOR_PLAYER(this);
+        this.charItemManager = new CharacterItemManager(this);
 
         Bounds playerBounds = Bounds.borrow();
         playerBounds.setBounds(this.getLoc());

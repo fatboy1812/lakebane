@@ -46,7 +46,7 @@ public abstract class AbstractIntelligenceAgent extends AbstractCharacter {
                                      Guild guild, byte runningTrains) {
         super(firstName, lastName, statStrCurrent, statDexCurrent, statConCurrent,
                 statIntCurrent, statSpiCurrent, level, exp, bindLoc,
-                currentLoc, faceDir, guild,
+                faceDir, guild,
                 runningTrains);
     }
 

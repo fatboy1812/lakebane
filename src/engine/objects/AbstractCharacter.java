@@ -45,7 +45,7 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 public abstract class AbstractCharacter extends AbstractWorldObject {
 
-    protected final CharacterItemManager charItemManager;
+    protected CharacterItemManager charItemManager;
     private final ReentrantReadWriteLock healthLock = new ReentrantReadWriteLock();
     public short level;
     public AbstractWorldObject combatTarget;
@@ -122,6 +122,15 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
     private boolean collided = false;
     private byte aoecntr = 0;
 
+    public AbstractCharacter() {
+        super();
+
+        this.powers = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_LOW);
+        this.skills = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_LOW);
+        this.initializeCharacter();
+
+    }
+
     /**
      * No Id Constructor
      */
@@ -136,7 +145,6 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
             final short level,
             final int exp,
             final Vector3fImmutable bindLoc,
-            final Vector3fImmutable currentLoc,
             final Vector3fImmutable faceDir,
             final Guild guild,
             final byte runningTrains
@@ -154,7 +162,6 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
         this.exp = exp;
         this.walkMode = true;
         this.bindLoc = bindLoc;
-        ;
         this.faceDir = faceDir;
         this.guild = guild;
         this.runningTrains = runningTrains;
@@ -162,8 +169,6 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
         this.skills = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_LOW);
         this.initializeCharacter();
 
-        // Dangerous to use THIS in a constructor!!!
-        this.charItemManager = new CharacterItemManager(this);
     }
 
     /**

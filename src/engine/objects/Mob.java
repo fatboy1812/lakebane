@@ -1928,6 +1928,10 @@ public class Mob extends AbstractIntelligenceAgent {
     @Override
     public void runAfterLoad() {
 
+        // Initialize inventory
+
+        this.charItemManager = new CharacterItemManager(this);
+
         try {
             if (this.equipmentSetID != 0)
                 this.equip = MobBase.loadEquipmentSet(this.equipmentSetID);

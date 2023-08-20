@@ -88,7 +88,7 @@ public class NPC extends AbstractCharacter {
                Vector3fImmutable currentLoc, Vector3fImmutable faceDir, short healthCurrent, short manaCurrent, short stamCurrent, Guild guild,
                byte runningTrains, int npcType, boolean isMob, Building building, int contractID, Zone parent) {
         super(name, "", statStrCurrent, statDexCurrent, statConCurrent, statIntCurrent, statSpiCurrent, level, exp,
-                bindLoc, currentLoc, faceDir, guild, runningTrains);
+                bindLoc, faceDir, guild, runningTrains);
         this.loadID = npcType;
         this.contract = DbManager.ContractQueries.GET_CONTRACT(contractID);
 
@@ -1048,6 +1048,10 @@ public class NPC extends AbstractCharacter {
 
         if (wordCount(this.name) < 2 && this.contract != null)
             this.name += " the " + this.contract.getName();
+
+        // Initialize inventory
+
+        this.charItemManager = new CharacterItemManager(this);
 
         // Configure parent zone adding this NPC to the
         // zone collection
