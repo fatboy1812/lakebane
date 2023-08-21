@@ -470,7 +470,12 @@ public class NPC extends AbstractCharacter {
 
         newNPC.parentZoneID = parent.getObjectUUID();
         newNPC.guildUUID = guild.getObjectUUID();
-        newNPC.buildingUUID = building.getObjectUUID();
+
+        if (building == null)
+            newNPC.buildingUUID = 0;
+        else
+            newNPC.buildingUUID = building.getObjectUUID();
+
         newNPC.level = level;
 
         newNPC.buyPercent = .33f;
