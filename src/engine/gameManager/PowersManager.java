@@ -541,8 +541,6 @@ public enum PowersManager {
 
 
         playerCharacter.setLastMovementState(playerCharacter.getMovementState());
-        // update used power timer
-        playerCharacter.setLastUsedPowerTime();
 
         // run timer job to end cast
         if (time < 1) // run immediately
@@ -751,9 +749,6 @@ public enum PowersManager {
 
         int trains = msg.getNumTrains();
 
-        // update used power timer
-        playerCharacter.setLastUsedPowerTime();
-
         // verify player is not stunned or power type is blocked
         PlayerBonuses bonus = playerCharacter.getBonuses();
 
@@ -904,8 +899,6 @@ public enum PowersManager {
 
             if (pb.isHarmful())
                 if (target.getObjectType().equals(GameObjectType.PlayerCharacter) && target.getObjectUUID() != playerCharacter.getObjectUUID()) {
-
-                    ((PlayerCharacter) target).setLastTargetOfUsedPowerTime();
                     ((PlayerCharacter) target).setTimeStamp("LastCombatPlayer", System.currentTimeMillis());
                     playerCharacter.setTimeStamp("LastCombatPlayer", System.currentTimeMillis());
                 }
@@ -1087,12 +1080,8 @@ public enum PowersManager {
 
             // update target of used power timer
 
-            if (target.getObjectType().equals(GameObjectType.PlayerCharacter)) {
-
-                ((PlayerCharacter) target).setLastTargetOfUsedPowerTime();
+            if (target.getObjectType().equals(GameObjectType.PlayerCharacter))
                 ((PlayerCharacter) target).setTimeStamp("LastCombatPlayer", System.currentTimeMillis());
-            }
-
 
             // finally Apply actions
             for (ActionsBase ab : pb.getActions()) {

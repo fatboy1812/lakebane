@@ -84,6 +84,7 @@ public class PlayerCharacter extends AbstractCharacter {
     private final ConcurrentHashMap<Integer, LinkedList<Long>> chatChanFloodList = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_LOW);
     private final ConcurrentHashMap<Integer, Long> killMap = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_LOW);
     private final AtomicInteger trainsAvailable = new AtomicInteger(0); // num skill trains not used
+
     public boolean notDeleted; // <-Use this for deleting character
     // ===========================================
     // Variables NOT to put into the database!!!! (session only)
@@ -143,18 +144,14 @@ public class PlayerCharacter extends AbstractCharacter {
     private int hidden = 0; // current rank of hide/sneak/invis
     private int seeInvis = 0; // current rank of see invis
     private float speedMod;
-    private float raceRunMod;
     private boolean teleportMode = false; // Teleport on MoveToPoint
     private float dexPenalty;
     private long lastPlayerAttackTime = 0;
-    private long lastMobAttackTime = 0;
-    private long lastUsedPowerTime = 0;
-    private long lastTargetOfUsedPowerTime = 0;
     private long lastUpdateTime = System.currentTimeMillis();
     private long lastStamUpdateTime = System.currentTimeMillis();
     private boolean safeZone = false;
     private int bindBuildingID;
-    private int lastContract;
+
     /*
     DataWarehouse based kill/death tracking.
     These sets contain the last 10 UUID's
@@ -2806,18 +2803,6 @@ public class PlayerCharacter extends AbstractCharacter {
         this.lastPlayerAttackTime = System.currentTimeMillis();
     }
 
-    public void setLastMobAttackTime() {
-        this.lastMobAttackTime = System.currentTimeMillis();
-    }
-
-    public void setLastUsedPowerTime() {
-        this.lastUsedPowerTime = System.currentTimeMillis();
-    }
-
-    public void setLastTargetOfUsedPowerTime() {
-        this.lastTargetOfUsedPowerTime = System.currentTimeMillis();
-    }
-
     public NPC getLastNPCDialog() {
         return this.lastNPCDialog;
     }
@@ -2826,9 +2811,6 @@ public class PlayerCharacter extends AbstractCharacter {
         this.lastNPCDialog = value;
     }
 
-    public void setLastContract(int value) {
-        this.lastContract = value;
-    }
 
     public Mob getPet() {
         return this.pet;

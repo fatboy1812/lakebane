@@ -1197,8 +1197,6 @@ public enum CombatManager {
 
         if (target.getObjectType().equals(GameObjectType.PlayerCharacter))
             pc.setLastPlayerAttackTime();
-        else
-            pc.setLastMobAttackTime();
     }
 
     public static float getWeaponRange(ItemBase weapon, PlayerBonuses bonus) {

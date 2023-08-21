@@ -131,8 +131,6 @@ public class StealPowerAction extends AbstractPowerAction {
             //Handle target attacking back if in combat and has no other target
             CombatManager.handleRetaliate(ownerAC, sourcePlayer);
 
-        } else if (owner.getObjectType().equals(Enum.GameObjectType.Mob)) {
-            sourcePlayer.setLastMobAttackTime(); //mark thief as mob aggressive
         } else
             return;
 

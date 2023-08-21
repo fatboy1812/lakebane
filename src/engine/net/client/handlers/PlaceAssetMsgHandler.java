@@ -445,10 +445,6 @@ public class PlaceAssetMsgHandler extends AbstractClientMsgHandler {
             lock.writeLock().unlock();
         }
 
-        // Update the player's last contract (What is this used for?)
-
-        playerCharacter.setLastContract(msg.getContractID());
-
         // Remove the appropriate deed.
         if (buildingCreated == true)
             if (contract != null) {
