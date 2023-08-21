@@ -443,6 +443,7 @@ public class NPC extends AbstractCharacter {
     }
 
     private static int serializeExtraRune(NPC npc, int runeID, int cnt, ByteBufferWriter writer) {
+
         writer.putInt(5);
         writer.putInt(0);
         writer.putInt(runeID);
@@ -456,7 +457,7 @@ public class NPC extends AbstractCharacter {
         return cnt + 1;
     }
 
-    public static NPC createNPC(String name, int contractID, Vector3fImmutable spawn, Guild guild, boolean isMob, Zone parent, short level, Building building) {
+    public static NPC createNPC(String name, int contractID, Vector3fImmutable spawn, Guild guild, Zone parent, short level, Building building) {
 
         NPC newNPC = new NPC();
 

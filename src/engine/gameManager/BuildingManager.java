@@ -501,7 +501,7 @@ public enum BuildingManager {
 
         NPC npc = null;
 
-        npc = NPC.createNPC(pirateName, NpcID.getObjectUUID(), NpcLoc, null, false, zone, (short) rank, building);
+        npc = NPC.createNPC(pirateName, NpcID.getObjectUUID(), NpcLoc, null, zone, (short) rank, building);
 
         if (npc == null)
             return false;
@@ -569,7 +569,7 @@ public enum BuildingManager {
             return true;
         }
 
-        npc = NPC.createNPC(pirateName, contract.getObjectUUID(), Vector3fImmutable.ZERO, contractOwner.getGuild(), false, zone, (short) rank, building);
+        npc = NPC.createNPC(pirateName, contract.getObjectUUID(), Vector3fImmutable.ZERO, contractOwner.getGuild(), zone, (short) rank, building);
 
         if (npc == null)
             return false;
