@@ -113,12 +113,7 @@ public class PlayerCharacter extends AbstractCharacter {
     public LinkedList<Integer> pvpKills;
     public LinkedList<Integer> pvpDeaths;
     public int lastBuildingAccessed = 0;
-    public double timeLoggedIn = 0;
     public boolean RUN_MAGICTREK = true;
-    public int spellsCasted = 0;
-    public int pingCount = 0;
-    public long startPing = 0;
-    public double ping = 0;
     public float centerHeight = 0;
     public float landingAltitude = 0;
     public int bindBuilding = 0;
