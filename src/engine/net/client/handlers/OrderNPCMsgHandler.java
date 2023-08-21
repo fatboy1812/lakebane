@@ -303,7 +303,7 @@ public class OrderNPCMsgHandler extends AbstractClientMsgHandler {
                 if (cityBuilding == null)
                     return;
 
-                NPC.processRedeedNPC(npc, npc.building, origin);
+                BuildingManager.processRedeedNPC(npc, npc.building, origin);
                 break;
             case Mob:
                 Mob mob = (Mob) abstractCharacter;

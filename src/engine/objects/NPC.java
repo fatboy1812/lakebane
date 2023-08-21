@@ -23,8 +23,10 @@ import engine.math.Vector3fImmutable;
 import engine.net.ByteBufferWriter;
 import engine.net.Dispatch;
 import engine.net.DispatchMessage;
-import engine.net.client.ClientConnection;
-import engine.net.client.msg.*;
+import engine.net.client.msg.ErrorPopupMsg;
+import engine.net.client.msg.ItemProductionMsg;
+import engine.net.client.msg.PetMsg;
+import engine.net.client.msg.PlaceAssetMsg;
 import engine.server.MBServerStatics;
 import org.joda.time.DateTime;
 import org.pmw.tinylog.Logger;
@@ -48,6 +50,7 @@ public class NPC extends AbstractCharacter {
     // Used for thread safety
     public final ReentrantReadWriteLock lock = new ReentrantReadWriteLock();
     private final ArrayList<MobLoot> rolling = new ArrayList<>();
+    private final ConcurrentHashMap<Mob, Integer> siegeMinionMap = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_LOW);
     public ReentrantReadWriteLock minionLock = new ReentrantReadWriteLock();
     public ArrayList<ProducedItem> forgedItems = new ArrayList<>();
     public HashMap<Integer, MobEquipment> equip = null;
@@ -73,37 +76,15 @@ public class NPC extends AbstractCharacter {
     // Variables NOT to be stored in db
     protected boolean isStatic = false;
     private DateTime upgradeDateTime = null;
-    private final ConcurrentHashMap<Mob, Integer> siegeMinionMap = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_LOW);
     private HashSet<Integer> canRoll = null;
     private int parentZoneID;
     private int equipmentSetID = 0;
     private int repairCost = 5;
 
+    // New NPC constructor.  Fill in the blanks and then call
+    // PERSIST.
 
-    /**
-     * No Id Constructor
-     */
-    public NPC(String name, short statStrCurrent, short statDexCurrent, short statConCurrent,
-               short statIntCurrent, short statSpiCurrent, short level, int exp, boolean sit, boolean walk, boolean combat, Vector3fImmutable bindLoc,
-               Vector3fImmutable currentLoc, Vector3fImmutable faceDir, short healthCurrent, short manaCurrent, short stamCurrent, Guild guild,
-               byte runningTrains, int npcType, boolean isMob, Building building, int contractID, Zone parent) {
-        super(name, "", statStrCurrent, statDexCurrent, statConCurrent, statIntCurrent, statSpiCurrent, level, exp,
-                bindLoc, faceDir, guild, runningTrains);
-        this.loadID = npcType;
-        this.contract = DbManager.ContractQueries.GET_CONTRACT(contractID);
-
-        if (this.contract != null)
-            this.mobBase = MobBase.getMobBase(this.contract.getMobbaseID());
-        else
-            this.mobBase = MobBase.getMobBase(loadID);
-
-        this.name = name;
-        this.buyPercent = 0.33f;
-        this.sellPercent = 1f;
-        this.building = building;
-        this.guild = guild;
-        this.parentZone = parent;
-        this.parentZoneID = parent.getObjectUUID();
+    public NPC() {
 
         this.dbID = MBServerStatics.NO_DB_ROW_ASSIGNED_YET;
         this.currentID = MBServerStatics.NO_DB_ROW_ASSIGNED_YET;
@@ -290,12 +271,8 @@ public class NPC extends AbstractCharacter {
             cnt = serializeExtraRune(npc, 252647, cnt, writer);
 
         //Healer trainer
-        if (isHealer) {
-            //			int healerRune = 2501;
-            //			if (npc.getLevel() >= 60)
-            //healerRune = 252592;
+        if (isHealer)
             cnt = serializeExtraRune(npc, 252592, cnt, writer);
-        }
 
         if (classID != 0) {
             writer.putInt(4);
@@ -306,9 +283,8 @@ public class NPC extends AbstractCharacter {
         }
 
         //Scout trainer
-        if (isArcher) {
+        if (isArcher)
             cnt = serializeExtraRune(npc, 252654, cnt, writer);
-        }
 
         //Shopkeeper
         writer.putInt(5);
@@ -470,6 +446,7 @@ public class NPC extends AbstractCharacter {
         writer.putInt(5);
         writer.putInt(0);
         writer.putInt(runeID);
+
         if (cnt == 0)
             writer.putInt(GameObjectType.NPCClassRuneTwo.ordinal());
         else
@@ -481,30 +458,28 @@ public class NPC extends AbstractCharacter {
 
     public static NPC createNPC(String name, int contractID, Vector3fImmutable spawn, Guild guild, boolean isMob, Zone parent, short level, Building building) {
 
-        NPC npcWithoutID = new NPC(name, (short) 0, (short) 0, (short) 0, (short) 0,
-                (short) 0, (short) 1, 0, false, false, false, spawn, spawn, Vector3fImmutable.ZERO,
-                (short) 1, (short) 1, (short) 1, guild, (byte) 0, 0, isMob, building, contractID, parent);
+        NPC newNPC = new NPC();
 
-        npcWithoutID.setLevel(level);
+        newNPC.name = name;
+        newNPC.contractUUID = contractID;
 
-        if (npcWithoutID.mobBase == null)
-            return null;
+        if (building == null)
+            newNPC.bindLoc = spawn;
+        else
+            newNPC.bindLoc = Vector3fImmutable.ZERO;
 
-        // Parent zone is required by dbhandler.  Can likely
-        // refactor that out and just use the id.
+        newNPC.parentZoneID = parent.getObjectUUID();
+        newNPC.guildUUID = guild.getObjectUUID();
+        newNPC.buildingUUID = building.getObjectUUID();
+        newNPC.level = level;
 
-        npcWithoutID.parentZone = parent;
-        npcWithoutID.parentZoneID = parent.getObjectUUID();
-
-        // NPC in a Building derives position from slot
-
-        if (npcWithoutID.building != null)
-            npcWithoutID.bindLoc = Vector3fImmutable.ZERO;
+        newNPC.buyPercent = .33f;
+        newNPC.sellPercent = 1;
 
         NPC npc;
 
         try {
-            npc = DbManager.NPCQueries.ADD_NPC(npcWithoutID, isMob);
+            npc = DbManager.NPCQueries.PERSIST(newNPC);
             npc.setObjectTypeMask(MBServerStatics.MASK_NPC);
         } catch (Exception e) {
             Logger.error(e);
@@ -562,83 +537,6 @@ public class NPC extends AbstractCharacter {
         return NPCProfits.ProfitCache.get(npc.currentID);
     }
 
-    public static void processRedeedNPC(NPC npc, Building building, ClientConnection origin) {
-
-        // Member variable declaration
-        PlayerCharacter player;
-        Contract contract;
-        CharacterItemManager itemMan;
-        ItemBase itemBase;
-        Item item;
-
-        npc.lock.writeLock().lock();
-
-        try {
-
-
-            if (building == null)
-                return;
-            player = SessionManager.getPlayerCharacter(origin);
-            itemMan = player.getCharItemManager();
-
-            contract = npc.getContract();
-
-            if (!player.getCharItemManager().hasRoomInventory((short) 1)) {
-                ErrorPopupMsg.sendErrorPopup(player, 21);
-                return;
-            }
-
-
-            if (!building.getHirelings().containsKey(npc))
-                return;
-
-            if (!npc.remove()) {
-                PlaceAssetMsg.sendPlaceAssetError(player.getClientConnection(), 1, "A Serious error has occurred. Please post details for to ensure transaction integrity");
-                return;
-            }
-
-            building.getHirelings().remove(npc);
-
-            itemBase = ItemBase.getItemBase(contract.getContractID());
-
-            if (itemBase == null) {
-                Logger.error("Could not find Contract for npc: " + npc.getObjectUUID());
-                return;
-            }
-
-            boolean itemWorked = false;
-
-            item = new Item(itemBase, player.getObjectUUID(), OwnerType.PlayerCharacter, (byte) ((byte) npc.getRank() - 1), (byte) ((byte) npc.getRank() - 1),
-                    (short) 1, (short) 1, true, false, Enum.ItemContainerType.INVENTORY, (byte) 0,
-                    new ArrayList<>(), "");
-            item.setNumOfItems(1);
-            item.containerType = Enum.ItemContainerType.INVENTORY;
-
-            try {
-                item = DbManager.ItemQueries.ADD_ITEM(item);
-                itemWorked = true;
-            } catch (Exception e) {
-                Logger.error(e);
-            }
-            if (itemWorked) {
-                itemMan.addItemToInventory(item);
-                itemMan.updateInventory();
-            }
-
-            ManageCityAssetsMsg mca = new ManageCityAssetsMsg();
-            mca.actionType = SVR_CLOSE_WINDOW;
-            mca.setTargetType(building.getObjectType().ordinal());
-            mca.setTargetID(building.getObjectUUID());
-            origin.sendMsg(mca);
-
-        } catch (Exception e) {
-            Logger.error(e);
-        } finally {
-            npc.lock.writeLock().unlock();
-        }
-
-    }
-
     public final void submitUpgradeJob() {
 
         JobContainer jc;
@@ -671,74 +569,6 @@ public class NPC extends AbstractCharacter {
     @Override
     public int getObjectUUID() {
         return currentID;
-    }
-
-    private void initializeNPC() {
-
-        if (ConfigManager.serverType.equals(ServerType.LOGINSERVER))
-            return;
-
-        // NPC Guild owners have no contract
-
-        if (this.contract == null)
-            return;
-
-        // Configure parent zone adding this NPC to the
-        // zone collection
-
-        this.parentZone = ZoneManager.getZoneByUUID(this.parentZoneID);
-        this.parentZone.zoneNPCSet.remove(this);
-        this.parentZone.zoneNPCSet.add(this);
-
-        // Setup location for this NPC
-
-        this.bindLoc = new Vector3fImmutable(this.statLat, this.statAlt, this.statLon);
-        this.bindLoc = this.parentZone.getLoc().add(this.bindLoc);
-        this.loc = new Vector3fImmutable(bindLoc);
-
-        // Handle NPCs within buildings
-
-        if (this.building != null)
-            NPCManager.slotCharacterInBuilding(this);
-
-        if (this.contract != null) {
-            this.symbol = this.contract.getIconID();
-            this.modTypeTable = this.contract.getNPCModTypeTable();
-            this.modSuffixTable = this.contract.getNpcModSuffixTable();
-            this.itemModTable = this.contract.getItemModTable();
-            int VID = this.contract.getVendorID();
-
-            if (VID != 0)
-                this.vendorID = VID;
-            else
-                this.vendorID = 1; //no vendor items
-        }
-
-        if (this.mobBase != null) {
-            this.healthMax = this.mobBase.getHealthMax();
-            this.manaMax = 0;
-            this.staminaMax = 0;
-            this.setHealth(this.healthMax);
-            this.mana.set(this.manaMax);
-            this.stamina.set(this.staminaMax);
-        }
-
-        if (this.parentZone.isPlayerCity())
-            if (NPC.GetNPCProfits(this) == null)
-                NPCProfits.CreateProfits(this);
-
-        //TODO set these correctly later
-        this.rangeHandOne = 8;
-        this.rangeHandTwo = -1;
-        this.minDamageHandOne = 1;
-        this.maxDamageHandOne = 4;
-        this.minDamageHandTwo = 1;
-        this.maxDamageHandTwo = 4;
-        this.atrHandOne = 300;
-        this.defenseRating = 200;
-        this.isActive = true;
-
-        this.charItemManager.load();
     }
 
     public MobBase getMobBase() {

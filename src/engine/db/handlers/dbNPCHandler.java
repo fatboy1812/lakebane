@@ -31,7 +31,7 @@ public class dbNPCHandler extends dbHandlerBase {
         this.localObjectType = engine.Enum.GameObjectType.valueOf(this.localClass.getSimpleName());
     }
 
-    public NPC ADD_NPC(NPC toAdd, boolean isMob) {
+    public NPC PERSIST(NPC toAdd) {
 
         NPC npc = null;
 
@@ -50,7 +50,7 @@ public class dbNPCHandler extends dbHandlerBase {
             preparedStatement.setFloat(10, toAdd.getSellPercent());
 
             if (toAdd.getBuilding() != null)
-                preparedStatement.setInt(11, toAdd.getBuilding().getObjectUUID());
+                preparedStatement.setInt(11, toAdd.buildingUUID);
             else
                 preparedStatement.setInt(11, 0);
 

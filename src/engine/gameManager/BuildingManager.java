@@ -19,7 +19,10 @@ import engine.job.JobScheduler;
 import engine.jobs.UpgradeBuildingJob;
 import engine.math.Bounds;
 import engine.math.Vector3fImmutable;
+import engine.net.client.ClientConnection;
 import engine.net.client.msg.ErrorPopupMsg;
+import engine.net.client.msg.ManageCityAssetsMsg;
+import engine.net.client.msg.PlaceAssetMsg;
 import engine.objects.*;
 import engine.server.MBServerStatics;
 import org.pmw.tinylog.Logger;
@@ -708,4 +711,80 @@ public enum BuildingManager {
 
     }
 
+    public static void processRedeedNPC(NPC npc, Building building, ClientConnection origin) {
+
+        // Member variable declaration
+        PlayerCharacter player;
+        Contract contract;
+        CharacterItemManager itemMan;
+        ItemBase itemBase;
+        Item item;
+
+        npc.lock.writeLock().lock();
+
+        try {
+
+
+            if (building == null)
+                return;
+            player = SessionManager.getPlayerCharacter(origin);
+            itemMan = player.getCharItemManager();
+
+            contract = npc.getContract();
+
+            if (!player.getCharItemManager().hasRoomInventory((short) 1)) {
+                ErrorPopupMsg.sendErrorPopup(player, 21);
+                return;
+            }
+
+
+            if (!building.getHirelings().containsKey(npc))
+                return;
+
+            if (!npc.remove()) {
+                PlaceAssetMsg.sendPlaceAssetError(player.getClientConnection(), 1, "A Serious error has occurred. Please post details for to ensure transaction integrity");
+                return;
+            }
+
+            building.getHirelings().remove(npc);
+
+            itemBase = ItemBase.getItemBase(contract.getContractID());
+
+            if (itemBase == null) {
+                Logger.error("Could not find Contract for npc: " + npc.getObjectUUID());
+                return;
+            }
+
+            boolean itemWorked = false;
+
+            item = new Item(itemBase, player.getObjectUUID(), Enum.OwnerType.PlayerCharacter, (byte) ((byte) npc.getRank() - 1), (byte) ((byte) npc.getRank() - 1),
+                    (short) 1, (short) 1, true, false, Enum.ItemContainerType.INVENTORY, (byte) 0,
+                    new ArrayList<>(), "");
+            item.setNumOfItems(1);
+            item.containerType = Enum.ItemContainerType.INVENTORY;
+
+            try {
+                item = DbManager.ItemQueries.ADD_ITEM(item);
+                itemWorked = true;
+            } catch (Exception e) {
+                Logger.error(e);
+            }
+            if (itemWorked) {
+                itemMan.addItemToInventory(item);
+                itemMan.updateInventory();
+            }
+
+            ManageCityAssetsMsg mca = new ManageCityAssetsMsg();
+            mca.actionType = NPC.SVR_CLOSE_WINDOW;
+            mca.setTargetType(building.getObjectType().ordinal());
+            mca.setTargetID(building.getObjectUUID());
+            origin.sendMsg(mca);
+
+        } catch (Exception e) {
+            Logger.error(e);
+        } finally {
+            npc.lock.writeLock().unlock();
+        }
+
+    }
 }
