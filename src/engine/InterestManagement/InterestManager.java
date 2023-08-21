@@ -236,7 +236,7 @@ public enum InterestManager implements Runnable {
 
         if (distanceSquared > sqr(25))
             player.setLastStaticLoc(player.getLoc());
-        else if (player.dirtyLoad.get() == false)
+        else if (player.isDirtyLoad() == false)
             return;
 
         // Get Statics in range
@@ -314,7 +314,7 @@ public enum InterestManager implements Runnable {
         }
 
         loadedStaticObjects.addAll(toLoad);
-        player.dirtyLoad.set(false);
+        player.setDirtyLoad(false);
     }
 
     private void updateMobileList(PlayerCharacter player, ClientConnection origin) {
@@ -519,22 +519,12 @@ public enum InterestManager implements Runnable {
         if (origin == null)
             return;
 
-        //Update static list
+        // Update loaded upbjects lists
 
-        try {
-            player.dirtyLoad.set(true);
-            updateStaticList(player, origin);
-        } catch (Exception e) {
-            Logger.error("InterestManager.updateAllStaticPlayers: " + player.getObjectUUID(), e);
-        }
+        player.setDirtyLoad(true);
+        updateStaticList(player, origin);
+        updateMobileList(player, origin);
 
-        //Update mobile list
-
-        try {
-            updateMobileList(player, origin);
-        } catch (Exception e) {
-            Logger.error("InterestManager.updateAllMobilePlayers: " + player.getObjectUUID(), e);
-        }
     }
 
     public synchronized void HandleLoadForTeleport(PlayerCharacter playerCharacter) {
@@ -547,22 +537,12 @@ public enum InterestManager implements Runnable {
         if (origin == null)
             return;
 
-        //Update static list
+        // Update loaded upbjects lists
 
-        try {
-            playerCharacter.dirtyLoad.set(true);
-            updateStaticList(playerCharacter, origin);
-        } catch (Exception e) {
-            Logger.error("InterestManager.updateAllStaticPlayers: " + playerCharacter.getObjectUUID(), e);
-        }
+        playerCharacter.setDirtyLoad(true);
+        updateStaticList(playerCharacter, origin);
+        updateMobileList(playerCharacter, origin);
 
-        //Update mobile list
-
-        try {
-            updateMobileList(playerCharacter, origin);
-        } catch (Exception e) {
-            Logger.error("InterestManager.updateAllMobilePlayers: " + playerCharacter.getObjectUUID(), e);
-        }
     }
 
     public static void setObjectDirty(AbstractWorldObject abstractWorldObject) {
@@ -575,7 +555,7 @@ public enum InterestManager implements Runnable {
         for (AbstractWorldObject playerObject : playerList) {
 
             PlayerCharacter playerCharacter = (PlayerCharacter) playerObject;
-            playerCharacter.dirtyLoad.set(true);
+            playerCharacter.setDirtyLoad(true);
         }
     }
 }

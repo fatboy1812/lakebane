@@ -49,7 +49,6 @@ import java.sql.SQLException;
 import java.util.*;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
@@ -173,7 +172,8 @@ public class PlayerCharacter extends AbstractCharacter {
     private float characterHeight = 0;
     private boolean lastSwimming = false;
     private boolean isTeleporting = false;
-    public AtomicBoolean dirtyLoad = new AtomicBoolean(true);
+    private boolean dirtyLoad = true;
+    private final ReadWriteLock dirtyLock = new ReentrantReadWriteLock(true);
 
     /**
      * No Id Constructor
@@ -5511,5 +5511,19 @@ public class PlayerCharacter extends AbstractCharacter {
         bargain *= .01f;
 
         return bargain;
+    }
+
+    public boolean isDirtyLoad() {
+        boolean dirtyValue;
+        dirtyLock.readLock().lock();
+        dirtyValue = dirtyLoad;
+        dirtyLock.readLock().unlock();
+        return dirtyValue;
+    }
+
+    public void setDirtyLoad(boolean dirtyLoad) {
+        dirtyLock.writeLock().lock();
+        this.dirtyLoad = dirtyLoad;
+        dirtyLock.writeLock().unlock();
     }
 }
