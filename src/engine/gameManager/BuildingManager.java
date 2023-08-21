@@ -571,8 +571,9 @@ public enum BuildingManager {
         if (npc == null)
             return false;
 
-        npc.setLoc(npc.getLoc());
-
+        npc.setObjectTypeMask(MBServerStatics.MASK_NPC);
+        npc.setLoc(npc.bindLoc);
+        InterestManager.setObjectDirty(npc);
         return true;
     }
 
