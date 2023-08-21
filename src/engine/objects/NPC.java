@@ -739,51 +739,12 @@ public class NPC extends AbstractCharacter {
         return super.getLoc();
     }
 
-    public float getSpawnX() {
-        return this.statLat;
-    }
-
-    public float getSpawnY() {
-        return this.statAlt;
-    }
-
-    public float getSpawnZ() {
-        return this.statLon;
-    }
-
-    //Sets the relative position to a parent zone
-    public void setRelPos(Zone zone, float locX, float locY, float locZ) {
-
-        //update ZoneManager's zone building list
-        if (zone != null) {
-            if (this.parentZone != null) {
-                if (zone.getObjectUUID() != this.parentZone.getObjectUUID()) {
-                    this.parentZone.zoneNPCSet.remove(this);
-                    //zone.zoneNPCSet.add(this);
-                }
-            } else {
-                //zone.zoneNPCSet.add(this);
-            }
-        } else if (this.parentZone != null) {
-            this.parentZone.zoneNPCSet.remove(this);
-        }
-
-        this.statLat = locX;
-        this.statAlt = locY;
-        this.statLon = locZ;
-        this.parentZone = zone;
-    }
-
     public float getSellPercent() {
         return this.sellPercent;
     }
 
     public float getBuyPercent() {
         return this.buyPercent;
-    }
-
-    public void setBuyPercent(float buyPercent) {
-        this.buyPercent = buyPercent;
     }
 
     public float getBuyPercent(PlayerCharacter player) {
