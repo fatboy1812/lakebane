@@ -3,6 +3,7 @@ package engine.net.client.handlers;
 import engine.Enum;
 import engine.Enum.*;
 import engine.InterestManagement.HeightMap;
+import engine.InterestManagement.InterestManager;
 import engine.InterestManagement.RealmMap;
 import engine.InterestManagement.WorldGrid;
 import engine.db.archive.CityRecord;
@@ -818,7 +819,9 @@ public class PlaceAssetMsgHandler extends AbstractClientMsgHandler {
         // *** Refactor : figure out how to send like, one?
 
         City.lastCityUpdate = System.currentTimeMillis();
-        WorldGrid.addObject(treeObject, playerCharacter);
+        treeObject.setLoc(treeObject.getLoc());
+        InterestManager.setObjectDirty(treeObject);
+//        WorldGrid.addObject(treeObject, playerCharacter);
 
         serverRealm.addCity(cityObject.getObjectUUID());
         playerNation.setCityUUID(cityObject.getObjectUUID());
@@ -1200,7 +1203,9 @@ public class PlaceAssetMsgHandler extends AbstractClientMsgHandler {
         newMesh.setObjectTypeMask(MBServerStatics.MASK_BUILDING);
         MaintenanceManager.setMaintDateTime(newMesh, LocalDateTime.now().plusDays(7));
 
-        WorldGrid.addObject(newMesh, playerCharacter);
+        //       WorldGrid.addObject(newMesh, playerCharacter);
+        newMesh.setLoc(newMesh.getLoc());
+        InterestManager.setObjectDirty(newMesh);
         return newMesh;
 
     }
@@ -1259,7 +1264,8 @@ public class PlaceAssetMsgHandler extends AbstractClientMsgHandler {
                     newMesh.runAfterLoad();
                     newMesh.setObjectTypeMask(MBServerStatics.MASK_BUILDING);
                     MaintenanceManager.setMaintDateTime(newMesh, LocalDateTime.now().plusDays(7));
-                    WorldGrid.addObject(newMesh, player);
+                    newMesh.setLoc(newMesh.getLoc());
+                    InterestManager.setObjectDirty(newMesh);
                     break;
                 case Shrine:
                     newShrine = (Shrine) ago;
@@ -1319,7 +1325,8 @@ public class PlaceAssetMsgHandler extends AbstractClientMsgHandler {
 
         newMesh.setObjectTypeMask(MBServerStatics.MASK_BUILDING);
         MaintenanceManager.setMaintDateTime(newMesh, LocalDateTime.now().plusDays(7));
-        WorldGrid.addObject(newMesh, player);
+        newMesh.setLoc(newMesh.getLoc());
+        InterestManager.setObjectDirty(newMesh);
 
         return true;
     }
@@ -1360,7 +1367,9 @@ public class PlaceAssetMsgHandler extends AbstractClientMsgHandler {
                 newMesh = (Building) ago;
                 newMesh.setObjectTypeMask(MBServerStatics.MASK_BUILDING);
                 MaintenanceManager.setMaintDateTime(newMesh, LocalDateTime.now().plusDays(7));
-                WorldGrid.addObject(newMesh, player);
+                //             WorldGrid.addObject(newMesh, player);
+                newMesh.setLoc(newMesh.getLoc());
+                InterestManager.setObjectDirty(newMesh);
                 newMesh.runAfterLoad();
             } else if (ago.getObjectType() == GameObjectType.Warehouse) {
                 Warehouse warehouse = (Warehouse) ago;
