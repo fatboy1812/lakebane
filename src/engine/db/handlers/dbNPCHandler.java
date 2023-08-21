@@ -38,16 +38,16 @@ public class dbNPCHandler extends dbHandlerBase {
         try (Connection connection = DbManager.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement("CALL `npc_CREATE`(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);")) {
 
-            preparedStatement.setLong(1, toAdd.getParentZoneID());
+            preparedStatement.setLong(1, toAdd.parentZoneUUID);
             preparedStatement.setString(2, toAdd.getName());
-            preparedStatement.setInt(3, toAdd.getContractID());
-            preparedStatement.setInt(4, toAdd.getGuildUUID());
+            preparedStatement.setInt(3, toAdd.contractUUID);
+            preparedStatement.setInt(4, toAdd.guildUUID);
             preparedStatement.setFloat(5, toAdd.getSpawnX());
             preparedStatement.setFloat(6, toAdd.getSpawnY());
             preparedStatement.setFloat(7, toAdd.getSpawnZ());
-            preparedStatement.setInt(8, toAdd.getLevel());
-            preparedStatement.setFloat(9, toAdd.getBuyPercent());
-            preparedStatement.setFloat(10, toAdd.getSellPercent());
+            preparedStatement.setInt(8, toAdd.level);
+            preparedStatement.setFloat(9, toAdd.buyPercent);
+            preparedStatement.setFloat(10, toAdd.sellPercent);
 
             if (toAdd.getBuilding() != null)
                 preparedStatement.setInt(11, toAdd.buildingUUID);

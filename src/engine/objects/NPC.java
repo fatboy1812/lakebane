@@ -66,8 +66,8 @@ public class NPC extends AbstractCharacter {
     protected float statLat;
     protected float statLon;
     protected float statAlt;
-    protected float sellPercent; //also train percent
-    protected float buyPercent;
+    public float sellPercent; //also train percent
+    public float buyPercent;
     protected int vendorID;
     protected ArrayList<Integer> modTypeTable;
     protected ArrayList<Integer> modSuffixTable;
@@ -77,8 +77,8 @@ public class NPC extends AbstractCharacter {
     protected boolean isStatic = false;
     private DateTime upgradeDateTime = null;
     private HashSet<Integer> canRoll = null;
-    private int parentZoneID;
-    private int equipmentSetID = 0;
+    public int parentZoneUUID;
+    public int equipmentSetID = 0;
     private int repairCost = 5;
 
     // New NPC constructor.  Fill in the blanks and then call
@@ -104,7 +104,7 @@ public class NPC extends AbstractCharacter {
             this.currentID = this.dbID;
             this.setObjectTypeMask(MBServerStatics.MASK_NPC);
             this.contractUUID = rs.getInt("npc_contractID");
-            this.parentZoneID = rs.getInt("parent");
+            this.parentZoneUUID = rs.getInt("parent");
             this.gridObjectType = GridObjectType.STATIC;
             this.equipmentSetID = rs.getInt("equipmentSet");
             this.runeSetID = rs.getInt("runeSet");
@@ -468,7 +468,7 @@ public class NPC extends AbstractCharacter {
         else
             newNPC.bindLoc = Vector3fImmutable.ZERO;
 
-        newNPC.parentZoneID = parent.getObjectUUID();
+        newNPC.parentZoneUUID = parent.getObjectUUID();
         newNPC.guildUUID = guild.getObjectUUID();
 
         if (building == null)
@@ -724,7 +724,7 @@ public class NPC extends AbstractCharacter {
         return this.parentZone;
     }
 
-    public int getParentZoneID() {
+    public int getParentZoneUUID() {
 
         if (this.parentZone != null)
             return this.parentZone.getObjectUUID();
@@ -891,7 +891,7 @@ public class NPC extends AbstractCharacter {
         // Configure parent zone adding this NPC to the
         // zone collection
 
-        this.parentZone = ZoneManager.getZoneByUUID(this.parentZoneID);
+        this.parentZone = ZoneManager.getZoneByUUID(this.parentZoneUUID);
         this.parentZone.zoneNPCSet.remove(this);
         this.parentZone.zoneNPCSet.add(this);
 
