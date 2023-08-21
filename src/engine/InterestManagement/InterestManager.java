@@ -236,7 +236,7 @@ public enum InterestManager implements Runnable {
 
         if (distanceSquared > sqr(25))
             player.setLastStaticLoc(player.getLoc());
-        else if (player.dirtyLoad == false)
+        else if (player.dirtyLoad.get() == false)
             return;
 
         // Get Statics in range
@@ -314,7 +314,7 @@ public enum InterestManager implements Runnable {
         }
 
         loadedStaticObjects.addAll(toLoad);
-        player.dirtyLoad = false;
+        player.dirtyLoad.set(false);
     }
 
     private void updateMobileList(PlayerCharacter player, ClientConnection origin) {
@@ -522,7 +522,7 @@ public enum InterestManager implements Runnable {
         //Update static list
 
         try {
-            player.dirtyLoad = true;
+            player.dirtyLoad.set(true);
             updateStaticList(player, origin);
         } catch (Exception e) {
             Logger.error("InterestManager.updateAllStaticPlayers: " + player.getObjectUUID(), e);
@@ -550,7 +550,7 @@ public enum InterestManager implements Runnable {
         //Update static list
 
         try {
-            playerCharacter.dirtyLoad = true;
+            playerCharacter.dirtyLoad.set(true);
             updateStaticList(playerCharacter, origin);
         } catch (Exception e) {
             Logger.error("InterestManager.updateAllStaticPlayers: " + playerCharacter.getObjectUUID(), e);
@@ -575,7 +575,7 @@ public enum InterestManager implements Runnable {
         for (AbstractWorldObject playerObject : playerList) {
 
             PlayerCharacter playerCharacter = (PlayerCharacter) playerObject;
-            playerCharacter.dirtyLoad = true;
+            playerCharacter.dirtyLoad.set(true);
         }
     }
 }
