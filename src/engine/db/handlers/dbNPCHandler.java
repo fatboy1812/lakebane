@@ -57,10 +57,7 @@ public class dbNPCHandler extends dbHandlerBase {
             preparedStatement.setFloat(9, toAdd.buyPercent);
             preparedStatement.setFloat(10, toAdd.sellPercent);
 
-            if (toAdd.buildingUUID > 0)
-                preparedStatement.setInt(11, toAdd.buildingUUID);
-            else
-                preparedStatement.setInt(11, 0);
+            preparedStatement.setInt(11, Math.max(toAdd.buildingUUID, 0));
 
             ResultSet rs = preparedStatement.executeQuery();
 
