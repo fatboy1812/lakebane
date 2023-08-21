@@ -234,7 +234,7 @@ public enum InterestManager implements Runnable {
 
         float distanceSquared = player.getLoc().distanceSquared2D(player.getLastStaticLoc());
 
-        if (distanceSquared > sqr(25))
+        if (distanceSquared > sqr(64))
             player.setLastStaticLoc(player.getLoc());
         else if (player.isDirtyLoad() == false)
             return;
