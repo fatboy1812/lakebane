@@ -11,6 +11,7 @@ package engine.db.handlers;
 
 import engine.Enum.ProfitType;
 import engine.gameManager.DbManager;
+import engine.math.Vector3fImmutable;
 import engine.objects.NPC;
 import engine.objects.NPCProfits;
 import engine.objects.ProducedItem;
@@ -38,18 +39,25 @@ public class dbNPCHandler extends dbHandlerBase {
         try (Connection connection = DbManager.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement("CALL `npc_CREATE`(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);")) {
 
+            Vector3fImmutable bindLocation;
+
+            if (toAdd.buildingUUID == 0)
+                bindLocation = toAdd.bindLoc;
+            else
+                bindLocation = Vector3fImmutable.ZERO;
+
             preparedStatement.setLong(1, toAdd.parentZoneUUID);
             preparedStatement.setString(2, toAdd.getName());
             preparedStatement.setInt(3, toAdd.contractUUID);
             preparedStatement.setInt(4, toAdd.guildUUID);
-            preparedStatement.setFloat(5, toAdd.getSpawnX());
-            preparedStatement.setFloat(6, toAdd.getSpawnY());
-            preparedStatement.setFloat(7, toAdd.getSpawnZ());
+            preparedStatement.setFloat(5, bindLocation.x);
+            preparedStatement.setFloat(6, bindLocation.y);
+            preparedStatement.setFloat(7, bindLocation.z);
             preparedStatement.setInt(8, toAdd.level);
             preparedStatement.setFloat(9, toAdd.buyPercent);
             preparedStatement.setFloat(10, toAdd.sellPercent);
 
-            if (toAdd.getBuilding() != null)
+            if (toAdd.buildingUUID > 0)
                 preparedStatement.setInt(11, toAdd.buildingUUID);
             else
                 preparedStatement.setInt(11, 0);
