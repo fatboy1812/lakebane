@@ -547,7 +547,7 @@ public enum InterestManager implements Runnable {
 
     public static void setObjectDirty(AbstractWorldObject abstractWorldObject) {
 
-        HashSet<AbstractWorldObject> playerList = WorldGrid.getObjectsInRangePartial(abstractWorldObject.getLoc(), MBServerStatics.LOOT_RANGE, MBServerStatics.MASK_PLAYER);
+        HashSet<AbstractWorldObject> playerList = WorldGrid.getObjectsInRangePartial(abstractWorldObject.getLoc(), MBServerStatics.CHARACTER_LOAD_RANGE, MBServerStatics.MASK_PLAYER);
 
         if (playerList.isEmpty())
             return;

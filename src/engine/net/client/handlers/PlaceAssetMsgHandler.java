@@ -1199,7 +1199,6 @@ public class PlaceAssetMsgHandler extends AbstractClientMsgHandler {
         newMesh.setObjectTypeMask(MBServerStatics.MASK_BUILDING);
         MaintenanceManager.setMaintDateTime(newMesh, LocalDateTime.now().plusDays(7));
 
-        //       WorldGrid.addObject(newMesh, playerCharacter);
         newMesh.setLoc(newMesh.getLoc());
         InterestManager.setObjectDirty(newMesh);
         return newMesh;
