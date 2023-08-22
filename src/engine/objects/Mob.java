@@ -2231,7 +2231,7 @@ public class Mob extends AbstractIntelligenceAgent {
         if (this.isPet()) {
 
             if ((this.agentType.equals(AIAgentType.PET))) { //delete summoned pet
-
+                this.despawn();
                 WorldGrid.RemoveWorldObject(this);
                 DbManager.removeFromCache(this);
 
