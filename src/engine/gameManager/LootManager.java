@@ -338,7 +338,7 @@ public enum LootManager {
     public static void GenerateEquipmentDrop(Mob mob) {
 
         //do equipment here
-
+        int dropCount = 0;
         if (mob.getEquip() != null)
             for (MobEquipment me : mob.getEquip().values()) {
 
@@ -353,11 +353,12 @@ public enum LootManager {
 
                 MobLoot ml = new MobLoot(mob, me.getItemBase(), false);
 
-                if (ml != null) {
+                if (ml != null && dropCount < 1) {
                     ml.setIsID(true);
                     ml.setDurabilityCurrent((short) (ml.getDurabilityCurrent() - ThreadLocalRandom.current().nextInt(5) + 1));
                     mob.getCharItemManager().addItemToInventory(ml);
-                    break; // Exit on first successful roll.
+                    dropCount = 1;
+                    //break; // Exit on first successful roll.
                 }
             }
     }
