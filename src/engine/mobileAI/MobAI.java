@@ -1074,12 +1074,10 @@ public class MobAI {
                 }
             }else {
                 if (mob.npcOwner.getCombatTarget() != null)
-                    if(mob.getCombatTarget() != null && mob.getCombatTarget().equals(mob.npcOwner.getCombatTarget()) == false)
                     mob.setCombatTarget(mob.npcOwner.getCombatTarget());
                 else
-                    if(mob.getCombatTarget() != null) {
+                    if (mob.getCombatTarget() != null)
                         mob.setCombatTarget(null);
-                    }
             }
             CheckMobMovement(mob);
             CheckForAttack(mob);
