@@ -980,9 +980,6 @@ public class Mob extends AbstractIntelligenceAgent {
         else
             this.currentID = this.dbID;
 
-        if (!isPet && !isSiege && !this.isPlayerGuard)
-            loadInventory();
-
         //store mobs by Database ID
 
         if (!isPet && !isSiege)
@@ -1931,7 +1928,7 @@ public class Mob extends AbstractIntelligenceAgent {
         // Initialize inventory
 
         this.charItemManager = new CharacterItemManager(this);
-
+        this.loadInventory();
         try {
             if (this.equipmentSetID != 0)
                 this.equip = MobBase.loadEquipmentSet(this.equipmentSetID);
