@@ -66,27 +66,25 @@ public enum LootManager {
 
     }
 
-    public static void GenerateMobLoot(Mob mob, boolean fromDeath) {
+    public static void GenerateMobLoot(Mob mob) {
 
         //determine if mob is in hotzone
-
         boolean inHotzone = ZoneManager.inHotZone(mob.getLoc());
 
         //iterate the booty sets
 
         if (mob.getMobBase().bootySet != 0 && _bootySetMap.containsKey(mob.getMobBase().bootySet) == true)
-            RunBootySet(_bootySetMap.get(mob.getMobBase().bootySet), mob, inHotzone, fromDeath);
+            RunBootySet(_bootySetMap.get(mob.getMobBase().bootySet), mob, inHotzone);
 
         if (mob.bootySet != 0 && _bootySetMap.containsKey(mob.bootySet) == true)
-            RunBootySet(_bootySetMap.get(mob.bootySet), mob, inHotzone, fromDeath);
+            RunBootySet(_bootySetMap.get(mob.bootySet), mob, inHotzone);
 
         //lastly, check mobs inventory for godly or disc runes to send a server announcement
-
-        if (!fromDeath)
             for (Item it : mob.getInventory()) {
 
                 ItemBase ib = it.getItemBase();
-
+                if(ib == null)
+                    break;
                 if (ib.isDiscRune() || ib.getName().toLowerCase().contains("of the gods")) {
                     ChatSystemMsg chatMsg = new ChatSystemMsg(null, mob.getName() + " in " + mob.getParentZone().getName() + " has found the " + ib.getName() + ". Are you tough enough to take it?");
                     chatMsg.setMessageType(10);
@@ -97,15 +95,10 @@ public enum LootManager {
 
     }
 
-    private static void RunBootySet(ArrayList<BootySetEntry> entries, Mob mob, boolean inHotzone, boolean fromDeath) {
+    private static void RunBootySet(ArrayList<BootySetEntry> entries, Mob mob, boolean inHotzone) {
 
         boolean hotzoneWasRan = false;
         float dropRate = 1.0f;
-
-        if (fromDeath) {
-            GenerateEquipmentDrop(mob);
-            return;
-        }
 
         // Iterate all entries in this bootySet and process accordingly
 

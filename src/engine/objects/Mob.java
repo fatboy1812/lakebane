@@ -1347,7 +1347,7 @@ public class Mob extends AbstractIntelligenceAgent {
                 playerAgroMap.clear();
 
                 if (!this.isPlayerGuard && this.equip != null)
-                    LootManager.GenerateMobLoot(this, true);
+                    LootManager.GenerateEquipmentDrop(this);
 
             }
             try {
@@ -1437,7 +1437,7 @@ public class Mob extends AbstractIntelligenceAgent {
         if (isPlayerGuard)
             return;
 
-        LootManager.GenerateMobLoot(this, false);
+        LootManager.GenerateMobLoot(this);
     }
 
     @Override
