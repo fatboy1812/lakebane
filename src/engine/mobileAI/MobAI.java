@@ -827,6 +827,7 @@ public class MobAI {
                         chaseTarget(mob);
                     }
                     break;
+
             }
         } catch (Exception e) {
             Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: CheckMobMovement" + " " + e.getMessage());
