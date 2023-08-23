@@ -808,7 +808,7 @@ public class MobAI {
                         chaseTarget(mob);
                     break;
                 case GuardMinion:
-                    if (!mob.npcOwner.isAlive() || ((Mob) mob.npcOwner).despawned)
+                    if (!mob.npcOwner.isAlive() && mob.getCombatTarget() == null)
                         randomGuardPatrolPoint(mob);
                     else {
                         if (mob.getCombatTarget() != null) {
@@ -1043,7 +1043,6 @@ public class MobAI {
                     mob.setCombatTarget(newTarget);
 
             }
-
             CheckMobMovement(mob);
             CheckForAttack(mob);
         } catch (Exception e) {
@@ -1054,24 +1053,9 @@ public class MobAI {
     public static void GuardMinionLogic(Mob mob) {
 
         try {
-            if (!mob.npcOwner.isAlive()) {
-
-                if (mob.getCombatTarget() == null) {
-                    CheckForPlayerGuardAggro(mob);
-                } else {
-
-                    AbstractWorldObject newTarget = ChangeTargetFromHateValue(mob);
-
-                    if (newTarget != null) {
-
-                        if (newTarget.getObjectType().equals(Enum.GameObjectType.PlayerCharacter)) {
-                            if (GuardCanAggro(mob, (PlayerCharacter) newTarget))
-                                mob.setCombatTarget(newTarget);
-                        } else
-                            mob.setCombatTarget(newTarget);
-
-                    }
-                }
+            boolean isComanded = mob.npcOwner.isAlive();
+            if (!isComanded) {
+                GuardCaptainLogic(mob);
             }else {
                 if (mob.npcOwner.getCombatTarget() != null)
                     mob.setCombatTarget(mob.npcOwner.getCombatTarget());
