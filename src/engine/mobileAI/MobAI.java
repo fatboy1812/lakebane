@@ -20,6 +20,7 @@ import engine.mobileAI.utilities.MovementUtilities;
 import engine.net.DispatchMessage;
 import engine.net.client.msg.PerformActionMsg;
 import engine.net.client.msg.PowerProjectileMsg;
+import engine.net.client.msg.UpdateStateMsg;
 import engine.objects.*;
 import engine.powers.ActionsBase;
 import engine.powers.PowersBase;
@@ -1304,6 +1305,13 @@ public class MobAI {
                 for (Entry<Mob, Integer> minion : mob.siegeMinionMap.entrySet()) {
 
                     //make sure mob is out of combat stance
+
+                    if (minion.getKey().isCombat() && minion.getKey().getCombatTarget() == null) {
+                        minion.getKey().setCombat(false);
+                        UpdateStateMsg rwss = new UpdateStateMsg();
+                        rwss.setPlayer(minion.getKey());
+                        DispatchMessage.sendToAllInRange(minion.getKey(), rwss);
+                    }
 
                     if (minion.getKey().despawned == false) {
                         if (MovementUtilities.canMove(minion.getKey())) {
