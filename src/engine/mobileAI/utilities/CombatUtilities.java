@@ -214,10 +214,10 @@ public class CombatUtilities {
         else
             speed = agent.getSpeedHandTwo();
 
-        DamageType dt = DamageType.Crush;
+        DamageType dt = DamageType.CRUSHING;
 
         if (agent.isSiege())
-            dt = DamageType.Siege;
+            dt = DamageType.SIEGE;
         if (wb != null) {
             anim = CombatManager.getSwingAnimation(wb, null, mainHand);
             dt = wb.getDamageType();
@@ -347,7 +347,7 @@ public class CombatUtilities {
     }
 
     public static DamageType getDamageType(Mob agent) {
-        DamageType dt = DamageType.Crush;
+        DamageType dt = DamageType.CRUSHING;
         if (agent.getEquip().get(1) != null) {
             return agent.getEquip().get(1).getItemBase().getDamageType();
         }
@@ -399,7 +399,7 @@ public class CombatUtilities {
 
     public static int calculateEpicDamage(Mob agent) {
         //handle r8 mob damage
-        DamageType dt = DamageType.Crush;
+        DamageType dt = DamageType.CRUSHING;
         AbstractWorldObject target = agent.getCombatTarget();
         float dmgMultiplier = 1 + agent.getBonuses().getFloatPercentAll(ModType.MeleeDamageModifier, SourceType.None);
         double min = agent.getMinDamageHandOne();
@@ -442,7 +442,7 @@ public class CombatUtilities {
         } else {
             minDmg = agent.getMobBase().getDamageMin();
             maxDmg = agent.getMobBase().getDamageMax();
-            dt = DamageType.Crush;
+            dt = DamageType.CRUSHING;
         }
 
         AbstractWorldObject target = agent.getCombatTarget();

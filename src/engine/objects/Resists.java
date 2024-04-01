@@ -85,19 +85,19 @@ public class Resists {
      */
     public Resists(ResultSet rs) throws SQLException {
         this.immuneToAll = false;
-        this.resists.put(DamageType.Slash, rs.getFloat("slash"));
-        this.resists.put(DamageType.Crush, rs.getFloat("crush"));
-        this.resists.put(DamageType.Pierce, rs.getFloat("pierce"));
-        this.resists.put(DamageType.Magic, rs.getFloat("magic"));
-        this.resists.put(DamageType.Bleed, rs.getFloat("bleed"));
-        this.resists.put(DamageType.Poison, rs.getFloat("poison"));
-        this.resists.put(DamageType.Mental, rs.getFloat("mental"));
-        this.resists.put(DamageType.Holy, rs.getFloat("holy"));
-        this.resists.put(DamageType.Unholy, rs.getFloat("unholy"));
-        this.resists.put(DamageType.Lightning, rs.getFloat("lightning"));
-        this.resists.put(DamageType.Fire, rs.getFloat("fire"));
-        this.resists.put(DamageType.Cold, rs.getFloat("cold"));
-        this.resists.put(DamageType.Healing, 0f);
+        this.resists.put(DamageType.SLASHING, rs.getFloat("slash"));
+        this.resists.put(DamageType.CRUSHING, rs.getFloat("crush"));
+        this.resists.put(DamageType.PIERCING, rs.getFloat("pierce"));
+        this.resists.put(DamageType.MAGIC, rs.getFloat("magic"));
+        this.resists.put(DamageType.BLEEDING, rs.getFloat("bleed"));
+        this.resists.put(DamageType.POISON, rs.getFloat("poison"));
+        this.resists.put(DamageType.MENTAL, rs.getFloat("mental"));
+        this.resists.put(DamageType.HOLY, rs.getFloat("holy"));
+        this.resists.put(DamageType.UNHOLY, rs.getFloat("unholy"));
+        this.resists.put(DamageType.LIGHTNING, rs.getFloat("lightning"));
+        this.resists.put(DamageType.FIRE, rs.getFloat("fire"));
+        this.resists.put(DamageType.COLD, rs.getFloat("cold"));
+        this.resists.put(DamageType.HEALING, 0f);
     }
 
     //Handle Fortitudes
@@ -108,7 +108,7 @@ public class Resists {
 
         //see if there is a fortitude
         float damageCap = bonus.getFloatPercentAll(ModType.DamageCap, SourceType.None);
-        if (damageCap == 0f || type == DamageType.Healing)
+        if (damageCap == 0f || type == DamageType.HEALING)
             return damage;
 
         //is fortitude, Are we under the cap?
@@ -139,7 +139,7 @@ public class Resists {
         for (SourceType fort : forts) {
             DamageType dt = DamageType.valueOf(fort.name());
 
-            if (dt == DamageType.None)
+            if (dt == DamageType.NONE)
                 continue;
 
             if (dt == damageType) {
@@ -195,19 +195,19 @@ public class Resists {
      */
     public final void setBuildingResists() {
         this.immuneToAll = false;
-        this.resists.put(DamageType.Slash, 85f);
-        this.resists.put(DamageType.Crush, 85f);
-        this.resists.put(DamageType.Siege, 0f);
-        this.immuneTo.put(DamageType.Pierce, true);
-        this.immuneTo.put(DamageType.Magic, true);
-        this.immuneTo.put(DamageType.Bleed, true);
-        this.immuneTo.put(DamageType.Poison, true);
-        this.immuneTo.put(DamageType.Mental, true);
-        this.immuneTo.put(DamageType.Holy, true);
-        this.immuneTo.put(DamageType.Unholy, true);
-        this.immuneTo.put(DamageType.Lightning, true);
-        this.immuneTo.put(DamageType.Fire, true);
-        this.immuneTo.put(DamageType.Cold, true);
+        this.resists.put(DamageType.SLASHING, 85f);
+        this.resists.put(DamageType.CRUSHING, 85f);
+        this.resists.put(DamageType.SIEGE, 0f);
+        this.immuneTo.put(DamageType.PIERCING, true);
+        this.immuneTo.put(DamageType.MAGIC, true);
+        this.immuneTo.put(DamageType.BLEEDING, true);
+        this.immuneTo.put(DamageType.POISON, true);
+        this.immuneTo.put(DamageType.MENTAL, true);
+        this.immuneTo.put(DamageType.HOLY, true);
+        this.immuneTo.put(DamageType.UNHOLY, true);
+        this.immuneTo.put(DamageType.LIGHTNING, true);
+        this.immuneTo.put(DamageType.FIRE, true);
+        this.immuneTo.put(DamageType.COLD, true);
 
     }
 
@@ -216,19 +216,19 @@ public class Resists {
      */
     public final void setMineResists() {
         this.immuneToAll = false;
-        this.immuneTo.put(DamageType.Slash, true);
-        this.immuneTo.put(DamageType.Crush, true);
-        this.immuneTo.put(DamageType.Pierce, true);
-        this.immuneTo.put(DamageType.Magic, true);
-        this.immuneTo.put(DamageType.Bleed, true);
-        this.immuneTo.put(DamageType.Poison, true);
-        this.immuneTo.put(DamageType.Mental, true);
-        this.immuneTo.put(DamageType.Holy, true);
-        this.immuneTo.put(DamageType.Unholy, true);
-        this.immuneTo.put(DamageType.Lightning, true);
-        this.immuneTo.put(DamageType.Fire, true);
-        this.immuneTo.put(DamageType.Cold, true);
-        this.resists.put(DamageType.Siege, 0f);
+        this.immuneTo.put(DamageType.SLASHING, true);
+        this.immuneTo.put(DamageType.CRUSHING, true);
+        this.immuneTo.put(DamageType.PIERCING, true);
+        this.immuneTo.put(DamageType.MAGIC, true);
+        this.immuneTo.put(DamageType.BLEEDING, true);
+        this.immuneTo.put(DamageType.POISON, true);
+        this.immuneTo.put(DamageType.MENTAL, true);
+        this.immuneTo.put(DamageType.HOLY, true);
+        this.immuneTo.put(DamageType.UNHOLY, true);
+        this.immuneTo.put(DamageType.LIGHTNING, true);
+        this.immuneTo.put(DamageType.FIRE, true);
+        this.immuneTo.put(DamageType.COLD, true);
+        this.resists.put(DamageType.SIEGE, 0f);
     }
 
     /**
@@ -236,20 +236,20 @@ public class Resists {
      */
     public final void setGenericResists() {
         this.immuneToAll = false;
-        this.resists.put(DamageType.Slash, 0f);
-        this.resists.put(DamageType.Crush, 0f);
-        this.resists.put(DamageType.Pierce, 0f);
-        this.resists.put(DamageType.Magic, 0f);
-        this.resists.put(DamageType.Bleed, 0f);
-        this.resists.put(DamageType.Poison, 0f);
-        this.resists.put(DamageType.Mental, 0f);
-        this.resists.put(DamageType.Holy, 0f);
-        this.resists.put(DamageType.Unholy, 0f);
-        this.resists.put(DamageType.Lightning, 0f);
-        this.resists.put(DamageType.Fire, 0f);
-        this.resists.put(DamageType.Cold, 0f);
-        this.resists.put(DamageType.Healing, 0f);
-        this.immuneTo.put(DamageType.Siege, true);
+        this.resists.put(DamageType.SLASHING, 0f);
+        this.resists.put(DamageType.CRUSHING, 0f);
+        this.resists.put(DamageType.PIERCING, 0f);
+        this.resists.put(DamageType.MAGIC, 0f);
+        this.resists.put(DamageType.BLEEDING, 0f);
+        this.resists.put(DamageType.POISON, 0f);
+        this.resists.put(DamageType.MENTAL, 0f);
+        this.resists.put(DamageType.HOLY, 0f);
+        this.resists.put(DamageType.UNHOLY, 0f);
+        this.resists.put(DamageType.LIGHTNING, 0f);
+        this.resists.put(DamageType.FIRE, 0f);
+        this.resists.put(DamageType.COLD, 0f);
+        this.resists.put(DamageType.HEALING, 0f);
+        this.immuneTo.put(DamageType.SIEGE, true);
 
     }
 
@@ -293,15 +293,15 @@ public class Resists {
     }
 
     public boolean immuneToPowers() {
-        return immuneTo(DamageType.Powers);
+        return immuneTo(DamageType.POWERS);
     }
 
     public boolean immuneToAttacks() {
-        return immuneTo(DamageType.Attack);
+        return immuneTo(DamageType.ATTACK);
     }
 
     public boolean immuneToSpires() {
-        return immuneTo(DamageType.Spires);
+        return immuneTo(DamageType.SPIRES);
     }
 
     /**
@@ -346,24 +346,24 @@ public class Resists {
      * set immunities from mobbase
      */
     public void setImmuneTo(int immune) {
-        setImmuneTo(DamageType.Stun, ((immune & 1) != 0));
-        setImmuneTo(DamageType.PowerBlock, ((immune & 2) != 0));
-        setImmuneTo(DamageType.Drain, ((immune & 4) != 0));
-        setImmuneTo(DamageType.Snare, ((immune & 8) != 0));
-        setImmuneTo(DamageType.Siege, ((immune & 16) != 0));
-        setImmuneTo(DamageType.Slash, ((immune & 32) != 0));
-        setImmuneTo(DamageType.Crush, ((immune & 64) != 0));
-        setImmuneTo(DamageType.Pierce, ((immune & 128) != 0));
-        setImmuneTo(DamageType.Magic, ((immune & 256) != 0));
-        setImmuneTo(DamageType.Bleed, ((immune & 512) != 0));
-        setImmuneTo(DamageType.Poison, ((immune & 1024) != 0));
-        setImmuneTo(DamageType.Mental, ((immune & 2048) != 0));
-        setImmuneTo(DamageType.Holy, ((immune & 4096) != 0));
-        setImmuneTo(DamageType.Unholy, ((immune & 8192) != 0));
-        setImmuneTo(DamageType.Lightning, ((immune & 16384) != 0));
-        setImmuneTo(DamageType.Fire, ((immune & 32768) != 0));
-        setImmuneTo(DamageType.Cold, ((immune & 65536) != 0));
-        setImmuneTo(DamageType.Steel, ((immune & 131072) != 0));
+        setImmuneTo(DamageType.STUN, ((immune & 1) != 0));
+        setImmuneTo(DamageType.POWERBLOCK, ((immune & 2) != 0));
+        setImmuneTo(DamageType.DRAIN, ((immune & 4) != 0));
+        setImmuneTo(DamageType.SNARE, ((immune & 8) != 0));
+        setImmuneTo(DamageType.SIEGE, ((immune & 16) != 0));
+        setImmuneTo(DamageType.SLASHING, ((immune & 32) != 0));
+        setImmuneTo(DamageType.CRUSHING, ((immune & 64) != 0));
+        setImmuneTo(DamageType.PIERCING, ((immune & 128) != 0));
+        setImmuneTo(DamageType.MAGIC, ((immune & 256) != 0));
+        setImmuneTo(DamageType.BLEEDING, ((immune & 512) != 0));
+        setImmuneTo(DamageType.POISON, ((immune & 1024) != 0));
+        setImmuneTo(DamageType.MENTAL, ((immune & 2048) != 0));
+        setImmuneTo(DamageType.HOLY, ((immune & 4096) != 0));
+        setImmuneTo(DamageType.UNHOLY, ((immune & 8192) != 0));
+        setImmuneTo(DamageType.LIGHTNING, ((immune & 16384) != 0));
+        setImmuneTo(DamageType.FIRE, ((immune & 32768) != 0));
+        setImmuneTo(DamageType.COLD, ((immune & 65536) != 0));
+        setImmuneTo(DamageType.STEAL, ((immune & 131072) != 0));
     }
 
     /**
@@ -430,25 +430,25 @@ public class Resists {
         if (rb != null) {
             // Handle immunities
             if (rb.getBool(ModType.ImmuneTo, SourceType.Stun))
-                this.immuneTo.put(DamageType.Stun, true);
+                this.immuneTo.put(DamageType.STUN, true);
             if (rb.getBool(ModType.ImmuneTo, SourceType.Blind))
-                this.immuneTo.put(DamageType.Blind, true);
+                this.immuneTo.put(DamageType.BLIND, true);
             if (rb.getBool(ModType.ImmuneToAttack, SourceType.None))
-                this.immuneTo.put(DamageType.Attack, true);
+                this.immuneTo.put(DamageType.ATTACK, true);
             if (rb.getBool(ModType.ImmuneToPowers, SourceType.None))
-                this.immuneTo.put(DamageType.Powers, true);
+                this.immuneTo.put(DamageType.POWERS, true);
             if (rb.getBool(ModType.ImmuneTo, SourceType.Powerblock))
-                this.immuneTo.put(DamageType.Powerblock, true);
+                this.immuneTo.put(DamageType.POWERBLOCK, true);
             if (rb.getBool(ModType.ImmuneTo, SourceType.DeBuff))
-                this.immuneTo.put(DamageType.DeBuff, true);
+                this.immuneTo.put(DamageType.DEBUFF, true);
             if (rb.getBool(ModType.ImmuneTo, SourceType.Fear))
-                this.immuneTo.put(DamageType.Fear, true);
+                this.immuneTo.put(DamageType.FEAR, true);
             if (rb.getBool(ModType.ImmuneTo, SourceType.Charm))
-                this.immuneTo.put(DamageType.Charm, true);
+                this.immuneTo.put(DamageType.CHARM, true);
             if (rb.getBool(ModType.ImmuneTo, SourceType.Root))
-                this.immuneTo.put(DamageType.Root, true);
+                this.immuneTo.put(DamageType.ROOT, true);
             if (rb.getBool(ModType.ImmuneTo, SourceType.Snare))
-                this.immuneTo.put(DamageType.Snare, true);
+                this.immuneTo.put(DamageType.SNARE, true);
 
             // Handle resists
             slash += rb.getFloat(ModType.Resistance, SourceType.Slash);
@@ -500,21 +500,21 @@ public class Resists {
             }
         }
 
-        this.resists.put(DamageType.Slash, slash);
-        this.resists.put(DamageType.Crush, crush);
-        this.resists.put(DamageType.Pierce, pierce);
-        this.resists.put(DamageType.Magic, magic);
-        this.resists.put(DamageType.Bleed, bleed);
-        this.resists.put(DamageType.Poison, poison);
-        this.resists.put(DamageType.Mental, mental);
-        this.resists.put(DamageType.Holy, holy);
-        this.resists.put(DamageType.Unholy, unholy);
-        this.resists.put(DamageType.Lightning, lightning);
-        this.resists.put(DamageType.Fire, fire);
-        this.resists.put(DamageType.Cold, cold);
-        this.resists.put(DamageType.Healing, healing);
+        this.resists.put(DamageType.SLASHING, slash);
+        this.resists.put(DamageType.CRUSHING, crush);
+        this.resists.put(DamageType.PIERCING, pierce);
+        this.resists.put(DamageType.MAGIC, magic);
+        this.resists.put(DamageType.BLEEDING, bleed);
+        this.resists.put(DamageType.POISON, poison);
+        this.resists.put(DamageType.MENTAL, mental);
+        this.resists.put(DamageType.HOLY, holy);
+        this.resists.put(DamageType.UNHOLY, unholy);
+        this.resists.put(DamageType.LIGHTNING, lightning);
+        this.resists.put(DamageType.FIRE, fire);
+        this.resists.put(DamageType.COLD, cold);
+        this.resists.put(DamageType.HEALING, healing);
 
-        this.immuneTo.put(DamageType.Siege, true);
+        this.immuneTo.put(DamageType.SIEGE, true);
 
         // debug printing of resists
         // printResists(pc);

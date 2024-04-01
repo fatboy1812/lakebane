@@ -752,52 +752,48 @@ public class Enum {
     }
 
     public enum DamageType {
-        None,
-        Crush,
-        Slash,
-        Siege,
-        Pierce,
-        Magic,
-        Bleed,
-        Poison,
-        Mental,
-        Holy,
-        Unholy,
-        Lightning,
-        Fire,
-        Cold,
-        Healing,
-        Acid,
-        Disease,
-        Unknown,
+        NONE,
+        CRUSHING,
+        SLASHING,
+        SIEGE,
+        PIERCING,
+        MAGIC,
+        BLEEDING,
+        POISON,
+        MENTAL,
+        HOLY,
+        UNHOLY,
+        LIGHTNING,
+        FIRE,
+        COLD,
+        HEALING,
+        ACID,
+        DISEASE,
+        UNKNOWN,
         // these added for immunities
-        Attack,
-        Powers,
-        Combat,
-        Spires,
-        Snare,
-        Stun,
-        Blind,
-        Root,
-        Fear,
-        Charm,
-        PowerBlock,
-        DeBuff,
-        Powerblock,
-        Steel,
-        Drain;
+        ATTACK,
+        POWERS,
+        COMBAT,
+        SPIRES,
+        SNARE,
+        STUN,
+        BLIND,
+        ROOT,
+        FEAR,
+        CHARM,
+        POWERBLOCK,
+        DEBUFF,
+        STEAL,
+        DRAIN;
 
         public static DamageType GetDamageType(String modName) {
             DamageType damageType;
-            if (modName.isEmpty())
-                return DamageType.None;
 
-            try {
-                damageType = DamageType.valueOf(modName.replace(",", ""));
-            } catch (Exception e) {
-                Logger.error(e);
-                return DamageType.None;
-            }
+            if (modName.isEmpty())
+                return DamageType.NONE;
+
+            damageType = DamageType.valueOf(modName.replace(",", "").toUpperCase());
+
             return damageType;
         }
     }
