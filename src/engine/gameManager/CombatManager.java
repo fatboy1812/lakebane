@@ -781,9 +781,9 @@ public enum CombatManager {
                 if (wb != null)
                     damageType = wb.getDamageType();
                 else if (ac.getObjectType().equals(GameObjectType.Mob) && ((Mob) ac).isSiege())
-                    damageType = DamageType.SIEGE;
+                    damageType = DamageType.Siege;
                 else
-                    damageType = DamageType.CRUSHING;
+                    damageType = DamageType.Crush;
 
                 errorTrack = 10;
 
