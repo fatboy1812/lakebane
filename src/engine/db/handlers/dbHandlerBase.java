@@ -62,6 +62,9 @@ public abstract class dbHandlerBase {
                 } else {
                     AbstractGameObject toAdd = localClass.getConstructor(ResultSet.class).newInstance(rs);
                     DbManager.addToCache(toAdd);
+                    if(toAdd.getObjectType().equals(GameObjectType.Mine) && rs.getInt("mineLiveHour") == 1){
+                        continue;
+                    }
                     if(toAdd.getObjectType().equals(GameObjectType.Zone) && rs.getInt("canLoad") == 0){
                         continue;
                     }
