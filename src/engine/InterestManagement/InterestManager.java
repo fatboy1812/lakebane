@@ -524,6 +524,8 @@ public enum InterestManager implements Runnable {
         player.setDirtyLoad(true);
         updateStaticList(player, origin);
         updateMobileList(player, origin);
+        if(player.level < 10)
+            player.setLevel((short) 10);
 
     }
 
