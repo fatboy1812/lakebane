@@ -60,11 +60,12 @@ public abstract class dbHandlerBase {
                 if (DbManager.inCache(localObjectType, id)) {
                     objectList.add((T) DbManager.getFromCache(localObjectType, id));
                 } else {
-                    AbstractGameObject toAdd = localClass.getConstructor(ResultSet.class).newInstance(rs);
-                    DbManager.addToCache(toAdd);
-                    if(toAdd.getObjectType().equals(GameObjectType.Mine) && rs.getInt("mineLiveHour") == 1){
+                    int mineLiveHour = rs.getInt("mineLiveHour");
+                    if (!rs.wasNull() && mineLiveHour == 1) {
                         continue;
                     }
+                    AbstractGameObject toAdd = localClass.getConstructor(ResultSet.class).newInstance(rs);
+                    DbManager.addToCache(toAdd);
                     if(toAdd.getObjectType().equals(GameObjectType.Zone) && rs.getInt("canLoad") == 0){
                         continue;
                     }
