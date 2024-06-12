@@ -562,6 +562,13 @@ public class ClientMessagePump implements NetMsgHandler {
 
         if (i.isCanDestroy())
             if (itemManager.delete(i) == true) {
+                int goldValue = i.getItemBase().getBaseValue();
+                if(i.getItemBase().isRune())
+                    goldValue = 500000;
+
+                if(goldValue > 0)
+                    itemManager.addGoldToInventory(goldValue,false);
+
                 Dispatch dispatch = Dispatch.borrow(sourcePlayer, msg);
                 DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.SECONDARY);
             }
