@@ -77,7 +77,7 @@ public final class MobLoot extends Item {
             this.setNumOfItems(quantity);
 
         this.noSteal = noSteal;
-        this.setIsID(this.getItemBase().isAutoID());
+        this.setIsID(true);
 
         // Class is 'final'; passing 'this' should be okay at the end of the constructor
 

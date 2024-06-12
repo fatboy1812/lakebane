@@ -75,7 +75,7 @@ public class ItemBase {
     private boolean isStrBased;
     private ArrayList<Integer> animations = new ArrayList<>();
     private ArrayList<Integer> offHandAnimations = new ArrayList<>();
-    private boolean autoID = false;
+    private boolean autoID = true;
 
     /**
      * ResultSet Constructor
@@ -144,8 +144,6 @@ public class ItemBase {
                 break;
 
         }
-
-        this.autoIDItemsCheck();
 
         try {
             DbManager.ItemBaseQueries.LOAD_ANIMATIONS(this);
@@ -372,72 +370,8 @@ public class ItemBase {
         return modTable;
     }
 
-    public int getVendorType() {
-        return vendorType;
-    }
-
-    public void setVendorType(int vendorType) {
-        this.vendorType = vendorType;
-    }
-
     public int getHashID() {
         return hashID;
-    }
-
-    public void setHashID(int hashID) {
-        this.hashID = hashID;
-    }
-
-    private void autoIDItemsCheck() {
-        //AUto ID Vorg and Glass
-        switch (uuid) {
-
-            case 27550:
-            case 27560:
-            case 27580:
-            case 27590:
-            case 188500:
-            case 188510:
-            case 188520:
-            case 188530:
-            case 188540:
-            case 188550:
-            case 189100:
-            case 189110:
-            case 189120:
-            case 189130:
-            case 189140:
-            case 189150:
-            case 189510:
-            case 27600:
-            case 181840:
-            case 188700:
-            case 188720:
-            case 189550:
-            case 189560:
-            case 7000100:
-            case 7000110:
-            case 7000120:
-            case 7000130:
-            case 7000140:
-            case 7000150:
-            case 7000160:
-            case 7000170:
-            case 7000180:
-            case 7000190:
-            case 7000200:
-            case 7000210:
-            case 7000220:
-            case 7000230:
-            case 7000240:
-            case 7000250:
-            case 7000270:
-            case 7000280:
-                this.autoID = true;
-                break;
-            default:
-                this.autoID = false;
-        }
     }
 
     public boolean validForSkills(ConcurrentHashMap<String, CharacterSkill> skills) {
@@ -905,13 +839,5 @@ public class ItemBase {
 
     public void setOffHandAnimations(ArrayList<Integer> offHandAnimations) {
         this.offHandAnimations = offHandAnimations;
-    }
-
-    public boolean isAutoID() {
-        return autoID;
-    }
-
-    public void setAutoID(boolean autoID) {
-        this.autoID = autoID;
     }
 }
