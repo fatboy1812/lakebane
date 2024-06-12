@@ -62,6 +62,9 @@ public abstract class dbHandlerBase {
                 } else {
                     AbstractGameObject toAdd = localClass.getConstructor(ResultSet.class).newInstance(rs);
                     DbManager.addToCache(toAdd);
+                    if(toAdd.getObjectType().equals(GameObjectType.Zone) && rs.getInt("canLoad") == 0){
+                        continue;
+                    }
                     objectList.add((T) toAdd);
 
                     if (toAdd != null && toAdd instanceof AbstractWorldObject)
