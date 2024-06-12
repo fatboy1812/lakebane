@@ -569,6 +569,7 @@ public class ClientMessagePump implements NetMsgHandler {
                 if(goldValue > 0)
                     itemManager.addGoldToInventory(goldValue,false);
 
+                itemManager.updateInventory();
                 Dispatch dispatch = Dispatch.borrow(sourcePlayer, msg);
                 DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.SECONDARY);
             }
