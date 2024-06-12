@@ -60,9 +60,11 @@ public abstract class dbHandlerBase {
                 if (DbManager.inCache(localObjectType, id)) {
                     objectList.add((T) DbManager.getFromCache(localObjectType, id));
                 } else {
-                    int mineLiveHour = rs.getInt("mineLiveHour");
-                    if (!rs.wasNull() && mineLiveHour == 1) {
-                        continue;
+                    try{
+                        if(rs.getInt("mineLiveHour") == 1)
+                            continue;
+                    }catch(Exception e){
+                        //not a mine
                     }
                     AbstractGameObject toAdd = localClass.getConstructor(ResultSet.class).newInstance(rs);
                     DbManager.addToCache(toAdd);
