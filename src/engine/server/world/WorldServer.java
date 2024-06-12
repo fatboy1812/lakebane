@@ -40,10 +40,7 @@ import engine.net.client.msg.chat.ChatSystemMsg;
 import engine.objects.*;
 import engine.server.MBServerStatics;
 import engine.util.ThreadUtils;
-import engine.workthreads.DisconnectTrashTask;
-import engine.workthreads.HourlyJobThread;
-import engine.workthreads.PurgeOprhans;
-import engine.workthreads.WarehousePushThread;
+import engine.workthreads.*;
 import org.pmw.tinylog.Configurator;
 import org.pmw.tinylog.Level;
 import org.pmw.tinylog.Logger;
@@ -201,6 +198,7 @@ public class WorldServer {
 		LocalDateTime nextPopulationFileTime = LocalDateTime.now();
 		LocalDateTime nextFlashTrashCheckTime = LocalDateTime.now();
 		LocalDateTime nextHourlyJobTime = LocalDateTime.now().withMinute(0).withSecond(0).plusHours(1);
+		LocalDateTime nextHalfHourlyJobTime = LocalDateTime.now().withMinute(0).withSecond(0);
 		LocalDateTime nextWareHousePushTime = LocalDateTime.now();
 
 		// Begin execution of main game loop
@@ -230,6 +228,13 @@ public class WorldServer {
 				hourlyJobThread.setName("hourlyJob");
 				hourlyJobThread.start();
 				nextHourlyJobTime = LocalDateTime.now().withMinute(0).withSecond(0).plusHours(1);
+			}
+
+			if (LocalDateTime.now().isAfter(nextHalfHourlyJobTime)) {
+				Thread halfHourlyJobThread = new Thread(new HalfHourlyJobThread());
+				halfHourlyJobThread.setName("halfHourlyJob");
+				halfHourlyJobThread.start();
+				nextHalfHourlyJobTime = nextHalfHourlyJobTime.plusMinutes(30);
 			}
 
 			if (LocalDateTime.now().isAfter(nextWareHousePushTime)) {

@@ -51,6 +51,11 @@ public class Mine extends AbstractGameObject {
     private int buildingID;
     private MineProduction mineType;
 
+    public int openHour;
+    public int openMinute;
+    public int capSize;
+    public LocalDateTime liveTime;
+
     /**
      * ResultSet Constructor
      */
@@ -90,6 +95,10 @@ public class Mine extends AbstractGameObject {
 
         this.production = Resource.valueOf(rs.getString("mine_resource"));
         this.lastClaimer = null;
+        this.openHour = rs.getInt("mineLiveHour");
+        this.openMinute = rs.getInt("mineLiveMinute");
+        this.capSize = rs.getInt("capSize");
+        this.liveTime = LocalDateTime.now().withHour(this.openHour).withMinute(this.openMinute);
 
     }
 

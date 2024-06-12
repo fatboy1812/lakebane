@@ -27,51 +27,12 @@ import java.util.concurrent.ConcurrentHashMap;
 
 import static engine.server.MBServerStatics.MINE_LATE_WINDOW;
 
-public class HourlyJobThread implements Runnable {
+public class HalfHourlyJobThread implements Runnable {
 
-    public HourlyJobThread() {
+    public HalfHourlyJobThread() {
 
     }
 
-    public static void decayShrines() {
-        ArrayList<Shrine> shrineList = new ArrayList<>();
-
-        for (Shrine shrine : Shrine.shrinesByBuildingUUID.values()) {
-            try {
-                Building shrineBuilding = (Building) DbManager.getObject(Enum.GameObjectType.Building, shrine.getBuildingID());
-
-                if (shrineBuilding == null)
-                    continue;
-
-
-                if (shrineBuilding.getOwner().equals(shrineBuilding.getCity().getOwner()) == false)
-                    shrineBuilding.claim(shrineBuilding.getCity().getOwner());
-            } catch (Exception e) {
-                Logger.info("Shrine " + shrine.getBuildingID() + " Error " + e);
-            }
-        }
-
-        // Grab list of top two shrines of each type
-
-        for (Shrine shrine : Shrine.shrinesByBuildingUUID.values()) {
-
-            if (shrine.getRank() == 0 || shrine.getRank() == 1)
-                shrineList.add(shrine);
-        }
-
-        Logger.info("Decaying " + shrineList.size() + " shrines...");
-
-        // Top 2 shrines decay by 10% a day
-
-        for (Shrine shrine : shrineList) {
-
-            try {
-                shrine.decay();
-            } catch (Exception e) {
-                Logger.info("Shrine " + shrine.getBuildingID() + " Error " + e);
-            }
-        }
-    }
 
     public static void processMineWindow() {
 
@@ -88,16 +49,15 @@ public class HourlyJobThread implements Runnable {
                     // Open Errant Mines
 
                     if (mine.getOwningGuild().isEmptyGuild()) {
-                        HourlyJobThread.mineWindowOpen(mine);
+                        HalfHourlyJobThread.mineWindowOpen(mine);
                         continue;
                     }
 
                     // Open Mines owned by nations having their WOO
                     // set to the current mine window.
 
-                    if (mine.getOwningGuild().getNation().getMineTime() ==
-                            LocalDateTime.now().getHour() && mine.wasClaimed == false) {
-                        HourlyJobThread.mineWindowOpen(mine);
+                    if (mine.openHour == LocalDateTime.now().getHour() && mine.openMinute == LocalDateTime.now().getMinute() && !mine.wasClaimed) {
+                        HalfHourlyJobThread.mineWindowOpen(mine);
                         continue;
                     }
 
@@ -185,35 +145,27 @@ public class HourlyJobThread implements Runnable {
 
     public void run() {
 
-        // *** REFACTOR: TRY TRY TRY TRY {{{{{{{{{{{ OMG
+        Logger.info("Half-Hourly job is now running.");
 
-        Logger.info("Hourly job is now running.");
+        // Open or Close mines for the current mine window.
 
-        // Update city population values
+        processMineWindow();
 
-        ConcurrentHashMap<Integer, AbstractGameObject> map = DbManager.getMap(Enum.GameObjectType.City);
+        // Mines can only be claimed once per cycle.
+        // This will reset at 1am after the last mine
+        // window closes.
 
-        if (map != null) {
+        if (LocalDateTime.now().getHour() == 1) {
 
-            for (AbstractGameObject ago : map.values()) {
-
-                City city = (City) ago;
-
-                if (city != null)
-                    if (city.getGuild() != null) {
-                        ArrayList<PlayerCharacter> guildList = Guild.GuildRoster(city.getGuild());
-                        city.setPopulation(guildList.size());
+            for (Mine mine : Mine.getMines()) {
+                    try {
+                        mine.depositMineResources();
+                    } catch (Exception e) {
+                        Logger.info(e.getMessage() + " for Mine " + mine.getObjectUUID());
                     }
+                if (mine.wasClaimed == true)
+                    mine.wasClaimed = false;
             }
-            City.lastCityUpdate = System.currentTimeMillis();
-        } else {
-            Logger.error("missing city map");
         }
-
-        // Log metrics to console
-        Logger.info(WorldServer.getUptimeString());
-        Logger.info(SimulationManager.getPopulationString());
-        Logger.info(MessageDispatcher.getNetstatString());
-        Logger.info(PurgeOprhans.recordsDeleted.toString() + "orphaned items deleted");
     }
 }
