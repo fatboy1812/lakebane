@@ -99,7 +99,11 @@ public class Mine extends AbstractGameObject {
         this.openMinute = rs.getInt("mineLiveMinute");
         this.capSize = rs.getInt("capSize");
         this.liveTime = LocalDateTime.now().withHour(this.openHour).withMinute(this.openMinute);
-
+        Building tower = BuildingManager.getBuildingFromCache(this.buildingID);
+        if(tower != null){
+            tower.setMaxHitPoints(5000f * this.capSize);
+            tower.setCurrentHitPoints(tower.healthMax);
+        }
     }
 
     public static void releaseMineClaims(PlayerCharacter playerCharacter) {
