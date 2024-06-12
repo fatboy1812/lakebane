@@ -568,6 +568,9 @@ public class WorldServer {
 
 		for (Zone zone : rootParent) {
 
+			if(zone.canLoad == 0)
+				continue;
+
 			try {
 				ZoneManager.addZone(zone.getLoadNum(), zone);
 

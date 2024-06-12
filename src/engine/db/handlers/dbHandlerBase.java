@@ -32,14 +32,7 @@ public abstract class dbHandlerBase {
         try {
             if (rs.next()) {
                 abstractGameObject = localClass.getConstructor(ResultSet.class).newInstance(rs);
-
-                if(abstractGameObject.getObjectType().equals(GameObjectType.Zone)){
-                    if(rs.getInt("canLoad") == 1){
-                        DbManager.addToCache(abstractGameObject);
-                    }
-                }else {
-                    DbManager.addToCache(abstractGameObject);
-                }
+                DbManager.addToCache(abstractGameObject);
             }
         } catch (Exception e) {
             Logger.error(e);
