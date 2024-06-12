@@ -41,17 +41,7 @@ public class HalfHourlyJobThread implements Runnable {
             ArrayList<Mine> mines = Mine.getMines();
 
             for (Mine mine : mines) {
-                if (LocalDateTime.now().getHour() == 1400) {
-                    mine.wasClaimed = false;
-                }
                 try {
-
-                    // Open Errant Mines
-
-                    if (mine.getOwningGuild().isEmptyGuild()) {
-                        HalfHourlyJobThread.mineWindowOpen(mine);
-                        continue;
-                    }
 
                     // Open Mines owned by nations having their WOO
                     // set to the current mine window.
@@ -62,8 +52,9 @@ public class HalfHourlyJobThread implements Runnable {
                     }
 
                     // Close the mine if it reaches this far
-
-                    mineWindowClose(mine);
+                    LocalDateTime openTime = LocalDateTime.now().withHour(mine.openHour).withMinute(mine.openMinute);
+                    if(LocalDateTime.now().plusMinutes(1).isAfter(openTime.plusMinutes(30)))
+                        mineWindowClose(mine);
 
                 } catch (Exception e) {
                     Logger.error("mineID: " + mine.getObjectUUID(), e.toString());
@@ -101,6 +92,10 @@ public class HalfHourlyJobThread implements Runnable {
         if (mineBuilding.getRank() > 0) {
             mine.setActive(false);
             mine.lastClaimer = null;
+            ChatSystemMsg chatMsg = new ChatSystemMsg(null, mine.guildName + " has defended the mine in " + mine.getParentZone().getParent().getName() + ". The mine is no longer active.");
+            chatMsg.setMessageType(10);
+            chatMsg.setChannel(Enum.ChatChannelType.SYSTEM.getChannelID());
+            DispatchMessage.dispatchMsgToAll(chatMsg);
             return true;
         }
 
@@ -112,6 +107,10 @@ public class HalfHourlyJobThread implements Runnable {
             mine.lastClaimer = null;
             mine.updateGuildOwner(null);
             mine.setActive(true);
+            ChatSystemMsg chatMsg = new ChatSystemMsg(null, mine.getParentZone().getParent().getName() + " Was not claimed, the battle rages on!");
+            chatMsg.setMessageType(10);
+            chatMsg.setChannel(Enum.ChatChannelType.SYSTEM.getChannelID());
+            DispatchMessage.dispatchMsgToAll(chatMsg);
             return false;
         }
 
@@ -163,7 +162,7 @@ public class HalfHourlyJobThread implements Runnable {
                     } catch (Exception e) {
                         Logger.info(e.getMessage() + " for Mine " + mine.getObjectUUID());
                     }
-                if (mine.wasClaimed == true)
+                if (mine.wasClaimed == false)
                     mine.wasClaimed = false;
             }
         }

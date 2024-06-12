@@ -189,7 +189,7 @@ public class Mine extends AbstractGameObject {
         Guild mineNatonGuild = mine.getOwningGuild().getNation();
 
         writer.putLocalDateTime(mineOpenTime);
-        writer.putLocalDateTime(mineOpenTime.plusHours(1));
+        writer.putLocalDateTime(mineOpenTime.plusMinutes(30));
         writer.put(mine.isActive ? (byte) 0x01 : (byte) 0x00);
 
         Building mineTower = BuildingManager.getBuilding(mine.buildingID);
