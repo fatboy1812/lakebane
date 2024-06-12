@@ -520,7 +520,12 @@ public enum BuildingManager {
         if (building.getBlueprintUUID() == 0)
             return false;
 
-        if (building.getBlueprint().getMaxSlots() == building.getHirelings().size())
+        int maxSlots = building.getBlueprint().getMaxSlots();
+        if(building.getBlueprint().getBuildingGroup() != null) {
+            building.getBlueprint().getSlotsForRank(building.getRank());
+        }
+
+        if (maxSlots == building.getHirelings().size())
             return false;
 
         String pirateName = NPCManager.getPirateName(contract.getMobbaseID());

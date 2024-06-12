@@ -327,20 +327,20 @@ public class Blueprint {
                 break;
             case 3:
             case 4:
-            case 5:
-            case 6:
                 availableSlots = 2;
                 break;
+            case 5:
+            case 6:
             case 7:
-                availableSlots = 3;
-                break;
             case 8:
-                availableSlots = 1;
+                availableSlots = 3;
                 break;
             default:
                 availableSlots = 0;
                 break;
         }
+        if(this.buildingGroup != null && this.buildingGroup.equals(BuildingGroup.TOL))
+            availableSlots += 1;
 
         return availableSlots;
     }
