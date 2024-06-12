@@ -43,7 +43,14 @@ public class HalfHourlyJobThread implements Runnable {
             for (Mine mine : mines) {
                 try {
 
-                    // Open Mines owned by nations having their WOO
+                    //handle mines opening on server reboot weird time interval
+                    if(LocalDateTime.now().isAfter(LocalDateTime.now().withHour(mine.openHour).withMinute(mine.openMinute))) {
+                        if (LocalDateTime.now().isBefore(LocalDateTime.now().withHour(mine.openHour).withMinute(mine.openMinute).plusMinutes(30))) {
+                            HalfHourlyJobThread.mineWindowOpen(mine);
+                            continue;
+                        }
+                    }
+
                     // set to the current mine window.
 
                     if (mine.openHour == LocalDateTime.now().getHour() && mine.openMinute == LocalDateTime.now().getMinute() && !mine.wasClaimed) {
