@@ -16,6 +16,7 @@ import engine.objects.AbstractGameObject;
 import engine.objects.Building;
 import engine.objects.Mine;
 import engine.objects.PlayerCharacter;
+import engine.workthreads.HalfHourlyJobThread;
 import engine.workthreads.HourlyJobThread;
 
 /**
@@ -41,10 +42,10 @@ public class MineActiveCmd extends AbstractDevCmd {
         String trigger = args[0];
         switch (trigger) {
             case "true":
-                HourlyJobThread.mineWindowOpen(mine);
+                HalfHourlyJobThread.mineWindowOpen(mine);
                 break;
             case "false":
-                HourlyJobThread.mineWindowClose(mine);
+                HalfHourlyJobThread.mineWindowClose(mine);
                 break;
             default:
                 this.sendUsage(pcSender);

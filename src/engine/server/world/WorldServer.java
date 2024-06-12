@@ -502,7 +502,7 @@ public class WorldServer {
 		// Open/Close mines for the current window
 
 		Logger.info("Processing mine window.");
-		HourlyJobThread.processMineWindow();
+		HalfHourlyJobThread.processMineWindow();
 
 		// Calculate bootstrap time and rest boot time to current time.
 
