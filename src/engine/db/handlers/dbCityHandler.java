@@ -32,6 +32,9 @@ public class dbCityHandler extends dbHandlerBase {
         String type = rs.getString("type");
         switch (type) {
             case "zone":
+                if(rs.getInt("canLoad") == 0){
+                    return;
+                }
                 Zone zone = new Zone(rs);
                 DbManager.addToCache(zone);
                 list.add(zone);
