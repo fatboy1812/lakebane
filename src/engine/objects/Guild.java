@@ -752,9 +752,9 @@ public class Guild extends AbstractWorldObject {
                 canSub = false;
         }
         City nationCap = City.getCity(nation.cityUUID);
-        if (nation.getSubGuildList().size() >= nationCap.getRank()) {
-            canSub = false;
-        }
+        //if (nation.getSubGuildList().size() >= nationCap.getRank()) {
+        //    canSub = false;
+        //}
         return canSub;
     }
 
