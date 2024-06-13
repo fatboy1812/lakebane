@@ -288,24 +288,7 @@ public class Mine extends AbstractGameObject {
         if (treeRank < 1)
             return false;
 
-        if (guildUnderMineLimit(playerGuild.getNation(), treeRank) == false) {
-            ErrorPopupMsg.sendErrorMsg(playerCharacter, "Your nation cannot support another mine.");
-            return false;
-        }
-
         return true;
-    }
-
-    private static boolean guildUnderMineLimit(Guild playerGuild, int tolRank) {
-
-        int mineCnt = 0;
-
-        mineCnt += Mine.getMinesForGuild(playerGuild.getObjectUUID()).size();
-
-        for (Guild guild : playerGuild.getSubGuildList())
-            mineCnt += Mine.getMinesForGuild(guild.getObjectUUID()).size();
-
-        return mineCnt <= tolRank;
     }
 
     public boolean changeProductionType(Resource resource) {
