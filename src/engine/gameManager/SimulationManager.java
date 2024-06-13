@@ -10,10 +10,7 @@ package engine.gameManager;
 
 import engine.Enum;
 import engine.Enum.GameObjectType;
-import engine.objects.AbstractGameObject;
-import engine.objects.City;
-import engine.objects.PlayerCharacter;
-import engine.objects.Runegate;
+import engine.objects.*;
 import org.pmw.tinylog.Logger;
 
 import java.sql.Connection;
@@ -33,7 +30,7 @@ public enum SimulationManager {
     SERVERHEARTBEAT;
 
     private static final long CITY_PULSE = 2000;
-    private static final long RUNEGATE_PULSE = 3000;
+    private static final long RUNEGATE_PULSE = 1000;
     private static final long UPDATE_PULSE = 1000;
     private static final long FlIGHT_PULSE = 100;
     public static Duration executionTime = Duration.ofNanos(1);
@@ -203,8 +200,12 @@ public enum SimulationManager {
             city = (City) cityObject;
             city.onEnter();
         }
-
+        for(Mine mine : Mine.getMines()){
+            if(mine != null)
+                mine.onEnter();
+        }
         _cityPulseTime = System.currentTimeMillis() + CITY_PULSE;
+
     }
 
     /*

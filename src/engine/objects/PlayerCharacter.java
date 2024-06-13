@@ -175,6 +175,8 @@ public class PlayerCharacter extends AbstractCharacter {
     private boolean dirtyLoad = true;
     private final ReadWriteLock dirtyLock = new ReentrantReadWriteLock(true);
 
+    public float ZergMultiplier = 1.0f;
+
     /**
      * No Id Constructor
      */

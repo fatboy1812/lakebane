@@ -11,10 +11,7 @@ package engine.objects;
 
 import engine.Enum;
 import engine.InterestManagement.WorldGrid;
-import engine.gameManager.BuildingManager;
-import engine.gameManager.ChatManager;
-import engine.gameManager.DbManager;
-import engine.gameManager.ZoneManager;
+import engine.gameManager.*;
 import engine.net.ByteBufferWriter;
 import engine.net.client.msg.ErrorPopupMsg;
 import engine.server.MBServerStatics;
@@ -25,6 +22,9 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 
 import static engine.gameManager.DbManager.MineQueries;
@@ -55,6 +55,8 @@ public class Mine extends AbstractGameObject {
     public int openMinute;
     public int capSize;
     public LocalDateTime liveTime;
+    public final HashSet<Integer> _playerMemory = new HashSet<>();
+    public ArrayList<PlayerCharacter> affectedPlayers = new ArrayList<>();
 
     /**
      * ResultSet Constructor
@@ -570,5 +572,75 @@ public class Mine extends AbstractGameObject {
         }
         return (int) totalModded;
     }
+    public void onEnter() {
 
+        Building tower = BuildingManager.getBuildingFromCache(this.buildingID);
+        if(tower == null)
+            return;
+
+        // Gather current list of players within the zone bounds
+
+        HashSet<AbstractWorldObject> currentPlayers = WorldGrid.getObjectsInRangePartial(tower.loc, Enum.CityBoundsType.GRID.extents, MBServerStatics.MASK_PLAYER);
+        HashMap<Guild,ArrayList<PlayerCharacter>> charactersByNation = new HashMap<>();
+        ArrayList<Guild> updatedNations = new ArrayList<>();
+        for (AbstractWorldObject playerObject : currentPlayers) {
+
+            if (playerObject == null)
+                continue;
+
+            PlayerCharacter player = (PlayerCharacter) playerObject;
+            if(!this._playerMemory.contains(player.getObjectUUID())){
+                this._playerMemory.add(player.getObjectUUID());
+            }
+            Guild nation = player.guild.getNation();
+            if(charactersByNation.containsKey(nation)){
+                if(!charactersByNation.get(nation).contains(player)) {
+                    charactersByNation.get(nation).add(player);
+                    if(!updatedNations.contains(nation)){
+                        updatedNations.add(nation);
+                    }
+                }
+            }else{
+                ArrayList<PlayerCharacter> players = new ArrayList<>();
+                players.add(player);
+                charactersByNation.put(nation,players);
+                if(!updatedNations.contains(nation)){
+                    updatedNations.add(nation);
+                }
+            }
+        }
+        for(Guild nation : updatedNations){
+            float multiplier = ZergManager.getCurrentMultiplier(charactersByNation.get(nation).size(),this.capSize);
+            for(PlayerCharacter player : charactersByNation.get(nation)){
+                player.ZergMultiplier = multiplier;
+            }
+        }
+        try
+        {
+            this.onExit(this._playerMemory);
+        }
+        catch(Exception ignored){
+
+        }
+    }
+
+    private void onExit(HashSet<Integer> currentMemory) {
+
+        Building tower = BuildingManager.getBuildingFromCache(this.buildingID);
+        if(tower == null)
+            return;
+        ArrayList<Integer>toRemove = new ArrayList<>();
+        HashSet<AbstractWorldObject> currentPlayers = WorldGrid.getObjectsInRangePartial(tower.loc, Enum.CityBoundsType.GRID.extents, MBServerStatics.MASK_PLAYER);
+        for(Integer id : currentMemory){
+            PlayerCharacter pc = PlayerCharacter.getPlayerCharacter(id);
+            if(currentPlayers.contains(pc) == false){
+                toRemove.add(id);
+                pc.ZergMultiplier = 1.0f;
+            }
+        }
+
+        // Remove players from city memory
+
+        _playerMemory.removeAll(toRemove);
+    }
 }
