@@ -519,41 +519,32 @@ public class Mine extends AbstractGameObject {
     }
 
     public int getModifiedProductionAmount() {
-        //TODO Calculate Distance modifications.
+        ItemBase resourceBase = ItemBase.getItemBase(this.production.UUID);
+        if(resourceBase == null)
+            return 0;
+        int value = resourceBase.getBaseValue();
 
-        //calculate base values.
-        int baseProduction = this.production.baseProduction;
-        float baseModValue = this.production.baseProduction * .1f;
-        float rankModValue = this.production.baseProduction * .0143f;
-        float totalModded = 0;
-
-        //get Mine Building.
-        Building mineBuilding = BuildingManager.getBuilding(this.buildingID);
-        if (mineBuilding == null)
-            return this.production.baseProduction;
-        for (AbstractCharacter harvester : mineBuilding.getHirelings().keySet()) {
-            totalModded += baseModValue;
-            totalModded += rankModValue * harvester.getRank();
+        int amount = 0;
+        switch(this.capSize){
+            case 3:
+                amount = 1800000;
+                break;
+            case 5:
+                amount = 3000000;
+                break;
+            case 10:
+                amount = 6000000;
+                break;
+            case 20:
+                amount = 12000000;
+                break;
         }
-        //add base production on top;
-        totalModded += baseProduction;
-        //skip distance check for expansion.
-        if (this.isExpansion())
-            return (int) totalModded;
+        if(this.production.UUID == 7)
+            value = 1;
 
-        if (this.owningGuild.isEmptyGuild() == false) {
-            if (this.owningGuild.getOwnedCity() != null) {
-                float distanceSquared = this.owningGuild.getOwnedCity().getLoc().distanceSquared2D(mineBuilding.getLoc());
+        amount = amount / value;
 
-                if (distanceSquared > sqr(10000 * 3))
-                    totalModded *= .25f;
-                else if (distanceSquared > sqr(10000 * 2))
-                    totalModded *= .50f;
-                else if (distanceSquared > sqr(10000))
-                    totalModded *= .75f;
-            }
-        }
-        return (int) totalModded;
+        return amount;
     }
     public void onEnter() {
 
