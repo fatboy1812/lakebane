@@ -1187,10 +1187,15 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
         }
     }
 
-    public final float modifyHealth(
-            final float value,
-            final AbstractCharacter attacker,
-            final boolean fromCost) {
+    public final float modifyHealth(float value, final AbstractCharacter attacker, final boolean fromCost) {
+
+        if(attacker != null && attacker.getObjectType().equals(GameObjectType.PlayerCharacter)){
+            value *= ((PlayerCharacter)attacker).ZergMultiplier;
+        } // Health modifications are modified by the ZergMechanic
+
+        if(attacker != null && attacker.getObjectType().equals(GameObjectType.Mob) && ((Mob)attacker).getOwner() != null){
+            value *= ((Mob)attacker).getOwner().ZergMultiplier;
+        }// Health modifications from pets are modified by the owner's ZergMechanic
 
         try {
 
@@ -1254,10 +1259,18 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
     }
 
     public final float modifyMana(
-            final float value,
+            float value,
             final AbstractCharacter attacker,
             final boolean fromCost
     ) {
+
+        if(attacker != null && attacker.getObjectType().equals(GameObjectType.PlayerCharacter)){
+            value *= ((PlayerCharacter)attacker).ZergMultiplier;
+        } // Health modifications are modified by the ZergMechanic
+
+        if(attacker != null && attacker.getObjectType().equals(GameObjectType.Mob) && ((Mob)attacker).getOwner() != null){
+            value *= ((Mob)attacker).getOwner().ZergMultiplier;
+        }// Health modifications from pets are modified by the owner's ZergMechanic
 
         if (!this.isAlive()) {
             return 0f;
@@ -1293,10 +1306,18 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
     }
 
     public final float modifyStamina(
-            final float value,
+            float value,
             final AbstractCharacter attacker,
             final boolean fromCost
     ) {
+
+        if(attacker != null && attacker.getObjectType().equals(GameObjectType.PlayerCharacter)){
+            value *= ((PlayerCharacter)attacker).ZergMultiplier;
+        } // Health modifications are modified by the ZergMechanic
+
+        if(attacker != null && attacker.getObjectType().equals(GameObjectType.Mob) && ((Mob)attacker).getOwner() != null){
+            value *= ((Mob)attacker).getOwner().ZergMultiplier;
+        }// Health modifications from pets are modified by the owner's ZergMechanic
 
         if (!this.isAlive()) {
             return 0f;
