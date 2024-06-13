@@ -146,6 +146,11 @@ public class HalfHourlyJobThread implements Runnable {
         mine.lastClaimer = null;
         mine.setActive(false);
         mine.wasClaimed = true;
+        for(Integer id : mine._playerMemory){
+            PlayerCharacter pc = PlayerCharacter.getFromCache(id);
+            if(pc != null)
+                pc.ZergMultiplier = 1.0f;
+        }
         return true;
     }
 
