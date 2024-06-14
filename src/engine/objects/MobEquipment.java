@@ -34,7 +34,7 @@ public class MobEquipment extends AbstractGameObject {
     private AbstractPowerAction suffix;
     private int pValue;
     private int sValue;
-    private int magicValue;
+    int magicValue;
 
     private float dropChance = 0;
 
