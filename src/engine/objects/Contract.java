@@ -223,7 +223,7 @@ public class Contract extends AbstractGameObject {
                     case 250020:
                     case 250029:
                     case 250038:
-                        me.magicValue = 200000;
+                        me.magicValue = 2000000;
                         break;
                     case 250003: //15 stats
                     case 250012:
