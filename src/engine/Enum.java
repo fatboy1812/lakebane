@@ -960,6 +960,17 @@ public class Enum {
         Wizardry;
 
         public static SourceType GetSourceType(String modName) {
+            switch(modName){
+                case "Slashing":
+                    modName = "Slash";
+                    break;
+                case "Crushing":
+                    modName = "Crush";
+                    break;
+                case "Piercing":
+                    modName = "Pierce";
+                    break;
+            }
             SourceType returnMod;
             if (modName.isEmpty())
                 return SourceType.None;
