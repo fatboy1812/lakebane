@@ -4834,7 +4834,21 @@ public class PlayerCharacter extends AbstractCharacter {
             }
         }
     }
+    public static void unboxPlayer(PlayerCharacter player){
+        String machineID = player.getClientConnection().machineID;
+        ArrayList<PlayerCharacter> sameMachine = new ArrayList<>();
+        for(PlayerCharacter pc : SessionManager.getAllActivePlayerCharacters()){
+            if(!pc.equals(player) && pc. isActive && pc.isEnteredWorld() && pc.getClientConnection().machineID.equals(machineID)){
+                sameMachine.add(pc);
+            }
+        }
 
+        for(PlayerCharacter pc : sameMachine)
+            pc.isBoxed = true;
+
+        player.isBoxed = false;
+
+    }
     public static boolean checkIfBoxed(PlayerCharacter player){
         String machineID = player.getClientConnection().machineID;
         ArrayList<PlayerCharacter> sameMachine = new ArrayList<>();

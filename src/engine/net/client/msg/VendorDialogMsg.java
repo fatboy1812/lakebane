@@ -96,6 +96,15 @@ public class VendorDialogMsg extends ClientNetMsg {
             return;
         }
 
+
+        if(npc.contractUUID == 1502040){ //enrollment officer
+            if(!playerCharacter.getTimestamps().containsKey("lastBoxFlag"))
+                playerCharacter.getTimestamps().put("lastBoxFlag",System.currentTimeMillis() - 1000);
+
+            if(playerCharacter.getTimestamps().get("lastBoxFlag") + 10000 > System.currentTimeMillis())
+                PlayerCharacter.unboxPlayer(playerCharacter);
+        }
+
         // Restrict disc trainers to only characters who have
         // tht disc applied.
 
