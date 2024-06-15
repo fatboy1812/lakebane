@@ -521,6 +521,7 @@ public enum InterestManager implements Runnable {
 
         // Update loaded upbjects lists
 
+        player.isBoxed = PlayerCharacter.checkIfBoxed(player);
         player.setDirtyLoad(true);
         updateStaticList(player, origin);
         updateMobileList(player, origin);
