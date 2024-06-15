@@ -201,8 +201,10 @@ public class Contract extends AbstractGameObject {
         if(this.getObjectUUID() == 900){ //resource merchant
             for(MobEquipment me : this.sellInventory){
                 if(me.getItemBase().getType().equals(Enum.ItemType.RESOURCE)){
-                    int amountResource = 3000000 / (me.getItemBase().getBaseValue() * 2);
-                    me.magicValue = amountResource * (me.getItemBase().getBaseValue() * 2);
+                    int amountResource = 1500000 / (me.getItemBase().getBaseValue());
+                    me.magicValue = amountResource * (me.getItemBase().getBaseValue());
+                } else{
+                    me.magicValue = 100000;
                 }
             }
         }
