@@ -4847,6 +4847,9 @@ public class PlayerCharacter extends AbstractCharacter {
             pc.isBoxed = true;
 
         player.isBoxed = false;
+        if(player.containsEffect(1672601862)) {
+            player.removeEffectBySource(EffectSourceType.DeathShroud,41,false);
+        }
 
     }
     public static boolean checkIfBoxed(PlayerCharacter player){
