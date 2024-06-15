@@ -337,7 +337,8 @@ public class InfoCmd extends AbstractDevCmd {
                 output += "Swimming : " + targetPC.isSwimming();
                 output += newline;
                 output += "isMoving : " + targetPC.isMoving();
-
+                output += newline;
+                output += "Zerg Multiplier : " + targetPC.ZergMultiplier;
                 break;
 
             case NPC:
