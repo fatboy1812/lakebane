@@ -1054,6 +1054,10 @@ public enum CombatManager {
                 if (eff.getPower() != null && (eff.getPower().getToken() == 429506943 || eff.getPower().getToken() == 429408639 || eff.getPower().getToken() == 429513599 || eff.getPower().getToken() == 429415295))
                     swingAnimation = 0;
 
+        if(source != null && source.getObjectType().equals(GameObjectType.PlayerCharacter)){
+            damage *= ((PlayerCharacter)source).ZergMultiplier;
+        } // Health modifications are modified by the ZergMechanic
+
         TargetedActionMsg cmm = new TargetedActionMsg(source, target, damage, swingAnimation);
         DispatchMessage.sendToAllInRange(target, cmm);
     }
