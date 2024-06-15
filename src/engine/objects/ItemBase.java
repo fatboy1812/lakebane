@@ -75,7 +75,6 @@ public class ItemBase {
     private boolean isStrBased;
     private ArrayList<Integer> animations = new ArrayList<>();
     private ArrayList<Integer> offHandAnimations = new ArrayList<>();
-    private boolean autoID = true;
 
     /**
      * ResultSet Constructor

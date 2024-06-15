@@ -948,6 +948,7 @@ public class Item extends AbstractWorldObject {
     }
 
     public boolean isID() {
+        this.flags |= 1;
         return ((this.flags & 1) > 0);
     }
 
