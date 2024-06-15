@@ -1408,9 +1408,14 @@ public class ClientMessagePump implements NetMsgHandler {
 
                             int cost = me.getMagicValue();
                             int amountResource = 0;
-                            if(ib.getType().equals(ItemType.RESOURCE) && npc.contractUUID == 900){ //resource merchant
-                                amountResource = 15000000 / (ib.getBaseValue());
-                                cost = amountResource * (ib.getBaseValue());
+                            if(npc.contractUUID == 900){ //resource merchant
+                                if(ib.getType().equals(ItemType.RESOURCE)) {
+                                    amountResource = 15000000 / (ib.getBaseValue());
+                                    cost = amountResource * (ib.getBaseValue());
+                                }else{
+                                    amountResource = 10;
+                                    cost = 100000; //elans
+                                }
                             }
 
                             float bargain = sourcePlayer.getBargain();
@@ -1449,7 +1454,7 @@ public class ClientMessagePump implements NetMsgHandler {
 
                             if (buy != null) {
                                 me.transferEnchants(buy);
-                                if(ib.getType().equals(ItemType.RESOURCE) && npc.contractUUID == 900){ //resource merchant
+                                if(npc.contractUUID == 900){ //resource merchant
                                     buy.setNumOfItems(amountResource);
                                 }
                                 itemMan.addItemToInventory(buy);
