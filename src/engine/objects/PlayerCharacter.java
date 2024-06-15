@@ -4815,6 +4815,13 @@ public class PlayerCharacter extends AbstractCharacter {
                 updateBlessingMessage();
 
                 this.safeZone = this.isInSafeZone();
+                if(!this.timestamps.containsKey("nextBoxCheck"))
+                    this.timestamps.put("nextBoxCheck", System.currentTimeMillis() + 10000);
+
+                if(!this.isBoxed && this.timestamps.get("nextBoxCheck") > System.currentTimeMillis()) {
+                    this.isBoxed = checkIfBoxed(this);
+                    this.timestamps.put("nextBoxCheck", System.currentTimeMillis() + 10000);
+                }
 
                 if(this.isBoxed && !this.containsEffect(1672601862)) {
                     PowersManager.applyPower(this, this, Vector3fImmutable.ZERO, 1672601862, 40, false);
@@ -4828,6 +4835,22 @@ public class PlayerCharacter extends AbstractCharacter {
         }
     }
 
+    public static boolean checkIfBoxed(PlayerCharacter player){
+        String machineID = player.getClientConnection().machineID;
+        ArrayList<PlayerCharacter> sameMachine = new ArrayList<>();
+        for(PlayerCharacter pc : SessionManager.getAllActivePlayerCharacters()){
+            if(!pc.equals(player) && pc. isActive && pc.isEnteredWorld() && pc.getClientConnection().machineID.equals(machineID)){
+                sameMachine.add(pc);
+            }
+        }
+
+        boolean boxed = false;
+        for(PlayerCharacter pc : sameMachine)
+            if(!pc.isBoxed)
+                boxed = true;
+
+        return boxed;
+    }
     @Override
     public void updateFlight() {
 
