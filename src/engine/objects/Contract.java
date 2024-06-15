@@ -201,10 +201,77 @@ public class Contract extends AbstractGameObject {
         if(this.getObjectUUID() == 900){ //resource merchant
             for(MobEquipment me : this.sellInventory){
                 if(me.getItemBase().getType().equals(Enum.ItemType.RESOURCE)){
-                    int amountResource = 1500000 / (me.getItemBase().getBaseValue());
-                    me.magicValue = amountResource * (me.getItemBase().getBaseValue());
+                    int amountResource = 1500000 / me.getItemBase().getBaseValue();
+                    me.magicValue = amountResource * me.getItemBase().getBaseValue();
                 } else{
                     me.magicValue = 50000;
+                }
+            }
+        }
+        if(this.getObjectUUID() == 1202){ //rune merchant
+            for(MobEquipment me : this.sellInventory){
+                switch(me.getItemBase().getUUID()){
+                    case 250001: //5 stats
+                    case 250010:
+                    case 250019:
+                    case 250028:
+                    case 250037:
+                        me.magicValue = 1500000;
+                        break;
+                    case 250002: //10 stats
+                    case 250011:
+                    case 250020:
+                    case 250029:
+                    case 250038:
+                        me.magicValue = 200000;
+                        break;
+                    case 250003: //15 stats
+                    case 250012:
+                    case 250021:
+                    case 250030:
+                    case 250039:
+                        me.magicValue = 2500000;
+                        break;
+                    case 250004: //20 stats
+                    case 250013:
+                    case 250022:
+                    case 250031:
+                    case 250040:
+                        me.magicValue = 3000000;
+                        break;
+                    case 250005: //25 stats
+                    case 250014:
+                    case 250023:
+                    case 250032:
+                    case 250041:
+                        me.magicValue = 3500000;
+                        break;
+                    case 250006: //30 stats
+                    case 250015:
+                    case 250024:
+                    case 250033:
+                    case 250042:
+                        me.magicValue = 4000000;
+                        break;
+                    case 250007: //35 stats
+                    case 250016:
+                    case 250025:
+                    case 250034:
+                    case 250043:
+                        me.magicValue = 4500000;
+                        break;
+                    default:
+                        me.magicValue = 5000000;
+                        break;
+                }
+            }
+        }
+        if(this.getObjectUUID() == 1201){ //disc merchant
+            for(MobEquipment me : this.sellInventory){
+                if(me.getItemBase().getName().equals("Prospector")){
+                    me.magicValue = 250000;
+                }else{
+                    me.magicValue = 5000000;
                 }
             }
         }

@@ -1410,8 +1410,8 @@ public class ClientMessagePump implements NetMsgHandler {
                             int amountResource = 0;
                             if(npc.contractUUID == 900){ //resource merchant
                                 if(ib.getType().equals(ItemType.RESOURCE)) {
-                                    amountResource = 15000000 / (ib.getBaseValue());
-                                    cost = amountResource * (ib.getBaseValue());
+                                    amountResource = 15000000 / ib.getBaseValue();
+                                    cost = amountResource * ib.getBaseValue();
                                 }else{
                                     amountResource = 10;
                                     cost = 50000; //elans
