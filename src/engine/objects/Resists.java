@@ -451,9 +451,9 @@ public class Resists {
                 this.immuneTo.put(DamageType.Snare, true);
 
             // Handle resists
-            slash += rb.getFloat(ModType.Resistance, SourceType.Slashing);
-            crush += rb.getFloat(ModType.Resistance, SourceType.Crushing);
-            pierce += rb.getFloat(ModType.Resistance, SourceType.Piercing);
+            slash += rb.getFloat(ModType.Resistance, SourceType.Slash);
+            crush += rb.getFloat(ModType.Resistance, SourceType.Crush);
+            pierce += rb.getFloat(ModType.Resistance, SourceType.Pierce);
             magic += rb.getFloat(ModType.Resistance, SourceType.Magic);
             bleed += rb.getFloat(ModType.Resistance, SourceType.Bleed);
             poison += rb.getFloat(ModType.Resistance, SourceType.Poison);
