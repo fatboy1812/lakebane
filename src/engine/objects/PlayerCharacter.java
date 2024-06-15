@@ -177,6 +177,8 @@ public class PlayerCharacter extends AbstractCharacter {
 
     public float ZergMultiplier = 1.0f;
 
+    public boolean isBoxed = false;
+
     /**
      * No Id Constructor
      */
@@ -4813,6 +4815,10 @@ public class PlayerCharacter extends AbstractCharacter {
                 updateBlessingMessage();
 
                 this.safeZone = this.isInSafeZone();
+
+                if(this.isBoxed && !this.containsEffect(1672601862)) {
+                    PowersManager.applyPower(this, this, Vector3fImmutable.ZERO, 1672601862, 40, false);
+                }
 
             } catch (Exception e) {
                 Logger.error(e);
