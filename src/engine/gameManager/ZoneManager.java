@@ -19,14 +19,12 @@ import engine.objects.Building;
 import engine.objects.City;
 import engine.objects.Zone;
 import engine.server.MBServerStatics;
-import org.pmw.tinylog.Logger;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ThreadLocalRandom;
 
 /*
  * Class contains methods and structures which
@@ -107,20 +105,6 @@ public enum ZoneManager {
 
         ZoneManager.zonesByName.put(zone.getName().toLowerCase(), zone);
 
-    }
-
-    // Returns the number of available hotZones
-    // remaining in this cycle (1am)
-
-    public static int availableHotZones() {
-
-        int count = 0;
-
-        for (Zone zone : ZoneManager.macroZones)
-            if (ZoneManager.validHotZone(zone))
-                count = count + 1;
-
-        return count;
     }
 
     // Resets the  availability of hotZones
@@ -215,63 +199,6 @@ public enum ZoneManager {
     public static final void addPlayerCityZone(final Zone zone) {
         zone.setPlayerCity(true);
         ZoneManager.playerCityZones.add(zone);
-    }
-
-    public static final void generateAndSetRandomHotzone() {
-
-        Zone hotZone;
-        ArrayList<Integer> zoneArray = new ArrayList<>();
-
-        if (ZoneManager.macroZones.isEmpty())
-            return;
-
-        // Reset hotZone availability if none are left.
-
-        if (ZoneManager.availableHotZones() == 0)
-            ZoneManager.resetHotZones();
-
-        for (Zone zone : ZoneManager.macroZones)
-            if (validHotZone(zone))
-                zoneArray.add(zone.getObjectUUID());
-
-        int entryIndex = ThreadLocalRandom.current().nextInt(zoneArray.size());
-
-        hotZone = ZoneManager.getZoneByUUID(zoneArray.get(entryIndex));
-
-        if (hotZone == null) {
-            Logger.error("Hotzone is null");
-            return;
-        }
-
-        ZoneManager.setHotZone(hotZone);
-
-    }
-
-    public static final boolean validHotZone(Zone zone) {
-
-        if (zone.getSafeZone() == (byte) 1)
-            return false; // no safe zone hotzones// if (this.hotzone == null)
-
-        if (zone.getNodes().isEmpty())
-            return false;
-
-        if (zone.equals(ZoneManager.seaFloor))
-            return false;
-
-        //no duplicate hotZones
-
-        if (zone.hasBeenHotzone == true)
-            return false;
-
-        // Enforce min level
-
-        if (zone.minLvl < Integer.parseInt(ConfigManager.MB_HOTZONE_MIN_LEVEL.getValue()))
-            return false;
-
-        if (ZoneManager.hotZone != null)
-            return ZoneManager.hotZone.getObjectUUID() != zone.getObjectUUID();
-
-        return true;
     }
 
     // Converts world coordinates to coordinates local to a given zone.

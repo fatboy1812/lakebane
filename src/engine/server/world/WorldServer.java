@@ -440,9 +440,6 @@ public class WorldServer {
 		Logger.info("Loading Max Skills for Trainers");
 		DbManager.SkillsBaseQueries.LOAD_ALL_MAX_SKILLS_FOR_CONTRACT();
 
-		//pick a startup Hotzone
-		ZoneManager.generateAndSetRandomHotzone();
-
 		Logger.info("Loading All Players from database to Server Cache");
 		long start = System.currentTimeMillis();
 

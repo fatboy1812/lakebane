@@ -79,7 +79,6 @@ public enum DevCmdManager {
         DevCmdManager.registerDevCmd(new AddGoldCmd());
         DevCmdManager.registerDevCmd(new ZoneInfoCmd());
         DevCmdManager.registerDevCmd(new DebugMeleeSyncCmd());
-        DevCmdManager.registerDevCmd(new HotzoneCmd());
         DevCmdManager.registerDevCmd(new MineActiveCmd());
         // Dev
         DevCmdManager.registerDevCmd(new ApplyStatModCmd());
