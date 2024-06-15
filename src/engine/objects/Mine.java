@@ -359,6 +359,16 @@ public class Mine extends AbstractGameObject {
         Building building = BuildingManager.getBuildingFromCache(this.buildingID);
         if (building != null && !this.isActive)
             building.isDeranking.compareAndSet(true, false);
+
+        if(!isAc){
+            for(PlayerCharacter player : this.affectedPlayers){
+                try {
+                    player.ZergMultiplier = 1.0f;
+                } catch(Exception e){
+                    //something went wrong resetting zerg multiplier, maybe player was deleted?
+                }
+            }
+        }
     }
 
     public boolean validForMine(Resource r) {
@@ -563,6 +573,10 @@ public class Mine extends AbstractGameObject {
                 continue;
 
             PlayerCharacter player = (PlayerCharacter) playerObject;
+
+            if(this.affectedPlayers.contains(player) == false)
+                this.affectedPlayers.add(player);
+
             if(!this._playerMemory.contains(player.getObjectUUID())){
                 this._playerMemory.add(player.getObjectUUID());
             }
