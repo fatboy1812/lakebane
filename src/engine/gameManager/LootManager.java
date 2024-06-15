@@ -74,32 +74,32 @@ public enum LootManager {
 
         //iterate the booty sets
 
-        if (mob.getMobBase().bootySet != 0 && _bootySetMap.containsKey(mob.getMobBase().bootySet) == true)
+        if (mob.getMobBase().bootySet != 0 && _bootySetMap.containsKey(mob.getMobBase().bootySet))
             RunBootySet(_bootySetMap.get(mob.getMobBase().bootySet), mob, inHotzone);
 
-        if (mob.bootySet != 0 && _bootySetMap.containsKey(mob.bootySet) == true)
+        if (mob.bootySet != 0 && _bootySetMap.containsKey(mob.bootySet))
             RunBootySet(_bootySetMap.get(mob.bootySet), mob, inHotzone);
 
         //lastly, check mobs inventory for godly or disc runes to send a server announcement
-            for (Item it : mob.getInventory()) {
+        for (Item it : mob.getInventory()) {
 
-                ItemBase ib = it.getItemBase();
-                if(ib == null)
-                    break;
-                if (ib.isDiscRune() || ib.getName().toLowerCase().contains("of the gods")) {
-                    ChatSystemMsg chatMsg = new ChatSystemMsg(null, mob.getName() + " in " + mob.getParentZone().getName() + " has found the " + ib.getName() + ". Are you tough enough to take it?");
-                    chatMsg.setMessageType(10);
-                    chatMsg.setChannel(Enum.ChatChannelType.SYSTEM.getChannelID());
-                    DispatchMessage.dispatchMsgToAll(chatMsg);
-                }
+            ItemBase ib = it.getItemBase();
+            if (ib == null)
+                break;
+            if (ib.isDiscRune() || ib.getName().toLowerCase().contains("of the gods")) {
+                ChatSystemMsg chatMsg = new ChatSystemMsg(null, mob.getName() + " in " + mob.getParentZone().getName() + " has found the " + ib.getName() + ". Are you tough enough to take it?");
+                chatMsg.setMessageType(10);
+                chatMsg.setChannel(Enum.ChatChannelType.SYSTEM.getChannelID());
+                DispatchMessage.dispatchMsgToAll(chatMsg);
             }
+        }
 
     }
 
     private static void RunBootySet(ArrayList<BootySetEntry> entries, Mob mob, boolean inHotzone) {
 
         boolean hotzoneWasRan = false;
-        float dropRate = 1.0f;
+        float dropRate;
         mob.hasContractOrRune = true;
 
         //1 in 10,000 chance to drop glass
