@@ -18,6 +18,7 @@ import org.pmw.tinylog.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -69,7 +70,7 @@ public enum LootManager {
     public static void GenerateMobLoot(Mob mob) {
 
         //determine if mob is in hotzone
-        boolean inHotzone = ZoneManager.inHotZone(mob.getLoc());
+        boolean inHotzone = false;
 
         //iterate the booty sets
 
@@ -99,9 +100,19 @@ public enum LootManager {
 
         boolean hotzoneWasRan = false;
         float dropRate = 1.0f;
+        mob.hasContractOrRune = true;
 
+        //1 in 10,000 chance to drop glass
+        if(ThreadLocalRandom.current().nextInt(1,10000) == 500){
+            ItemBase glassItem = rollRandomItem(126);
+            if(glassItem != null) {
+                MobLoot toAdd = new MobLoot(mob, glassItem, false);
+
+                if (toAdd != null)
+                    mob.getCharItemManager().addItemToInventory(toAdd);
+            }
+        }
         // Iterate all entries in this bootySet and process accordingly
-
         for (BootySetEntry bse : entries) {
             switch (bse.bootyType) {
                 case "GOLD":
@@ -109,8 +120,10 @@ public enum LootManager {
                     break;
                 case "LOOT":
 
-                    if (mob.getSafeZone() == false)
-                        dropRate = LootManager.NORMAL_DROP_RATE;
+                    if (mob.getSafeZone())
+                        return; // no loot to drop in safezones
+
+                    dropRate = LootManager.NORMAL_DROP_RATE;
 
                     if (inHotzone == true)
                         dropRate = LootManager.HOTZONE_DROP_RATE;
@@ -196,6 +209,36 @@ public enum LootManager {
                 Logger.error("Failed to GenerateSuffix for item: " + outItem.getName());
             }
         }
+        if(outItem.getItemBase().getType().equals(Enum.ItemType.RESOURCE)){
+            if(ThreadLocalRandom.current().nextInt(1,101) < 91)
+                return null; // cut down world drops rates of resources by 90%
+        }
+
+        if(outItem.getItemBase().getType().equals(Enum.ItemType.RUNE)){
+            ItemBase randomRune = rollRandomItem(itemTableId);
+            if(randomRune != null) {
+                outItem = new MobLoot(mob, randomRune, false);
+            }
+            if(ThreadLocalRandom.current().nextInt(1,101) < 71)
+                return null; // cut down world drops rates of runes by 70%
+        }
+
+        if(outItem.getItemBase().getType().equals(Enum.ItemType.CONTRACT)){
+            ItemBase randomContract = rollRandomItem(itemTableId);
+            if(randomContract != null) {
+                outItem = new MobLoot(mob, randomContract, false);
+            }
+            if(ThreadLocalRandom.current().nextInt(1,101) < 71)
+                return null; // cut down world drops rates of contracts by 70%
+        }
+
+        if(outItem.getItemBase().getType().equals(Enum.ItemType.CONTRACT) || outItem.getItemBase().getType().equals(Enum.ItemType.RUNE)){
+            if(mob.hasContractOrRune){
+                return null;
+            }
+            mob.hasContractOrRune = true;
+        }
+
         return outItem;
     }
 
@@ -330,6 +373,9 @@ public enum LootManager {
 
     public static void GenerateEquipmentDrop(Mob mob) {
 
+        if (mob == null || mob.getSafeZone())
+            return; // no equipment to drop in safezones
+
         //do equipment here
         int dropCount = 0;
         if (mob.getEquip() != null)
@@ -453,5 +499,25 @@ public enum LootManager {
         Item playerWinnings = winnings.promoteToItem(playerCharacter);
         itemMan.addItemToInventory(playerWinnings);
         itemMan.updateInventory();
+    }
+
+    public static ItemBase rollRandomItem(int itemTable){
+        ItemTableEntry itemTableEntry = null;
+        List<ItemTableEntry> itemTableEntryList;
+
+        itemTableEntryList = LootManager._itemTables.get(itemTable);
+        int minRoll = itemTableEntryList.get(0).minRoll;
+        int maxRoll = itemTableEntryList.get(itemTableEntryList.size() - 1).maxRoll;
+
+        int roll = ThreadLocalRandom.current().nextInt(minRoll,maxRoll + 1);
+        for (ItemTableEntry iteration : itemTableEntryList)
+            if (roll >= iteration.minRoll && roll <= iteration.maxRoll)
+                itemTableEntry = iteration;
+
+        if(itemTableEntry != null && itemTableEntry.cacheID != 0) {
+            return ItemBase.getItemBase(itemTableEntry.cacheID);
+        } else{
+            return null;
+        }
     }
 }

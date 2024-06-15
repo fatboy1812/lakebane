@@ -122,6 +122,8 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
     private boolean collided = false;
     private byte aoecntr = 0;
 
+    public boolean hasContractOrRune = false;
+
     public AbstractCharacter() {
         super();
 
