@@ -174,7 +174,6 @@ public class HalfHourlyJobThread implements Runnable {
                     } catch (Exception e) {
                         Logger.info(e.getMessage() + " for Mine " + mine.getObjectUUID());
                     }
-                if (mine.wasClaimed == false)
                     mine.wasClaimed = false;
             }
         }
