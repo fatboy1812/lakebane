@@ -656,7 +656,6 @@ public class WorldServer {
 			// TODO log this
 			return;
 
-		MultiboxManager.removePlayer(playerCharacter);
 		//cancel any trade
 		if (playerCharacter.getCharItemManager() != null)
 			playerCharacter.getCharItemManager().endTrade(true);
@@ -706,8 +705,6 @@ public class WorldServer {
 			Logger.error("Unable to find PlayerCharacter to logout");
 			return;
 		}
-
-		MultiboxManager.removePlayer(player);
 		//remove player from loaded mobs agro maps
 		for(AbstractWorldObject awo : WorldGrid.getObjectsInRangePartial(player.getLoc(),MBServerStatics.CHARACTER_LOAD_RANGE,MBServerStatics.MASK_MOB)) {
 			Mob loadedMob = (Mob) awo;

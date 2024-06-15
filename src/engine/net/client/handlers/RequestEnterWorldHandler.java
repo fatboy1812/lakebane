@@ -8,7 +8,6 @@ import engine.db.archive.CharacterRecord;
 import engine.db.archive.DataWarehouse;
 import engine.db.archive.PvpRecord;
 import engine.exception.MsgSendException;
-import engine.gameManager.MultiboxManager;
 import engine.gameManager.SessionManager;
 import engine.math.Vector3fImmutable;
 import engine.net.Dispatch;
@@ -157,8 +156,6 @@ public class RequestEnterWorldHandler extends AbstractClientMsgHandler {
         SendOwnPlayerMsg sopm = new SendOwnPlayerMsg(SessionManager.getSession(origin));
         dispatch = Dispatch.borrow(player, sopm);
         DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.PRIMARY);
-
-        MultiboxManager.addPlayer(player);
 
         return true;
     }
