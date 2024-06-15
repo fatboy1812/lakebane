@@ -215,6 +215,10 @@ public enum SimulationManager {
     private void pulseRunegates() {
 
         for (Runegate runegate : Runegate._runegates.values()) {
+            for(Portal portal : runegate._portals)
+                if(!portal.isActive())
+                    portal.activate(false);
+
             runegate.collidePortals();
         }
 
