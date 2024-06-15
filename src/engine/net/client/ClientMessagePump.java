@@ -1414,7 +1414,7 @@ public class ClientMessagePump implements NetMsgHandler {
                                     cost = amountResource * (ib.getBaseValue());
                                 }else{
                                     amountResource = 10;
-                                    cost = 100000; //elans
+                                    cost = 50000; //elans
                                 }
                             }
 

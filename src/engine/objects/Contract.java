@@ -204,7 +204,7 @@ public class Contract extends AbstractGameObject {
                     int amountResource = 1500000 / (me.getItemBase().getBaseValue());
                     me.magicValue = amountResource * (me.getItemBase().getBaseValue());
                 } else{
-                    me.magicValue = 100000;
+                    me.magicValue = 50000;
                 }
             }
         }
