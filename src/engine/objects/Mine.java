@@ -176,39 +176,43 @@ public class Mine extends AbstractGameObject {
     }
 
     public static void serializeForClientMsg(Mine mine, ByteBufferWriter writer) {
-        writer.putInt(mine.getObjectType().ordinal());
-        writer.putInt(mine.getObjectUUID());
-        writer.putInt(mine.getObjectUUID()); //actually a hash of mine
-        writer.putString(mine.mineType.name);
-        writer.putString(mine.zoneName + " " + mine.capSize + " Man ");
-        writer.putInt(mine.production.hash);
-        writer.putInt(mine.production.baseProduction);
-        writer.putInt(mine.getModifiedProductionAmount()); //TODO calculate range penalty here
-        writer.putInt(3600); //window in seconds
+        try {
+            writer.putInt(mine.getObjectType().ordinal());
+            writer.putInt(mine.getObjectUUID());
+            writer.putInt(mine.getObjectUUID()); //actually a hash of mine
+            writer.putString(mine.mineType.name);
+            writer.putString(mine.zoneName + " " + mine.capSize + " Man ");
+            writer.putInt(mine.production.hash);
+            writer.putInt(mine.production.baseProduction);
+            writer.putInt(mine.getModifiedProductionAmount()); //TODO calculate range penalty here
+            writer.putInt(3600); //window in seconds
 
-        LocalDateTime mineOpenTime = LocalDateTime.now().withHour(mine.openHour).withMinute(mine.openMinute).withSecond(0).withNano(0);
+            LocalDateTime mineOpenTime = LocalDateTime.now().withHour(mine.openHour).withMinute(mine.openMinute).withSecond(0).withNano(0);
 
-        writer.putLocalDateTime(mineOpenTime);
-        writer.putLocalDateTime(mineOpenTime.plusMinutes(30));
-        writer.put(mine.isActive ? (byte) 0x01 : (byte) 0x00);
+            writer.putLocalDateTime(mineOpenTime);
+            writer.putLocalDateTime(mineOpenTime.plusMinutes(30));
+            writer.put(mine.isActive ? (byte) 0x01 : (byte) 0x00);
 
-        Building mineTower = BuildingManager.getBuilding(mine.buildingID);
-        if(mineTower != null) {
-            writer.putFloat(mineTower.getLoc().x);
-            writer.putFloat(mineTower.getParentZone().getLoc().y);
-            writer.putFloat(mineTower.getLoc().z);
-        }else{
-            writer.putFloat(mine.parentZone.getLoc().x);
-            writer.putFloat(mine.parentZone.getLoc().y);
-            writer.putFloat(mine.parentZone.getLoc().z);
+            Building mineTower = BuildingManager.getBuilding(mine.buildingID);
+            if (mineTower != null) {
+                writer.putFloat(mineTower.getLoc().x);
+                writer.putFloat(mineTower.getParentZone().getLoc().y);
+                writer.putFloat(mineTower.getLoc().z);
+            } else {
+                writer.putFloat(mine.parentZone.getLoc().x);
+                writer.putFloat(mine.parentZone.getLoc().y);
+                writer.putFloat(mine.parentZone.getLoc().z);
+            }
+
+            writer.putInt(mine.isExpansion() ? mine.mineType.xpacHash : mine.mineType.hash);
+
+            writer.putString(mine.guildName);
+            GuildTag._serializeForDisplay(mine.guildTag, writer);
+            writer.putString(mine.nationName);
+            GuildTag._serializeForDisplay(mine.nationTag, writer);
+        } catch (Exception e) {
+            Logger.error("Failed TO Serialize Mine Because: " + e.getMessage());
         }
-
-        writer.putInt(mine.isExpansion() ? mine.mineType.xpacHash : mine.mineType.hash);
-
-        writer.putString(mine.guildName);
-        GuildTag._serializeForDisplay(mine.guildTag, writer);
-        writer.putString(mine.nationName);
-        GuildTag._serializeForDisplay(mine.nationTag, writer);
     }
 
     public static ArrayList<Mine> getMinesForGuild(int guildID) {
