@@ -502,20 +502,11 @@ public enum LootManager {
     }
 
     public static ItemBase rollRandomItem(int itemTable, int min){
-        ItemTableEntry itemTableEntry = null;
-        List<ItemTableEntry> itemTableEntryList;
-
-        itemTableEntryList = LootManager._itemTables.get(itemTable);
-        int maxRoll = 320;
-
-        int roll = ThreadLocalRandom.current().nextInt(min,maxRoll + 1);
-        for (ItemTableEntry iteration : itemTableEntryList)
-            if (roll >= iteration.minRoll && roll <= iteration.maxRoll)
-                itemTableEntry = iteration;
-
-        if(itemTableEntry != null && itemTableEntry.cacheID != 0) {
-            return ItemBase.getItemBase(itemTableEntry.cacheID);
-        } else{
+        int roll = ThreadLocalRandom.current().nextInt(min,321);
+        ItemTableEntry ite = ItemTableEntry.rollTable(itemTable, roll);
+        if(ite != null) {
+            return ItemBase.getItemBase(ite.cacheID);
+        }else{
             return null;
         }
     }
