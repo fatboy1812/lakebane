@@ -11,7 +11,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class SimulateBootyCmd extends AbstractDevCmd {
 
-    public int simCount = 5000;
+    public int simCount = 250;
     public SimulateBootyCmd() {
         super("bootysim");
     }
