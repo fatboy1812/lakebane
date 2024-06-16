@@ -180,28 +180,28 @@ public class Mine extends AbstractGameObject {
         writer.putInt(mine.getObjectUUID());
         writer.putInt(mine.getObjectUUID()); //actually a hash of mine
         writer.putString(mine.mineType.name);
-        writer.putString(mine.zoneName);
+        writer.putString(mine.zoneName + " " + mine.capSize + " Man ");
         writer.putInt(mine.production.hash);
         writer.putInt(mine.production.baseProduction);
         writer.putInt(mine.getModifiedProductionAmount()); //TODO calculate range penalty here
         writer.putInt(3600); //window in seconds
 
-        // Errant mines are currently open.  Set time to now.
-
         LocalDateTime mineOpenTime = LocalDateTime.now().withHour(mine.openHour).withMinute(mine.openMinute).withSecond(0).withNano(0);
-
-        // Mine times are those of the nation not individual guild.
-
-        Guild mineNatonGuild = mine.getOwningGuild().getNation();
 
         writer.putLocalDateTime(mineOpenTime);
         writer.putLocalDateTime(mineOpenTime.plusMinutes(30));
         writer.put(mine.isActive ? (byte) 0x01 : (byte) 0x00);
 
         Building mineTower = BuildingManager.getBuilding(mine.buildingID);
-        writer.putFloat(mineTower.getLoc().x);
-        writer.putFloat(mineTower.getParentZone().getLoc().y);
-        writer.putFloat(mineTower.getLoc().z);
+        if(mineTower != null) {
+            writer.putFloat(mineTower.getLoc().x);
+            writer.putFloat(mineTower.getParentZone().getLoc().y);
+            writer.putFloat(mineTower.getLoc().z);
+        }else{
+            writer.putFloat(mine.parentZone.getLoc().x);
+            writer.putFloat(mine.parentZone.getLoc().y);
+            writer.putFloat(mine.parentZone.getLoc().z);
+        }
 
         writer.putInt(mine.isExpansion() ? mine.mineType.xpacHash : mine.mineType.hash);
 
