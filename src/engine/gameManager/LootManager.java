@@ -104,7 +104,7 @@ public enum LootManager {
 
         //1 in 1,000 chance to drop glass
         if(ThreadLocalRandom.current().nextInt(1,1000) == 500){
-            int glassID = rollRandomItem(126,221);
+            int glassID = rollRandomItem(126);
             ItemBase glassItem = ItemBase.getItemBase(glassID);
             if(glassItem != null) {
                 MobLoot toAdd = new MobLoot(mob, glassItem, false);
@@ -193,12 +193,12 @@ public enum LootManager {
             if(ThreadLocalRandom.current().nextInt(1,101) < 91)
                 return null; // cut down world drops rates of resources by 90%
         }else if(ItemBase.getItemBase(itemUUID).getType().equals(Enum.ItemType.RUNE)){
-            int randomRune = rollRandomItem(itemTableId,75);
+            int randomRune = rollRandomItem(itemTableId);
             if(randomRune != 0) {
                 itemUUID = randomRune;
             }
         } else if(ItemBase.getItemBase(itemUUID).getType().equals(Enum.ItemType.CONTRACT)){
-            int randomContract = rollRandomItem(itemTableId,191);
+            int randomContract = rollRandomItem(itemTableId);
             if(randomContract != 0) {
                 itemUUID = randomContract;
             }
@@ -491,9 +491,7 @@ public enum LootManager {
         itemMan.updateInventory();
     }
 
-    public static int rollRandomItem(int itemTable, int min){
-        int roll = ThreadLocalRandom.current().nextInt(min,321);
-        ItemTableEntry ite = ItemTableEntry.rollTable(itemTable, roll);
-        return ite.cacheID;
+    public static int rollRandomItem(int itemTable){
+        return ItemTableEntry.getRandomItem(itemTable);
     }
 }

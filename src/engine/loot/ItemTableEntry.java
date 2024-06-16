@@ -13,6 +13,7 @@ import engine.gameManager.LootManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class ItemTableEntry {
     public int minRoll;
@@ -41,5 +42,17 @@ public class ItemTableEntry {
                 itemTableEntry = iteration;
 
         return itemTableEntry;
+    }
+
+    public static Integer getRandomItem(int itemTable) {
+
+        List<ItemTableEntry> itemTableEntryList;
+
+        itemTableEntryList = LootManager._itemTables.get(itemTable);
+
+        if(itemTableEntryList != null){
+            return (itemTableEntryList.get(ThreadLocalRandom.current().nextInt(0,itemTableEntryList.size() - 1))).cacheID;
+        }
+        return 0;
     }
 }
