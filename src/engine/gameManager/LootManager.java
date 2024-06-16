@@ -68,7 +68,6 @@ public enum LootManager {
     }
 
     public static void GenerateMobLoot(Mob mob) {
-        mob.hasContractOrRune = false;
         //determine if mob is in hotzone
         boolean inHotzone = false;
 
@@ -221,13 +220,8 @@ public enum LootManager {
         }
 
         if(outItem.getItemBase().getType().equals(Enum.ItemType.CONTRACT) || outItem.getItemBase().getType().equals(Enum.ItemType.RUNE)){
-            if(mob.hasContractOrRune){
-                return null;
-            }
             if(ThreadLocalRandom.current().nextInt(1,101) < 66)
                 return null; // cut down world drops rates of resources by 65%
-
-            mob.hasContractOrRune = true;
         }
 
         return outItem;
