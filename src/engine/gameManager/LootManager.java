@@ -219,8 +219,8 @@ public enum LootManager {
             if(randomRune != null) {
                 outItem = new MobLoot(mob, randomRune, false);
             }
-            if(ThreadLocalRandom.current().nextInt(1,101) < 71)
-                return null; // cut down world drops rates of runes by 70%
+            //if(ThreadLocalRandom.current().nextInt(1,101) < 71)
+            //    return null; // cut down world drops rates of runes by 70%
         }
 
         if(outItem.getItemBase().getType().equals(Enum.ItemType.CONTRACT)){
@@ -228,8 +228,8 @@ public enum LootManager {
             if(randomContract != null) {
                 outItem = new MobLoot(mob, randomContract, false);
             }
-            if(ThreadLocalRandom.current().nextInt(1,101) < 71)
-                return null; // cut down world drops rates of contracts by 70%
+            //if(ThreadLocalRandom.current().nextInt(1,101) < 71)
+            //   return null; // cut down world drops rates of contracts by 70%
         }
 
         if(outItem.getItemBase().getType().equals(Enum.ItemType.CONTRACT) || outItem.getItemBase().getType().equals(Enum.ItemType.RUNE)){

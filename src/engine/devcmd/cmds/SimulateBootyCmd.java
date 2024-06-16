@@ -51,7 +51,7 @@ public class SimulateBootyCmd extends AbstractDevCmd {
         int failures = 0;
         int goldAmount = 0;
 
-        for (int i = 0; i < 100; ++i) {
+        for (int i = 0; i < 1000; ++i) {
 
             try {
                 mob.loadInventory();
