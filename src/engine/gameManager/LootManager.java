@@ -185,13 +185,12 @@ public enum LootManager {
             return null;
 
         if (ItemBase.getItemBase(itemUUID).getType().ordinal() == Enum.ItemType.RESOURCE.ordinal()) {
+            if(ThreadLocalRandom.current().nextInt(1,101) < 91)
+                return null; // cut down world drops rates of resources by 90%
             int amount = ThreadLocalRandom.current().nextInt(tableRow.minSpawn, tableRow.maxSpawn + 1);
             return new MobLoot(mob, ItemBase.getItemBase(itemUUID), amount, false);
         }
-        if(ItemBase.getItemBase(itemUUID).getType().equals(Enum.ItemType.RESOURCE)){
-            if(ThreadLocalRandom.current().nextInt(1,101) < 91)
-                return null; // cut down world drops rates of resources by 90%
-        }else if(ItemBase.getItemBase(itemUUID).getType().equals(Enum.ItemType.RUNE)){
+        if(ItemBase.getItemBase(itemUUID).getType().equals(Enum.ItemType.RUNE)){
             int randomRune = rollRandomItem(itemTableId);
             if(randomRune != 0) {
                 itemUUID = randomRune;
@@ -225,6 +224,9 @@ public enum LootManager {
             if(mob.hasContractOrRune){
                 return null;
             }
+            if(ThreadLocalRandom.current().nextInt(1,101) < 66)
+                return null; // cut down world drops rates of resources by 65%
+
             mob.hasContractOrRune = true;
         }
 
