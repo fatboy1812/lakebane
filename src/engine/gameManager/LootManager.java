@@ -507,7 +507,7 @@ public enum LootManager {
 
         itemTableEntryList = LootManager._itemTables.get(itemTable);
         int minRoll = itemTableEntryList.get(0).minRoll;
-        int maxRoll = itemTableEntryList.get(itemTableEntryList.size() - 1).maxRoll;
+        int maxRoll = 320;
 
         int roll = ThreadLocalRandom.current().nextInt(minRoll,maxRoll + 1);
         for (ItemTableEntry iteration : itemTableEntryList)
