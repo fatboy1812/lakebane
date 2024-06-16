@@ -63,7 +63,7 @@ public class CityDataHandler extends AbstractClientMsgHandler {
 
         // If the hotZone has changed then update the client's map accordingly.
 
-        if (playerCharacter.getTimeStamp("hotzoneupdate") <= ZoneManager.hotZoneLastUpdate.toEpochMilli() && ZoneManager.hotZone != null) {
+        if (playerCharacter.getTimestamps().containsKey("hotzoneupdate") && playerCharacter.getTimeStamp("hotzoneupdate") <= ZoneManager.hotZoneLastUpdate.toEpochMilli() && ZoneManager.hotZone != null) {
             HotzoneChangeMsg hotzoneChangeMsg = new HotzoneChangeMsg(Enum.GameObjectType.Zone.ordinal(), ZoneManager.hotZone.getObjectUUID());
             dispatch = Dispatch.borrow(playerCharacter, hotzoneChangeMsg);
             DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.SECONDARY);
