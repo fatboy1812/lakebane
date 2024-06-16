@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class SimulateBootyCmd extends AbstractDevCmd {
+
+    public int simCount = 5000;
     public SimulateBootyCmd() {
         super("bootysim");
     }
@@ -25,7 +27,7 @@ public class SimulateBootyCmd extends AbstractDevCmd {
 
         String output;
 
-        output = "Booty Simulation:" + newline;
+        output = "Booty Simulation: Rolls:" + simCount + newline;
 
         Mob mob = (Mob) target;
         output += "Name: " + mob.getName() + newline;
@@ -51,7 +53,7 @@ public class SimulateBootyCmd extends AbstractDevCmd {
         int failures = 0;
         int goldAmount = 0;
 
-        for (int i = 0; i < 1000; ++i) {
+        for (int i = 0; i < simCount; ++i) {
 
             try {
                 mob.loadInventory();
