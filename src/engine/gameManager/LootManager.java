@@ -197,6 +197,7 @@ public enum LootManager {
             if(randomRune != 0) {
                 itemUUID = randomRune;
             }
+            Logger.error("itemUUID set to: " + itemUUID);
         } else if(ItemBase.getItemBase(itemUUID).getType().equals(Enum.ItemType.CONTRACT)){
             int randomContract = rollRandomItem(itemTableId);
             if(randomContract != 0) {
@@ -492,6 +493,8 @@ public enum LootManager {
     }
 
     public static int rollRandomItem(int itemTable){
-        return ItemTableEntry.getRandomItem(itemTable);
+        int returnedID = ItemTableEntry.getRandomItem(itemTable);
+        Logger.error("Received ItemBase ID: " + returnedID);
+        return returnedID;
     }
 }
