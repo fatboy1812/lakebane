@@ -104,7 +104,8 @@ public enum LootManager {
 
         //1 in 1,000 chance to drop glass
         if(ThreadLocalRandom.current().nextInt(1,1000) == 500){
-            ItemBase glassItem = rollRandomItem(126,221);
+            int glassID = rollRandomItem(126,221);
+            ItemBase glassItem = ItemBase.getItemBase(glassID);
             if(glassItem != null) {
                 MobLoot toAdd = new MobLoot(mob, glassItem, false);
 
@@ -188,10 +189,21 @@ public enum LootManager {
             int amount = ThreadLocalRandom.current().nextInt(tableRow.minSpawn, tableRow.maxSpawn + 1);
             return new MobLoot(mob, ItemBase.getItemBase(itemUUID), amount, false);
         }
-
+        if(ItemBase.getItemBase(itemUUID).getType().equals(Enum.ItemType.RESOURCE)){
+            if(ThreadLocalRandom.current().nextInt(1,101) < 91)
+                return null; // cut down world drops rates of resources by 90%
+        }else if(ItemBase.getItemBase(itemUUID).getType().equals(Enum.ItemType.RUNE)){
+            int randomRune = rollRandomItem(itemTableId,75);
+            if(randomRune != 0) {
+                itemUUID = randomRune;
+            }
+        } else if(ItemBase.getItemBase(itemUUID).getType().equals(Enum.ItemType.CONTRACT)){
+            int randomContract = rollRandomItem(itemTableId,191);
+            if(randomContract != 0) {
+                itemUUID = randomContract;
+            }
+        }
         outItem = new MobLoot(mob, ItemBase.getItemBase(itemUUID), false);
-        Enum.ItemType outType = outItem.getItemBase().getType();
-
 
         if(selectedRow.pModTable != 0){
             try {
@@ -208,28 +220,6 @@ public enum LootManager {
             } catch (Exception e) {
                 Logger.error("Failed to GenerateSuffix for item: " + outItem.getName());
             }
-        }
-        if(outItem.getItemBase().getType().equals(Enum.ItemType.RESOURCE)){
-            if(ThreadLocalRandom.current().nextInt(1,101) < 91)
-                return null; // cut down world drops rates of resources by 90%
-        }
-
-        if(outItem.getItemBase().getType().equals(Enum.ItemType.RUNE)){
-            ItemBase randomRune = rollRandomItem(itemTableId,75);
-            if(randomRune != null) {
-                outItem = new MobLoot(mob, randomRune, false);
-            }
-            //if(ThreadLocalRandom.current().nextInt(1,101) < 71)
-            //    return null; // cut down world drops rates of runes by 70%
-        }
-
-        if(outItem.getItemBase().getType().equals(Enum.ItemType.CONTRACT)){
-            ItemBase randomContract = rollRandomItem(itemTableId,191);
-            if(randomContract != null) {
-                outItem = new MobLoot(mob, randomContract, false);
-            }
-            //if(ThreadLocalRandom.current().nextInt(1,101) < 71)
-            //   return null; // cut down world drops rates of contracts by 70%
         }
 
         if(outItem.getItemBase().getType().equals(Enum.ItemType.CONTRACT) || outItem.getItemBase().getType().equals(Enum.ItemType.RUNE)){
@@ -501,13 +491,9 @@ public enum LootManager {
         itemMan.updateInventory();
     }
 
-    public static ItemBase rollRandomItem(int itemTable, int min){
+    public static int rollRandomItem(int itemTable, int min){
         int roll = ThreadLocalRandom.current().nextInt(min,321);
         ItemTableEntry ite = ItemTableEntry.rollTable(itemTable, roll);
-        if(ite != null) {
-            return ItemBase.getItemBase(ite.cacheID);
-        }else{
-            return null;
-        }
+        return ite.cacheID;
     }
 }
