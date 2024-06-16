@@ -104,7 +104,7 @@ public enum LootManager {
 
         //1 in 1,000 chance to drop glass
         if(ThreadLocalRandom.current().nextInt(1,1000) == 500){
-            ItemBase glassItem = rollRandomItem(126);
+            ItemBase glassItem = rollRandomItem(126,221);
             if(glassItem != null) {
                 MobLoot toAdd = new MobLoot(mob, glassItem, false);
 
@@ -215,7 +215,7 @@ public enum LootManager {
         }
 
         if(outItem.getItemBase().getType().equals(Enum.ItemType.RUNE)){
-            ItemBase randomRune = rollRandomItem(itemTableId);
+            ItemBase randomRune = rollRandomItem(itemTableId,75);
             if(randomRune != null) {
                 outItem = new MobLoot(mob, randomRune, false);
             }
@@ -224,7 +224,7 @@ public enum LootManager {
         }
 
         if(outItem.getItemBase().getType().equals(Enum.ItemType.CONTRACT)){
-            ItemBase randomContract = rollRandomItem(itemTableId);
+            ItemBase randomContract = rollRandomItem(itemTableId,191);
             if(randomContract != null) {
                 outItem = new MobLoot(mob, randomContract, false);
             }
@@ -501,15 +501,14 @@ public enum LootManager {
         itemMan.updateInventory();
     }
 
-    public static ItemBase rollRandomItem(int itemTable){
+    public static ItemBase rollRandomItem(int itemTable, int min){
         ItemTableEntry itemTableEntry = null;
         List<ItemTableEntry> itemTableEntryList;
 
         itemTableEntryList = LootManager._itemTables.get(itemTable);
-        int minRoll = itemTableEntryList.get(0).minRoll;
         int maxRoll = 320;
 
-        int roll = ThreadLocalRandom.current().nextInt(minRoll,maxRoll + 1);
+        int roll = ThreadLocalRandom.current().nextInt(min,maxRoll + 1);
         for (ItemTableEntry iteration : itemTableEntryList)
             if (roll >= iteration.minRoll && roll <= iteration.maxRoll)
                 itemTableEntry = iteration;
