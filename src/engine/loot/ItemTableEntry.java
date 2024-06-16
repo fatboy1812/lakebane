@@ -9,6 +9,7 @@
 package engine.loot;
 
 import engine.gameManager.LootManager;
+import org.pmw.tinylog.Logger;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -45,14 +46,16 @@ public class ItemTableEntry {
     }
 
     public static Integer getRandomItem(int itemTable) {
-
+        int id = 0;
         List<ItemTableEntry> itemTableEntryList;
 
         itemTableEntryList = LootManager._itemTables.get(itemTable);
 
         if(itemTableEntryList != null){
-            return (itemTableEntryList.get(ThreadLocalRandom.current().nextInt(0,itemTableEntryList.size() - 1))).cacheID;
+            id =  itemTableEntryList.get(ThreadLocalRandom.current().nextInt(0,itemTableEntryList.size() - 1)).cacheID;
         }
-        return 0;
+
+        Logger.error("Rolling Item Table: " + itemTable);
+        return id;
     }
 }
