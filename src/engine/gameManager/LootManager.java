@@ -68,7 +68,7 @@ public enum LootManager {
     }
 
     public static void GenerateMobLoot(Mob mob) {
-
+        mob.hasContractOrRune = false;
         //determine if mob is in hotzone
         boolean inHotzone = false;
 
@@ -100,7 +100,6 @@ public enum LootManager {
 
         boolean hotzoneWasRan = false;
         float dropRate;
-        mob.hasContractOrRune = true;
 
         //1 in 1,000 chance to drop glass
         if(ThreadLocalRandom.current().nextInt(1,1000) == 500){
@@ -197,7 +196,6 @@ public enum LootManager {
             if(randomRune != 0) {
                 itemUUID = randomRune;
             }
-            Logger.error("itemUUID set to: " + itemUUID);
         } else if(ItemBase.getItemBase(itemUUID).getType().equals(Enum.ItemType.CONTRACT)){
             int randomContract = rollRandomItem(itemTableId);
             if(randomContract != 0) {
@@ -494,7 +492,6 @@ public enum LootManager {
 
     public static int rollRandomItem(int itemTable){
         int returnedID = ItemTableEntry.getRandomItem(itemTable);
-        Logger.error("Received ItemBase ID: " + returnedID);
         return returnedID;
     }
 }

@@ -54,8 +54,6 @@ public class ItemTableEntry {
         if(itemTableEntryList != null){
             id =  itemTableEntryList.get(ThreadLocalRandom.current().nextInt(0,itemTableEntryList.size() - 1)).cacheID;
         }
-
-        Logger.error("Rolling Item Table: " + itemTable + "returning itemBase ID: " + id);
         return id;
     }
 }
