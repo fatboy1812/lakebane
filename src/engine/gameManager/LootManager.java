@@ -102,8 +102,8 @@ public enum LootManager {
         float dropRate;
         mob.hasContractOrRune = true;
 
-        //1 in 10,000 chance to drop glass
-        if(ThreadLocalRandom.current().nextInt(1,10000) == 500){
+        //1 in 1,000 chance to drop glass
+        if(ThreadLocalRandom.current().nextInt(1,1000) == 500){
             ItemBase glassItem = rollRandomItem(126);
             if(glassItem != null) {
                 MobLoot toAdd = new MobLoot(mob, glassItem, false);
