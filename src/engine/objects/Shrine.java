@@ -96,6 +96,7 @@ public class Shrine extends AbstractWorldObject implements Comparable<Shrine> {
 
                 case 2025:
                 case 2026:
+                case 1999:
                     if (shrine.shrineType == ShrineType.Nephilim)
                         return true;
                     break;
