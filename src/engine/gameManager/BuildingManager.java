@@ -520,6 +520,24 @@ public enum BuildingManager {
         if (building.getBlueprintUUID() == 0)
             return false;
 
+        if(building.getBlueprint().getBuildingGroup().equals(BuildingGroup.TOL)){
+            if(contract.getContractID() == 850) {
+                boolean hasRunemaster = false;
+                for (AbstractCharacter npc : building.getHirelings().keySet()) {
+
+                    if (npc.getObjectType() != GameObjectType.NPC)
+                        continue;
+
+                    if(npc.contractUUID == 850)
+                        hasRunemaster = true;
+                }
+
+                if(hasRunemaster)
+                    return false;
+            }
+        }
+
+
         int maxSlots = building.getBlueprint().getMaxSlots();
         if(building.getBlueprint().getBuildingGroup() != null) {
             building.getBlueprint().getSlotsForRank(building.getRank());

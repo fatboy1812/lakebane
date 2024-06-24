@@ -86,6 +86,12 @@ public class Contract extends AbstractGameObject {
         this.iconID = rs.getInt("iconID");
         this.vendorID = rs.getInt("vendorID");
         this.allowedBuildings = EnumBitSet.asEnumBitSet(rs.getLong("allowedBuildingTypeID"), Enum.BuildingGroup.class);
+        switch(this.contractID){
+            case 866: //banker
+            case 865: //siege engineer
+            case 899: //alchemist
+                this.allowedBuildings.add(Enum.BuildingGroup.TOL);
+        }
         this.equipmentSet = rs.getInt("equipSetID");
         this.inventorySet = rs.getInt("inventorySet");
 
