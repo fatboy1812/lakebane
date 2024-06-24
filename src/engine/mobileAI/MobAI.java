@@ -643,6 +643,8 @@ public class MobAI {
             if (mob.playerAgroMap.isEmpty()) {
                 if(mob.getCombatTarget() != null)
                     mob.setCombatTarget(null);
+                if(mob.isPet())
+                    mob.teleport(mob.getOwner().loc);
                 return;
             }
 
