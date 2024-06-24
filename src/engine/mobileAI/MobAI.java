@@ -625,8 +625,8 @@ public class MobAI {
 
                 //check to send mob home for player guards to prevent exploit of dragging guards away and then teleporting
 
-                if (mob.BehaviourType.ordinal() != Enum.MobBehaviourType.Pet1.ordinal())
-                    CheckToSendMobHome(mob);
+
+                CheckToSendMobHome(mob);
 
                 return;
             }
@@ -643,13 +643,8 @@ public class MobAI {
             if (mob.playerAgroMap.isEmpty()) {
                 if(mob.getCombatTarget() != null)
                     mob.setCombatTarget(null);
-                if(mob.isPet())
-                    mob.teleport(mob.getOwner().loc);
                 return;
             }
-
-            if (mob.BehaviourType.ordinal() != Enum.MobBehaviourType.Pet1.ordinal())
-                CheckToSendMobHome(mob);
 
             if (mob.getCombatTarget() != null) {
 
@@ -914,6 +909,11 @@ public class MobAI {
 
     private static void CheckToSendMobHome(Mob mob) {
 
+        if(mob.BehaviourType.equals(Enum.MobBehaviourType.Pet1)){
+            if(mob.loc.distanceSquared(mob.getOwner().loc) > 60 * 60)
+                mob.teleport(mob.getOwner().loc);
+            return;
+        }
         try {
             if (mob.BehaviourType.isAgressive) {
 
@@ -924,9 +924,6 @@ public class MobAI {
                     CheckForAggro(mob);
                 }
             }
-
-            if (mob.getCombatTarget() != null && CombatUtilities.inRange2D(mob, mob.getCombatTarget(), MobAIThread.AI_BASE_AGGRO_RANGE * 0.5f))
-                return;
 
             if (mob.isPlayerGuard() && !mob.despawned) {
 
