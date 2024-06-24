@@ -574,11 +574,11 @@ public class Mob extends AbstractIntelligenceAgent {
             mob = new Mob(mobBase, guild, parent, level, owner, 0);
             if (mob.mobBase == null)
                 return null;
-            mob.runAfterLoad();
-            Vector3fImmutable loc = owner.getLoc();
+
             DbManager.addToCache(mob);
             mob.setPet(owner, true);
             mob.setWalkMode(false);
+            mob.runAfterLoad();
 
         } catch (Exception e) {
             Logger.error(e);
