@@ -1007,7 +1007,7 @@ public class MobAI {
 
                 //dont scan self.
 
-                if (mob.equals(awoMob) || (mob.agentType.equals(Enum.AIAgentType.GUARD)) == true)
+                if (mob.equals(awoMob) || (mob.agentType.equals(Enum.AIAgentType.GUARD)) || (mob.agentType.equals(Enum.AIAgentType.PET)))
                     continue;
 
                 Mob aggroMob = (Mob) awoMob;
