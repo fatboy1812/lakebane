@@ -540,7 +540,7 @@ public enum BuildingManager {
 
         int maxSlots = building.getBlueprint().getMaxSlots();
         if(building.getBlueprint().getBuildingGroup() != null) {
-            building.getBlueprint().getSlotsForRank(building.getRank());
+            maxSlots = building.getBlueprint().getSlotsForRank(building.getRank());
         }
 
         if (maxSlots == building.getHirelings().size())

@@ -313,7 +313,7 @@ public class Blueprint {
 
         // Early exit for buildings with single or no slots
 
-        if (this.maxSlots <= 1)
+        if (this.maxSlots <= 1 && !this.buildingGroup.equals(BuildingGroup.TOL))
             return maxSlots;
 
         if (this.maxRank == 1 && currentRank == 1)
