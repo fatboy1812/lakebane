@@ -181,6 +181,8 @@ public class Blueprint {
     public int getMaxSlots() {
         if (this.buildingGroup != null && this.buildingGroup.equals(BuildingGroup.BARRACK))
             return 1;
+        if (this.buildingGroup != null && this.buildingGroup.equals(BuildingGroup.TOL))
+            return 4;
         return maxSlots;
     }
 
