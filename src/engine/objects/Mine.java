@@ -203,6 +203,7 @@ public class Mine extends AbstractGameObject {
                 writer.putFloat(mine.parentZone.getLoc().x);
                 writer.putFloat(mine.parentZone.getLoc().y);
                 writer.putFloat(mine.parentZone.getLoc().z);
+                Logger.error("Mine Tower Was Null For Mine: " + mine.getObjectUUID());
             }
 
             writer.putInt(mine.isExpansion() ? mine.mineType.xpacHash : mine.mineType.hash);
