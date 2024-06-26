@@ -11,6 +11,7 @@ package engine.net.client.msg;
 
 
 import engine.gameManager.ConfigManager;
+import engine.gameManager.DbManager;
 import engine.net.AbstractConnection;
 import engine.net.ByteBufferReader;
 import engine.net.ByteBufferWriter;
@@ -53,15 +54,17 @@ public class ServerInfoMsg extends ClientNetMsg {
 
         writer.putInt(WorldServer.worldMapID);
         writer.putString(ConfigManager.MB_WORLD_NAME.getValue());
-        if (LoginServer.population < MBServerStatics.LOW_POPULATION)
+        int TotalTrees = 275;
+        int currentTrees = DbManager.CityQueries.GET_CITY_COUNT();
+        if (currentTrees < TotalTrees * 0.2f)
             writer.putInt(0); //Land Rush
-        else if (LoginServer.population < MBServerStatics.NORMAL_POPULATION)
+        else if (currentTrees < TotalTrees * 0.4f)
             writer.putInt(1); //Low pop
-        else if (LoginServer.population < MBServerStatics.HIGH_POPULATION)
+        else if (currentTrees < TotalTrees * 0.6f)
             writer.putInt(2); //Normal pop
-        else if (LoginServer.population < MBServerStatics.VERY_OVERPOPULATED_POPULATION)
+        else if (currentTrees < TotalTrees * 0.8f)
             writer.putInt(3); //High Pop
-        else if (LoginServer.population < MBServerStatics.FULL_POPULATION)
+        else if (currentTrees < TotalTrees)
             writer.putInt(4); //Very overpopulated pop
         else
             writer.putInt(5); //Full pop

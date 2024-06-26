@@ -95,7 +95,25 @@ public class dbCityHandler extends dbHandlerBase {
 
         return objectList;
     }
+    public Integer GET_CITY_COUNT() {
 
+        int cityCount = 0;
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM obj_city;")) {
+
+            ResultSet rs = preparedStatement.executeQuery();
+
+            while(rs.next()){
+                if(rs.getInt("isNpc") == 0)
+                    cityCount++;
+            }
+
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
+
+        return cityCount;
+    }
     public ArrayList<City> GET_CITIES_BY_ZONE(final int objectUUID) {
 
         ArrayList<City> cityList = new ArrayList<>();
