@@ -78,11 +78,12 @@ public class ApplyRuneMsg extends ClientNetMsg {
             return false;
         }
 
+        boolean valid = true;
+
         //Check race is met
         ConcurrentHashMap<Integer, Boolean> races = rb.getRace();
         if (races.size() > 0) {
             int raceID = playerCharacter.getRaceID();
-            boolean valid = false;
             for (int validID : races.keySet()) {
                 if (validID == raceID) {
                     valid = rb.getRace().get(raceID);
@@ -98,7 +99,6 @@ public class ApplyRuneMsg extends ClientNetMsg {
         ConcurrentHashMap<Integer, Boolean> baseClasses = rb.getBaseClass();
         if (baseClasses.size() > 0) {
             int baseClassID = playerCharacter.getBaseClassID();
-            boolean valid = false;
             for (int validID : baseClasses.keySet()) {
                 if (validID == baseClassID) {
                     valid = baseClasses.get(baseClassID);
@@ -114,7 +114,6 @@ public class ApplyRuneMsg extends ClientNetMsg {
         ConcurrentHashMap<Integer, Boolean> promotionClasses = rb.getPromotionClass();
         if (promotionClasses.size() > 0) {
             int promotionClassID = playerCharacter.getPromotionClassID();
-            boolean valid = false;
             for (int validID : promotionClasses.keySet()) {
                 if (validID == promotionClassID) {
                     valid = rb.getPromotionClass().get(promotionClassID);
