@@ -181,7 +181,8 @@ public class Mine extends AbstractGameObject {
             writer.putInt(mine.getObjectUUID());
             writer.putInt(mine.getObjectUUID()); //actually a hash of mine
             writer.putString(mine.mineType.name);
-            writer.putString(mine.zoneName + " " + mine.capSize + " Man ");
+            //writer.putString(mine.zoneName + " " + mine.capSize + " Man ");
+            writer.putString(mine.capSize + " Man ");
             writer.putInt(mine.production.hash);
             writer.putInt(mine.production.baseProduction);
             writer.putInt(mine.getModifiedProductionAmount()); //TODO calculate range penalty here
