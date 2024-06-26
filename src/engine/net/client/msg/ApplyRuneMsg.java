@@ -78,52 +78,43 @@ public class ApplyRuneMsg extends ClientNetMsg {
             return false;
         }
 
-        boolean valid = true;
+        boolean valid = false;
 
         //Check race is met
-        ConcurrentHashMap<Integer, Boolean> races = rb.getRace();
-        if (races.size() > 0) {
+        if (rb.getRace() != null && rb.getRace().size() > 0) {
             int raceID = playerCharacter.getRaceID();
-            for (int validID : races.keySet()) {
-                if (validID == raceID) {
-                    valid = rb.getRace().get(raceID);
-                    break;
-                }
-            }
-            if (!valid) {
-                return false;
-            }
+            if (rb.getRace().containsKey(raceID))
+                valid = rb.getRace().get(raceID);
+        } else{
+            valid = true;
         }
+
+        if (!valid)
+            return false;
 
         //Check base class is met
-        ConcurrentHashMap<Integer, Boolean> baseClasses = rb.getBaseClass();
-        if (baseClasses.size() > 0) {
-            int baseClassID = playerCharacter.getBaseClassID();
-            for (int validID : baseClasses.keySet()) {
-                if (validID == baseClassID) {
-                    valid = baseClasses.get(baseClassID);
-                    break;
-                }
-            }
-            if (!valid) {
-                return false;
-            }
+        if (rb.getBaseClass() != null && rb.getBaseClass().size() > 0) {
+            int baseID = playerCharacter.getBaseClassID();
+            if (rb.getBaseClass().containsKey(baseID))
+                valid = rb.getRace().get(baseID);
+        } else{
+            valid = true;
         }
 
+        if (!valid)
+            return false;
+
         //Check promotion class is met
-        ConcurrentHashMap<Integer, Boolean> promotionClasses = rb.getPromotionClass();
-        if (promotionClasses.size() > 0) {
+        if (rb.getPromotionClass() != null && rb.getPromotionClass().size() > 0) {
             int promotionClassID = playerCharacter.getPromotionClassID();
-            for (int validID : promotionClasses.keySet()) {
-                if (validID == promotionClassID) {
-                    valid = rb.getPromotionClass().get(promotionClassID);
-                    break;
-                }
-            }
-            if (!valid) {
-                return false;
-            }
+            if (rb.getPromotionClass().containsKey(promotionClassID))
+                valid = rb.getRace().get(promotionClassID);
+        } else{
+            valid = true;
         }
+
+        if (!valid)
+            return false;
 
         //Check disciplines are met
         ArrayList<CharacterRune> runes = playerCharacter.getRunes();
