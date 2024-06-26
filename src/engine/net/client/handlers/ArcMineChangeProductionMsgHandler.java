@@ -11,6 +11,7 @@ import engine.objects.GuildStatusController;
 import engine.objects.Mine;
 import engine.objects.PlayerCharacter;
 import engine.objects.Resource;
+import org.pmw.tinylog.Logger;
 
 /*
  * @Author:
@@ -35,26 +36,28 @@ public class ArcMineChangeProductionMsgHandler extends AbstractClientMsgHandler 
 
         //TODO verify this against the warehouse?
 
-        if (GuildStatusController.isInnerCouncil(playerCharacter.getGuildStatus()) == false) // is this only GL?
+        if (!GuildStatusController.isInnerCouncil(playerCharacter.getGuildStatus())) // is this only GL?
             return true;
 
         Mine mine = Mine.getMine(changeProductionMsg.getMineID());
 
-        if (mine == null)
+        if (mine == null) {
+            Logger.error("Player Character: " + playerCharacter.getName() + " Tried To Change Mine: " + changeProductionMsg.getMineID() + " and Mine was Null");
             return true;
-
+        }
         //make sure mine belongs to guild
 
-        if (mine.getOwningGuild().isEmptyGuild() ||
-                mine.getOwningGuild().getObjectUUID() != playerCharacter.getGuild().getObjectUUID())
+        if (mine.getOwningGuild().isEmptyGuild() || mine.getOwningGuild().getObjectUUID() != playerCharacter.getGuild().getObjectUUID())
             return true;
 
         //make sure valid resource
 
         Resource resource = Resource.resourceByHash.get(changeProductionMsg.getResourceHash());
 
-        if (resource == null)
+        if (resource == null) {
+            Logger.error("Player Character: " + playerCharacter.getName() + " Tried To Change Mine: " + changeProductionMsg.getMineID() + " and Resource was Null");
             return true;
+        }
 
         //update resource
 
