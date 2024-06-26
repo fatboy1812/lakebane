@@ -95,7 +95,7 @@ public class dbCityHandler extends dbHandlerBase {
 
         return objectList;
     }
-    public Integer GET_CITY_COUNT() {
+    public Integer GET_CAPITAL_CITY_COUNT() {
 
         int cityCount = 0;
         try (Connection connection = DbManager.getConnection();
@@ -105,7 +105,8 @@ public class dbCityHandler extends dbHandlerBase {
 
             while(rs.next()){
                 if(rs.getInt("isNpc") == 0)
-                    cityCount++;
+                    if(DbManager.BuildingQueries.GET_BUILDINGBYUUID(rs.getInt("treeOfLifeUUID")).getRank() == 8)
+                        cityCount++;
             }
 
         } catch (SQLException e) {

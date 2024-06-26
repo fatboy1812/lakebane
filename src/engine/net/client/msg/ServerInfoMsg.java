@@ -54,20 +54,45 @@ public class ServerInfoMsg extends ClientNetMsg {
 
         writer.putInt(WorldServer.worldMapID);
         writer.putString(ConfigManager.MB_WORLD_NAME.getValue());
-        int TotalTrees = 275;
-        int currentTrees = DbManager.CityQueries.GET_CITY_COUNT();
-        if (currentTrees < TotalTrees * 0.2f)
-            writer.putInt(0); //Land Rush
-        else if (currentTrees < TotalTrees * 0.4f)
-            writer.putInt(1); //Low pop
-        else if (currentTrees < TotalTrees * 0.6f)
-            writer.putInt(2); //Normal pop
-        else if (currentTrees < TotalTrees * 0.8f)
-            writer.putInt(3); //High Pop
-        else if (currentTrees < TotalTrees)
-            writer.putInt(4); //Very overpopulated pop
-        else
-            writer.putInt(5); //Full pop
+        int TotalTrees = 21;
+        int currentR8Trees = DbManager.CityQueries.GET_CAPITAL_CITY_COUNT();
+
+        switch(currentR8Trees){
+            case 0:
+            case 1:
+            case 2:
+            case 3:
+            case 4:
+                writer.putInt(0); //Land Rush
+                break;
+            case 5:
+            case 6:
+            case 7:
+            case 8:
+                writer.putInt(1); //Low pop
+                break;
+            case 9:
+            case 10:
+            case 11:
+            case 12:
+                writer.putInt(2); //Normal pop
+                break;
+            case 13:
+            case 14:
+            case 15:
+            case 16:
+                writer.putInt(3); //High Pop
+                break;
+            case 17:
+            case 18:
+            case 19:
+            case 20:
+                writer.putInt(4); //Very overpopulated pop
+                break;
+            default:
+                writer.putInt(5); //Full pop
+                break;
+        }
     }
 
     /**
