@@ -104,8 +104,10 @@ public class CityDataMsg extends ClientNetMsg {
         }
 
         temp.putInt(mineList.size());
-        for (Mine mine : mineList)
-            Mine.serializeForClientMsg(mine, temp);
+        for (Mine mine : mineList) {
+            if(mine.getParentZone() != null && !mine.getParentZone().isContinent())
+                Mine.serializeForClientMsg(mine, temp);
+        }
         temp.put((byte) 0); // PAD
     }
 
@@ -178,8 +180,10 @@ public class CityDataMsg extends ClientNetMsg {
                 }
 
                 writer.putInt(mineList.size());
-                for (Mine mine : mineList)
-                    Mine.serializeForClientMsg(mine, writer);
+                for (Mine mine : mineList) {
+                    if(mine.getParentZone() != null && !mine.getParentZone().isContinent())
+                        Mine.serializeForClientMsg(mine, writer);
+                }
             } else
                 writer.putInt(0);
         } catch (Exception e) {
