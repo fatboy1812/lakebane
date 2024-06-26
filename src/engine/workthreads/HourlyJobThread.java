@@ -53,8 +53,8 @@ public class HourlyJobThread implements Runnable {
             Logger.error("missing city map");
         }
 
-        //run maintenance every day at 1 am
-        if(LocalDateTime.now().getHour() == 1) {
+        //run maintenance every day at 2 am
+        if(LocalDateTime.now().getHour() == 2) {
             MaintenanceManager.dailyMaintenance();
 
             //produce mine resources once a day

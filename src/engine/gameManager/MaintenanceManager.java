@@ -24,7 +24,7 @@ public enum MaintenanceManager {
 
     public static void setMaintDateTime(Building building, LocalDateTime maintDate) {
 
-        building.maintDateTime = maintDate;
+        building.maintDateTime = maintDate.withHour(1).withMinute(0).withSecond(0);
         DbManager.BuildingQueries.updateMaintDate(building);
 
     }
