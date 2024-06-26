@@ -85,7 +85,7 @@ public class ApplyRuneMsg extends ClientNetMsg {
             boolean valid = false;
             for (int validID : races.keySet()) {
                 if (validID == raceID) {
-                    valid = true;
+                    valid = rb.getRace().get(raceID);
                     break;
                 }
             }
@@ -101,7 +101,7 @@ public class ApplyRuneMsg extends ClientNetMsg {
             boolean valid = false;
             for (int validID : baseClasses.keySet()) {
                 if (validID == baseClassID) {
-                    valid = true;
+                    valid = baseClasses.get(baseClassID);
                     break;
                 }
             }
@@ -117,7 +117,7 @@ public class ApplyRuneMsg extends ClientNetMsg {
             boolean valid = false;
             for (int validID : promotionClasses.keySet()) {
                 if (validID == promotionClassID) {
-                    valid = true;
+                    valid = rb.getPromotionClass().get(promotionClassID);
                     break;
                 }
             }
