@@ -780,24 +780,9 @@ public class Building extends AbstractWorldObject {
 
     public int getMaintCost() {
 
-        int maintCost = 0;
-
-        // Add cost for building structure
-
-        maintCost += this.getBlueprint().getMaintCost(rank);
-
-        // Add costs associated with hirelings
-
-        for (AbstractCharacter npc : this.hirelings.keySet()) {
-
-            if (npc.getObjectType() != GameObjectType.NPC)
-                continue;
-
-
-            maintCost += Blueprint.getNpcMaintCost(npc.getRank());
-        }
-
-        return maintCost;
+        if(this.getBlueprint() != null && this.getBlueprint().getBuildingGroup().equals(BuildingGroup.TOL))
+            return 3000000;
+        else return 0;
     }
 
     public final void submitOpenDoorJob(int doorID) {

@@ -15,6 +15,8 @@ import engine.net.MessageDispatcher;
 import engine.objects.*;
 import engine.server.world.WorldServer;
 import org.pmw.tinylog.Logger;
+
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -49,6 +51,21 @@ public class HourlyJobThread implements Runnable {
             City.lastCityUpdate = System.currentTimeMillis();
         } else {
             Logger.error("missing city map");
+        }
+
+        //run maintenance every day at 1 am
+        if(LocalDateTime.now().getHour() == 1) {
+            MaintenanceManager.dailyMaintenance();
+
+            //produce mine resources once a day
+            for (Mine mine : Mine.getMines()) {
+                try {
+                    mine.depositMineResources();
+                } catch (Exception e) {
+                    Logger.info(e.getMessage() + " for Mine " + mine.getObjectUUID());
+                }
+                mine.wasClaimed = false;
+            }
         }
 
         // Log metrics to console

@@ -49,19 +49,15 @@ public enum MaintenanceManager {
 
             if (chargeUpkeep(building) == false)
                 derankList.add(building);
+            else
+                setMaintDateTime(building, LocalDateTime.now().plusDays(7));
         }
-        // Reset maintenance dates for these buildings
 
-        for (Building building : maintList) {
-            setMaintDateTime(building, LocalDateTime.now().plusDays(7));
-
-        }
-        // Derak or destroy buildings that did not
-        // have funds available.
-
-        for (Building building : derankList)
+        for (Building building : derankList) {
             building.destroyOrDerank(null);
-
+            if(building.getRank() > 0)
+                setMaintDateTime(building, LocalDateTime.now().plusDays(1));
+        }
         Logger.info("Structures: " + buildingList.size() + " Maint: " + maintList.size() + " Derank: " + derankList.size());
     }
 
@@ -97,6 +93,10 @@ public enum MaintenanceManager {
                 Logger.error("Blueprint missing for uuid: " + building.getObjectUUID());
                 continue;
             }
+
+            //only ToL pays maintenance
+            if(building.getBlueprint().getBuildingGroup() != null && !building.getBlueprint().getBuildingGroup().equals(Enum.BuildingGroup.TOL))
+                continue;
 
             // No maintenance on banestones omfg
 

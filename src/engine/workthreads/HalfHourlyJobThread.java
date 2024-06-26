@@ -162,20 +162,5 @@ public class HalfHourlyJobThread implements Runnable {
 
         processMineWindow();
 
-        // Mines can only be claimed once per cycle.
-        // This will reset at 1am after the last mine
-        // window closes.
-
-        if (LocalDateTime.now().getHour() == 1) {
-
-            for (Mine mine : Mine.getMines()) {
-                    try {
-                        mine.depositMineResources();
-                    } catch (Exception e) {
-                        Logger.info(e.getMessage() + " for Mine " + mine.getObjectUUID());
-                    }
-                    mine.wasClaimed = false;
-            }
-        }
     }
 }

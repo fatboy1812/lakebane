@@ -490,8 +490,8 @@ public class WorldServer {
 		MobRespawnThread.startRespawnThread();
 
 		// Run maintenance
-
-		MaintenanceManager.dailyMaintenance();
+		//moved this to hourly job thread to sustain no reboot system
+		//MaintenanceManager.dailyMaintenance();
 
 		Logger.info("Starting Orphan Item Purge");
 		PurgeOprhans.startPurgeThread();
