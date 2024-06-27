@@ -222,12 +222,6 @@ public enum MaintenanceManager {
         if ((hasFunds == false) ||
                 ((building.getRank() == 8) && !hasResources)) {
 
-            // Add cash back to strongbox for lost rank if the building isn't being destroyed
-            // and it's not an R8 deranking
-
-            if ((building.getRank() > 1) && (building.getRank() < 8)) {
-                building.setStrongboxValue(building.getStrongboxValue() + building.getBlueprint().getRankCost(Math.min(building.getRank(), 7)));
-            }
 
             return false; // Early exit for having failed to meet maintenance
         }
