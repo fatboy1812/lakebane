@@ -78,7 +78,7 @@ public class ApplyRuneMsg extends ClientNetMsg {
             return false;
         }
 
-        boolean valid = false;
+        boolean valid;
 
         //Check race is met
         if (rb.getRace() != null && rb.getRace().size() > 0) {
@@ -111,7 +111,7 @@ public class ApplyRuneMsg extends ClientNetMsg {
             int promotionClassID = playerCharacter.getPromotionClassID();
             valid = !rb.getPromotionClass().containsKey(promotionClassID);
             if (rb.getPromotionClass().containsKey(promotionClassID))
-                valid = rb.getRace().get(promotionClassID);
+                valid = rb.getPromotionClass().get(promotionClassID);
         } else{
             valid = true;
         }
