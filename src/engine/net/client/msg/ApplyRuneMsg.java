@@ -83,6 +83,7 @@ public class ApplyRuneMsg extends ClientNetMsg {
         //Check race is met
         if (rb.getRace() != null && rb.getRace().size() > 0) {
             int raceID = playerCharacter.getRaceID();
+            valid = !rb.getRace().containsKey(raceID);
             if (rb.getRace().containsKey(raceID))
                 valid = rb.getRace().get(raceID);
         } else{
@@ -95,6 +96,7 @@ public class ApplyRuneMsg extends ClientNetMsg {
         //Check base class is met
         if (rb.getBaseClass() != null && rb.getBaseClass().size() > 0) {
             int baseID = playerCharacter.getBaseClassID();
+            valid = !rb.getBaseClass().containsKey(baseID);
             if (rb.getBaseClass().containsKey(baseID))
                 valid = rb.getRace().get(baseID);
         } else{
@@ -107,6 +109,7 @@ public class ApplyRuneMsg extends ClientNetMsg {
         //Check promotion class is met
         if (rb.getPromotionClass() != null && rb.getPromotionClass().size() > 0) {
             int promotionClassID = playerCharacter.getPromotionClassID();
+            valid = !rb.getPromotionClass().containsKey(promotionClassID);
             if (rb.getPromotionClass().containsKey(promotionClassID))
                 valid = rb.getRace().get(promotionClassID);
         } else{
