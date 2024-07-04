@@ -232,6 +232,66 @@ public class ItemBase {
 
     }
 
+    public static int getDiscPrice(int uuid) {
+        if(uuid == 3040)
+            return 250000;
+        else return 5000000;
+    }
+
+    public static int getStatPrice(int uuid) {
+        switch(uuid){
+            case 250001: //5 stats
+            case 250010:
+            case 250019:
+            case 250028:
+            case 250037:
+                return 1500000;
+            case 250002: //10 stats
+            case 250011:
+            case 250020:
+            case 250029:
+            case 250038:
+                return 2000000;
+            case 250003: //15 stats
+            case 250012:
+            case 250021:
+            case 250030:
+            case 250039:
+                return 2500000;
+            case 250004: //20 stats
+            case 250013:
+            case 250022:
+            case 250031:
+            case 250040:
+                return 3000000;
+            case 250005: //25 stats
+            case 250014:
+            case 250023:
+            case 250032:
+            case 250041:
+                return 3500000;
+            case 250006: //30 stats
+            case 250015:
+            case 250024:
+            case 250033:
+            case 250042:
+                return 4000000;
+            case 250007: //35 stats
+            case 250016:
+            case 250025:
+            case 250034:
+            case 250043:
+                return 4500000;
+            case 250008: //40 stats
+            case 250017:
+            case 250026:
+            case 250035:
+            case 250044:
+                return 5000000;
+        }
+        return 5000000;
+    }
+
     /*
      * Getters
      */

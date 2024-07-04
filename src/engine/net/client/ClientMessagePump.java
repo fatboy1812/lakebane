@@ -1400,9 +1400,20 @@ public class ClientMessagePump implements NetMsgHandler {
                                 return;
                             }
                             int cost = me.getMagicValue();
-                            if(npc.getContractID() == 1201 && me.getItemBase().getName().equals("Prospector"))
-                                cost = 50;
                             float bargain = sourcePlayer.getBargain();
+                            switch(npc.getContractID()){
+                                case 1201:
+                                    cost = ItemBase.getDiscPrice(ib.getUUID());
+                                    bargain = 0;
+                                    break;
+                                case 1202:
+                                    cost = ItemBase.getStatPrice(ib.getUUID());
+                                    bargain = 0;
+                                    break;
+                                case 900:
+                                    bargain = 0;
+                                    break;
+                            }
                             float profit = npc.getSellPercent(sourcePlayer) - bargain;
                             if(me.getItemBase().getType().equals(ItemType.POTION))
                                 profit -= 1.0f;
