@@ -605,26 +605,14 @@ public class Blueprint {
         return this.blueprintUUID;
     }
 
-    public int getMaintCost(int rank) {
+    public int getMaintCost() {
 
         int maintCost = Integer.MAX_VALUE;
 
-        switch (this.buildingGroup) {
-            case TOL:
-            case BARRACK:
-                maintCost = (61500 * rank) + 19500;
-                break;
-            case SPIRE:
-                maintCost = (4800 * rank) + 1200;
-                break;
-            default:
-                if (maxRank == 1)
-                    maintCost = 22500;
-                else
-                    maintCost = (15900 * rank) + 3300;
-                break;
+        if(this.buildingGroup.equals(BuildingGroup.TOL)){
+            return 3000000;
+        }else{
+            return 0;
         }
-
-        return maintCost;
     }
 }

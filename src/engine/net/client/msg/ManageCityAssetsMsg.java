@@ -275,7 +275,7 @@ public class ManageCityAssetsMsg extends ClientNetMsg {
 
                 writer.putString(npcHire.getName());
                 writer.putInt(1);
-                writer.putInt(Blueprint.getNpcMaintCost(npcHire.getRank()));
+                writer.putInt(0);
                 if (npcHire.getObjectType() == GameObjectType.NPC)
                     writer.putInt(((NPC) npcHire).getContract().getIconID()); // Was 60
                 else if (npcHire.getObjectType() == GameObjectType.Mob) {
@@ -497,7 +497,7 @@ public class ManageCityAssetsMsg extends ClientNetMsg {
             if (building.getBlueprint() == null)
                 writer.putInt(0);
             else
-                writer.putInt(building.getBlueprint().getMaintCost(building.getRank())); //  maint cost
+                writer.putInt(building.getBlueprint().getMaintCost()); //  maint cost
 
             if (building.getRank() == 8) {
                 writer.putInt(74856115); // Stone
