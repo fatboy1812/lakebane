@@ -1409,7 +1409,7 @@ public class ClientMessagePump implements NetMsgHandler {
                             if (profit < 1)
                                 profit = 1;
                             if(npc.getContractID() == 900){
-                                cost = Warehouse.getCostForResource(ib.getUUID()) * Warehouse.getSellStackSize(ib.getUUID());
+                                cost = (int)(Warehouse.getCostForResource(ib.getUUID()) * Warehouse.getSellStackSize(ib.getUUID()) * 0.5f);
                             }
                             cost *= profit;
                             if (gold.getNumOfItems() - cost < 0) {
