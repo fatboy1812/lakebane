@@ -496,4 +496,18 @@ public class dbItemHandler extends dbHandlerBase {
             return false;
         }
     }
+
+    public boolean UPDATE_NUM_ITEMS(final Item item, int newValue) {
+        if (item.getItemBase().getType().equals(ItemType.GOLD))
+            return false;
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `obj_item` SET `item_numberOfItems`=? WHERE `UID`=?")) {
+            preparedStatement.setInt(1, newValue);
+            preparedStatement.setLong(2, item.getObjectUUID());
+            return (preparedStatement.executeUpdate() > 0);
+        } catch (SQLException e) {
+            Logger.error(e);
+            return false;
+        }
+    }
 }

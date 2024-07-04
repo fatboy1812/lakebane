@@ -1366,232 +1366,171 @@ public class ClientMessagePump implements NetMsgHandler {
     }
 
     private static void buyFromNPC(BuyFromNPCMsg msg, ClientConnection origin) {
-
         PlayerCharacter sourcePlayer = SessionManager.getPlayerCharacter(origin);
-
         if (sourcePlayer == null)
             return;
-
         if (origin.buyLock.tryLock()) {
-
             try {
                 CharacterItemManager itemMan = sourcePlayer.getCharItemManager();
-
-                if (itemMan == null)
+                if (itemMan == null) {
                     return;
-
+                }
                 NPC npc = NPC.getFromCache(msg.getNPCID());
-
-                if (npc == null)
+                if (npc == null) {
                     return;
-
+                }
                 Item gold = itemMan.getGoldInventory();
-
-                if (gold == null)
+                if (gold == null) {
                     return;
-
+                }
                 Item buy = null;
-
                 if (msg.getItemType() == GameObjectType.MobEquipment.ordinal()) {
                     ArrayList<MobEquipment> sellInventory = npc.getContract().getSellInventory();
-                    if (sellInventory == null)
+                    if (sellInventory == null) {
                         return;
+                    }
                     for (MobEquipment me : sellInventory) {
                         if (me.getObjectUUID() == msg.getItemID()) {
                             ItemBase ib = me.getItemBase();
-                            if (ib == null)
+                            if (ib == null) {
                                 return;
-
-                            //test room available for item
-                            if (!itemMan.hasRoomInventory(ib.getWeight()))
-                                return;
-
-                            int cost = me.getMagicValue();
-                            int amountResource = 0;
-                            if(npc.contractUUID == 900){ //resource merchant
-                                if(ib.getType().equals(ItemType.RESOURCE)) {
-                                    amountResource = 15000000 / ib.getBaseValue();
-                                    cost = amountResource * ib.getBaseValue();
-                                }else{
-                                    amountResource = 10;
-                                    cost = 50000; //elans
-                                }
                             }
-
+                            //test room available for item
+                            if (!itemMan.hasRoomInventory(ib.getWeight())) {
+                                return;
+                            }
+                            int cost = me.getMagicValue();
+                            if(npc.getContractID() == 1201 && me.getItemBase().getName().equals("Prospector"))
+                                cost = 50;
                             float bargain = sourcePlayer.getBargain();
-
                             float profit = npc.getSellPercent(sourcePlayer) - bargain;
-
+                            if(me.getItemBase().getType().equals(ItemType.POTION))
+                                profit -= 1.0f;
                             if (profit < 1)
                                 profit = 1;
-
-
+                            if(npc.getContractID() == 900){
+                                cost = Warehouse.getCostForResource(ib.getUUID()) * Warehouse.getSellStackSize(ib.getUUID());
+                            }
                             cost *= profit;
-
-
                             if (gold.getNumOfItems() - cost < 0) {
                                 //dont' have enough goldItem exit!
                                 // chatMan.chatSystemInfo(pc, "" + "You dont have enough gold.");
                                 return;
                             }
-
                             Building b = (!npc.isStatic()) ? npc.getBuilding() : null;
-
                             if (b != null && b.getProtectionState().equals(ProtectionState.NPC))
                                 b = null;
                             int buildingDeposit = cost - me.getMagicValue();
-                            if (b != null && (b.getStrongboxValue() + buildingDeposit) > b.getMaxGold()) {
+                            if (b != null && (b.getStrongboxValue() + buildingDeposit) > b.getMaxGold() && !b.isOwnerIsNPC()) {
                                 ErrorPopupMsg.sendErrorPopup(sourcePlayer, 206);
                                 return;
                             }
-
                             if (!itemMan.buyFromNPC(b, cost, buildingDeposit)) {
                                 // chatMan.chatSystemInfo(pc, "" + "You Failed to buy the item.");
+                                ChatManager.chatSystemError(sourcePlayer, "Failed To Buy Item");
                                 return;
                             }
-
-                            buy = Item.createItemForPlayer(sourcePlayer, ib);
-
-                            if (buy != null) {
-                                me.transferEnchants(buy);
-                                if(npc.contractUUID == 900){ //resource merchant
-                                    buy.setNumOfItems(amountResource);
+                            if(me.getItemBase().getType().equals(ItemType.RESOURCE) && npc.getContractID() == 900){
+                                handleResourcePurchase(me,itemMan,npc,buy,sourcePlayer,ib);
+                            }else {
+                                buy = Item.createItemForPlayer(sourcePlayer, ib);
+                                if (buy != null) {
+                                    me.transferEnchants(buy);
+                                    itemMan.addItemToInventory(buy);
+                                    if(npc.contractUUID == 900 && buy.getItemBaseID() == 1705032){
+                                        buy.setNumOfItems(10);
+                                        DbManager.ItemQueries.UPDATE_NUM_ITEMS(buy,buy.getNumOfItems());
+                                    }
+                                    //itemMan.updateInventory();
                                 }
-                                itemMan.addItemToInventory(buy);
-                                //itemMan.updateInventory();
                             }
                         }
                     }
                 } else if (msg.getItemType() == GameObjectType.Item.ordinal()) {
-
                     CharacterItemManager npcCim = npc.getCharItemManager();
-
                     if (npcCim == null)
                         return;
-
                     buy = Item.getFromCache(msg.getItemID());
-
                     if (buy == null)
                         return;
-
                     ItemBase ib = buy.getItemBase();
-
                     if (ib == null)
                         return;
-
                     if (!npcCim.inventoryContains(buy))
                         return;
-
                     //test room available for item
                     if (!itemMan.hasRoomInventory(ib.getWeight()))
                         return;
-
                     //TODO test cost and subtract goldItem
-
                     //TODO CHnage this if we ever put NPc city npcs in buildings.
                     int cost = buy.getBaseValue();
-
                     if (buy.isID() || buy.isCustomValue())
                         cost = buy.getMagicValue();
-
                     float bargain = sourcePlayer.getBargain();
-
                     float profit = npc.getSellPercent(sourcePlayer) - bargain;
-
                     if (profit < 1)
                         profit = 1;
-
                     if (!buy.isCustomValue())
                         cost *= profit;
                     else
                         cost = buy.getValue();
-
-
                     if (gold.getNumOfItems() - cost < 0) {
                         ErrorPopupMsg.sendErrorPopup(sourcePlayer, 128);  // Insufficient Gold
                         return;
                     }
-
                     Building b = (!npc.isStatic()) ? npc.getBuilding() : null;
-
                     if (b != null)
                         if (b.getProtectionState().equals(ProtectionState.NPC))
                             b = null;
-
                     int buildingDeposit = cost;
-
-                    if (b != null && (b.getStrongboxValue() + buildingDeposit) > b.getMaxGold()) {
+                    if (b != null && (b.getStrongboxValue() + buildingDeposit) > b.getMaxGold() && !b.isOwnerIsNPC()) {
                         ErrorPopupMsg.sendErrorPopup(sourcePlayer, 206);
                         return;
                     }
-
                     if (!itemMan.buyFromNPC(b, cost, buildingDeposit)) {
                         ErrorPopupMsg.sendErrorPopup(sourcePlayer, 110);
                         return;
                     }
-
                     if (buy != null)
                         itemMan.buyFromNPC(buy, npc);
-
                 } else if (msg.getItemType() == GameObjectType.MobLoot.ordinal()) {
-
                     CharacterItemManager npcCim = npc.getCharItemManager();
-
                     if (npcCim == null)
                         return;
-
                     buy = MobLoot.getFromCache(msg.getItemID());
-
                     if (buy == null)
                         return;
-
                     ItemBase ib = buy.getItemBase();
-
                     if (ib == null)
                         return;
-
                     if (!npcCim.inventoryContains(buy))
                         return;
-
                     //test room available for item
                     if (!itemMan.hasRoomInventory(ib.getWeight()))
                         return;
-
                     //TODO test cost and subtract goldItem
-
                     //TODO CHnage this if we ever put NPc city npcs in buildings.
-
                     int cost = buy.getMagicValue();
                     cost *= npc.getSellPercent(sourcePlayer);
-
-
                     if (gold.getNumOfItems() - cost < 0) {
                         ErrorPopupMsg.sendErrorPopup(sourcePlayer, 128);  // Insufficient Gold
                         return;
                     }
-
                     Building b = (!npc.isStatic()) ? npc.getBuilding() : null;
-
                     if (b != null && b.getProtectionState().equals(ProtectionState.NPC))
                         b = null;
                     int buildingDeposit = cost;
-
-                    if (b != null && (b.getStrongboxValue() + buildingDeposit) > b.getMaxGold()) {
+                    if (b != null && (b.getStrongboxValue() + buildingDeposit) > b.getMaxGold() && !b.isOwnerIsNPC()) {
                         ErrorPopupMsg.sendErrorPopup(sourcePlayer, 206);
                         return;
                     }
-
                     if (!itemMan.buyFromNPC(b, cost, buildingDeposit))
                         return;
-
                     if (buy != null)
                         itemMan.buyFromNPC(buy, npc);
-
                 } else
                     return;
-
                 if (buy != null) {
-
                     msg.setItem(buy);
                     //send the buy message back to update player
                     //					msg.setItemType(buy.getObjectType().ordinal());
@@ -1600,14 +1539,43 @@ public class ClientMessagePump implements NetMsgHandler {
                     DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.SECONDARY);
                     itemMan.updateInventory();
                 }
-
             } finally {
                 origin.buyLock.unlock();
             }
         } else {
             ErrorPopupMsg.sendErrorPopup(origin.getPlayerCharacter(), 12); // All production slots taken
         }
+    }
 
+    public static void handleResourcePurchase(MobEquipment me, CharacterItemManager itemMan, NPC npc, Item buy, PlayerCharacter sourcePlayer, ItemBase ib){
+        boolean stacked = false;
+        int buystack = Warehouse.getSellStackSize(me.getItemBase().getUUID());
+        for(Item item : itemMan.getInventory()){
+            int itemID = item.getItemBaseID();
+            int meID = me.getItemBase().getUUID();
+            if(itemID == meID){
+                if(Warehouse.maxResources.isEmpty())
+                    Warehouse.getMaxResources();
+                int maxStack = Warehouse.maxResources.get(itemID);
+                if(maxStack > item.getNumOfItems() + buystack){
+                    item.setNumOfItems(item.getNumOfItems() + buystack);
+                    stacked = true;
+                    itemMan.updateInventory();
+                    DbManager.ItemQueries.UPDATE_NUM_ITEMS(item,item.getNumOfItems());
+                    break;
+                }
+            }
+        }
+        if(!stacked){
+            buy = Item.createItemForPlayer(sourcePlayer, ib);
+            if (buy != null) {
+                me.transferEnchants(buy);
+                itemMan.addItemToInventory(buy);
+                buy.setNumOfItems(buystack);
+                DbManager.ItemQueries.UPDATE_NUM_ITEMS(buy,buy.getNumOfItems());
+            }
+        }
+        itemMan.updateInventory();
     }
 
     private static void Repair(RepairMsg msg, ClientConnection origin) {

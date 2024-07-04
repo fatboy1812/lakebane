@@ -281,6 +281,84 @@ public class Warehouse extends AbstractWorldObject {
 
     }
 
+    public static int getCostForResource(int id){
+        int newCost = 1;
+        switch(id){
+            case 1580000://stone
+                newCost = 3000;
+                break;
+            case 1580001://truesteel
+                newCost = 50000;
+                break;
+            case 1580002://iron
+                newCost = 50000;
+                break;
+            case 1580003://adamant
+                newCost = 100000;
+                break;
+            case 1580004://lumber
+                newCost = 3000;
+                break;
+            case 1580005://oak
+                newCost = 30000;
+                break;
+            case 1580006://bronzewood
+                newCost = 30000;
+                break;
+            case 1580007://mandrake
+                newCost = 100000;
+                break;
+            case 1580008://coal
+                newCost = 30000;
+                break;
+            case 1580009://agate
+                newCost = 50000;
+                break;
+            case 1580010://diamond
+                newCost = 50000;
+                break;
+            case 1580011://onyx
+                newCost = 100000;
+                break;
+            case 1580012://azoth
+                newCost = 50000;
+                break;
+            case 1580013://orichalk
+                newCost = 30000;
+                break;
+            case 1580014://antimony
+                newCost = 100000;
+                break;
+            case 1580015://sulfur
+                newCost = 100000;
+                break;
+            case 1580016://quicksilver
+                newCost = 100000;
+                break;
+            case 1580017://galvor
+                newCost = 300000;
+                break;
+            case 1580018://wormwood
+                newCost = 300000;
+                break;
+            case 1580019://obsidian
+                newCost = 200000;
+                break;
+            case 1580020://bloodstone
+                newCost = 200000;
+                break;
+            case 1705032:
+                newCost = 100000;
+                break;
+        }
+        return newCost;
+    }
+    public static int getSellStackSize(int id){
+        if(id == 1705032)
+            return 10;
+        return (int)(3000000 / getCostForResource(id));
+    }
+
     public ConcurrentHashMap<ItemBase, Integer> getResources() {
         return resources;
     }

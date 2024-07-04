@@ -167,11 +167,7 @@ public class Blueprint {
     // based upon the building's current rank
 
     public static int getNpcMaintCost(int rank) {
-        int maintCost = Integer.MAX_VALUE;
-
-        maintCost = (9730 * rank) + 1890;
-
-        return maintCost;
+        return 0;
     }
 
     public int getMaxRank() {
