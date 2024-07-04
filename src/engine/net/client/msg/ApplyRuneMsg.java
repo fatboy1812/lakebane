@@ -10,6 +10,7 @@
 package engine.net.client.msg;
 
 import engine.Enum;
+import engine.gameManager.ChatManager;
 import engine.gameManager.DbManager;
 import engine.net.*;
 import engine.net.client.ClientConnection;
@@ -70,55 +71,86 @@ public class ApplyRuneMsg extends ClientNetMsg {
     }
 
     public static boolean applyRune(int runeID, ClientConnection origin, PlayerCharacter playerCharacter) {
-
         RuneBase rb = RuneBase.getRuneBase(runeID);
         Dispatch dispatch;
-
         if (playerCharacter == null || origin == null || rb == null) {
             return false;
         }
-
-        boolean valid;
-
+        int raceID = playerCharacter.getRaceID();
         //Check race is met
-        if (rb.getRace() != null && rb.getRace().size() > 0) {
-            int raceID = playerCharacter.getRaceID();
-            valid = !rb.getRace().containsKey(raceID);
-            if (rb.getRace().containsKey(raceID))
-                valid = rb.getRace().get(raceID);
+        ConcurrentHashMap<Integer, Boolean> races = rb.getRace();
+        if(runeID != 3007 && runeID != 3014) {//bounty hunter and huntsman
+            if (races.size() > 0) {
+                boolean valid = false;
+                for (int validID : races.keySet()) {
+                    if (validID == raceID) {
+                        valid = true;
+                        break;
+                    }
+                }
+                if(runeID == 3040)
+                    valid = true;
+                if(runeID == 2514 && raceID == 1999)
+                    valid = true;
+                if(runeID == 3036 && raceID == 1999)
+                    valid = true;
+                if(runeID == 3033 && raceID == 1999)
+                    valid = true;
+                if (!valid) {
+                    return false;
+                }
+            }
+            //Check base class is met
+            ConcurrentHashMap<Integer, Boolean> baseClasses = rb.getBaseClass();
+            if (baseClasses.size() > 0) {
+                int baseClassID = playerCharacter.getBaseClassID();
+                boolean valid = false;
+                for (int validID : baseClasses.keySet()) {
+                    if (validID == baseClassID) {
+                        valid = true;
+                        break;
+                    }
+                }
+                if(runeID == 3040)
+                    valid = true;
+                if(runeID == 3036 && raceID == 1999)
+                    valid = true;
+                if(runeID == 3033 && raceID == 1999)
+                    valid = true;
+                if(runeID == 3035 && baseClassID == 2501)
+                    valid = true;
+                if (!valid) {
+                    return false;
+                }
+            }
+            //Check promotion class is met
+            ConcurrentHashMap<Integer, Boolean> promotionClasses = rb.getPromotionClass();
+            if (promotionClasses.size() > 0) {
+                int promotionClassID = playerCharacter.getPromotionClassID();
+                boolean valid = false;
+                for (int validID : promotionClasses.keySet()) {
+                    if (validID == promotionClassID) {
+                        valid = true;
+                        break;
+                    }
+                }
+                if(runeID == 3040)
+                    valid = true;
+                if(runeID == 3004 && (playerCharacter.getPromotionClassID() == 2505 || playerCharacter.getPromotionClassID() == 2510))
+                    valid = true;
+                if(runeID == 3036 && raceID == 1999)
+                    valid = true;
+                if(runeID == 3033 && raceID == 1999)
+                    valid = true;
+                if (!valid) {
+                    return false;
+                }
+            }
         } else{
-            valid = true;
+            if(playerCharacter.getPromotionClassID() == 2519){//priest
+                return false;
+            }
         }
-
-        if (!valid)
-            return false;
-
-        //Check base class is met
-        if (rb.getBaseClass() != null && rb.getBaseClass().size() > 0) {
-            int baseID = playerCharacter.getBaseClassID();
-            valid = !rb.getBaseClass().containsKey(baseID);
-            if (rb.getBaseClass().containsKey(baseID))
-                valid = rb.getRace().get(baseID);
-        } else{
-            valid = true;
-        }
-
-        if (!valid)
-            return false;
-
-        //Check promotion class is met
-        if (rb.getPromotionClass() != null && rb.getPromotionClass().size() > 0) {
-            int promotionClassID = playerCharacter.getPromotionClassID();
-            valid = !rb.getPromotionClass().containsKey(promotionClassID);
-            if (rb.getPromotionClass().containsKey(promotionClassID))
-                valid = rb.getPromotionClass().get(promotionClassID);
-        } else{
-            valid = true;
-        }
-
-        if (!valid)
-            return false;
-
         //Check disciplines are met
         ArrayList<CharacterRune> runes = playerCharacter.getRunes();
         ConcurrentHashMap<Integer, Boolean> disciplines = rb.getDiscipline();
@@ -132,7 +164,6 @@ public class ApplyRuneMsg extends ClientNetMsg {
                 }
             }
         }
-
         int discCount = 0;
         for (CharacterRune cr : runes) {
             int runeBaseID = cr.getRuneBaseID();
@@ -145,28 +176,32 @@ public class ApplyRuneMsg extends ClientNetMsg {
                 return false;
             }
         }
-
         //Check level is met
         if (playerCharacter.getLevel() < rb.getLevelRequired()) {
             return false;
         }
-
         int strTotal = 0;
         int dexTotal = 0;
         int conTotal = 0;
         int intTotal = 0;
         int spiTotal = 0;
         int cost = 0;
-
         //Check any attributes are met
         ArrayList<RuneBaseAttribute> attrs = rb.getAttrs();
-
         if (rb.getAttrs() != null)
             for (RuneBaseAttribute rba : attrs) {
                 int attrID = rba.getAttributeID();
                 int mod = rba.getModValue();
                 switch (attrID) {
                     case MBServerStatics.RUNE_COST_ATTRIBUTE_ID:
+                        switch (rb.getName()) {
+                            case "Born of the Ethyri":
+                            case "Born of the Taripontor":
+                            case "Born of the Gwendannen":
+                            case "Born of the Invorri":
+                            case "Born of the Irydnu":
+                                mod = 0;
+                        }
                         if (mod > playerCharacter.getUnusedStatPoints()) {
                             return false;
                         }
@@ -219,14 +254,33 @@ public class ApplyRuneMsg extends ClientNetMsg {
                         break;
                 }
             }
-
         //Check if max number runes already reached
         if (runes.size() > 12) {
             return false;
         }
-
+        switch (rb.getName()) {
+            case "Born of the Ethyri":
+            case "Born of the Taripontor":
+            case "Born of the Gwendannen":
+            case "Born of the Invorri":
+            case "Born of the Irydnu":
+                for (CharacterRune charRune : playerCharacter.getRunes()) {
+                    RuneBase rb2 = charRune.getRuneBase();
+                    switch (rb2.getName()) {
+                        case "Born of the Ethyri":
+                        case "Born of the Taripontor":
+                        case "Born of the Gwendannen":
+                        case "Born of the Invorri":
+                        case "Born of the Irydnu":
+                            ChatManager.chatSystemError(playerCharacter, "You Have Already Applied A Blood Rune");
+                            return false;
+                    }
+                }
+        }
         //if discipline, check number applied
         if (isDiscipline(runeID)) {
+            //if(playerCharacter.getLevel() == 80)
+            discCount -= 1; // level 80 characters get an extra disc rune
             if (playerCharacter.getLevel() < 70) {
                 if (discCount > 2) {
                     return false;
@@ -237,7 +291,6 @@ public class ApplyRuneMsg extends ClientNetMsg {
                 }
             }
         }
-
         //Everything succeeded. Let's apply the rune
         //Attempt add rune to database
         CharacterRune runeWithoutID = new CharacterRune(rb, playerCharacter.getObjectUUID());
@@ -251,7 +304,6 @@ public class ApplyRuneMsg extends ClientNetMsg {
         if (cr == null) {
             return false;
         }
-
         //remove any overridden runes from player
         ArrayList<Integer> overwrite = rb.getOverwrite();
         CharacterRune toRemove = null;
@@ -260,13 +312,10 @@ public class ApplyRuneMsg extends ClientNetMsg {
                 toRemove = playerCharacter.removeRune(overwriteID);
             }
         }
-
         //add rune to player
         playerCharacter.addRune(cr);
-
         // recalculate all bonuses/formulas/skills/powers
         playerCharacter.recalculate();
-
         //if overwriting a stat rune, add any amount granted from previous rune.
         if (toRemove != null) {
             RuneBase rbs = toRemove.getRuneBase();
@@ -292,30 +341,32 @@ public class ApplyRuneMsg extends ClientNetMsg {
                 if (dif > 0 && spiTotal < (int) playerCharacter.statSpiMax) {
                     playerCharacter.addSpi(dif);
                 }
-
                 // recalculate all bonuses/formulas/skills/powers
                 playerCharacter.recalculate();
             }
         }
-
+        switch (rb.getName()) {
+            case "Born of the Ethyri":
+            case "Born of the Taripontor":
+            case "Born of the Gwendannen":
+            case "Born of the Invorri":
+            case "Born of the Irydnu":
+                cost = 0;
+                break;
+        }
         if (cost > 0) {
             ModifyStatMsg msm = new ModifyStatMsg((0 - cost), 0, 3);
             dispatch = Dispatch.borrow(playerCharacter, msm);
             DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
         }
-
         //send apply rune message to client
         ApplyRuneMsg arm = new ApplyRuneMsg(playerCharacter.getObjectType().ordinal(), playerCharacter.getObjectUUID(), runeID, cr.getObjectType().ordinal(), cr.getObjectUUID(), false);
         dispatch = Dispatch.borrow(playerCharacter, arm);
         DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
-
-
         //alert them of success
         ErrorPopupMsg.sendErrorPopup(playerCharacter, 160);
-
         //reapply bonuses
         playerCharacter.applyBonuses();
-
         return true;
     }
 
