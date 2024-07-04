@@ -514,7 +514,7 @@ public class ManageCityAssetsMsg extends ClientNetMsg {
 
             if (maintDate == null)
                 maintDate = LocalDateTime.now();
-            writer.putLocalDateTime(LocalDateTime.now()); // current time
+            writer.putLocalDateTime(maintDate); // current time
 
             // utc offset?
             writer.putInt((int) java.time.Duration.between(LocalDateTime.now(), maintDate).getSeconds()); // Seconds to maint date
