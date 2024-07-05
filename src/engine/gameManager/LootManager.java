@@ -398,8 +398,11 @@ public enum LootManager {
 
         MobLoot lootItem = new MobLoot(mob, ItemBase.getItemBase(bse.itemBase), true);
 
-        if (lootItem != null)
+        if (lootItem != null) {
             mob.getCharItemManager().addItemToInventory(lootItem);
+            if(lootItem.getItemBase().isDiscRune() && !Mob.discDroppers.contains(mob))
+                Mob.discDroppers.add(mob);
+        }
     }
 
     public static void peddleFate(PlayerCharacter playerCharacter, Item gift) {

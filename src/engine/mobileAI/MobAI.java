@@ -871,10 +871,12 @@ public class MobAI {
                         }
                     }
                 }
-            } else if (System.currentTimeMillis() > (aiAgent.deathTime + (aiAgent.spawnTime * 1000))) {
+            } else if (System.currentTimeMillis() > (aiAgent.deathTime + (aiAgent.spawnTime * 1000L))) {
 
+                if(Mob.discDroppers.contains(aiAgent))
+                    return;
 
-                if (Zone.respawnQue.contains(aiAgent) == false) {
+                if (!Zone.respawnQue.contains(aiAgent)) {
                     Zone.respawnQue.add(aiAgent);
                 }
             }

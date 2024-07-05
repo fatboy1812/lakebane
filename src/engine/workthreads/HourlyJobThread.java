@@ -68,6 +68,21 @@ public class HourlyJobThread implements Runnable {
             }
         }
 
+        switch(LocalDateTime.now().getHour()){
+            case 3:
+            case 6:
+            case 9:
+            case 12:
+            case 15:
+            case 18:
+            case 21:
+            case 0:
+                for(Mob mob : Mob.discDroppers)
+                    if(!mob.isAlive())
+                        Zone.respawnQue.add(mob);
+                break;
+        }
+
         // Log metrics to console
         Logger.info(WorldServer.getUptimeString());
         Logger.info(SimulationManager.getPopulationString());

@@ -1411,6 +1411,7 @@ public class ClientMessagePump implements NetMsgHandler {
                                     bargain = 0;
                                     break;
                                 case 900:
+                                    cost = (int)(Warehouse.getCostForResource(ib.getUUID()) * Warehouse.getSellStackSize(ib.getUUID()) * 0.5f);
                                     bargain = 0;
                                     break;
                             }
@@ -1419,9 +1420,6 @@ public class ClientMessagePump implements NetMsgHandler {
                                 profit -= 1.0f;
                             if (profit < 1)
                                 profit = 1;
-                            if(npc.getContractID() == 900){
-                                cost = (int)(Warehouse.getCostForResource(ib.getUUID()) * Warehouse.getSellStackSize(ib.getUUID()) * 0.5f);
-                            }
                             cost *= profit;
                             if (gold.getNumOfItems() - cost < 0) {
                                 //dont' have enough goldItem exit!

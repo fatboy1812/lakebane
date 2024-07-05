@@ -48,6 +48,7 @@ import static engine.net.client.msg.ErrorPopupMsg.sendErrorPopup;
 
 public class Mob extends AbstractIntelligenceAgent {
 
+    public static ArrayList<Mob> discDroppers = new ArrayList<>();
     private static final ReentrantReadWriteLock createLock = new ReentrantReadWriteLock();
     private static final ConcurrentHashMap<Integer, Mob> mobMapByDBID = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_LOW);
     // Variables NOT to be stored in db
