@@ -421,31 +421,12 @@ public class ObjectActionMsgHandler extends AbstractClientMsgHandler {
                                 itemMan.consume(item);
                             }
                             break;
-                        //ANNIVERSERY GIFT
                         case 31:
-                            // *** Disabled for now: Needs bootyset created
-
-                            //if (ib.getUUID() == 971012) {
-                            //    int random = ThreadLocalRandom.current().nextInt(ItemBase.AnniverseryGifts.size());
-                            //    int annyID = ItemBase.AnniverseryGifts.get(random);
-
-                            //    ItemBase annyIB = ItemBase.getItemBase(annyID);
-                            //    if (annyIB != null) {
-                            //        Item gift = MobLoot.createItemForPlayer(player, annyIB);
-                            //        if (gift != null) {
-                            //            itemMan.addItemToInventory(gift);
-                            //            itemMan.consume(item);
-                            //        }
-                            //    }
-                            //    break;
-                            //}
-
                             LootManager.peddleFate(player,item);
                             break;
 
                         case 30: //water bucket
                         case 8: //potions, tears of saedron
-
                         case 5: //runes, petition, warrant, scrolls
                             if (uuid > 3000 && uuid < 3050) { //Discipline Runes
                                 if (ApplyRuneMsg.applyRune(uuid, origin, player)) {
@@ -528,7 +509,6 @@ public class ObjectActionMsgHandler extends AbstractClientMsgHandler {
                                     }
 
                                     // Send piss bucket animation
-
                                     VisualUpdateMessage vum = new VisualUpdateMessage(player, 16323);
                                     vum.configure();
                                     DispatchMessage.sendToAllInRange(player, vum);
