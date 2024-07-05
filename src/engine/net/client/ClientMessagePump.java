@@ -1644,6 +1644,8 @@ public class ClientMessagePump implements NetMsgHandler {
             max *= (1 + (durMod * 0.01f));
             if (dur >= max || dur < 1) {
                 //redundancy message to clear item from window in client
+                if (!DbManager.ItemQueries.SET_DURABILITY(toRepair, dur))
+                    return;
                 toRepair.setDurabilityCurrent(max);
                 msg.setupRepairAck(max - dur);
                 dispatch = Dispatch.borrow(player, msg);

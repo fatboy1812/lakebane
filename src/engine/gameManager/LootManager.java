@@ -17,6 +17,7 @@ import engine.objects.*;
 import org.pmw.tinylog.Logger;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
@@ -34,6 +35,11 @@ public enum LootManager {
     public static HashMap<Integer, ArrayList<ItemTableEntry>> _itemTables = new HashMap<>();
     public static HashMap<Integer, ArrayList<ModTableEntry>> _modTables = new HashMap<>();
     public static HashMap<Integer, ArrayList<ModTypeTableEntry>> _modTypeTables = new HashMap<>();
+
+    public static final ArrayList<Integer> vorg_ha_uuids = new ArrayList<>(Arrays.asList(27580, 27590, 188500, 188510, 188520, 188530, 188540, 188550, 189510));
+    public static final ArrayList<Integer> vorg_ma_uuids = new ArrayList<>(Arrays.asList(27570,188900,188910,188920,188930,188940,188950,189500));
+    public static final ArrayList<Integer> vorg_la_uuids = new ArrayList<>(Arrays.asList(27550,27560,189100,189110,189120,189130,189140,189150));
+    public static final ArrayList<Integer> vorg_cloth_uuids = new ArrayList<>(Arrays.asList(27600,188700,188720,189550,189560));
 
     // Drop Rates
 
@@ -327,12 +333,7 @@ public enum LootManager {
 
         int high = bse.highGold;
         int low = bse.lowGold;
-        int gold = ThreadLocalRandom.current().nextInt(low, high + 1);
-
-        if (inHotzone == true)
-            gold = (int) (gold * HOTZONE_GOLD_RATE);
-        else
-            gold = (int) (gold * NORMAL_GOLD_RATE);
+        int gold = (int) (ThreadLocalRandom.current().nextInt(low, high + 1) * NORMAL_GOLD_RATE);
 
         if (gold > 0) {
             MobLoot goldAmount = new MobLoot(mob, gold);
@@ -343,18 +344,14 @@ public enum LootManager {
 
     public static void GenerateLootDrop(Mob mob, int tableID, Boolean inHotzone) {
 
-        try {
+        MobLoot toAdd = getGenTableItem(tableID, mob, inHotzone);
 
-            MobLoot toAdd = getGenTableItem(tableID, mob, inHotzone);
-
-            if (toAdd != null)
-                mob.getCharItemManager().addItemToInventory(toAdd);
-
-        } catch (Exception e) {
-            //TODO chase down loot generation error, affects roughly 2% of drops
-            int i = 0;
+        if (toAdd != null) {
+            toAdd.setIsID(true);
+            mob.getCharItemManager().addItemToInventory(toAdd);
         }
     }
+
 
     public static void GenerateEquipmentDrop(Mob mob) {
 
@@ -362,29 +359,35 @@ public enum LootManager {
             return; // no equipment to drop in safezones
 
         //do equipment here
-        int dropCount = 0;
-        if (mob.getEquip() != null)
+        if (mob.getEquip() != null) {
+            boolean isVorg = false;
             for (MobEquipment me : mob.getEquip().values()) {
 
                 if (me.getDropChance() == 0)
                     continue;
 
+                String name = me.getItemBase().getName().toLowerCase();
+                if (name.contains("vorgrim legionnaire's") || name.contains("vorgrim auxiliary's") ||name.contains("bellugh nuathal") || name.contains("crimson circle"))
+                    isVorg = true;
+
                 float equipmentRoll = ThreadLocalRandom.current().nextInt(1, 100 + 1);
                 float dropChance = me.getDropChance() * 100;
-
+                ItemBase itemBase = me.getItemBase();
+                if(isVorg) {
+                    mob.spawnTime = ThreadLocalRandom.current().nextInt(300, 2700);
+                    dropChance = 10;
+                    itemBase = getRandomVorg(itemBase);
+                }
                 if (equipmentRoll > dropChance)
                     continue;
 
-                MobLoot ml = new MobLoot(mob, me.getItemBase(), false);
+                MobLoot ml = new MobLoot(mob, itemBase, false);
 
-                if (ml != null && dropCount < 1) {
-                    ml.setIsID(true);
-                    ml.setDurabilityCurrent((short) (ml.getDurabilityCurrent() - ThreadLocalRandom.current().nextInt(5) + 1));
-                    mob.getCharItemManager().addItemToInventory(ml);
-                    dropCount = 1;
-                    //break; // Exit on first successful roll.
-                }
+                ml.setIsID(true);
+                ml.setDurabilityCurrent((short) (ml.getDurabilityCurrent() - ThreadLocalRandom.current().nextInt(5) + 1));
+                mob.getCharItemManager().addItemToInventory(ml);
             }
+        }
     }
 
     public static void GenerateInventoryDrop(Mob mob, BootySetEntry bse) {
@@ -492,5 +495,94 @@ public enum LootManager {
     public static int rollRandomItem(int itemTable){
         int returnedID = ItemTableEntry.getRandomItem(itemTable);
         return returnedID;
+    }
+
+    public static ItemBase getRandomVorg(ItemBase itemBase){
+        int roll = 0;
+        if(vorg_ha_uuids.contains(itemBase.getUUID())) {
+            roll = ThreadLocalRandom.current().nextInt(0, 10);
+            switch (roll) {
+                case 1:
+                    return ItemBase.getItemBase(vorg_ha_uuids.get(0));
+                case 2:
+                    return ItemBase.getItemBase(vorg_ha_uuids.get(1));
+                case 3:
+                    return ItemBase.getItemBase(vorg_ha_uuids.get(2));
+                case 4:
+                    return ItemBase.getItemBase(vorg_ha_uuids.get(3));
+                case 5:
+                    return ItemBase.getItemBase(vorg_ha_uuids.get(4));
+                case 6:
+                    return ItemBase.getItemBase(vorg_ha_uuids.get(5));
+                case 7:
+                    return ItemBase.getItemBase(vorg_ha_uuids.get(6));
+                case 8:
+                    return ItemBase.getItemBase(vorg_ha_uuids.get(7));
+                default:
+                    return ItemBase.getItemBase(vorg_ha_uuids.get(8));
+            }
+        }
+
+        if(vorg_ma_uuids.contains(itemBase.getUUID())) {
+            roll = ThreadLocalRandom.current().nextInt(0, 10);
+            switch (roll) {
+                case 1:
+                    return ItemBase.getItemBase(vorg_ma_uuids.get(0));
+                case 2:
+                    return ItemBase.getItemBase(vorg_ma_uuids.get(1));
+                case 3:
+                    return ItemBase.getItemBase(vorg_ma_uuids.get(2));
+                case 4:
+                    return ItemBase.getItemBase(vorg_ma_uuids.get(3));
+                case 5:
+                    return ItemBase.getItemBase(vorg_ma_uuids.get(4));
+                case 6:
+                    return ItemBase.getItemBase(vorg_ma_uuids.get(5));
+                case 7:
+                    return ItemBase.getItemBase(vorg_ma_uuids.get(6));
+                default:
+                    return ItemBase.getItemBase(vorg_ma_uuids.get(7));
+            }
+        }
+
+        if(vorg_la_uuids.contains(itemBase.getUUID())) {
+            roll = ThreadLocalRandom.current().nextInt(0, 10);
+            switch (roll) {
+                case 1:
+                    return ItemBase.getItemBase(vorg_la_uuids.get(0));
+                case 2:
+                    return ItemBase.getItemBase(vorg_la_uuids.get(1));
+                case 3:
+                    return ItemBase.getItemBase(vorg_la_uuids.get(2));
+                case 4:
+                    return ItemBase.getItemBase(vorg_la_uuids.get(3));
+                case 5:
+                    return ItemBase.getItemBase(vorg_la_uuids.get(4));
+                case 6:
+                    return ItemBase.getItemBase(vorg_la_uuids.get(5));
+                case 7:
+                    return ItemBase.getItemBase(vorg_la_uuids.get(6));
+                default:
+                    return ItemBase.getItemBase(vorg_la_uuids.get(7));
+            }
+        }
+
+        if(vorg_cloth_uuids.contains(itemBase.getUUID())) {
+            roll = ThreadLocalRandom.current().nextInt(0, 10);
+            switch (roll) {
+                case 1:
+                    return ItemBase.getItemBase(vorg_cloth_uuids.get(0));
+                case 2:
+                    return ItemBase.getItemBase(vorg_cloth_uuids.get(1));
+                case 3:
+                    return ItemBase.getItemBase(vorg_cloth_uuids.get(2));
+                case 4:
+                    return ItemBase.getItemBase(vorg_cloth_uuids.get(3));
+                default:
+                    return ItemBase.getItemBase(vorg_cloth_uuids.get(4));
+            }
+        }
+
+        return null;
     }
 }

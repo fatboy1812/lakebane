@@ -303,7 +303,7 @@ public class Item extends AbstractWorldObject {
             writer.putString(item.customName); // Unknown. pad?
         writer.put((byte) 1); // End Datablock byte
 
-        writer.putFloat((float) item.durabilityMax);
+        writer.putFloat((float) item.getDurabilityMax());
         writer.putFloat((float) item.durabilityCurrent);
 
         writer.put((byte) 1); // End Datablock byte
@@ -885,7 +885,15 @@ public class Item extends AbstractWorldObject {
     }
 
     public short getDurabilityMax() {
-        return durabilityMax;
+        int extra = 0;
+        for(Effect eff : this.effects.values()){
+            for(AbstractEffectModifier mod : eff.getEffectModifiers()){
+                if(mod.modType.equals(ModType.Durability)){
+                    extra += mod.getMaxMod();
+                }
+            }
+        }
+        return (short)(durabilityMax + extra);
     }
 
     public boolean isCanDestroy() {
