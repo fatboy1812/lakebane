@@ -178,8 +178,17 @@ public enum DevCmdManager {
 
         //kill any commands not available to everyone on production server
         //only admin level can run dev commands on production
-
-        if (a.status.equals(Enum.AccountStatus.ADMIN) == false) {
+        boolean playerAllowed = false;
+        switch(adc.getMainCmdString()){
+            case "printresists":
+            case "printstats":
+            case "printskills":
+            case "printpowers":
+                if(target.equals(pcSender))
+                    playerAllowed = true;
+                break;
+        }
+        if (!playerAllowed && !a.status.equals(Enum.AccountStatus.ADMIN)) {
             Logger.info("Account " + a.getUname() + "attempted to use dev command " + cmd);
             return false;
         }
