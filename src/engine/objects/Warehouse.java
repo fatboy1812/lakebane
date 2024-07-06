@@ -356,7 +356,7 @@ public class Warehouse extends AbstractWorldObject {
     public static int getSellStackSize(int id){
         if(id == 1705032)
             return 10;
-        return (int)(3000000 / getCostForResource(id));
+        return 3000000 / getCostForResource(id);
     }
 
     public ConcurrentHashMap<ItemBase, Integer> getResources() {

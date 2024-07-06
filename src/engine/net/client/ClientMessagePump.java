@@ -1351,6 +1351,14 @@ public class ClientMessagePump implements NetMsgHandler {
 
         NPC npc = NPC.getFromCache(msg.getNpcID());
 
+
+        switch(npc.getContractID()){
+            case 900:
+            case 1201:
+            case 1202:
+                npc.sellPercent = 0.0f;
+                break;
+        }
         if (npc == null)
             return;
 
@@ -1411,7 +1419,7 @@ public class ClientMessagePump implements NetMsgHandler {
                                     bargain = 0;
                                     break;
                                 case 900:
-                                    cost = (int)(Warehouse.getCostForResource(ib.getUUID()) * Warehouse.getSellStackSize(ib.getUUID()) * 0.5f);
+                                    cost = Warehouse.getCostForResource(ib.getUUID()) * Warehouse.getSellStackSize(ib.getUUID());
                                     bargain = 0;
                                     break;
                             }
@@ -1440,7 +1448,7 @@ public class ClientMessagePump implements NetMsgHandler {
                                 return;
                             }
                             if(me.getItemBase().getType().equals(ItemType.RESOURCE) && npc.getContractID() == 900){
-                                handleResourcePurchase(me,itemMan,npc,buy,sourcePlayer,ib);
+                                handleResourcePurchase(me,itemMan,sourcePlayer,ib);
                             }else {
                                 buy = Item.createItemForPlayer(sourcePlayer, ib);
                                 if (buy != null) {
@@ -1556,7 +1564,7 @@ public class ClientMessagePump implements NetMsgHandler {
         }
     }
 
-    public static void handleResourcePurchase(MobEquipment me, CharacterItemManager itemMan, NPC npc, Item buy, PlayerCharacter sourcePlayer, ItemBase ib){
+    public static void handleResourcePurchase(MobEquipment me, CharacterItemManager itemMan, PlayerCharacter sourcePlayer, ItemBase ib){
         boolean stacked = false;
         int buystack = Warehouse.getSellStackSize(me.getItemBase().getUUID());
         for(Item item : itemMan.getInventory()){
@@ -1576,7 +1584,7 @@ public class ClientMessagePump implements NetMsgHandler {
             }
         }
         if(!stacked){
-            buy = Item.createItemForPlayer(sourcePlayer, ib);
+            Item buy = Item.createItemForPlayer(sourcePlayer, ib);
             if (buy != null) {
                 me.transferEnchants(buy);
                 itemMan.addItemToInventory(buy);
