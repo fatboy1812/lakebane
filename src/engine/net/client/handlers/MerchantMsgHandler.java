@@ -17,6 +17,7 @@ import engine.powers.PowersBase;
 import engine.server.MBServerStatics;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 /*
  * @Author:
@@ -105,7 +106,7 @@ public class MerchantMsgHandler extends AbstractClientMsgHandler {
 
         // Validate player can obtain blessing
 
-        if (GuildStatusController.isGuildLeader(player.getGuildStatus()) == false) {
+        if (!GuildStatusController.isGuildLeader(player.getGuildStatus())) {
             ErrorPopupMsg.sendErrorPopup(player, 173); // You must be the leader of a guild to receive a blessing
             return;
         }
@@ -126,12 +127,12 @@ public class MerchantMsgHandler extends AbstractClientMsgHandler {
 
         realm = RealmMap.getRealmForCity(city);
 
-        if (realm.getCanBeClaimed() == false) {
+        if (!realm.getCanBeClaimed()) {
             ErrorPopupMsg.sendErrorPopup(player, 180); // This territory cannot be ruled by anyone
             return;
         }
 
-        if (realm.isRuled() == true) {
+        if (realm.isRuled()) {
             ErrorPopupMsg.sendErrorPopup(player, 178); // This territory is already claimed
             return;
         }
@@ -142,12 +143,12 @@ public class MerchantMsgHandler extends AbstractClientMsgHandler {
 
     }
 
-    private static void requestBoon(MerchantMsg msg, ClientConnection origin, PlayerCharacter player, NPC npc) {
+    private static void requestBoon(PlayerCharacter player, NPC npc) {
 
         Building shrineBuilding;
         Shrine shrine;
 
-        if (npc.getGuild() != player.getGuild())
+        if (!npc.getGuild().getNation().equals(player.getGuild().getNation()))
             return;
 
         shrineBuilding = npc.getBuilding();
@@ -155,7 +156,7 @@ public class MerchantMsgHandler extends AbstractClientMsgHandler {
         if (shrineBuilding == null)
             return;
 
-        if (shrineBuilding.getBlueprint() != null && shrineBuilding.getBlueprint().getBuildingGroup() != engine.Enum.BuildingGroup.SHRINE)
+        if (shrineBuilding.getBlueprint() != null && !shrineBuilding.getBlueprint().getBuildingGroup().equals(engine.Enum.BuildingGroup.SHRINE))
             return;
 
         if (shrineBuilding.getRank() == -1)
@@ -171,11 +172,9 @@ public class MerchantMsgHandler extends AbstractClientMsgHandler {
             return;
         }
 
-        //already haz boon.
-
         if (player.containsEffect(shrine.getShrineType().getPowerToken())) {
-            ErrorPopupMsg.sendErrorPopup(player, 199);
-            return;
+            //remove old boon to apply new one, allows boon refreshing
+            player.effects.remove(PowersManager.getPowerByToken(shrine.getShrineType().getPowerToken()).name);
         }
 
         if (!Shrine.canTakeFavor(player, shrine))
@@ -191,16 +190,34 @@ public class MerchantMsgHandler extends AbstractClientMsgHandler {
             return;
         }
 
-        int rank = shrine.getRank();
-        //R8 trees always get atleast rank 2 boons. rank uses index, where 0 is first place, 1 is second, etc...
-        if (shrineBuilding.getCity() != null && shrineBuilding.getCity().getTOL() != null && shrineBuilding.getCity().getTOL().getRank() == 8)
-            if (rank != 0)
-                rank = 1;
-        int trains = 40 - (rank * 10);
-        if (trains < 0)
-            trains = 0;
+        int trains = 0;
+        switch(npc.getRank()){
+            case 1:
+                trains = 5;
+                break;
+            case 2:
+                trains = 10;
+                break;
+            case 3:
+                trains = 15;
+                break;
+            case 4:
+                trains = 20;
+                break;
+            case 5:
+                trains = 25;
+                break;
+            case 6:
+                trains = 30;
+                break;
+            case 7:
+                trains = 35;
+                break;
+        }
 
-        //System.out.println(trains);
+        if(Objects.requireNonNull(shrineBuilding.getCity()).getTOL() != null && shrineBuilding.getCity().getTOL().getRank() == 8)
+            trains += 5;
+
         PowersManager.applyPower(player, player, player.getLoc(), shrinePower.getToken(), trains, false);
         ChatManager.chatGuildInfo(player.getGuild(), player.getName() + " has recieved a boon costing " + 1 + " point of favor.");
         shrineBuilding.addEffectBit(1000000 << 2);
@@ -420,7 +437,7 @@ public class MerchantMsgHandler extends AbstractClientMsgHandler {
                 if (isHermit(npc))
                     requestHermitBlessing(msg, origin, player, npc);
                 else
-                    requestBoon(msg, origin, player, npc);
+                    requestBoon(player, npc);
                 break;
             case 15:
                 LeaderboardMessage lbm = new LeaderboardMessage();

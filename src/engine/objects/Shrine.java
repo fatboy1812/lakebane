@@ -43,7 +43,7 @@ public class Shrine extends AbstractWorldObject implements Comparable<Shrine> {
 
     public static boolean canTakeFavor(PlayerCharacter grantee, Shrine shrine) {
 
-        if (shrine.shrineType.isRace())
+        if (shrine.shrineType.isRace()) {
             switch (grantee.getRaceID()) {
                 case 2000:
                 case 2001:
@@ -107,7 +107,7 @@ public class Shrine extends AbstractWorldObject implements Comparable<Shrine> {
                     break;
 
             }
-        else
+        }else {
             switch (grantee.getPromotionClassID()) {
                 case 2504:
                     if (shrine.shrineType == ShrineType.Assassin)
@@ -198,7 +198,7 @@ public class Shrine extends AbstractWorldObject implements Comparable<Shrine> {
                         return true;
                     break;
             }
-
+        }
         return false;
     }
 
@@ -224,26 +224,6 @@ public class Shrine extends AbstractWorldObject implements Comparable<Shrine> {
                         shrine.getObjectUUID());
             }
         }
-
-    }
-
-    public void decay() {
-
-        if (this.getFavors() == 0)
-            return;
-
-        int decayAmount = (int) (this.getFavors() - (this.getFavors() * .10f));
-
-        if (decayAmount < 0)
-            decayAmount = 0;
-
-        if (!DbManager.ShrineQueries.updateFavors(this, decayAmount, this.getFavors())) {
-            Logger.error("Shrine Decay", "Error writing to DB. UUID: " + this.getObjectUUID());
-            return;
-        }
-        this.favors = decayAmount;
-
-        Logger.info(shrineType.name() + " uuid:" + this.getObjectUUID() + " Amount: " + this.getFavors() * .10f);
 
     }
 
