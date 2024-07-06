@@ -85,10 +85,6 @@ public enum LootManager {
         if (mob.bootySet != 0 && _bootySetMap.containsKey(mob.bootySet))
             RunBootySet(_bootySetMap.get(mob.bootySet), mob, inHotzone);
 
-        //check for special gifts 1/100 to drop present
-        if(ThreadLocalRandom.current().nextInt(1,101) == 50)
-            DropPresent(mob);
-
         //lastly, check mobs inventory for godly or disc runes to send a server announcement
         for (Item it : mob.getInventory()) {
 
@@ -121,6 +117,11 @@ public enum LootManager {
                     mob.getCharItemManager().addItemToInventory(toAdd);
             }
         }
+
+        //check for special gifts 1/100 to drop present
+        if(ThreadLocalRandom.current().nextInt(1,25) == 15)
+            DropPresent(mob);
+
         // Iterate all entries in this bootySet and process accordingly
         for (BootySetEntry bse : entries) {
             switch (bse.bootyType) {
