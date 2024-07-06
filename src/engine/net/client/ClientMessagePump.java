@@ -1660,12 +1660,8 @@ public class ClientMessagePump implements NetMsgHandler {
                 DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.SECONDARY);
                 return;
             }
-            //TODO get cost to repair
-            int cost = (int) ((max - dur) * 80.1);
 
-            cost *= npc.buyPercent;
-
-            cost += npc.getRepairCost();
+            int cost = (int)((toRepair.getMagicValue()/max*(max - dur)) + (npc.getRepairCost() * npc.buyPercent));
 
             Building b = (!npc.isStatic()) ? npc.getBuilding() : null;
 
