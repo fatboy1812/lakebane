@@ -1662,6 +1662,11 @@ public class ClientMessagePump implements NetMsgHandler {
             }
             //TODO get cost to repair
             int cost = (int) ((max - dur) * 80.1);
+
+            cost *= npc.buyPercent;
+
+            cost += npc.getRepairCost();
+
             Building b = (!npc.isStatic()) ? npc.getBuilding() : null;
 
             if (b != null)
