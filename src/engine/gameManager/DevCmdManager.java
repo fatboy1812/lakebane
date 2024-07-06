@@ -184,8 +184,8 @@ public enum DevCmdManager {
             case "printstats":
             case "printskills":
             case "printpowers":
-                if(target.equals(pcSender))
-                    playerAllowed = true;
+                if(!a.status.equals(Enum.AccountStatus.ADMIN))
+                    target = pcSender;
                 break;
         }
         if (!playerAllowed && !a.status.equals(Enum.AccountStatus.ADMIN)) {
