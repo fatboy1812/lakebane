@@ -35,6 +35,7 @@ public class MobEquipment extends AbstractGameObject {
     private int pValue;
     private int sValue;
     int magicValue;
+    public boolean fromNoob = false;
 
     private float dropChance = 0;
 
@@ -106,7 +107,6 @@ public class MobEquipment extends AbstractGameObject {
 
     public static void serializeForVendor(MobEquipment mobEquipment, ByteBufferWriter writer, float percent) throws SerializationException {
         _serializeForClientMsg(mobEquipment, writer, false);
-        int baseValue = mobEquipment.itemBase.getBaseValue() + mobEquipment.itemBase.getMagicValue();
         writer.putInt(mobEquipment.magicValue);
         writer.putInt(mobEquipment.magicValue);
     }

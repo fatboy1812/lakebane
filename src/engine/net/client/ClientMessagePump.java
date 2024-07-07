@@ -560,11 +560,18 @@ public class ClientMessagePump implements NetMsgHandler {
         if (!itemManager.inventoryContains(i))
             return;
 
+        //cannot delete gold
+        if(i.getItemBaseID() == 7)
+            return;
+
         if (i.isCanDestroy())
-            if (itemManager.delete(i) == true) {
-                int goldValue = i.getItemBase().getBaseValue();
+            if (itemManager.delete(i)) {
+                int goldValue = i.getBaseValue();
                 if(i.getItemBase().isRune())
                     goldValue = 500000;
+
+                if(i.getItemBaseID() == 980066)
+                    goldValue = 0;
 
                 if(goldValue > 0)
                     itemManager.addGoldToInventory(goldValue,false);
@@ -1251,6 +1258,8 @@ public class ClientMessagePump implements NetMsgHandler {
 
 
                 cost = sell.getBaseValue();
+                if(sell.getItemBaseID() == 980066)
+                    cost = 0;
 
                 //apply damaged value reduction
                 float durabilityCurrent = sell.getDurabilityCurrent();
@@ -1450,7 +1459,7 @@ public class ClientMessagePump implements NetMsgHandler {
                             if(me.getItemBase().getType().equals(ItemType.RESOURCE) && npc.getContractID() == 900){
                                 handleResourcePurchase(me,itemMan,sourcePlayer,ib);
                             }else {
-                                buy = Item.createItemForPlayer(sourcePlayer, ib);
+                                buy = Item.createItemForPlayer(sourcePlayer, ib, me.fromNoob);
                                 if (buy != null) {
                                     me.transferEnchants(buy);
                                     itemMan.addItemToInventory(buy);
@@ -1584,7 +1593,7 @@ public class ClientMessagePump implements NetMsgHandler {
             }
         }
         if(!stacked){
-            Item buy = Item.createItemForPlayer(sourcePlayer, ib);
+            Item buy = Item.createItemForPlayer(sourcePlayer, ib, false);
             if (buy != null) {
                 me.transferEnchants(buy);
                 itemMan.addItemToInventory(buy);

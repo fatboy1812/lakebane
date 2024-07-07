@@ -214,6 +214,7 @@ public class Contract extends AbstractGameObject {
                 }
             }
         }
+
         if(this.getObjectUUID() == 1202){ //rune merchant
             for(MobEquipment me : this.sellInventory){
                 switch(me.getItemBase().getUUID()){
@@ -272,6 +273,7 @@ public class Contract extends AbstractGameObject {
                 }
             }
         }
+
         if(this.getObjectUUID() == 1201){ //disc merchant
             for(MobEquipment me : this.sellInventory){
                 if(me.getItemBase().getName().equals("Prospector")){
@@ -279,6 +281,12 @@ public class Contract extends AbstractGameObject {
                 }else{
                     me.magicValue = 10000000;
                 }
+            }
+        }
+
+        if(this.getObjectUUID() == 1502041) {//noob helper{
+            for(MobEquipment me : this.sellInventory){
+                me.magicValue = 1;
             }
         }
         return this.sellInventory;

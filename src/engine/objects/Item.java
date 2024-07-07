@@ -233,7 +233,6 @@ public class Item extends AbstractWorldObject {
         this.value = rs.getInt("item_value");
         this.customName = rs.getString("item_name");
 
-
     }
 
     public static void _serializeForClientMsg(Item item, ByteBufferWriter writer)
@@ -609,7 +608,7 @@ public class Item extends AbstractWorldObject {
         writer.putIntAt(serialized, indexPosition);
     }
 
-    public static Item createItemForPlayer(PlayerCharacter pc, ItemBase ib) {
+    public static Item createItemForPlayer(PlayerCharacter pc, ItemBase ib, boolean fromNoob) {
         Item item = null;
         byte charges = 0;
 
@@ -1206,6 +1205,7 @@ public class Item extends AbstractWorldObject {
     }
 
     public int getBaseValue() {
+
         if (this.getItemBase() != null)
             return this.getItemBase().getBaseValue();
         return 0;
