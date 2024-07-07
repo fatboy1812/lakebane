@@ -1397,6 +1397,11 @@ public class Mob extends AbstractIntelligenceAgent {
             loadInventory();
 
         this.updateLocation();
+
+        if(Mob.discDroppers.contains(this)){
+            this.setLevel((short)65);
+            this.setResists(new Resists("Dropper"));
+        }
     }
 
     public void despawn() {
@@ -1467,7 +1472,7 @@ public class Mob extends AbstractIntelligenceAgent {
             Logger.error(e.getMessage());
         }
 
-        Resists.calculateResists(this);
+        //Resists.calculateResists(this);
     }
 
     public void calculateMaxHealthManaStamina() {
@@ -2264,5 +2269,9 @@ public class Mob extends AbstractIntelligenceAgent {
             }
         }
     }
-
+        public static void AddDiscDropper(Mob mob){
+        discDroppers.add(mob);
+        mob.setLevel((short)65);
+        mob.setResists(new Resists("Dropper"));
+        }
 }

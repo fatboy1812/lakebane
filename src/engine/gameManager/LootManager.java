@@ -125,7 +125,7 @@ public enum LootManager {
             mob.getCharItemManager().addItemToInventory(specialDrop);
             mob.setResists(new Resists("Dropper"));
             if(!Mob.discDroppers.contains(mob))
-                Mob.discDroppers.add(mob);
+                Mob.AddDiscDropper(mob);
         }
 
         //iterate the booty sets
@@ -460,7 +460,7 @@ public enum LootManager {
         if (lootItem != null) {
             mob.getCharItemManager().addItemToInventory(lootItem);
             if(lootItem.getItemBase().isDiscRune() && !Mob.discDroppers.contains(mob))
-                Mob.discDroppers.add(mob);
+                Mob.AddDiscDropper(mob);
         }
     }
 
