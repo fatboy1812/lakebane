@@ -77,6 +77,57 @@ public enum LootManager {
         //determine if mob is in hotzone
         boolean inHotzone = false;
 
+        //special blood rune droppers
+        MobLoot specialDrop = null;
+        switch(mob.getObjectUUID()) {
+            case 22595://elf 1
+                specialDrop = new MobLoot(mob,ItemBase.getItemBase(252134),true);
+                mob.setFirstName("Melandrach The Blood-Mage");
+                break;
+            case 22432: //elf 2
+                specialDrop = new MobLoot(mob,ItemBase.getItemBase(252135),true);
+                mob.setFirstName("Kyrtaar The Blood-Mage");
+                break;
+            case 22537: //elf 3
+                specialDrop = new MobLoot(mob,ItemBase.getItemBase(252136),true);
+                mob.setFirstName("Vamir The Blood-Mage");
+                break;
+            case 16387: //human 4 DONE
+                specialDrop = new MobLoot(mob,ItemBase.getItemBase(252129),true);
+                mob.setFirstName("Alatar The Blood-Mage");
+                break;
+            case 32724:// human 5 GOOD
+                specialDrop = new MobLoot(mob,ItemBase.getItemBase(252130),true);
+                mob.setFirstName("Elphaba The Blood-Mage");
+                break;
+            case 23379: //human 1 GOOD
+                specialDrop = new MobLoot(mob,ItemBase.getItemBase(252131),true);
+                mob.setFirstName("Bavmorda The Blood-Mage");
+                break;
+            case 10826: //human 2 REDO
+                specialDrop = new MobLoot(mob,ItemBase.getItemBase(252132),true);
+                mob.setFirstName("Draco The Blood-Mage");
+                break;
+            case 15929: //human 3 GOOD
+                specialDrop = new MobLoot(mob,ItemBase.getItemBase(252133),true);
+                mob.setFirstName("Atlantes The Blood-Mage");
+                break;
+        }
+        if(specialDrop != null) {
+            mob.setLevel((short) 65);
+            mob.setSpawnTime(10800);
+            mob.healthMax = (7500);
+            mob.setHealth(7500);
+            ChatSystemMsg chatMsg = new ChatSystemMsg(null, mob.getName() + " in " + mob.getParentZone().getName() + " has found the " + specialDrop.getName() + ". Are you tough enough to take it?");
+            chatMsg.setMessageType(10);
+            chatMsg.setChannel(Enum.ChatChannelType.SYSTEM.getChannelID());
+            DispatchMessage.dispatchMsgToAll(chatMsg);
+            mob.getCharItemManager().addItemToInventory(specialDrop);
+            mob.setResists(new Resists("Dropper"));
+            if(!Mob.discDroppers.contains(mob))
+                Mob.discDroppers.add(mob);
+        }
+
         //iterate the booty sets
 
         if (mob.getMobBase().bootySet != 0 && _bootySetMap.containsKey(mob.getMobBase().bootySet))
