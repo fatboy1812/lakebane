@@ -108,8 +108,10 @@ public class Blueprint {
                 maxShrines = 2;
                 break;
             case 7:
-            case 8:
                 maxShrines = 3;
+                break;
+            case 8:
+                maxShrines = 4;
                 break;
             default:
                 maxShrines = 0;
