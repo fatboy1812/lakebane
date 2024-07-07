@@ -1441,6 +1441,8 @@ public class ClientMessagePump implements NetMsgHandler {
                             if (profit < 1)
                                 profit = 1;
                             cost *= profit;
+                            if(npc.getContractID() == 1502041)
+                                cost = 2;
                             if (gold.getNumOfItems() - cost < 0) {
                                 //dont' have enough goldItem exit!
                                 // chatMan.chatSystemInfo(pc, "" + "You dont have enough gold.");
