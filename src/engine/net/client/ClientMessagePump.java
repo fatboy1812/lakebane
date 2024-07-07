@@ -564,23 +564,26 @@ public class ClientMessagePump implements NetMsgHandler {
         if(i.getItemBaseID() == 7)
             return;
 
-        if (i.isCanDestroy())
+        if (i.isCanDestroy()) {
+            int goldValue = i.getBaseValue();
+            if (i.getItemBase().isRune())
+                goldValue = 500000;
+
+            if (i.getItemBaseID() == 980066)
+                goldValue = 0;
+
+            if(itemManager.getGoldInventory().getNumOfItems() + goldValue > 10000000)
+                return;
+
             if (itemManager.delete(i)) {
-                int goldValue = i.getBaseValue();
-                if(i.getItemBase().isRune())
-                    goldValue = 500000;
-
-                if(i.getItemBaseID() == 980066)
-                    goldValue = 0;
-
-                if(goldValue > 0)
-                    itemManager.addGoldToInventory(goldValue,false);
+                if (goldValue > 0)
+                    itemManager.addGoldToInventory(goldValue, false);
 
                 itemManager.updateInventory();
                 Dispatch dispatch = Dispatch.borrow(sourcePlayer, msg);
                 DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.SECONDARY);
             }
-
+        }
     }
 
     private static void ackBankWindowOpened(AckBankWindowOpenedMsg msg, ClientConnection origin) {
