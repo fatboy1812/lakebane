@@ -687,7 +687,7 @@ public class Mine extends AbstractGameObject {
 
         //create elite mobs
         for(int i = 0; i < 15; i++){
-            Mob guard = Mob.createMob(14315, Vector3fImmutable.getRandomPointOnCircle(tower.loc,30),Guild.getErrantGuild(),true,mineZone,null,0, "Elite",65);
+            Mob guard = Mob.createMob(14315, Vector3fImmutable.getRandomPointOnCircle(tower.loc,30),Guild.getErrantGuild(),true,mineZone,null,0, "Elite Guardian",65);
             if(guard != null){
                 guard.setLevel((short)65);
                 guard.setResists(new Resists("Elite"));
@@ -705,7 +705,7 @@ public class Mine extends AbstractGameObject {
             }
         }
         //create stronghold commander
-        Mob commander = Mob.createMob(14315, tower.loc,Guild.getErrantGuild(),true,mineZone,null,0, "Commander",75);
+        Mob commander = Mob.createMob(14315, tower.loc,Guild.getErrantGuild(),true,mineZone,null,0, "Guardian Commander",75);
         if(commander != null){
             commander.setLevel((short)75);
             commander.setResists(new Resists("Elite"));
