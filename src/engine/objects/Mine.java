@@ -675,11 +675,13 @@ public class Mine extends AbstractGameObject {
             oldBuildings.put(building.getObjectUUID(),building.meshUUID);
             building.setMeshUUID(407650);
             building.setMeshScale(new Vector3f(0,0,0));
+            InterestManager.setObjectDirty(building);
         }
 
         //update tower to become stronghold mesh
         tower.setMeshUUID(5001500);
         tower.setMeshScale(new Vector3f(1,1,1));
+        InterestManager.setObjectDirty(tower);
 
         //create elite mobs
         for(int i = 0; i < 15; i++){
