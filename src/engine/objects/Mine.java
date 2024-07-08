@@ -680,8 +680,8 @@ public class Mine extends AbstractGameObject {
         }
 
         //update tower to become stronghold mesh
-        tower.setMeshUUID(5001500);
-        tower.setMeshScale(new Vector3f(1,1,1));
+        tower.setMeshUUID(423600);
+        tower.setMeshScale(new Vector3f(1.5f,1.5f,1.5f));
         InterestManager.setObjectDirty(tower);
         WorldGrid.updateObject(tower);
 
