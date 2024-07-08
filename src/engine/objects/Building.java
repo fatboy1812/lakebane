@@ -821,6 +821,10 @@ public class Building extends AbstractWorldObject {
         return this.meshScale;
     }
 
+    public void setMeshScale(Vector3f scale) {
+        this.meshScale = scale;
+    }
+
     public final int getMeshUUID() {
         return this.meshUUID;
     }

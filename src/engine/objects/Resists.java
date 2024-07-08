@@ -49,6 +49,9 @@ public class Resists {
             case "Dropper":
                 setDropperResists();
                 break;
+            case "Elite":
+                setEliteResists();
+                break;
             default:
                 setGenericResists();
                 break;
@@ -248,6 +251,24 @@ public class Resists {
         this.resists.put(DamageType.Lightning, 50f);
         this.resists.put(DamageType.Fire, 50f);
         this.resists.put(DamageType.Cold, 50f);
+        this.resists.put(DamageType.Healing, 0f);
+        this.immuneTo.put(DamageType.Siege, true);
+    }
+
+    public final void setEliteResists() {
+        this.immuneToAll = false;
+        this.resists.put(DamageType.Slash, 75f);
+        this.resists.put(DamageType.Crush, 75f);
+        this.resists.put(DamageType.Pierce, 75f);
+        this.resists.put(DamageType.Magic, 75f);
+        this.resists.put(DamageType.Bleed, 75f);
+        this.resists.put(DamageType.Poison, 75f);
+        this.resists.put(DamageType.Mental, 75f);
+        this.resists.put(DamageType.Holy, 75f);
+        this.resists.put(DamageType.Unholy, 75f);
+        this.resists.put(DamageType.Lightning, 75f);
+        this.resists.put(DamageType.Fire, 75f);
+        this.resists.put(DamageType.Cold, 75f);
         this.resists.put(DamageType.Healing, 0f);
         this.immuneTo.put(DamageType.Siege, true);
     }

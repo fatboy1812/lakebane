@@ -24,6 +24,7 @@ import org.pmw.tinylog.Logger;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static engine.server.MBServerStatics.MINE_LATE_WINDOW;
 
@@ -42,6 +43,9 @@ public class HalfHourlyJobThread implements Runnable {
 
             for (Mine mine : mines) {
                 try {
+
+                    if(mine.isStronghold)
+                        mine.EndStronghold();
 
                     //handle mines opening on server reboot weird time interval
                     if(LocalDateTime.now().isAfter(LocalDateTime.now().withHour(mine.openHour).withMinute(mine.openMinute))) {
@@ -67,9 +71,25 @@ public class HalfHourlyJobThread implements Runnable {
                     Logger.error("mineID: " + mine.getObjectUUID(), e.toString());
                 }
             }
+
+            //process stronghold
+            int count = 0;
+            while(count < 2){
+                int random = ThreadLocalRandom.current().nextInt(1,mines.size()) - 1;
+                Mine mine = mines.get(random);
+                if(mine != null){
+                    if(!mine.isActive){
+                        mine.StartStronghold();
+                        count ++;
+                    }
+                }
+            }
+
         } catch (Exception e) {
             Logger.error(e.toString());
         }
+
+
     }
 
     public static void mineWindowOpen(Mine mine) {

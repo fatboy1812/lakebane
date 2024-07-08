@@ -663,4 +663,27 @@ public enum LootManager {
         }
 
     }
+
+    public static void GenerateStrongholdLoot(Mob mob, boolean commander){
+
+        mob.getCharItemManager().clearInventory();
+
+        int multiplier = 1;
+        if(commander)
+            multiplier = 2;
+
+        int high = 500000;
+        int low = 125000;
+        int gold = ThreadLocalRandom.current().nextInt(low, high + 1) * multiplier;
+
+        if (gold > 0) {
+            MobLoot goldAmount = new MobLoot(mob, gold);
+            mob.getCharItemManager().addItemToInventory(goldAmount);
+        }
+
+        for(int i = 0; i < 3 * multiplier; i++){
+            DropPresent(mob);
+        }
+
+    }
 }

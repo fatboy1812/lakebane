@@ -10,8 +10,11 @@
 package engine.objects;
 
 import engine.Enum;
+import engine.InterestManagement.InterestManager;
 import engine.InterestManagement.WorldGrid;
 import engine.gameManager.*;
+import engine.math.Vector3f;
+import engine.math.Vector3fImmutable;
 import engine.net.ByteBufferWriter;
 import engine.net.client.msg.ErrorPopupMsg;
 import engine.server.MBServerStatics;
@@ -57,6 +60,11 @@ public class Mine extends AbstractGameObject {
     public LocalDateTime liveTime;
     public final HashSet<Integer> _playerMemory = new HashSet<>();
     public ArrayList<PlayerCharacter> affectedPlayers = new ArrayList<>();
+
+    //stronghold stuff
+    public boolean isStronghold = false;
+    public ArrayList<Mob> strongholdMobs;
+    public HashMap<Integer,Integer> oldBuildings;
 
     /**
      * ResultSet Constructor
@@ -180,9 +188,15 @@ public class Mine extends AbstractGameObject {
             writer.putInt(mine.getObjectType().ordinal());
             writer.putInt(mine.getObjectUUID());
             writer.putInt(mine.getObjectUUID()); //actually a hash of mine
-            writer.putString(mine.mineType.name);
+            if(mine.isStronghold){
+                writer.putString("STRONGHOLD");
+                writer.putString("");
+            }else {
+                writer.putString(mine.mineType.name);
+                writer.putString(mine.capSize + " Man ");
+            }
             //writer.putString(mine.zoneName + " " + mine.capSize + " Man ");
-            writer.putString(mine.capSize + " Man ");
+
             writer.putInt(mine.production.hash);
             writer.putInt(mine.production.baseProduction);
             writer.putInt(mine.getModifiedProductionAmount()); //TODO calculate range penalty here
@@ -636,5 +650,89 @@ public class Mine extends AbstractGameObject {
         // Remove players from city memory
 
         _playerMemory.removeAll(toRemove);
+    }
+
+    public void StartStronghold(){
+
+        //remove buildings
+        Building tower = BuildingManager.getBuilding(this.buildingID);
+        if(tower == null)
+            return;
+
+        this.isStronghold = true;
+        this.strongholdMobs = new ArrayList<>();
+        this.oldBuildings = new HashMap<>();
+
+        Zone mineZone = ZoneManager.findSmallestZone(tower.loc);
+        for(Building building : mineZone.zoneBuildingSet){
+            oldBuildings.put(building.getObjectUUID(),building.meshUUID);
+            building.setMeshUUID(407650);
+            building.setMeshScale(new Vector3f(0,0,0));
+        }
+
+        //update tower to become stronghold mesh
+        tower.setMeshScale(new Vector3f(2,2,2));
+        tower.setMeshUUID(5001500);
+
+        //create elite mobs
+        for(int i = 0; i < 15; i++){
+            Mob guard = Mob.createMob(14315, Vector3fImmutable.getRandomPointOnCircle(tower.loc,30),Guild.getErrantGuild(),true,mineZone,null,0, "Elite",65);
+            if(guard != null){
+                guard.setResists(new Resists("Elite"));
+                guard.healthMax *= 2;
+                guard.setHealth(guard.healthMax);
+                guard.spawnTime = 1000000000;
+                guard.runAfterLoad();
+                InterestManager.setObjectDirty(guard);
+                this.strongholdMobs.add(guard);
+                LootManager.GenerateStrongholdLoot(guard,false);
+            }
+        }
+        //create stronghold commander
+        Mob commander = Mob.createMob(14315, Vector3fImmutable.getRandomPointOnCircle(tower.loc,30),Guild.getErrantGuild(),true,mineZone,null,0, "Commander",75);
+        if(commander != null){
+            commander.setResists(new Resists("Elite"));
+            commander.healthMax *= 2;
+            commander.setHealth(commander.healthMax);
+            commander.spawnTime = 1000000000;
+            commander.runAfterLoad();
+            InterestManager.setObjectDirty(commander);
+            this.strongholdMobs.add(commander);
+            LootManager.GenerateStrongholdLoot(commander,true);
+        }
+
+        this.setActive(true);
+        tower.setProtectionState(Enum.ProtectionState.PROTECTED);
+    }
+    public void EndStronghold(){
+
+        //restore the buildings
+        Building tower = BuildingManager.getBuilding(this.buildingID);
+        if(tower == null)
+            return;
+
+        this.isStronghold = false;
+
+        //get rid of the mobs
+        for(Mob mob : this.strongholdMobs) {
+            mob.despawn();
+            mob.removeFromCache();
+        }
+
+        //restore the buildings
+        Zone mineZone = ZoneManager.findSmallestZone(tower.loc);
+        for(Building building : mineZone.zoneBuildingSet){
+            if(this.oldBuildings.containsKey(building.getObjectUUID())) {
+                building.setMeshUUID(this.oldBuildings.get(building.getObjectUUID()));
+                building.setMeshScale(new Vector3f(1, 1, 1));
+            }
+        }
+
+        //update tower to become Mine Tower again
+        tower.setMeshScale(new Vector3f(1,1,1));
+        tower.setMeshUUID(1500100);
+
+        this.setActive(false);
+        tower.setProtectionState(Enum.ProtectionState.NPC);
     }
 }

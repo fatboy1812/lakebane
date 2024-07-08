@@ -220,16 +220,28 @@ public class ItemBase {
         AnniverseryGifts.add(971008);
         AnniverseryGifts.add(971009);
         AnniverseryGifts.add(971010);
-        //AnniverseryGifts.add(5101000);
-        //AnniverseryGifts.add(5101020);
-        //AnniverseryGifts.add(5101100);
-        //AnniverseryGifts.add(5101120);
-        //AnniverseryGifts.add(5101040);
-        //AnniverseryGifts.add(5101140);
-        //AnniverseryGifts.add(5101060);
-        //AnniverseryGifts.add(5101080);
+        AnniverseryGifts.add(5101000);
+        AnniverseryGifts.add(5101020);
+        AnniverseryGifts.add(5101100);
+        AnniverseryGifts.add(5101120);
+        AnniverseryGifts.add(5101040);
+        AnniverseryGifts.add(5101140);
+        AnniverseryGifts.add(5101060);
+        AnniverseryGifts.add(5101080);
 
-
+        //fate peddler presents
+        AnniverseryGifts.add(971012);
+        AnniverseryGifts.add(971013);
+        AnniverseryGifts.add(971014);
+        AnniverseryGifts.add(971015);
+        AnniverseryGifts.add(971016);
+        AnniverseryGifts.add(971017);
+        AnniverseryGifts.add(971018);
+        AnniverseryGifts.add(971019);
+        AnniverseryGifts.add(971020);
+        AnniverseryGifts.add(971021);
+        AnniverseryGifts.add(971022);
+        AnniverseryGifts.add(971023);
     }
 
     public static int getDiscPrice(int uuid) {
