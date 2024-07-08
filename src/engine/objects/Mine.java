@@ -671,7 +671,7 @@ public class Mine extends AbstractGameObject {
         }
 
         //update tower to become stronghold mesh
-        tower.setMeshScale(new Vector3f(2,2,2));
+        tower.setMeshScale(new Vector3f(1.25F,1.25F,1.25F));
         tower.setMeshUUID(5001500);
 
         //create elite mobs
