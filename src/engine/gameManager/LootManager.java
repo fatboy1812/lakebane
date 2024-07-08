@@ -688,7 +688,7 @@ public enum LootManager {
         int baseLoot = rollRandomItem(random);
         ItemBase contract = ItemBase.getItemBase(baseLoot);
         if (contract != null) {
-            MobLoot toAdd = new MobLoot(mob, contract, false);
+            MobLoot toAdd = new MobLoot(mob, contract, true);
 
             if (toAdd != null)
                 mob.getCharItemManager().addItemToInventory(toAdd);
@@ -697,10 +697,28 @@ public enum LootManager {
                 int glassID = rollRandomItem(126);
                 ItemBase glassItem = ItemBase.getItemBase(glassID);
                 if (glassItem != null) {
-                    MobLoot toAdd2 = new MobLoot(mob, glassItem, false);
+                    MobLoot toAdd2 = new MobLoot(mob, glassItem, true);
 
-                    if (toAdd != null)
+                    if (toAdd2 != null)
                         mob.getCharItemManager().addItemToInventory(toAdd2);
+                }
+
+                int discID = rollRandomItem(3202);
+                ItemBase discItem = ItemBase.getItemBase(discID);
+                if (glassItem != null) {
+                    MobLoot toAdd3 = new MobLoot(mob, discItem, true);
+
+                    if (toAdd3 != null)
+                        mob.getCharItemManager().addItemToInventory(toAdd3);
+                }
+
+                int runeID = rollRandomItem(3201);
+                ItemBase runeItem = ItemBase.getItemBase(runeID);
+                if (runeItem != null) {
+                    MobLoot toAdd4 = new MobLoot(mob, runeItem, true);
+
+                    if (toAdd4 != null)
+                        mob.getCharItemManager().addItemToInventory(toAdd4);
                 }
             }
 
