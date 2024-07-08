@@ -717,6 +717,9 @@ public class Mine extends AbstractGameObject {
             commander.minDamageHandOne *= 3;
             commander.atrHandOne *= 3;
             commander.defenseRating *= 3;
+            commander.mobPowers.put(429413547,40);
+            commander.mobPowers.put(429032838,40);
+            commander.mobPowers.put(57584498,40);
             InterestManager.setObjectDirty(commander);
             this.strongholdMobs.add(commander);
             LootManager.GenerateStrongholdLoot(commander,true);
