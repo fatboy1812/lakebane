@@ -654,7 +654,7 @@ public enum LootManager {
     }
 
     public static void DropPresent(Mob mob){
-        int random = ThreadLocalRandom.current().nextInt(ItemBase.AnniverseryGifts.size());
+        int random = ThreadLocalRandom.current().nextInt(ItemBase.AnniverseryGifts.size() - 1);
         int presentID = ItemBase.AnniverseryGifts.get(random);
         ItemBase presentBase = ItemBase.getItemBase(presentID);
         if(presentBase != null){

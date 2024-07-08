@@ -688,7 +688,7 @@ public class Mine extends AbstractGameObject {
                 guard.healthMax *= 2;
                 guard.setHealth(guard.healthMax);
                 guard.spawnTime = 1000000000;
-                guard.runAfterLoad();
+                guard.BehaviourType = Enum.MobBehaviourType.Aggro;
                 InterestManager.setObjectDirty(guard);
                 this.strongholdMobs.add(guard);
                 LootManager.GenerateStrongholdLoot(guard,false);
@@ -701,7 +701,7 @@ public class Mine extends AbstractGameObject {
             commander.healthMax *= 2;
             commander.setHealth(commander.healthMax);
             commander.spawnTime = 1000000000;
-            commander.runAfterLoad();
+            commander.BehaviourType = Enum.MobBehaviourType.Aggro;
             InterestManager.setObjectDirty(commander);
             this.strongholdMobs.add(commander);
             LootManager.GenerateStrongholdLoot(commander,true);
