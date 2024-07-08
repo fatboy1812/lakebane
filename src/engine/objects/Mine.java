@@ -695,7 +695,7 @@ public class Mine extends AbstractGameObject {
             }
         }
         //create stronghold commander
-        Mob commander = Mob.createMob(14315, Vector3fImmutable.getRandomPointOnCircle(tower.loc,30),Guild.getErrantGuild(),true,mineZone,null,0, "Commander",75);
+        Mob commander = Mob.createMob(14315, tower.loc,Guild.getErrantGuild(),true,mineZone,null,0, "Commander",75);
         if(commander != null){
             commander.setResists(new Resists("Elite"));
             commander.healthMax *= 2;
