@@ -705,18 +705,18 @@ public class Mine extends AbstractGameObject {
             }
         }
         //create stronghold commander
-        Mob commander = Mob.createMob(14315, tower.loc,Guild.getErrantGuild(),true,mineZone,null,0, "Guardian Commander",75);
+        Mob commander = Mob.createMob(14293, tower.loc,Guild.getErrantGuild(),true,mineZone,null,0, "Guardian Commander",75);
         if(commander != null){
             commander.setLevel((short)75);
             commander.setResists(new Resists("Elite"));
-            commander.healthMax *= 2;
+            commander.healthMax = 50000;
             commander.setHealth(commander.healthMax);
             commander.spawnTime = 1000000000;
             commander.BehaviourType = Enum.MobBehaviourType.Aggro;
-            commander.maxDamageHandOne *= 3;
-            commander.minDamageHandOne *= 3;
-            commander.atrHandOne *= 3;
-            commander.defenseRating *= 3;
+            commander.maxDamageHandOne = 1500;
+            commander.minDamageHandOne = 3500;
+            commander.atrHandOne = 3500;
+            commander.defenseRating = 3500;
             commander.mobPowers.put(429413547,40);
             commander.mobPowers.put(429032838,40);
             commander.mobPowers.put(57584498,40);

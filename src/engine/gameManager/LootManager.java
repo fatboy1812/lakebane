@@ -672,8 +672,8 @@ public enum LootManager {
         if (commander)
             multiplier = 2;
 
-        int high = 500000;
-        int low = 125000;
+        int high = 250000;
+        int low = 65000;
         int gold = ThreadLocalRandom.current().nextInt(low, high + 1) * multiplier;
 
         if (gold > 0) {
