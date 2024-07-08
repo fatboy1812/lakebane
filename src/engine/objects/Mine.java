@@ -222,10 +222,17 @@ public class Mine extends AbstractGameObject {
 
             writer.putInt(mine.isExpansion() ? mine.mineType.xpacHash : mine.mineType.hash);
 
-            writer.putString(mine.guildName);
-            GuildTag._serializeForDisplay(mine.guildTag, writer);
-            writer.putString(mine.nationName);
-            GuildTag._serializeForDisplay(mine.nationTag, writer);
+            if (mine.isStronghold) {
+                writer.putString("");
+                GuildTag._serializeForDisplay(Guild.getErrantGuild().getGuildTag(), writer);
+                writer.putString("");
+                GuildTag._serializeForDisplay(Guild.getErrantGuild().getGuildTag(), writer);
+            }else {
+                writer.putString(mine.guildName);
+                GuildTag._serializeForDisplay(mine.guildTag, writer);
+                writer.putString(mine.nationName);
+                GuildTag._serializeForDisplay(mine.nationTag, writer);
+            }
         } catch (Exception e) {
             Logger.error("Failed TO Serialize Mine Because: " + e.getMessage());
         }
