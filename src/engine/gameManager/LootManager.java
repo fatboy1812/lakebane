@@ -664,12 +664,12 @@ public enum LootManager {
 
     }
 
-    public static void GenerateStrongholdLoot(Mob mob, boolean commander){
+    public static void GenerateStrongholdLoot(Mob mob, boolean commander) {
 
         mob.getCharItemManager().clearInventory();
 
         int multiplier = 1;
-        if(commander)
+        if (commander)
             multiplier = 2;
 
         int high = 500000;
@@ -681,9 +681,29 @@ public enum LootManager {
             mob.getCharItemManager().addItemToInventory(goldAmount);
         }
 
-        for(int i = 0; i < 3 * multiplier; i++){
-            DropPresent(mob);
-        }
+        int random = 3211 + ThreadLocalRandom.current().nextInt(6);
+        if(random > 3216)
+            random = 3216;
 
+        int baseLoot = rollRandomItem(random);
+        ItemBase contract = ItemBase.getItemBase(baseLoot);
+        if (contract != null) {
+            MobLoot toAdd = new MobLoot(mob, contract, false);
+
+            if (toAdd != null)
+                mob.getCharItemManager().addItemToInventory(toAdd);
+
+            if (commander) {
+                int glassID = rollRandomItem(126);
+                ItemBase glassItem = ItemBase.getItemBase(glassID);
+                if (glassItem != null) {
+                    MobLoot toAdd2 = new MobLoot(mob, glassItem, false);
+
+                    if (toAdd != null)
+                        mob.getCharItemManager().addItemToInventory(toAdd2);
+                }
+            }
+
+        }
     }
 }

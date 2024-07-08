@@ -676,22 +676,29 @@ public class Mine extends AbstractGameObject {
             building.setMeshUUID(407650);
             building.setMeshScale(new Vector3f(0,0,0));
             InterestManager.setObjectDirty(building);
+            WorldGrid.updateObject(building);
         }
 
         //update tower to become stronghold mesh
         tower.setMeshUUID(5001500);
         tower.setMeshScale(new Vector3f(1,1,1));
         InterestManager.setObjectDirty(tower);
+        WorldGrid.updateObject(tower);
 
         //create elite mobs
         for(int i = 0; i < 15; i++){
             Mob guard = Mob.createMob(14315, Vector3fImmutable.getRandomPointOnCircle(tower.loc,30),Guild.getErrantGuild(),true,mineZone,null,0, "Elite",65);
             if(guard != null){
+                guard.setLevel((short)65);
                 guard.setResists(new Resists("Elite"));
                 guard.healthMax *= 2;
                 guard.setHealth(guard.healthMax);
                 guard.spawnTime = 1000000000;
                 guard.BehaviourType = Enum.MobBehaviourType.Aggro;
+                guard.maxDamageHandOne *= 2;
+                guard.minDamageHandOne *= 2;
+                guard.atrHandOne *= 2;
+                guard.defenseRating *= 2;
                 InterestManager.setObjectDirty(guard);
                 this.strongholdMobs.add(guard);
                 LootManager.GenerateStrongholdLoot(guard,false);
@@ -700,11 +707,16 @@ public class Mine extends AbstractGameObject {
         //create stronghold commander
         Mob commander = Mob.createMob(14315, tower.loc,Guild.getErrantGuild(),true,mineZone,null,0, "Commander",75);
         if(commander != null){
+            commander.setLevel((short)75);
             commander.setResists(new Resists("Elite"));
             commander.healthMax *= 2;
             commander.setHealth(commander.healthMax);
             commander.spawnTime = 1000000000;
             commander.BehaviourType = Enum.MobBehaviourType.Aggro;
+            commander.maxDamageHandOne *= 3;
+            commander.minDamageHandOne *= 3;
+            commander.atrHandOne *= 3;
+            commander.defenseRating *= 3;
             InterestManager.setObjectDirty(commander);
             this.strongholdMobs.add(commander);
             LootManager.GenerateStrongholdLoot(commander,true);
