@@ -681,12 +681,12 @@ public class Mine extends AbstractGameObject {
 
         //update tower to become stronghold mesh
         tower.setMeshUUID(423600);
-        tower.setMeshScale(new Vector3f(1.5f,1.5f,1.5f));
+        tower.setMeshScale(new Vector3f(1,1,1));
         InterestManager.setObjectDirty(tower);
         WorldGrid.updateObject(tower);
 
         //create elite mobs
-        for(int i = 0; i < 15; i++){
+        for(int i = 0; i < 10; i++){
             Mob guard = Mob.createMob(14315, Vector3fImmutable.getRandomPointOnCircle(tower.loc,30),Guild.getErrantGuild(),true,mineZone,null,0, "Elite Guardian",65);
             if(guard != null){
                 guard.setLevel((short)65);
@@ -703,6 +703,8 @@ public class Mine extends AbstractGameObject {
                 this.strongholdMobs.add(guard);
                 LootManager.GenerateStrongholdLoot(guard,false);
             }
+            if(guard!= null && guard.level < 60)
+                guard.despawn();
         }
         //create stronghold commander
         Mob commander = Mob.createMob(14293, tower.loc,Guild.getErrantGuild(),true,mineZone,null,0, "Guardian Commander",75);
