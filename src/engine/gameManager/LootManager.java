@@ -683,10 +683,16 @@ public enum LootManager {
             MobLoot goldAmount = new MobLoot(mob, gold);
             mob.getCharItemManager().addItemToInventory(goldAmount);
         }
-        if (ThreadLocalRandom.current().nextInt(100) < 75)
+        if (ThreadLocalRandom.current().nextInt(100) < 35)
             DropPresent(mob);
 
         if (commander) {
+
+            if (ThreadLocalRandom.current().nextInt(100) < 25)
+                DropPresent(mob);
+
+            if (ThreadLocalRandom.current().nextInt(100) < 25)
+                DropPresent(mob);
 
             //chance for glass
             if (ThreadLocalRandom.current().nextInt(100) < 75) {
