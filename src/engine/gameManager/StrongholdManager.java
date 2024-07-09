@@ -72,20 +72,22 @@ public class StrongholdManager {
                 guard.runAfterLoad();
                 guard.setLevel((short)65);
                 guard.setResists(new Resists("Elite"));
-                guard.healthMax  = 12500;
-                guard.setHealth(guard.healthMax);
                 guard.spawnTime = 1000000000;
                 guard.BehaviourType = Enum.MobBehaviourType.Aggro;
-                guard.maxDamageHandOne = 1550;
-                guard.minDamageHandOne = 750;
-                guard.atrHandOne = 1800;
-                guard.defenseRating = 2200;
                 InterestManager.setObjectDirty(guard);
                 mine.strongholdMobs.add(guard);
                 LootManager.GenerateStrongholdLoot(guard,false);
             }
-            if(guard!= null && guard.level < 60)
+            if(guard!= null && guard.level < 60) {
                 guard.despawn();
+            }else{
+                guard.healthMax  = 12500;
+                guard.setHealth(guard.healthMax);
+                guard.maxDamageHandOne = 1550;
+                guard.minDamageHandOne = 750;
+                guard.atrHandOne = 1800;
+                guard.defenseRating = 2200;
+            }
         }
         //create stronghold commander
         Vector3fImmutable loc = tower.loc;
@@ -97,14 +99,8 @@ public class StrongholdManager {
             commander.runAfterLoad();
             commander.setLevel((short)75);
             commander.setResists(new Resists("Elite"));
-            commander.healthMax = 50000;
-            commander.setHealth(commander.healthMax);
             commander.spawnTime = 1000000000;
             commander.BehaviourType = Enum.MobBehaviourType.Aggro;
-            commander.maxDamageHandOne = 3500;
-            commander.minDamageHandOne = 1500;
-            commander.atrHandOne = 3500;
-            commander.defenseRating = 3500;
             commander.mobPowers.clear();
             commander.mobPowers.put(563107033,40); //grounding shot
             commander.mobPowers.put(429032838,40); // gravechill
@@ -113,6 +109,12 @@ public class StrongholdManager {
             InterestManager.setObjectDirty(commander);
             mine.strongholdMobs.add(commander);
             LootManager.GenerateStrongholdLoot(commander,true);
+            commander.healthMax = 50000;
+            commander.setHealth(commander.healthMax);
+            commander.maxDamageHandOne = 3500;
+            commander.minDamageHandOne = 1500;
+            commander.atrHandOne = 3500;
+            commander.defenseRating = 3500;
         }
 
         mine.setActive(true);
