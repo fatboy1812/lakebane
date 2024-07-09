@@ -116,7 +116,7 @@ public class StrongholdManager {
         mine.setActive(true);
         tower.setProtectionState(Enum.ProtectionState.PROTECTED);
         tower.getBounds().setRegions(tower);
-
+        InterestManager.setObjectDirty(tower);
     }
 
     public static void EndStronghold(Mine mine){
@@ -150,6 +150,7 @@ public class StrongholdManager {
         mine.setActive(false);
         tower.setProtectionState(Enum.ProtectionState.NPC);
         tower.getBounds().setRegions(tower);
+        InterestManager.setObjectDirty(tower);
     }
 
     public static int getStrongholdMeshID(Zone parent){
