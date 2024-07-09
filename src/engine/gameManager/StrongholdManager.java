@@ -117,6 +117,7 @@ public class StrongholdManager {
         tower.setProtectionState(Enum.ProtectionState.PROTECTED);
         tower.getBounds().setRegions(tower);
         InterestManager.setObjectDirty(tower);
+        WorldGrid.updateObject(tower);
     }
 
     public static void EndStronghold(Mine mine){
@@ -141,6 +142,8 @@ public class StrongholdManager {
             if(mine.oldBuildings.containsKey(building.getObjectUUID())) {
                 building.setMeshUUID(mine.oldBuildings.get(building.getObjectUUID()));
                 building.setMeshScale(new Vector3f(1, 1, 1));
+                InterestManager.setObjectDirty(building);
+                WorldGrid.updateObject(building);
             }
         }
 
@@ -151,6 +154,7 @@ public class StrongholdManager {
         tower.setProtectionState(Enum.ProtectionState.NPC);
         tower.getBounds().setRegions(tower);
         InterestManager.setObjectDirty(tower);
+        WorldGrid.updateObject(tower);
     }
 
     public static int getStrongholdMeshID(Zone parent){
