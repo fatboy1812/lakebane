@@ -84,7 +84,7 @@ public class StrongholdManager {
                 guard.atrHandOne = 1800;
                 guard.defenseRating = 2200;
             }
-            if(guard!= null && guard.healthMax != 12500) {
+            if(guard != null && guard.healthMax != 12500) {
                 guard.despawn();
             }
         }
@@ -133,6 +133,7 @@ public class StrongholdManager {
         for(Mob mob : mine.strongholdMobs) {
             mob.despawn();
             mob.removeFromCache();
+            DbManager.MobQueries.DELETE_MOB(mob);
         }
 
         //restore the buildings
