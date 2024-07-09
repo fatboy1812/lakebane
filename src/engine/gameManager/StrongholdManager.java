@@ -77,16 +77,15 @@ public class StrongholdManager {
                 InterestManager.setObjectDirty(guard);
                 mine.strongholdMobs.add(guard);
                 LootManager.GenerateStrongholdLoot(guard,false);
-            }
-            if(guard!= null && guard.level < 60) {
-                guard.despawn();
-            }else{
                 guard.healthMax  = 12500;
                 guard.setHealth(guard.healthMax);
                 guard.maxDamageHandOne = 1550;
                 guard.minDamageHandOne = 750;
                 guard.atrHandOne = 1800;
                 guard.defenseRating = 2200;
+            }
+            if(guard!= null && guard.healthMax != 12500) {
+                guard.despawn();
             }
         }
         //create stronghold commander
