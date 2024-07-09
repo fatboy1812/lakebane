@@ -64,7 +64,8 @@ public class StrongholdManager {
         //create elite mobs
         for(int i = 0; i < 10; i++){
             Vector3fImmutable loc = Vector3fImmutable.getRandomPointOnCircle(tower.loc,30);
-            Mob guard = Mob.createMob(getStrongholdGuardianID(mine.getParentZone()), loc, Guild.getErrantGuild(),true,mineZone,null,0, "Elite Guardian",65);
+            MobBase guardBase = MobBase.getMobBase(getStrongholdGuardianID(mine.getParentZone()));
+            Mob guard = Mob.createMob(guardBase.getObjectUUID(), loc, Guild.getErrantGuild(),true,mineZone,null,0, guardBase.getFirstName(),65);
             if(guard != null){
                 guard.bindLoc = loc;
                 guard.setLoc(loc);
@@ -83,14 +84,13 @@ public class StrongholdManager {
                 guard.minDamageHandOne = 750;
                 guard.atrHandOne = 1800;
                 guard.defenseRating = 2200;
-            }
-            if(guard != null && guard.healthMax != 12500) {
-                guard.despawn();
+                guard.setFirstName("Elite Guardian");
             }
         }
         //create stronghold commander
         Vector3fImmutable loc = tower.loc;
-        Mob commander = Mob.createMob(getStrongholdCommanderID(mine.getParentZone()), loc,Guild.getErrantGuild(),true,mineZone,null,0, "Guardian Commander",75);
+        MobBase commanderBase = MobBase.getMobBase(getStrongholdCommanderID(mine.getParentZone()));
+        Mob commander = Mob.createMob(commanderBase.getObjectUUID(), loc,Guild.getErrantGuild(),true,mineZone,null,0, commanderBase.getFirstName(),75);
         if(commander != null){
             commander.bindLoc = loc;
             commander.setLoc(loc);
@@ -114,6 +114,7 @@ public class StrongholdManager {
             commander.minDamageHandOne = 1500;
             commander.atrHandOne = 3500;
             commander.defenseRating = 3500;
+            commander.setFirstName("Guardian Commander");
         }
 
         mine.setActive(true);
