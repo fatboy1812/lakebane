@@ -41,7 +41,10 @@ public class HalfHourlyJobThread implements Runnable {
         try {
 
             ArrayList<Mine> mines = Mine.getMines();
-
+            for(Mine mine : mines){
+                if (mine.isStronghold)
+                    StrongholdManager.EndStronghold(mine);
+            }
             for (Mine mine : mines) {
                 try {
                     //handle mines opening on server reboot weird time interval

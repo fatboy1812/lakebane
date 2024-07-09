@@ -14,12 +14,8 @@ import java.util.concurrent.ThreadLocalRandom;
 public class StrongholdManager {
 
     public static void processStrongholds() {
-        //end all current stronghold activities
         ArrayList<Mine> mines = Mine.getMines();
-        for(Mine mine : mines){
-            if (mine.isStronghold)
-                StrongholdManager.EndStronghold(mine);
-        }
+
 
         //process strongholds selecting 2 randomly to become active
         int count = 0;
