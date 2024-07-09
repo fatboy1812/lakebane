@@ -684,7 +684,7 @@ public enum LootManager {
             MobLoot goldAmount = new MobLoot(mob, gold);
             mob.getCharItemManager().addItemToInventory(goldAmount);
         }
-        if (ThreadLocalRandom.current().nextInt(100) < 65)
+        if (ThreadLocalRandom.current().nextInt(100) < 75)
             DropPresent(mob);
 
         if (commander) {

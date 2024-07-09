@@ -75,7 +75,6 @@ public class StrongholdManager {
                 guard.setResists(new Resists("Elite"));
                 guard.spawnTime = 1000000000;
                 guard.BehaviourType = Enum.MobBehaviourType.Aggro;
-                InterestManager.setObjectDirty(guard);
                 mine.strongholdMobs.add(guard);
                 LootManager.GenerateStrongholdLoot(guard,false);
                 guard.healthMax  = 12500;
@@ -85,6 +84,7 @@ public class StrongholdManager {
                 guard.atrHandOne = 1800;
                 guard.defenseRating = 2200;
                 guard.setFirstName("Elite Guardian");
+                InterestManager.setObjectDirty(guard);
             }
         }
         //create stronghold commander
@@ -105,7 +105,6 @@ public class StrongholdManager {
             commander.mobPowers.put(429032838,40); // gravechill
             commander.mobPowers.put(429413547,40); // grasp of thurin
             commander.StrongholdCommander = true;
-            InterestManager.setObjectDirty(commander);
             mine.strongholdMobs.add(commander);
             LootManager.GenerateStrongholdLoot(commander,true);
             commander.healthMax = 50000;
@@ -115,6 +114,7 @@ public class StrongholdManager {
             commander.atrHandOne = 3500;
             commander.defenseRating = 3500;
             commander.setFirstName("Guardian Commander");
+            InterestManager.setObjectDirty(commander);
         }
 
         mine.setActive(true);
