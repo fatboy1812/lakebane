@@ -290,6 +290,12 @@ public class Mob extends AbstractIntelligenceAgent {
             Logger.error("Mobile:" + this.dbID + ": " + e);
         }
 
+        if(this.firstName.toLowerCase().equals("guardian commander") || this.firstName.toLowerCase().equals("elite guardian")){
+            this.despawn();
+            this.removeFromCache();
+            DbManager.MobQueries.DELETE_MOB(this);
+        }
+
     }
 
     public static void serializeMobForClientMsgOtherPlayer(Mob mob, ByteBufferWriter writer) throws SerializationException {
