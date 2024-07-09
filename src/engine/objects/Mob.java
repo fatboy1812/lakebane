@@ -101,6 +101,7 @@ public class Mob extends AbstractIntelligenceAgent {
     private DeferredPowerJob weaponPower;
     private DateTime upgradeDateTime = null;
     private boolean lootSync = false;
+    public boolean StrongholdCommander = false;
 
 
     /**

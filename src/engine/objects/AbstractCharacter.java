@@ -91,17 +91,17 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
     protected Resists resists = new Resists("Genric");
     protected ConcurrentHashMap<String, JobContainer> timers;
     protected ConcurrentHashMap<String, Long> timestamps;
-    protected int atrHandOne;
+    public int atrHandOne;
     protected int atrHandTwo;
-    protected int minDamageHandOne;
-    protected int maxDamageHandOne;
+    public int minDamageHandOne;
+    public int maxDamageHandOne;
     protected int minDamageHandTwo;
     protected int maxDamageHandTwo;
     protected float rangeHandOne;
     protected float rangeHandTwo;
     protected float speedHandOne;
     protected float speedHandTwo;
-    protected int defenseRating;
+    public int defenseRating;
     protected boolean isActive; // <-Do not use this for deleting character!
     protected float altitude = 0; // 0=on terrain, 1=tier 1, 2=tier 2, etc.
     protected ConcurrentHashMap<Integer, JobContainer> recycleTimers;

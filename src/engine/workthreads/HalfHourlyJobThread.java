@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
+import static engine.gameManager.StrongholdManager.EndStronghold;
 import static engine.server.MBServerStatics.MINE_LATE_WINDOW;
 
 public class HalfHourlyJobThread implements Runnable {
@@ -43,12 +44,8 @@ public class HalfHourlyJobThread implements Runnable {
 
             for (Mine mine : mines) {
                 try {
-
-                    if(mine.isStronghold)
-                        mine.EndStronghold();
-
                     //handle mines opening on server reboot weird time interval
-                    if(LocalDateTime.now().isAfter(LocalDateTime.now().withHour(mine.openHour).withMinute(mine.openMinute))) {
+                    if (LocalDateTime.now().isAfter(LocalDateTime.now().withHour(mine.openHour).withMinute(mine.openMinute))) {
                         if (LocalDateTime.now().isBefore(LocalDateTime.now().withHour(mine.openHour).withMinute(mine.openMinute).plusMinutes(30))) {
                             HalfHourlyJobThread.mineWindowOpen(mine);
                             continue;
@@ -64,7 +61,7 @@ public class HalfHourlyJobThread implements Runnable {
 
                     // Close the mine if it reaches this far
                     LocalDateTime openTime = LocalDateTime.now().withHour(mine.openHour).withMinute(mine.openMinute);
-                    if(LocalDateTime.now().plusMinutes(1).isAfter(openTime.plusMinutes(30)))
+                    if (LocalDateTime.now().plusMinutes(1).isAfter(openTime.plusMinutes(30)))
                         mineWindowClose(mine);
 
                 } catch (Exception e) {
@@ -72,19 +69,7 @@ public class HalfHourlyJobThread implements Runnable {
                 }
             }
 
-            //process stronghold
-            int count = 0;
-            while(count < 2){
-                int random = ThreadLocalRandom.current().nextInt(1,mines.size()) - 1;
-                Mine mine = mines.get(random);
-                if(mine != null){
-                    if(!mine.isActive){
-                        mine.StartStronghold();
-                        count ++;
-                    }
-                }
-            }
-
+            StrongholdManager.processStrongholds();
         } catch (Exception e) {
             Logger.error(e.toString());
         }

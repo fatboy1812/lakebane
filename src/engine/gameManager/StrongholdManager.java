@@ -1,0 +1,256 @@
+package engine.gameManager;
+
+import engine.Enum;
+import engine.InterestManagement.InterestManager;
+import engine.InterestManagement.WorldGrid;
+import engine.math.Vector3f;
+import engine.math.Vector3fImmutable;
+import engine.objects.*;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.concurrent.ThreadLocalRandom;
+
+public class StrongholdManager {
+
+    public static void processStrongholds() {
+        //end all current stronghold activities
+        ArrayList<Mine> mines = Mine.getMines();
+        for(Mine mine : mines){
+            if (mine.isStronghold)
+                StrongholdManager.EndStronghold(mine);
+        }
+
+        //process strongholds selecting 2 randomly to become active
+        int count = 0;
+        while (count < 2) {
+            int random = ThreadLocalRandom.current().nextInt(1, mines.size()) - 1;
+            Mine mine = mines.get(random);
+            if (mine != null) {
+                if (!mine.isActive && !mine.isStronghold) {
+                    StartStronghold(mine);
+                    count++;
+                }
+            }
+        }
+    }
+
+    public static void StartStronghold(Mine mine){
+
+        //remove buildings
+        Building tower = BuildingManager.getBuilding(mine.getBuildingID());
+        if(tower == null)
+            return;
+
+        mine.isStronghold = true;
+        mine.strongholdMobs = new ArrayList<>();
+        mine.oldBuildings = new HashMap<>();
+
+        Zone mineZone = ZoneManager.findSmallestZone(tower.loc);
+        for(Building building : mineZone.zoneBuildingSet){
+            mine.oldBuildings.put(building.getObjectUUID(),building.meshUUID);
+            building.setMeshUUID(407650);
+            building.setMeshScale(new Vector3f(0,0,0));
+            InterestManager.setObjectDirty(building);
+            WorldGrid.updateObject(building);
+        }
+
+        //update tower to become stronghold mesh
+        tower.setMeshUUID(getStrongholdMeshID(mine.getParentZone()));
+        tower.setMeshScale(new Vector3f(1,1,1));
+        InterestManager.setObjectDirty(tower);
+        WorldGrid.updateObject(tower);
+
+        //create elite mobs
+        for(int i = 0; i < 10; i++){
+            Mob guard = Mob.createMob(getStrongholdGuardianID(mine.getParentZone()), Vector3fImmutable.getRandomPointOnCircle(tower.loc,30), Guild.getErrantGuild(),true,mineZone,null,0, "Elite Guardian",65);
+            if(guard != null){
+                guard.equipmentSetID = getStrongholdMobEquipSetID(guard.getMobBaseID());
+                guard.runAfterLoad();
+                guard.setLevel((short)65);
+                guard.setResists(new Resists("Elite"));
+                guard.healthMax  = 12500;
+                guard.setHealth(guard.healthMax);
+                guard.spawnTime = 1000000000;
+                guard.BehaviourType = Enum.MobBehaviourType.Aggro;
+                guard.maxDamageHandOne = 1550;
+                guard.minDamageHandOne = 750;
+                guard.atrHandOne = 1800;
+                guard.defenseRating = 2200;
+                InterestManager.setObjectDirty(guard);
+                mine.strongholdMobs.add(guard);
+                LootManager.GenerateStrongholdLoot(guard,false);
+            }
+            if(guard!= null && guard.level < 60)
+                guard.despawn();
+        }
+        //create stronghold commander
+        Mob commander = Mob.createMob(getStrongholdCommanderID(mine.getParentZone()), tower.loc,Guild.getErrantGuild(),true,mineZone,null,0, "Guardian Commander",75);
+        if(commander != null){
+            commander.equipmentSetID = getStrongholdMobEquipSetID(commander.getMobBaseID());
+            commander.runAfterLoad();
+            commander.setLevel((short)75);
+            commander.setResists(new Resists("Elite"));
+            commander.healthMax = 50000;
+            commander.setHealth(commander.healthMax);
+            commander.spawnTime = 1000000000;
+            commander.BehaviourType = Enum.MobBehaviourType.Aggro;
+            commander.maxDamageHandOne = 3500;
+            commander.minDamageHandOne = 1500;
+            commander.atrHandOne = 3500;
+            commander.defenseRating = 3500;
+            commander.mobPowers.clear();
+            commander.mobPowers.put(563107033,40); //grounding shot
+            commander.mobPowers.put(429032838,40); // gravechill
+            commander.mobPowers.put(429413547,40); // grasp of thurin
+            commander.StrongholdCommander = true;
+            InterestManager.setObjectDirty(commander);
+            mine.strongholdMobs.add(commander);
+            LootManager.GenerateStrongholdLoot(commander,true);
+        }
+
+        mine.setActive(true);
+        tower.setProtectionState(Enum.ProtectionState.PROTECTED);
+    }
+
+    public static void EndStronghold(Mine mine){
+
+        //restore the buildings
+        Building tower = BuildingManager.getBuilding(mine.getBuildingID());
+        if(tower == null)
+            return;
+
+        mine.isStronghold = false;
+
+        //get rid of the mobs
+        for(Mob mob : mine.strongholdMobs) {
+            mob.despawn();
+            mob.removeFromCache();
+        }
+
+        //restore the buildings
+        Zone mineZone = ZoneManager.findSmallestZone(tower.loc);
+        for(Building building : mineZone.zoneBuildingSet){
+            if(mine.oldBuildings.containsKey(building.getObjectUUID())) {
+                building.setMeshUUID(mine.oldBuildings.get(building.getObjectUUID()));
+                building.setMeshScale(new Vector3f(1, 1, 1));
+            }
+        }
+
+        //update tower to become Mine Tower again
+        tower.setMeshUUID(1500100);
+
+        mine.setActive(false);
+        tower.setProtectionState(Enum.ProtectionState.NPC);
+    }
+
+    public static int getStrongholdMeshID(Zone parent){
+        while(!parent.isMacroZone()){
+            parent = parent.getParent();
+            if(parent.getName().toLowerCase().equals("seafloor")){
+                return 0;
+            }
+        }
+        switch(parent.getObjectUUID()){
+            case 197:
+            case 234:
+            case 178:
+            case 122:
+                return 814000; //Frost Giant Hall (ICE)
+            case 968:
+            case 951:
+            case 313:
+            case 331:
+                return 5001500; // Lich Queens Keep (UNDEAD)
+            case 785:
+            case 761:
+            case 717:
+            case 737:
+                return 1306600; // Temple of the Dragon (DESERT)
+            case 353:
+            case 371:
+            case 388:
+            case 532:
+                return 564600; // Undead Lord's Keep (SWAMP)
+        }
+        return 456100; // small stockade
+    }
+
+    public static int getStrongholdGuardianID(Zone parent){
+        switch(parent.getObjectUUID()){
+            case 197:
+            case 234:
+            case 178:
+            case 122:
+                return 13528; // Mountain Giant Raider Axe
+            case 968:
+            case 951:
+            case 313:
+            case 331:
+                return 13643; // Vampire Spear Warrior
+            case 785:
+            case 761:
+            case 717:
+            case 737:
+                return 13802; // Desert Orc Warrior
+            case 353:
+            case 371:
+            case 388:
+            case 532:
+                return 12728; // Kolthoss Warrior
+        }
+        return 13434; // human sword and board warrior
+    }
+
+    public static int getStrongholdCommanderID(Zone parent){
+        switch(parent.getObjectUUID()){
+            case 197: // Storm Giant Crossbow
+            case 234: // Storm Giant Crossbow
+            case 178: // Storm Giant Crossbow
+            case 122: // Storm Giant Crossbow
+                return 13515;
+            case 968: // Skeleton Bird Archer
+            case 951: // Skeleton Bird Archer
+            case 313: // Skeleton Bird Archer
+            case 331: // Skeleton Bird Archer
+                return 14280;
+            case 785:
+            case 761:
+            case 717:
+            case 737:
+                return 13789; // Desert Orc Xbow
+            case 353:
+            case 371:
+            case 388:
+            case 532:
+                return 12724; // xbow kolthoss
+        }
+        return 13433;
+    }
+
+    public static int getStrongholdMobEquipSetID(int mobbaseUUID){
+        switch(mobbaseUUID){
+            case 14280:
+                return 10790;
+            case 13643:
+                return 6317;
+            case 13515:
+                return 7820;
+            case 13528:
+                return 5966;
+            case 13802:
+                return 9043;
+            case 13789:
+                return 9035;
+            case 12728:
+                return 6826;
+            case 12724:
+                return 9471;
+            case 13434:
+                return 6327;
+            case 13433:
+                return 6900;
+        }
+        return 0;
+    }
+}

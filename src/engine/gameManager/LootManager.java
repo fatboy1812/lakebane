@@ -490,7 +490,7 @@ public enum LootManager {
 
         //roll 1-100 for the gen table selection
 
-        int genRoll = ThreadLocalRandom.current().nextInt(1, 100 + 1);
+        int genRoll = ThreadLocalRandom.current().nextInt(94, 100) + 1;
         GenTableEntry selectedRow = GenTableEntry.rollTable(tableID, genRoll, LootManager.NORMAL_DROP_RATE);
 
         if(selectedRow == null)
@@ -654,14 +654,18 @@ public enum LootManager {
     }
 
     public static void DropPresent(Mob mob){
-        int random = ThreadLocalRandom.current().nextInt(ItemBase.AnniverseryGifts.size() - 1);
-        int presentID = ItemBase.AnniverseryGifts.get(random);
-        ItemBase presentBase = ItemBase.getItemBase(presentID);
-        if(presentBase != null){
-            MobLoot lootItem = new MobLoot(mob, presentBase, true);
-            mob.getCharItemManager().addItemToInventory(lootItem);
-        }
+        int random = 971049 + ThreadLocalRandom.current().nextInt(24);
+        if (random > 971071)
+            random = 971071;
 
+        int baseLoot = rollRandomItem(random);
+        ItemBase contract = ItemBase.getItemBase(baseLoot);
+        if (contract != null) {
+            MobLoot toAdd = new MobLoot(mob, contract, true);
+
+            if (toAdd != null)
+                mob.getCharItemManager().addItemToInventory(toAdd);
+        }
     }
 
     public static void GenerateStrongholdLoot(Mob mob, boolean commander) {
@@ -680,20 +684,13 @@ public enum LootManager {
             MobLoot goldAmount = new MobLoot(mob, gold);
             mob.getCharItemManager().addItemToInventory(goldAmount);
         }
+        if (ThreadLocalRandom.current().nextInt(100) < 65)
+            DropPresent(mob);
 
-        int random = 3211 + ThreadLocalRandom.current().nextInt(6);
-        if(random > 3216)
-            random = 3216;
+        if (commander) {
 
-        int baseLoot = rollRandomItem(random);
-        ItemBase contract = ItemBase.getItemBase(baseLoot);
-        if (contract != null) {
-            MobLoot toAdd = new MobLoot(mob, contract, true);
-
-            if (toAdd != null)
-                mob.getCharItemManager().addItemToInventory(toAdd);
-
-            if (commander) {
+            //chance for glass
+            if (ThreadLocalRandom.current().nextInt(100) < 75) {
                 int glassID = rollRandomItem(126);
                 ItemBase glassItem = ItemBase.getItemBase(glassID);
                 if (glassItem != null) {
@@ -702,16 +699,22 @@ public enum LootManager {
                     if (toAdd2 != null)
                         mob.getCharItemManager().addItemToInventory(toAdd2);
                 }
+            }
 
+            //chance for disc
+            if (ThreadLocalRandom.current().nextInt(100) < 75) {
                 int discID = rollRandomItem(3202);
                 ItemBase discItem = ItemBase.getItemBase(discID);
-                if (glassItem != null) {
+                if (discItem != null) {
                     MobLoot toAdd3 = new MobLoot(mob, discItem, true);
 
                     if (toAdd3 != null)
                         mob.getCharItemManager().addItemToInventory(toAdd3);
                 }
+            }
 
+            //chance for stat rune
+            if (ThreadLocalRandom.current().nextInt(100) < 75) {
                 int runeID = rollRandomItem(3201);
                 ItemBase runeItem = ItemBase.getItemBase(runeID);
                 if (runeItem != null) {
@@ -721,7 +724,6 @@ public enum LootManager {
                         mob.getCharItemManager().addItemToInventory(toAdd4);
                 }
             }
-
         }
     }
 }
