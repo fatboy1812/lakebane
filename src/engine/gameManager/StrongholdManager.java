@@ -60,7 +60,7 @@ public class StrongholdManager {
         //create elite mobs
         for(int i = 0; i < 10; i++){
             Vector3fImmutable loc = Vector3fImmutable.getRandomPointOnCircle(tower.loc,30);
-            MobBase guardBase = MobBase.getMobBase(getStrongholdGuardianID(mine.getParentZone()));
+            MobBase guardBase = MobBase.getMobBase(getStrongholdGuardianID(tower.meshUUID));
             Mob guard = Mob.createMob(guardBase.getLoadID(), loc, Guild.getErrantGuild(),true,mineZone,null,0, guardBase.getFirstName(),65);
             if(guard != null){
                 guard.bindLoc = loc;
@@ -85,7 +85,7 @@ public class StrongholdManager {
         }
         //create stronghold commander
         Vector3fImmutable loc = tower.loc;
-        MobBase commanderBase = MobBase.getMobBase(getStrongholdCommanderID(mine.getParentZone()));
+        MobBase commanderBase = MobBase.getMobBase(getStrongholdCommanderID(tower.meshUUID));
         Mob commander = Mob.createMob(commanderBase.getLoadID(), loc,Guild.getErrantGuild(),true,mineZone,null,0, commanderBase.getFirstName(),75);
         if(commander != null){
             commander.bindLoc = loc;
@@ -155,7 +155,7 @@ public class StrongholdManager {
     public static int getStrongholdMeshID(Zone parent){
         while(!parent.isMacroZone()){
             parent = parent.getParent();
-            if(parent.getName().toLowerCase().equals("seafloor")){
+            if(parent.getName().equalsIgnoreCase("seafloor")){
                 return 0;
             }
         }
@@ -184,53 +184,29 @@ public class StrongholdManager {
         return 456100; // small stockade
     }
 
-    public static int getStrongholdGuardianID(Zone parent){
-        switch(parent.getObjectUUID()){
-            case 197:
-            case 234:
-            case 178:
-            case 122:
+    public static int getStrongholdGuardianID(int ID){
+        switch(ID){
+            case 814000:
                 return 13528; // Mountain Giant Raider Axe
-            case 968:
-            case 951:
-            case 313:
-            case 331:
+            case 5001500:
                 return 13643; // Vampire Spear Warrior
-            case 785:
-            case 761:
-            case 717:
-            case 737:
+            case 1306600:
                 return 13802; // Desert Orc Warrior
-            case 353:
-            case 371:
-            case 388:
-            case 532:
+            case 564600:
                 return 12728; // Kolthoss Warrior
         }
         return 13434; // human sword and board warrior
     }
 
-    public static int getStrongholdCommanderID(Zone parent){
-        switch(parent.getObjectUUID()){
-            case 197: // Storm Giant Crossbow
-            case 234: // Storm Giant Crossbow
-            case 178: // Storm Giant Crossbow
-            case 122: // Storm Giant Crossbow
+    public static int getStrongholdCommanderID(int ID){
+        switch(ID){
+            case 814000:
                 return 13515;
-            case 968: // Skeleton Bird Archer
-            case 951: // Skeleton Bird Archer
-            case 313: // Skeleton Bird Archer
-            case 331: // Skeleton Bird Archer
+            case 5001500:
                 return 14280;
-            case 785:
-            case 761:
-            case 717:
-            case 737:
+            case 1306600:
                 return 13789; // Desert Orc Xbow
-            case 353:
-            case 371:
-            case 388:
-            case 532:
+            case 564600:
                 return 12724; // xbow kolthoss
         }
         return 13433;
