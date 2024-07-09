@@ -658,10 +658,9 @@ public enum LootManager {
         if (random > 971071)
             random = 971071;
 
-        int baseLoot = rollRandomItem(random);
-        ItemBase contract = ItemBase.getItemBase(baseLoot);
-        if (contract != null) {
-            MobLoot toAdd = new MobLoot(mob, contract, true);
+        ItemBase present = ItemBase.getItemBase(random);
+        if (present != null) {
+            MobLoot toAdd = new MobLoot(mob, present, true);
 
             if (toAdd != null)
                 mob.getCharItemManager().addItemToInventory(toAdd);
