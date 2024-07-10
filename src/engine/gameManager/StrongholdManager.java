@@ -195,6 +195,20 @@ public class StrongholdManager {
             case 388:
             case 532:
                 return 564600; // Undead Lord's Keep (SWAMP)
+            case 550:
+            case 508:
+            case 475:
+            case 418:
+                return 1326600; // elven hall
+            case 437:
+            case 491:
+            case 590:
+            case 569:
+                return 602400;
+            case 824:
+            case 842:
+            case 632:
+                return 1600000; // chaos temple
         }
         return 456100; // small stockade
     }
@@ -209,6 +223,12 @@ public class StrongholdManager {
                 return 13802; // Desert Orc Warrior
             case 564600:
                 return 12728; // Kolthoss Warrior
+            case 1326600:
+                return 14153; //elven warrior
+            case 602400:
+                return 13326; // templar missionary
+            case 1600000:
+                return 14041; // scourger
         }
         return 13434; // human sword and board warrior
     }
@@ -223,6 +243,12 @@ public class StrongholdManager {
                 return 13789; // Desert Orc Xbow
             case 564600:
                 return 12724; // xbow kolthoss
+            case 1326600:
+                return 14158; //elven bow warrior
+            case 602400:
+                return 13917; // dune giant with xbow
+            case 1600000:
+                return 14034; // barbator
         }
         return 13433;
     }
@@ -244,11 +270,21 @@ public class StrongholdManager {
             case 12728:
                 return 6826;
             case 12724:
+            case 13917:
+            case 14034:
                 return 9471;
             case 13434:
                 return 6327;
             case 13433:
                 return 6900;
+            case 14158:
+                return 7523;
+            case 14153:
+                return 7513;
+            case 13326:
+                return 8957;
+            case 14041:
+                return 9615;
         }
         return 0;
     }
