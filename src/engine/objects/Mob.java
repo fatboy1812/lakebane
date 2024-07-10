@@ -1295,12 +1295,6 @@ public class Mob extends AbstractIntelligenceAgent {
         Dispatch dispatch;
 
         try {
-            if(this.StrongholdGuardian || this.StrongholdCommander) {
-                ChatManager.chatSystemChannel(this.parentZone.getName() + "'s Stronghold Is Under Attack!");
-                StrongholdManager.CheckToEndStronghold(this.stronghold);
-            }
-            if(this.StrongholdEpic)
-                StrongholdManager.EndStronghold(this.stronghold);
             //resync corpses
             //this.setLoc(this.getMovementLoc());
             if (this.isSiege) {
@@ -1429,6 +1423,12 @@ public class Mob extends AbstractIntelligenceAgent {
 
         WorldGrid.RemoveWorldObject(this);
         this.charItemManager.clearInventory();
+        if(this.StrongholdGuardian || this.StrongholdCommander) {
+            ChatManager.chatSystemChannel(this.parentZone.getParent().getName() + "'s Stronghold Is Under Attack!");
+            StrongholdManager.CheckToEndStronghold(this.stronghold);
+        }
+        if(this.StrongholdEpic)
+            StrongholdManager.EndStronghold(this.stronghold);
     }
 
     @Override
