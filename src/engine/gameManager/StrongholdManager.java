@@ -294,7 +294,7 @@ public class StrongholdManager {
                 commander.minDamageHandOne = 2500;
                 commander.atrHandOne = 5000;
                 commander.defenseRating = 3500;
-                commander.setFirstName("Epic Commander");
+                commander.setFirstName("Defender of " + mine.getParentZone().getParent().getName());
                 InterestManager.setObjectDirty(commander);
                 commander.stronghold = mine;
                 commander.StrongholdEpic = true;
