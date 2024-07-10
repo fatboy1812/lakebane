@@ -1233,8 +1233,6 @@ public class Mob extends AbstractIntelligenceAgent {
             ChatManager.chatSystemChannel(this.parentZone.getParent().getName() + "'s Stronghold Is Under Attack!");
             StrongholdManager.CheckToEndStronghold(this.stronghold);
         }
-        if(this.StrongholdEpic)
-            StrongholdManager.EndStronghold(this.stronghold);
 
         this.stopMovement(this.getMovementLoc());
 
@@ -1429,6 +1427,9 @@ public class Mob extends AbstractIntelligenceAgent {
 
         WorldGrid.RemoveWorldObject(this);
         this.charItemManager.clearInventory();
+
+        if(this.StrongholdEpic)
+            StrongholdManager.EndStronghold(this.stronghold);
     }
 
     @Override
