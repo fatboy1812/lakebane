@@ -58,7 +58,7 @@ public class StrongholdManager {
         WorldGrid.updateObject(tower);
 
         //create elite mobs
-        for(int i = 0; i < 10; i++){
+        for(int i = 0; i < mine.capSize * 2; i++){
             Vector3fImmutable loc = Vector3fImmutable.getRandomPointOnCircle(tower.loc,30);
             MobBase guardBase = MobBase.getMobBase(getStrongholdGuardianID(tower.meshUUID));
             Mob guard = Mob.createMob(guardBase.getLoadID(), loc, Guild.getErrantGuild(),true,mineZone,null,0, guardBase.getFirstName(),65);
