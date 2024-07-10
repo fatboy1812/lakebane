@@ -667,13 +667,15 @@ public enum LootManager {
         }
     }
 
-    public static void GenerateStrongholdLoot(Mob mob, boolean commander) {
+    public static void GenerateStrongholdLoot(Mob mob, boolean commander, boolean epic) {
 
         mob.getCharItemManager().clearInventory();
 
         int multiplier = 1;
         if (commander)
             multiplier = 2;
+        if(epic)
+            multiplier = 10;
 
         int high = 125000;
         int low = 50000;
@@ -708,51 +710,58 @@ public enum LootManager {
         }
 
         //special commander drop chances
-        if (commander) {
+        if (commander)
+            GenerateCommanderLoot(mob);
 
+        //special epic drop chances
+        if (epic) {
+            GenerateCommanderLoot(mob);
+            GenerateCommanderLoot(mob);
+        }
+    }
 
-            //present chance
-            if (ThreadLocalRandom.current().nextInt(100) < 25)
-                DropPresent(mob);
+    public static void GenerateCommanderLoot(Mob mob){
+        //present chance
+        if (ThreadLocalRandom.current().nextInt(100) < 25)
+            DropPresent(mob);
 
-            //present chance
-            if (ThreadLocalRandom.current().nextInt(100) < 25)
-                DropPresent(mob);
+        //present chance
+        if (ThreadLocalRandom.current().nextInt(100) < 25)
+            DropPresent(mob);
 
-            //chance for glass
-            if (ThreadLocalRandom.current().nextInt(100) < 75) {
-                int glassID = rollRandomItem(126);
-                ItemBase glassItem = ItemBase.getItemBase(glassID);
-                if (glassItem != null) {
-                    MobLoot toAdd2 = new MobLoot(mob, glassItem, true);
+        //chance for glass
+        if (ThreadLocalRandom.current().nextInt(100) < 75) {
+            int glassID = rollRandomItem(126);
+            ItemBase glassItem = ItemBase.getItemBase(glassID);
+            if (glassItem != null) {
+                MobLoot toAdd2 = new MobLoot(mob, glassItem, true);
 
-                    if (toAdd2 != null)
-                        mob.getCharItemManager().addItemToInventory(toAdd2);
-                }
+                if (toAdd2 != null)
+                    mob.getCharItemManager().addItemToInventory(toAdd2);
             }
+        }
 
-            //chance for disc
-            if (ThreadLocalRandom.current().nextInt(100) < 75) {
-                int discID = rollRandomItem(3202);
-                ItemBase discItem = ItemBase.getItemBase(discID);
-                if (discItem != null) {
-                    MobLoot toAdd3 = new MobLoot(mob, discItem, true);
+        //chance for disc
+        if (ThreadLocalRandom.current().nextInt(100) < 75) {
+            int discID = rollRandomItem(3202);
+            ItemBase discItem = ItemBase.getItemBase(discID);
+            if (discItem != null) {
+                MobLoot toAdd3 = new MobLoot(mob, discItem, true);
 
-                    if (toAdd3 != null)
-                        mob.getCharItemManager().addItemToInventory(toAdd3);
-                }
+                if (toAdd3 != null)
+                    mob.getCharItemManager().addItemToInventory(toAdd3);
             }
+        }
 
-            //chance for stat rune
-            if (ThreadLocalRandom.current().nextInt(100) < 75) {
-                int runeID = rollRandomItem(3201);
-                ItemBase runeItem = ItemBase.getItemBase(runeID);
-                if (runeItem != null) {
-                    MobLoot toAdd4 = new MobLoot(mob, runeItem, true);
+        //chance for stat rune
+        if (ThreadLocalRandom.current().nextInt(100) < 75) {
+            int runeID = rollRandomItem(3201);
+            ItemBase runeItem = ItemBase.getItemBase(runeID);
+            if (runeItem != null) {
+                MobLoot toAdd4 = new MobLoot(mob, runeItem, true);
 
-                    if (toAdd4 != null)
-                        mob.getCharItemManager().addItemToInventory(toAdd4);
-                }
+                if (toAdd4 != null)
+                    mob.getCharItemManager().addItemToInventory(toAdd4);
             }
         }
     }

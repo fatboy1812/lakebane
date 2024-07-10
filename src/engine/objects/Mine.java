@@ -66,6 +66,8 @@ public class Mine extends AbstractGameObject {
     public ArrayList<Mob> strongholdMobs;
     public HashMap<Integer,Integer> oldBuildings;
 
+    public Mob epicEncounter = null;
+
     /**
      * ResultSet Constructor
      */

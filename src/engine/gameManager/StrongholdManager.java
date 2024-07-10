@@ -74,7 +74,7 @@ public class StrongholdManager {
                 guard.spawnTime = 1000000000;
                 guard.BehaviourType = Enum.MobBehaviourType.Aggro;
                 mine.strongholdMobs.add(guard);
-                LootManager.GenerateStrongholdLoot(guard,false);
+                LootManager.GenerateStrongholdLoot(guard,false,false);
                 guard.healthMax  = 12500;
                 guard.setHealth(guard.healthMax);
                 guard.maxDamageHandOne = 1550;
@@ -84,6 +84,7 @@ public class StrongholdManager {
                 guard.setFirstName("Elite Guardian");
                 InterestManager.setObjectDirty(guard);
                 guard.StrongholdGuardian = true;
+                guard.stronghold = mine;
             }
         }
         //create stronghold commander
@@ -106,7 +107,7 @@ public class StrongholdManager {
             commander.mobPowers.put(429413547,40); // grasp of thurin
             commander.StrongholdCommander = true;
             mine.strongholdMobs.add(commander);
-            LootManager.GenerateStrongholdLoot(commander,true);
+            LootManager.GenerateStrongholdLoot(commander,true, false);
             commander.healthMax = 50000;
             commander.setHealth(commander.healthMax);
             commander.maxDamageHandOne = 3500;
@@ -115,6 +116,7 @@ public class StrongholdManager {
             commander.defenseRating = 3500;
             commander.setFirstName("Guardian Commander");
             InterestManager.setObjectDirty(commander);
+            commander.stronghold = mine;
         }
 
         mine.setActive(true);
@@ -249,5 +251,56 @@ public class StrongholdManager {
                 return 6900;
         }
         return 0;
+    }
+
+    public static void CheckToEndStronghold(Mine mine) {
+        if (!mine.isStronghold)
+            return;
+
+        boolean stillAlive = false;
+        for (Mob mob : mine.strongholdMobs)
+            if (mob.isAlive())
+                stillAlive = true;
+
+        if (!stillAlive) {
+            // Epic encounter
+
+            Building tower = BuildingManager.getBuilding(mine.getBuildingID());
+            if (tower == null)
+                return;
+
+            Zone mineZone = ZoneManager.findSmallestZone(tower.loc);
+
+            Vector3fImmutable loc = tower.loc;
+            MobBase commanderBase = MobBase.getMobBase(getStrongholdCommanderID(tower.meshUUID));
+            Mob commander = Mob.createMob(commanderBase.getLoadID(), loc, Guild.getErrantGuild(), true, mineZone, null, 0, commanderBase.getFirstName(), 75);
+            if (commander != null) {
+                commander.parentZone = mine.getParentZone();
+                commander.bindLoc = loc;
+                commander.setLoc(loc);
+                commander.equipmentSetID = getStrongholdMobEquipSetID(commander.getMobBaseID());
+                commander.runAfterLoad();
+                commander.setLevel((short) 75);
+                commander.setResists(new Resists("Elite"));
+                commander.spawnTime = 1000000000;
+                commander.BehaviourType = Enum.MobBehaviourType.Aggro;
+                commander.mobPowers.clear();
+                commander.mobPowers.put(563107033, 40); //grounding shot
+                commander.mobPowers.put(429032838, 40); // gravechill
+                commander.mobPowers.put(429413547, 40); // grasp of thurin
+                mine.strongholdMobs.add(commander);
+                LootManager.GenerateStrongholdLoot(commander, true, false);
+                commander.healthMax = 250000;
+                commander.setHealth(commander.healthMax);
+                commander.maxDamageHandOne = 5000;
+                commander.minDamageHandOne = 2500;
+                commander.atrHandOne = 5000;
+                commander.defenseRating = 3500;
+                commander.setFirstName("Epic Commander");
+                InterestManager.setObjectDirty(commander);
+                commander.stronghold = mine;
+                commander.StrongholdEpic = true;
+            }
+        }
     }
 }

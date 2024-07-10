@@ -105,6 +105,10 @@ public class Mob extends AbstractIntelligenceAgent {
 
     public boolean StrongholdGuardian = false;
 
+    public Mine stronghold = null;
+
+    public boolean StrongholdEpic = false;
+
 
     /**
      * No Id Constructor
@@ -1291,8 +1295,12 @@ public class Mob extends AbstractIntelligenceAgent {
         Dispatch dispatch;
 
         try {
-            if(this.StrongholdGuardian || this.StrongholdCommander)
+            if(this.StrongholdGuardian || this.StrongholdCommander) {
                 ChatManager.chatSystemChannel(this.parentZone.getName() + "'s Stronghold Is Under Attack!");
+                StrongholdManager.CheckToEndStronghold(this.stronghold);
+            }
+            if(this.StrongholdEpic)
+                StrongholdManager.EndStronghold(this.stronghold);
             //resync corpses
             //this.setLoc(this.getMovementLoc());
             if (this.isSiege) {
@@ -1482,7 +1490,7 @@ public class Mob extends AbstractIntelligenceAgent {
         } catch (Exception e) {
             Logger.error(e.getMessage());
         }
-        if(this.StrongholdCommander || this.StrongholdGuardian){
+        if(this.StrongholdCommander || this.StrongholdGuardian || this.StrongholdEpic){
             this.setResists(new Resists("Elite"));
             return;
         }
@@ -1495,6 +1503,9 @@ public class Mob extends AbstractIntelligenceAgent {
             return;
         } else if(this.StrongholdGuardian){
             this.healthMax  = 12500;
+            return;
+        } else if(this.StrongholdEpic){
+            this.healthMax = 250000;
             return;
         }
 
@@ -1566,6 +1577,12 @@ public class Mob extends AbstractIntelligenceAgent {
             this.minDamageHandOne = 750;
             this.atrHandOne = 1800;
             this.defenseRating = 2200;
+            return;
+        } else if(this.StrongholdEpic){
+            this.maxDamageHandOne = 5000;
+            this.minDamageHandOne = 2500;
+            this.atrHandOne = 5000;
+            this.defenseRating = 3500;
             return;
         }
         if (this.charItemManager == null || this.equip == null) {
