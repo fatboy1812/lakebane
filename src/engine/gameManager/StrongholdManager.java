@@ -280,7 +280,7 @@ public class StrongholdManager {
                 commander.setLoc(loc);
                 commander.equipmentSetID = getStrongholdMobEquipSetID(commander.getMobBaseID());
                 commander.runAfterLoad();
-                commander.setLevel((short) 75);
+                commander.setLevel((short) 85);
                 commander.setResists(new Resists("Elite"));
                 commander.spawnTime = 1000000000;
                 commander.BehaviourType = Enum.MobBehaviourType.Aggro;
