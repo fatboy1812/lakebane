@@ -81,6 +81,7 @@ public class StrongholdManager {
                 guard.defenseRating = 2200;
                 guard.setFirstName("Elite Guardian");
                 InterestManager.setObjectDirty(guard);
+                guard.StrongholdGuardian = true;
             }
         }
         //create stronghold commander

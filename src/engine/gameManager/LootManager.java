@@ -675,22 +675,47 @@ public enum LootManager {
         if (commander)
             multiplier = 2;
 
-        int high = 250000;
-        int low = 65000;
+        int high = 125000;
+        int low = 50000;
         int gold = ThreadLocalRandom.current().nextInt(low, high + 1) * multiplier;
 
         if (gold > 0) {
             MobLoot goldAmount = new MobLoot(mob, gold);
             mob.getCharItemManager().addItemToInventory(goldAmount);
         }
+
+        //present drop chance for all
         if (ThreadLocalRandom.current().nextInt(100) < 35)
             DropPresent(mob);
 
+        //random contract drop chance for all
+        if (ThreadLocalRandom.current().nextInt(100) < 35) {
+            int contractTableID = 250;
+            contractTableID += ThreadLocalRandom.current().nextInt(0, 12);
+            if (contractTableID > 259)
+                contractTableID = 659;
+
+            if (ThreadLocalRandom.current().nextInt(100) < 35) {
+                int id = rollRandomItem(contractTableID);
+                ItemBase ib = ItemBase.getItemBase(id);
+                if (ib != null) {
+                    MobLoot contract = new MobLoot(mob, ib, true);
+
+                    if (contract != null)
+                        mob.getCharItemManager().addItemToInventory(contract);
+                }
+            }
+        }
+
+        //special commander drop chances
         if (commander) {
 
+
+            //present chance
             if (ThreadLocalRandom.current().nextInt(100) < 25)
                 DropPresent(mob);
 
+            //present chance
             if (ThreadLocalRandom.current().nextInt(100) < 25)
                 DropPresent(mob);
 

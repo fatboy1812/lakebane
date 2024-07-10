@@ -103,6 +103,8 @@ public class Mob extends AbstractIntelligenceAgent {
     private boolean lootSync = false;
     public boolean StrongholdCommander = false;
 
+    public boolean StrongholdGuardian = false;
+
 
     /**
      * No Id Constructor
@@ -1478,11 +1480,22 @@ public class Mob extends AbstractIntelligenceAgent {
         } catch (Exception e) {
             Logger.error(e.getMessage());
         }
-
-        //Resists.calculateResists(this);
+        if(this.StrongholdCommander || this.StrongholdGuardian){
+            this.setResists(new Resists("Elite"));
+            return;
+        }
     }
 
     public void calculateMaxHealthManaStamina() {
+
+        if(this.StrongholdCommander){
+            this.healthMax = 50000;
+            return;
+        } else if(this.StrongholdGuardian){
+            this.healthMax  = 12500;
+            return;
+        }
+
         float h;
         float m;
         float s;
@@ -1540,6 +1553,19 @@ public class Mob extends AbstractIntelligenceAgent {
 
     public void calculateAtrDefenseDamage() {
 
+        if(this.StrongholdCommander){
+            this.maxDamageHandOne = 3500;
+            this.minDamageHandOne = 1500;
+            this.atrHandOne = 3500;
+            this.defenseRating = 3500;
+            return;
+        } else if(this.StrongholdGuardian){
+            this.maxDamageHandOne = 1550;
+            this.minDamageHandOne = 750;
+            this.atrHandOne = 1800;
+            this.defenseRating = 2200;
+            return;
+        }
         if (this.charItemManager == null || this.equip == null) {
             Logger.error("Player " + currentID + " missing skills or equipment");
             defaultAtrAndDamage(true);
