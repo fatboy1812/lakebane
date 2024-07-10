@@ -254,8 +254,6 @@ public class StrongholdManager {
     }
 
     public static void CheckToEndStronghold(Mine mine) {
-        if (!mine.isStronghold)
-            return;
 
         boolean stillAlive = false;
         for (Mob mob : mine.strongholdMobs)
@@ -272,7 +270,7 @@ public class StrongholdManager {
             Zone mineZone = ZoneManager.findSmallestZone(tower.loc);
 
             Vector3fImmutable loc = tower.loc;
-            MobBase commanderBase = MobBase.getMobBase(getStrongholdCommanderID(tower.meshUUID));
+            MobBase commanderBase = MobBase.getMobBase(getStrongholdGuardianID(tower.meshUUID));
             Mob commander = Mob.createMob(commanderBase.getLoadID(), loc, Guild.getErrantGuild(), true, mineZone, null, 0, commanderBase.getFirstName(), 75);
             if (commander != null) {
                 commander.parentZone = mine.getParentZone();
@@ -289,7 +287,7 @@ public class StrongholdManager {
                 commander.mobPowers.put(429032838, 40); // gravechill
                 commander.mobPowers.put(429413547, 40); // grasp of thurin
                 mine.strongholdMobs.add(commander);
-                LootManager.GenerateStrongholdLoot(commander, true, false);
+                LootManager.GenerateStrongholdLoot(commander, true, true);
                 commander.healthMax = 250000;
                 commander.setHealth(commander.healthMax);
                 commander.maxDamageHandOne = 5000;
