@@ -6,6 +6,7 @@ import engine.InterestManagement.WorldGrid;
 import engine.math.Vector3f;
 import engine.math.Vector3fImmutable;
 import engine.objects.*;
+import org.pmw.tinylog.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -63,6 +64,7 @@ public class StrongholdManager {
             MobBase guardBase = MobBase.getMobBase(getStrongholdGuardianID(tower.meshUUID));
             Mob guard = Mob.createMob(guardBase.getLoadID(), loc, Guild.getErrantGuild(),true,mineZone,null,0, guardBase.getFirstName(),65);
             if(guard != null){
+                guard.parentZone = mine.getParentZone();
                 guard.bindLoc = loc;
                 guard.setLoc(loc);
                 guard.equipmentSetID = getStrongholdMobEquipSetID(guard.getMobBaseID());
@@ -89,6 +91,7 @@ public class StrongholdManager {
         MobBase commanderBase = MobBase.getMobBase(getStrongholdCommanderID(tower.meshUUID));
         Mob commander = Mob.createMob(commanderBase.getLoadID(), loc,Guild.getErrantGuild(),true,mineZone,null,0, commanderBase.getFirstName(),75);
         if(commander != null){
+            commander.parentZone = mine.getParentZone();
             commander.bindLoc = loc;
             commander.setLoc(loc);
             commander.equipmentSetID = getStrongholdMobEquipSetID(commander.getMobBaseID());
@@ -119,6 +122,8 @@ public class StrongholdManager {
         tower.getBounds().setRegions(tower);
         InterestManager.setObjectDirty(tower);
         WorldGrid.updateObject(tower);
+        ChatManager.chatSystemChannel(mine.getZoneName() + "'s Stronghold Has Begun!");
+        Logger.info(mine.getZoneName() + "'s Stronghold Has Begun!");
     }
 
     public static void EndStronghold(Mine mine){
@@ -156,6 +161,8 @@ public class StrongholdManager {
         tower.getBounds().setRegions(tower);
         InterestManager.setObjectDirty(tower);
         WorldGrid.updateObject(tower);
+        ChatManager.chatSystemChannel(mine.getZoneName() + "'s Stronghold Has Concluded!");
+        Logger.info(mine.getZoneName() + "'s Stronghold Has Concluded!");
     }
 
     public static int getStrongholdMeshID(Zone parent){

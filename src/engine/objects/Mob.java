@@ -1291,6 +1291,8 @@ public class Mob extends AbstractIntelligenceAgent {
         Dispatch dispatch;
 
         try {
+            if(this.StrongholdGuardian || this.StrongholdCommander)
+                ChatManager.chatSystemChannel(this.parentZone.getName() + "'s Stronghold Is Under Attack!");
             //resync corpses
             //this.setLoc(this.getMovementLoc());
             if (this.isSiege) {
