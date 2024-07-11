@@ -1570,20 +1570,41 @@ public class Mob extends AbstractIntelligenceAgent {
         if(this.StrongholdCommander){
             this.maxDamageHandOne = 3500;
             this.minDamageHandOne = 1500;
-            this.atrHandOne = 3500;
-            this.defenseRating = 3500;
-            return;
+            int atr = 3500;
+            int defense = 3500;
+            if (this.bonuses != null) {
+
+                defense = GetDefense(defense, this);
+                atr = GetAttackRating(atr, this);
+            }
+            this.defenseRating = defense;
+            this.atrHandOne = atr;
+                return;
         } else if(this.StrongholdGuardian){
             this.maxDamageHandOne = 1550;
             this.minDamageHandOne = 750;
-            this.atrHandOne = 1800;
-            this.defenseRating = 2200;
+            int atr = 1800;
+            int defense = 2200;
+            if (this.bonuses != null) {
+
+                defense = GetDefense(defense, this);
+                atr = GetAttackRating(atr, this);
+            }
+            this.defenseRating = defense;
+            this.atrHandOne = atr;
             return;
         } else if(this.StrongholdEpic){
             this.maxDamageHandOne = 5000;
             this.minDamageHandOne = 2500;
-            this.atrHandOne = 5000;
-            this.defenseRating = 3500;
+            int atr = 5000;
+            int defense = 3500;
+            if (this.bonuses != null) {
+
+                defense = GetDefense(defense, this);
+                atr = GetAttackRating(atr, this);
+            }
+            this.defenseRating = defense;
+            this.atrHandOne = atr;
             return;
         }
         if (this.charItemManager == null || this.equip == null) {
@@ -1598,7 +1619,7 @@ public class Mob extends AbstractIntelligenceAgent {
             calculateAtrDamageForWeapon(this.equip.get(MBServerStatics.SLOT_MAINHAND), true);
         } catch (Exception e) {
 
-            this.atrHandOne = (short) this.mobBase.getAttackRating();
+            this.atrHandOne = GetAttackRating(this.mobBase.getAttackRating(), this);
             this.minDamageHandOne = (short) this.mobBase.getMinDmg();
             this.maxDamageHandOne = (short) this.mobBase.getMaxDmg();
             this.rangeHandOne = 6.5f;
@@ -1611,7 +1632,7 @@ public class Mob extends AbstractIntelligenceAgent {
 
         } catch (Exception e) {
 
-            this.atrHandTwo = (short) this.mobBase.getAttackRating();
+            this.atrHandTwo = GetAttackRating(this.mobBase.getAttackRating(), this);
             this.minDamageHandTwo = (short) this.mobBase.getMinDmg();
             this.maxDamageHandTwo = (short) this.mobBase.getMaxDmg();
             this.rangeHandTwo = 6.5f;
@@ -1632,23 +1653,7 @@ public class Mob extends AbstractIntelligenceAgent {
 
             // TODO add error log here
             if (this.bonuses != null) {
-
-                // add any bonuses
-
-                defense += (short) this.bonuses.getFloat(ModType.DCV, SourceType.None);
-
-                // Finally, multiply any percent modifiers. DO THIS LAST!
-
-                float pos_Bonus = 1 + this.bonuses.getFloatPercentPositive(ModType.DCV, SourceType.None);
-
-
-                defense = (short) (defense * pos_Bonus);
-
-                //Lucky rune applies next
-
-                float neg_Bonus = this.bonuses.getFloatPercentNegative(ModType.DCV, SourceType.None);
-                defense = (short) (defense * (1 + neg_Bonus));
-
+                defense = GetDefense((int)defense, this);
 
             } else
                 Logger.error("Error: missing bonuses");
@@ -1662,6 +1667,41 @@ public class Mob extends AbstractIntelligenceAgent {
         // calculate defense for equipment
     }
 
+    public static int GetDefense(int defense, Mob mob){
+        // add any bonuses
+
+        defense += (short) mob.bonuses.getFloat(ModType.DCV, SourceType.None);
+
+        // Finally, multiply any percent modifiers. DO THIS LAST!
+
+        float pos_Bonus = 1 + mob.bonuses.getFloatPercentPositive(ModType.DCV, SourceType.None);
+
+
+        defense = (short) (defense * pos_Bonus);
+
+        //Lucky rune applies next
+
+        float neg_Bonus = mob.bonuses.getFloatPercentNegative(ModType.DCV, SourceType.None);
+        return (int) (defense * (1 + neg_Bonus));
+    }
+
+    public static int GetAttackRating(int attackRating, Mob mob){
+        // add any bonuses
+
+        attackRating += (short) mob.bonuses.getFloat(ModType.OCV, SourceType.None);
+
+        // Finally, multiply any percent modifiers. DO THIS LAST!
+
+        float pos_Bonus = 1 + mob.bonuses.getFloatPercentPositive(ModType.OCV, SourceType.None);
+
+
+        attackRating = (short) (attackRating * pos_Bonus);
+
+        //Lucky rune applies next
+
+        float neg_Bonus = mob.bonuses.getFloatPercentNegative(ModType.OCV, SourceType.None);
+        return (int) (attackRating * (1 + neg_Bonus));
+    }
     private float getWeaponDefense(HashMap<Integer, MobEquipment> equipped) {
 
         MobEquipment weapon = equipped.get(MBServerStatics.SLOT_MAINHAND);
