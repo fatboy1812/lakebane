@@ -1493,8 +1493,8 @@ public class Mob extends AbstractIntelligenceAgent {
         }
         if(this.StrongholdCommander || this.StrongholdGuardian || this.StrongholdEpic){
             this.setResists(new Resists("Elite"));
-            return;
         }
+        this.resists.calculateResists(this, false);
     }
 
     public void calculateMaxHealthManaStamina() {

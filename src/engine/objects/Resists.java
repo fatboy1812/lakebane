@@ -468,6 +468,23 @@ public class Resists {
         // get resists for runes
         PlayerBonuses rb = ac.getBonuses();
         float slash = 0f, crush = 0f, pierce = 0f, magic = 0f, bleed = 0f, mental = 0f, holy = 0f, unholy = 0f, poison = 0f, lightning = 0f, fire = 0f, cold = 0f, healing = 0f;
+        if(ac.getObjectType().equals(Enum.GameObjectType.Mob)){
+            Mob mob = (Mob)ac;
+            if(mob.StrongholdEpic || mob.StrongholdCommander || mob.StrongholdGuardian)
+                slash = 75f;
+                crush = 75f;
+                pierce = 75f;
+                magic = 75f;
+                bleed = 75f;
+                mental = 75f;
+                holy = 75f;
+                unholy = 75f;
+                poison = 75f;
+                lightning = 75f;
+                fire = 75f;
+                cold = 75f;
+                healing = 0f;
+        }
 
         if (rb != null) {
             // Handle immunities
@@ -507,19 +524,6 @@ public class Resists {
             cold += rb.getFloat(ModType.Resistance, SourceType.Cold);
             healing += rb.getFloat(ModType.Resistance, SourceType.Healing); // DamageType.Healing.name());
 
-            //HHO
-
-//			String protectionString = rb.getString("protection");
-//
-//			if (protectionString.isEmpty())
-//				this.protection = null;
-//			else try {
-//				this.protection = DamageType.valueOf(rb.getString("protection"));
-//			} catch (IllegalArgumentException e) {
-//				Logger.error( "No enum for: " + protectionString);
-//				this.protection = null;
-//			}
-//			this.protectionTrains = rb.getFloat("protection");
         }
 
         // get resists from equipment
