@@ -400,7 +400,7 @@ public class MobAI {
 
                 PerformActionMsg msg;
 
-                if (!mob.StrongholdCommander && (!mobPower.isHarmful() || mobPower.targetSelf)) {
+                if (!mob.StrongholdCommander && !mob.StrongholdEpic && (!mobPower.isHarmful() || mobPower.targetSelf)) {
                     PowersManager.useMobPower(mob, mob, mobPower, powerRank);
                     msg = PowersManager.createPowerMsg(mobPower, powerRank, mob, mob);
                 } else {
