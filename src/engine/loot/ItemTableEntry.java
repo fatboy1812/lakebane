@@ -51,8 +51,8 @@ public class ItemTableEntry {
 
         itemTableEntryList = LootManager._itemTables.get(itemTable);
 
-        if(itemTableEntryList != null && itemTableEntryList.size() > 0){
-            id =  itemTableEntryList.get(ThreadLocalRandom.current().nextInt(1,itemTableEntryList.size() - 1)).cacheID;
+        if(itemTableEntryList != null && itemTableEntryList.size() > 1){
+            id =  itemTableEntryList.get(ThreadLocalRandom.current().nextInt(0,itemTableEntryList.size() - 1)).cacheID;
         }
         return id;
     }
