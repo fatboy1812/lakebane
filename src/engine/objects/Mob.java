@@ -1414,11 +1414,6 @@ public class Mob extends AbstractIntelligenceAgent {
             loadInventory();
 
         this.updateLocation();
-
-        if(Mob.discDroppers.contains(this)){
-            this.setLevel((short)65);
-            this.setResists(new Resists("Dropper"));
-        }
     }
 
     public void despawn() {
@@ -1493,8 +1488,10 @@ public class Mob extends AbstractIntelligenceAgent {
         }
         if(this.StrongholdCommander || this.StrongholdGuardian || this.StrongholdEpic){
             this.setResists(new Resists("Elite"));
-        }else{
-            this.setResists(new Resists("Generic"));
+        }else if(Mob.discDroppers.contains(this)) {
+            this.setResists(new Resists("Dropper"));
+        } else{
+            this.setResists(new Resists());
         }
         this.resists.calculateResists(this, false);
     }

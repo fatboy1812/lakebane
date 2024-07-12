@@ -34,6 +34,24 @@ public class Resists {
     private int protectionTrains = 0;
     private boolean immuneToAll;
 
+    public Resists() {
+        this.immuneToAll = false;
+        this.resists.put(DamageType.Slash, 0f);
+        this.resists.put(DamageType.Crush, 0f);
+        this.resists.put(DamageType.Pierce, 0f);
+        this.resists.put(DamageType.Magic, 0f);
+        this.resists.put(DamageType.Bleed, 0f);
+        this.resists.put(DamageType.Poison, 0f);
+        this.resists.put(DamageType.Mental, 0f);
+        this.resists.put(DamageType.Holy, 0f);
+        this.resists.put(DamageType.Unholy, 0f);
+        this.resists.put(DamageType.Lightning, 0f);
+        this.resists.put(DamageType.Fire, 0f);
+        this.resists.put(DamageType.Cold, 0f);
+        this.resists.put(DamageType.Healing, 0f);
+        this.immuneTo.put(DamageType.Siege, true);
+
+    }
     /**
      * Generic Constructor
      */
@@ -470,7 +488,7 @@ public class Resists {
         float slash = 0f, crush = 0f, pierce = 0f, magic = 0f, bleed = 0f, mental = 0f, holy = 0f, unholy = 0f, poison = 0f, lightning = 0f, fire = 0f, cold = 0f, healing = 0f;
         if(ac.getObjectType().equals(Enum.GameObjectType.Mob)){
             Mob mob = (Mob)ac;
-            if(mob.StrongholdEpic || mob.StrongholdCommander || mob.StrongholdGuardian)
+            if(mob.StrongholdEpic || mob.StrongholdCommander || mob.StrongholdGuardian) {
                 slash = 75f;
                 crush = 75f;
                 pierce = 75f;
@@ -484,6 +502,21 @@ public class Resists {
                 fire = 75f;
                 cold = 75f;
                 healing = 0f;
+            } else if(Mob.discDroppers.contains(mob)) {
+                slash = 50f;
+                crush = 50f;
+                pierce = 50f;
+                magic = 50f;
+                bleed = 50f;
+                mental = 50f;
+                holy = 50f;
+                unholy = 50f;
+                poison = 50f;
+                lightning = 50f;
+                fire = 50f;
+                cold = 50f;
+                healing = 0f;
+            }
         }
 
         if (rb != null) {
