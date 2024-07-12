@@ -1493,6 +1493,8 @@ public class Mob extends AbstractIntelligenceAgent {
         }
         if(this.StrongholdCommander || this.StrongholdGuardian || this.StrongholdEpic){
             this.setResists(new Resists("Elite"));
+        }else{
+            this.setResists(new Resists("Generic"));
         }
         this.resists.calculateResists(this, false);
     }
