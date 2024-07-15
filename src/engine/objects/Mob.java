@@ -1423,8 +1423,9 @@ public class Mob extends AbstractIntelligenceAgent {
         WorldGrid.RemoveWorldObject(this);
         this.charItemManager.clearInventory();
 
-        if(this.StrongholdEpic)
-            StrongholdManager.EndStronghold(this.stronghold);
+        if(this.StrongholdEpic && this.stronghold != null && this.stronghold.isActive)
+            this.stronghold.isActive = false;
+            //StrongholdManager.EndStronghold(this.stronghold);
     }
 
     @Override

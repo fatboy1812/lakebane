@@ -119,7 +119,7 @@ public class StrongholdManager {
             commander.stronghold = mine;
         }
 
-        mine.setActive(true);
+        mine.isActive = true;
         tower.setProtectionState(Enum.ProtectionState.PROTECTED);
         tower.getBounds().setRegions(tower);
         InterestManager.setObjectDirty(tower);
@@ -158,7 +158,7 @@ public class StrongholdManager {
         //update tower to become Mine Tower again
         tower.setMeshUUID(1500100);
 
-        mine.setActive(false);
+        mine.isActive = false;
         tower.setProtectionState(Enum.ProtectionState.NPC);
         tower.getBounds().setRegions(tower);
         InterestManager.setObjectDirty(tower);

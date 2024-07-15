@@ -911,12 +911,13 @@ public class MobAI {
 
     private static void CheckToSendMobHome(Mob mob) {
 
-        if(mob.BehaviourType.equals(Enum.MobBehaviourType.Pet1)){
-            if(mob.loc.distanceSquared(mob.getOwner().loc) > 60 * 60)
-                mob.teleport(mob.getOwner().loc);
-            return;
-        }
         try {
+            if(mob.BehaviourType.equals(Enum.MobBehaviourType.Pet1)){
+                if(mob.loc.distanceSquared(mob.getOwner().loc) > 60 * 60)
+                    mob.teleport(mob.getOwner().loc);
+                return;
+            }
+
             if (mob.BehaviourType.isAgressive) {
 
                 if (mob.isPlayerGuard()) {
@@ -1353,21 +1354,24 @@ public class MobAI {
         return null;
     }
 
-    public static void RecoverHealth(Mob mob){
+    public static void RecoverHealth(Mob mob) {
         //recover health
-
-        if (mob.getTimestamps().containsKey("HEALTHRECOVERED") == false)
-            mob.getTimestamps().put("HEALTHRECOVERED", System.currentTimeMillis());
-
-        if (mob.isSit() && mob.getTimeStamp("HEALTHRECOVERED") < System.currentTimeMillis() + 3000)
-            if (mob.getHealth() < mob.getHealthMax()) {
-
-                float recoveredHealth = mob.getHealthMax() * ((1 + mob.getBonuses().getFloatPercentAll(Enum.ModType.HealthRecoverRate, Enum.SourceType.None)) * 0.01f);
-                mob.setHealth(mob.getHealth() + recoveredHealth);
+        try {
+            if (mob.getTimestamps().containsKey("HEALTHRECOVERED") == false)
                 mob.getTimestamps().put("HEALTHRECOVERED", System.currentTimeMillis());
 
-                if (mob.getHealth() > mob.getHealthMax())
-                    mob.setHealth(mob.getHealthMax());
-            }
+            if (mob.isSit() && mob.getTimeStamp("HEALTHRECOVERED") < System.currentTimeMillis() + 3000)
+                if (mob.getHealth() < mob.getHealthMax()) {
+
+                    float recoveredHealth = mob.getHealthMax() * ((1 + mob.getBonuses().getFloatPercentAll(Enum.ModType.HealthRecoverRate, Enum.SourceType.None)) * 0.01f);
+                    mob.setHealth(mob.getHealth() + recoveredHealth);
+                    mob.getTimestamps().put("HEALTHRECOVERED", System.currentTimeMillis());
+
+                    if (mob.getHealth() > mob.getHealthMax())
+                        mob.setHealth(mob.getHealthMax());
+                }
+        } catch (Exception e) {
+            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: RecoverHealth" + " " + e.getMessage());
+        }
     }
 }

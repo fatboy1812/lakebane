@@ -37,11 +37,11 @@ public class ItemTableEntry {
         List<ItemTableEntry> itemTableEntryList;
 
         itemTableEntryList = LootManager._itemTables.get(itemTable);
-
-        for (ItemTableEntry iteration : itemTableEntryList)
-            if (roll >= iteration.minRoll && roll <= iteration.maxRoll)
-                itemTableEntry = iteration;
-
+        if(itemTableEntryList != null) {
+            for (ItemTableEntry iteration : itemTableEntryList)
+                if (roll >= iteration.minRoll && roll <= iteration.maxRoll)
+                    itemTableEntry = iteration;
+        }
         return itemTableEntry;
     }
 

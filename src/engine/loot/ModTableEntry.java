@@ -33,11 +33,11 @@ public class ModTableEntry {
         List<ModTableEntry> itemTableEntryList;
 
         itemTableEntryList = LootManager._modTables.get(modTablwe);
-
-        for (ModTableEntry iteration : itemTableEntryList)
-            if (roll >= iteration.minRoll && roll <= iteration.maxRoll)
-                modTableEntry = iteration;
-
+        if(itemTableEntryList != null) {
+            for (ModTableEntry iteration : itemTableEntryList)
+                if (roll >= iteration.minRoll && roll <= iteration.maxRoll)
+                    modTableEntry = iteration;
+        }
         return modTableEntry;
     }
 }
