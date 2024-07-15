@@ -876,6 +876,9 @@ public class MobAI {
                 if(Mob.discDroppers.contains(aiAgent))
                     return;
 
+                if(aiAgent.StrongholdGuardian || aiAgent.StrongholdEpic || aiAgent.StrongholdCommander)
+                    return;
+
                 if (!Zone.respawnQue.contains(aiAgent)) {
                     Zone.respawnQue.add(aiAgent);
                 }
