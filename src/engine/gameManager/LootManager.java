@@ -410,6 +410,9 @@ public enum LootManager {
         if (mob == null || mob.getSafeZone())
             return; // no equipment to drop in safezones
 
+        if(mob.StrongholdGuardian || mob.StrongholdCommander || mob.StrongholdEpic)
+            return; // stronghold mobs don't drop equipment
+
         //do equipment here
         if (mob.getEquip() != null) {
             boolean isVorg = false;
