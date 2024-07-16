@@ -1285,7 +1285,7 @@ public class Mob extends AbstractIntelligenceAgent {
         }
 
         setLoc(newLoc);
-        this.region = AbstractWorldObject.GetRegionByWorldObject(this);
+        this.region = Regions.GetRegionForTeleport(this.loc);//AbstractWorldObject.GetRegionByWorldObject(this);
         //Next update will be end Loc, lets stop him here.
 
     }
