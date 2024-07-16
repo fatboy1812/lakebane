@@ -169,10 +169,6 @@ public enum LootManager {
             }
         }
 
-        //check for special gifts 1/100 to drop present
-        if(ThreadLocalRandom.current().nextInt(1,25) == 15)
-            DropPresent(mob);
-
         // Iterate all entries in this bootySet and process accordingly
         for (BootySetEntry bse : entries) {
             switch (bse.bootyType) {
@@ -691,13 +687,12 @@ public enum LootManager {
             DropPresent(mob);
 
         //random contract drop chance for all
-        if (ThreadLocalRandom.current().nextInt(100) < 35) {
+        if (ThreadLocalRandom.current().nextInt(100) < 40) {
             int contractTableID = 250;
             contractTableID += ThreadLocalRandom.current().nextInt(0, 12);
             if (contractTableID > 259)
                 contractTableID = 659;
 
-            if (ThreadLocalRandom.current().nextInt(100) < 35) {
                 int id = rollRandomItem(contractTableID);
                 ItemBase ib = ItemBase.getItemBase(id);
                 if (ib != null) {
@@ -706,7 +701,6 @@ public enum LootManager {
                     if (contract != null)
                         mob.getCharItemManager().addItemToInventory(contract);
                 }
-            }
         }
 
         //special commander drop chances
