@@ -1455,8 +1455,15 @@ public class ClientMessagePump implements NetMsgHandler {
                             if (b != null && (b.getStrongboxValue() + buildingDeposit) > b.getMaxGold() && !b.isOwnerIsNPC()) {
                                 ErrorPopupMsg.sendErrorPopup(sourcePlayer, 206);
                                 return;
-                            }
-                            if (!itemMan.buyFromNPC(b, cost, buildingDeposit)) {
+                            }if(npc.getContractID() == 152041){
+                                me.fromNoob = true;
+                                buy = Item.createItemForPlayer(sourcePlayer, ib, me.fromNoob);
+                                if (buy != null) {
+                                    me.transferEnchants(buy);
+                                    itemMan.addItemToInventory(buy);
+                                    itemMan.updateInventory();
+                                }
+                            } else if (!itemMan.buyFromNPC(b, cost, buildingDeposit)) {
                                 // chatMan.chatSystemInfo(pc, "" + "You Failed to buy the item.");
                                 ChatManager.chatSystemError(sourcePlayer, "Failed To Buy Item");
                                 return;
