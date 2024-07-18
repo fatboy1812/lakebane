@@ -443,7 +443,12 @@ public class ObjectActionMsgHandler extends AbstractClientMsgHandler {
                                     itemMan.consume(item);
                                 }
                                 break;
-                            } else if (uuid > 252122 && uuid < 252128) { //mastery runes
+                            } else if (uuid > 252122 && uuid < 252137) { //blood runes
+                                if (ApplyRuneMsg.applyRune(uuid, origin, player)) {
+                                    itemMan.consume(item);
+                                }
+                                break;
+                            } else if (uuid > 252128 && uuid < 252128) { //mastery runes
                                 if (ApplyRuneMsg.applyRune(uuid, origin, player)) {
                                     itemMan.consume(item);
                                 }
