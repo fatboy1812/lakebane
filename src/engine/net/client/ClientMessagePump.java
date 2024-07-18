@@ -1455,7 +1455,7 @@ public class ClientMessagePump implements NetMsgHandler {
                             if (b != null && (b.getStrongboxValue() + buildingDeposit) > b.getMaxGold() && !b.isOwnerIsNPC()) {
                                 ErrorPopupMsg.sendErrorPopup(sourcePlayer, 206);
                                 return;
-                            }if(npc.getContractID() == 152041){
+                            }if(npc.getContractID() == 1502041){
                                 me.fromNoob = true;
                                 buy = Item.createItemForPlayer(sourcePlayer, ib, me.fromNoob);
                                 if (buy != null) {
