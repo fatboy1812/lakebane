@@ -216,19 +216,39 @@ public class StrongholdManager {
     public static int getStrongholdGuardianID(int ID){
         switch(ID){
             case 814000:
-                return 13528; // Mountain Giant Raider Axe
+                return 253004; // Mountain Giant Raider Axe
             case 5001500:
-                return 13643; // Vampire Spear Warrior
+                return 253008; // Vampire Spear Warrior
             case 1306600:
-                return 13802; // Desert Orc Warrior
+                return 253007; // Desert Orc Warrior
             case 564600:
-                return 12728; // Kolthoss Warrior
+                return 253010; // Kolthoss Warrior
             case 1326600:
-                return 14153; //elven warrior
+                return 253005; //elven warrior
             case 602400:
-                return 13326; // templar missionary
+                return 253009; // templar missionary
             case 1600000:
-                return 14041; // scourger
+                return 253006; // scourger
+        }
+        return 13434; // human sword and board warrior
+    }
+
+    public static int getStrongholdEpicID(int ID){
+        switch(ID){
+            case 814000:
+                return 253023; // Mountain Giant Raider Axe
+            case 5001500:
+                return 253022; // Vampire Spear Warrior
+            case 1306600:
+                return 253021; // Desert Orc Warrior
+            case 564600:
+                return 253018; // Kolthoss Warrior
+            case 1326600:
+                return 253019; //elven warrior
+            case 602400:
+                return 253024; // templar missionary
+            case 1600000:
+                return 253020; // scourger
         }
         return 13434; // human sword and board warrior
     }
@@ -236,55 +256,56 @@ public class StrongholdManager {
     public static int getStrongholdCommanderID(int ID){
         switch(ID){
             case 814000:
-                return 13515;
+                return 253017;
             case 5001500:
-                return 14280;
+                return 253012;
             case 1306600:
-                return 13789; // Desert Orc Xbow
+                return 253016; // Desert Orc Xbow
             case 564600:
-                return 12724; // xbow kolthoss
+                return 253011; // xbow kolthoss
             case 1326600:
-                return 14158; //elven bow warrior
+                return 253013; //elven bow warrior
             case 602400:
-                return 13917; // dune giant with xbow
+                return 253015; // dune giant with xbow
             case 1600000:
-                return 14034; // barbator
+                return 253014; // barbator
         }
         return 13433;
     }
 
-    public static int getStrongholdMobEquipSetID(int mobbaseUUID){
-        switch(mobbaseUUID){
-            case 14280:
-                return 10790;
-            case 13643:
-                return 6317;
-            case 13515:
-                return 7820;
-            case 13528:
-                return 5966;
-            case 13802:
-                return 9043;
-            case 13789:
-                return 9035;
-            case 12728:
-                return 6826;
-            case 12724:
-            case 13917:
-            case 14034:
-                return 9471;
-            case 13434:
-                return 6327;
-            case 13433:
-                return 6900;
-            case 14158:
-                return 7523;
-            case 14153:
-                return 7513;
-            case 13326:
-                return 8957;
-            case 14041:
-                return 9615;
+    public static int getStrongholdMobEquipSetID(int mobbaseUUID) {
+        switch (mobbaseUUID) {
+            case 253005:
+            case 253019:
+                return 5874; // elven HA set
+            case 253009:
+            case 253024:
+                return 8933; // templar HA set
+            case 253006:
+            case 253020:
+            case 253008:
+            case 253022:
+                return 6329; // dark knight set
+            case 253010:
+            case 253018:
+                return 6691; //lizardman set sword
+            case 253007:
+            case 253021:
+                return 9047; // orc warrior
+            case 253004:
+            case 253023:
+                return 5945; // mountain giant raider
+
+            //ranged
+            case 253013:
+                return 7899; //elven bow warrior
+            case 253017:
+            case 253012:
+            case 253016:
+            case 253011:
+            case 253015:
+            case 253014:
+                return 9035; // Regular Xbox
         }
         return 0;
     }
@@ -306,7 +327,7 @@ public class StrongholdManager {
             Zone mineZone = ZoneManager.findSmallestZone(tower.loc);
 
             Vector3fImmutable loc = tower.loc;
-            MobBase commanderBase = MobBase.getMobBase(getStrongholdGuardianID(tower.meshUUID));
+            MobBase commanderBase = MobBase.getMobBase(getStrongholdEpicID(tower.meshUUID));
             Mob commander = Mob.createMob(commanderBase.getLoadID(), loc, Guild.getErrantGuild(), true, mineZone, null, 0, commanderBase.getFirstName(), 75);
             if (commander != null) {
                 commander.parentZone = mine.getParentZone();
