@@ -79,13 +79,18 @@ public enum LootManager {
 
         //iterate the booty sets
 
-        if (mob.getMobBaseID() != 253003 && mob.getMobBase().bootySet != 0 && _bootySetMap.containsKey(mob.getMobBase().bootySet))
+        if(mob.mobBase == null || mob.getMobBaseID() == 253003){
+            int i = 0;
+        }
+
+        if (mob.getMobBase().bootySet != 0 && _bootySetMap.containsKey(mob.getMobBase().bootySet))
             RunBootySet(_bootySetMap.get(mob.getMobBase().bootySet), mob, inHotzone);
 
         if (mob.bootySet != 0 && _bootySetMap.containsKey(mob.bootySet)) {
             RunBootySet(_bootySetMap.get(mob.bootySet), mob, inHotzone);
         }else if(mob.bootySet != 0 && ItemBase.getItemBase(mob.bootySet) != null){
             MobLoot specialDrop = null;
+            specialDrop = new MobLoot(mob,ItemBase.getItemBase(mob.bootySet),true);
             if(specialDrop != null) {
                 ChatSystemMsg chatMsg = new ChatSystemMsg(null, mob.getName() + " in " + mob.getParentZone().getName() + " has found the " + specialDrop.getName() + ". Are you tough enough to take it?");
                 chatMsg.setMessageType(10);
@@ -93,9 +98,10 @@ public enum LootManager {
                 DispatchMessage.dispatchMsgToAll(chatMsg);
                 mob.getCharItemManager().addItemToInventory(specialDrop);
                 mob.setResists(new Resists("Dropper"));
+                if(!Mob.discDroppers.contains(mob))
+                    Mob.AddDiscDropper(mob);
             }
-            if(!Mob.discDroppers.contains(mob))
-                Mob.AddDiscDropper(mob);
+
         }
 
         //lastly, check mobs inventory for godly or disc runes to send a server announcement
