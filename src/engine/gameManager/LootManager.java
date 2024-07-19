@@ -79,7 +79,7 @@ public enum LootManager {
 
         //iterate the booty sets
 
-        if (mob.getMobBase().bootySet != 0 && _bootySetMap.containsKey(mob.getMobBase().bootySet))
+        if (mob.getMobBaseID() != 253003 && mob.getMobBase().bootySet != 0 && _bootySetMap.containsKey(mob.getMobBase().bootySet))
             RunBootySet(_bootySetMap.get(mob.getMobBase().bootySet), mob, inHotzone);
 
         if (mob.bootySet != 0 && _bootySetMap.containsKey(mob.bootySet)) {
