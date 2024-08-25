@@ -279,16 +279,21 @@ public class ApplyRuneMsg extends ClientNetMsg {
         }
         //if discipline, check number applied
         if (isDiscipline(runeID)) {
-            //if(playerCharacter.getLevel() == 80)
-            discCount -= 1; // level 80 characters get an extra disc rune
-            if (playerCharacter.getLevel() < 70) {
-                if (discCount > 2) {
-                    return false;
-                }
-            } else {
-                if (discCount > 3) {
-                    return false;
-                }
+            switch(playerCharacter.getRank()){
+                case 1:
+                case 2:
+                case 3:
+                case 4:
+                case 5:
+                case 6:
+                    if(discCount > 3)
+                        return false;
+                    break;
+                case 7:
+                case 8:
+                    if(discCount > 5)
+                        return false;
+                    break;
             }
         }
         //Everything succeeded. Let's apply the rune
