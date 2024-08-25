@@ -660,7 +660,7 @@ public enum LootManager {
         //random contract drop chance for all
         if (ThreadLocalRandom.current().nextInt(100) < 40) {
             int contractTableID = 250;
-            contractTableID += ThreadLocalRandom.current().nextInt(0, 12);
+            contractTableID += ThreadLocalRandom.current().nextInt(0, 11);
             if (contractTableID > 259)
                 contractTableID = 659;
 
@@ -676,16 +676,16 @@ public enum LootManager {
 
         //special commander drop chances
         if (commander)
-            GenerateCommanderLoot(mob);
+            GenerateCommanderLoot(mob,false);
 
         //special epic drop chances
         if (epic) {
-            GenerateCommanderLoot(mob);
-            GenerateCommanderLoot(mob);
+            GenerateCommanderLoot(mob, true);
+            GenerateCommanderLoot(mob,false);
         }
     }
 
-    public static void GenerateCommanderLoot(Mob mob){
+    public static void GenerateCommanderLoot(Mob mob, boolean epic){
         //present chance
         if (ThreadLocalRandom.current().nextInt(100) < 25)
             DropPresent(mob);
@@ -727,6 +727,21 @@ public enum LootManager {
 
                 if (toAdd4 != null)
                     mob.getCharItemManager().addItemToInventory(toAdd4);
+            }
+        }
+        if(epic){
+            int contractTableID = 250;
+            contractTableID += ThreadLocalRandom.current().nextInt(0, 11);
+            if (contractTableID > 259)
+                contractTableID = 659;
+
+            int id = rollRandomItem(contractTableID);
+            ItemBase ib = ItemBase.getItemBase(id);
+            if (ib != null) {
+                MobLoot contract = new MobLoot(mob, ib, true);
+
+                if (contract != null)
+                    mob.getCharItemManager().addItemToInventory(contract);
             }
         }
     }
