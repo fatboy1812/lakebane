@@ -46,7 +46,7 @@ public class SetLevelCmd extends AbstractDevCmd {
             this.sendUsage(pc);
             return;
         }
-        if (level < 1 || level > 75) {
+        if (level < 1 || level > 80) {
             this.sendHelp(pc);
             return;
         }
@@ -62,7 +62,7 @@ public class SetLevelCmd extends AbstractDevCmd {
 
     @Override
     protected String _getHelpString() {
-        return "Sets your character's level to 'amount'.  'amount' must be between 1-75";
+        return "Sets your character's level to 'amount'.  'amount' must be between 1-80";
     }
 
     @Override

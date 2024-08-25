@@ -9,6 +9,7 @@
 
 package engine.objects;
 
+import engine.Enum;
 import engine.Enum.TargetColor;
 import engine.gameManager.ZoneManager;
 import engine.math.Vector3fImmutable;
@@ -117,6 +118,11 @@ public class Experience {
             159932666, // Level 74
             169707808, // Level 75
             179921247, // Level 76
+            190585732,  // Level 77
+            201714185,  // Level 78
+            213319687,  // Level 79
+            225415457,   // Level 80
+            238014819   // Level 81
 
     };
 
@@ -214,7 +220,14 @@ public class Experience {
             235166.21f, // Level 72
             246039.34f, // Level 73
             257240.58f, // Level 74
-            1 // 268774.71 //Level 75
+            268774.71f, //Level 75
+            280647.69f, // Level 76
+            292865.22f, // Level 77
+            305433.33f, // Level 78
+            318358.08f, // Level 79
+
+            // R8
+            1 //331645.74f // Level 80
 
     };
     // Used to calcuate the amount of experience a monster grants in the
@@ -268,8 +281,8 @@ public class Experience {
         if (level < 1)
             level = 1;
 
-        if (level > 75)
-            level = 75;
+        if (level > MBServerStatics.LEVELCAP)
+            level = MBServerStatics.LEVELCAP;
 
         return MaxExpPerLevel[level];
     }
@@ -383,6 +396,9 @@ public class Experience {
                 if (playerCharacter.getLevel() >= MBServerStatics.LEVELCAP)
                     continue;
 
+                if(playerCharacter.level >= 75 && !mob.getObjectType().equals(Enum.GameObjectType.PlayerCharacter))
+                    continue; // cannot PVE higher than level 75
+
                 // Sets Max XP with server exp mod taken into account.
 
                 grantedExperience = (double) LOOTMANAGER.NORMAL_EXP_RATE * maxXPPerKill(playerCharacter.getLevel());
@@ -432,6 +448,9 @@ public class Experience {
                 return;
 
             if (killer.getLevel() >= MBServerStatics.LEVELCAP)
+                return;
+
+            if(killer.level >= 75 && !mob.getObjectType().equals(Enum.GameObjectType.PlayerCharacter))
                 return;
 
             // Get XP and adjust for Mob Level with world xp modifier taken into account
