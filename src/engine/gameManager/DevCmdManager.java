@@ -102,6 +102,7 @@ public enum DevCmdManager {
         DevCmdManager.registerDevCmd(new SetAdminRuneCmd());
         DevCmdManager.registerDevCmd(new SetInvulCmd());
         DevCmdManager.registerDevCmd(new MakeItemCmd());
+        DevCmdManager.registerDevCmd(new GimmeCmd());
         DevCmdManager.registerDevCmd(new EnchantCmd());
         DevCmdManager.registerDevCmd(new SetSubRaceCmd());
         // Admin
@@ -184,8 +185,10 @@ public enum DevCmdManager {
             case "printstats":
             case "printskills":
             case "printpowers":
+            case "gimme":
                 if(!a.status.equals(Enum.AccountStatus.ADMIN))
                     target = pcSender;
+                playerAllowed = true;
                 break;
         }
         if (!playerAllowed && !a.status.equals(Enum.AccountStatus.ADMIN)) {
