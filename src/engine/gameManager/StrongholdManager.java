@@ -85,6 +85,8 @@ public class StrongholdManager {
                 InterestManager.setObjectDirty(guard);
                 guard.StrongholdGuardian = true;
                 guard.stronghold = mine;
+                guard.mobPowers.clear();
+                guard.mobPowers.put(429399948,20); // find weakness
             }
         }
         //create stronghold commander
@@ -102,9 +104,12 @@ public class StrongholdManager {
             commander.spawnTime = 1000000000;
             commander.BehaviourType = Enum.MobBehaviourType.Aggro;
             commander.mobPowers.clear();
-            commander.mobPowers.put(563107033,40); //grounding shot
-            commander.mobPowers.put(429032838,40); // gravechill
-            commander.mobPowers.put(429413547,40); // grasp of thurin
+            commander.mobPowers.put(429032838, 40); // gravechill
+            commander.mobPowers.put(429757701,20); // magebolt
+            commander.mobPowers.put(429121388,20); // blight
+            commander.mobPowers.put(431566891,20); // lightning bolt
+            commander.mobPowers.put(428716075,20); // fire bolt
+            commander.mobPowers.put(429010987,20); // ice bolt
             commander.StrongholdCommander = true;
             mine.strongholdMobs.add(commander);
             LootManager.GenerateStrongholdLoot(commander,true, false);
@@ -340,9 +345,12 @@ public class StrongholdManager {
                 commander.spawnTime = 1000000000;
                 commander.BehaviourType = Enum.MobBehaviourType.Aggro;
                 commander.mobPowers.clear();
-                commander.mobPowers.put(563107033, 40); //grounding shot
                 commander.mobPowers.put(429032838, 40); // gravechill
-                commander.mobPowers.put(429413547, 40); // grasp of thurin
+                commander.mobPowers.put(429757701,40); // magebolt
+                commander.mobPowers.put(429121388,40); // blight
+                commander.mobPowers.put(431566891,40); // lightning bolt
+                commander.mobPowers.put(428716075,40); // fire bolt
+                commander.mobPowers.put(429010987,40); // ice bolt
                 mine.strongholdMobs.add(commander);
                 LootManager.GenerateStrongholdLoot(commander, true, true);
                 commander.healthMax = 250000;

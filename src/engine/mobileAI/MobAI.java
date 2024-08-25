@@ -82,6 +82,16 @@ public class MobAI {
 
             mob.updateLocation();
 
+            if(mob.StrongholdGuardian || mob.StrongholdEpic){
+                // attempt to ground all players in attack range
+                for(int i : mob.playerAgroMap.keySet()){
+                    PlayerCharacter tar = PlayerCharacter.getFromCache(i);
+                    if(tar != null && tar.loc.distanceSquared(mob.loc) < 80){
+                        PowersManager.applyPower(mob,tar,tar.loc, 111111,40,false);
+                    }
+                }
+            }
+
         } catch (Exception e) {
             Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: AttackTarget" + " " + e.getMessage());
         }
