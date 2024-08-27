@@ -125,15 +125,22 @@ public enum LootManager {
         boolean hotzoneWasRan = false;
         float dropRate;
 
-        //1 in 1,000 chance to drop glass
-        if(ThreadLocalRandom.current().nextInt(1,1000) == 500){
-            int glassID = rollRandomItem(126);
-            ItemBase glassItem = ItemBase.getItemBase(glassID);
-            if(glassItem != null) {
-                MobLoot toAdd = new MobLoot(mob, glassItem, false);
+        if(!mob.getSafeZone()) {
+            //10 in 100,000 chance to drop glass
+            int levelBonusForRoll = 50 - mob.level;
 
-                if (toAdd != null)
-                    mob.getCharItemManager().addItemToInventory(toAdd);
+            if (levelBonusForRoll < 0)
+                levelBonusForRoll = 0;
+
+            if (ThreadLocalRandom.current().nextInt(1, 100000) >= ((10 + levelBonusForRoll) * NORMAL_DROP_RATE)) {
+                int glassID = rollRandomItem(126);
+                ItemBase glassItem = ItemBase.getItemBase(glassID);
+                if (glassItem != null) {
+                    MobLoot toAddGlass = new MobLoot(mob, glassItem, false);
+
+                    if (toAddGlass != null)
+                        mob.getCharItemManager().addItemToInventory(toAddGlass);
+                }
             }
         }
 
@@ -194,7 +201,6 @@ public enum LootManager {
 
         //gets the 1-320 roll for this mob
         int itemTableRoll = 0;
-        int objectType = mob.getObjectType().ordinal();
         if(mob.getObjectType().ordinal() == 52) { //52 = player character
             itemTableRoll = ThreadLocalRandom.current().nextInt(1,320 + 1);
         } else{
@@ -365,8 +371,7 @@ public enum LootManager {
     public static void GenerateLootDrop(Mob mob, int tableID, Boolean inHotzone) {
 
         MobLoot toAdd = getGenTableItem(tableID, mob, inHotzone);
-
-        if (toAdd != null) {
+        if(toAdd != null){
             toAdd.setIsID(true);
             mob.getCharItemManager().addItemToInventory(toAdd);
         }
