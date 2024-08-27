@@ -142,6 +142,18 @@ public enum LootManager {
                         mob.getCharItemManager().addItemToInventory(toAddGlass);
                 }
             }
+
+            //Special Case Contract Drop
+            if (ThreadLocalRandom.current().nextInt(1, 100000) >= ((400 + levelBonusForRoll) * NORMAL_DROP_RATE))
+                SpecialCaseContractDrop(mob,entries);
+
+            //Special Case Rune Drop
+            if (ThreadLocalRandom.current().nextInt(1, 100000) >= ((400 + levelBonusForRoll) * NORMAL_DROP_RATE))
+                SpecialCaseRuneDrop(mob,entries);
+
+            //Special Case Resource Drop
+            if (ThreadLocalRandom.current().nextInt(1, 100000) >= ((100 + levelBonusForRoll) * NORMAL_DROP_RATE))
+                SpecialCaseResourceDrop(mob,entries);
         }
 
         // Iterate all entries in this bootySet and process accordingly
@@ -177,6 +189,97 @@ public enum LootManager {
                     GenerateInventoryDrop(mob, bse);
                     break;
             }
+        }
+    }
+
+    public static void SpecialCaseContractDrop(Mob mob,ArrayList<BootySetEntry> entries){
+
+        int lootTableID = 0;
+        for(BootySetEntry entry : entries){
+            if(entry.bootyType.equals("LOOT")){
+                lootTableID = entry.genTable;
+                break;
+            }
+        }
+
+        if(lootTableID == 0)
+            return;
+
+        int ContractTableID = 0;
+        for(GenTableEntry entry : _genTables.get(lootTableID)){
+            if(ItemBase.getItemBase(_itemTables.get(entry.itemTableID).get(0).cacheID).getType().equals(Enum.ItemType.CONTRACT)){
+                ContractTableID = entry.itemTableID;
+                break;
+            }
+        }
+
+        if(ContractTableID == 0)
+            return;
+
+        ItemBase ib = ItemBase.getItemBase(rollRandomItem(ContractTableID));
+        if(ib != null){
+            MobLoot toAdd = new MobLoot(mob,ib,false);
+            mob.getCharItemManager().addItemToInventory(toAdd);
+        }
+    }
+
+    public static void SpecialCaseRuneDrop(Mob mob,ArrayList<BootySetEntry> entries){
+        int lootTableID = 0;
+        for(BootySetEntry entry : entries){
+            if(entry.bootyType.equals("LOOT")){
+                lootTableID = entry.genTable;
+                break;
+            }
+        }
+
+        if(lootTableID == 0)
+            return;
+
+        int RuneTableID = 0;
+        for(GenTableEntry entry : _genTables.get(lootTableID)){
+            if(ItemBase.getItemBase(_itemTables.get(entry.itemTableID).get(0).cacheID).getType().equals(Enum.ItemType.RUNE)){
+                RuneTableID = entry.itemTableID;
+                break;
+            }
+        }
+
+        if(RuneTableID == 0)
+            return;
+
+        ItemBase ib = ItemBase.getItemBase(rollRandomItem(RuneTableID));
+        if(ib != null){
+            MobLoot toAdd = new MobLoot(mob,ib,false);
+            mob.getCharItemManager().addItemToInventory(toAdd);
+        }
+    }
+
+    public static void SpecialCaseResourceDrop(Mob mob,ArrayList<BootySetEntry> entries){
+        int lootTableID = 0;
+        for(BootySetEntry entry : entries){
+            if(entry.bootyType.equals("LOOT")){
+                lootTableID = entry.genTable;
+                break;
+            }
+        }
+
+        if(lootTableID == 0)
+            return;
+
+        int ResourceTableID = 0;
+        for(GenTableEntry entry : _genTables.get(lootTableID)){
+            if(ItemBase.getItemBase(_itemTables.get(entry.itemTableID).get(0).cacheID).getType().equals(Enum.ItemType.RESOURCE)){
+                ResourceTableID = entry.itemTableID;
+                break;
+            }
+        }
+
+        if(ResourceTableID == 0)
+            return;
+
+        ItemBase ib = ItemBase.getItemBase(rollRandomItem(ResourceTableID));
+        if(ib != null){
+            MobLoot toAdd = new MobLoot(mob,ib,false);
+            mob.getCharItemManager().addItemToInventory(toAdd);
         }
     }
 
@@ -372,6 +475,13 @@ public enum LootManager {
 
         MobLoot toAdd = getGenTableItem(tableID, mob, inHotzone);
         if(toAdd != null){
+            ItemBase ib = toAdd.getItemBase();
+            switch(ib.getType()){
+                case CONTRACT:
+                case RUNE:
+                case RESOURCE:
+                    return;
+            }
             toAdd.setIsID(true);
             mob.getCharItemManager().addItemToInventory(toAdd);
         }
