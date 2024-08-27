@@ -864,16 +864,14 @@ public class MobAI {
                         return;
                     }
                     //No items in inventory.
+                } else if (aiAgent.isHasLoot()) {
+                    if (System.currentTimeMillis() > aiAgent.deathTime + MBServerStatics.DESPAWN_TIMER_ONCE_LOOTED) {
+                        aiAgent.despawn();
+                        aiAgent.deathTime = System.currentTimeMillis();
+                        return;
+                    }
+                    //Mob never had Loot.
                 } else {
-                    //Mob's Loot has been looted.
-                    if (aiAgent.isHasLoot()) {
-                        if (System.currentTimeMillis() > aiAgent.deathTime + MBServerStatics.DESPAWN_TIMER_ONCE_LOOTED) {
-                            aiAgent.despawn();
-                            aiAgent.deathTime = System.currentTimeMillis();
-                            return;
-                        }
-                        //Mob never had Loot.
-                    } else {
                         if (System.currentTimeMillis() > aiAgent.deathTime + MBServerStatics.DESPAWN_TIMER) {
                             aiAgent.despawn();
                             aiAgent.deathTime = System.currentTimeMillis();
@@ -881,7 +879,6 @@ public class MobAI {
                         }
                     }
                 }
-            }
 
             if(Mob.discDroppers.contains(aiAgent))
                 return;
