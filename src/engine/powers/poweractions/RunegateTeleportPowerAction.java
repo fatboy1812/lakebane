@@ -45,13 +45,10 @@ public class RunegateTeleportPowerAction extends AbstractPowerAction {
         Vector3fImmutable rgLoc;
 
         for (Runegate runegate : Runegate._runegates.values()) {
-
             rgLoc = runegate.gateBuilding.getLoc();
-
-            float distanceToRunegateSquared = source.getLoc().distanceSquared2D(rgLoc);
-
-            if (distanceToRunegateSquared < sqr(dist)) {
-                dist = sqrt(distanceToRunegateSquared);
+            float disToGate = source.getLoc().distanceSquared2D(rgLoc);
+            if(disToGate < dist){
+                dist = disToGate;
                 rg = runegate.gateBuilding;
             }
         }
