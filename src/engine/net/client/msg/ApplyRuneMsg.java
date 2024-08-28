@@ -256,6 +256,7 @@ public class ApplyRuneMsg extends ClientNetMsg {
             }
         //Check if max number runes already reached
         if (runes.size() > 12) {
+            ChatManager.chatSystemInfo(playerCharacter,"You Have Too Many Runes Applied");
             return false;
         }
         switch (rb.getName()) {
