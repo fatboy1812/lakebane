@@ -108,6 +108,7 @@ public class Mob extends AbstractIntelligenceAgent {
     public Mine stronghold = null;
 
     public boolean StrongholdEpic = false;
+    public boolean isDropper = false;
 
 
     /**
@@ -272,7 +273,7 @@ public class Mob extends AbstractIntelligenceAgent {
             this.notEnemy = EnumBitSet.asEnumBitSet(rs.getLong("notEnemy"), Enum.MonsterType.class);
             this.enemy = EnumBitSet.asEnumBitSet(rs.getLong("enemy"), Enum.MonsterType.class);
             this.firstName = rs.getString("mob_name");
-
+            this.isDropper = rs.getInt("is_dropper") == 1;
             if (this.firstName.isEmpty())
                 this.firstName = this.mobBase.getFirstName();
 
@@ -296,7 +297,7 @@ public class Mob extends AbstractIntelligenceAgent {
             Logger.error("Mobile:" + this.dbID + ": " + e);
         }
 
-        if(this.firstName.toLowerCase().equals("guardian commander") || this.firstName.toLowerCase().equals("elite guardian")){
+        if(this.firstName.toLowerCase().equals("guardian commander") || this.firstName.toLowerCase().equals("elite guardian")|| this.firstName.toLowerCase().equals("guardian")|| this.firstName.toLowerCase().equals("commander")){
             this.despawn();
             this.removeFromCache();
             DbManager.MobQueries.DELETE_MOB(this);
@@ -1491,6 +1492,8 @@ public class Mob extends AbstractIntelligenceAgent {
             this.setResists(new Resists("Elite"));
         }else if(Mob.discDroppers.contains(this)) {
             this.setResists(new Resists("Dropper"));
+        } else if(this.isDropper){
+            this.setResists(new Resists("Dropper"));
         } else{
             this.setResists(new Resists());
         }
@@ -2028,6 +2031,10 @@ public class Mob extends AbstractIntelligenceAgent {
 
         this.charItemManager = new CharacterItemManager(this);
         this.loadInventory();
+        if(this.isDropper){
+            this.setLevel((short)65);
+            this.setResists(new Resists("Dropper"));
+        }
         try {
             if (this.equipmentSetID != 0)
                 this.equip = MobBase.loadEquipmentSet(this.equipmentSetID);
