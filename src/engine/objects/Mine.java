@@ -166,8 +166,10 @@ public class Mine extends AbstractGameObject {
             ArrayList<Mine> serverMines = MineQueries.GET_ALL_MINES_FOR_SERVER();
 
             for (Mine mine : serverMines) {
-                Mine.mineMap.put(mine, mine.buildingID);
-                Mine.towerMap.put(mine.buildingID, mine);
+                if(mine.capSize != 0) {
+                    Mine.mineMap.put(mine, mine.buildingID);
+                    Mine.towerMap.put(mine.buildingID, mine);
+                }
             }
 
         } catch (Exception e) {
@@ -399,9 +401,11 @@ public class Mine extends AbstractGameObject {
     }
 
     public boolean validForMine(Resource r) {
-        if (this.mineType == null)
+        if (this.mineType == null) {
+            Logger.error("Mine Was Null Setting Resources for Mine: " + this.getObjectUUID());
             return false;
-        return this.mineType.validForMine(r, this.isExpansion());
+        }
+        return this.mineType.validForMine(r);
     }
 
     public void serializeForMineProduction(ByteBufferWriter writer) {

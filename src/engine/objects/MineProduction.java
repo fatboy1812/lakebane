@@ -13,21 +13,19 @@ import java.util.HashMap;
 
 public enum MineProduction {
 
-    LUMBER("Lumber Camp", new HashMap<>(), Resource.WORMWOOD, 1618637196, 1663491950),
-    ORE("Ore Mine", new HashMap<>(), Resource.OBSIDIAN, 518103023, -788976428),
-    GOLD("Gold Mine", new HashMap<>(), Resource.GALVOR, -662193002, -1227205358),
-    MAGIC("Magic Mine", new HashMap<>(), Resource.BLOODSTONE, 504746863, -1753567069);
+    LUMBER("Lumber Camp", new HashMap<>(), 1618637196, 1663491950),
+    ORE("Ore Mine", new HashMap<>(), 518103023, -788976428),
+    MAGIC("Magic Mine", new HashMap<>(), 504746863, -1753567069),
+    GOLDMINE("Gold Mine", new HashMap<>(), -662193002, -1227205358);
 
     public final String name;
     public final HashMap<Integer, Resource> resources;
-    public final Resource xpac;
     public final int hash;
     public final int xpacHash;
 
-    MineProduction(String name, HashMap<Integer, Resource> resources, Resource xpac, int hash, int xpacHash) {
+    MineProduction(String name, HashMap<Integer, Resource> resources,int hash, int xpacHash) {
         this.name = name;
         this.resources = resources;
-        this.xpac = xpac;
         this.hash = hash;
         this.xpacHash = xpacHash;
     }
@@ -39,6 +37,7 @@ public enum MineProduction {
             MineProduction.LUMBER.resources.put(1580005, Resource.OAK);
             MineProduction.LUMBER.resources.put(1580006, Resource.BRONZEWOOD);
             MineProduction.LUMBER.resources.put(1580007, Resource.MANDRAKE);
+            MineProduction.LUMBER.resources.put(1580018, Resource.WORMWOOD);
         }
         if (MineProduction.ORE.resources.size() == 0) {
             MineProduction.ORE.resources.put(7, Resource.GOLD);
@@ -46,14 +45,16 @@ public enum MineProduction {
             MineProduction.ORE.resources.put(1580001, Resource.TRUESTEEL);
             MineProduction.ORE.resources.put(1580002, Resource.IRON);
             MineProduction.ORE.resources.put(1580003, Resource.ADAMANT);
+            MineProduction.ORE.resources.put(1580019, Resource.OBSIDIAN);
         }
-        if (MineProduction.GOLD.resources.size() == 0) {
-            MineProduction.GOLD.resources.put(7, Resource.GOLD);
-            MineProduction.GOLD.resources.put(1580000, Resource.STONE);
-            MineProduction.GOLD.resources.put(1580008, Resource.COAL);
-            MineProduction.GOLD.resources.put(1580009, Resource.AGATE);
-            MineProduction.GOLD.resources.put(1580010, Resource.DIAMOND);
-            MineProduction.GOLD.resources.put(1580011, Resource.ONYX);
+        if (MineProduction.GOLDMINE.resources.size() == 0) {
+            MineProduction.GOLDMINE.resources.put(7, Resource.GOLD);
+            MineProduction.GOLDMINE.resources.put(1580000, Resource.STONE);
+            MineProduction.GOLDMINE.resources.put(1580008, Resource.COAL);
+            MineProduction.GOLDMINE.resources.put(1580009, Resource.AGATE);
+            MineProduction.GOLDMINE.resources.put(1580010, Resource.DIAMOND);
+            MineProduction.GOLDMINE.resources.put(1580011, Resource.ONYX);
+            MineProduction.GOLDMINE.resources.put(1580017, Resource.GALVOR);
         }
         if (MineProduction.MAGIC.resources.size() == 0) {
             MineProduction.MAGIC.resources.put(7, Resource.GOLD);
@@ -62,27 +63,25 @@ public enum MineProduction {
             MineProduction.MAGIC.resources.put(1580014, Resource.ANTIMONY);
             MineProduction.MAGIC.resources.put(1580015, Resource.SULFUR);
             MineProduction.MAGIC.resources.put(1580016, Resource.QUICKSILVER);
+            MineProduction.MAGIC.resources.put(1580020, Resource.BLOODSTONE);
         }
     }
 
     public static MineProduction getByName(String name) {
-        if (name.toLowerCase().equals("lumber"))
+        if (name.equalsIgnoreCase("lumber"))
             return MineProduction.LUMBER;
-        else if (name.toLowerCase().equals("ore"))
+        else if (name.equalsIgnoreCase("ore"))
             return MineProduction.ORE;
-        else if (name.toLowerCase().equals("gold"))
-            return MineProduction.GOLD;
+        else if (name.equalsIgnoreCase("gold"))
+            return MineProduction.GOLDMINE;
         else
             return MineProduction.MAGIC;
     }
 
-    public boolean validForMine(Resource r, boolean isXpac) {
+    public boolean validForMine(Resource r) {
         if (r == null)
             return false;
-        if (this.resources.containsKey(r.UUID))
-            return true;
-        else
-            return isXpac && r.UUID == this.xpac.UUID;
+        return this.resources.containsKey(r.UUID);
     }
 
 
