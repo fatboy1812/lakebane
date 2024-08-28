@@ -207,9 +207,13 @@ public enum LootManager {
 
         int ContractTableID = 0;
         for(GenTableEntry entry : _genTables.get(lootTableID)){
-            if(ItemBase.getItemBase(_itemTables.get(entry.itemTableID).get(0).cacheID).getType().equals(Enum.ItemType.CONTRACT)){
-                ContractTableID = entry.itemTableID;
-                break;
+            try {
+                if (ItemBase.getItemBase(_itemTables.get(entry.itemTableID).get(0).cacheID).getType().equals(Enum.ItemType.CONTRACT)) {
+                    ContractTableID = entry.itemTableID;
+                    break;
+                }
+            }catch(Exception e){
+
             }
         }
 
@@ -237,9 +241,13 @@ public enum LootManager {
 
         int RuneTableID = 0;
         for(GenTableEntry entry : _genTables.get(lootTableID)){
-            if(ItemBase.getItemBase(_itemTables.get(entry.itemTableID).get(0).cacheID).getType().equals(Enum.ItemType.RUNE)){
-                RuneTableID = entry.itemTableID;
-                break;
+            try {
+                if (ItemBase.getItemBase(_itemTables.get(entry.itemTableID).get(0).cacheID).getType().equals(Enum.ItemType.RUNE)) {
+                    RuneTableID = entry.itemTableID;
+                    break;
+                }
+            }catch(Exception e){
+
             }
         }
 
@@ -267,9 +275,13 @@ public enum LootManager {
 
         int ResourceTableID = 0;
         for(GenTableEntry entry : _genTables.get(lootTableID)){
-            if(ItemBase.getItemBase(_itemTables.get(entry.itemTableID).get(0).cacheID).getType().equals(Enum.ItemType.RESOURCE)){
-                ResourceTableID = entry.itemTableID;
-                break;
+            try {
+                if (ItemBase.getItemBase(_itemTables.get(entry.itemTableID).get(0).cacheID).getType().equals(Enum.ItemType.RESOURCE)) {
+                    ResourceTableID = entry.itemTableID;
+                    break;
+                }
+            }catch(Exception e){
+
             }
         }
 
