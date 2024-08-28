@@ -135,7 +135,8 @@ public class TaxCityMsgHandler extends AbstractClientMsgHandler {
 
         msg = (TaxCityMsg) baseMsg;
 
-        ViewTaxes(msg, player);
+        //realm taxing disabled
+        //ViewTaxes(msg, player);
 
 
         return true;
