@@ -635,9 +635,6 @@ public class MobAI {
 
                 //check to send mob home for player guards to prevent exploit of dragging guards away and then teleporting
 
-
-                CheckToSendMobHome(mob);
-
                 return;
             }
 
@@ -655,7 +652,7 @@ public class MobAI {
                     mob.setCombatTarget(null);
                 return;
             }
-
+            CheckToSendMobHome(mob);
             if (mob.getCombatTarget() != null) {
 
                 if (mob.getCombatTarget().isAlive() == false) {
@@ -959,7 +956,7 @@ public class MobAI {
                         }
                     }
                 }
-            } else if (MovementUtilities.inRangeOfBindLocation(mob) == false) {
+            } else if (!MovementUtilities.inRangeOfBindLocation(mob)) {
 
                 PowersBase recall = PowersManager.getPowerByToken(-1994153779);
                 PowersManager.useMobPower(mob, mob, recall, 40);
@@ -967,6 +964,7 @@ public class MobAI {
 
                 for (Entry playerEntry : mob.playerAgroMap.entrySet())
                     PlayerCharacter.getFromCache((int) playerEntry.getKey()).setHateValue(0);
+                mob.setCombatTarget(null);
             }
         } catch (Exception e) {
             Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: CheckToSendMobHome" + " " + e.getMessage());
