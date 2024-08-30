@@ -588,7 +588,10 @@ public enum PowersManager {
 
 
         playerCharacter.setLastMovementState(playerCharacter.getMovementState());
-
+        if((pb.token == 429495514 || pb.token == 429407306) && playerCharacter.getRace().getName().contains("Shade")){
+            pb = PowersManager.powersBaseByToken.get(429397210);
+            copyMsg.setPowerUsedID(429397210);
+        }
         // run timer job to end cast
         if (time < 1) // run immediately
             finishUsePower(copyMsg, playerCharacter, casterLiveCounter, targetLiveCounter);
