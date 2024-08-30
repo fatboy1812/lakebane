@@ -62,7 +62,7 @@ public class DestroyBuildingHandler extends AbstractClientMsgHandler {
         if (city != null)
             bane = city.getBane();
 
-        if (bane != null && bane.getSiegePhase() == Enum.SiegePhase.WAR) {
+        if (bane != null){// && bane.getSiegePhase() == Enum.SiegePhase.WAR) {
             ErrorPopupMsg.sendErrorPopup(pc, 171);
             return true;
         }
