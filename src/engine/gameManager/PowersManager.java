@@ -294,7 +294,7 @@ public enum PowersManager {
         if(playerCharacter.isFlying()) {
             for (ActionsBase ab : pb.getActions()) {
                 if (ab.stackType.equalsIgnoreCase("MoveBuff")) {
-                    PlayerCharacter.GroundPlayer(playerCharacter);
+                    return true;
                 }
             }
         }
