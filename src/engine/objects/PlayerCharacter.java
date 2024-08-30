@@ -4827,6 +4827,12 @@ public class PlayerCharacter extends AbstractCharacter {
                     PowersManager.applyPower(this, this, Vector3fImmutable.ZERO, 1672601862, 40, false);
                 }
 
+                if(this.isFlying()){
+                    if(this.getBonuses() != null && this.getBonuses().getFloat(ModType.Speed,SourceType.None) > 0){
+                        GroundPlayer(this);
+                    }
+                }
+
             } catch (Exception e) {
                 Logger.error(e);
             } finally {
