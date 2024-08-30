@@ -1372,6 +1372,16 @@ public enum PowersManager {
                 else
                     duration = 45000; // Belgosh Summons, 45 seconds
 
+                boolean enemiesNear = false;
+                for(AbstractWorldObject awo : WorldGrid.getObjectsInRangePartial(pc.loc,MBServerStatics.CHARACTER_LOAD_RANGE, MBServerStatics.MASK_PLAYER)){
+                    PlayerCharacter playerCharacter = (PlayerCharacter)awo;
+                    if(!playerCharacter.guild.getNation().equals(pc.guild.getNation())){
+                        enemiesNear = true;
+                    }
+                }
+
+                if(enemiesNear && !pc.isInSafeZone())
+                    duration += 60000;
 
                 // Teleport to summoners location
                 FinishSummonsJob fsj = new FinishSummonsJob(source, pc);
