@@ -521,6 +521,10 @@ public class Guild extends AbstractWorldObject {
     public void setICMOTD(String value) {
         this.icmotd = value;
     }
+    public void setNMOTD(String value) {
+        this.nmotd = value;
+    }
+    public String getNMOTD(){return nmotd;}
 
     public boolean isNPCGuild() {
 

@@ -62,15 +62,22 @@ public class MOTDEditHandler extends AbstractClientMsgHandler {
                 return true;
             }
 
-            if (type == 1) // Guild MOTD
+            if (type == 1) { // Guild MOTD
                 msg.setMessage(guild.getMOTD());
-            else if (type == 3) // IC MOTD
+                guild.updateDatabase();
+            }else if (type == 3) { // IC MOTD
                 msg.setMessage(guild.getICMOTD());
-            else if (type == 0) { // Nation MOTD
+                guild.updateDatabase();
+            }else if (type == 0) { // Nation MOTD
                 Guild nation = guild.getNation();
                 if (nation == null || !nation.isNation()) {
                     ErrorPopupMsg.sendErrorMsg(playerCharacter, "You do not have such authority!");
                     return true;
+                }
+                nation.setNMOTD(msg.getMessage());
+                nation.updateDatabase();
+                for(Guild sub : nation.getSubGuildList()){
+                    sub.setNMOTD(nation.getNMOTD());
                 }
                 msg.setMessage(nation.getMOTD());
             }
