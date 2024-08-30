@@ -205,6 +205,41 @@ public enum PowersManager {
 
         boolean CSRCast = false;
 
+        if(msg.getPowerUsedID() == 430628895) {
+
+            boolean failed = false;// group teleport
+            City city = ZoneManager.getCityAtLocation(playerCharacter.loc);
+            if (city == null) {
+                failed = true;
+            }else{
+                Bane bane = city.getBane();
+                if (bane == null) {
+                    failed = true;
+                }else{
+                    if(!bane.getSiegePhase().equals(SiegePhase.WAR)){
+                        failed = true;
+                    }
+                }
+            }
+            if(failed){
+                //check to see if we are at an active mine
+                Zone zone = ZoneManager.findSmallestZone(playerCharacter.loc);
+                if(zone != null){
+                    Mine mine = null;
+                    for(Building building : zone.zoneBuildingSet){
+                        if(building.getBlueprint().getBuildingGroup().equals(BuildingGroup.MINE)){
+                            mine = Mine.getMineFromTower(building.getObjectUUID());
+                        }
+                    }
+                    if(mine != null){
+                        failed = !mine.isActive;
+                    }
+                }
+            }
+
+            if(failed)
+                return false;
+        }
 
         if (MBServerStatics.POWERS_DEBUG) {
             ChatManager.chatSayInfo(
