@@ -525,9 +525,11 @@ public enum InterestManager implements Runnable {
         player.setDirtyLoad(true);
         updateStaticList(player, origin);
         updateMobileList(player, origin);
-        if(player.level < 10)
+        if(player.level < 10) {
             player.setLevel((short) 10);
-
+            player.getCharItemManager().addGoldToInventory(1000,false);
+            player.getCharItemManager().addItemToInventory(new MobLoot(player,ItemBase.getItemBase(980066),1,false));
+        }
     }
 
     public synchronized void HandleLoadForTeleport(PlayerCharacter playerCharacter) {
