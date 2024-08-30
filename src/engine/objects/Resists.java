@@ -454,7 +454,7 @@ public class Resists {
      */
     public float getResistedDamage(AbstractCharacter source, AbstractCharacter target, DamageType type, float damage, int trains) {
         //handle fortitudes
-        damage = handleFortitude(target, type, damage);
+        //damage = handleFortitude(target, type, damage);
         //calculate armor piercing
         float ap = source.getBonuses().getFloatPercentAll(ModType.ArmorPiercing, SourceType.None);
         float damageAfterResists = damage * (1 - (this.getResist(type, trains) * 0.01f) + ap);
@@ -477,6 +477,7 @@ public class Resists {
             }
             target.cancelOnTakeDamage(type, (damageAfterResists));
         }
+        damageAfterResists = handleFortitude(target, type, damageAfterResists);
         return damageAfterResists;
     }
 
