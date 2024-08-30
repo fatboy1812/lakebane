@@ -8,6 +8,7 @@
 
 package engine.gameManager;
 
+import com.sun.corba.se.spi.orbutil.fsm.ActionBase;
 import engine.Enum.*;
 import engine.InterestManagement.HeightMap;
 import engine.InterestManagement.WorldGrid;
@@ -27,6 +28,7 @@ import engine.net.client.ClientConnection;
 import engine.net.client.msg.*;
 import engine.objects.*;
 import engine.powers.*;
+import engine.powers.effectmodifiers.AbstractEffectModifier;
 import engine.powers.poweractions.AbstractPowerAction;
 import engine.powers.poweractions.TrackPowerAction;
 import engine.server.MBServerStatics;
@@ -276,6 +278,7 @@ public enum PowersManager {
 
         // get power
         PowersBase pb = PowersManager.powersBaseByToken.get(msg.getPowerUsedID());
+
         if (pb == null) {
             ChatManager.chatSayInfo(playerCharacter,
                     "This power is not implemented yet.");
@@ -285,6 +288,15 @@ public enum PowersManager {
             // + "' was not found on powersBaseByToken map.");
             return true;
             // return false;
+        }
+
+        //check for movement buffs while flying
+        if(playerCharacter.isFlying()) {
+            for (ActionsBase ab : pb.getActions()) {
+                if (ab.stackType.equalsIgnoreCase("MoveBuff")) {
+                    PlayerCharacter.GroundPlayer(playerCharacter);
+                }
+            }
         }
 
         if (playerCharacter.getLastPower() != null)

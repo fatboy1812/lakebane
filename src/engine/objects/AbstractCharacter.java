@@ -31,6 +31,7 @@ import engine.net.ByteBufferWriter;
 import engine.net.DispatchMessage;
 import engine.net.client.msg.UpdateStateMsg;
 import engine.powers.EffectsBase;
+import engine.powers.effectmodifiers.AbstractEffectModifier;
 import engine.server.MBServerStatics;
 import org.pmw.tinylog.Logger;
 
@@ -498,6 +499,14 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
 
         if (bonus != null && !bonus.getBool(ModType.NoMod, SourceType.Fly) && bonus.getBool(ModType.Fly, SourceType.None) && flyer.isAlive())
             canFly = true;
+
+        for(Effect eff : flyer.effects.values()){
+            for(AbstractEffectModifier mod : eff.getEffectModifiers()){
+                if(mod.modType.equals(ModType.Speed)){
+                    canFly = false;
+                }
+            }
+        }
 
         return canFly;
 
