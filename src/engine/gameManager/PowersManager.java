@@ -2241,28 +2241,34 @@ public enum PowersManager {
             defense = 0f;
         // Get hit chance
 
-        if (pc.getDebug(16)) {
-            String smsg = "ATR: " + atr + ", Defense: " + defense;
-            ChatManager.chatSystemInfo(pc, smsg);
-        }
+        //if (pc.getDebug(16)) {
+        //    String smsg = "ATR: " + atr + ", Defense: " + defense;
+         //   ChatManager.chatSystemInfo(pc, smsg);
+        //}
 
-        int chance;
+        //int chance;
 
-        if (atr > defense || defense == 0)
-            chance = 94;
-        else {
-            float dif = atr / defense;
-            if (dif <= 0.8f)
-                chance = 4;
-            else
-                chance = ((int) (450 * (dif - 0.8f)) + 4);
-        }
+        //if (atr > defense || defense == 0)
+        //    chance = 94;
+        //else {
+        //    float dif = atr / defense;
+        //    if (dif <= 0.8f)
+        //        chance = 4;
+        //    else
+        //        chance = ((int) (450 * (dif - 0.8f)) + 4);
+        //}
 
         // calculate hit/miss
-        int roll = ThreadLocalRandom.current().nextInt(100);
+        //int roll = ThreadLocalRandom.current().nextInt(100);
 
         boolean disable = true;
-        if (roll < chance) {
+        int atrRoll = ThreadLocalRandom.current().nextInt(pc.level * 10,(int)atr);
+        int defRoll = 0;
+        if(AbstractCharacter.IsAbstractCharacter(awo)){
+            AbstractCharacter tar = (AbstractCharacter) awo;
+            defRoll = ThreadLocalRandom.current().nextInt(tar.level * 10,tar.defenseRating);
+        }
+        if (atrRoll < defRoll) {
             // Hit, check if dodge kicked in
             if (awo instanceof AbstractCharacter) {
                 AbstractCharacter tarAc = (AbstractCharacter) awo;

@@ -646,24 +646,32 @@ public enum CombatManager {
 
             //Get hit chance
 
-            int chance;
+            //int chance;
             float dif = atr - defense;
 
-            if (dif > 100)
-                chance = 94;
-            else if (dif < -100)
-                chance = 4;
-            else
-                chance = (int) ((0.45 * dif) + 49);
+            //if (dif > 100)
+            //    chance = 94;
+            //else if (dif < -100)
+            //    chance = 4;
+            //else
+            //    chance = (int) ((0.45 * dif) + 49);
 
             errorTrack = 5;
 
             //calculate hit/miss
 
-            int roll = ThreadLocalRandom.current().nextInt(100);
+            //int roll = ThreadLocalRandom.current().nextInt(100);
             DeferredPowerJob dpj = null;
 
-            if (roll < chance) {
+            int atrRoll = ThreadLocalRandom.current().nextInt(ac.level * 10,(int)atr);
+            int defRoll = 0;
+            if(AbstractCharacter.IsAbstractCharacter(target)){
+                AbstractCharacter tar = (AbstractCharacter) target;
+                defRoll = ThreadLocalRandom.current().nextInt(tar.level * 10,tar.defenseRating);
+            }
+
+
+            if (atrRoll < defRoll) {
 
                 if (ac.getObjectType().equals(GameObjectType.PlayerCharacter))
                     updateAttackTimers((PlayerCharacter) ac, target, true);
