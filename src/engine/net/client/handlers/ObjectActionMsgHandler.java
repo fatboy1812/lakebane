@@ -528,7 +528,9 @@ public class ObjectActionMsgHandler extends AbstractClientMsgHandler {
 
                             dispatch = Dispatch.borrow(player, msg);
                             DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
-                            player.cancelOnSpell();
+                            if(!item.getItemBase().getType().equals(ItemType.POTION) && !item.getItemBase().getType().equals(ItemType.SCROLL)) {
+                                player.cancelOnSpell();
+                            }
                             break;
                         default: //shouldn't be here, consume item
                             dispatch = Dispatch.borrow(player, msg);
