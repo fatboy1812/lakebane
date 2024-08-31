@@ -126,13 +126,15 @@ public enum LootManager {
         float dropRate;
 
         if(!mob.getSafeZone()) {
-            //10 in 100,000 chance to drop glass
-            int levelBonusForRoll = 50 - mob.level;
-
-            if (levelBonusForRoll < 0)
-                levelBonusForRoll = 0;
-
-            if (ThreadLocalRandom.current().nextInt(1, 100000) >= ((10 + levelBonusForRoll) * NORMAL_DROP_RATE)) {
+            int specialCaseRoll = ThreadLocalRandom.current().nextInt(1, 100000);
+            //Special Case Contract Drop
+            if(specialCaseRoll < 100){
+                SpecialCaseResourceDrop(mob,entries);
+            } else if(specialCaseRoll > 100 && specialCaseRoll < 500){
+                SpecialCaseContractDrop(mob,entries);
+            }else if(specialCaseRoll > 500 && specialCaseRoll < 900){
+                SpecialCaseRuneDrop(mob,entries);
+            } else if(specialCaseRoll > 900 && specialCaseRoll < 910){
                 int glassID = rollRandomItem(126);
                 ItemBase glassItem = ItemBase.getItemBase(glassID);
                 if (glassItem != null) {
@@ -142,18 +144,6 @@ public enum LootManager {
                         mob.getCharItemManager().addItemToInventory(toAddGlass);
                 }
             }
-
-            //Special Case Contract Drop
-            if (ThreadLocalRandom.current().nextInt(1, 100000) >= ((400 + levelBonusForRoll) * NORMAL_DROP_RATE))
-                SpecialCaseContractDrop(mob,entries);
-
-            //Special Case Rune Drop
-            if (ThreadLocalRandom.current().nextInt(1, 100000) >= ((400 + levelBonusForRoll) * NORMAL_DROP_RATE))
-                SpecialCaseRuneDrop(mob,entries);
-
-            //Special Case Resource Drop
-            if (ThreadLocalRandom.current().nextInt(1, 100000) >= ((100 + levelBonusForRoll) * NORMAL_DROP_RATE))
-                SpecialCaseResourceDrop(mob,entries);
         }
 
         // Iterate all entries in this bootySet and process accordingly
