@@ -9,6 +9,7 @@
 
 package engine.devcmd.cmds;
 
+import engine.Enum;
 import engine.devcmd.AbstractDevCmd;
 import engine.objects.*;
 
@@ -72,6 +73,10 @@ public class PrintStatsCmd extends AbstractDevCmd {
         out += "Main Hand: atr: " + tar.getAtrHandOne() + ", damage: " + tar.getMinDamageHandOne() + " to " + tar.getMaxDamageHandOne() + ", speed: " + tar.getSpeedHandOne() + newline;
         out += "Off Hand:  atr: " + tar.getAtrHandTwo() + ", damage: " + tar.getMinDamageHandTwo() + " to " + tar.getMaxDamageHandTwo() + ", speed: " + tar.getSpeedHandTwo() + newline;
         out += "isAlive: " + tar.isAlive() + ", Combat: " + tar.isCombat() + newline;
+        out += "Move Speed: " + tar.getSpeed() + newline;
+        out += "Health Regen: " + tar.getRegenModifier(Enum.ModType.HealthRecoverRate) + newline;
+        out += "Mana Regen: " + tar.getRegenModifier(Enum.ModType.ManaRecoverRate) + newline;
+        out += "Stamina Regen: " + tar.getRegenModifier(Enum.ModType.StaminaRecoverRate) + newline;
         throwbackInfo(pc, out);
     }
 
