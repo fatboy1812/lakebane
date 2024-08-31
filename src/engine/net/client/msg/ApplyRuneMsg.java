@@ -200,6 +200,9 @@ public class ApplyRuneMsg extends ClientNetMsg {
                             case "Born of the Gwendannen":
                             case "Born of the Invorri":
                             case "Born of the Irydnu":
+                            case "Scion of the Dar Khelegeur":
+                            case "Scion of the Gwaridorn":
+                            case "Scion of the Twathedilion":
                                 mod = 0;
                         }
                         if (mod > playerCharacter.getUnusedStatPoints()) {
@@ -277,6 +280,21 @@ public class ApplyRuneMsg extends ClientNetMsg {
                             return false;
                     }
                 }
+                break;
+            case "Scion of the Dar Khelegeur":
+            case "Scion of the Gwaridorn":
+            case "Scion of the Twathedilion":
+                for (CharacterRune charRune : playerCharacter.getRunes()) {
+                    RuneBase rb2 = charRune.getRuneBase();
+                    switch (rb2.getName()) {
+                        case "Scion of the Dar Khelegeur":
+                        case "Scion of the Gwaridorn":
+                        case "Scion of the Twathedilion":
+                            ChatManager.chatSystemError(playerCharacter, "You Have Already Applied A Blood Rune");
+                            return false;
+                    }
+                }
+                break;
         }
         //if discipline, check number applied
         if (isDiscipline(runeID)) {
@@ -357,6 +375,9 @@ public class ApplyRuneMsg extends ClientNetMsg {
             case "Born of the Gwendannen":
             case "Born of the Invorri":
             case "Born of the Irydnu":
+            case "Scion of the Dar Khelegeur":
+            case "Scion of the Gwaridorn":
+            case "Scion of the Twathedilion":
                 cost = 0;
                 break;
         }
