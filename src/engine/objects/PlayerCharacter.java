@@ -4828,8 +4828,11 @@ public class PlayerCharacter extends AbstractCharacter {
                 }
 
                 if(this.isFlying()){
-                    if(this.getBonuses() != null && this.getBonuses().getFloat(ModType.Speed,SourceType.BUFF) > 0){
-                        GroundPlayer(this);
+                    if(this.getBonuses() != null){
+                        float speedMod = this.getBonuses().getFloatPercentPositive(ModType.Speed,SourceType.None);
+                        if(speedMod > 0) {
+                            GroundPlayer(this);
+                        }
                     }
                 }
 
