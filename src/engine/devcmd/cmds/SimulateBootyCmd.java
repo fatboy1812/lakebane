@@ -27,6 +27,14 @@ public class SimulateBootyCmd extends AbstractDevCmd {
 
         String output;
 
+        try
+        {
+            simCount = Integer.parseInt(words[0]);
+        }catch(Exception e)
+        {
+
+        }
+
         output = "Booty Simulation: Rolls:" + simCount + newline;
 
         Mob mob = (Mob) target;
