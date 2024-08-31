@@ -292,9 +292,16 @@ public enum PowersManager {
 
         //check for movement buffs while flying
         if(playerCharacter.isFlying()) {
-            for (ActionsBase ab : pb.getActions()) {
-                if (ab.stackType.equalsIgnoreCase("MoveBuff")) {
-                    return true;
+            for(ActionsBase ab : pb.getActions()){
+                for(AbstractEffectModifier mod1 : ab.getPowerAction().getEffectsBase().getModifiers()){
+                    if(mod1.modType.equals(ModType.Speed) && mod1.getPercentMod() > 0){
+                        return false;
+                    }
+                }
+                for(AbstractEffectModifier mod2 : ab.getPowerAction().getEffectsBase2().getModifiers()){
+                    if(mod2.modType.equals(ModType.Speed) && mod2.getPercentMod() > 0){
+                        return false;
+                    }
                 }
             }
         }
