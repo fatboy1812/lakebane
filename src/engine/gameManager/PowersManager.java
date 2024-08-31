@@ -2329,13 +2329,23 @@ public enum PowersManager {
         //int roll = ThreadLocalRandom.current().nextInt(100);
 
         boolean disable = true;
-        int atrRoll = ThreadLocalRandom.current().nextInt(pc.level * 10,(int)atr);
+        int max = (int)atr;
+        int min = (int)(max * 0.5f);
+        if(max < min){
+            min = max - 1;
+        }
+        int atrRoll = ThreadLocalRandom.current().nextInt(min,max);
         int defRoll = 0;
         if(AbstractCharacter.IsAbstractCharacter(awo)){
             AbstractCharacter tar = (AbstractCharacter) awo;
-            defRoll = ThreadLocalRandom.current().nextInt(tar.level * 10,tar.defenseRating);
+            max = tar.defenseRating;
+            min = (int)(max * 0.5f);
+            if(max < min){
+                min = max - 1;
+            }
+            defRoll = ThreadLocalRandom.current().nextInt(min,max);
         }
-        if (atrRoll < defRoll) {
+        if (atrRoll > defRoll) {
             // Hit, check if dodge kicked in
             if (awo instanceof AbstractCharacter) {
                 AbstractCharacter tarAc = (AbstractCharacter) awo;

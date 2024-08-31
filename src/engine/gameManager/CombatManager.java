@@ -663,15 +663,24 @@ public enum CombatManager {
             //int roll = ThreadLocalRandom.current().nextInt(100);
             DeferredPowerJob dpj = null;
 
-            int atrRoll = ThreadLocalRandom.current().nextInt(ac.level * 10,(int)atr);
+            int max = (int)atr;
+            int min = (int)(max * 0.5f);
+            if(max < min){
+                min = max - 1;
+            }
+            int atrRoll = ThreadLocalRandom.current().nextInt(min,max);
             int defRoll = 0;
             if(AbstractCharacter.IsAbstractCharacter(target)){
                 AbstractCharacter tar = (AbstractCharacter) target;
-                defRoll = ThreadLocalRandom.current().nextInt(tar.level * 10,tar.defenseRating);
+                max = tar.defenseRating;
+                min = (int)(max * 0.5f);
+                if(max < min){
+                    min = max - 1;
+                }
+                defRoll = ThreadLocalRandom.current().nextInt(min,max);
             }
 
-
-            if (atrRoll < defRoll) {
+            if (atrRoll > defRoll) {
 
                 if (ac.getObjectType().equals(GameObjectType.PlayerCharacter))
                     updateAttackTimers((PlayerCharacter) ac, target, true);
