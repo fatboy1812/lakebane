@@ -528,7 +528,7 @@ public enum InterestManager implements Runnable {
         if(player.level < 10) {
             player.setLevel((short) 10);
             player.getCharItemManager().addGoldToInventory(1000,false);
-            player.getCharItemManager().addItemToInventory(new MobLoot(player,ItemBase.getItemBase(980066),1,false));
+            player.getCharItemManager().addItemToInventory(new MobLoot(player,ItemBase.getItemBase(980066),1,false).promoteToItem(player));
         }
     }
 
