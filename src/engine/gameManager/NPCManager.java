@@ -340,8 +340,8 @@ public enum NPCManager {
         else
             buildingSlot = BuildingManager.getAvailableSlot(abstractCharacter.building);
 
-        if (buildingSlot == -1)
-            Logger.error("No available slot for NPC: " + abstractCharacter.getObjectUUID());
+        //if (buildingSlot == -1)
+            //Logger.error("No available slot for NPC: " + abstractCharacter.getObjectUUID());
 
         abstractCharacter.building.getHirelings().put(abstractCharacter, buildingSlot);
 
