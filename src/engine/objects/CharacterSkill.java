@@ -992,6 +992,9 @@ public class CharacterSkill extends AbstractGameObject {
 
         //Get Base skill for unmodified stats
         float base = 7f;
+        if(this.skillsBase.getToken() == -660435875){
+            base = 0;
+        }
         float statMod = 0.5f;
         if (this.skillsBase.getStrMod() > 0)
             statMod += (float) this.skillsBase.getStrMod() * (float) (int) ((PlayerCharacter) CharacterSkill.GetOwner(this)).statStrBase / 100f;
@@ -1009,7 +1012,7 @@ public class CharacterSkill extends AbstractGameObject {
             statMod = 600f;
         base += CharacterSkill.baseSkillValues[(int) statMod];
 
-        if (base + bonus < 1f)
+        if (base + bonus < 1f && this.skillsBase.getToken() != -660435875)
             this.baseAmountBeforeMods = 1f;
         else
             this.baseAmountBeforeMods = base + bonus;
@@ -1084,6 +1087,9 @@ public class CharacterSkill extends AbstractGameObject {
         //Get Base skill for modified stats
         //TODO this fomula needs verified
         float base = 7f;
+        if(this.skillsBase.getToken() == -660435875){
+            base = 0;
+        }
         float statMod = 0.5f;
         if (this.skillsBase.getStrMod() > 0)
             statMod += (float) this.skillsBase.getStrMod() * (float) CharacterSkill.GetOwner(this).getStatStrCurrent() / 100f;
@@ -1099,6 +1105,9 @@ public class CharacterSkill extends AbstractGameObject {
             statMod = 1f;
         else if (statMod > 600)
             statMod = 600f;
+        if(this.skillsBase.getToken() == -660435875){
+            statMod = 0;
+        }
         base += CharacterSkill.baseSkillValues[(int) statMod];
         SourceType sourceType = SourceType.GetSourceType(this.skillsBase.getNameNoSpace());
 
@@ -1109,7 +1118,7 @@ public class CharacterSkill extends AbstractGameObject {
             base += bonus + CharacterSkill.GetOwner(this).getBonuses().getFloat(ModType.Skill, sourceType);
         }
 
-        if (base < 1f)
+        if (base < 1f && this.skillsBase.getToken() != -660435875)
             this.baseAmount = 1f;
         else
             this.baseAmount = base;
