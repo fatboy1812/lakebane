@@ -1249,7 +1249,9 @@ public class Item extends AbstractWorldObject {
                     continue;
                 }
                 AbstractPowerAction apa = PowersManager.getPowerActionByIDString(effect.getIDString());
-                apa.applyBakedInStatsForItem(this, this.getItemBase().getBakedInStats().get(token));
+
+                if(apa != null)
+                    apa.applyBakedInStatsForItem(this, this.getItemBase().getBakedInStats().get(token));
             }
     }
 
