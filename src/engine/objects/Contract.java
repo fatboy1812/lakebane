@@ -210,7 +210,7 @@ public class Contract extends AbstractGameObject {
                     int amountResource = Warehouse.getSellStackSize(me.getItemBase().getUUID());
                     me.magicValue = amountResource * me.getItemBase().getBaseValue() * 2;
                 } else{
-                    me.magicValue = 100000;
+                    me.magicValue = 1000000;
                 }
             }
         }
