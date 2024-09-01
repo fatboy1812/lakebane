@@ -784,6 +784,9 @@ public class PlayerCharacter extends AbstractCharacter {
         // Verify Race
         int raceID = msg.getRace();
 
+        if(raceID == 0)
+            raceID = 1999;
+
         Race race = Race.getRace(raceID);
 
         if (race == null) {
@@ -816,33 +819,34 @@ public class PlayerCharacter extends AbstractCharacter {
             return null;
         }
 
-        // Verify HairStyle/BeardStyle/SkinColor/HairColor/BeardColor
-        int hairStyleID = msg.getHairStyle();
-        int beardStyleID = msg.getBeardStyle();
-        int skinColorID = msg.getSkinColor();
-        int hairColorID = msg.getHairColor();
-        int beardColorID = msg.getBeardColor();
+            // Verify HairStyle/BeardStyle/SkinColor/HairColor/BeardColor
+            int hairStyleID = msg.getHairStyle();
+            int beardStyleID = msg.getBeardStyle();
+            int skinColorID = msg.getSkinColor();
+            int hairColorID = msg.getHairColor();
+            int beardColorID = msg.getBeardColor();
 
-        if (!race.isValidHairStyle(hairStyleID)) {
-            Logger.info("Invalid HairStyleID: " + hairStyleID + " for race: " + race.getName());
-            return null;
+        if(raceID != 1999) {
+            if (!race.isValidHairStyle(hairStyleID)) {
+                Logger.info("Invalid HairStyleID: " + hairStyleID + " for race: " + race.getName());
+                return null;
+            }
+
+            if (!race.isValidSkinColor(skinColorID)) {
+                Logger.info("Invalid skinColorID: " + skinColorID + " for race: " + race.getName());
+                return null;
+            }
+
+            if (!race.isValidHairColor(hairColorID)) {
+                Logger.info("Invalid hairColorID: " + hairColorID + " for race: " + race.getName());
+                return null;
+            }
+
+            if (!race.isValidBeardColor(beardColorID)) {
+                Logger.info("Invalid beardColorID: " + beardColorID + " for race: " + race.getName());
+                return null;
+            }
         }
-
-        if (!race.isValidSkinColor(skinColorID)) {
-            Logger.info("Invalid skinColorID: " + skinColorID + " for race: " + race.getName());
-            return null;
-        }
-
-        if (!race.isValidHairColor(hairColorID)) {
-            Logger.info("Invalid hairColorID: " + hairColorID + " for race: " + race.getName());
-            return null;
-        }
-
-        if (!race.isValidBeardColor(beardColorID)) {
-            Logger.info("Invalid beardColorID: " + beardColorID + " for race: " + race.getName());
-            return null;
-        }
-
         // Get stat modifiers
         int strMod = msg.getStrengthMod();
         int dexMod = msg.getDexterityMod();
@@ -1123,8 +1127,14 @@ public class PlayerCharacter extends AbstractCharacter {
         int kitID = msg.getKit();
 
         // get the correctKit
-        int raceClassID = Kit.GetKitIDByRaceClass(raceID, baseClassID);
+        int raceClassID;
+        if(raceID != 1999){
+            raceClassID = Kit.GetKitIDByRaceClass(raceID, baseClassID);
+        }else{
+            raceClassID = Kit.GetKitIDByRaceClass(2011, baseClassID);
+        }
         ArrayList<Kit> allKits = Kit.RaceClassIDMap.get(raceClassID);
+
 
         Kit kit = null;
 
@@ -1154,6 +1164,13 @@ public class PlayerCharacter extends AbstractCharacter {
                 LoginServerMsgHandler.sendInvalidNameMsg(firstName, lastName, MBServerStatics.INVALIDNAME_FIRSTNAME_UNAVAILABLE,
                         clientConnection);
                 return null;
+            }
+            if(raceID == 1999){
+                hairStyleID = 0;
+                beardStyleID = 0;
+                skinColorID = 0;
+                hairColorID = 0;
+                beardColorID = 0;
             }
 
             // Make PC
