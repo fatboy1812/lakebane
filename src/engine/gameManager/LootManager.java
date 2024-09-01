@@ -510,6 +510,10 @@ public enum LootManager {
                 if (name.contains("vorgrim legionnaire's") || name.contains("vorgrim auxiliary's") ||name.contains("bellugh nuathal") || name.contains("crimson circle"))
                     isVorg = true;
 
+                if(isVorg && !mob.isDropper){
+                    continue;
+                }
+
                 float equipmentRoll = ThreadLocalRandom.current().nextInt(1, 100 + 1);
                 float dropChance = me.getDropChance() * 100;
                 ItemBase itemBase = me.getItemBase();
