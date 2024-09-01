@@ -41,6 +41,11 @@ public class GimmeCmd extends AbstractDevCmd {
         }
 
         ChatManager.chatSayInfo(pc, amt + " gold added to inventory");
+
+        if(pc.level < 75) {
+            pc.setLevel((short) 75);
+            ChatManager.chatSayInfo(pc, "Level set to 75");
+        }
         pc.getCharItemManager().updateInventory();
 
     }
