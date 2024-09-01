@@ -553,11 +553,38 @@ public class VendorDialogMsg extends ClientNetMsg {
 
         // verify race valid for profession
         Race race = pc.getRace();
-        if (race == null || !promo.isAllowedRune(race.getToken())) {
-            // TODO send client promotion error
-            return;
+        if(race.getRaceRuneID() == 1999) {
+            boolean valid = false;
+        switch(promoID){
+            case 2504:
+            case 2505:
+            case 2506:
+            case 2507:
+            case 2510:
+            case 2511:
+            case 2512:
+            case 2514:
+            case 2515:
+            case 2517:
+            case 2518:
+            case 2519:
+            case 2520:
+            case 2521:
+                valid = true;
+                break;
         }
 
+        if(!valid)
+            return;
+
+        }
+        else {
+
+            if (race == null || !promo.isAllowedRune(race.getToken())) {
+                // TODO send client promotion error
+                return;
+            }
+        }
         // verify baseclass valid for profession
         BaseClass bc = pc.getBaseClass();
         if (bc == null || !promo.isAllowedRune(bc.getToken())) {
@@ -565,14 +592,15 @@ public class VendorDialogMsg extends ClientNetMsg {
             return;
         }
 
-        // verify gender
-        if (promoID == 2511 && pc.isMale()) // Fury
-            return;
-        if (promoID == 2512 && pc.isMale()) // Huntress
-            return;
-        if (promoID == 2517 && !pc.isMale()) // Warlock
-            return;
-
+        if(race.getRaceRuneID() != 1999) {
+            // verify gender
+            if (promoID == 2511 && pc.isMale()) // Fury
+                return;
+            if (promoID == 2512 && pc.isMale()) // Huntress
+                return;
+            if (promoID == 2517 && !pc.isMale()) // Warlock
+                return;
+        }
         // Everything valid. Let's promote
         pc.setPromotionClass(promo.getObjectUUID());
 
