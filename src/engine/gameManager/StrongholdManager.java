@@ -67,7 +67,8 @@ public class StrongholdManager {
                 guard.parentZone = mine.getParentZone();
                 guard.bindLoc = loc;
                 guard.setLoc(loc);
-                guard.equipmentSetID = getStrongholdMobEquipSetID(guard.getMobBaseID());
+                guard.StrongholdGuardian = true;
+                guard.equipmentSetID = getStrongholdMobEquipSetID(guard);
                 guard.runAfterLoad();
                 guard.setLevel((short)65);
                 guard.setResists(new Resists("Elite"));
@@ -83,7 +84,6 @@ public class StrongholdManager {
                 guard.defenseRating = 2200;
                 guard.setFirstName("Elite Guardian");
                 InterestManager.setObjectDirty(guard);
-                guard.StrongholdGuardian = true;
                 guard.stronghold = mine;
                 guard.mobPowers.clear();
                 guard.mobPowers.put(429399948,20); // find weakness
@@ -97,7 +97,8 @@ public class StrongholdManager {
             commander.parentZone = mine.getParentZone();
             commander.bindLoc = loc;
             commander.setLoc(loc);
-            commander.equipmentSetID = getStrongholdMobEquipSetID(commander.getMobBaseID());
+            commander.StrongholdCommander = true;
+            commander.equipmentSetID = getStrongholdMobEquipSetID(commander);
             commander.runAfterLoad();
             commander.setLevel((short)75);
             commander.setResists(new Resists("Elite"));
@@ -110,7 +111,6 @@ public class StrongholdManager {
             commander.mobPowers.put(431566891,20); // lightning bolt
             commander.mobPowers.put(428716075,20); // fire bolt
             commander.mobPowers.put(429010987,20); // ice bolt
-            commander.StrongholdCommander = true;
             mine.strongholdMobs.add(commander);
             LootManager.GenerateStrongholdLoot(commander,true, false);
             commander.healthMax = 50000;
@@ -278,41 +278,12 @@ public class StrongholdManager {
         return 13433;
     }
 
-    public static int getStrongholdMobEquipSetID(int mobbaseUUID) {
-        switch (mobbaseUUID) {
-            case 253005:
-            case 253019:
-                return 5874; // elven HA set
-            case 253009:
-            case 253024:
-                return 8933; // templar HA set
-            case 253006:
-            case 253020:
-            case 253008:
-            case 253022:
-                return 6329; // dark knight set
-            case 253010:
-            case 253018:
-                return 6691; //lizardman set sword
-            case 253007:
-            case 253021:
-                return 9047; // orc warrior
-            case 253004:
-            case 253023:
-                return 5945; // mountain giant raider
-
-            //ranged
-            case 253013:
-                return 7899; //elven bow warrior
-            case 253017:
-            case 253012:
-            case 253016:
-            case 253011:
-            case 253015:
-            case 253014:
-                return 9035; // Regular Xbox
+    public static int getStrongholdMobEquipSetID(Mob mob) {
+        if(mob.StrongholdGuardian){
+            return 6327;
+        }else{
+            return 10790;
         }
-        return 0;
     }
 
     public static void CheckToEndStronghold(Mine mine) {
@@ -338,7 +309,8 @@ public class StrongholdManager {
                 commander.parentZone = mine.getParentZone();
                 commander.bindLoc = loc;
                 commander.setLoc(loc);
-                commander.equipmentSetID = getStrongholdMobEquipSetID(commander.getMobBaseID());
+                commander.StrongholdEpic = true;
+                commander.equipmentSetID = getStrongholdMobEquipSetID(commander);
                 commander.runAfterLoad();
                 commander.setLevel((short) 85);
                 commander.setResists(new Resists("Elite"));
@@ -362,7 +334,7 @@ public class StrongholdManager {
                 commander.setFirstName("Defender of " + mine.getParentZone().getParent().getName());
                 InterestManager.setObjectDirty(commander);
                 commander.stronghold = mine;
-                commander.StrongholdEpic = true;
+
             }
         }
     }
