@@ -1440,9 +1440,13 @@ public class ClientMessagePump implements NetMsgHandler {
                                 profit -= 1.0f;
                             if (profit < 1)
                                 profit = 1;
-                            cost *= profit;
-                            if(npc.getContractID() == 1502041)
-                                cost = 2;
+                            if(ZoneManager.findSmallestZone(npc.loc) != null && ZoneManager.findSmallestZone(npc.loc).getSafeZone() == 1){
+                                profit = 0;
+                            }
+
+                            if(profit > 0)
+                                cost *= profit;
+
                             if (gold.getNumOfItems() - cost < 0) {
                                 //dont' have enough goldItem exit!
                                 // chatMan.chatSystemInfo(pc, "" + "You dont have enough gold.");
