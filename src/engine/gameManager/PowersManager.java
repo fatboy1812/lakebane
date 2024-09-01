@@ -335,6 +335,12 @@ public enum PowersManager {
             msg.setNumTrains(trains);
         }
 
+        switch(pb.token){
+            case 429420458: // BH eyes
+                msg.setNumTrains(msg.getNumTrains() * 2);
+                break;
+        }
+
         // can't go over total trains by player
         if (playerCharacter.getPowers() != null && playerCharacter.getPowers().containsKey(msg.getPowerUsedID())) {
             CharacterPower cp = playerCharacter.getPowers().get(msg.getPowerUsedID());
