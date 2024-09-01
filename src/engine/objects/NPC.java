@@ -122,7 +122,11 @@ public class NPC extends AbstractCharacter {
             // this.buyPercent = rs.getFloat("npc_buyPercent");
 
             this.buyPercent = .33f;
-            this.sellPercent = 1;
+            if(ZoneManager.findSmallestZone(this.loc) != null && ZoneManager.findSmallestZone(this.loc).getSafeZone() == 1){
+                this.sellPercent = 0;
+            }else{
+                this.sellPercent = 1;
+            }
 
             this.setRot(new Vector3f(0, rs.getFloat("npc_rotation"), 0));
 
