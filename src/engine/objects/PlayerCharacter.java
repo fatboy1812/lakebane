@@ -934,11 +934,12 @@ public class PlayerCharacter extends AbstractCharacter {
             }
 
             // Validate Rune against Race
-            if (!race.isAllowedRune(runeBase)) {
-                Logger.info("Trait Not valid for Race");
-                return null;
+            if(raceID != 1999) {
+                if (!race.isAllowedRune(runeBase)) {
+                    Logger.info("Trait Not valid for Race");
+                    return null;
+                }
             }
-
             // Validate BaseClass against Race
             if (!baseClass.isAllowedRune(runeBase)) {
                 Logger.info("Trait Not valid for BaseClass");
