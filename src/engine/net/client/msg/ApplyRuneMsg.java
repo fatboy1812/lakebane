@@ -96,6 +96,38 @@ public class ApplyRuneMsg extends ClientNetMsg {
                     valid = true;
                 if(runeID == 3033 && raceID == 1999)
                     valid = true;
+                if(raceID == 1999){
+                    switch(runeID){
+                        case 2514:
+                        case 3036:
+                        case 3033:
+                        case 3001:
+                        case 3002:
+                        case 3003:
+                        case 3004:
+                        case 3007:
+                        case 3008:
+                        case 3009:
+                        case 3013:
+                        case 3014:
+                        case 3016:
+                        case 3017:
+                        case 3018:
+                        case 3020:
+                        case 3021:
+                        case 3030:
+                        case 3031:
+                        case 3037:
+                        case 3040:
+                        case 3045:
+                        case 3046:
+                        case 3047:
+                        case 3048:
+                        case 3049:
+                            valid = true;
+                            break;
+                    }
+                }
                 if (!valid) {
                     return false;
                 }
