@@ -1435,14 +1435,13 @@ public class ClientMessagePump implements NetMsgHandler {
                                     bargain = 0;
                                     break;
                             }
-                            float profit = npc.getSellPercent(sourcePlayer) - bargain;
-                            if(me.getItemBase().getType().equals(ItemType.POTION))
-                                profit -= 1.0f;
-                            if (profit < 1)
-                                profit = 1;
-                            if(ZoneManager.findSmallestZone(npc.loc) != null && ZoneManager.findSmallestZone(npc.loc).getSafeZone() == 1){
+                            float profit;
+
+                            if(npc.isInSafeZone())
                                 profit = 0;
-                            }
+                            else
+                                profit = npc.getSellPercent(sourcePlayer) - bargain;
+
 
                             if(profit > 0)
                                 cost *= profit;

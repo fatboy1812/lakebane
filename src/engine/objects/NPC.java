@@ -193,6 +193,18 @@ public class NPC extends AbstractCharacter {
         serializeForClientMsgOtherPlayer(npc, writer);
     }
 
+    public boolean isInSafeZone() {
+
+        Zone zone = ZoneManager.findSmallestZone(this.getLoc());
+
+        if (zone != null) {
+            return zone.getSafeZone() == (byte) 1;
+        }
+
+        return false;
+        //return this.safeZone;
+    }
+
     public static void serializeForClientMsgOtherPlayer(NPC npc, ByteBufferWriter writer)
             throws SerializationException {
 
