@@ -1363,18 +1363,12 @@ public class ClientMessagePump implements NetMsgHandler {
 
         NPC npc = NPC.getFromCache(msg.getNpcID());
 
-
-        switch(npc.getContractID()){
-            case 900:
-            case 1201:
-            case 1202:
-                npc.sellPercent = 0.0f;
-                break;
-        }
         if (npc == null)
             return;
 
         // test within talking range
+        if(npc.isInSafeZone())
+            npc.sellPercent = 0;
 
         if (sourcePlayer.getLoc().distanceSquared2D(npc.getLoc()) > MBServerStatics.NPC_TALK_RANGE * MBServerStatics.NPC_TALK_RANGE) {
             ErrorPopupMsg.sendErrorPopup(sourcePlayer, 14);
