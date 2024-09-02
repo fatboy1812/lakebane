@@ -78,7 +78,7 @@ public class StealPowerAction extends AbstractPowerAction {
     @Override
     protected void _startAction(AbstractCharacter source, AbstractWorldObject awo, Vector3fImmutable targetLoc, int trains, ActionsBase ab, PowersBase pb) {
 
-        if (source == null || awo == null || !(source.getObjectType().equals(Enum.GameObjectType.PlayerCharacter)) || !(awo.getObjectType().equals(Enum.GameObjectType.Item)))
+        if (source == null || awo == null || !(source.getObjectType().equals(Enum.GameObjectType.PlayerCharacter)))
             return;
 
         PlayerCharacter sourcePlayer = (PlayerCharacter) source;
@@ -131,8 +131,23 @@ public class StealPowerAction extends AbstractPowerAction {
             //Handle target attacking back if in combat and has no other target
             CombatManager.handleRetaliate(ownerAC, sourcePlayer);
 
-        } else
+        } else if (owner.getObjectType().equals(Enum.GameObjectType.Mob)){
+            Mob ownerMob = (Mob) owner;
+
+            if (ownerMob.isSafeMode() || sourcePlayer.inSafeZone())
+                return;
+
+            if (ownerMob.getLoc().distanceSquared(sourcePlayer.getLoc()) > sqr(MBServerStatics.LOOT_RANGE))
+                return;
+
+            //mark thief and target as player aggressive
+            sourcePlayer.setLastPlayerAttackTime();
+
+            //Handle target attacking back if in combat and has no other target
+            CombatManager.handleRetaliate(ownerAC, sourcePlayer);
+        }else{
             return;
+        }
 
         ClientConnection origin = sourcePlayer.getClientConnection();
 

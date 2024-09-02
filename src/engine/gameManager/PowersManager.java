@@ -432,15 +432,20 @@ public enum PowersManager {
                 float range = pb.getRange();
                 // verify target is in range
 
+                if(pb.token != 429396028) {
 
-                if (verifyInvalidRange(playerCharacter, target, range))
-                    // (pc.getLoc().distance(target.getLoc()) > pb.getRange()) {
-                    // TODO send message that target is out of range
-                    return true;
+                    if (verifyInvalidRange(playerCharacter, target, range))
+                        // (pc.getLoc().distance(target.getLoc()) > pb.getRange()) {
+                        // TODO send message that target is out of range
+                        return true;
+// verify target is valid type
+                    if (!validateTarget(target, playerCharacter, pb))
+                        return true;
+                }else{
+                    pb.isSpell = false;
+                }
 
-                // verify target is valid type
-                if (!validateTarget(target, playerCharacter, pb))
-                    return true;
+
 
 
                 if (AbstractWorldObject.IsAbstractCharacter(target))
@@ -584,7 +589,9 @@ public enum PowersManager {
         }
 
         // update cast (use skill) fail condition
-        playerCharacter.cancelOnCast();
+        if(pb.token != 429396028) {
+            playerCharacter.cancelOnCast();
+        }
 
         // update castSpell (use spell) fail condition if spell
         if (pb.isSpell())
@@ -874,15 +881,16 @@ public enum PowersManager {
                 }
                 float range = pb.getRange() + speedRange;
 
+                if(pb.token != 429396028) {
 
-                if (verifyInvalidRange(playerCharacter, mainTarget, range)) {
+                    if (verifyInvalidRange(playerCharacter, mainTarget, range)) {
 
-                    sendPowerMsg(playerCharacter, 8, msg);
-                    return;
+                        sendPowerMsg(playerCharacter, 8, msg);
+                        return;
+                    }
+                    // (pc.getLoc().distance(target.getLoc()) > pb.getRange()) {
+                    // TODO send message that target is out of range
                 }
-                // (pc.getLoc().distance(target.getLoc()) > pb.getRange()) {
-                // TODO send message that target is out of range
-
 
             }
 
