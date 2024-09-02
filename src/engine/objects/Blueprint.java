@@ -311,8 +311,20 @@ public class Blueprint {
         if (currentRank == 0)
             return 0;
 
-        // Early exit for buildings with single or no slots
 
+        switch(this.buildingGroup){
+            case CATHEDRAL:
+            case ELVENHALL:
+            case ELVENSANCTUM:
+            case FORESTHALL:
+            case IREKEIHALL:
+            case TEMPLEHALL:
+            case THIEFHALL:
+            case WIZARDHALL:
+                return 3;
+        }
+
+        // Early exit for buildings with single or no slots
         if (this.maxSlots <= 1 && !this.buildingGroup.equals(BuildingGroup.TOL))
             return maxSlots;
 
