@@ -664,6 +664,9 @@ public enum CombatManager {
             DeferredPowerJob dpj = null;
 
             int max = (int)atr;
+            if(max < 10)
+                max = 10;
+
             int min = (int)(max * 0.5f);
             if(max < min){
                 min = max - 1;
@@ -673,6 +676,8 @@ public enum CombatManager {
             if(AbstractCharacter.IsAbstractCharacter(target)){
                 AbstractCharacter tar = (AbstractCharacter) target;
                 max = tar.defenseRating;
+                if(max < 1)
+                    max = 10;
                 min = (int)(max * 0.5f);
                 if(max < min){
                     min = max - 1;

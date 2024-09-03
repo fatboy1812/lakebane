@@ -2346,6 +2346,8 @@ public enum PowersManager {
 
         boolean disable = true;
         int max = (int)atr;
+        if(max < 10)
+            max = 10;
         int min = (int)(max * 0.5f);
         if(max < min){
             min = max - 1;
@@ -2355,6 +2357,8 @@ public enum PowersManager {
         if(AbstractCharacter.IsAbstractCharacter(awo)){
             AbstractCharacter tar = (AbstractCharacter) awo;
             max = tar.defenseRating;
+            if(max < 10)
+                max = 10;
             min = (int)(max * 0.5f);
             if(max < min){
                 min = max - 1;
