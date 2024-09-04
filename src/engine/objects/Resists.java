@@ -503,7 +503,7 @@ public class Resists {
                 fire = 75f;
                 cold = 75f;
                 healing = 0f;
-            } else if(Mob.discDroppers.contains(mob)) {
+            } else if(Mob.discDroppers.contains(mob) || mob.isDropper) {
                 slash = 50f;
                 crush = 50f;
                 pierce = 50f;
