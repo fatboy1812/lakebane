@@ -672,6 +672,8 @@ public class ClientMessagePump implements NetMsgHandler {
         JobScheduler.getInstance().scheduleJob(new RefreshGroupJob(sourcePlayer), MBServerStatics.LOAD_OBJECT_DELAY);
     }
 
+
+
     private static void lootWindowRequest(LootWindowRequestMsg msg, ClientConnection origin) throws MsgSendException {
 
         PlayerCharacter pc = SessionManager.getPlayerCharacter(origin);

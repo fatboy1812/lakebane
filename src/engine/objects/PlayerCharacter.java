@@ -26,6 +26,7 @@ import engine.job.JobScheduler;
 import engine.jobs.DeferredPowerJob;
 import engine.jobs.FinishSpireEffectJob;
 import engine.jobs.NoTimeJob;
+import engine.jobs.RefreshGroupJob;
 import engine.math.Bounds;
 import engine.math.FastMath;
 import engine.math.Vector3fImmutable;
@@ -4809,15 +4810,61 @@ public class PlayerCharacter extends AbstractCharacter {
         return false;
     }
 
+    private static void forceRespawn(PlayerCharacter sourcePlayer) throws MsgSendException {
+
+        if (sourcePlayer == null)
+            return;
+
+        if (sourcePlayer.isAlive()) {
+            Logger.error("Player " + sourcePlayer.getObjectUUID() + " respawning while alive");
+            return;
+        }
+        // ResetAfterDeath player
+        sourcePlayer.respawnLock.writeLock().lock();
+        try {
+            sourcePlayer.respawn(true, false, true);
+
+        } catch (Exception e) {
+            Logger.error(e);
+        } finally {
+            sourcePlayer.respawnLock.writeLock().unlock();
+
+        }
+        RespawnMsg msg = new RespawnMsg();
+        // Echo ResetAfterDeath message back
+        msg.setPlayerHealth(sourcePlayer.getHealth());
+        // TODO calculate any experience loss before this point
+        msg.setPlayerExp(sourcePlayer.getExp() + sourcePlayer.getOverFlowEXP());
+        Dispatch dispatch = Dispatch.borrow(sourcePlayer, msg);
+        DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.PRIMARY);
+
+        MoveToPointMsg moveMsg = new MoveToPointMsg();
+        moveMsg.setPlayer(sourcePlayer);
+        moveMsg.setStartCoord(sourcePlayer.getLoc());
+        moveMsg.setEndCoord(sourcePlayer.getLoc());
+        moveMsg.setInBuilding(-1);
+        moveMsg.setUnknown01(-1);
+
+        dispatch = Dispatch.borrow(sourcePlayer, moveMsg);
+        DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.PRIMARY);
+
+        MovementManager.sendRWSSMsg(sourcePlayer);
+
+        // refresh the whole group with what just happened
+        JobScheduler.getInstance().scheduleJob(new RefreshGroupJob(sourcePlayer), MBServerStatics.LOAD_OBJECT_DELAY);
+    }
+
     @Override
     public void update() {
 
         if (this.updateLock.writeLock().tryLock()) {
             try {
 
-                if (!this.isAlive())
+                if (!this.isAlive()) {
+                    if((System.currentTimeMillis() - this.timestamps.get("DeathTime")) > 600000)
+                        forceRespawn(this);
                     return;
-
+                }
                 updateLocation();
                 updateMovementState();
                 updateRegen();
