@@ -17,6 +17,7 @@ import org.pmw.tinylog.Logger;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.Objects;
 
 /*  @Summary - Blueprint class is used for determining
  characteristics of instanced player owned
@@ -60,12 +61,26 @@ public class Blueprint {
         this.name = rs.getString("MeshName");
         this.icon = rs.getInt("Icon");
         this.buildingGroup = BuildingGroup.valueOf(rs.getString("BuildingGroup"));
-        this.maxRank = rs.getInt("MaxRank");
         this.maxSlots = rs.getInt("MaxSlots");
         this.rank1UUID = rs.getInt("Rank1UUID");
         this.rank3UUID = rs.getInt("Rank3UUID");
         this.rank7UUID = rs.getInt("Rank7UUID");
         this.destroyedUUID = rs.getInt("DestroyedUUID");
+        switch(Objects.requireNonNull(this.buildingGroup)){
+            case CATHEDRAL:
+            case ELVENHALL:
+            case ELVENSANCTUM:
+            case FORESTHALL:
+            case IREKEIHALL:
+            case TEMPLEHALL:
+            case THIEFHALL:
+            case WIZARDHALL:
+                this.maxRank = 1;
+                break;
+            default:
+                this.maxRank = rs.getInt("MaxRank");
+                break;
+        }
 
     }
 
@@ -181,6 +196,17 @@ public class Blueprint {
             return 1;
         if (this.buildingGroup != null && this.buildingGroup.equals(BuildingGroup.TOL))
             return 4;
+        switch(Objects.requireNonNull(this.buildingGroup)){
+            case CATHEDRAL:
+            case ELVENHALL:
+            case ELVENSANCTUM:
+            case FORESTHALL:
+            case IREKEIHALL:
+            case TEMPLEHALL:
+            case THIEFHALL:
+            case WIZARDHALL:
+                return 3;
+        }
         return maxSlots;
     }
 
@@ -310,19 +336,6 @@ public class Blueprint {
 
         if (currentRank == 0)
             return 0;
-
-
-        switch(this.buildingGroup){
-            case CATHEDRAL:
-            case ELVENHALL:
-            case ELVENSANCTUM:
-            case FORESTHALL:
-            case IREKEIHALL:
-            case TEMPLEHALL:
-            case THIEFHALL:
-            case WIZARDHALL:
-                return 3;
-        }
 
         // Early exit for buildings with single or no slots
         if (this.maxSlots <= 1 && !this.buildingGroup.equals(BuildingGroup.TOL))
