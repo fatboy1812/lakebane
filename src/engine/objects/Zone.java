@@ -112,13 +112,13 @@ public class Zone extends AbstractGameObject {
 
         if (zone.playerCityID > 0) {
             writer.put((byte) 1); // Player City - True
-            writer.putFloat(Enum.CityBoundsType.GRID.extents + 128);
-            writer.putFloat(Enum.CityBoundsType.GRID.extents + 128);
+            writer.putFloat(Enum.CityBoundsType.GRID.extents + 256);
+            writer.putFloat(Enum.CityBoundsType.GRID.extents + 256);
         } else
             writer.put((byte) 0); // Player City - False
 
-        writer.putFloat(zone.xCoord + 64);
-        writer.putFloat(zone.zCoord - 64);
+        writer.putFloat(zone.xCoord);
+        writer.putFloat(zone.zCoord);
         writer.putFloat(zone.yCoord);
 
         writer.putInt(0);
