@@ -66,22 +66,7 @@ public class Blueprint {
         this.rank3UUID = rs.getInt("Rank3UUID");
         this.rank7UUID = rs.getInt("Rank7UUID");
         this.destroyedUUID = rs.getInt("DestroyedUUID");
-        switch(Objects.requireNonNull(this.buildingGroup)){
-            case CATHEDRAL:
-            case ELVENHALL:
-            case ELVENSANCTUM:
-            case FORESTHALL:
-            case IREKEIHALL:
-            case TEMPLEHALL:
-            case THIEFHALL:
-            case WIZARDHALL:
-                this.maxRank = 1;
-                break;
-            default:
-                this.maxRank = rs.getInt("MaxRank");
-                break;
-        }
-
+this.maxRank = rs.getInt("MaxRank");
     }
 
     // Accessors
@@ -188,6 +173,21 @@ public class Blueprint {
     }
 
     public int getMaxRank() {
+        BuildingGroup bg = this.buildingGroup;
+        switch(bg){
+            case AMAZONHALL:
+            case CATHEDRAL:
+            case GREATHALL:
+            case KEEP:
+            case THIEFHALL:
+            case TEMPLEHALL:
+            case WIZARDHALL:
+            case ELVENHALL:
+            case ELVENSANCTUM:
+            case IREKEIHALL:
+            case FORESTHALL:
+                return 1;
+        }
         return maxRank;
     }
 
@@ -196,15 +196,19 @@ public class Blueprint {
             return 1;
         if (this.buildingGroup != null && this.buildingGroup.equals(BuildingGroup.TOL))
             return 4;
-        switch(Objects.requireNonNull(this.buildingGroup)){
+        BuildingGroup bg = this.buildingGroup;
+        switch(bg){
+            case AMAZONHALL:
             case CATHEDRAL:
+            case GREATHALL:
+            case KEEP:
+            case THIEFHALL:
+            case TEMPLEHALL:
+            case WIZARDHALL:
             case ELVENHALL:
             case ELVENSANCTUM:
-            case FORESTHALL:
             case IREKEIHALL:
-            case TEMPLEHALL:
-            case THIEFHALL:
-            case WIZARDHALL:
+            case FORESTHALL:
                 return 3;
         }
         return maxSlots;
@@ -340,6 +344,21 @@ public class Blueprint {
         // Early exit for buildings with single or no slots
         if (this.maxSlots <= 1 && !this.buildingGroup.equals(BuildingGroup.TOL))
             return maxSlots;
+
+        BuildingGroup bg = this.buildingGroup;
+        switch(bg.name()) {
+            case "AMAZONHALL":
+            case "CATHEDRAL":
+            case "GREATHALL":
+            case "THIEFHALL":
+            case "TEMPLEHALL":
+            case "WIZARDHALL":
+            case "ELVENHALL":
+            case "ELVENSANCTUM":
+            case "IREKEIHALL":
+            case "FORESTHALL":
+                return 3;
+        }
 
         if (this.maxRank == 1 && currentRank == 1)
             return getMaxSlots();
