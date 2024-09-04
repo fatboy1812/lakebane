@@ -652,7 +652,10 @@ public class MobAI {
                     mob.setCombatTarget(null);
                 return;
             }
-            CheckToSendMobHome(mob);
+
+            if(mob.isPet() == false && mob.isPlayerGuard == false)
+                CheckToSendMobHome(mob);
+
             if (mob.getCombatTarget() != null) {
 
                 if (mob.getCombatTarget().isAlive() == false) {
