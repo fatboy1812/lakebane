@@ -504,18 +504,18 @@ public class Resists {
                 cold = 75f;
                 healing = 0f;
             } else if(Mob.discDroppers.contains(mob) || mob.isDropper) {
-                slash = 50f;
-                crush = 50f;
-                pierce = 50f;
-                magic = 50f;
-                bleed = 50f;
-                mental = 50f;
-                holy = 50f;
-                unholy = 50f;
-                poison = 50f;
-                lightning = 50f;
-                fire = 50f;
-                cold = 50f;
+                slash = 200f;
+                crush = 200f;
+                pierce = 200f;
+                magic = 200f;
+                bleed = 200f;
+                mental = 200f;
+                holy = 200f;
+                unholy = 200f;
+                poison = 200f;
+                lightning = 200f;
+                fire = 200f;
+                cold = 200f;
                 healing = 0f;
             }
         }
