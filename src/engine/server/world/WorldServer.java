@@ -57,6 +57,7 @@ import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Timer;
 
@@ -671,6 +672,22 @@ public class WorldServer {
 			delta = 60000;
 
 		}
+
+		//get additional logout timer for enemies nearby
+		if(!playerCharacter.isInSafeZone()){
+			HashSet<AbstractWorldObject> playersClose = WorldGrid.getObjectsInRangePartial(playerCharacter.loc,MBServerStatics.CHARACTER_LOAD_RANGE, MBServerStatics.MASK_PLAYER);
+			boolean enemiesClose = false;
+			for(AbstractWorldObject awo : playersClose){
+				PlayerCharacter pc = (PlayerCharacter)awo;
+				if(!pc.guild.getNation().equals(playerCharacter.guild.getNation()))
+					enemiesClose = true;
+			}
+			if(enemiesClose){
+				delta += 60000;
+			}
+		}
+
+
 		playerCharacter.stopMovement(playerCharacter.getLoc());
 		UpdateStateMsg updateStateMsg = new UpdateStateMsg();
 		updateStateMsg.setPlayer(playerCharacter);
@@ -688,8 +705,7 @@ public class WorldServer {
 		playerCharacter.getLoadedStaticObjects().clear();
 
 		LogoutCharacterJob logoutJob = new LogoutCharacterJob(playerCharacter, this);
-		JobContainer jc = JobScheduler.getInstance().scheduleJob(logoutJob,
-				System.currentTimeMillis() + delta);
+		JobContainer jc = JobScheduler.getInstance().scheduleJob(logoutJob, System.currentTimeMillis() + delta);
 		playerCharacter.getTimers().put("Logout", jc);
 		playerCharacter.getTimestamps().put("logout", System.currentTimeMillis());
 

@@ -15,6 +15,7 @@ import engine.exception.MsgSendException;
 import engine.gameManager.*;
 import engine.job.JobContainer;
 import engine.job.JobScheduler;
+import engine.jobs.LogoutCharacterJob;
 import engine.jobs.RefreshGroupJob;
 import engine.jobs.StuckJob;
 import engine.math.Vector3fImmutable;
