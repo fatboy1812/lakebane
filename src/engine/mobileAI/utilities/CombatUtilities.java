@@ -139,37 +139,22 @@ public class CombatUtilities {
     }
 
     public static boolean triggerDefense(Mob agent, AbstractWorldObject target) {
-        int defenseScore = 0;
-        int attackScore = agent.getAtrHandOne();
+        int defense = 0;
+        int atr = agent.getAtrHandOne();
         switch (target.getObjectType()) {
             case PlayerCharacter:
-                defenseScore = ((AbstractCharacter) target).getDefenseRating();
+                defense = ((AbstractCharacter) target).getDefenseRating();
                 break;
             case Mob:
 
                 Mob mob = (Mob) target;
                 if (mob.isSiege())
-                    defenseScore = attackScore;
+                    defense = atr;
                 break;
             case Building:
                 return false;
         }
-
-        int hitChance;
-        if (attackScore > defenseScore || defenseScore == 0)
-            hitChance = 94;
-        else if (attackScore == defenseScore && target.getObjectType() == GameObjectType.Mob)
-            hitChance = 10;
-        else {
-            float dif = attackScore / defenseScore;
-            if (dif <= 0.8f)
-                hitChance = 4;
-            else
-                hitChance = ((int) (450 * (dif - 0.8f)) + 4);
-            if (target.getObjectType() == GameObjectType.Building)
-                hitChance = 100;
-        }
-        return ThreadLocalRandom.current().nextInt(100) > hitChance;
+        return CombatManager.LandHit(atr,defense);
     }
 
     public static boolean triggerBlock(Mob agent, AbstractWorldObject ac) {

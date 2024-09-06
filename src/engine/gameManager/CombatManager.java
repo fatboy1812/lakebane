@@ -660,32 +660,11 @@ public enum CombatManager {
 
             //calculate hit/miss
 
-            //int roll = ThreadLocalRandom.current().nextInt(100);
             DeferredPowerJob dpj = null;
 
-            int max = (int)atr;
-            if(max < 10)
-                max = 10;
 
-            int min = (int)(max * 0.5f);
-            if(max < min){
-                min = max - 1;
-            }
-            int atrRoll = ThreadLocalRandom.current().nextInt(min,max);
-            int defRoll = 0;
-            if(AbstractCharacter.IsAbstractCharacter(target)){
-                AbstractCharacter tar = (AbstractCharacter) target;
-                max = tar.defenseRating;
-                if(max < 1)
-                    max = 10;
-                min = (int)(max * 0.5f);
-                if(max < min){
-                    min = max - 1;
-                }
-                defRoll = ThreadLocalRandom.current().nextInt(min,max);
-            }
 
-            if (atrRoll > defRoll) {
+            if (LandHit((int)atr,(int)defense)) {
 
                 if (ac.getObjectType().equals(GameObjectType.PlayerCharacter))
                     updateAttackTimers((PlayerCharacter) ac, target, true);
@@ -1464,4 +1443,12 @@ public enum CombatManager {
             ((AbstractCharacter) awo).getCharItemManager().damageRandomArmor(1);
     }
 
+    public static boolean LandHit(int atr, int defense){
+        int roll = ThreadLocalRandom.current().nextInt(100);
+        float chance = (float)((atr-((atr+defense)*0.315))/((defense-((atr+defense)*0.315))+(atr-((atr+defense)*0.315))));
+        boolean hit = false;
+        if(chance > roll)
+            hit = true;
+        return hit;
+    }
 }

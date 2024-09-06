@@ -2375,30 +2375,8 @@ public enum PowersManager {
         //}
 
         // calculate hit/miss
-        //int roll = ThreadLocalRandom.current().nextInt(100);
 
-        boolean disable = true;
-        int max = (int)atr;
-        if(max < 10)
-            max = 10;
-        int min = (int)(max * 0.5f);
-        if(max < min){
-            min = max - 1;
-        }
-        int atrRoll = ThreadLocalRandom.current().nextInt(min,max);
-        int defRoll = 0;
-        if(AbstractCharacter.IsAbstractCharacter(awo)){
-            AbstractCharacter tar = (AbstractCharacter) awo;
-            max = tar.defenseRating;
-            if(max < 10)
-                max = 10;
-            min = (int)(max * 0.5f);
-            if(max < min){
-                min = max - 1;
-            }
-            defRoll = ThreadLocalRandom.current().nextInt(min,max);
-        }
-        if (atrRoll > defRoll) {
+        if (CombatManager.LandHit((int)atr,(int)defense)) {
             // Hit, check if dodge kicked in
             if (awo instanceof AbstractCharacter) {
                 AbstractCharacter tarAc = (AbstractCharacter) awo;
