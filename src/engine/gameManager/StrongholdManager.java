@@ -62,7 +62,7 @@ public class StrongholdManager {
         for(int i = 0; i < mine.capSize * 2; i++){
             Vector3fImmutable loc = Vector3fImmutable.getRandomPointOnCircle(tower.loc,30);
             MobBase guardBase = MobBase.getMobBase(getStrongholdGuardianID(tower.meshUUID));
-            Mob guard = Mob.createMob(guardBase.getLoadID(), loc, Guild.getErrantGuild(),true,mineZone,null,0, guardBase.getFirstName(),65);
+            Mob guard = Mob.createStrongholdMob(guardBase.getLoadID(), loc, Guild.getErrantGuild(),true,mineZone,null,0, guardBase.getFirstName(),65);
             if(guard != null){
                 guard.parentZone = mine.getParentZone();
                 guard.bindLoc = loc;
@@ -94,7 +94,7 @@ public class StrongholdManager {
         //create stronghold commander
         Vector3fImmutable loc = tower.loc;
         MobBase commanderBase = MobBase.getMobBase(getStrongholdCommanderID(tower.meshUUID));
-        Mob commander = Mob.createMob(commanderBase.getLoadID(), loc,Guild.getErrantGuild(),true,mineZone,null,0, commanderBase.getFirstName(),75);
+        Mob commander = Mob.createStrongholdMob(commanderBase.getLoadID(), loc,Guild.getErrantGuild(),true,mineZone,null,0, commanderBase.getFirstName(),75);
         if(commander != null){
             commander.parentZone = mine.getParentZone();
             commander.bindLoc = loc;
@@ -308,7 +308,7 @@ public class StrongholdManager {
 
             Vector3fImmutable loc = tower.loc;
             MobBase commanderBase = MobBase.getMobBase(getStrongholdEpicID(tower.meshUUID));
-            Mob commander = Mob.createMob(commanderBase.getLoadID(), loc, Guild.getErrantGuild(), true, mineZone, null, 0, commanderBase.getFirstName(), 75);
+            Mob commander = Mob.createStrongholdMob(commanderBase.getLoadID(), loc, Guild.getErrantGuild(), true, mineZone, null, 0, commanderBase.getFirstName(), 75);
             if (commander != null) {
                 commander.parentZone = mine.getParentZone();
                 commander.bindLoc = loc;
