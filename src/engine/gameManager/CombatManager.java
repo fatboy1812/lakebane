@@ -1444,11 +1444,18 @@ public enum CombatManager {
     }
 
     public static boolean LandHit(int atr, int defense){
+
         int roll = ThreadLocalRandom.current().nextInt(101);
         float chance = (float)((atr-((atr+defense)*0.315))/((defense-((atr+defense)*0.315))+(atr-((atr+defense)*0.315))));
-        boolean hit = false;
-        if((chance * 100) > roll)
-            hit = true;
-        return hit;
+
+        int connvertedChance = (int)(chance * 100);
+
+        if(connvertedChance < 5)
+            connvertedChance = 5;
+
+        if(connvertedChance > 95)
+            connvertedChance = 95;
+
+        return connvertedChance > roll;
     }
 }
