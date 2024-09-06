@@ -247,8 +247,7 @@ public class Mine extends AbstractGameObject {
         // Only inactive mines are returned.
 
         for (Mine mine : Mine.mineMap.keySet()) {
-            if (mine.owningGuild.getObjectUUID() == guildID &&
-                    mine.isActive == false)
+            if (mine.owningGuild.getObjectUUID() == guildID)
                 mineList.add(mine);
         }
         return mineList;
@@ -416,7 +415,7 @@ public class Mine extends AbstractGameObject {
         writer.putString(this.mineType.name);
         writer.putString(this.zoneName);
         writer.putInt(this.production.hash);
-        writer.putInt(this.production.baseProduction);
+        writer.putInt(this.getModifiedProductionAmount());
         writer.putInt(this.getModifiedProductionAmount()); //TODO calculate range penalty here
         writer.putInt(3600); //window in seconds
         writer.putInt(this.isExpansion() ? this.mineType.xpacHash : this.mineType.hash);
