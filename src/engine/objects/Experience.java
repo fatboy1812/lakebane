@@ -444,8 +444,8 @@ public class Experience {
             }
 
         } else { // Give EXP to a single character
-            if (!killer.isAlive()) // Skip if the player is dead.
-                return;
+            //if (!killer.isAlive()) // Skip if the player is dead.
+             //   return;
 
             if (killer.getLevel() >= MBServerStatics.LEVELCAP)
                 return;

@@ -357,7 +357,7 @@ public class MBServerStatics {
     public static final int COMBAT_SEND_DODGE = 20;
     public static final int COMBAT_SEND_BLOCK = 21;
     public static final int COMBAT_SEND_PARRY = 22;
-    public static final short LEVELCAP = 75;
+    public static final short LEVELCAP = 80;
     public static final int LEVEL_CON_WHITE = 7;
     public static final int RESPAWN_TIMER = 90 * 1000;
     public static final int DESPAWN_TIMER = 12 * 1000;
