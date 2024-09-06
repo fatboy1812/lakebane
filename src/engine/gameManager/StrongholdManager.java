@@ -20,7 +20,7 @@ public class StrongholdManager {
 
         //process strongholds selecting 2 randomly to become active
         int count = 0;
-        while (count < 2) {
+        while (count < 3) {
             int random = ThreadLocalRandom.current().nextInt(1, mines.size()) - 1;
             Mine mine = mines.get(random);
             if (mine != null) {
