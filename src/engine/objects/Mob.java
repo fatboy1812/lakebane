@@ -575,6 +575,32 @@ public class Mob extends AbstractIntelligenceAgent {
         return mob;
     }
 
+    public static Mob createStrongholdMob(int loadID, Vector3fImmutable spawn, Guild guild, boolean isMob, Zone parent, Building building, int contractID, String pirateName, int level) {
+
+        // Create a new Mob instance
+        Mob mobWithoutID = new Mob(pirateName, "", (short) 0, (short) 0, (short) 0, (short) 0, (short) 0, (short) 1, 0, false, false, false, spawn, spawn, Vector3fImmutable.ZERO, (short) 1, (short) 1, (short) 1, guild, (byte) 0, loadID, isMob, parent, building, contractID);
+
+        // Check if mobBase is null
+        if (mobWithoutID.mobBase == null)
+            return null;
+
+        // Set mob level
+        mobWithoutID.level = (short) level;
+
+        // Set the parent zone and parentZoneID
+        mobWithoutID.parentZone = parent;
+        mobWithoutID.parentZoneID = parent.getObjectUUID();
+
+        // If the mob is in a building, bind it to zero position
+        if (mobWithoutID.building != null)
+            mobWithoutID.bindLoc = Vector3fImmutable.ZERO;
+
+        // Avoid database actions and directly return the created mobWithoutID
+        mobWithoutID.setObjectTypeMask(MBServerStatics.MASK_MOB | mobWithoutID.getTypeMasks());
+
+        return mobWithoutID;
+    }
+
     public static Mob createPet(int loadID, Guild guild, Zone parent, PlayerCharacter owner, short level) {
         MobBase mobBase = MobBase.getMobBase(loadID);
         Mob mob = null;

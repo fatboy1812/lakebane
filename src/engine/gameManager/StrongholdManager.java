@@ -84,6 +84,8 @@ public class StrongholdManager {
                 guard.defenseRating = 2200;
                 guard.setFirstName("Elite Guardian");
                 InterestManager.setObjectDirty(guard);
+                WorldGrid.addObject(guard,loc.x,loc.z);
+                WorldGrid.updateObject(guard);
                 guard.stronghold = mine;
                 guard.mobPowers.clear();
                 guard.mobPowers.put(429399948,20); // find weakness
@@ -121,6 +123,8 @@ public class StrongholdManager {
             commander.defenseRating = 3500;
             commander.setFirstName("Guardian Commander");
             InterestManager.setObjectDirty(commander);
+            WorldGrid.addObject(commander,loc.x,loc.z);
+            WorldGrid.updateObject(commander);
             commander.stronghold = mine;
         }
 
@@ -333,6 +337,8 @@ public class StrongholdManager {
                 commander.defenseRating = 3500;
                 commander.setFirstName("Defender of " + mine.getParentZone().getParent().getName());
                 InterestManager.setObjectDirty(commander);
+                WorldGrid.addObject(commander,loc.x,loc.z);
+                WorldGrid.updateObject(commander);
                 commander.stronghold = mine;
 
             }
