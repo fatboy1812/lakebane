@@ -1545,8 +1545,17 @@ public enum PowersManager {
         }
 
         // create list of characters
-        HashSet<AbstractCharacter> trackChars = RangeBasedAwo.getTrackList(
-                allTargets, playerCharacter, maxTargets);
+        HashSet<AbstractCharacter> trackChars;
+        switch(msg.getPowerToken()){
+            case 431511776:
+            case 429578587:
+            case 429503360:
+                trackChars = getTrackList(playerCharacter);
+                break;
+            default:
+                trackChars = RangeBasedAwo.getTrackList(allTargets, playerCharacter, maxTargets);
+                break;
+        }
 
         TrackWindowMsg trackWindowMsg = new TrackWindowMsg(msg);
 
@@ -1557,6 +1566,30 @@ public enum PowersManager {
         Dispatch dispatch = Dispatch.borrow(playerCharacter, trackWindowMsg);
         DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.SECONDARY);
 
+    }
+
+    public static HashSet<AbstractCharacter> getTrackList(PlayerCharacter tracker){
+        HashSet<AbstractCharacter> list = new HashSet<AbstractCharacter>();
+        HashSet<AbstractWorldObject> shortList = WorldGrid.getObjectsInRangePartial(tracker.loc,MBServerStatics.CHARACTER_LOAD_RANGE, MBServerStatics.MASK_PLAYER);
+        HashSet<AbstractWorldObject> fullList = WorldGrid.getObjectsInRangePartial(tracker.loc,1408, MBServerStatics.MASK_PLAYER);
+        ArrayList<Guild> guildsPresent = new ArrayList<>();
+        for(AbstractWorldObject awo : shortList){
+            PlayerCharacter pc = (PlayerCharacter)awo;
+            if(!guildsPresent.contains(pc.guild.getNation())){
+                guildsPresent.add(pc.guild.getNation());
+            }
+        }
+        for(AbstractWorldObject awo : fullList){
+            if(awo.equals(tracker))
+                continue;
+            PlayerCharacter pc = (PlayerCharacter)awo;
+            if(!pc.isAlive())
+                continue;
+            if(guildsPresent.contains(pc.guild.getNation()))
+                list.add(pc);
+        }
+
+        return list;
     }
 
     private static void sendRecyclePower(int token, ClientConnection origin) {
