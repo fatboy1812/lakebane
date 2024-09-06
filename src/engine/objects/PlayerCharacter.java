@@ -1848,20 +1848,20 @@ public class PlayerCharacter extends AbstractCharacter {
         //see if we shold grant xp to attacker
         boolean doPVPEXP = false;
         long lastKill = att.getLastKillOfTarget(this.getObjectUUID());
-        if ((System.currentTimeMillis() - lastKill) > MBServerStatics.PLAYER_KILL_XP_TIMER)
-            if (attacker.getLevel() > 39 && this.getLevel() > 39) {
-                Guild aN = null;
-                Guild tN = null;
-                if (attacker.getGuild() != null)
-                    aN = attacker.getGuild().getNation();
-                if (this.getGuild() != null)
-                    tN = this.getGuild().getNation();
-                if (aN == null || tN == null || aN.isEmptyGuild() || Guild.sameGuild(aN, tN) || this.isDeathShroud()) {
+        //if ((System.currentTimeMillis() - lastKill) > MBServerStatics.PLAYER_KILL_XP_TIMER)
+            //if (attacker.getLevel() > 39 && this.getLevel() > 39) {
+                //Guild aN = null;
+                //Guild tN = null;
+                //if (attacker.getGuild() != null)
+                //    aN = attacker.getGuild().getNation();
+                //if (this.getGuild() != null)
+                //    tN = this.getGuild().getNation();
+                //if (aN == null || tN == null || aN.isEmptyGuild() || Guild.sameGuild(aN, tN) || this.isDeathShroud()) {
                     //skip giving xp if same guild or attacker is errant, or target is in death shroud.
-                } else {
+                //} else {
                     doPVPEXP = true;
-                }
-            }
+                //}
+           // }
         //apply death shroud to non safeholds.
         Zone zone = ZoneManager.findSmallestZone(this.getLoc());
 

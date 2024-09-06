@@ -292,17 +292,17 @@ public class Experience {
 
         switch (TargetColor.getCon(pc, mob)) {
             case Red:
-                return 1.25;
+                return 1.1;
             case Orange:
                 return 1.15;
             case Yellow:
-                return 1.05;
+                return 1.2;
             case Blue:
-                return 1;
+                return 1.25;
             case Cyan:
-                return 0.8;
+                return 0.9;
             case Green:
-                return 0.5;
+                return 0.7;
             default:
                 return 0;
         }
