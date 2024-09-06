@@ -23,6 +23,7 @@ import engine.net.client.ClientConnection;
 import engine.net.client.msg.DeleteItemMsg;
 import engine.powers.EffectsBase;
 import engine.powers.effectmodifiers.AbstractEffectModifier;
+import engine.powers.effectmodifiers.WeaponProcEffectModifier;
 import engine.powers.poweractions.AbstractPowerAction;
 import engine.server.MBServerStatics;
 import org.pmw.tinylog.Logger;
@@ -816,8 +817,29 @@ public class Item extends AbstractWorldObject {
         return ownerID;
     }
 
+    public void stripCastableEnchants(){
+        ArrayList<String> keys =new ArrayList<>();
+
+        for(String eff : this.effects.keySet()){
+            for(AbstractEffectModifier mod : this.effects.get(eff).getEffectsBase().getModifiers()){
+                if(mod.modType.equals(ModType.WeaponProc)){
+                    keys.add(eff);
+                }
+            }
+        }
+
+        for(String eff : keys){
+            try {
+                this.effects.get(eff).endEffect();
+                this.effects.remove(eff);
+            }catch(Exception e){
+
+            }
+        }
+    }
     //Only to be used for trading
     public void setOwnerID(int ownerID) {
+        this.stripCastableEnchants();
         this.ownerID = ownerID;
     }
 
@@ -841,6 +863,7 @@ public class Item extends AbstractWorldObject {
     public boolean setOwner(AbstractGameObject owner) {
         if (owner == null)
             return false;
+        this.stripCastableEnchants();
         if (owner.getObjectType().equals(GameObjectType.NPC))
             this.ownerType = OwnerType.Npc;
         else if (owner.getObjectType().equals(GameObjectType.PlayerCharacter))
@@ -1099,6 +1122,7 @@ public class Item extends AbstractWorldObject {
         this.ownerID = 0;
         this.ownerType = null;
         this.containerType = Enum.ItemContainerType.INVENTORY;
+        this.stripCastableEnchants();
         return true;
     }
 
