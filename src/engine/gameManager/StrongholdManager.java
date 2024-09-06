@@ -18,7 +18,7 @@ public class StrongholdManager {
         ArrayList<Mine> mines = Mine.getMines();
 
 
-        //process strongholds selecting 2 randomly to become active
+        //process strongholds selecting 3 randomly to become active
         int count = 0;
         while (count < 3) {
             int random = ThreadLocalRandom.current().nextInt(1, mines.size()) - 1;
