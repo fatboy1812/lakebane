@@ -72,7 +72,7 @@ public class HalfHourlyJobThread implements Runnable {
                 }
             }
 
-            StrongholdManager.processStrongholds();
+            //StrongholdManager.processStrongholds();
         } catch (Exception e) {
             Logger.error(e.toString());
         }
