@@ -309,7 +309,7 @@ public enum LootManager {
         if(mob.getObjectType().ordinal() == 52) { //52 = player character
             itemTableRoll = ThreadLocalRandom.current().nextInt(1,320 + 1);
         } else{
-            itemTableRoll = TableRoll(mob.level, inHotzone);
+            itemTableRoll = TableRoll(mob.level * 2);
         }
         ItemTableEntry tableRow = ItemTableEntry.rollTable(itemTableId, itemTableRoll);
         if (tableRow == null)
@@ -381,7 +381,7 @@ public enum LootManager {
         if(mob.getObjectType().ordinal() == 52) {
             prefixTableRoll = ThreadLocalRandom.current().nextInt(1,320 + 1);
         } else{
-            prefixTableRoll = TableRoll(mob.level * 2, inHotzone);
+            prefixTableRoll = TableRoll(mob.level * 2);
         }
         ModTableEntry prefixMod = ModTableEntry.rollTable(prefixTable.modTableID, prefixTableRoll);
 
@@ -413,7 +413,7 @@ public enum LootManager {
         if(mob.getObjectType().ordinal() == 52) {
             suffixTableRoll = ThreadLocalRandom.current().nextInt(1,320 + 1);
         } else{
-            suffixTableRoll = TableRoll(mob.level * 2, inHotzone);
+            suffixTableRoll = TableRoll(mob.level * 2);
         }
         ModTableEntry suffixMod = ModTableEntry.rollTable(suffixTable.modTableID, suffixTableRoll);
 
@@ -428,7 +428,10 @@ public enum LootManager {
         return inItem;
     }
 
-    public static int TableRoll(int mobLevel, Boolean inHotzone) {
+    public static int TableRoll(int mobLevel) {
+
+        if(mobLevel > 65)
+            mobLevel = 65;
 
         int max = (int) (4.882 * mobLevel + 127.0);
 
@@ -437,11 +440,8 @@ public enum LootManager {
 
         int min = (int) (4.469 * mobLevel - 3.469);
 
-        if (min < 70)
-            min = 70;
-
-        if (inHotzone)
-            min += mobLevel;
+        if (min < 140)
+            min = 140;
 
         int roll = ThreadLocalRandom.current().nextInt(min, max + 1);
 
