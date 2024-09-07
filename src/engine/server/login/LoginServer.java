@@ -211,7 +211,6 @@ public class LoginServer {
             }
 
             //load realm for the server pop creation screen
-            Realm.loadAllRealms();
 
             if (LocalDateTime.now().isAfter(nextDatabaseTime)) {
                 String pop = SimulationManager.getPopulationString();
@@ -279,6 +278,8 @@ public class LoginServer {
         Logger.info("Loading All Guilds");
         DbManager.GuildQueries.GET_ALL_GUILDS();
 
+        Logger.info("Loading All Realms");
+        Realm.loadAllRealms();
 
         Logger.info("***Boot Successful***");
         return true;
