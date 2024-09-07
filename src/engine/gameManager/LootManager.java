@@ -381,7 +381,7 @@ public enum LootManager {
         if(mob.getObjectType().ordinal() == 52) {
             prefixTableRoll = ThreadLocalRandom.current().nextInt(1,320 + 1);
         } else{
-            prefixTableRoll = TableRoll(mob.level, inHotzone);
+            prefixTableRoll = TableRoll(mob.level * 2, inHotzone);
         }
         ModTableEntry prefixMod = ModTableEntry.rollTable(prefixTable.modTableID, prefixTableRoll);
 
@@ -413,7 +413,7 @@ public enum LootManager {
         if(mob.getObjectType().ordinal() == 52) {
             suffixTableRoll = ThreadLocalRandom.current().nextInt(1,320 + 1);
         } else{
-            suffixTableRoll = TableRoll(mob.level, inHotzone);
+            suffixTableRoll = TableRoll(mob.level * 2, inHotzone);
         }
         ModTableEntry suffixMod = ModTableEntry.rollTable(suffixTable.modTableID, suffixTableRoll);
 
@@ -429,9 +429,6 @@ public enum LootManager {
     }
 
     public static int TableRoll(int mobLevel, Boolean inHotzone) {
-
-        if (mobLevel > 65)
-            mobLevel = 65;
 
         int max = (int) (4.882 * mobLevel + 127.0);
 

@@ -707,7 +707,7 @@ public class ItemFactory {
 
         if (rollPrefix < 80) {
 
-            int randomPrefix = LootManager.TableRoll(vendor.getLevel(), false);
+            int randomPrefix = TableRoll(vendor.getLevel());
             prefixEntry = ModTableEntry.rollTable(prefixTypeTable.modTableID, randomPrefix);
 
             if (prefixEntry != null)
@@ -722,7 +722,7 @@ public class ItemFactory {
 
         if (rollSuffix < 80 || prefixEntry == null) {
 
-            int randomSuffix = LootManager.TableRoll(vendor.getLevel(), false);
+            int randomSuffix = TableRoll(vendor.getLevel());
             suffixEntry = ModTableEntry.rollTable(suffixTypeTable.modTableID, randomSuffix);
 
             if (suffixEntry != null)
@@ -773,6 +773,43 @@ public class ItemFactory {
 
         return toRoll;
     }
+
+    public static int TableRoll(int vendorLevel) {
+        // Calculate min and max based on mobLevel
+        int min = 60;
+        int max = 120;
+        switch(vendorLevel){
+            case 20:
+                min = 70;
+                max = 140;
+                break;
+            case 30:
+                min = 80;
+                max = 160;
+                break;
+            case 40:
+                min = 90;
+                max = 180;
+                break;
+            case 50:
+                min = 100;
+                max = 200;
+                break;
+            case 60:
+                min = 175;
+                max = 260;
+                break;
+            case 70:
+                min = 220;
+                max = 320;
+                break;
+        }
+
+        int roll = ThreadLocalRandom.current().nextInt(min, max + 1);
+
+        return roll;
+    }
+
 
     public static MobLoot produceRandomRoll(NPC npc, PlayerCharacter pc, String prefixString, String suffixString, int itemID) {
 
