@@ -210,6 +210,9 @@ public class LoginServer {
                 nextServerTime = LocalDateTime.now().plusSeconds(1);
             }
 
+            //load realm for the server pop creation screen
+            Realm.loadAllRealms();
+
             if (LocalDateTime.now().isAfter(nextDatabaseTime)) {
                 String pop = SimulationManager.getPopulationString();
                 Logger.info("Keepalive: " + pop);

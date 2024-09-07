@@ -11,10 +11,7 @@ package engine.db.handlers;
 
 import engine.Enum;
 import engine.gameManager.DbManager;
-import engine.objects.AbstractGameObject;
-import engine.objects.Building;
-import engine.objects.City;
-import engine.objects.Zone;
+import engine.objects.*;
 import org.pmw.tinylog.Logger;
 
 import java.sql.*;
@@ -98,19 +95,9 @@ public class dbCityHandler extends dbHandlerBase {
     public Integer GET_CAPITAL_CITY_COUNT() {
 
         int cityCount = 0;
-        try (Connection connection = DbManager.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM obj_city;")) {
-
-            ResultSet rs = preparedStatement.executeQuery();
-
-            while(rs.next()){
-                if(rs.getInt("isNpc") == 0)
-                    if(DbManager.BuildingQueries.GET_BUILDINGBYUUID(rs.getInt("treeOfLifeUUID")).getRank() == 8)
-                        cityCount++;
-            }
-
-        } catch (SQLException e) {
-            Logger.error(e);
+        for(Realm realm : Realm._realms.values()){
+            if(realm.isRuled())
+                cityCount ++;
         }
 
         return cityCount;

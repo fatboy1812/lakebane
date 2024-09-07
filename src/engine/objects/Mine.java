@@ -504,7 +504,7 @@ public class Mine extends AbstractGameObject {
             return false;
 
         ItemBase resourceIB = ItemBase.getItemBase(this.production.UUID);
-        return this.owningGuild.getOwnedCity().getWarehouse().depositFromMine(this, resourceIB, (int)(this.getModifiedProductionAmount() * 0.5f));
+        return this.owningGuild.getOwnedCity().getWarehouse().depositFromMine(this, resourceIB, this.getModifiedProductionAmount());
     }
 
     public boolean updateGuildOwner(PlayerCharacter playerCharacter) {
