@@ -562,7 +562,6 @@ public class Mine extends AbstractGameObject {
         ItemBase resourceBase = ItemBase.getItemBase(this.production.UUID);
         if(resourceBase == null)
             return 0;
-
         int value = resourceBase.getBaseValue();
 
         int amount = 0;
@@ -583,9 +582,9 @@ public class Mine extends AbstractGameObject {
         if(this.production.UUID == 7)
             value = 1;
 
-        int productionAmount = amount / value;
+        amount = amount / value;
 
-        return productionAmount;
+        return amount;
     }
     public void onEnter() {
 
