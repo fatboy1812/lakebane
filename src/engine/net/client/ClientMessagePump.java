@@ -1428,7 +1428,7 @@ public class ClientMessagePump implements NetMsgHandler {
                                     bargain = 0;
                                     break;
                                 case 900:
-                                    cost = Warehouse.getCostForResource(ib.getUUID()) * Warehouse.getSellStackSize(ib.getUUID());
+                                    cost = ib.getBaseValue() * Warehouse.getSellStackSize(ib.getUUID());
                                     bargain = 0;
                                     break;
                             }
