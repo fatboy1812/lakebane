@@ -309,7 +309,7 @@ public enum LootManager {
         if(mob.getObjectType().ordinal() == 52) { //52 = player character
             itemTableRoll = ThreadLocalRandom.current().nextInt(1,320 + 1);
         } else{
-            itemTableRoll = TableRoll(mob.level * 2);
+            itemTableRoll = TableRoll(mob.level);
         }
         ItemTableEntry tableRow = ItemTableEntry.rollTable(itemTableId, itemTableRoll);
         if (tableRow == null)
@@ -381,7 +381,7 @@ public enum LootManager {
         if(mob.getObjectType().ordinal() == 52) {
             prefixTableRoll = ThreadLocalRandom.current().nextInt(1,320 + 1);
         } else{
-            prefixTableRoll = TableRoll(mob.level * 2);
+            prefixTableRoll = TableRoll(mob.level);
         }
         ModTableEntry prefixMod = ModTableEntry.rollTable(prefixTable.modTableID, prefixTableRoll);
 
@@ -413,7 +413,7 @@ public enum LootManager {
         if(mob.getObjectType().ordinal() == 52) {
             suffixTableRoll = ThreadLocalRandom.current().nextInt(1,320 + 1);
         } else{
-            suffixTableRoll = TableRoll(mob.level * 2);
+            suffixTableRoll = TableRoll(mob.level);
         }
         ModTableEntry suffixMod = ModTableEntry.rollTable(suffixTable.modTableID, suffixTableRoll);
 
@@ -430,18 +430,34 @@ public enum LootManager {
 
     public static int TableRoll(int mobLevel) {
 
-        if(mobLevel > 65)
-            mobLevel = 65;
-
-        int max = (int) (4.882 * mobLevel + 127.0);
-
-        if (max > 319)
-            max = 319;
-
-        int min = (int) (4.469 * mobLevel - 3.469);
-
-        if (min < 140)
-            min = 140;
+        int rank = (int)(mobLevel * 0.1f);
+        int min = 50;
+        int max = 100;
+        switch(rank){
+            case 1:
+                min = 200;
+                max = 250;
+                break;
+            case 2:
+                min = 210;
+                max = 275;
+                break;
+            case 3:
+                min = 220;
+                max = 300;
+                break;
+            case 4:
+                min = 230;
+                max = 320;
+                break;
+            case 5:
+            case 6:
+            case 7:
+            case 8:
+                min = 240;
+                max = 320;
+                break;
+        }
 
         int roll = ThreadLocalRandom.current().nextInt(min, max + 1);
 
