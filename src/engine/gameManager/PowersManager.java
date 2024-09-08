@@ -279,6 +279,10 @@ public enum PowersManager {
         // get power
         PowersBase pb = PowersManager.powersBaseByToken.get(msg.getPowerUsedID());
 
+        if((pb.token == 429495514 || pb.token == 429407306) && playerCharacter.getRace().getName().toLowerCase().contains("shade")){
+            pb = PowersManager.powersBaseByToken.get(429397210);
+        }
+
         if (pb == null) {
             ChatManager.chatSayInfo(playerCharacter,
                     "This power is not implemented yet.");
