@@ -596,12 +596,16 @@ public class WorldServer {
 				mobs = DbManager.MobQueries.GET_ALL_MOBS_FOR_ZONE(zone);
 
 				for (Mob m : mobs) {
+					try{
 					m.setObjectTypeMask(MBServerStatics.MASK_MOB | m.getTypeMasks());
 					m.setLoc(m.getLoc());
 
 					//ADD GUARDS HERE.
 					if (m.building != null && m.building.getBlueprint() != null && m.building.getBlueprint().getBuildingGroup() == BuildingGroup.BARRACK)
 						DbManager.MobQueries.LOAD_PATROL_POINTS(m);
+					} catch (Exception e) {
+						Logger.error(m.getObjectUUID() + " returned an Error Message :" + e.getMessage());
+					}
 				}
 
 				//Handle npc's
