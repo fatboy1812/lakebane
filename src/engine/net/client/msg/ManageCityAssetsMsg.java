@@ -485,30 +485,13 @@ public class ManageCityAssetsMsg extends ClientNetMsg {
 
             writer.putInt(building.getRank());
 
-            // Maintenance costs include resource if
-            // this structure is an R8 tree
-
-            if (building.getRank() == 8)
-                writer.putInt(5); // Resources included
-            else
-                writer.putInt(1); // Gold only
+            writer.putInt(1); // Gold only
 
             writer.putInt(2308551); //Gold
             if (building.getBlueprint() == null)
                 writer.putInt(0);
             else
                 writer.putInt(building.getBlueprint().getMaintCost()); //  maint cost
-
-            if (building.getRank() == 8) {
-                writer.putInt(74856115); // Stone
-                writer.putInt(1500); //  maint cost
-                writer.putInt(-1603256692); // Lumber
-                writer.putInt(1500); //  maint cost
-                writer.putInt(-1596311545); // Galvor
-                writer.putInt(5); //  maint cost
-                writer.putInt(1532478436); // Wormwood
-                writer.putInt(5); //  maint cost
-            }
 
             LocalDateTime maintDate = building.maintDateTime;
 
