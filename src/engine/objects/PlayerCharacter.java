@@ -4895,7 +4895,7 @@ public class PlayerCharacter extends AbstractCharacter {
                 if(this.isFlying()){
                     if (!AbstractCharacter.CanFly(this)) {
                         GroundPlayer(this);
-                        ChatManager.chatSystemInfo(this, "You Cannot Fly While Having A MovementBuff");
+                        //ChatManager.chatSystemInfo(this, "You Cannot Fly While Having A MovementBuff");
                     }
                 }
 
