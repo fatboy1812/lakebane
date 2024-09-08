@@ -150,6 +150,9 @@ public class PromotionClass extends AbstractGameObject {
                 return true;
             }
         }
+        if(this.getName().equals("Druid") && token == 2502)
+            return true;
+
         return false;
     }
 
