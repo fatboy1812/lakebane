@@ -922,8 +922,8 @@ public class ItemFactory {
 
             ItemBase goldIB = ItemBase.getGoldItemBase();
 
-            int baseCost = ib.getBaseValue();
-            int total = (int) (baseCost + baseCost * .10);
+            //int baseCost = ib.getBaseValue();
+            int total = ib.getBaseValue();
 
             EffectsBase suffix = null;
 
