@@ -4861,6 +4861,9 @@ public class PlayerCharacter extends AbstractCharacter {
             try {
 
                 if (!this.isAlive()) {
+                    if(!this.timestamps.containsKey("DeathTime")){
+                        this.timestamps.put("DeathTime",System.currentTimeMillis());
+                    }
                     if((System.currentTimeMillis() - this.timestamps.get("DeathTime")) > 600000)
                         forceRespawn(this);
                     return;
