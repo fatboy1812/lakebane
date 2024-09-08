@@ -47,13 +47,13 @@ public class FinishSummonsJob extends AbstractScheduleJob {
             return;
 
         // cannot summon a player in combat
-        if (this.target.isCombat()) {
+        //if (this.target.isCombat()) {
 
-            ErrorPopupMsg.sendErrorMsg(this.source, "Cannot summon player in combat.");
+        //    ErrorPopupMsg.sendErrorMsg(this.source, "Cannot summon player in combat.");
 
-            PowersManager.finishRecycleTime(428523680, this.source, false);
-            return;
-        }
+        //    PowersManager.finishRecycleTime(428523680, this.source, false);
+        //    return;
+        //}
 
         if (this.target.getBonuses() != null && this.target.getBonuses().getBool(ModType.BlockedPowerType, SourceType.SUMMON)) {
             ErrorPopupMsg.sendErrorMsg(this.target, "You have been blocked from receiving summons!");

@@ -1324,7 +1324,7 @@ public enum PowersManager {
 
         PlayerCharacter target = SessionManager
                 .getPlayerCharacterByLowerCaseName(msg.getTargetName());
-        if (target == null || target.equals(pc) || target.isCombat()) {
+        if (target == null || target.equals(pc)) {
 
             if (target == null) // Player not found. Send not found message
                 ChatManager.chatInfoError(pc,
