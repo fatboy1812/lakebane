@@ -289,8 +289,11 @@ public class City extends AbstractWorldObject {
         else
             writer.putString(rulingNation.getName());
 
-        writer.putInt(city.getTOL().getRank());
-
+        if(city.getTOL() != null) {
+            writer.putInt(city.getTOL().getRank());
+        } else{
+            writer.putInt(1);
+        }
         if (city.isNoobIsle > 0)
             writer.putInt(1);
         else
