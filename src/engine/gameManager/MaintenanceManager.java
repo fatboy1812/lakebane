@@ -186,43 +186,8 @@ public enum MaintenanceManager {
         // If this is an R8 tree, validate that we can
         // cover the resources required
 
-        if (building.getRank() == 8) {
 
-            hasResources = true;
-
-            if (warehouse == null)
-                hasResources = false;
-            else {
-
-                resourceValue = warehouse.getResources().get(Warehouse.stoneIB);
-
-                if (resourceValue < 1500)
-                    hasResources = false;
-
-                resourceValue = warehouse.getResources().get(Warehouse.lumberIB);
-
-                if (resourceValue < 1500)
-                    hasResources = false;
-
-                resourceValue = warehouse.getResources().get(Warehouse.galvorIB);
-
-                if (resourceValue < 5)
-                    hasResources = false;
-
-                resourceValue = warehouse.getResources().get(Warehouse.wormwoodIB);
-
-                if (resourceValue < 5)
-                    hasResources = false;
-
-            }
-        }
-        // Validation completed but has failed.  We can derank
-        // the target building and early exit
-
-        if ((hasFunds == false) ||
-                ((building.getRank() == 8) && !hasResources)) {
-
-
+        if (hasFunds == false) {
             return false; // Early exit for having failed to meet maintenance
         }
 
@@ -245,58 +210,6 @@ public enum MaintenanceManager {
                 Logger.error("gold update failed for warehouse of UUID:" + warehouse.getObjectUUID());
                 return true;
             }
-        }
-
-        // Early exit as we're done if we're not an R8 tree
-
-        if (building.getRank() < 8)
-            return true;
-
-        // Now for the resources if it's an R8 tree
-
-        // Withdraw Stone
-
-        resourceValue = warehouse.getResources().get(Warehouse.stoneIB);
-
-        if (DbManager.WarehouseQueries.updateStone(warehouse, resourceValue - 1500) == true) {
-            warehouse.getResources().put(Warehouse.stoneIB, resourceValue - 1500);
-            warehouse.AddTransactionToWarehouse(Enum.GameObjectType.Building, building.getObjectUUID(), Enum.TransactionType.WITHDRAWL, Resource.STONE, 1500);
-        } else {
-            Logger.error("stone update failed for warehouse of UUID:" + warehouse.getObjectUUID());
-            return true;
-        }
-
-        // Withdraw Lumber
-
-        resourceValue = warehouse.getResources().get(Warehouse.lumberIB);
-
-        if (DbManager.WarehouseQueries.updateLumber(warehouse, resourceValue - 1500) == true) {
-            warehouse.getResources().put(Warehouse.lumberIB, resourceValue - 1500);
-            warehouse.AddTransactionToWarehouse(Enum.GameObjectType.Building, building.getObjectUUID(), Enum.TransactionType.WITHDRAWL, Resource.LUMBER, 1500);
-        } else {
-            Logger.error("lumber update failed for warehouse of UUID:" + warehouse.getObjectUUID());
-            return true;
-        }
-
-        // Withdraw Galvor
-
-        resourceValue = warehouse.getResources().get(Warehouse.galvorIB);
-
-        if (DbManager.WarehouseQueries.updateGalvor(warehouse, resourceValue - 5) == true) {
-            warehouse.getResources().put(Warehouse.galvorIB, resourceValue - 5);
-            warehouse.AddTransactionToWarehouse(Enum.GameObjectType.Building, building.getObjectUUID(), Enum.TransactionType.WITHDRAWL, Resource.GALVOR, 5);
-        } else {
-            Logger.error("galvor update failed for warehouse of UUID:" + warehouse.getObjectUUID());
-            return true;
-        }
-
-        resourceValue = warehouse.getResources().get(Warehouse.wormwoodIB);
-
-        if (DbManager.WarehouseQueries.updateWormwood(warehouse, resourceValue - 5) == true) {
-            warehouse.getResources().put(Warehouse.wormwoodIB, resourceValue - 5);
-            warehouse.AddTransactionToWarehouse(Enum.GameObjectType.Building, building.getObjectUUID(), Enum.TransactionType.WITHDRAWL, Resource.WORMWOOD, 5);
-        } else {
-            Logger.error("wyrmwood update failed for warehouse of UUID:" + warehouse.getObjectUUID());
         }
 
         return true;
