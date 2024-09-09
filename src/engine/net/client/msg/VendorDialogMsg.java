@@ -587,9 +587,13 @@ public class VendorDialogMsg extends ClientNetMsg {
         }
         // verify baseclass valid for profession
         BaseClass bc = pc.getBaseClass();
-        if (bc == null || !promo.isAllowedRune(bc.getToken())) {
+        if (bc == null) {
             // TODO send client promotion error
             return;
+        }
+        if(!promo.isAllowedRune(bc.getToken())){
+            if(!bc.getName().equals("Rogue") && !promo.getName().equals("Druid"))
+                return;
         }
 
         if(race.getRaceRuneID() != 1999) {
