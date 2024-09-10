@@ -292,7 +292,6 @@ public enum PowersManager {
 
         //check for movement buffs while flying
         if(playerCharacter.isFlying()) {
-            boolean whileFlying = true;
             switch(pb.token){
                 case 429005674:
                 case 429505739:
@@ -309,19 +308,15 @@ public enum PowersManager {
                 case 1794395699:
                 case 429428796:
                 case 1514898036:
-                    whileFlying = false;
-                    break;
-            }
-            if(!whileFlying) {
-                ChatManager.chatSystemInfo(playerCharacter, "You Cannot Fly While Having A MovementBuff");
-                //refund stamina
-                float amount = playerCharacter.getStamina() + pb.cost;
-                playerCharacter.setStamina(amount, playerCharacter);
+                    ChatManager.chatSystemInfo(playerCharacter, "You Cannot Fly While Having A MovementBuff");
+                    //refund stamina
+                    float amount = playerCharacter.getStamina() + pb.cost;
+                    playerCharacter.setStamina(amount, playerCharacter);
 
-                // Update all surrounding clients.
-                TargetedActionMsg cmm = new TargetedActionMsg(playerCharacter);
-                DispatchMessage.dispatchMsgToInterestArea(playerCharacter, cmm, DispatchChannel.PRIMARY, MBServerStatics.CHARACTER_LOAD_RANGE, true, false);
-                return true;
+                    // Update all surrounding clients.
+                    TargetedActionMsg cmm = new TargetedActionMsg(playerCharacter);
+                    DispatchMessage.dispatchMsgToInterestArea(playerCharacter, cmm, DispatchChannel.PRIMARY, MBServerStatics.CHARACTER_LOAD_RANGE, true, false);
+                    return true;
             }
         }
 
