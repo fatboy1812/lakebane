@@ -279,10 +279,6 @@ public enum PowersManager {
         // get power
         PowersBase pb = PowersManager.powersBaseByToken.get(msg.getPowerUsedID());
 
-        if((pb.token == 429495514 || pb.token == 429407306) && playerCharacter.getRace().getName().toLowerCase().contains("shade")){
-            pb = PowersManager.powersBaseByToken.get(429397210);
-        }
-
         if (pb == null) {
             ChatManager.chatSayInfo(playerCharacter,
                     "This power is not implemented yet.");
@@ -572,7 +568,6 @@ public enum PowersManager {
         // Validity checks passed, move on to casting spell
         //get caster's live counter
         int casterLiveCounter = playerCharacter.getLiveCounter();
-
         // run recycle job for when cast is available again, don't bother adding the timer for CSRs
         if (time > 0) {
             FinishRecycleTimeJob frtj = new FinishRecycleTimeJob(playerCharacter, msg);
@@ -628,10 +623,6 @@ public enum PowersManager {
 
 
         playerCharacter.setLastMovementState(playerCharacter.getMovementState());
-        if((pb.token == 429495514 || pb.token == 429407306) && playerCharacter.getRace().getName().contains("Shade")){
-            pb = PowersManager.powersBaseByToken.get(429397210);
-            copyMsg.setPowerUsedID(429397210);
-        }
         // run timer job to end cast
         if (time < 1) // run immediately
             finishUsePower(copyMsg, playerCharacter, casterLiveCounter, targetLiveCounter);
@@ -795,6 +786,11 @@ public enum PowersManager {
 
         if (playerCharacter == null || msg == null)
             return;
+
+        if((msg.getPowerUsedID() == 429495514 || msg.getPowerUsedID() == 429407306) && playerCharacter.getRace().getName().toLowerCase().contains("shade")){
+            //msg.setPowerUsedID(407015607);
+            applyPower(playerCharacter,playerCharacter,playerCharacter.loc,407015607,msg.getNumTrains(),false);
+        }
 
         if (playerCharacter.isCasting()) {
             playerCharacter.update();
