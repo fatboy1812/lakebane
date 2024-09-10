@@ -1402,8 +1402,11 @@ public class ClientMessagePump implements NetMsgHandler {
                 Item buy = null;
                 if (msg.getItemType() == GameObjectType.MobEquipment.ordinal()) {
                     ArrayList<MobEquipment> sellInventory = npc.getContract().getSellInventory();
-                    if(npc.contract.getName().toLowerCase().equals("steward")){
+                    if(npc.contract.getObjectUUID() == 890){ // default steward
                         sellInventory = npc.getSellInventorySteward();
+                    }
+                    if(npc.contract.getObjectUUID() == 889){ // default builder
+                        sellInventory = npc.getSellInventoryBuilder();
                     }
                     if (sellInventory == null) {
                         return;
