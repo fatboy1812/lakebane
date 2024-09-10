@@ -497,46 +497,16 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
         boolean canFly = false;
         PlayerBonuses bonus = flyer.getBonuses();
 
-        if (bonus != null && !bonus.getBool(ModType.NoMod, SourceType.Fly) && bonus.getBool(ModType.Fly, SourceType.None) && flyer.isAlive())
+        if (bonus != null && !bonus.getBool(ModType.NoMod, SourceType.Fly) && bonus.getBool(ModType.Fly, SourceType.None) && flyer.isAlive()) {
             canFly = true;
 
-
-        for(Effect eff : flyer.effects.values()){
-            switch(eff.getEffectsBase().getIDString()){
-                case "CSR-HASTE":
-                case "SPRINT":
-                case "FEATURECHARACTER":
-                case "MOVE-B-50%":
-                case "RNG-049A":
-                case "TRAVEL-A":
-                case "BHN-001A":
-                case "WAR-100A":
-                case "HNT-037A":
-                case "RNG-037A":
-                case "SNT-010A":
-                case "MOVE-B-25%":
-                case "PRS-031A":
-                case "RNG-049D":
-                case "MOVE-B-15%":
-                case "POT-006A":
-                case "WRT-001C":
-                case "WWF-001D":
-                case "COM-001A":
-                case "HNT-100A":
-                case "MOVE-B-10%":
-                case "RNG-033A":
-                case "SCT-004A":
-                case "THF-003A":
-                case "MOVE-B-7%":
-                case "MOVE-B-5%":
-                case "RNG-100A":
-                case "WBR-001B":
-                case "MOVE-B-3%":
-
-                    return false;
-            }
+            float moveSpeedBuffValue = bonus.getFloatPercentAll(ModType.Speed, SourceType.Buff);
+            if(moveSpeedBuffValue > 0)
+                canFly = false;
+            float moveSpeedBuffValue2 = bonus.getFloatPercentAll(ModType.Speed, SourceType.BUFF);
+            if(moveSpeedBuffValue2 > 0)
+                canFly = false;
         }
-
         return canFly;
 
     }
