@@ -376,8 +376,10 @@ this.maxRank = rs.getInt("MaxRank");
             case 5:
             case 6:
             case 7:
-            case 8:
                 availableSlots = 3;
+                break;
+            case 8:
+                availableSlots = 4;
                 break;
             default:
                 availableSlots = 0;
