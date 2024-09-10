@@ -92,6 +92,9 @@ public class Contract extends AbstractGameObject {
             case 899: //alchemist
                 this.allowedBuildings.add(Enum.BuildingGroup.TOL);
         }
+        if(this.getName().toLowerCase().contains("sage")){
+            this.allowedBuildings.add(Enum.BuildingGroup.TOL);
+        }
         this.equipmentSet = rs.getInt("equipSetID");
         this.inventorySet = rs.getInt("inventorySet");
 
