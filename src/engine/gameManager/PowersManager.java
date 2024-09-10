@@ -292,33 +292,36 @@ public enum PowersManager {
 
         //check for movement buffs while flying
         if(playerCharacter.isFlying()) {
-            for(ActionsBase ab : pb.getActions()){
-                for(AbstractEffectModifier mod1 : ab.getPowerAction().getEffectsBase().getModifiers()){
-                    if(mod1.modType.equals(ModType.Speed) && mod1.getPercentMod() > 0){
-                        ChatManager.chatSystemInfo(playerCharacter, "You Cannot Fly While Having A MovementBuff");
-                        //refund stamina
-                        float amount = playerCharacter.getStamina() + pb.cost;
-                        playerCharacter.setStamina(amount, playerCharacter);
+            boolean whileFlying = true;
+            switch(pb.token){
+                case 429005674:
+                case 429505739:
+                case 431054700:
+                case 428005600:
+                case 431610080:
+                case 427935608:
+                case 427857146:
+                case 427988218:
+                case 431854842:
+                case 421074170:
+                case 429611355:
+                case 428955899:
+                case 1794395699:
+                case 429428796:
+                case 1514898036:
+                    whileFlying = false;
+                    break;
+            }
+            if(!whileFlying) {
+                ChatManager.chatSystemInfo(playerCharacter, "You Cannot Fly While Having A MovementBuff");
+                //refund stamina
+                float amount = playerCharacter.getStamina() + pb.cost;
+                playerCharacter.setStamina(amount, playerCharacter);
 
-                        // Update all surrounding clients.
-                        TargetedActionMsg cmm = new TargetedActionMsg(playerCharacter);
-                        DispatchMessage.dispatchMsgToInterestArea(playerCharacter, cmm, DispatchChannel.PRIMARY, MBServerStatics.CHARACTER_LOAD_RANGE, true, false);
-                        return true;
-                    }
-                }
-                for(AbstractEffectModifier mod2 : ab.getPowerAction().getEffectsBase2().getModifiers()){
-                    if(mod2.modType.equals(ModType.Speed) && mod2.getPercentMod() > 0){
-                        ChatManager.chatSystemInfo(playerCharacter, "You Cannot Fly While Having A MovementBuff");
-                        //refund stamina
-                        float amount = playerCharacter.getStamina() + pb.cost;
-                        playerCharacter.setStamina(amount, playerCharacter);
-
-                        // Update all surrounding clients.
-                        TargetedActionMsg cmm = new TargetedActionMsg(playerCharacter);
-                        DispatchMessage.dispatchMsgToInterestArea(playerCharacter, cmm, DispatchChannel.PRIMARY, MBServerStatics.CHARACTER_LOAD_RANGE, true, false);
-                        return true;
-                    }
-                }
+                // Update all surrounding clients.
+                TargetedActionMsg cmm = new TargetedActionMsg(playerCharacter);
+                DispatchMessage.dispatchMsgToInterestArea(playerCharacter, cmm, DispatchChannel.PRIMARY, MBServerStatics.CHARACTER_LOAD_RANGE, true, false);
+                return true;
             }
         }
 
