@@ -789,7 +789,7 @@ public enum PowersManager {
 
         if((msg.getPowerUsedID() == 429495514 || msg.getPowerUsedID() == 429407306) && playerCharacter.getRace().getName().toLowerCase().contains("shade")){
             //msg.setPowerUsedID(407015607);
-            applyPower(playerCharacter,playerCharacter,playerCharacter.loc,407015607,msg.getNumTrains(),false);
+            applyPower(playerCharacter,playerCharacter,playerCharacter.loc,429397210,msg.getNumTrains(),false);
         }
 
         if (playerCharacter.isCasting()) {
