@@ -310,7 +310,7 @@ public enum PowersManager {
                 case 1514898036:
                     ChatManager.chatSystemInfo(playerCharacter, "You Cannot Fly While Having A MovementBuff");
                     //refund stamina
-                    float amount = playerCharacter.getStamina() + pb.cost;
+                    float amount = playerCharacter.getStamina() + pb.getCost(msg.getNumTrains());
                     playerCharacter.setStamina(amount, playerCharacter);
 
                     // Update all surrounding clients.
