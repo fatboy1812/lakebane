@@ -1429,7 +1429,29 @@ public class NPC extends AbstractCharacter {
     public ArrayList<MobEquipment> getSellInventoryBuilder() {
 
         ArrayList<MobEquipment> smallList = new ArrayList<>();
-        int maxValue = this.getRank() * 2 * 100000;
+        int maxValue = 0;
+        switch(this.getRank()){
+            case 1:
+                maxValue = 300000;
+                break;
+            case 2:
+                maxValue = 450000;
+                break;
+            case 3:
+                maxValue = 550000;
+                break;
+            case 4:
+                maxValue = 650000;
+                break;
+            case 5:
+                maxValue = 1000000;
+                break;
+            case 6:
+            case 7:
+                maxValue = 999999999;
+                break;
+
+        }
         for(MobEquipment me : this.contract.getSellInventory()){
             if(me.getItemBase().getBaseValue() <= maxValue)
                 smallList.add(me);
