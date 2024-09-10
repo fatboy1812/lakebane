@@ -502,14 +502,39 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
 
 
         for(Effect eff : flyer.effects.values()){
-            for(AbstractEffectModifier mod : eff.getEffectModifiers()){
-                if(mod.modType.equals(ModType.Speed) && mod.getPercentMod() > 0){
+            switch(eff.getEffectsBase().getIDString()){
+                case "CSR-HASTE":
+                case "SPRINT":
+                case "FEATURECHARACTER":
+                case "MOVE-B-50%":
+                case "RNG-049A":
+                case "TRAVEL-A":
+                case "BHN-001A":
+                case "WAR-100A":
+                case "HNT-037A":
+                case "RNG-037A":
+                case "SNT-010A":
+                case "MOVE-B-25%":
+                case "PRS-031A":
+                case "RNG-049D":
+                case "MOVE-B-15%":
+                case "POT-006A":
+                case "WRT-001C":
+                case "WWF-001D":
+                case "COM-001A":
+                case "HNT-100A":
+                case "MOVE-B-10%":
+                case "RNG-033A":
+                case "SCT-004A":
+                case "THF-003A":
+                case "MOVE-B-7%":
+                case "MOVE-B-5%":
+                case "RNG-100A":
+                case "WBR-001B":
+                case "MOVE-B-3%":
+
                     return false;
-                }
             }
-        }
-        if(bonus != null && bonus.getFloat(ModType.Speed,SourceType.BUFF) > 0){
-            return false;
         }
 
         return canFly;
