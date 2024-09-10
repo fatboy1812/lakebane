@@ -292,6 +292,7 @@ public class Contract extends AbstractGameObject {
                 me.magicValue = 1;
             }
         }
+
         return this.sellInventory;
     }
 

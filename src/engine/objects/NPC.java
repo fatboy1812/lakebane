@@ -1363,4 +1363,67 @@ public class NPC extends AbstractCharacter {
         }
     }
 
+    public ArrayList<MobEquipment> getSellInventorySteward() {
+
+        ArrayList<MobEquipment> smallList = new ArrayList<>();
+        for (MobEquipment me : this.contract.getSellInventory()) {
+            int rankRequired = 0;
+            if (me.getItemBase().getType().equals(Enum.ItemType.CONTRACT)) {
+                switch (me.getItemBase().getUUID()) {
+                    case 866:
+                    case 889:
+                    case 860:
+                    case 850:
+                    case 892:
+                    case 1502003:
+                    case 890:
+                    case 896:
+                        rankRequired = 1;
+                        break;
+                    case 899:
+                    case 801:
+                    case 803:
+                    case 802:
+                    case 821:
+                    case 810:
+                    case 806:
+                    case 818:
+                    case 800:
+                        rankRequired = 2;
+                        break;
+
+                    case 840:
+                    case 848:
+                    case 813:
+                    case 805:
+                    case 804:
+                    case 838:
+                        rankRequired = 3;
+                        break;
+                    case 815:
+                        rankRequired = 4;
+                        break;
+                    case 847:
+                    case 830:
+                    case 820:
+                        rankRequired = 6;
+                        break;
+                    case 865:
+                    case 252637:
+                        rankRequired = 7;
+                        break;
+                    case 1502002: // harvesters don't need to exist but might one day
+                    case 1502001: //mine guards don't need to exist but might one day
+                        continue;
+                }
+                if(me.getItemBase().getName().toLowerCase().contains("trainer") || me.getItemBase().getName().toLowerCase().contains("refiner")){
+                    rankRequired = 5;
+                }
+                if (this.getRank() >= rankRequired)
+                    smallList.add(me);
+            }
+        }
+        return smallList;
+    }
+
 }

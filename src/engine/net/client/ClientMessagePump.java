@@ -15,7 +15,6 @@ import engine.exception.MsgSendException;
 import engine.gameManager.*;
 import engine.job.JobContainer;
 import engine.job.JobScheduler;
-import engine.jobs.LogoutCharacterJob;
 import engine.jobs.RefreshGroupJob;
 import engine.jobs.StuckJob;
 import engine.math.Vector3fImmutable;
@@ -1403,6 +1402,9 @@ public class ClientMessagePump implements NetMsgHandler {
                 Item buy = null;
                 if (msg.getItemType() == GameObjectType.MobEquipment.ordinal()) {
                     ArrayList<MobEquipment> sellInventory = npc.getContract().getSellInventory();
+                    if(npc.contract.getName().toLowerCase().equals("steward")){
+                        sellInventory = npc.getSellInventorySteward();
+                    }
                     if (sellInventory == null) {
                         return;
                     }
