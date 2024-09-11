@@ -102,7 +102,7 @@ public class GroupInviteResponseHandler extends AbstractClientMsgHandler {
 
             // Run Keyclone Audit
 
-            KEYCLONEAUDIT.audit(player, group);
+            //KEYCLONEAUDIT.audit(player, group);
 
             return true;
         }
