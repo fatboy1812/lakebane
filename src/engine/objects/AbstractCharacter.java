@@ -499,14 +499,9 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
 
         if (bonus != null && !bonus.getBool(ModType.NoMod, SourceType.Fly) && bonus.getBool(ModType.Fly, SourceType.None) && flyer.isAlive()) {
             canFly = true;
-
-            float moveSpeedBuffValue = bonus.getFloatPercentAll(ModType.Speed, SourceType.Buff);
-            if(moveSpeedBuffValue > 0)
-                canFly = false;
-            float moveSpeedBuffValue2 = bonus.getFloatPercentAll(ModType.Speed, SourceType.BUFF);
-            if(moveSpeedBuffValue2 > 0)
-                canFly = false;
         }
+
+
         return canFly;
 
     }
