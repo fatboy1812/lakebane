@@ -138,7 +138,7 @@ public class PlayerCharacter extends AbstractCharacter {
     private int lastTargetID;
     private int hidden = 0; // current rank of hide/sneak/invis
     private int seeInvis = 0; // current rank of see invis
-    private float speedMod;
+    public float speedMod;
     private boolean teleportMode = false; // Teleport on MoveToPoint
     private float dexPenalty;
     private long lastPlayerAttackTime = 0;
@@ -4896,7 +4896,7 @@ public class PlayerCharacter extends AbstractCharacter {
                 }
 
                 if(this.isFlying()){
-                    if (!AbstractCharacter.CanFly(this)) {
+                    if (this.speedMod > 0) {
                         GroundPlayer(this);
                         //ChatManager.chatSystemInfo(this, "You Cannot Fly While Having A MovementBuff");
                     }
