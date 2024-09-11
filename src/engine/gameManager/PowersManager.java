@@ -2687,7 +2687,9 @@ public enum PowersManager {
     }
 
     public static void cancelOnStun(AbstractCharacter ac) {
-
+        if(ac.getObjectType().equals(GameObjectType.PlayerCharacter)){
+            PlayerCharacter.GroundPlayer((PlayerCharacter)ac);
+        }
     }
 
     private static PowersBase getLastPower(AbstractCharacter ac) {
