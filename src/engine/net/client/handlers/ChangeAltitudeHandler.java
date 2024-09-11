@@ -46,8 +46,6 @@ public class ChangeAltitudeHandler extends AbstractClientMsgHandler {
             return false;
         if (pc.region != null && !pc.region.isOutside())
             return false;
-        if(pc.speedMod > 0)
-            return false;
 
 
         // Find out if we already have an altitude timer running and if so
