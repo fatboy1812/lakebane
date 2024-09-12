@@ -360,6 +360,11 @@ public class ItemProductionMsgHandler extends AbstractClientMsgHandler {
                 targetItem.recycle(vendor);
                 vendor.removeItemFromForge(targetItem);
 
+                //refund the gold for cancelled item
+                if(vendor.building.getStrongboxValue() + targetItem.getItemBase().getBaseValue() < 15000000){
+                    vendor.building.setStrongboxValue(vendor.building.getStrongboxValue() + targetItem.getItemBase().getBaseValue());
+                }
+
                 // Refresh vendor's inventory to client
 
                 outMsg = new ManageNPCMsg(vendor);
