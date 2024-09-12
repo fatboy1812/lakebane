@@ -73,7 +73,7 @@ public class ItemFactory {
         itemManager.updateInventory();
     }
 
-    public static Item fillForge(NPC npc, PlayerCharacter pc, int itemsToRoll, int itemID, int pToken, int sToken, String customName) {
+    public static Item ResourceRoll(NPC npc, PlayerCharacter pc, int itemsToRoll, int itemID, int pToken, int sToken, String customName) {
 
         String prefixString = "";
         String suffixString = "";

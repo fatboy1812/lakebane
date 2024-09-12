@@ -1196,7 +1196,7 @@ public class NPC extends AbstractCharacter {
             }
 
             // Cannot roll items without a warehouse.
-            // Due to the fact fillForge references the
+            // Due to the fact ResourceRoll references the
             // warehouse and early exits.  *** Refactor???
 
             serverZone = this.building.getParentZone();
@@ -1230,7 +1230,7 @@ public class NPC extends AbstractCharacter {
             if (isRandom)
                 item = ItemFactory.randomRoll(this, player, amount, itemID);
             else
-                item = ItemFactory.fillForge(this, player, amount, itemID, pToken, sToken, customName);
+                item = ItemFactory.ResourceRoll(this, player, amount, itemID, pToken, sToken, customName);
 
             if (item == null)
                 return null;
