@@ -319,6 +319,15 @@ public class Mine extends AbstractGameObject {
         return true;
     }
 
+    public static ArrayList<Mine> getMinesToTeleportTo(PlayerCharacter player) {
+        ArrayList<Mine> mines = new ArrayList<>();
+        for(Mine mine : Mine.getMines())
+            if(mine.getOwningGuild() != null && mine.getOwningGuild().getNation().equals(player.getGuild().getNation()))
+                mines.add(mine);
+
+        return mines;
+    }
+
     public boolean changeProductionType(Resource resource) {
         if (!this.validForMine(resource))
             return false;
@@ -660,5 +669,137 @@ public class Mine extends AbstractGameObject {
         // Remove players from city memory
 
         _playerMemory.removeAll(toRemove);
+    }
+    public static Building getTower(Mine mine){
+
+        return null;
+    }
+    public static void serializeForClientMsgTeleport(Mine mine, ByteBufferWriter writer) {
+        AbstractCharacter guildRuler;
+        Guild rulingGuild;
+        Guild rulingNation;
+        java.time.LocalDateTime dateTime1900;
+
+        // Cities aren't a mine without a TOL. Time to early exit.
+        // No need to spam the log here as non-existant TOL's are indicated
+        // during bootstrap routines.
+
+        if (Mine.getTower(mine) == null) {
+
+            Logger.error("NULL TOL FOR " + mine.zoneName + " mine");
+        }
+
+
+        // Assign mine owner
+
+        if (Mine.getTower(mine) != null && Mine.getTower(mine).getOwner() != null)
+            guildRuler = Mine.getTower(mine).getOwner();
+        else
+            guildRuler = null;
+
+        // If is an errant tree, use errant guild for serialization.
+        // otherwise we serialize the soverign guild
+
+        if (guildRuler == null)
+            rulingGuild = Guild.getErrantGuild();
+        else
+            rulingGuild = guildRuler.getGuild();
+
+        rulingNation = rulingGuild.getNation();
+
+        // Begin Serialzing soverign guild data
+        writer.putInt(mine.getObjectType().ordinal());
+        writer.putInt(mine.getObjectUUID());
+        writer.putString(Mine.getTower(mine).getName());
+        writer.putInt(rulingGuild.getObjectType().ordinal());
+        writer.putInt(rulingGuild.getObjectUUID());
+
+        writer.putString(rulingGuild.getName());
+        writer.putString("");
+        writer.putString(rulingGuild.getLeadershipType());
+
+        // Serialize guild ruler's name
+        // If tree is abandoned blank out the name
+        // to allow them a rename.
+
+        if (guildRuler == null)
+            writer.putString("");
+        else
+            writer.putString(guildRuler.getFirstName() + ' ' + guildRuler.getLastName());
+
+        writer.putInt(rulingGuild.getCharter());
+        writer.putInt(0); // always 00000000
+
+        writer.put((byte)0);
+
+        writer.put((byte) 1);
+        writer.put((byte) 1);  // *** Refactor: What are these flags?
+        writer.put((byte) 1);
+        writer.put((byte) 1);
+        writer.put((byte) 1);
+
+        GuildTag._serializeForDisplay(rulingGuild.getGuildTag(), writer);
+        GuildTag._serializeForDisplay(rulingNation.getGuildTag(), writer);
+
+        writer.putInt(0);// TODO Implement description text
+
+        writer.put((byte) 1);
+        writer.put((byte) 0);
+        writer.put((byte) 1);
+
+        // Begin serializing nation guild info
+
+        if (rulingNation.isEmptyGuild()) {
+            writer.putInt(rulingGuild.getObjectType().ordinal());
+            writer.putInt(rulingGuild.getObjectUUID());
+        } else {
+            writer.putInt(rulingNation.getObjectType().ordinal());
+            writer.putInt(rulingNation.getObjectUUID());
+        }
+
+
+        // Serialize nation name
+
+        if (rulingNation.isEmptyGuild())
+            writer.putString("None");
+        else
+            writer.putString(rulingNation.getName());
+
+        if(Mine.getTower(mine) != null) {
+            writer.putInt(Mine.getTower(mine).getRank());
+        } else{
+            writer.putInt(1);
+        }
+        writer.putInt(0xFFFFFFFF);
+
+        writer.putInt(0);
+
+        if (rulingNation.isEmptyGuild())
+            writer.putString(" ");
+        else
+            writer.putString(Guild.GetGL(rulingNation).getFirstName() + ' ' + Guild.GetGL(rulingNation).getLastName());
+
+
+        writer.putLocalDateTime(LocalDateTime.now());
+
+//		writer.put((byte) mine.established.getDayOfMonth());
+//		writer.put((byte) mine.established.minusMonths(1).getMonth().getValue());
+//		writer.putInt((int) years);
+//		writer.put((byte) hours);
+//		writer.put((byte) minutes);
+//		writer.put((byte) seconds);
+
+        writer.putFloat(Mine.getTower(mine).loc.x);
+        writer.putFloat(Mine.getTower(mine).loc.y);
+        writer.putFloat(Mine.getTower(mine).loc.z);
+
+        writer.putInt(0);
+
+        writer.put((byte) 1);
+        writer.put((byte) 0);
+        writer.putInt(0x64);
+        writer.put((byte) 0);
+        writer.put((byte) 0);
+        writer.put((byte) 0);
     }
 }

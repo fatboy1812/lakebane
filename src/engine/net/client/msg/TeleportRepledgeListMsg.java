@@ -16,6 +16,7 @@ import engine.net.ByteBufferReader;
 import engine.net.ByteBufferWriter;
 import engine.net.client.Protocol;
 import engine.objects.City;
+import engine.objects.Mine;
 import engine.objects.PlayerCharacter;
 
 import java.util.ArrayList;
@@ -24,6 +25,7 @@ import java.util.ArrayList;
 public class TeleportRepledgeListMsg extends ClientNetMsg {
 
     ArrayList<City> cities;
+    ArrayList<Mine> mines;
     private PlayerCharacter player;
     private boolean isTeleport;
 
@@ -77,10 +79,12 @@ public class TeleportRepledgeListMsg extends ClientNetMsg {
 
     public void configure() {
 
-        if (isTeleport)
+        if (isTeleport) {
             cities = City.getCitiesToTeleportTo(player);
-        else
+            mines = Mine.getMinesToTeleportTo(player);
+        }else {
             cities = City.getCitiesToRepledgeTo(player);
+        }
     }
 
     /**
@@ -96,10 +100,14 @@ public class TeleportRepledgeListMsg extends ClientNetMsg {
         for (int i = 0; i < 3; i++)
             writer.putInt(0);
 
-        writer.putInt(cities.size());
+        writer.putInt(cities.size() + mines.size());
 
         for (City city : cities)
             City.serializeForClientMsg(city, writer);
+
+        for(Mine mine : mines)
+            Mine.serializeForClientMsgTeleport(mine, writer);
+
     }
 
     public PlayerCharacter getPlayer() {
