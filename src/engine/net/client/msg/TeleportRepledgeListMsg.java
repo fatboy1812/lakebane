@@ -84,11 +84,14 @@ public class TeleportRepledgeListMsg extends ClientNetMsg {
             cities = City.getCitiesToTeleportTo(player);
             try {
                 mines = Mine.getMinesToTeleportTo(player);
+                if(mines == null)
+                    mines = new ArrayList<>();
             }catch(Exception e){
                 Logger.error("Unable To Load Mines For Teleport: " + e.getMessage());
             }
         }else {
             cities = City.getCitiesToRepledgeTo(player);
+            mines = new ArrayList<>();
         }
     }
 
