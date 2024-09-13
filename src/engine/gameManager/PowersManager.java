@@ -788,7 +788,9 @@ public enum PowersManager {
             //msg.setPowerUsedID(407015607);
             applyPower(playerCharacter,playerCharacter,playerCharacter.loc,429397210,msg.getNumTrains(),false);
         }
-
+        if(msg.getPowerUsedID() == 429494441) {//wildkins chase
+            playerCharacter.removeEffectBySource(EffectSourceType.Root,40,true);
+        }
         if (playerCharacter.isCasting()) {
             playerCharacter.update();
             playerCharacter.updateStamRegen(-100);
