@@ -322,8 +322,10 @@ public class Mine extends AbstractGameObject {
     public static ArrayList<Mine> getMinesToTeleportTo(PlayerCharacter player) {
         ArrayList<Mine> mines = new ArrayList<>();
         for(Mine mine : Mine.getMines())
-            if(mine.getOwningGuild() != null && mine.getOwningGuild().getNation().equals(player.getGuild().getNation()))
-                mines.add(mine);
+            if(!mine.isActive)
+                if(mine.getOwningGuild() != null)
+                  if(mine.getOwningGuild().getNation().equals(player.getGuild().getNation()))
+                         mines.add(mine);
 
         return mines;
     }
