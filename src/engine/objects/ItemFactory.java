@@ -410,7 +410,7 @@ public class ItemFactory {
 
             if (overdraft > 0 && !useWarehouse) {
                 if (pc != null)
-                    ErrorPopupMsg.sendErrorMsg(pc, "Not enough gold in building strongbox." + ib.getName());
+                    ErrorPopupMsg.sendErrorMsg(pc, "Not enough gold in building strongbox. " + ib.getName());
                 return null;
             }
 
@@ -936,7 +936,7 @@ public class ItemFactory {
 
             //calculate gold costs and remove from the warehouse
             if (prefix != null || suffix != null) {
-                int costToCreate = (int) (ib.getBaseValue() + ib.getBaseValue() * .10f);
+                int costToCreate = ib.getBaseValue();
                 int buildingWithdraw = BuildingManager.GetWithdrawAmountForRolling(forge, costToCreate);
                 int overdraft = BuildingManager.GetOverdraft(forge, costToCreate);
 
