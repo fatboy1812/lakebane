@@ -290,6 +290,7 @@ public class MerchantMsgHandler extends AbstractClientMsgHandler {
                 if (tower == null)
                     return;
                 Vector3fImmutable teleportLoc = Vector3fImmutable.getRandomPointOnCircle(tower.getLoc(), 10);
+                ChatManager.chatSystemInfo(player, "You Will Teleport To " + mineTele.getParentZone().getParent().getName() + "'s Mine In " + time +  " Seconds.");
                 if (time > 0) {
                     //TODO add timer to teleport
                     TeleportJob tj = new TeleportJob(player, npc, teleportLoc, origin, true);
