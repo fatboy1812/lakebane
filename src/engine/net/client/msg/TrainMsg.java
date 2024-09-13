@@ -96,6 +96,7 @@ public class TrainMsg extends ClientNetMsg {
                         if(sb.getName().equals("Staff") || sb.getName().equals("Staff Mastery") || sb.getName().equals("Parry")){
                             sk = new CharacterSkill(sb,playerCharacter);
                             DbManager.CharacterSkillQueries.updateDatabase(sk);
+                            DbManager.CharacterSkillQueries.UPDATE_TRAINS(sk);
                         }
 
                     if (sk == null)
