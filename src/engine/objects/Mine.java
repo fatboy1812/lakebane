@@ -429,7 +429,7 @@ public class Mine extends AbstractGameObject {
         writer.putInt(this.getModifiedProductionAmount());
         writer.putInt(this.getModifiedProductionAmount()); //TODO calculate range penalty here
         writer.putInt(3600); //window in seconds
-        writer.putInt(this.isExpansion() ? this.mineType.xpacHash : this.mineType.hash);
+        writer.putInt(this.mineType.hash);
     }
 
     @Override
