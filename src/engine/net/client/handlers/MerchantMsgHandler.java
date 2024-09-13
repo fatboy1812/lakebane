@@ -274,60 +274,84 @@ public class MerchantMsgHandler extends AbstractClientMsgHandler {
             }
         }
 
-        if (targetCity == null)
-            return;
-
-        //verify level required to teleport or repledge
-
-        Guild toGuild = targetCity.getGuild();
-
-        if (toGuild != null)
-            if (isTeleport) {
-                if (player.getLevel() < toGuild.getTeleportMin() || player.getLevel() > toGuild.getTeleportMax())
-                    return;
-            } else if (player.getLevel() < toGuild.getRepledgeMin() || player.getLevel() > toGuild.getRepledgeMax())
+        if (targetCity == null){
+            Mine mineTele = null;
+            for(Mine mine : Mine.getMinesToTeleportTo(player)){
+                if(mine.getObjectUUID() == msg.getCityID()){
+                    mineTele = mine;
+                }
+            }
+            if(mineTele == null){
                 return;
+            }else {
+                int time = MBServerStatics.TELEPORT_TIME_IN_SECONDS;
+                msg.setTeleportTime(time);
+                Building tower = Mine.getTower(mineTele);
+                if (tower == null)
+                    return;
+                Vector3fImmutable teleportLoc = Vector3fImmutable.getRandomPointOnCircle(tower.getLoc(), 10);
+                if (time > 0) {
+                    //TODO add timer to teleport
+                    TeleportJob tj = new TeleportJob(player, npc, teleportLoc, origin, true);
+                    JobScheduler.getInstance().scheduleJob(tj, time * 1000);
+                }
+            }
+        }else{
+            //finish porting to a city
+            //verify level required to teleport or repledge
 
-        boolean joinedGuild = false;
+            Guild toGuild = targetCity.getGuild();
 
-        //if repledge, reguild the player
+            if (toGuild != null)
+                if (isTeleport) {
+                    if (player.getLevel() < toGuild.getTeleportMin() || player.getLevel() > toGuild.getTeleportMax())
+                        return;
+                } else if (player.getLevel() < toGuild.getRepledgeMin() || player.getLevel() > toGuild.getRepledgeMax())
+                    return;
 
-        if (!isTeleport)
-            joinedGuild = GuildManager.joinGuild(player, targetCity.getGuild(), targetCity.getObjectUUID(), GuildHistoryType.JOIN);
+            boolean joinedGuild = false;
 
-        int time;
+            //if repledge, reguild the player
 
-        if (!isTeleport) //repledge
-            time = MBServerStatics.REPLEDGE_TIME_IN_SECONDS;
-        else
-            time = MBServerStatics.TELEPORT_TIME_IN_SECONDS;
+            if (!isTeleport)
+                joinedGuild = GuildManager.joinGuild(player, targetCity.getGuild(), targetCity.getObjectUUID(), GuildHistoryType.JOIN);
 
-        //resend message
-        msg.setTeleportTime(time);
+            int time;
 
-        if ((!isTeleport && joinedGuild) || (isTeleport)) {
+            if (!isTeleport) //repledge
+                time = MBServerStatics.REPLEDGE_TIME_IN_SECONDS;
+            else
+                time = MBServerStatics.TELEPORT_TIME_IN_SECONDS;
 
-            dispatch = Dispatch.borrow(player, msg);
-            DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
+            //resend message
+            msg.setTeleportTime(time);
+
+            if ((!isTeleport && joinedGuild) || (isTeleport)) {
+
+                dispatch = Dispatch.borrow(player, msg);
+                DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
+            }
+
+            //teleport player to city
+
+            Vector3fImmutable teleportLoc;
+
+            if (targetCity.getTOL().getRank() == 8)
+                teleportLoc = targetCity.getTOL().getStuckLocation();
+            else
+                teleportLoc = Vector3fImmutable.getRandomPointOnCircle(targetCity.getTOL().getLoc(), MBServerStatics.TREE_TELEPORT_RADIUS);
+
+            if (time > 0) {
+                //TODO add timer to teleport
+                TeleportJob tj = new TeleportJob(player, npc, teleportLoc, origin, true);
+                JobScheduler.getInstance().scheduleJob(tj, time * 1000);
+            } else if (joinedGuild) {
+                player.teleport(teleportLoc);
+                player.setSafeMode();
+            }
         }
 
-        //teleport player to city
 
-        Vector3fImmutable teleportLoc;
-
-        if (targetCity.getTOL().getRank() == 8)
-            teleportLoc = targetCity.getTOL().getStuckLocation();
-        else
-            teleportLoc = Vector3fImmutable.getRandomPointOnCircle(targetCity.getTOL().getLoc(), MBServerStatics.TREE_TELEPORT_RADIUS);
-
-        if (time > 0) {
-            //TODO add timer to teleport
-            TeleportJob tj = new TeleportJob(player, npc, teleportLoc, origin, true);
-            JobScheduler.getInstance().scheduleJob(tj, time * 1000);
-        } else if (joinedGuild) {
-            player.teleport(teleportLoc);
-            player.setSafeMode();
-        }
     }
 
     private static PowersBase getPowerforHermit(NPC npc) {

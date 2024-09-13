@@ -673,8 +673,11 @@ public class Mine extends AbstractGameObject {
         _playerMemory.removeAll(toRemove);
     }
     public static Building getTower(Mine mine){
-
-        return null;
+        Building tower = BuildingManager.getBuildingFromCache(mine.buildingID);
+        if(tower != null)
+            return tower;
+        else
+            return null;
     }
     public static void serializeForClientMsgTeleport(Mine mine, ByteBufferWriter writer) {
         AbstractCharacter guildRuler;
@@ -685,17 +688,18 @@ public class Mine extends AbstractGameObject {
         // Cities aren't a mine without a TOL. Time to early exit.
         // No need to spam the log here as non-existant TOL's are indicated
         // during bootstrap routines.
+        Building tower = Mine.getTower(mine);
+        if (tower == null) {
 
-        if (Mine.getTower(mine) == null) {
-
-            Logger.error("NULL TOL FOR " + mine.zoneName + " mine");
+            Logger.error("NULL TOWER FOR " + mine.zoneName + " mine");
+            return;
         }
 
 
         // Assign mine owner
 
-        if (Mine.getTower(mine) != null && Mine.getTower(mine).getOwner() != null)
-            guildRuler = Mine.getTower(mine).getOwner();
+        if (tower.getOwner() != null)
+            guildRuler = tower.getOwner();
         else
             guildRuler = null;
 
@@ -712,7 +716,7 @@ public class Mine extends AbstractGameObject {
         // Begin Serialzing soverign guild data
         writer.putInt(mine.getObjectType().ordinal());
         writer.putInt(mine.getObjectUUID());
-        writer.putString(Mine.getTower(mine).getName());
+        writer.putString(mine.zoneName + " Mine");
         writer.putInt(rulingGuild.getObjectType().ordinal());
         writer.putInt(rulingGuild.getObjectUUID());
 
@@ -767,11 +771,8 @@ public class Mine extends AbstractGameObject {
         else
             writer.putString(rulingNation.getName());
 
-        if(Mine.getTower(mine) != null) {
-            writer.putInt(Mine.getTower(mine).getRank());
-        } else{
-            writer.putInt(1);
-        }
+        writer.putInt(1);
+
         writer.putInt(0xFFFFFFFF);
 
         writer.putInt(0);
@@ -781,20 +782,17 @@ public class Mine extends AbstractGameObject {
         else
             writer.putString(Guild.GetGL(rulingNation).getFirstName() + ' ' + Guild.GetGL(rulingNation).getLastName());
 
-
         writer.putLocalDateTime(LocalDateTime.now());
 
-//		writer.put((byte) mine.established.getDayOfMonth());
-//		writer.put((byte) mine.established.minusMonths(1).getMonth().getValue());
-//		writer.putInt((int) years);
-//		writer.put((byte) hours);
-//		writer.put((byte) minutes);
-//		writer.put((byte) seconds);
-
-        writer.putFloat(Mine.getTower(mine).loc.x);
-        writer.putFloat(Mine.getTower(mine).loc.y);
-        writer.putFloat(Mine.getTower(mine).loc.z);
-
+        if(tower != null) {
+            writer.putFloat(tower.loc.x);
+            writer.putFloat(tower.loc.y);
+            writer.putFloat(tower.loc.z);
+        } else{
+            writer.putFloat(0);
+            writer.putFloat(0);
+            writer.putFloat(0);
+        }
         writer.putInt(0);
 
         writer.put((byte) 1);
