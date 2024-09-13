@@ -980,6 +980,10 @@ public class NPC extends AbstractCharacter {
                 ml.setValue(producedItem.getValue());
             }
 
+            if(ZoneManager.findSmallestZone(this.loc) != null && ZoneManager.findSmallestZone(this.loc).getSafeZone() == 1){
+                this.statStrCurrent = (short)99999;
+            }
+
             // Create NPC bounds object
             Bounds npcBounds = Bounds.borrow();
             npcBounds.setBounds(this.getLoc());
