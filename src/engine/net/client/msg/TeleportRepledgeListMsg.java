@@ -18,6 +18,7 @@ import engine.net.client.Protocol;
 import engine.objects.City;
 import engine.objects.Mine;
 import engine.objects.PlayerCharacter;
+import org.pmw.tinylog.Logger;
 
 import java.util.ArrayList;
 
@@ -81,7 +82,11 @@ public class TeleportRepledgeListMsg extends ClientNetMsg {
 
         if (isTeleport) {
             cities = City.getCitiesToTeleportTo(player);
-            mines = Mine.getMinesToTeleportTo(player);
+            try {
+                mines = Mine.getMinesToTeleportTo(player);
+            }catch(Exception e){
+                Logger.error("Unable To Load Mines For Teleport: " + e.getMessage());
+            }
         }else {
             cities = City.getCitiesToRepledgeTo(player);
         }
