@@ -1694,6 +1694,16 @@ public class Mob extends AbstractIntelligenceAgent {
             this.defenseRating = (short) this.mobBase.getDefense();
         }
         // calculate defense for equipment
+
+        if(this.isDropper || Mob.discDroppers.contains(this)){
+            this.defenseRating *= 2;
+            this.atrHandOne *= 2;
+            this.atrHandTwo *= 2;
+            this.minDamageHandOne *= 2;
+            this.minDamageHandTwo *= 2;
+            this.maxDamageHandOne *= 2;
+            this.maxDamageHandTwo *= 2;
+        }
     }
 
     public static int GetDefense(int defense, Mob mob){
@@ -2060,6 +2070,9 @@ public class Mob extends AbstractIntelligenceAgent {
         if(this.isDropper){
             this.setLevel((short)65);
             this.setResists(new Resists("Dropper"));
+            this.atrHandOne *= 2;
+            this.atrHandTwo *= 2;
+
         }
         try {
             if (this.equipmentSetID != 0)
