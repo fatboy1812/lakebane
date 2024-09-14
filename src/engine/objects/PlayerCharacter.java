@@ -2048,7 +2048,8 @@ public class PlayerCharacter extends AbstractCharacter {
     public void respawn(boolean setAlive, boolean enterWorld, boolean makeCorpse) {
 
         // Recalculate everything
-
+        if(this.timestamps.containsKey("DeathTime"))
+            this.timestamps.remove("DeathTime");
 
         this.recalculatePlayerStats(true);
         this.setCombat(false);
