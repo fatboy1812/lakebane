@@ -169,6 +169,8 @@ public class ApplyRuneMsg extends ClientNetMsg {
                     valid = true;
                 if(runeID == 3033 && raceID == 1999)
                     valid = true;
+                if(runeID == 3028 && (raceID == 2013 || raceID == 2014) && playerCharacter.getBaseClassID() == 2501)
+                    valid = true;
                 if (!valid) {
                     return false;
                 }
