@@ -215,7 +215,7 @@ public class ItemFactory {
                 pi.setAmount(itemsToRoll);
                 pi.setRandom(false);
 
-                ItemQueue produced = ItemQueue.borrow(pi, (long) (time * Float.parseFloat(ConfigManager.MB_PRODUCTION_RATE.getValue())));
+                ItemQueue produced = ItemQueue.borrow(pi, (long) time);
                 ItemProductionManager.send(produced);
 
                 return ml;
