@@ -1085,6 +1085,7 @@ public class Item extends AbstractWorldObject {
         this.ownerID = pc.getObjectUUID();
         this.ownerType = OwnerType.PlayerCharacter;
         this.containerType = ItemContainerType.INVENTORY;
+        this.stripCastableEnchants();
         return true;
     }
 
@@ -1105,6 +1106,7 @@ public class Item extends AbstractWorldObject {
         this.ownerID = npc.getObjectUUID();
         this.ownerType = OwnerType.Npc;
         this.containerType = Enum.ItemContainerType.INVENTORY;
+        this.stripCastableEnchants();
         return true;
     }
 
