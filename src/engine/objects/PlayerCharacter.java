@@ -4829,7 +4829,7 @@ public class PlayerCharacter extends AbstractCharacter {
                     if(!this.timestamps.containsKey("DeathTime")){
                         this.timestamps.put("DeathTime",System.currentTimeMillis());
                     }
-                    if((System.currentTimeMillis() - this.timestamps.get("DeathTime")) > 6000)//00)
+                    if((System.currentTimeMillis() - this.timestamps.get("DeathTime")) > 600000)
                         forceRespawn(this);
                     return;
                 }
