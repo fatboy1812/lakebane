@@ -97,7 +97,7 @@ public class NetMsgFactory {
                     PlayerCharacter player = ((ClientConnection) origin).getPlayerCharacter();
                     if (player != null) {
                         Logger.error("Invalid protocol msg for player " + player.getFirstName() + " : " + opcode + " lastopcode: " + origin.lastProtocol.name() + " Error Code : " + errorCode);
-                        PlaceAssetMsg.sendPlaceAssetError(player.getClientConnection(), 1, "Please Report What You Just Did");
+                        PlaceAssetMsg.sendPlaceAssetError(player.getClientConnection(), 1, "Please Report What You Just Did. Ref Code: " + opcode);
                     }
                 }
 
