@@ -13,6 +13,7 @@ import engine.exception.FactoryBuildException;
 import engine.gameManager.ChatManager;
 import engine.net.client.ClientConnection;
 import engine.net.client.Protocol;
+import engine.net.client.msg.ErrorPopupMsg;
 import engine.objects.PlayerCharacter;
 import engine.server.MBServerStatics;
 import org.joda.time.DateTime;
@@ -94,11 +95,9 @@ public class NetMsgFactory {
                 if (origin instanceof ClientConnection) {
                     PlayerCharacter player = ((ClientConnection) origin).getPlayerCharacter();
                     if (player != null) {
-//						if (MBServerStatics.worldServerName.equals("Grief"))
                         Logger.error("Invalid protocol msg for player " + player.getFirstName() + " : " + opcode + " lastopcode: " + origin.lastProtocol.name() + " Error Code : " + errorCode);
-                    } else
-                        Logger.error("Invalid protocol msg  : " + opcode + " lastopcode: " + origin.lastProtocol.name() + " Error Code : " + errorCode);
-
+                        ErrorPopupMsg epm = new ErrorPopupMsg(16, "REPORT WHAT YOU JUST TRIED TO DO");
+                    }
                 }
 
                 return null;

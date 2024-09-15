@@ -205,11 +205,11 @@ public class MobAI {
                 mob.setLastAttackTime(System.currentTimeMillis() + attackDelay);
             }
 
-            if (mob.isSiege()) {
-                PowerProjectileMsg ppm = new PowerProjectileMsg(mob, target);
-                ppm.setRange(50);
-                DispatchMessage.dispatchMsgToInterestArea(mob, ppm, DispatchChannel.SECONDARY, MBServerStatics.CHARACTER_LOAD_RANGE, false, false);
-            }
+            //if (mob.isSiege()) {
+            //    PowerProjectileMsg ppm = new PowerProjectileMsg(mob, target);
+            //    ppm.setRange(50);
+            //    DispatchMessage.dispatchMsgToInterestArea(mob, ppm, DispatchChannel.SECONDARY, MBServerStatics.CHARACTER_LOAD_RANGE, false, false);
+            //}
 
         } catch (Exception e) {
             Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: AttackBuilding" + " " + e.getMessage());
