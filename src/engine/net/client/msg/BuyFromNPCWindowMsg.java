@@ -112,12 +112,12 @@ public class BuyFromNPCWindowMsg extends ClientNetMsg {
 
             if (contract != null)
                 sellInventory = contract.getSellInventory();
-            if(npc.contract.getObjectUUID() == 890){ // default steward
-                sellInventory = npc.getSellInventorySteward();
-            }
-            if(npc.contract.getObjectUUID() == 889){ // default builder
-                sellInventory = npc.getSellInventoryBuilder();
-            }
+            //if(npc.contract.getObjectUUID() == 890){ // default steward
+            //    sellInventory = npc.getSellInventorySteward();
+           // }
+            //if(npc.contract.getObjectUUID() == 889){ // default builder
+           //     sellInventory = npc.getSellInventoryBuilder();
+           // }
         }
 
         if (man != null)
