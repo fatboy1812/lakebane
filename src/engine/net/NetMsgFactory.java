@@ -14,6 +14,7 @@ import engine.gameManager.ChatManager;
 import engine.net.client.ClientConnection;
 import engine.net.client.Protocol;
 import engine.net.client.msg.ErrorPopupMsg;
+import engine.net.client.msg.PlaceAssetMsg;
 import engine.objects.PlayerCharacter;
 import engine.server.MBServerStatics;
 import org.joda.time.DateTime;
@@ -96,7 +97,7 @@ public class NetMsgFactory {
                     PlayerCharacter player = ((ClientConnection) origin).getPlayerCharacter();
                     if (player != null) {
                         Logger.error("Invalid protocol msg for player " + player.getFirstName() + " : " + opcode + " lastopcode: " + origin.lastProtocol.name() + " Error Code : " + errorCode);
-                        ErrorPopupMsg epm = new ErrorPopupMsg(16, "REPORT WHAT YOU JUST TRIED TO DO");
+                        PlaceAssetMsg.sendPlaceAssetError(player.getClientConnection(), 1, "Please Report What You Just Did");
                     }
                 }
 
