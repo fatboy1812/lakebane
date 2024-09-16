@@ -832,7 +832,14 @@ public class NPC extends AbstractCharacter {
         if (ConfigManager.serverType.equals(ServerType.LOGINSERVER))
             return;
 
-        this.contract = DbManager.ContractQueries.GET_CONTRACT(this.contractUUID);
+        int contractID = this.contractUUID;
+        if(this.isInSafeZone() && contractID == 866) // banker
+            this.contractUUID = 1205042;
+        else if(contractID > 12000 && contractID < 12039)//runemasters
+            this.contractUUID = 1502043;
+        else if(contractID == 861)//vaultkeeper
+            this.contractUUID = 1502044;
+        this.contract = DbManager.ContractQueries.GET_CONTRACT(contractID);
 
         if (this.equipmentSetID == 0 && this.contract != null)
             this.equipmentSetID = this.contract.equipmentSet;
