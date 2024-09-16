@@ -66,7 +66,7 @@ public class ArcLoginNotifyMsgHandler extends AbstractClientMsgHandler {
         // Send Guild, Nation and IC MOTD
         GuildManager.enterWorldMOTD(player);
         ChatManager.sendSystemMessage(player, ConfigManager.MB_WORLD_GREETING.getValue());
-
+        ChatManager.sendSystemMessage(player, "This is why we test!");
         // Send branch string if available from ConfigManager.
 
         if (ConfigManager.currentRepoBranch != "")
