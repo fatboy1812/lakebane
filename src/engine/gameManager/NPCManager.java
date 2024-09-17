@@ -376,10 +376,11 @@ public enum NPCManager {
 
         // Rotate NPC rotation by the building's rotation
 
-        Quaternion slotRotation = new Quaternion().fromAngles(0, acos(abstractCharacter.getRot().y) * 2, 0);
-        slotRotation = slotRotation.mult(abstractCharacter.building.getBounds().getQuaternion());
-        abstractCharacter.setRot(new Vector3f(0, slotRotation.y, 0));
-
+        if(abstractCharacter.building != null) {
+            Quaternion slotRotation = new Quaternion().fromAngles(0, acos(abstractCharacter.getRot().y) * 2, 0);
+            slotRotation = slotRotation.mult(abstractCharacter.building.getBounds().getQuaternion());
+            abstractCharacter.setRot(new Vector3f(0, slotRotation.y, 0));
+        }
         // Configure region and floor/level for this NPC
 
         abstractCharacter.region = BuildingManager.GetRegion(abstractCharacter.building, abstractCharacter.bindLoc.x, abstractCharacter.bindLoc.y, abstractCharacter.bindLoc.z);
