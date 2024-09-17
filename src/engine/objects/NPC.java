@@ -832,6 +832,19 @@ public class NPC extends AbstractCharacter {
         if (ConfigManager.serverType.equals(ServerType.LOGINSERVER))
             return;
 
+        // Configure parent zone adding this NPC to the
+        // zone collection
+
+        this.parentZone = ZoneManager.getZoneByUUID(this.parentZoneUUID);
+        this.parentZone.zoneNPCSet.remove(this);
+        this.parentZone.zoneNPCSet.add(this);
+
+        // Setup location for this NPC
+
+        this.bindLoc = new Vector3fImmutable(this.statLat, this.statAlt, this.statLon);
+        this.bindLoc = this.parentZone.getLoc().add(this.bindLoc);
+        this.loc = new Vector3fImmutable(bindLoc);
+
         int contractID = this.contractUUID;
         if(this.isInSafeZone() && contractID == 866) // banker
             this.contractUUID = 1205042;
@@ -878,19 +891,6 @@ public class NPC extends AbstractCharacter {
         // Initialize inventory
 
         this.charItemManager = new CharacterItemManager(this);
-
-        // Configure parent zone adding this NPC to the
-        // zone collection
-
-        this.parentZone = ZoneManager.getZoneByUUID(this.parentZoneUUID);
-        this.parentZone.zoneNPCSet.remove(this);
-        this.parentZone.zoneNPCSet.add(this);
-
-        // Setup location for this NPC
-
-        this.bindLoc = new Vector3fImmutable(this.statLat, this.statAlt, this.statLon);
-        this.bindLoc = this.parentZone.getLoc().add(this.bindLoc);
-        this.loc = new Vector3fImmutable(bindLoc);
 
         // Handle NPCs within buildings
 
