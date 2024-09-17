@@ -821,10 +821,36 @@ public class Item extends AbstractWorldObject {
         ArrayList<String> keys =new ArrayList<>();
 
         for(String eff : this.effects.keySet()){
-            for(AbstractEffectModifier mod : this.effects.get(eff).getEffectsBase().getModifiers()){
-                if(mod.modType.equals(ModType.WeaponProc)){
-                    keys.add(eff);
-                }
+            if (eff.toUpperCase().contains("ASS-016")) {
+                keys.add(eff);
+            } else if (eff.toUpperCase().contains("BKM-001")) {
+                keys.add(eff);
+            } else if (eff.toUpperCase().contains("CRU-030")) {
+                keys.add(eff);
+            } else if (eff.toUpperCase().contains("PROC-TEST")) {
+                keys.add(eff);
+            } else if (eff.toUpperCase().contains("FGM-002")) {
+                keys.add(eff);
+            } else if (eff.toUpperCase().contains("HONE-TEST")) {
+                keys.add(eff);
+            } else if (eff.toUpperCase().contains("HONE-TEST2")) {
+                keys.add(eff);
+            } else if (eff.toUpperCase().contains("GKL-003")) {
+                keys.add(eff);
+            } else if (eff.toUpperCase().contains("NSR-004")) {
+                keys.add(eff);
+            } else if (eff.toUpperCase().contains("RAT-002")) {
+                keys.add(eff);
+            } else if (eff.toUpperCase().contains("UND-004")) {
+                keys.add(eff);
+            } else if (eff.toUpperCase().contains("WRM-003")) {
+                keys.add(eff);
+            } else if (eff.toUpperCase().contains("ENC-001")) {
+                keys.add(eff);
+            } else if (eff.toUpperCase().contains("FGM-001")) {
+                keys.add(eff);
+            } else if (eff.toUpperCase().contains("FGM-003")) {
+                keys.add(eff);
             }
         }
 
