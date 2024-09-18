@@ -841,11 +841,8 @@ public class NPC extends AbstractCharacter {
             }
         }
 
-        if(this.isInSafeZone()){
-            this.mobBase = MobBase.getMobBase(1996);
-        }else {
-            this.mobBase = MobBase.getMobBase(this.loadID);
-        }
+        this.mobBase = MobBase.getMobBase(this.loadID);
+
         this.building = BuildingManager.getBuilding(this.buildingUUID);
 
         if (this.building != null)
