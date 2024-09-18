@@ -817,7 +817,8 @@ public class Item extends AbstractWorldObject {
         return ownerID;
     }
 
-    public void stripCastableEnchants(){
+    public void
+    stripCastableEnchants(){
         ArrayList<String> keys =new ArrayList<>();
 
         for(String eff : this.effects.keySet()){
@@ -1081,8 +1082,8 @@ public class Item extends AbstractWorldObject {
         this.zeroItem();
         this.ownerID = pc.getObjectUUID();
         this.ownerType = OwnerType.PlayerCharacter;
-        this.containerType = ItemContainerType.INVENTORY;
         this.stripCastableEnchants();
+        this.containerType = ItemContainerType.INVENTORY;
         return true;
     }
 
