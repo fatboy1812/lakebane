@@ -821,11 +821,8 @@ public class Item extends AbstractWorldObject {
         ArrayList<String> keys =new ArrayList<>();
 
         for(String eff : this.effects.keySet()){
-            for(AbstractEffectModifier mod : this.effects.get(eff).getEffectsBase().getModifiers()){
-                if(mod.modType.equals(ModType.WeaponProc)){
-                    keys.add(eff);
-                }
-            }
+            if(this.effects.get(eff).getPower().description.contains("Temporary"))
+                keys.add(eff);
         }
 
         for(String eff : keys){
