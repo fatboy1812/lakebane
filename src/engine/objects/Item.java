@@ -821,7 +821,35 @@ public class Item extends AbstractWorldObject {
         ArrayList<String> keys =new ArrayList<>();
 
         for(String eff : this.effects.keySet()){
-            if(this.effects.get(eff).getPower().description.equalsIgnoreCase("Temporary Weapon Enchantment") || this.effects.get(eff).getPower().description.equalsIgnoreCase("Temporary Jewelry Enchantment") || this.effects.get(eff).getPower().description.equalsIgnoreCase("Temporary Item Enchantment") || this.effects.get(eff).getPower().description.equalsIgnoreCase("Temporary Armor Enchantment")){
+            if (eff.toUpperCase().contains("ASS-016")) {
+                keys.add(eff);
+            } else if (eff.toUpperCase().contains("BKM-001")) {
+                keys.add(eff);
+            } else if (eff.toUpperCase().contains("CRU-030")) {
+                keys.add(eff);
+            } else if (eff.toUpperCase().contains("PROC-TEST")) {
+                keys.add(eff);
+            } else if (eff.toUpperCase().contains("FGM-002")) {
+                keys.add(eff);
+            } else if (eff.toUpperCase().contains("HONE-TEST")) {
+                keys.add(eff);
+            } else if (eff.toUpperCase().contains("HONE-TEST2")) {
+                keys.add(eff);
+            } else if (eff.toUpperCase().contains("GKL-003")) {
+                keys.add(eff);
+            } else if (eff.toUpperCase().contains("NSR-004")) {
+                keys.add(eff);
+            } else if (eff.toUpperCase().contains("RAT-002")) {
+                keys.add(eff);
+            } else if (eff.toUpperCase().contains("UND-004")) {
+                keys.add(eff);
+            } else if (eff.toUpperCase().contains("WRM-003")) {
+                keys.add(eff);
+            } else if (eff.toUpperCase().contains("ENC-001")) {
+                keys.add(eff);
+            } else if (eff.toUpperCase().contains("FGM-001")) {
+                keys.add(eff);
+            } else if (eff.toUpperCase().contains("FGM-003")) {
                 keys.add(eff);
             }
         }
