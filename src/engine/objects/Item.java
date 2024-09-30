@@ -829,6 +829,7 @@ public class Item extends AbstractWorldObject {
 
         for(String eff : keys){
             try {
+                this.effects.get(eff).endEffect();
                 this.endEffect(eff);
                 this.effects.remove(eff);
             }catch(Exception e){
@@ -1083,7 +1084,6 @@ public class Item extends AbstractWorldObject {
         this.zeroItem();
         this.ownerID = pc.getObjectUUID();
         this.ownerType = OwnerType.PlayerCharacter;
-        this.stripCastableEnchants();
         this.containerType = ItemContainerType.INVENTORY;
         return true;
     }
@@ -1105,7 +1105,6 @@ public class Item extends AbstractWorldObject {
         this.ownerID = npc.getObjectUUID();
         this.ownerType = OwnerType.Npc;
         this.containerType = Enum.ItemContainerType.INVENTORY;
-        this.stripCastableEnchants();
         return true;
     }
 
@@ -1123,7 +1122,6 @@ public class Item extends AbstractWorldObject {
         this.ownerID = 0;
         this.ownerType = null;
         this.containerType = Enum.ItemContainerType.INVENTORY;
-        this.stripCastableEnchants();
         return true;
     }
 
