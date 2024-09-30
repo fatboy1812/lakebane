@@ -819,16 +819,17 @@ public class Item extends AbstractWorldObject {
 
     public void
     stripCastableEnchants(){
-        ArrayList<String> keys =new ArrayList<>();
+        ArrayList<String> keys = new ArrayList<>();
 
         for(String eff : this.effects.keySet()){
-            if(this.effects.get(eff).getPower().description.contains("Temporary"))
+            Effect effect = this.effects.get(eff);
+            if(!effect.getJobContainer().noTimer())
                 keys.add(eff);
         }
 
         for(String eff : keys){
             try {
-                this.effects.get(eff).endEffect();
+                this.endEffect(eff);
                 this.effects.remove(eff);
             }catch(Exception e){
 
@@ -837,7 +838,7 @@ public class Item extends AbstractWorldObject {
     }
     //Only to be used for trading
     public void setOwnerID(int ownerID) {
-        this.stripCastableEnchants();
+        //this.stripCastableEnchants();
         this.ownerID = ownerID;
     }
 
@@ -861,7 +862,7 @@ public class Item extends AbstractWorldObject {
     public boolean setOwner(AbstractGameObject owner) {
         if (owner == null)
             return false;
-        this.stripCastableEnchants();
+        //this.stripCastableEnchants();
         if (owner.getObjectType().equals(GameObjectType.NPC))
             this.ownerType = OwnerType.Npc;
         else if (owner.getObjectType().equals(GameObjectType.PlayerCharacter))
@@ -1082,7 +1083,7 @@ public class Item extends AbstractWorldObject {
         this.zeroItem();
         this.ownerID = pc.getObjectUUID();
         this.ownerType = OwnerType.PlayerCharacter;
-        this.stripCastableEnchants();
+        //this.stripCastableEnchants();
         this.containerType = ItemContainerType.INVENTORY;
         return true;
     }
@@ -1104,7 +1105,7 @@ public class Item extends AbstractWorldObject {
         this.ownerID = npc.getObjectUUID();
         this.ownerType = OwnerType.Npc;
         this.containerType = Enum.ItemContainerType.INVENTORY;
-        this.stripCastableEnchants();
+        //this.stripCastableEnchants();
         return true;
     }
 
@@ -1122,7 +1123,7 @@ public class Item extends AbstractWorldObject {
         this.ownerID = 0;
         this.ownerType = null;
         this.containerType = Enum.ItemContainerType.INVENTORY;
-        this.stripCastableEnchants();
+        //this.stripCastableEnchants();
         return true;
     }
 

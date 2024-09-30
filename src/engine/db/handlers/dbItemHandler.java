@@ -314,6 +314,7 @@ public class dbItemHandler extends dbHandlerBase {
     public boolean UPDATE_OWNER(final Item item, int newOwnerID, boolean ownerNPC, boolean ownerPlayer,
                                 boolean ownerAccount, ItemContainerType containerType, int slot) {
 
+        item.stripCastableEnchants();
         boolean worked = false;
 
         try (Connection connection = DbManager.getConnection();
