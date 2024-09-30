@@ -817,8 +817,7 @@ public class Item extends AbstractWorldObject {
         return ownerID;
     }
 
-    public void
-    stripCastableEnchants(){
+    public boolean stripCastableEnchants(){
         ArrayList<String> keys = new ArrayList<>();
 
         for(String eff : this.effects.keySet()){
@@ -827,19 +826,22 @@ public class Item extends AbstractWorldObject {
                 keys.add(eff);
         }
 
-        for(String eff : keys){
-            try {
-                this.effects.get(eff).endEffect();
-                this.endEffect(eff);
-                this.effects.remove(eff);
-            }catch(Exception e){
+        if(keys.size()> 0) {
+            for (String eff : keys) {
+                try {
+                    //this.effects.get(eff).getJobContainer().cancelJob();
+                    this.effects.get(eff).cancel();
+                    this.effects.remove(eff);
+                } catch (Exception e) {
 
+                }
             }
+            return true;
         }
+        return false;
     }
     //Only to be used for trading
     public void setOwnerID(int ownerID) {
-        this.stripCastableEnchants();
         this.ownerID = ownerID;
     }
 
@@ -863,7 +865,6 @@ public class Item extends AbstractWorldObject {
     public boolean setOwner(AbstractGameObject owner) {
         if (owner == null)
             return false;
-        this.stripCastableEnchants();
         if (owner.getObjectType().equals(GameObjectType.NPC))
             this.ownerType = OwnerType.Npc;
         else if (owner.getObjectType().equals(GameObjectType.PlayerCharacter))
