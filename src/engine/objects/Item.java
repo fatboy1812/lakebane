@@ -838,7 +838,7 @@ public class Item extends AbstractWorldObject {
     }
     //Only to be used for trading
     public void setOwnerID(int ownerID) {
-        //this.stripCastableEnchants();
+        this.stripCastableEnchants();
         this.ownerID = ownerID;
     }
 
@@ -862,7 +862,7 @@ public class Item extends AbstractWorldObject {
     public boolean setOwner(AbstractGameObject owner) {
         if (owner == null)
             return false;
-        //this.stripCastableEnchants();
+        this.stripCastableEnchants();
         if (owner.getObjectType().equals(GameObjectType.NPC))
             this.ownerType = OwnerType.Npc;
         else if (owner.getObjectType().equals(GameObjectType.PlayerCharacter))
@@ -1083,7 +1083,7 @@ public class Item extends AbstractWorldObject {
         this.zeroItem();
         this.ownerID = pc.getObjectUUID();
         this.ownerType = OwnerType.PlayerCharacter;
-        //this.stripCastableEnchants();
+        this.stripCastableEnchants();
         this.containerType = ItemContainerType.INVENTORY;
         return true;
     }
@@ -1105,7 +1105,7 @@ public class Item extends AbstractWorldObject {
         this.ownerID = npc.getObjectUUID();
         this.ownerType = OwnerType.Npc;
         this.containerType = Enum.ItemContainerType.INVENTORY;
-        //this.stripCastableEnchants();
+        this.stripCastableEnchants();
         return true;
     }
 
@@ -1123,7 +1123,7 @@ public class Item extends AbstractWorldObject {
         this.ownerID = 0;
         this.ownerType = null;
         this.containerType = Enum.ItemContainerType.INVENTORY;
-        //this.stripCastableEnchants();
+        this.stripCastableEnchants();
         return true;
     }
 

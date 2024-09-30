@@ -610,7 +610,7 @@ public class CharacterItemManager {
         if (i == null)
             return false;
 
-        //i.stripCastableEnchants();
+        i.stripCastableEnchants();
 
         if (!this.doesCharOwnThisItem(i.getObjectUUID()))
             return false;
@@ -1056,7 +1056,7 @@ public class CharacterItemManager {
         // add to Bank
         this.bank.add(i);
         i.addToCache();
-        //i.stripCastableEnchants();
+        i.stripCastableEnchants();
 
         calculateWeights();
 
@@ -1205,7 +1205,7 @@ public class CharacterItemManager {
 
         calculateWeights();
 
-        //i.stripCastableEnchants();
+        i.stripCastableEnchants();
         return true;
     }
 
@@ -2013,7 +2013,7 @@ public class CharacterItemManager {
                     if (item.getItemBase().getType().equals(ItemType.GOLD)) {
                         int amt = item.getNumOfItems();
                         item.setNumOfItems(0);
-                        //item.stripCastableEnchants();
+                        item.stripCastableEnchants();
                         MobLoot ml = new MobLoot(this.absCharacter, amt);
                         ml.zeroItem();
                         ml.containerType = Enum.ItemContainerType.INVENTORY;
