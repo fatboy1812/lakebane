@@ -818,6 +818,7 @@ public class Item extends AbstractWorldObject {
     }
 
     public boolean stripCastableEnchants(){
+        //return true to refresh items in inventory to strip castables' mouse over data
         ArrayList<String> keys = new ArrayList<>();
 
         for(String eff : this.effects.keySet()){
@@ -826,7 +827,7 @@ public class Item extends AbstractWorldObject {
                 keys.add(eff);
         }
 
-        if(keys.size()> 0) {
+        if(keys.size() > 0) {
             for (String eff : keys) {
                 try {
                     //this.effects.get(eff).getJobContainer().cancelJob();
