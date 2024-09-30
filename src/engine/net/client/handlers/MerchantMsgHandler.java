@@ -190,30 +190,7 @@ public class MerchantMsgHandler extends AbstractClientMsgHandler {
             return;
         }
 
-        int trains = 0;
-        switch(npc.getRank()){
-            case 1:
-                trains = 10;
-                break;
-            case 2:
-                trains = 15;
-                break;
-            case 3:
-                trains = 20;
-                break;
-            case 4:
-                trains = 25;
-                break;
-            case 5:
-                trains = 30;
-                break;
-            case 6:
-                trains = 35;
-                break;
-            case 7:
-                trains = 40;
-                break;
-        }
+        int trains = (npc.getRank() - 1) * 5 + 10;
 
         PowersManager.applyPower(player, player, player.getLoc(), shrinePower.getToken(), trains, false);
         ChatManager.chatGuildInfo(player.getGuild(), player.getName() + " has recieved a boon costing " + 1 + " point of favor.");
