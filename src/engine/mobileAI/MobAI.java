@@ -653,12 +653,12 @@ public class MobAI {
                 return;
             }
 
-            if(mob.isPet() == false && mob.isPlayerGuard == false)
+            if(!mob.isPet() && !mob.isPlayerGuard && !mob.isSiege())
                 CheckToSendMobHome(mob);
 
             if (mob.getCombatTarget() != null) {
 
-                if (mob.getCombatTarget().isAlive() == false) {
+                if (!mob.getCombatTarget().isAlive()) {
                     mob.setCombatTarget(null);
                     return;
                 }
@@ -667,12 +667,12 @@ public class MobAI {
 
                     PlayerCharacter target = (PlayerCharacter) mob.getCombatTarget();
 
-                    if (mob.playerAgroMap.containsKey(target.getObjectUUID()) == false) {
+                    if (!mob.playerAgroMap.containsKey(target.getObjectUUID())) {
                         mob.setCombatTarget(null);
                         return;
                     }
 
-                    if (mob.canSee((PlayerCharacter) mob.getCombatTarget()) == false) {
+                    if (!mob.canSee((PlayerCharacter) mob.getCombatTarget())) {
                         mob.setCombatTarget(null);
                         return;
                     }

@@ -77,6 +77,9 @@ public enum MaintenanceManager {
             if (building.getProtectionState() == Enum.ProtectionState.NPC)
                 continue;
 
+            if(building.isOwnerIsNPC())
+                continue;
+
             // No maintenance on constructing meshes
 
             if (building.getRank() < 1)
