@@ -186,6 +186,8 @@ public enum DevCmdManager {
             case "printskills":
             case "printpowers":
             case "gimme":
+            case "goto":
+            case"teleportmode":
                 playerAllowed = true;
                 if(!a.status.equals(Enum.AccountStatus.ADMIN))
                     target = pcSender;
