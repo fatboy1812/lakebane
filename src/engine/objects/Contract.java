@@ -212,6 +212,10 @@ public class Contract extends AbstractGameObject {
         if(bane == null){
             return VendorDialog.getHostileVendorDialog();
         }
+        if(bane.timeSet && bane.capSet && bane.daySet){
+            vd.getOptions().clear();
+            return vd;
+        }
         DateTime placement = bane.getPlacementDate();
         switch(optionId){
             default:
@@ -345,12 +349,12 @@ public class Contract extends AbstractGameObject {
                 break;
         }
         if (updateBaneDay > 0) {
-            if(DbManager.BaneQueries.SET_BANE_DAY_NEW(updateBaneDay,bane.getCityUUID(), bane.getPlacementDate())){
+            if(DbManager.BaneQueries.SET_BANE_DAY_NEW(updateBaneDay,bane.getCityUUID())){
                 bane.daySet = true;
             }
         }
         if (updateBaneTime > 0) {
-            if(DbManager.BaneQueries.SET_BANE_TIME_NEW(updateBaneDay,bane.getCityUUID(), bane.getPlacementDate())){
+            if(DbManager.BaneQueries.SET_BANE_TIME_NEW(updateBaneDay,bane.getCityUUID())){
                 bane.timeSet = true;
             }
         }
