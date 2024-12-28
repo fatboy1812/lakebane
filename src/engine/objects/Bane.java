@@ -101,6 +101,8 @@ public final class Bane {
                 JobScheduler.getInstance().scheduleJob(abtj, this.liveDate.getMillis());
                 this.activateBaneJob = abtj;
 
+                //add bane commander NPC
+                summonBaneCommander(this);
                 break;
         }
 
@@ -266,11 +268,17 @@ public final class Bane {
         BaneRecord baneRecord = BaneRecord.borrow(bane, Enum.RecordEventType.PENDING);
         DataWarehouse.pushToWarehouse(baneRecord);
 
-
         //add bane commander NPC
-        int contractID = 1502042;
-        NPC.createNPC("Bane Commander",contractID,Vector3fImmutable.getRandomPointOnCircle(stone.loc,15),targetCity.getGuild(),cityZone,(short)70,stone);
+        summonBaneCommander(bane);
         return true;
+    }
+
+    public static void summonBaneCommander(Bane bane){
+        if(bane.getStone().getHirelings().isEmpty()) {
+            //add bane commander NPC
+            int contractID = 1502042;
+            NPC.createNPC("Bane Commander", contractID, Vector3fImmutable.getRandomPointOnCircle(bane.getStone().loc, 15), bane.getCity().getGuild(), ZoneManager.findSmallestZone(bane.getStone().loc), (short) 70, bane.getStone());
+        }
     }
 
     public static Bane getBane(int cityUUID) {
