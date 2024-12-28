@@ -54,6 +54,7 @@ public class SimulateBootyCmd extends AbstractDevCmd {
         ArrayList<Item> Resources = new ArrayList<Item>();
         ArrayList<Item> Runes = new ArrayList<Item>();
         ArrayList<Item> Contracts = new ArrayList<Item>();
+        ArrayList<Item> GuardContracts = new ArrayList<Item>();
         ArrayList<Item> Offerings = new ArrayList<Item>();
         ArrayList<Item> OtherDrops = new ArrayList<Item>();
         ArrayList<Item> EquipmentDrops = new ArrayList<Item>();
@@ -68,7 +69,10 @@ public class SimulateBootyCmd extends AbstractDevCmd {
                 for (Item lootItem : mob.getCharItemManager().getInventory()) {
                     switch (lootItem.getItemBase().getType()) {
                         case CONTRACT: //CONTRACT
-                            Contracts.add(lootItem);
+                            if(lootItem.getName().contains("Captain"))
+                                GuardContracts.add(lootItem);
+                            else
+                                Contracts.add(lootItem);
                             break;
                         case OFFERING: //OFFERING
                             Offerings.add(lootItem);
@@ -140,9 +144,15 @@ public class SimulateBootyCmd extends AbstractDevCmd {
             }
         }
 
+        int baseBound = 100000;
+        int levelPenalty = (int) ((mob.level > 50 ? (mob.level - 50) : (50 - mob.level)) * 0.01 * baseBound);
+        // Total range with penalty applied
+        int totalRange = baseBound + levelPenalty;
+        output += "TOTAL ROLL POTENTIAL: " + totalRange + newline;
         output += "GLASS DROPS: " + GlassItems.size() + newline;
         output += "RUNE DROPS: " + Runes.size() + newline;
         output += "CONTRACTS DROPS: " + Contracts.size() + newline;
+        output += "GUARD CONTRACTS DROPS: " + GuardContracts.size() + newline;
         output += "RESOURCE DROPS: " + Resources.size() + newline;
         output += "OFFERINGS DROPPED: " + Offerings.size() + newline;
         output += "ENCHANTED ITEMS DROPPED: " + OtherDrops.size() + newline;
