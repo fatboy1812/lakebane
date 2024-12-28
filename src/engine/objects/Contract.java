@@ -11,7 +11,9 @@ package engine.objects;
 
 import ch.claude_martin.enumbitset.EnumBitSet;
 import engine.Enum;
+import engine.gameManager.BuildingManager;
 import engine.gameManager.DbManager;
+import engine.gameManager.ZoneManager;
 import org.pmw.tinylog.Logger;
 
 import java.sql.ResultSet;
@@ -190,18 +192,41 @@ public class Contract extends AbstractGameObject {
         return this.vendorDialog;
     }
 
-    public static VendorDialog HandleBaneCommanderOptions(int optionId){
-        if(optionId == 0) {
-            VendorDialog vd = VendorDialog.getHostileVendorDialog();
-            vd.getOptions().clear();
-            MenuOption option1 = new MenuOption(796, "Set Bane Day", 796);
-            vd.getOptions().add(option1);
-            MenuOption option2 = new MenuOption(797, "Set Bane Time", 797);
-            vd.getOptions().add(option2);
-            return vd;
+    public static VendorDialog HandleBaneCommanderOptions(int optionId, NPC npc){
+        VendorDialog vd;
+        Building building = npc.building;
+        Bane bane = null;
+        if(building != null)
+        {
+            City city = ZoneManager.getCityAtLocation(npc.loc);
+            if(city != null){
+                bane = city.getBane();
+            }
         }
-
-        return VendorDialog.getHostileVendorDialog();
+        if(bane == null){
+            return VendorDialog.getHostileVendorDialog();
+        }
+        switch(optionId){
+            default:
+                vd = VendorDialog.getHostileVendorDialog();
+                vd.getOptions().clear();
+                MenuOption option1 = new MenuOption(796, "Set Bane Day", 796);
+                vd.getOptions().add(option1);
+                MenuOption option2 = new MenuOption(797, "Set Bane Time", 797);
+                vd.getOptions().add(option2);
+                break;
+            case 796: // set bane day
+                vd = VendorDialog.getHostileVendorDialog();
+                vd.getOptions().clear();
+                MenuOption dayOption1 = new MenuOption(7961, "Set Bane Day", 796);
+                vd.getOptions().add(dayOption1);
+                break;
+            case 797: // set bane time
+                vd = VendorDialog.getHostileVendorDialog();
+                vd.getOptions().clear();
+                break;
+        }
+        return vd;
     }
 
     public ArrayList<Integer> getNPCMenuOptions() {

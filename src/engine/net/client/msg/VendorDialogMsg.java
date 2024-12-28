@@ -121,7 +121,8 @@ public class VendorDialogMsg extends ClientNetMsg {
         Contract contract = npc.getContract();
 
         if(contract.getContractID() == 1502042){
-           vd = Contract.HandleBaneCommanderOptions(msg.unknown03);
+           vd = Contract.HandleBaneCommanderOptions(msg.unknown03, npc);
+           msg.updateMessage(3, vd);
         }else {
 
             if (contract == null)
@@ -135,13 +136,12 @@ public class VendorDialogMsg extends ClientNetMsg {
                 vd = contract.getVendorDialog();
             if (vd == null)
                 vd = VendorDialog.getHostileVendorDialog();
-        }
         if (msg.messageType == 1 || msg.unknown03 == vd.getObjectUUID()) {
             msg.updateMessage(3, vd);
         } else {
             if (VendorDialogMsg.handleSpecialCase(msg, npc, playerCharacter, vd, origin))
                 return;
-
+        }
             vd = VendorDialog.getVendorDialog(msg.unknown03);
             msg.updateMessage(3, vd);
         }
