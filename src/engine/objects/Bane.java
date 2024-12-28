@@ -271,7 +271,7 @@ public final class Bane {
     }
 
     public static void summonBaneCommander(Bane bane){
-        Vector3fImmutable spawnLoc = Vector3fImmutable.getRandomPointOnCircle(bane.getStone().loc,15);
+        Vector3fImmutable spawnLoc = Vector3fImmutable.getRandomPointOnCircle(bane.getStone().loc,6);
         NPC baneCommander;
         int commanderuuid = DbManager.NPCQueries.BANE_COMMANDER_EXISTS(bane.getStone().getObjectUUID());
 
