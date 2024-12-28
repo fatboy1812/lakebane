@@ -86,6 +86,7 @@ public class dbBaneHandler extends dbHandlerBase {
     }
 
     public boolean SET_BANE_TIME_NEW(int hour, int cityUUID) {
+        hour += 12;
         try (Connection connection = DbManager.getConnection();
              PreparedStatement getStatement = connection.prepareStatement("SELECT `placementDate`, `liveDate` FROM `dyn_banes` WHERE `cityUUID`=?");
              PreparedStatement updateStatement = connection.prepareStatement("UPDATE `dyn_banes` SET `liveDate`=?, `time_set`=? WHERE `cityUUID`=?")) {

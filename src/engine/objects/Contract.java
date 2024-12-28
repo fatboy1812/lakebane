@@ -354,7 +354,7 @@ public class Contract extends AbstractGameObject {
             }
         }
         if (updateBaneTime > 0) {
-            if(DbManager.BaneQueries.SET_BANE_TIME_NEW(updateBaneDay,bane.getCityUUID())){
+            if(DbManager.BaneQueries.SET_BANE_TIME_NEW(updateBaneTime,bane.getCityUUID())){
                 bane.timeSet = true;
             }
         }
