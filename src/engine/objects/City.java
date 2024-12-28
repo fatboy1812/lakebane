@@ -234,7 +234,20 @@ public class City extends AbstractWorldObject {
         writer.putInt(rulingGuild.getObjectUUID());
 
         writer.putString(rulingGuild.getName());
-        writer.putString(city.motto);
+        if(city.getBane() != null) {
+            Bane bane = city.getBane();
+            if(bane.daySet && bane.timeSet){
+                int day = bane.getLiveDate().dayOfMonth().get();
+                int month = bane.getLiveDate().getMonthOfYear();
+                int year = bane.getLiveDate().year().get();
+                int hour = bane.getLiveDate().getHourOfDay();
+                writer.putString("BANE SET: " + month + "/" + day + "/" + year + "   " + hour + ":00 pm CST");
+            }else {
+                writer.putString("BANED!: Unset");
+            }
+        }else{
+            writer.putString(city.motto);
+        }
         writer.putString(rulingGuild.getLeadershipType());
 
         // Serialize guild ruler's name
@@ -320,8 +333,11 @@ public class City extends AbstractWorldObject {
         writer.putFloat(city.location.y);
         writer.putFloat(city.location.z);
 
-        writer.putInt(city.siegesWithstood);
-
+        if(city.getBane() != null) {
+            writer.putInt(city.getBane().capSize);
+        }else{
+            writer.putInt(0);
+        }
         writer.put((byte) 1);
         writer.put((byte) 0);
         writer.putInt(0x64);
