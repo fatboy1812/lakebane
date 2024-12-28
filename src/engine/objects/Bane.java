@@ -505,6 +505,9 @@ public final class Bane {
         return liveDate;
     }
 
+    public void setLiveDate_NEW(DateTime baneTime) {
+
+    }
     public void setLiveDate(DateTime baneTime) {
 
         if (DbManager.BaneQueries.SET_BANE_TIME(baneTime, this.getCity().getObjectUUID())) {

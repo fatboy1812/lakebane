@@ -351,11 +351,21 @@ public class Contract extends AbstractGameObject {
         if (updateBaneDay > 0) {
             if(DbManager.BaneQueries.SET_BANE_DAY_NEW(updateBaneDay,bane.getCityUUID())){
                 bane.daySet = true;
+                if(bane.getLiveDate() == null) {
+                    bane.setLiveDate_NEW(bane.getPlacementDate().plusDays(updateBaneDay));
+                }else{
+                    bane.setLiveDate_NEW(bane.getLiveDate().plusDays(updateBaneDay));
+                }
             }
         }
         if (updateBaneTime > 0) {
             if(DbManager.BaneQueries.SET_BANE_TIME_NEW(updateBaneTime,bane.getCityUUID())){
                 bane.timeSet = true;
+                if(bane.getLiveDate() == null) {
+                    bane.setLiveDate_NEW(bane.getPlacementDate().withHourOfDay(12 + updateBaneTime));
+                }else{
+                    bane.setLiveDate_NEW(bane.getLiveDate().withHourOfDay(12 + updateBaneTime));
+                }
             }
         }
         if (updateBaneCap > 0) {

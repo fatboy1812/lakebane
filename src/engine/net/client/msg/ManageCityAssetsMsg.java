@@ -392,9 +392,9 @@ public class ManageCityAssetsMsg extends ClientNetMsg {
             writer.putInt(bane.getSiegePhase().ordinal()); //1 challenge //2 standoff //3 war
             writer.put((byte) 0);
 
-            if (!bane.isAccepted() && this.assetManager.getGuild() == banedCity.getGuild() && GuildStatusController.isInnerCouncil(this.assetManager.getGuildStatus()))
-                writer.put((byte) 1); //canSetTime
-            else
+            //if (!bane.isAccepted() && this.assetManager.getGuild() == banedCity.getGuild() && GuildStatusController.isInnerCouncil(this.assetManager.getGuildStatus()))
+            //    writer.put((byte) 1); //canSetTime
+            //else
                 writer.put((byte) 0);
 
             DateTime placedOn = bane.getLiveDate();
