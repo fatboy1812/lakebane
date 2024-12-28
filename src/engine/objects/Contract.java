@@ -187,6 +187,16 @@ public class Contract extends AbstractGameObject {
     }
 
     public VendorDialog getVendorDialog() {
+        if(this.contractID == 1502042) {
+            VendorDialog vd = VendorDialog.getHostileVendorDialog();
+            vd.getOptions().clear();
+            MenuOption option1 = new MenuOption(796,"Set Bane Day",796);
+            vd.getOptions().add(option1);
+            return vd;
+        }
+
+
+
         return this.vendorDialog;
     }
 
