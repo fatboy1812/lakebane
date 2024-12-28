@@ -176,7 +176,7 @@ public class MobAI {
             if (playercity != null)
                 for (Mob guard : playercity.getParent().zoneMobSet)
                     if (guard.BehaviourType != null && guard.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardCaptain.ordinal())
-                        if (guard.getCombatTarget() == null && !guard.getGuild().equals(mob.getGuild()))
+                        if (guard.getCombatTarget() == null && guard.getGuild() != null && mob.getGuild() != null && !guard.getGuild().equals(mob.getGuild()))
                             guard.setCombatTarget(mob);
 
             if (mob.isSiege())
