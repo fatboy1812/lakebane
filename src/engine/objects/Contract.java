@@ -14,6 +14,8 @@ import engine.Enum;
 import engine.gameManager.BuildingManager;
 import engine.gameManager.DbManager;
 import engine.gameManager.ZoneManager;
+import engine.net.client.msg.ErrorPopupMsg;
+import org.joda.time.DateTime;
 import org.pmw.tinylog.Logger;
 
 import java.sql.ResultSet;
@@ -192,8 +194,9 @@ public class Contract extends AbstractGameObject {
         return this.vendorDialog;
     }
 
-    public static VendorDialog HandleBaneCommanderOptions(int optionId, NPC npc){
-        VendorDialog vd;
+    public static VendorDialog HandleBaneCommanderOptions(int optionId, NPC npc, PlayerCharacter pc){
+        VendorDialog vd = VendorDialog.getHostileVendorDialog();
+        vd.getOptions().clear();
         Building building = npc.building;
         Bane bane = null;
         if(building != null)
@@ -206,24 +209,115 @@ public class Contract extends AbstractGameObject {
         if(bane == null){
             return VendorDialog.getHostileVendorDialog();
         }
+        DateTime placement = bane.getPlacementDate();
         switch(optionId){
             default:
-                vd = VendorDialog.getHostileVendorDialog();
-                vd.getOptions().clear();
                 MenuOption option1 = new MenuOption(796, "Set Bane Day", 796);
                 vd.getOptions().add(option1);
                 MenuOption option2 = new MenuOption(797, "Set Bane Time", 797);
                 vd.getOptions().add(option2);
+                MenuOption option3 = new MenuOption(797, "Set Bane Cap", 798);
+                vd.getOptions().add(option3);
                 break;
             case 796: // set bane day
-                vd = VendorDialog.getHostileVendorDialog();
-                vd.getOptions().clear();
-                MenuOption dayOption1 = new MenuOption(7961, "Set Bane Day", 796);
+                DateTime dayOption1Date = placement.plusDays(3);
+                MenuOption dayOption1 = new MenuOption(7961, dayOption1Date.toString("yyyy-MM-dd"), 7961);
                 vd.getOptions().add(dayOption1);
+
+                DateTime dayOption2Date = placement.plusDays(4);
+                MenuOption dayOption2 = new MenuOption(7962, dayOption2Date.toString("yyyy-MM-dd"), 7962);
+                vd.getOptions().add(dayOption2);
+
+                DateTime dayOption3Date = placement.plusDays(5);
+                MenuOption dayOption3 = new MenuOption(7963, dayOption3Date.toString("yyyy-MM-dd"), 7963);
+                vd.getOptions().add(dayOption3);
+
+                DateTime dayOption4Date = placement.plusDays(6);
+                MenuOption dayOption4 = new MenuOption(7964, dayOption4Date.toString("yyyy-MM-dd"), 7964);
+                vd.getOptions().add(dayOption4);
+
+                DateTime dayOption5Date = placement.plusDays(7);
+                MenuOption dayOption5 = new MenuOption(7965, dayOption5Date.toString("yyyy-MM-dd"), 7965);
+                vd.getOptions().add(dayOption5);
                 break;
             case 797: // set bane time
-                vd = VendorDialog.getHostileVendorDialog();
-                vd.getOptions().clear();
+                MenuOption timeOption1 = new MenuOption(7971, "6:00 pm CST", 7971);
+                vd.getOptions().add(timeOption1);
+
+                MenuOption timeOption2 = new MenuOption(7972, "7:00 pm CST", 7972);
+                vd.getOptions().add(timeOption2);
+
+                MenuOption timeOption3 = new MenuOption(7973, "8:00 pm CST", 7973);
+                vd.getOptions().add(timeOption3);
+
+                MenuOption timeOption4 = new MenuOption(7974, "9:00 pm CST", 7974);
+                vd.getOptions().add(timeOption4);
+
+                MenuOption timeOption5 = new MenuOption(7975, "10:00 pm CST", 7975);
+                vd.getOptions().add(timeOption5);
+                break;
+            case 798: // set bane cap
+                MenuOption capOption1 = new MenuOption(7981, "10 Maximum Players", 7981);
+                vd.getOptions().add(capOption1);
+
+                MenuOption capOption2 = new MenuOption(7982, "20 Maximum Players", 7982);
+                vd.getOptions().add(capOption2);
+
+                MenuOption capOption3 = new MenuOption(7983, "30 Maximum Players", 7983);
+                vd.getOptions().add(capOption3);
+
+                MenuOption capOption4 = new MenuOption(7984, "40 Maximum Players", 7984);
+                vd.getOptions().add(capOption4);
+
+                MenuOption capOption5 = new MenuOption(7985, "Unlimited Players", 7985);
+                vd.getOptions().add(capOption5);
+
+                break;
+
+            case 7961: //3 days after placement
+                ErrorPopupMsg.sendErrorMsg(pc, "Bane Set 3 Days From Placement Date");
+                break;
+            case 7962: //4 days after placement
+                ErrorPopupMsg.sendErrorMsg(pc, "Bane Set 4 Days From Placement Date");
+                break;
+            case 7963: //5 days after placement
+                ErrorPopupMsg.sendErrorMsg(pc, "Bane Set 5 Days From Placement Date");
+                break;
+            case 7964: //6 days after placement
+                ErrorPopupMsg.sendErrorMsg(pc, "Bane Set 6 Days From Placement Date");
+                break;
+            case 7965: //7 days after placement
+                ErrorPopupMsg.sendErrorMsg(pc, "Bane Set 7 Days From Placement Date");
+                break;
+            case 7971: //6:00pm CST
+                ErrorPopupMsg.sendErrorMsg(pc, "Bane Set For 6:00 pm CST");
+                break;
+            case 7972: //7:00pm CST
+                ErrorPopupMsg.sendErrorMsg(pc, "Bane Set For 7:00 pm CST");
+                break;
+            case 7973: //8:00pm CST
+                ErrorPopupMsg.sendErrorMsg(pc, "Bane Set For 8:00 pm CST");
+                break;
+            case 7974: //9:00pm CST
+                ErrorPopupMsg.sendErrorMsg(pc, "Bane Set For 9:00 pm CST");
+                break;
+            case 7975: //10:00pm CST
+                ErrorPopupMsg.sendErrorMsg(pc, "Bane Set For 10:00 pm CST");
+                break;
+            case 7981: //cap = 10
+                ErrorPopupMsg.sendErrorMsg(pc, "Bane Cap Set To 10 Players On Each Side");
+                break;
+            case 7982: //cap = 20
+                ErrorPopupMsg.sendErrorMsg(pc, "Bane Cap Set To 20 Players On Each Side");
+                break;
+            case 7983: //cap = 30
+                ErrorPopupMsg.sendErrorMsg(pc, "Bane Cap Set To 30 Players On Each Side");
+                break;
+            case 7984: //cap = 40
+                ErrorPopupMsg.sendErrorMsg(pc, "Bane Cap Set To 40 Players On Each Side");
+                break;
+            case 7985: //cap = Unlimited
+                ErrorPopupMsg.sendErrorMsg(pc, "Bane Cap Set To Unlimited Players On Each Side");
                 break;
         }
         return vd;
