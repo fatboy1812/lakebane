@@ -281,8 +281,6 @@ public final class Bane {
             baneCommander = NPC.createNPC("Bane Commander", contractID, spawnLoc, bane.getCity().getGuild(), ZoneManager.findSmallestZone(bane.getStone().loc), (short) 70, bane.getStone());
             baneCommander.setLoc(spawnLoc);
             baneCommander.setGuild(bane.getCity().getGuild());
-            WorldGrid.addObject(baneCommander,spawnLoc.x, spawnLoc.z);
-            WorldGrid.updateObject(baneCommander);
         }
         else
         {
@@ -290,6 +288,8 @@ public final class Bane {
             baneCommander.setLoc(spawnLoc);
             baneCommander.setGuild(bane.getCity().getGuild());
         }
+        WorldGrid.addObject(baneCommander,spawnLoc.x, spawnLoc.z);
+        WorldGrid.updateObject(baneCommander);
         InterestManager.setObjectDirty(baneCommander);
     }
 
