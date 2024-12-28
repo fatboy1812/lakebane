@@ -923,6 +923,11 @@ public class MobAI {
     private static void CheckToSendMobHome(Mob mob) {
 
         try {
+
+            //trebs dont recall
+            if(mob.isSiege())
+                return;
+
             if(mob.BehaviourType.equals(Enum.MobBehaviourType.Pet1)){
                 if(mob.loc.distanceSquared(mob.getOwner().loc) > 60 * 60)
                     mob.teleport(mob.getOwner().loc);
