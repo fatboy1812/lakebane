@@ -241,7 +241,7 @@ public class City extends AbstractWorldObject {
                 int month = bane.getLiveDate().getMonthOfYear();
                 int year = bane.getLiveDate().year().get();
                 int hour = bane.getLiveDate().getHourOfDay();
-                writer.putString("BANE SET: " + month + "/" + day + "/" + year + "   " + hour + ":00 pm CST");
+                writer.putString("BANE SET: " + month + "/" + day + "/" + year + "   " + hour + ":00 CST");
             }else {
                 writer.putString("BANED!: Unset");
             }
