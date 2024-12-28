@@ -147,6 +147,9 @@ public class SimulateBootyCmd extends AbstractDevCmd {
         int baseBound = 100000;
         int levelPenalty = (int) (Math.max(0, Math.abs(50 - mob.level)) * 0.01 * 100000);
         int totalRange = baseBound + levelPenalty;
+        if(mob.level >= 50){
+            totalRange = baseBound;
+        }
         output += "TOTAL ROLL POTENTIAL: " + totalRange + newline;
         output += "GLASS DROPS: " + GlassItems.size() + newline;
         output += "RUNE DROPS: " + Runes.size() + newline;

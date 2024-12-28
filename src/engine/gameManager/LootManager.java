@@ -130,6 +130,9 @@ public enum LootManager {
             int baseBound = 100000;
             int levelPenalty = (int) (Math.max(0, Math.abs(50 - mob.level)) * 0.01 * 100000);
             int totalRange = baseBound + levelPenalty;
+            if(mob.level >= 50){
+                totalRange = baseBound;
+            }
 
             // Roll within the adjusted range
             int specialCaseRoll = ThreadLocalRandom.current().nextInt(1, totalRange + 1);
