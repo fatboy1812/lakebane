@@ -40,6 +40,7 @@ public enum LootManager {
     public static final ArrayList<Integer> vorg_ma_uuids = new ArrayList<>(Arrays.asList(27570,188900,188910,188920,188930,188940,188950,189500));
     public static final ArrayList<Integer> vorg_la_uuids = new ArrayList<>(Arrays.asList(27550,27560,189100,189110,189120,189130,189140,189150));
     public static final ArrayList<Integer> vorg_cloth_uuids = new ArrayList<>(Arrays.asList(27600,188700,188720,189550,189560));
+    public static final ArrayList<Integer> racial_guard_uuids = new ArrayList<>(Arrays.asList(841,951,952,1050,1052,1180,1182,1250,1252,1350,1352,1450,1452,1500,1502,1525,1527,1550,1552,1575,1577,1600,1602,1650,1652,1700,980100,980102));
 
     // Drop Rates
 
@@ -125,23 +126,39 @@ public enum LootManager {
         boolean hotzoneWasRan = false;
         float dropRate;
 
-        if(!mob.getSafeZone()) {
-            int specialCaseRoll = ThreadLocalRandom.current().nextInt(1, 100000);
-            //Special Case Contract Drop
-            if(specialCaseRoll < 100){
-                SpecialCaseResourceDrop(mob,entries);
-            } else if(specialCaseRoll > 100 && specialCaseRoll < 500){
-                SpecialCaseContractDrop(mob,entries);
-            }else if(specialCaseRoll > 500 && specialCaseRoll < 900){
-                SpecialCaseRuneDrop(mob,entries);
-            } else if(specialCaseRoll > 900 && specialCaseRoll < 910){
+        if (!mob.getSafeZone()) {
+            int baseBound = 100000;
+            int levelPenalty = (int) ((mob.level > 50 ? (mob.level - 50) : (50 - mob.level)) * 0.01 * baseBound);
+
+
+            // Total range with penalty applied
+            int totalRange = baseBound + levelPenalty;
+
+            // Roll within the adjusted range
+            int specialCaseRoll = ThreadLocalRandom.current().nextInt(1, totalRange + 1);
+
+            // Special Case Contract Drop
+            if (specialCaseRoll <= 400) { // 0.4% of the range
+                SpecialCaseResourceDrop(mob, entries);
+            } else if (specialCaseRoll <= 800) { // Next 0.4% of the range
+                SpecialCaseContractDrop(mob, entries);
+            } else if (specialCaseRoll <= 1200) { // Next 0.4% of the range
+                SpecialCaseRuneDrop(mob, entries);
+            } else if (specialCaseRoll <= 1210) { // Next 0.01% of the range
                 int glassID = rollRandomItem(126);
                 ItemBase glassItem = ItemBase.getItemBase(glassID);
                 if (glassItem != null) {
                     MobLoot toAddGlass = new MobLoot(mob, glassItem, false);
-
                     if (toAddGlass != null)
                         mob.getCharItemManager().addItemToInventory(toAddGlass);
+                }
+            } else if (specialCaseRoll <= 1220) { // Next 0.01% of the range
+                int guardContractID = racial_guard_uuids.get(new java.util.Random().nextInt(racial_guard_uuids.size()));
+                ItemBase guardContract = ItemBase.getItemBase(guardContractID);
+                if (guardContract != null) {
+                    MobLoot toAddContract = new MobLoot(mob, guardContract, false);
+                    if (toAddContract != null)
+                        mob.getCharItemManager().addItemToInventory(toAddContract);
                 }
             }
         }
