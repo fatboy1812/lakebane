@@ -438,6 +438,16 @@ public enum BuildingManager {
 
     public static boolean IsPlayerHostile(Building building, PlayerCharacter player) {
 
+        if(building.getBlueprint().getBuildingGroup().equals(BuildingGroup.BANESTONE))
+        {
+            Guild playerNation = player.guild.getNation();
+            City banedCity = ZoneManager.getCityAtLocation(building.loc);
+            if(banedCity != null){
+                if(banedCity.getGuild().getNation().equals(playerNation)){
+                    return false;
+                }
+            }
+        }
         //Nation Members and Guild members are not hostile.
         //		if (building.getGuild() != null){
         //			if (pc.getGuild() != null)

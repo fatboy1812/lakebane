@@ -131,11 +131,11 @@ public class dbNPCHandler extends dbHandlerBase {
         return npc;
     }
 
-    public boolean BANE_COMMANDER_EXISTS(final int objectUUID) {
+    public int BANE_COMMANDER_EXISTS(final int objectUUID) {
 
-        boolean exists = false;
+        int uid = 0;
 
-        String query = "SELECT 1 FROM `obj_npc` WHERE `npc_buildingID` = ? LIMIT 1;";
+        String query = "SELECT `UID` FROM `obj_npc` WHERE `npc_buildingID` = ? LIMIT 1;";
 
         try (Connection connection = DbManager.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {
@@ -143,15 +143,17 @@ public class dbNPCHandler extends dbHandlerBase {
             preparedStatement.setInt(1, objectUUID);
 
             try (ResultSet rs = preparedStatement.executeQuery()) {
-                // If there's a result, it means the entry exists
-                exists = rs.next();
+                if (rs.next()) {
+                    // Retrieve the UID column value
+                    uid = rs.getInt("UID");
+                }
             }
 
         } catch (SQLException e) {
             Logger.error(e);
         }
 
-        return exists;
+        return uid;
     }
 
 

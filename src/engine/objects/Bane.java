@@ -273,16 +273,18 @@ public final class Bane {
     public static void summonBaneCommander(Bane bane){
         Vector3fImmutable spawnLoc = Vector3fImmutable.getRandomPointOnCircle(bane.getStone().loc,15);
         NPC baneCommander;
-        boolean npcPresent = DbManager.NPCQueries.BANE_COMMANDER_EXISTS(bane.getStone().getObjectUUID());
+        int commanderuuid = DbManager.NPCQueries.BANE_COMMANDER_EXISTS(bane.getStone().getObjectUUID());
 
-        if(!npcPresent) {
+        if(commanderuuid != 0) {
             //add bane commander NPC
             int contractID = 1502042;
             baneCommander = NPC.createNPC("Bane Commander", contractID, spawnLoc, bane.getCity().getGuild(), ZoneManager.findSmallestZone(bane.getStone().loc), (short) 70, bane.getStone());
             baneCommander.setLoc(spawnLoc);
             baneCommander.setGuild(bane.getCity().getGuild());
-            }else{
-            baneCommander = (NPC)bane.getStone().getHirelings().keySet().iterator().next();
+        }
+        else
+        {
+            baneCommander = NPC.getNPC(commanderuuid);
             baneCommander.setLoc(spawnLoc);
             baneCommander.setGuild(bane.getCity().getGuild());
         }
