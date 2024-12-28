@@ -131,6 +131,30 @@ public class dbNPCHandler extends dbHandlerBase {
         return npc;
     }
 
+    public boolean BANE_COMMANDER_EXISTS(final int objectUUID) {
+
+        boolean exists = false;
+
+        String query = "SELECT 1 FROM `obj_npc` WHERE `npc_buildingID` = ? LIMIT 1;";
+
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+
+            preparedStatement.setInt(1, objectUUID);
+
+            try (ResultSet rs = preparedStatement.executeQuery()) {
+                // If there's a result, it means the entry exists
+                exists = rs.next();
+            }
+
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
+
+        return exists;
+    }
+
+
     public int MOVE_NPC(long npcID, long parentID, float locX, float locY, float locZ) {
 
         int rowCount;

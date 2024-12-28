@@ -14,13 +14,11 @@ import engine.Enum.ProtectionState;
 import engine.Enum.SiegePhase;
 import engine.Enum.SiegeResult;
 import engine.InterestManagement.HeightMap;
+import engine.InterestManagement.InterestManager;
 import engine.InterestManagement.WorldGrid;
 import engine.db.archive.BaneRecord;
 import engine.db.archive.DataWarehouse;
-import engine.gameManager.BuildingManager;
-import engine.gameManager.ChatManager;
-import engine.gameManager.DbManager;
-import engine.gameManager.ZoneManager;
+import engine.gameManager.*;
 import engine.job.JobScheduler;
 import engine.jobs.ActivateBaneJob;
 import engine.jobs.BaneDefaultTimeJob;
@@ -275,17 +273,20 @@ public final class Bane {
     public static void summonBaneCommander(Bane bane){
         Vector3fImmutable spawnLoc = Vector3fImmutable.getRandomPointOnCircle(bane.getStone().loc,15);
         NPC baneCommander;
-        if(bane.getStone().getHirelings().isEmpty()) {
+        boolean npcPresent = DbManager.NPCQueries.BANE_COMMANDER_EXISTS(bane.getStone().getObjectUUID());
+
+        if(!npcPresent) {
             //add bane commander NPC
             int contractID = 1502042;
             baneCommander = NPC.createNPC("Bane Commander", contractID, spawnLoc, bane.getCity().getGuild(), ZoneManager.findSmallestZone(bane.getStone().loc), (short) 70, bane.getStone());
             baneCommander.setLoc(spawnLoc);
             baneCommander.setGuild(bane.getCity().getGuild());
-        }else{
+            }else{
             baneCommander = (NPC)bane.getStone().getHirelings().keySet().iterator().next();
             baneCommander.setLoc(spawnLoc);
             baneCommander.setGuild(bane.getCity().getGuild());
         }
+        InterestManager.setObjectDirty(baneCommander);
     }
 
     public static Bane getBane(int cityUUID) {
