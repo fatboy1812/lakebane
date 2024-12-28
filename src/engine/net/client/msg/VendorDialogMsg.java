@@ -120,18 +120,22 @@ public class VendorDialogMsg extends ClientNetMsg {
         VendorDialog vd = null;
         Contract contract = npc.getContract();
 
-        if (contract == null)
-            vd = VendorDialog.getHostileVendorDialog();
-        else if (npc.getBuilding() != null) {
-            if (BuildingManager.IsPlayerHostile(npc.getBuilding(), playerCharacter))
-                vd = VendorDialog.getHostileVendorDialog();
-            else
-                vd = contract.getVendorDialog();
-        } else
-            vd = contract.getVendorDialog();
-        if (vd == null)
-            vd = VendorDialog.getHostileVendorDialog();
+        if(contract.getContractID() == 1502042){
+           vd = Contract.HandleBaneCommanderOptions(msg.unknown03);
+        }else {
 
+            if (contract == null)
+                vd = VendorDialog.getHostileVendorDialog();
+            else if (npc.getBuilding() != null) {
+                if (BuildingManager.IsPlayerHostile(npc.getBuilding(), playerCharacter))
+                    vd = VendorDialog.getHostileVendorDialog();
+                else
+                    vd = contract.getVendorDialog();
+            } else
+                vd = contract.getVendorDialog();
+            if (vd == null)
+                vd = VendorDialog.getHostileVendorDialog();
+        }
         if (msg.messageType == 1 || msg.unknown03 == vd.getObjectUUID()) {
             msg.updateMessage(3, vd);
         } else {

@@ -187,17 +187,21 @@ public class Contract extends AbstractGameObject {
     }
 
     public VendorDialog getVendorDialog() {
-        if(this.contractID == 1502042) {
+        return this.vendorDialog;
+    }
+
+    public static VendorDialog HandleBaneCommanderOptions(int optionId){
+        if(optionId == 0) {
             VendorDialog vd = VendorDialog.getHostileVendorDialog();
             vd.getOptions().clear();
-            MenuOption option1 = new MenuOption(796,"Set Bane Day",796);
+            MenuOption option1 = new MenuOption(796, "Set Bane Day", 796);
             vd.getOptions().add(option1);
+            MenuOption option2 = new MenuOption(797, "Set Bane Time", 797);
+            vd.getOptions().add(option2);
             return vd;
         }
 
-
-
-        return this.vendorDialog;
+        return VendorDialog.getHostileVendorDialog();
     }
 
     public ArrayList<Integer> getNPCMenuOptions() {
