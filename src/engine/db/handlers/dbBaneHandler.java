@@ -88,6 +88,109 @@ public class dbBaneHandler extends dbHandlerBase {
         return true;
     }
 
+    public boolean SET_BANE_TIME_NEW(int hour, int cityUUID, DateTime placementDate) {
+
+        DateTime toSet = placementDate.withHourOfDay(12 + hour).withMinuteOfHour(0).withSecondOfMinute(0);
+
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `dyn_banes` SET `liveDate`=? WHERE `cityUUID`=?")) {
+
+            preparedStatement.setTimestamp(1, new java.sql.Timestamp(toSet.getMillis()));
+            preparedStatement.setLong(2, cityUUID);
+
+            preparedStatement.execute();
+
+        } catch (SQLException e) {
+            Logger.error(e);
+            return false;
+        }
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `dyn_banes` SET `time_set`=? WHERE `cityUUID`=?")) {
+
+            preparedStatement.setInt(1, 1);
+            preparedStatement.setLong(2, cityUUID);
+
+            preparedStatement.execute();
+
+        } catch (SQLException e) {
+            Logger.error(e);
+            return false;
+        }
+        return true;
+    }
+
+    public boolean SET_BANE_DAY_NEW(int day, int cityUUID, DateTime placementDate) {
+
+        DateTime toSet = placementDate.plusDays(day);
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `dyn_banes` SET `liveDate`=? WHERE `cityUUID`=?")) {
+
+            preparedStatement.setTimestamp(1, new java.sql.Timestamp(toSet.getMillis()));
+            preparedStatement.setLong(2, cityUUID);
+
+            preparedStatement.execute();
+
+        } catch (SQLException e) {
+            Logger.error(e);
+            return false;
+        }
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `dyn_banes` SET `day_set`=? WHERE `cityUUID`=?")) {
+
+            preparedStatement.setInt(1, 1);
+            preparedStatement.setLong(2, cityUUID);
+
+            preparedStatement.execute();
+
+        } catch (SQLException e) {
+            Logger.error(e);
+            return false;
+        }
+        return true;
+    }
+
+    public boolean SET_BANE_CAP_NEW(int count, int cityUUID) {
+
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `dyn_banes` SET `cap_size`=? WHERE `cityUUID`=?")) {
+
+            preparedStatement.setInt(1, count);
+            preparedStatement.setLong(2, cityUUID);
+
+            preparedStatement.execute();
+
+        } catch (SQLException e) {
+            Logger.error(e);
+            return false;
+        }
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `dyn_banes` SET `cap_set`=? WHERE `cityUUID`=?")) {
+
+            preparedStatement.setInt(1, 1);
+            preparedStatement.setLong(2, cityUUID);
+
+            preparedStatement.execute();
+
+        } catch (SQLException e) {
+            Logger.error(e);
+            return false;
+        }
+
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `dyn_banes` SET `cap_size`=? WHERE `cityUUID`=?")) {
+
+            preparedStatement.setInt(1, count);
+            preparedStatement.setLong(2, cityUUID);
+
+            preparedStatement.execute();
+
+        } catch (SQLException e) {
+            Logger.error(e);
+            return false;
+        }
+        return true;
+    }
+
     public boolean REMOVE_BANE(Bane bane) {
 
         if (bane == null)

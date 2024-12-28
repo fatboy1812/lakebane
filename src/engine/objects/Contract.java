@@ -199,6 +199,9 @@ public class Contract extends AbstractGameObject {
         vd.getOptions().clear();
         Building building = npc.building;
         Bane bane = null;
+        int updateBaneTime = 0;
+        int updateBaneDay = 0;
+        int updateBaneCap = 0;
         if(building != null)
         {
             City city = ZoneManager.getCityAtLocation(npc.loc);
@@ -212,12 +215,18 @@ public class Contract extends AbstractGameObject {
         DateTime placement = bane.getPlacementDate();
         switch(optionId){
             default:
-                MenuOption option1 = new MenuOption(796, "Set Bane Day", 796);
-                vd.getOptions().add(option1);
-                MenuOption option2 = new MenuOption(797, "Set Bane Time", 797);
-                vd.getOptions().add(option2);
-                MenuOption option3 = new MenuOption(797, "Set Bane Cap", 798);
-                vd.getOptions().add(option3);
+                if(!bane.daySet) {
+                    MenuOption option1 = new MenuOption(796, "Set Bane Day", 796);
+                    vd.getOptions().add(option1);
+                }
+                if(!bane.timeSet) {
+                    MenuOption option2 = new MenuOption(797, "Set Bane Time", 797);
+                    vd.getOptions().add(option2);
+                }
+                if(!bane.capSet) {
+                    MenuOption option3 = new MenuOption(797, "Set Bane Cap", 798);
+                    vd.getOptions().add(option3);
+                }
                 break;
             case 796: // set bane day
                 DateTime dayOption1Date = placement.plusDays(3);
@@ -276,50 +285,82 @@ public class Contract extends AbstractGameObject {
 
             case 7961: //3 days after placement
                 ErrorPopupMsg.sendErrorMsg(pc, "Bane Set 3 Days From Placement Date");
+                updateBaneDay = 3;
                 break;
             case 7962: //4 days after placement
                 ErrorPopupMsg.sendErrorMsg(pc, "Bane Set 4 Days From Placement Date");
+                updateBaneDay = 4;
                 break;
             case 7963: //5 days after placement
                 ErrorPopupMsg.sendErrorMsg(pc, "Bane Set 5 Days From Placement Date");
+                updateBaneDay = 5;
                 break;
             case 7964: //6 days after placement
                 ErrorPopupMsg.sendErrorMsg(pc, "Bane Set 6 Days From Placement Date");
+                updateBaneDay = 6;
                 break;
             case 7965: //7 days after placement
                 ErrorPopupMsg.sendErrorMsg(pc, "Bane Set 7 Days From Placement Date");
+                updateBaneDay = 7;
                 break;
             case 7971: //6:00pm CST
                 ErrorPopupMsg.sendErrorMsg(pc, "Bane Set For 6:00 pm CST");
+                updateBaneTime = 6;
                 break;
             case 7972: //7:00pm CST
                 ErrorPopupMsg.sendErrorMsg(pc, "Bane Set For 7:00 pm CST");
+                updateBaneTime = 7;
                 break;
             case 7973: //8:00pm CST
                 ErrorPopupMsg.sendErrorMsg(pc, "Bane Set For 8:00 pm CST");
+                updateBaneTime = 8;
                 break;
             case 7974: //9:00pm CST
                 ErrorPopupMsg.sendErrorMsg(pc, "Bane Set For 9:00 pm CST");
+                updateBaneTime = 9;
                 break;
             case 7975: //10:00pm CST
                 ErrorPopupMsg.sendErrorMsg(pc, "Bane Set For 10:00 pm CST");
+                updateBaneTime = 10;
                 break;
             case 7981: //cap = 10
                 ErrorPopupMsg.sendErrorMsg(pc, "Bane Cap Set To 10 Players On Each Side");
+                updateBaneCap = 10;
                 break;
             case 7982: //cap = 20
                 ErrorPopupMsg.sendErrorMsg(pc, "Bane Cap Set To 20 Players On Each Side");
+                updateBaneCap = 20;
                 break;
             case 7983: //cap = 30
                 ErrorPopupMsg.sendErrorMsg(pc, "Bane Cap Set To 30 Players On Each Side");
+                updateBaneCap = 30;
                 break;
             case 7984: //cap = 40
                 ErrorPopupMsg.sendErrorMsg(pc, "Bane Cap Set To 40 Players On Each Side");
+                updateBaneCap = 40;
                 break;
             case 7985: //cap = Unlimited
                 ErrorPopupMsg.sendErrorMsg(pc, "Bane Cap Set To Unlimited Players On Each Side");
+                updateBaneCap = 9999;
                 break;
         }
+        if (updateBaneDay > 0) {
+            if(DbManager.BaneQueries.SET_BANE_DAY_NEW(updateBaneDay,bane.getCityUUID(), bane.getPlacementDate())){
+                bane.daySet = true;
+            }
+        }
+        if (updateBaneTime > 0) {
+            if(DbManager.BaneQueries.SET_BANE_TIME_NEW(updateBaneDay,bane.getCityUUID(), bane.getPlacementDate())){
+                bane.timeSet = true;
+            }
+        }
+        if (updateBaneCap > 0) {
+            if(DbManager.BaneQueries.SET_BANE_CAP_NEW(updateBaneCap,bane.getCityUUID())){
+                bane.capSet = true;
+                bane.capSize = updateBaneCap;
+            }
+        }
+
         return vd;
     }
 

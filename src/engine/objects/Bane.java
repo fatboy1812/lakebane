@@ -46,6 +46,10 @@ public final class Bane {
     private DateTime placementDate = null;
     private DateTime liveDate = null;
     private BaneDefaultTimeJob defaultTimeJob;
+    public boolean timeSet = false;
+    public boolean daySet = false;
+    public boolean capSet = false;
+    public int capSize = 10;
 
     // Internal cache for banes
     private ActivateBaneJob activateBaneJob;
@@ -61,6 +65,12 @@ public final class Bane {
         this.cityUUID = rs.getInt("cityUUID");
         this.ownerUUID = rs.getInt("ownerUUID");
         this.stoneUUID = rs.getInt("stoneUUID");
+
+        this.timeSet = rs.getInt("time_set") == 1;
+        this.daySet = rs.getInt("day_set") == 1;
+        this.capSet = rs.getInt("cap_set") == 1;
+        this.capSize = rs.getInt("cap_size");
+
 
         sqlDateTime = rs.getTimestamp("placementDate");
 
