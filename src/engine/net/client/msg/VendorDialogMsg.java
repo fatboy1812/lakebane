@@ -121,7 +121,7 @@ public class VendorDialogMsg extends ClientNetMsg {
         Contract contract = npc.getContract();
 
         if(contract.getContractID() == 1502042){
-           vd = Contract.HandleBaneCommanderOptions(msg.unknown03, npc);
+           vd = Contract.HandleBaneCommanderOptions(msg.unknown03, npc, playerCharacter);
            msg.updateMessage(3, vd);
         }else {
 
