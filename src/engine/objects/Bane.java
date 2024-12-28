@@ -413,8 +413,12 @@ public final class Bane {
         defaultTime = defaultTime.minuteOfHour().setCopy(0);
         defaultTime = defaultTime.secondOfMinute().setCopy(0);
 
-        if (currentTime.isAfter(timeToSetDefault))
-            this.setLiveDate(defaultTime);
+        if (currentTime.isAfter(timeToSetDefault)){
+            DbManager.BaneQueries.SET_BANE_CAP_NEW(20,this.getCityUUID());
+            DbManager.BaneQueries.SET_BANE_TIME_NEW(9,this.getCityUUID());
+            DbManager.BaneQueries.SET_BANE_DAY_NEW(3,this.getCityUUID());
+        }
+            //this.setLiveDate(defaultTime);
         else {
 
             if (this.defaultTimeJob != null)
