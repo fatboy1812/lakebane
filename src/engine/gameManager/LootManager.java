@@ -128,10 +128,7 @@ public enum LootManager {
 
         if (!mob.getSafeZone()) {
             int baseBound = 100000;
-            int levelPenalty = (int) ((mob.level > 50 ? (mob.level - 50) : (50 - mob.level)) * 0.01 * baseBound);
-
-
-            // Total range with penalty applied
+            int levelPenalty = (int) (Math.max(0, Math.abs(50 - mob.level)) * 0.01 * 100000);
             int totalRange = baseBound + levelPenalty;
 
             // Roll within the adjusted range
