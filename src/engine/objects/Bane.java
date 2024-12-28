@@ -275,7 +275,7 @@ public final class Bane {
         NPC baneCommander;
         int commanderuuid = DbManager.NPCQueries.BANE_COMMANDER_EXISTS(bane.getStone().getObjectUUID());
 
-        if(commanderuuid != 0) {
+        if(commanderuuid == 0) {
             //add bane commander NPC
             int contractID = 1502042;
             baneCommander = NPC.createNPC("Bane Commander", contractID, spawnLoc, bane.getCity().getGuild(), ZoneManager.findSmallestZone(bane.getStone().loc), (short) 70, bane.getStone());
