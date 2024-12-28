@@ -284,10 +284,13 @@ public final class Bane {
         {
             baneCommander = NPC.getNPC(commanderuuid);
         }
+        baneCommander.runAfterLoad();
         baneCommander.setLoc(spawnLoc);
         InterestManager.setObjectDirty(baneCommander);
         WorldGrid.addObject(baneCommander,spawnLoc.x, spawnLoc.z);
         WorldGrid.updateObject(baneCommander);
+
+        baneCommander.updateLocation();
     }
 
     public static Bane getBane(int cityUUID) {
