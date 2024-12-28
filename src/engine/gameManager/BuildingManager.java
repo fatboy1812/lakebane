@@ -445,6 +445,8 @@ public enum BuildingManager {
             if(banedCity != null){
                 if(banedCity.getGuild().getNation().equals(playerNation)){
                     return false;
+                }else{
+                    return true;
                 }
             }
         }
