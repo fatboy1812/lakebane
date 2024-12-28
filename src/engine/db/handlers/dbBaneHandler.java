@@ -16,10 +16,7 @@ import engine.objects.*;
 import org.joda.time.DateTime;
 import org.pmw.tinylog.Logger;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 
 public class dbBaneHandler extends dbHandlerBase {
 
@@ -90,19 +87,29 @@ public class dbBaneHandler extends dbHandlerBase {
 
     public boolean SET_BANE_TIME_NEW(int hour, int cityUUID) {
         try (Connection connection = DbManager.getConnection();
-             PreparedStatement getStatement = connection.prepareStatement("SELECT `liveDate` FROM `dyn_banes` WHERE `cityUUID`=?");
+             PreparedStatement getStatement = connection.prepareStatement("SELECT `placementDate`, `liveDate` FROM `dyn_banes` WHERE `cityUUID`=?");
              PreparedStatement updateStatement = connection.prepareStatement("UPDATE `dyn_banes` SET `liveDate`=?, `time_set`=? WHERE `cityUUID`=?")) {
 
-            // Retrieve the existing liveDate
+            // Retrieve placementDate and liveDate
             getStatement.setInt(1, cityUUID);
             try (ResultSet rs = getStatement.executeQuery()) {
                 if (rs.next()) {
-                    DateTime existingDate = new DateTime(rs.getTimestamp("liveDate").getTime());
-                    // Update only the time
-                    DateTime updatedDate = existingDate.withHourOfDay(hour).withMinuteOfHour(0).withSecondOfMinute(0);
+                    DateTime placementDate = new DateTime(rs.getTimestamp("placementDate").getTime());
+                    Timestamp liveDateTimestamp = rs.getTimestamp("liveDate");
+
+                    DateTime toSet;
+
+                    if (liveDateTimestamp != null) {
+                        // liveDate is set, adjust its time
+                        DateTime liveDate = new DateTime(liveDateTimestamp.getTime());
+                        toSet = liveDate.withHourOfDay(hour).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                    } else {
+                        // liveDate is not set, use placementDate with updated time
+                        toSet = placementDate.withHourOfDay(hour).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                    }
 
                     // Update liveDate and time_set flag
-                    updateStatement.setTimestamp(1, new java.sql.Timestamp(updatedDate.getMillis()));
+                    updateStatement.setTimestamp(1, new java.sql.Timestamp(toSet.getMillis()));
                     updateStatement.setInt(2, 1); // time_set flag
                     updateStatement.setInt(3, cityUUID);
 
@@ -117,18 +124,25 @@ public class dbBaneHandler extends dbHandlerBase {
         return false;
     }
 
+
     public boolean SET_BANE_DAY_NEW(int dayOffset, int cityUUID) {
         try (Connection connection = DbManager.getConnection();
-             PreparedStatement getStatement = connection.prepareStatement("SELECT `liveDate` FROM `dyn_banes` WHERE `cityUUID`=?");
+             PreparedStatement getStatement = connection.prepareStatement("SELECT `placementDate`, `liveDate` FROM `dyn_banes` WHERE `cityUUID`=?");
              PreparedStatement updateStatement = connection.prepareStatement("UPDATE `dyn_banes` SET `liveDate`=?, `day_set`=? WHERE `cityUUID`=?")) {
 
-            // Retrieve the existing liveDate
+            // Retrieve placementDate and liveDate
             getStatement.setInt(1, cityUUID);
             try (ResultSet rs = getStatement.executeQuery()) {
                 if (rs.next()) {
-                    DateTime existingDate = new DateTime(rs.getTimestamp("liveDate").getTime());
-                    // Update only the day
-                    DateTime updatedDate = existingDate.plusDays(dayOffset);
+                    DateTime placementDate = new DateTime(rs.getTimestamp("placementDate").getTime());
+                    DateTime liveDate = new DateTime(rs.getTimestamp("liveDate").getTime());
+
+                    // Calculate the new liveDate while preserving the time component
+                    DateTime updatedDate = placementDate.plusDays(dayOffset)
+                            .withHourOfDay(liveDate.getHourOfDay())
+                            .withMinuteOfHour(liveDate.getMinuteOfHour())
+                            .withSecondOfMinute(liveDate.getSecondOfMinute())
+                            .withMillisOfSecond(liveDate.getMillisOfSecond());
 
                     // Update liveDate and day_set flag
                     updateStatement.setTimestamp(1, new java.sql.Timestamp(updatedDate.getMillis()));
@@ -145,6 +159,7 @@ public class dbBaneHandler extends dbHandlerBase {
         }
         return false;
     }
+
 
 
     public boolean SET_BANE_CAP_NEW(int count, int cityUUID) {
