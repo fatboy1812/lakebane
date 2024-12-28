@@ -166,9 +166,12 @@ public class MobAI {
 
         try {
 
+            if(mob == null || target == null)
+                return;
+
             if (target.getRank() == -1 || !target.isVulnerable() || BuildingManager.getBuildingFromCache(target.getObjectUUID()) == null) {
                 mob.setCombatTarget(null);
-                return;
+            return;
             }
 
             City playercity = ZoneManager.getCityAtLocation(mob.getLoc());

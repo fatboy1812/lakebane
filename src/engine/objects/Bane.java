@@ -266,6 +266,10 @@ public final class Bane {
         BaneRecord baneRecord = BaneRecord.borrow(bane, Enum.RecordEventType.PENDING);
         DataWarehouse.pushToWarehouse(baneRecord);
 
+
+        //add bane commander NPC
+        int contractID = 1502042;
+        NPC.createNPC("Bane Commander",contractID,Vector3fImmutable.getRandomPointOnCircle(stone.loc,15),targetCity.getGuild(),cityZone,(short)70,stone);
         return true;
     }
 
