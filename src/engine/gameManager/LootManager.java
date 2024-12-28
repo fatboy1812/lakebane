@@ -129,10 +129,9 @@ public enum LootManager {
         if (!mob.getSafeZone()) {
             boolean allow = false;
             if(mob.level >= 50){
-                //totalRange = baseBound;
                 allow = true;
             }else{
-                if((50 - mob.level) < ThreadLocalRandom.current().nextInt(0,101)){
+                if((50 - mob.level) > ThreadLocalRandom.current().nextInt(0,101)){
                     allow = true;
                 }
             }
