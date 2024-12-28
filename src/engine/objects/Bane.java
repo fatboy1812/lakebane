@@ -100,14 +100,13 @@ public final class Bane {
                 abtj = new ActivateBaneJob(cityUUID);
                 JobScheduler.getInstance().scheduleJob(abtj, this.liveDate.getMillis());
                 this.activateBaneJob = abtj;
-
-                //add bane commander NPC
-                summonBaneCommander(this);
                 break;
         }
 
         if (this.liveDate == null)
             setDefaultTime();
+        //add bane commander NPC
+        summonBaneCommander(this);
     }
 
     public static boolean summonBanestone(PlayerCharacter player, ClientConnection origin, int rank) {
