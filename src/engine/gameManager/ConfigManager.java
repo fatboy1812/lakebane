@@ -65,6 +65,7 @@ public enum ConfigManager {
     MB_WORLD_MAINTENANCE,
     MB_WORLD_GREETING,
     MB_WORLD_KEYCLONE_MAX,
+    MB_WORLD_TESTMODE,
     MB_USE_RUINS,
 
     // Mobile AI modifiers

@@ -4895,6 +4895,9 @@ public class PlayerCharacter extends AbstractCharacter {
 
     }
     public static boolean checkIfBoxed(PlayerCharacter player){
+        if(ConfigManager.MB_WORLD_TESTMODE.getValue().equals("true")) {
+            return false;
+        }
         try {
             String machineID = player.getClientConnection().machineID;
             ArrayList<PlayerCharacter> sameMachine = new ArrayList<>();
