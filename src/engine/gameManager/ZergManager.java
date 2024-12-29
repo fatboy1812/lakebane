@@ -23,11 +23,11 @@ public class ZergManager {
 
         switch(count){
             case 4:
-                return 0.75f;
+                return 0.63f;
             case 5:
-                return 0.60f;
+                return 0.40f;
             case 6:
-                return 0.37f;
+                return 0.25f;
 
         }
         return 1.0f;
@@ -43,11 +43,11 @@ public class ZergManager {
             case 6:
                 return 0.75f;
             case 7:
-                return 0.67f;
+                return 0.57f;
             case 8:
-                return 0.56f;
+                return 0.44f;
             case 9:
-                return 0.43f;
+                return 0.33f;
             case 10:
                 return 0.25f;
 
@@ -63,25 +63,25 @@ public class ZergManager {
 
         switch(count){
             case 11:
-                return 0.75f;
+                return 0.86f;
             case 12:
-                return 0.71f;
+                return 0.75f;
             case 13:
-                return 0.67f;
+                return 0.65f;
             case 14:
-                return 0.62f;
+                return 0.57f;
             case 15:
-                return 0.56f;
-            case 16:
                 return 0.50f;
+            case 16:
+                return 0.44f;
             case 17:
-                return 0.43f;
+                return 0.38f;
             case 18:
-                return 0.35f;
+                return 0.33f;
             case 19:
-                return 0.25f;
+                return 0.29f;
             case 20:
-                return 0.14f;
+                return 0.25f;
 
         }
         return 1.0f;
