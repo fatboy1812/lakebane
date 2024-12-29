@@ -127,45 +127,57 @@ public enum LootManager {
         float dropRate;
 
         if (!mob.getSafeZone()) {
-            boolean allow = false;
-            if(mob.level >= 50){
-                allow = true;
-            }else{
-                if((50 - mob.level) > ThreadLocalRandom.current().nextInt(0,101)){
-                    allow = true;
-                }
+            int contractLow = 1, contractHigh = 400;
+            int runeLow = 401, runeHigh = 800;
+            int resourceLow = 801, resourceHigh = 900;
+            int glassLow = 901, glassHigh = 910;
+            int guardLow = 911, guardHigh = 920;
+
+            // Pre-compute adjusted high values
+            int contractAdjust = 0, runeAdjust = 0, resourceAdjust = 0, glassAdjust = 0, guardAdjust = 0;
+            if (mob.level < 50) {
+                int dif = 50 - mob.level;
+                contractAdjust = (int)(400 * (dif * 0.02f));
+                runeAdjust = (int)(400 * (dif * 0.02f));
+                resourceAdjust = (int)(100 * (dif * 0.02f));
+                glassAdjust = (int)(10 * (dif * 0.02f));
+                guardAdjust = (int)(10 * (dif * 0.02f));
             }
 
-            if(allow) {
-                // Roll within the adjusted range
-                int specialCaseRoll = ThreadLocalRandom.current().nextInt(1, 100000 + 1);
+            // Generate a single random roll
+            int specialCaseRoll = ThreadLocalRandom.current().nextInt(1, 100001);
 
-                // Special Case Contract Drop
-                if (specialCaseRoll <= 400) { // 0.4% of the range
-                    SpecialCaseResourceDrop(mob, entries);
-                } else if (specialCaseRoll <= 800) { // Next 0.4% of the range
-                    SpecialCaseContractDrop(mob, entries);
-                } else if (specialCaseRoll <= 1200) { // Next 0.4% of the range
-                    SpecialCaseRuneDrop(mob, entries);
-                } else if (specialCaseRoll <= 1210) { // Next 0.01% of the range
-                    int glassID = rollRandomItem(126);
-                    ItemBase glassItem = ItemBase.getItemBase(glassID);
-                    if (glassItem != null) {
-                        MobLoot toAddGlass = new MobLoot(mob, glassItem, false);
-                        if (toAddGlass != null)
-                            mob.getCharItemManager().addItemToInventory(toAddGlass);
-                    }
-                } else if (specialCaseRoll <= 1220) { // Next 0.01% of the range
-                    int guardContractID = racial_guard_uuids.get(new java.util.Random().nextInt(racial_guard_uuids.size()));
-                    ItemBase guardContract = ItemBase.getItemBase(guardContractID);
-                    if (guardContract != null) {
-                        MobLoot toAddContract = new MobLoot(mob, guardContract, false);
-                        if (toAddContract != null)
-                            mob.getCharItemManager().addItemToInventory(toAddContract);
-                    }
+            // Calculate adjusted high values once
+            int contractHighAdjusted = contractHigh - contractAdjust;
+            int runeHighAdjusted = runeHigh - runeAdjust;
+            int resourceHighAdjusted = resourceHigh - resourceAdjust;
+            int glassHighAdjusted = glassHigh - glassAdjust;
+            int guardHighAdjusted = guardHigh - guardAdjust;
+
+            // Check the roll range and handle accordingly
+            if (specialCaseRoll >= contractLow && specialCaseRoll <= contractHighAdjusted) {
+                SpecialCaseContractDrop(mob, entries);
+            } else if (specialCaseRoll >= runeLow && specialCaseRoll <= runeHighAdjusted) {
+                SpecialCaseRuneDrop(mob, entries);
+            } else if (specialCaseRoll >= resourceLow && specialCaseRoll <= resourceHighAdjusted) {
+                SpecialCaseResourceDrop(mob, entries);
+            } else if (specialCaseRoll >= glassLow && specialCaseRoll <= glassHighAdjusted) {
+                int glassID = rollRandomItem(126);
+                ItemBase glassItem = ItemBase.getItemBase(glassID);
+                if (glassItem != null) {
+                    MobLoot toAddGlass = new MobLoot(mob, glassItem, false);
+                    mob.getCharItemManager().addItemToInventory(toAddGlass);
+                }
+            } else if (specialCaseRoll >= guardLow && specialCaseRoll <= guardHighAdjusted) {
+                int guardContractID = racial_guard_uuids.get(new java.util.Random().nextInt(racial_guard_uuids.size()));
+                ItemBase guardContract = ItemBase.getItemBase(guardContractID);
+                if (guardContract != null) {
+                    MobLoot toAddContract = new MobLoot(mob, guardContract, false);
+                    mob.getCharItemManager().addItemToInventory(toAddContract);
                 }
             }
         }
+
 
         // Iterate all entries in this bootySet and process accordingly
         for (BootySetEntry bse : entries) {
