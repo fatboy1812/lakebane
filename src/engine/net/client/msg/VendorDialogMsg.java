@@ -142,7 +142,7 @@ public class VendorDialogMsg extends ClientNetMsg {
             if (VendorDialogMsg.handleSpecialCase(msg, npc, playerCharacter, vd, origin))
                 return;
         }
-            vd = VendorDialog.getVendorDialog(msg.unknown03);
+            //vd = VendorDialog.getVendorDialog(msg.unknown03);
             msg.updateMessage(3, vd);
         }
 
