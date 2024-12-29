@@ -1327,6 +1327,13 @@ public enum CombatManager {
                 return;
 
             retaliater.setCombatTarget(ac);
+            if(retaliater.isPlayerGuard && (retaliater.BehaviourType.equals(MobBehaviourType.GuardMinion) || retaliater.BehaviourType.equals(MobBehaviourType.GuardCaptain))){
+                for(Mob guard : retaliater.guardedCity.getParent().zoneMobSet){
+                    if(guard.isPlayerGuard && guard.combatTarget == null){
+                        guard.setCombatTarget(ac);
+                    }
+                }
+            }
 
         }
     }
