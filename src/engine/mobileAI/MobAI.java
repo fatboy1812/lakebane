@@ -1052,9 +1052,22 @@ public class MobAI {
         }
     }
 
+    public static void checkToDropGuardAggro(Mob mob){
+        City city = mob.guardedCity;
+
+        if(city == null)
+            return;
+        if(mob.combatTarget == null)
+            return;
+
+        if(city._playerMemory.contains(mob.combatTarget.getObjectUUID()) && mob.combatTarget.getObjectType().equals(Enum.GameObjectType.PlayerCharacter))
+            mob.setCombatTarget(null);
+    }
+
     public static void GuardCaptainLogic(Mob mob) {
 
         try {
+            checkToDropGuardAggro(mob);
             if (mob.getCombatTarget() == null)
                 CheckForPlayerGuardAggro(mob);
 
@@ -1079,6 +1092,8 @@ public class MobAI {
     public static void GuardMinionLogic(Mob mob) {
 
         try {
+            checkToDropGuardAggro(mob);
+
             boolean isComanded = mob.npcOwner.isAlive();
             if (!isComanded) {
                 GuardCaptainLogic(mob);
@@ -1099,6 +1114,8 @@ public class MobAI {
     public static void GuardWallArcherLogic(Mob mob) {
 
         try {
+            checkToDropGuardAggro(mob);
+
             if (mob.getCombatTarget() == null)
                 CheckForPlayerGuardAggro(mob);
             else
