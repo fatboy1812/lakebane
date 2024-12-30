@@ -203,6 +203,8 @@ public class Contract extends AbstractGameObject {
         int updateBaneTime = 0;
         int updateBaneDay = 0;
         int updateBaneCap = 0;
+
+        int treesInNation = 0;
         if(building != null)
         {
             City city = ZoneManager.getCityAtLocation(npc.loc);
@@ -214,6 +216,11 @@ public class Contract extends AbstractGameObject {
                 if(!GuildStatusController.isInnerCouncil(pc.getGuildStatus()) && !GuildStatusController.isGuildLeader(pc.getGuildStatus())){
                     return vd;
                 }
+                for(Guild sub : city.getGuild().getNation().getSubGuildList()){
+                    if(sub.getOwnedCity() != null){
+                        treesInNation += 1;
+                    }
+                }
             }
         }
         if(bane == null){
@@ -223,6 +230,7 @@ public class Contract extends AbstractGameObject {
             vd.getOptions().clear();
             return vd;
         }
+
         DateTime placement = bane.getPlacementDate();
         switch(optionId){
             default:
@@ -277,11 +285,15 @@ public class Contract extends AbstractGameObject {
                 vd.getOptions().add(timeOption5);
                 break;
             case 798: // set bane cap
-                MenuOption capOption1 = new MenuOption(7981, "10 Maximum Players", 7981);
-                vd.getOptions().add(capOption1);
+                if(treesInNation < 6) {
+                    MenuOption capOption1 = new MenuOption(7981, "10 Maximum Players", 7981);
+                    vd.getOptions().add(capOption1);
+                }
 
-                MenuOption capOption2 = new MenuOption(7982, "20 Maximum Players", 7982);
-                vd.getOptions().add(capOption2);
+                if(treesInNation < 11) {
+                    MenuOption capOption2 = new MenuOption(7982, "20 Maximum Players", 7982);
+                    vd.getOptions().add(capOption2);
+                }
 
                 MenuOption capOption3 = new MenuOption(7983, "30 Maximum Players", 7983);
                 vd.getOptions().add(capOption3);
