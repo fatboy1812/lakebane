@@ -2921,6 +2921,10 @@ public class PlayerCharacter extends AbstractCharacter {
     }
 
     public synchronized void grantXP(int xp) {
+        if(this.promotionClass == null && this.level == 10){
+            this.setOverFlowEXP(0);
+            return;
+        }
         // Stop players from getting experience past the cap
         if (this.exp + xp >= Experience.getBaseExperience(MBServerStatics.LEVELCAP))
             xp = Experience.getBaseExperience(MBServerStatics.LEVELCAP) - this.exp + 1;
