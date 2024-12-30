@@ -128,7 +128,7 @@ public class VendorDialogMsg extends ClientNetMsg {
             if (contract == null)
                 vd = VendorDialog.getHostileVendorDialog();
             else if (npc.getBuilding() != null) {
-                if (BuildingManager.IsPlayerHostile(npc.getBuilding(), playerCharacter))
+                if (npc.getBuilding() != null && BuildingManager.IsPlayerHostile(npc.getBuilding(), playerCharacter))
                     vd = VendorDialog.getHostileVendorDialog();
                 else
                     vd = contract.getVendorDialog();
