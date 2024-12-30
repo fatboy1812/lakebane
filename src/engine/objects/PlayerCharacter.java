@@ -2923,6 +2923,17 @@ public class PlayerCharacter extends AbstractCharacter {
     public synchronized void grantXP(int xp) {
         if(this.promotionClass == null && this.level == 10){
             this.setOverFlowEXP(0);
+            this.update();
+            this.incVer();
+            this.recalculate();
+            this.calculateMaxHealthManaStamina();
+            this.setHealth(this.healthMax);
+            this.mana.set(this.manaMax);
+            this.stamina.set(this.staminaMax);
+            //LoadJob.reloadCharacter(this);
+            DbManager.PlayerCharacterQueries.SET_PROPERTY(this, "char_experience", this.exp);
+            //			updateDatabase();
+            DbManager.AccountQueries.INVALIDATE_LOGIN_CACHE(this.getObjectUUID(), "character");
             return;
         }
         // Stop players from getting experience past the cap
