@@ -208,6 +208,12 @@ public class Contract extends AbstractGameObject {
             City city = ZoneManager.getCityAtLocation(npc.loc);
             if(city != null){
                 bane = city.getBane();
+                if(!city.getGuild().equals(pc.guild))
+                    return vd;
+
+                if(!GuildStatusController.isInnerCouncil(pc.getGuildStatus()) && !GuildStatusController.isGuildLeader(pc.getGuildStatus())){
+                    return vd;
+                }
             }
         }
         if(bane == null){
