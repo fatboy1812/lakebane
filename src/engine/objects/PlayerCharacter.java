@@ -4872,6 +4872,15 @@ public class PlayerCharacter extends AbstractCharacter {
                     this.timestamps.put("nextBoxCheck", System.currentTimeMillis() + 10000);
                 }
 
+                if(this.level < 10) {
+                    this.setLevel((short) 10);
+                    this.getCharItemManager().addGoldToInventory(1000,false);
+                    this.getCharItemManager().addItemToInventory(new MobLoot(this,ItemBase.getItemBase(980066),1,false).promoteToItem(this));
+                    this.setOverFlowEXP(0);
+                    TargetedActionMsg cmm = new TargetedActionMsg(this);
+                    DispatchMessage.dispatchMsgToInterestArea(this, cmm, DispatchChannel.PRIMARY, MBServerStatics.CHARACTER_LOAD_RANGE, true, false);
+                }
+
                 if(this.isBoxed && !this.containsEffect(1672601862)) {
                     PowersManager.applyPower(this, this, Vector3fImmutable.ZERO, 1672601862, 40, false);
                 }

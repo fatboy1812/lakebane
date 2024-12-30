@@ -19,10 +19,7 @@ import engine.net.AbstractNetMsg;
 import engine.net.Dispatch;
 import engine.net.DispatchMessage;
 import engine.net.client.ClientConnection;
-import engine.net.client.msg.LoadCharacterMsg;
-import engine.net.client.msg.LoadStructureMsg;
-import engine.net.client.msg.MoveToPointMsg;
-import engine.net.client.msg.UnloadObjectsMsg;
+import engine.net.client.msg.*;
 import engine.objects.*;
 import engine.server.MBServerStatics;
 import org.pmw.tinylog.Logger;
@@ -525,11 +522,6 @@ public enum InterestManager implements Runnable {
         player.setDirtyLoad(true);
         updateStaticList(player, origin);
         updateMobileList(player, origin);
-        if(player.level < 10) {
-            player.setLevel((short) 10);
-            player.getCharItemManager().addGoldToInventory(1000,false);
-            player.getCharItemManager().addItemToInventory(new MobLoot(player,ItemBase.getItemBase(980066),1,false).promoteToItem(player));
-        }
     }
 
     public synchronized void HandleLoadForTeleport(PlayerCharacter playerCharacter) {
