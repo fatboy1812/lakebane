@@ -690,7 +690,6 @@ public final class Bane {
 
         ArrayList<Integer> attackers = new ArrayList<>();
         ArrayList<Integer> defenders = new ArrayList<>();
-        ArrayList<Integer> crashers = new ArrayList<>();
         for(int uuid : city.baneAttendees.keySet()){
             PlayerCharacter player = PlayerCharacter.getPlayerCharacter(uuid);
             if(player == null)
