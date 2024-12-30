@@ -39,6 +39,7 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
@@ -87,6 +88,8 @@ public class City extends AbstractWorldObject {
     private boolean open = false;
     private boolean reverseKOS = false;
     private String hash;
+
+    public HashMap<Integer, Long> baneAttendees;
 
     /**
      * ResultSet Constructor
@@ -1017,7 +1020,15 @@ public class City extends AbstractWorldObject {
             currentMemory.add(player.getObjectUUID());
 
             // Player is already in our memory
-
+            if(this.getBane() != null){
+                //handle zerg mechanics here
+                if(this.getBane().getSiegePhase().equals(SiegePhase.WAR)){
+                    //bane is live, start tallying players
+                    if(!this.baneAttendees.containsKey(player.getObjectUUID())){
+                        this.baneAttendees.put(player.getObjectUUID(),System.currentTimeMillis());
+                    }
+                }
+            }
             if (_playerMemory.contains(player.getObjectUUID()))
                 continue;
 
@@ -1047,11 +1058,25 @@ public class City extends AbstractWorldObject {
 
     }
 
+    private void onExitBane(){
+        ArrayList<Integer> toRemove = new ArrayList<>();
+        for(int uuid : this.baneAttendees.keySet()){
+            if(!_playerMemory.contains(uuid)){
+                if(System.currentTimeMillis() - this.baneAttendees.get(uuid) > 180000){
+                    toRemove.add(uuid);
+                }
+            }
+        }
+        for(Integer uuid : toRemove){
+            this.baneAttendees.remove(uuid);
+        }
+    }
+
     private void onExit(HashSet<Integer> currentMemory) {
 
         PlayerCharacter player;
         int playerUUID = 0;
-        HashSet<Integer> toRemove = new HashSet<>();
+        HashSet<Integer> toRemoveStandard = new HashSet<>();
         Iterator<Integer> iter = _playerMemory.iterator();
 
         while (iter.hasNext()) {
@@ -1073,20 +1098,27 @@ public class City extends AbstractWorldObject {
 
             this.removeAllCityEffects(player, false);
 
+            player.ZergMultiplier = 1.0f;
             // We will remove this player after iteration is complete
             // so store it in a temporary collection
 
-            toRemove.add(playerUUID);
+            toRemoveStandard.add(playerUUID);
             // ***For debugging
             // Logger.info("PlayerMemory for ", this.getCityName() + ": " + _playerMemory.size());
         }
 
         // Remove players from city memory
 
-        _playerMemory.removeAll(toRemove);
-        for (Integer removalUUID : toRemove) {
+        _playerMemory.removeAll(toRemoveStandard);
+        for (Integer removalUUID : toRemoveStandard) {
             if (this.cityOutlaws.contains(removalUUID))
                 this.cityOutlaws.remove(removalUUID);
+        }
+        if(this.getBane() != null){
+            //handle zerg mechanics here
+            if(this.getBane().getSiegePhase().equals(SiegePhase.WAR)){
+                this.onExitBane();
+            }
         }
     }
 
