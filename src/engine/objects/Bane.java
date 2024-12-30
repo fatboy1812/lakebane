@@ -296,6 +296,7 @@ public final class Bane {
         {
             baneCommander = NPC.getNPC(commanderuuid);
         }
+        NPCManager.slotCharacterInBuilding(baneCommander);
         baneCommander.runAfterLoad();
         //baneCommander.setLoc(spawnLoc);
         InterestManager.setObjectDirty(baneCommander);
