@@ -683,4 +683,41 @@ public final class Bane {
         return cityUUID;
     }
 
+    public void applyZergBuffs(){
+        City city = this.getCity();
+        if(city == null)
+            return;
+
+        ArrayList<Integer> attackers = new ArrayList<>();
+        ArrayList<Integer> defenders = new ArrayList<>();
+        ArrayList<Integer> crashers = new ArrayList<>();
+        for(int uuid : city.baneAttendees.keySet()){
+            PlayerCharacter player = PlayerCharacter.getPlayerCharacter(uuid);
+            if(player == null)
+                continue;
+
+            //separate the players into categories
+            if(player.guild.getNation().equals(city.getGuild().getNation()))
+                defenders.add(uuid);
+            else if(player.guild.getNation().equals(this.getOwner().getGuild().getNation()))
+                attackers.add(uuid);
+            else
+                player.teleport(player.bindLoc);
+        }
+
+        //apply zerg mechanic for attackers
+        float attackerMultiplier = ZergManager.getCurrentMultiplier(attackers.size(),this.capSize);
+        float defenderMultiplier = ZergManager.getCurrentMultiplier(defenders.size(),this.capSize);
+        for(int uuid : attackers){
+            if(city._playerMemory.contains(uuid)) //player is still physically here, needs updated multiplier
+                PlayerCharacter.getPlayerCharacter(uuid).ZergMultiplier = attackerMultiplier;
+        }
+
+        for(int uuid : defenders){
+            if(city._playerMemory.contains(uuid)) //player is still physically here, needs updated multiplier
+                PlayerCharacter.getPlayerCharacter(uuid).ZergMultiplier = defenderMultiplier;
+        }
+
+    }
+
 }

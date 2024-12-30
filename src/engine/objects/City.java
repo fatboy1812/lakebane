@@ -1055,7 +1055,6 @@ public class City extends AbstractWorldObject {
         } catch (Exception e) {
             Logger.error(e.getMessage());
         }
-
     }
 
     private void onExitBane(){

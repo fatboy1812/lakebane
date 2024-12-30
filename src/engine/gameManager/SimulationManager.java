@@ -204,6 +204,12 @@ public enum SimulationManager {
             if(mine != null && mine.isActive)
                 mine.onEnter();
         }
+        for(int baneId : Bane.banes.keySet()){
+            Bane bane = Bane.banes.get(baneId);
+            if(bane.getSiegePhase().equals(Enum.SiegePhase.WAR)){
+                bane.applyZergBuffs();
+            }
+        }
         _cityPulseTime = System.currentTimeMillis() + CITY_PULSE;
 
     }
