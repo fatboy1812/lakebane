@@ -513,6 +513,9 @@ public class WorldServer {
 
 		Logger.info("Running garbage collection...");
 		System.gc();
+
+
+
 		return true;
 	}
 
