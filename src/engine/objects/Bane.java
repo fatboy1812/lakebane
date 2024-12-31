@@ -279,6 +279,20 @@ public final class Bane {
 
         //add bane commander NPC
         summonBaneCommander(bane);
+
+        try {
+            //update map for all players online
+            for (PlayerCharacter playerCharacter : SessionManager.getAllActivePlayerCharacters()) {
+                CityDataMsg cityDataMsg = new CityDataMsg(SessionManager.getSession(playerCharacter), false);
+                cityDataMsg.updateMines(true);
+                cityDataMsg.updateCities(true);
+                Dispatch dispatch = Dispatch.borrow(playerCharacter, cityDataMsg);
+                DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
+            }
+        }catch(Exception e){
+
+        }
+
         return true;
     }
 
@@ -304,18 +318,6 @@ public final class Bane {
         InterestManager.setObjectDirty(baneCommander);
 
         baneCommander.updateLocation();
-try {
-    //update map for all players online
-    for (PlayerCharacter playerCharacter : SessionManager.getAllActivePlayerCharacters()) {
-        CityDataMsg cityDataMsg = new CityDataMsg(SessionManager.getSession(playerCharacter), false);
-        cityDataMsg.updateMines(true);
-        cityDataMsg.updateCities(true);
-        Dispatch dispatch = Dispatch.borrow(playerCharacter, cityDataMsg);
-        DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
-    }
-}catch(Exception e){
-
-}
     }
 
     public static Bane getBane(int cityUUID) {
