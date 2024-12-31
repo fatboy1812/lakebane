@@ -925,6 +925,9 @@ public class MobAI {
 
     private static void CheckToSendMobHome(Mob mob) {
 
+        if(mob.isNecroPet())
+            return;
+
         try {
 
             //trebs dont recall
