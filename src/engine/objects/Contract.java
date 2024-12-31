@@ -199,7 +199,7 @@ public class Contract extends AbstractGameObject {
     }
 
     public static VendorDialog HandleBaneCommanderOptions(int optionId, NPC npc, PlayerCharacter pc){
-        pc.setLastNPCDialog(null);
+        pc.setLastNPCDialog(npc);
         VendorDialog vd = new VendorDialog(VendorDialog.getHostileVendorDialog().getDialogType(),VendorDialog.getHostileVendorDialog().getIntro(),-1);//VendorDialog.getHostileVendorDialog();
         vd.getOptions().clear();
         Building building = npc.building;
@@ -236,6 +236,7 @@ public class Contract extends AbstractGameObject {
         }
 
         DateTime placement = bane.getPlacementDate();
+        vd.getOptions().clear();
         switch(optionId){
             default:
                 if(!bane.daySet) {
