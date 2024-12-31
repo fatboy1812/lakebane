@@ -514,7 +514,8 @@ public class WorldServer {
 		Logger.info("Running garbage collection...");
 		System.gc();
 
-
+		Logger.info("Starting Bane Thread");
+		BaneThread.startBaneThread();
 
 		return true;
 	}
