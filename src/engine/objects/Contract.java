@@ -13,7 +13,11 @@ import ch.claude_martin.enumbitset.EnumBitSet;
 import engine.Enum;
 import engine.gameManager.BuildingManager;
 import engine.gameManager.DbManager;
+import engine.gameManager.SessionManager;
 import engine.gameManager.ZoneManager;
+import engine.net.Dispatch;
+import engine.net.DispatchMessage;
+import engine.net.client.msg.CityDataMsg;
 import engine.net.client.msg.ErrorPopupMsg;
 import org.joda.time.DateTime;
 import org.pmw.tinylog.Logger;
@@ -399,8 +403,13 @@ public class Contract extends AbstractGameObject {
         if(bane.timeSet && bane.daySet && bane.capSet){
             bane.getSiegePhase();
         }
-
-        City.lastCityUpdate = System.currentTimeMillis();
+        for(PlayerCharacter playerCharacter : SessionManager.getAllActivePlayerCharacters()) {
+            CityDataMsg cityDataMsg = new CityDataMsg(SessionManager.getSession(playerCharacter), false);
+            cityDataMsg.updateMines(true);
+            cityDataMsg.updateCities(true);
+            Dispatch dispatch = Dispatch.borrow(playerCharacter, cityDataMsg);
+            DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
+        }
 
         return vd;
     }
