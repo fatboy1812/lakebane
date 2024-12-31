@@ -722,20 +722,24 @@ public final class Bane {
         if(city == null)
             return;
 
+        city.onEnter();
+
         ArrayList<Integer> attackers = new ArrayList<>();
         ArrayList<Integer> defenders = new ArrayList<>();
+        Guild attackNation = this.getOwner().getGuild().getNation();
+        Guild defendNation = this.getCity().getGuild().getNation();
         for(int uuid : city.baneAttendees.keySet()){
             PlayerCharacter player = PlayerCharacter.getPlayerCharacter(uuid);
             if(player == null)
                 continue;
-
+            Guild playerNation = player.guild.getNation();
             //separate the players into categories
-            if(player.guild.getNation().equals(city.getGuild().getNation()))
+            if(playerNation.equals(defendNation))
                 defenders.add(uuid);
-            else if(player.guild.getNation().equals(this.getOwner().getGuild().getNation()))
+            else if(playerNation.equals(attackNation))
                 attackers.add(uuid);
             else
-                player.teleport(player.bindLoc);
+                MovementManager.translocate(player,player.bindLoc,Regions.GetRegionForTeleport(player.bindLoc));
         }
 
         //apply zerg mechanic for attackers
