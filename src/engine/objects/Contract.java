@@ -381,7 +381,6 @@ public class Contract extends AbstractGameObject {
                     bane.setLiveDate_NEW(bane.getLiveDate().plusDays(updateBaneDay));
                 }
             }
-            bane.setLiveDate(DbManager.BaneQueries.getLiveDate(bane.getCityUUID()));
         }
         if (updateBaneTime > 0) {
             if(DbManager.BaneQueries.SET_BANE_TIME_NEW(updateBaneTime,bane.getCityUUID())){
@@ -392,7 +391,6 @@ public class Contract extends AbstractGameObject {
                     bane.setLiveDate_NEW(bane.getLiveDate().withHourOfDay(12 + updateBaneTime));
                 }
             }
-            bane.setLiveDate(DbManager.BaneQueries.getLiveDate(bane.getCityUUID()));
         }
         if (updateBaneCap > 0) {
             if(DbManager.BaneQueries.SET_BANE_CAP_NEW(updateBaneCap,bane.getCityUUID())){
