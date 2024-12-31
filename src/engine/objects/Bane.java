@@ -23,8 +23,10 @@ import engine.job.JobScheduler;
 import engine.jobs.ActivateBaneJob;
 import engine.jobs.BaneDefaultTimeJob;
 import engine.math.Vector3fImmutable;
+import engine.net.Dispatch;
 import engine.net.DispatchMessage;
 import engine.net.client.ClientConnection;
+import engine.net.client.msg.CityDataMsg;
 import engine.net.client.msg.PlaceAssetMsg;
 import engine.net.client.msg.chat.ChatSystemMsg;
 import engine.server.MBServerStatics;
@@ -302,6 +304,15 @@ public final class Bane {
         InterestManager.setObjectDirty(baneCommander);
 
         baneCommander.updateLocation();
+
+        //update map for all players online
+        for (PlayerCharacter playerCharacter : SessionManager.getAllActivePlayerCharacters()) {
+            CityDataMsg cityDataMsg = new CityDataMsg(SessionManager.getSession(playerCharacter), false);
+            cityDataMsg.updateMines(true);
+            cityDataMsg.updateCities(true);
+            Dispatch dispatch = Dispatch.borrow(playerCharacter, cityDataMsg);
+            DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
+        }
     }
 
     public static Bane getBane(int cityUUID) {
