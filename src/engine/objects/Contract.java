@@ -400,6 +400,8 @@ public class Contract extends AbstractGameObject {
             bane.getSiegePhase();
         }
 
+        City.lastCityUpdate = System.currentTimeMillis();
+
         return vd;
     }
 
