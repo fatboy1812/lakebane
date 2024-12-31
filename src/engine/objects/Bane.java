@@ -487,6 +487,16 @@ public final class Bane {
             return false;
         }
 
+        //Remove bane commander NPC
+        if(!baneStone.getHirelings().isEmpty()) {
+            NPC npc = (NPC)baneStone.getHirelings().keySet().stream().findFirst().orElse(null);
+            if(npc != null) {
+                DbManager.NPCQueries.DELETE_NPC(npc);
+                DbManager.removeFromCache(npc);
+                WorldGrid.RemoveWorldObject(npc);
+                WorldGrid.removeObject(npc);
+            }
+        }
         // Remove object from simulation
 
         baneStone.removeFromCache();
