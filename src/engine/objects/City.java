@@ -89,7 +89,7 @@ public class City extends AbstractWorldObject {
     private boolean reverseKOS = false;
     private String hash;
 
-    public HashMap<Integer, Long> baneAttendees;
+    public HashMap<Integer, Long> baneAttendees = new HashMap<>();
 
     /**
      * ResultSet Constructor
