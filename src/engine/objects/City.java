@@ -237,18 +237,22 @@ public class City extends AbstractWorldObject {
         writer.putInt(rulingGuild.getObjectUUID());
 
         writer.putString(rulingGuild.getName());
-        if(city.getBane() != null) {
-            Bane bane = city.getBane();
-            if(bane.daySet && bane.timeSet && bane.getLiveDate() != null){
-                int day = bane.getLiveDate().dayOfMonth().get();
-                int month = bane.getLiveDate().getMonthOfYear();
-                int year = bane.getLiveDate().year().get();
-                int hour = bane.getLiveDate().getHourOfDay();
-                writer.putString("BANE SET: " + month + "/" + day + "/" + year + "   " + hour + ":00 CST");
-            }else {
-                writer.putString("BANED!: Unset");
+        try {
+            if (city.getBane() != null) {
+                Bane bane = city.getBane();
+                if (bane.daySet && bane.timeSet && bane.getLiveDate() != null) {
+                    int day = bane.getLiveDate().dayOfMonth().get();
+                    int month = bane.getLiveDate().getMonthOfYear();
+                    int year = bane.getLiveDate().year().get();
+                    int hour = bane.getLiveDate().getHourOfDay();
+                    writer.putString("BANE SET: " + month + "/" + day + "/" + year + "   " + hour + ":00 CST");
+                } else {
+                    writer.putString("BANED!: Unset");
+                }
+            } else {
+                writer.putString(city.motto);
             }
-        }else{
+        }catch(Exception e){
             writer.putString(city.motto);
         }
         writer.putString(rulingGuild.getLeadershipType());
