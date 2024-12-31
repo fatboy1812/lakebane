@@ -4874,7 +4874,7 @@ public class PlayerCharacter extends AbstractCharacter {
 
                 if(this.level < 10) {
                     this.setLevel((short) 10);
-                    if(this.charItemManager.getGoldInventory().getNumOfItems() < 1000) {
+                    if(this.charItemManager != null && this.charItemManager.getGoldInventory() != null && this.charItemManager.getGoldInventory().getNumOfItems() < 1000) {
                         this.getCharItemManager().addGoldToInventory(1000, false);
                         this.getCharItemManager().addItemToInventory(new MobLoot(this, ItemBase.getItemBase(980066), 1, false).promoteToItem(this));
                     }
