@@ -223,4 +223,25 @@ public class dbBaneHandler extends dbHandlerBase {
 
         return true;
     }
+
+    public DateTime getLiveDate(int cityUUID) {
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement statement = connection.prepareStatement("SELECT `liveDate` FROM `dyn_banes` WHERE `cityUUID`=?")) {
+
+            statement.setInt(1, cityUUID);
+
+            try (ResultSet rs = statement.executeQuery()) {
+                if (rs.next()) {
+                    Timestamp liveDateTimestamp = rs.getTimestamp("liveDate");
+                    if (liveDateTimestamp != null) {
+                        return new DateTime(liveDateTimestamp.getTime());
+                    }
+                }
+            }
+
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
+        return null; // Return null if liveDate is not found or an error occurs
+    }
 }
