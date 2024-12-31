@@ -400,15 +400,15 @@ public class Contract extends AbstractGameObject {
             }
         }
 
-        if(bane.timeSet && bane.daySet && bane.capSet){
+        if(updateBaneCap > 0 ||  updateBaneTime > 0 || updateBaneDay > 0) {
             bane.getSiegePhase();
-        }
-        for(PlayerCharacter playerCharacter : SessionManager.getAllActivePlayerCharacters()) {
-            CityDataMsg cityDataMsg = new CityDataMsg(SessionManager.getSession(playerCharacter), false);
-            cityDataMsg.updateMines(true);
-            cityDataMsg.updateCities(true);
-            Dispatch dispatch = Dispatch.borrow(playerCharacter, cityDataMsg);
-            DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
+            for (PlayerCharacter playerCharacter : SessionManager.getAllActivePlayerCharacters()) {
+                CityDataMsg cityDataMsg = new CityDataMsg(SessionManager.getSession(playerCharacter), false);
+                cityDataMsg.updateMines(true);
+                cityDataMsg.updateCities(true);
+                Dispatch dispatch = Dispatch.borrow(playerCharacter, cityDataMsg);
+                DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
+            }
         }
 
         return vd;
