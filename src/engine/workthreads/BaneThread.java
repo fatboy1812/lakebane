@@ -53,12 +53,13 @@ public class BaneThread implements Runnable {
     public void run() {
         lastRun = System.currentTimeMillis();
         while (true) {
-        if(lastRun + instancedelay < System.currentTimeMillis())
-            this.processBanesWindow();
-            lastRun = System.currentTimeMillis();
+            if (System.currentTimeMillis() >= lastRun + instancedelay) { // Correct condition
+                this.processBanesWindow();
+                lastRun = System.currentTimeMillis(); // Update lastRun after processing
+            }
         }
-
     }
+
 
     public static void startBaneThread() {
         Thread baneThread;
