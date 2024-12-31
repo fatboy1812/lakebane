@@ -34,7 +34,7 @@ public class BaneThread implements Runnable {
     }
 
 
-    public static void processBanesWindow() {
+    public void processBanesWindow() {
 
         try {
             for(int baneId : Bane.banes.keySet()){
@@ -54,7 +54,7 @@ public class BaneThread implements Runnable {
         lastRun = System.currentTimeMillis();
         while (true) {
         if(lastRun + instancedelay < System.currentTimeMillis())
-            processBanesWindow();
+            this.processBanesWindow();
             lastRun = System.currentTimeMillis();
         }
 
