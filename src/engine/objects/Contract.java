@@ -196,7 +196,7 @@ public class Contract extends AbstractGameObject {
 
     public static VendorDialog HandleBaneCommanderOptions(int optionId, NPC npc, PlayerCharacter pc){
         pc.setLastNPCDialog(null);
-        VendorDialog vd = VendorDialog.getHostileVendorDialog();
+        VendorDialog vd = new VendorDialog(VendorDialog.getHostileVendorDialog().getDialogType(),VendorDialog.getHostileVendorDialog().getIntro(),-1);//VendorDialog.getHostileVendorDialog();
         vd.getOptions().clear();
         Building building = npc.building;
         Bane bane = null;
