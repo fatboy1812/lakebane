@@ -86,7 +86,7 @@ public class dbBaneHandler extends dbHandlerBase {
     }
 
     public boolean SET_BANE_TIME_NEW(int hour, int cityUUID) {
-        hour += 12;
+        hour += 12; // Adjust hour
         try (Connection connection = DbManager.getConnection();
              PreparedStatement getStatement = connection.prepareStatement("SELECT `placementDate`, `liveDate` FROM `dyn_banes` WHERE `cityUUID`=?");
              PreparedStatement updateStatement = connection.prepareStatement("UPDATE `dyn_banes` SET `liveDate`=?, `time_set`=? WHERE `cityUUID`=?")) {
@@ -98,16 +98,19 @@ public class dbBaneHandler extends dbHandlerBase {
                     DateTime placementDate = new DateTime(rs.getTimestamp("placementDate").getTime());
                     Timestamp liveDateTimestamp = rs.getTimestamp("liveDate");
 
+                    // Explicitly check if liveDate is null
                     DateTime toSet;
-
-                    if (liveDateTimestamp != null) {
-                        // liveDate is set, adjust its time
-                        DateTime liveDate = new DateTime(liveDateTimestamp.getTime());
-                        toSet = liveDate.withHourOfDay(hour).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                    if (liveDateTimestamp == null) {
+                        // If liveDate is null, default to placementDate
+                        toSet = placementDate;
                     } else {
-                        // liveDate is not set, use placementDate with updated time
-                        toSet = placementDate.withHourOfDay(hour).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+                        // If liveDate is not null, use it
+                        DateTime liveDate = new DateTime(liveDateTimestamp.getTime());
+                        toSet = liveDate;
                     }
+
+                    // Adjust the time
+                    toSet = toSet.withHourOfDay(hour).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
 
                     // Update liveDate and time_set flag
                     updateStatement.setTimestamp(1, new java.sql.Timestamp(toSet.getMillis()));
@@ -125,7 +128,6 @@ public class dbBaneHandler extends dbHandlerBase {
         return false;
     }
 
-
     public boolean SET_BANE_DAY_NEW(int dayOffset, int cityUUID) {
         try (Connection connection = DbManager.getConnection();
              PreparedStatement getStatement = connection.prepareStatement("SELECT `placementDate`, `liveDate` FROM `dyn_banes` WHERE `cityUUID`=?");
@@ -136,7 +138,17 @@ public class dbBaneHandler extends dbHandlerBase {
             try (ResultSet rs = getStatement.executeQuery()) {
                 if (rs.next()) {
                     DateTime placementDate = new DateTime(rs.getTimestamp("placementDate").getTime());
-                    DateTime liveDate = new DateTime(rs.getTimestamp("liveDate").getTime());
+                    Timestamp liveDateTimestamp = rs.getTimestamp("liveDate");
+
+                    // Explicitly check if liveDate is null
+                    DateTime liveDate;
+                    if (liveDateTimestamp == null) {
+                        // If liveDate is null, default to placementDate
+                        liveDate = placementDate;
+                    } else {
+                        // If liveDate is not null, use it
+                        liveDate = new DateTime(liveDateTimestamp.getTime());
+                    }
 
                     // Calculate the new liveDate while preserving the time component
                     DateTime updatedDate = placementDate.plusDays(dayOffset)
@@ -160,6 +172,7 @@ public class dbBaneHandler extends dbHandlerBase {
         }
         return false;
     }
+
 
 
 
