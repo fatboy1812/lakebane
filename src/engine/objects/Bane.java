@@ -535,8 +535,7 @@ public final class Bane {
     }
 
     public void setLiveDate_NEW(DateTime baneTime) {
-        this.liveDate = baneTime;
-        this.setLiveDate(DbManager.BaneQueries.getLiveDate(this.getCityUUID()));
+
     }
     public void setLiveDate(DateTime baneTime) {
 
