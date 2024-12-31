@@ -239,7 +239,7 @@ public class City extends AbstractWorldObject {
         writer.putString(rulingGuild.getName());
         if(city.getBane() != null) {
             Bane bane = city.getBane();
-            if(bane.daySet && bane.timeSet){
+            if(bane.daySet && bane.timeSet && bane.getLiveDate() != null){
                 int day = bane.getLiveDate().dayOfMonth().get();
                 int month = bane.getLiveDate().getMonthOfYear();
                 int year = bane.getLiveDate().year().get();
