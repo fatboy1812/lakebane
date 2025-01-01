@@ -305,7 +305,11 @@ public final class Bane {
             //add bane commander NPC
             int contractID = 1502042;
             baneCommander = NPC.createNPC("Bane Commander", contractID, spawnLoc, bane.getCity().getGuild(), ZoneManager.findSmallestZone(bane.getStone().loc), (short) 70, bane.getStone());
-            NPCManager.slotCharacterInBuilding(baneCommander);
+            try {
+                NPCManager.slotCharacterInBuilding(baneCommander);
+            }catch(Exception e){
+
+            }
             WorldGrid.addObject(baneCommander,spawnLoc.x,spawnLoc.z);
             WorldGrid.updateObject(baneCommander);
         }
