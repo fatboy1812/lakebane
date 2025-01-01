@@ -754,7 +754,6 @@ public final class Bane {
                 attackerSize += 1;
         }
 
-        this.capSize = 3;
         //apply zerg mechanic for attackers
         float attackerMultiplier = ZergManager.getCurrentMultiplier(attackerSize,this.capSize);
         float defenderMultiplier = ZergManager.getCurrentMultiplier(defenderSize,this.capSize);
