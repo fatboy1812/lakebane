@@ -211,7 +211,7 @@ public class Contract extends AbstractGameObject {
         int treesInNation = 0;
         if(building != null)
         {
-            City city = ZoneManager.getCityAtLocation(npc.loc);
+            City city = ZoneManager.getCityAtLocation(building.loc);
             if(city != null){
                 bane = city.getBane();
                 if(!city.getGuild().equals(pc.guild))
