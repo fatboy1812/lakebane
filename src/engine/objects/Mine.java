@@ -72,6 +72,10 @@ public class Mine extends AbstractGameObject {
     public Mine(ResultSet rs) throws SQLException, UnknownHostException {
         super(rs);
 
+        if (rs.getInt("capSize") == 0) {
+            throw new IllegalArgumentException("Mine creation canceled: capSize cannot be 0");
+        }
+
         this.mineType = MineProduction.getByName(rs.getString("mine_type"));
 
         int ownerUID = rs.getInt("mine_ownerUID");
