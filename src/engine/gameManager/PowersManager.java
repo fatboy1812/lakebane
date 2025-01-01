@@ -163,6 +163,9 @@ public enum PowersManager {
     public static void usePower(final PerformActionMsg msg, ClientConnection origin,
                                 boolean sendCastToSelf) {
 
+        PlayerCharacter pc = SessionManager.getPlayerCharacter(origin);
+        CombatManager.toggleSit(false,origin);
+
         if (usePowerA(msg, origin, sendCastToSelf)) {
             // Cast failed for some reason, reset timer
 
@@ -171,9 +174,6 @@ public enum PowersManager {
             DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.PRIMARY);
 
             // Send Fail to cast message
-            PlayerCharacter pc = SessionManager
-                    .getPlayerCharacter(origin);
-
             if (pc != null) {
                 sendPowerMsg(pc, 2, msg);
                 if (pc.isCasting()) {

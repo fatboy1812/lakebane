@@ -1242,7 +1242,7 @@ public enum CombatManager {
         DispatchMessage.dispatchMsgToInterestArea(pc, rwss, DispatchChannel.PRIMARY, MBServerStatics.CHARACTER_LOAD_RANGE, false, false);
     }
 
-    private static void toggleSit(boolean toggle, ClientConnection origin) {
+    public static void toggleSit(boolean toggle, ClientConnection origin) {
 
         PlayerCharacter pc = SessionManager.getPlayerCharacter(origin);
 
