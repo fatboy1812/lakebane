@@ -517,6 +517,9 @@ public class WorldServer {
 		Logger.info("Starting Bane Thread");
 		BaneThread.startBaneThread();
 
+		Logger.info("Starting Player Update Thread");
+		UpdateThread.startUpdateThread();
+
 		return true;
 	}
 

@@ -270,7 +270,7 @@ public abstract class AbstractWorldObject extends AbstractGameObject {
             this.effects.remove(name);
             if (this.getObjectType().equals(GameObjectType.PlayerCharacter))
                 if (name.equals("Flight")) {
-                    ((PlayerCharacter) this).update();
+                    ((PlayerCharacter) this).update(false);
                     PlayerCharacter.GroundPlayer((PlayerCharacter) this);
                 }
         }
@@ -385,7 +385,7 @@ public abstract class AbstractWorldObject extends AbstractGameObject {
                     if (source.equals("Flight")) {
                         //ground player
                         if (this.getObjectType().equals(GameObjectType.PlayerCharacter)) {
-                            ((PlayerCharacter) this).update();
+                            ((PlayerCharacter) this).update(false);
                             PlayerCharacter.GroundPlayer((PlayerCharacter) this);
                         }
                     }
@@ -414,7 +414,7 @@ public abstract class AbstractWorldObject extends AbstractGameObject {
                 if (source.equals("Flight")) {
                     //ground player
                     if (this.getObjectType().equals(GameObjectType.PlayerCharacter)) {
-                        ((PlayerCharacter) this).update();
+                        ((PlayerCharacter) this).update(false);
                         PlayerCharacter.GroundPlayer((PlayerCharacter) this);
                     }
                 }

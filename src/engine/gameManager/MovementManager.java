@@ -68,7 +68,7 @@ public enum MovementManager {
 
         if (toMove.getObjectType().equals(GameObjectType.PlayerCharacter)) {
             if (((PlayerCharacter) toMove).isCasting())
-                ((PlayerCharacter) toMove).update();
+                ((PlayerCharacter) toMove).update(false);
         }
 
 
@@ -96,7 +96,7 @@ public enum MovementManager {
         if (!toMove.isMoving())
             toMove.resetLastSetLocUpdate();
         else
-            toMove.update();
+            toMove.update(false);
 
         // Update movement for the player
 
@@ -351,7 +351,7 @@ public enum MovementManager {
             ChatManager.chatSystemInfo((PlayerCharacter) ac, "Finished Alt change, setting the end location to " + ac.getEndLoc().getX() + ' ' + ac.getEndLoc().getZ() + " moving=" + ac.isMoving() + " and current location is " + curLoc.getX() + ' ' + curLoc.getZ());
 
         //Send run/walk/sit/stand to tell the client we are flying / landing etc
-        ac.update();
+        ac.update(false);
         ac.stopMovement(ac.getLoc());
         if (ac.isAlive())
             MovementManager.sendRWSSMsg(ac);
@@ -408,7 +408,7 @@ public enum MovementManager {
             if (bonus.getBool(ModType.Stunned, SourceType.None) || bonus.getBool(ModType.CannotMove, SourceType.None))
                 continue;
 
-            member.update();
+            member.update(false);
 
 
             // All checks passed, let's move the player

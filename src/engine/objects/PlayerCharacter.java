@@ -26,7 +26,6 @@ import engine.job.JobScheduler;
 import engine.jobs.DeferredPowerJob;
 import engine.jobs.FinishSpireEffectJob;
 import engine.jobs.NoTimeJob;
-import engine.jobs.RefreshGroupJob;
 import engine.math.Bounds;
 import engine.math.FastMath;
 import engine.math.Vector3fImmutable;
@@ -2102,7 +2101,7 @@ public class PlayerCharacter extends AbstractCharacter {
         this.lastUpdateTime = System.currentTimeMillis();
         this.lastStamUpdateTime = System.currentTimeMillis();
 
-        this.update();
+        this.update(false);
 
         PowersManager.applyPower(this, this, Vector3fImmutable.ZERO, -1661758934, 40, false);
 
@@ -2923,7 +2922,7 @@ public class PlayerCharacter extends AbstractCharacter {
     public synchronized void grantXP(int xp) {
         if(this.promotionClass == null && this.level == 10){
             this.setOverFlowEXP(0);
-            this.update();
+            this.update(false);
             this.incVer();
             this.recalculate();
             this.calculateMaxHealthManaStamina();
@@ -3084,7 +3083,7 @@ public class PlayerCharacter extends AbstractCharacter {
         }
 
         if (charReloadRequired) {
-            this.update();
+            this.update(false);
             this.incVer();
             this.recalculate();
             this.calculateMaxHealthManaStamina();
@@ -3157,7 +3156,7 @@ public class PlayerCharacter extends AbstractCharacter {
             bonus += this.bonuses.getFloatPercentNullZero(ModType.Speed, SourceType.None);
 
         // TODO get equip bonus
-        this.update();
+        this.update(false);
         this.speedMod = bonus;
     }
 
@@ -4839,7 +4838,10 @@ public class PlayerCharacter extends AbstractCharacter {
     }
 
     @Override
-    public void update() {
+    public void update(Boolean newSystem) {
+
+        if(!newSystem)
+            return;
 
         if (this.updateLock.writeLock().tryLock()) {
             try {
@@ -5547,7 +5549,7 @@ public class PlayerCharacter extends AbstractCharacter {
     @Override
     public final void setIsCasting(final boolean isCasting) {
         if (this.isCasting != isCasting)
-            this.update();
+            this.update(false);
         this.isCasting = isCasting;
     }
 

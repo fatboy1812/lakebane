@@ -70,7 +70,7 @@ public class ChangeAltitudeHandler extends AbstractClientMsgHandler {
         if (pc.getAltitude() == 0 && !msg.up())
             return true;
 
-        pc.update();
+        pc.update(false);
         pc.stopMovement(pc.getLoc());
         msg.setStartAlt(pc.getAltitude());
         if (msg.up()) {
@@ -135,7 +135,7 @@ public class ChangeAltitudeHandler extends AbstractClientMsgHandler {
         }
 
         if (msg.up()) {
-            pc.update();
+            pc.update(false);
             pc.setDesiredAltitude(targetAlt);
             pc.setTakeOffTime(System.currentTimeMillis());
         } else {
@@ -161,7 +161,7 @@ public class ChangeAltitudeHandler extends AbstractClientMsgHandler {
             } else
                 pc.setDesiredAltitude(targetAlt);
 
-            pc.update();
+            pc.update(false);
 
 
             pc.setTakeOffTime(System.currentTimeMillis());

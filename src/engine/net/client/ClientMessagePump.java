@@ -85,7 +85,7 @@ public class ClientMessagePump implements NetMsgHandler {
         if (pc == null)
             return;
 
-        pc.update();
+        pc.update(false);
         if (msg.getSpeed() == 2)
             pc.setWalkMode(false);
         else
@@ -114,7 +114,7 @@ public class ClientMessagePump implements NetMsgHandler {
         if (pc == null)
             return;
 
-        pc.update();
+        pc.update(false);
 
         pc.setSit(msg.toggleSitStand());
 

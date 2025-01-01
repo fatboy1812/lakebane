@@ -8,7 +8,6 @@
 
 package engine.gameManager;
 
-import com.sun.corba.se.spi.orbutil.fsm.ActionBase;
 import engine.Enum.*;
 import engine.InterestManagement.HeightMap;
 import engine.InterestManagement.WorldGrid;
@@ -28,7 +27,6 @@ import engine.net.client.ClientConnection;
 import engine.net.client.msg.*;
 import engine.objects.*;
 import engine.powers.*;
-import engine.powers.effectmodifiers.AbstractEffectModifier;
 import engine.powers.poweractions.AbstractPowerAction;
 import engine.powers.poweractions.TrackPowerAction;
 import engine.server.MBServerStatics;
@@ -179,7 +177,7 @@ public enum PowersManager {
             if (pc != null) {
                 sendPowerMsg(pc, 2, msg);
                 if (pc.isCasting()) {
-                    pc.update();
+                    pc.update(false);
                 }
 
                 pc.setIsCasting(false);
@@ -591,7 +589,7 @@ public enum PowersManager {
 
         // make person casting stand up if spell (unless they're casting a chant which does not make them stand up)
         if (pb.isSpell() && !pb.isChant() && playerCharacter.isSit()) {
-            playerCharacter.update();
+            playerCharacter.update(false);
             playerCharacter.setSit(false);
             UpdateStateMsg updateStateMsg = new UpdateStateMsg(playerCharacter);
             DispatchMessage.dispatchMsgToInterestArea(playerCharacter, updateStateMsg, DispatchChannel.PRIMARY, MBServerStatics.CHARACTER_LOAD_RANGE, true, false);
@@ -614,7 +612,7 @@ public enum PowersManager {
 
 
         if (time > 100) {
-            playerCharacter.update();
+            playerCharacter.update(false);
             playerCharacter.setIsCasting(true);
         }
 
@@ -792,7 +790,7 @@ public enum PowersManager {
             playerCharacter.removeEffectBySource(EffectSourceType.Root,40,true);
         }
         if (playerCharacter.isCasting()) {
-            playerCharacter.update();
+            playerCharacter.update(false);
             playerCharacter.updateStamRegen(-100);
         }
 
@@ -2318,7 +2316,7 @@ public enum PowersManager {
 
         // set player is not casting for regens
         if (pc.isCasting()) {
-            pc.update();
+            pc.update(false);
         }
         pc.setIsCasting(false);
 

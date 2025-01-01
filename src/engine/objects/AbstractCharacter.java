@@ -31,7 +31,6 @@ import engine.net.ByteBufferWriter;
 import engine.net.DispatchMessage;
 import engine.net.client.msg.UpdateStateMsg;
 import engine.powers.EffectsBase;
-import engine.powers.effectmodifiers.AbstractEffectModifier;
 import engine.server.MBServerStatics;
 import org.pmw.tinylog.Logger;
 
@@ -1841,7 +1840,7 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
     }
 
     //updates
-    public void update() {
+    public void update(Boolean newSystem) {
     }
 
     public void updateRegen() {
@@ -1861,16 +1860,16 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
             try {
                 switch (updateType) {
                     case ALL:
-                        update();
+                        update(false);
                         break;
                     case REGEN:
                         updateRegen();
                         break;
                     case LOCATION:
-                        update();
+                        update(false);
                         break;
                     case MOVEMENTSTATE:
-                        update();
+                        update(false);
                         break;
                     case FLIGHT:
                         updateFlight();

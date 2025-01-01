@@ -39,7 +39,7 @@ public class NoModEffectModifier extends AbstractEffectModifier {
                 PlayerCharacter flyer = (PlayerCharacter) ac;
 
                 if (flyer.getAltitude() > 0)
-                    flyer.update();
+                    flyer.update(false);
                 PlayerCharacter.GroundPlayer(flyer);
                 break;
 

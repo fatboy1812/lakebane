@@ -151,7 +151,7 @@ public enum SimulationManager {
 
             if (player == null)
                 continue;
-            player.update();
+            player.update(false);
         }
 
         _updatePulseTime = System.currentTimeMillis() + 500;
