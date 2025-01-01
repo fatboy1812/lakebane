@@ -113,10 +113,8 @@ public final class Bane {
                 break;
         }
 
-        if (this.liveDate == null)
-            setDefaultTime();
         //add bane commander NPC
-        summonBaneCommander(this);
+        //summonBaneCommander(this);
     }
 
     public static boolean summonBanestone(PlayerCharacter player, ClientConnection origin, int rank) {
