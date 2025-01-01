@@ -381,7 +381,6 @@ public class Contract extends AbstractGameObject {
                     bane.setLiveDate_NEW(bane.getLiveDate().plusDays(updateBaneDay));
                 }
             }
-            bane.setLiveDate(DbManager.BaneQueries.getLiveDate(bane.getCityUUID()));
         }
         if (updateBaneTime > 0) {
             if(DbManager.BaneQueries.SET_BANE_TIME_NEW(updateBaneTime,bane.getCityUUID())){
@@ -409,6 +408,19 @@ public class Contract extends AbstractGameObject {
                 cityDataMsg.updateCities(true);
                 Dispatch dispatch = Dispatch.borrow(playerCharacter, cityDataMsg);
                 DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
+            }
+            vd.getOptions().clear();
+            if(!bane.daySet) {
+                MenuOption option1 = new MenuOption(796, "Set Bane Day", 796);
+                vd.getOptions().add(option1);
+            }
+            if(!bane.timeSet) {
+                MenuOption option2 = new MenuOption(797, "Set Bane Time", 797);
+                vd.getOptions().add(option2);
+            }
+            if(!bane.capSet) {
+                MenuOption option3 = new MenuOption(797, "Set Bane Cap", 798);
+                vd.getOptions().add(option3);
             }
         }
 
