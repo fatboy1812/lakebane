@@ -4830,8 +4830,11 @@ public class PlayerCharacter extends AbstractCharacter {
 
         if (sourcePlayer == null)
             return;
+        try {
+            sourcePlayer.getClientConnection().disconnect();
+        } catch (Exception e) {
 
-        sourcePlayer.getClientConnection().disconnect();
+        }
 
     }
 
