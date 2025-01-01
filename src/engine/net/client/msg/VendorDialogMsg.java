@@ -574,6 +574,7 @@ public class VendorDialogMsg extends ClientNetMsg {
             case 2519:
             case 2520:
             case 2521:
+            case 2523:
                 valid = true;
                 break;
         }
