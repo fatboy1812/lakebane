@@ -742,7 +742,7 @@ public final class Bane {
                 attackers.add(uuid);
             else
                 if(city._playerMemory.contains(uuid))
-                    MovementManager.translocate(player,new Vector3fImmutable(88853,32,45079),Regions.GetRegionForTeleport(player.bindLoc));
+                    MovementManager.translocate(player,new Vector3fImmutable(88853,32,45079),Regions.GetRegionForTeleport(new Vector3fImmutable(88853,32,45079)));
         }
         int attackerSize = 0;
         int defenderSize = 0;
