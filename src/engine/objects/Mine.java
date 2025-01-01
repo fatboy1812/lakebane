@@ -78,8 +78,17 @@ public class Mine extends AbstractGameObject {
         this.buildingID = rs.getInt("mine_buildingUID");
         this.flags = rs.getInt("flags");
         int parent = rs.getInt("parent");
-        this.parentZone = ZoneManager.getZoneByUUID(parent);
-        this.zoneName = this.parentZone.getParent().getName();
+        if(ZoneManager.getZoneByUUID(parent) != null) {
+            this.parentZone = ZoneManager.getZoneByUUID(parent);
+            this.zoneName = this.parentZone.getParent().getName();
+        }else{
+            this.parentZone = ZoneManager.getSeaFloor();
+            this.zoneName = this.parentZone.getParent().getName();
+            Logger.error("MINE FAILED TO LOAD PARENT: ");
+            Logger.error("MINE UID: " + rs.getInt("UID"));
+            Logger.error("MINE buildingID: " + buildingID);
+
+        }
 
         this.owningGuild = Guild.getGuild(ownerUID);
         Guild nation = null;
