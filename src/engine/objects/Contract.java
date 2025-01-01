@@ -239,6 +239,7 @@ public class Contract extends AbstractGameObject {
         vd.getOptions().clear();
         switch(optionId){
             default:
+                vd = VendorDialog.getVendorDialog(200296);
                 if(!bane.daySet) {
                     MenuOption option1 = new MenuOption(796, "Set Bane Day", 796);
                     vd.getOptions().add(option1);
@@ -253,6 +254,7 @@ public class Contract extends AbstractGameObject {
                 }
                 break;
             case 796: // set bane day
+                vd = VendorDialog.getVendorDialog(200297);
                 DateTime dayOption1Date = placement.plusDays(3);
                 MenuOption dayOption1 = new MenuOption(7961, dayOption1Date.toString("yyyy-MM-dd"), 7961);
                 vd.getOptions().add(dayOption1);
@@ -274,6 +276,7 @@ public class Contract extends AbstractGameObject {
                 vd.getOptions().add(dayOption5);
                 break;
             case 797: // set bane time
+                vd = VendorDialog.getVendorDialog(200298);
                 MenuOption timeOption1 = new MenuOption(7971, "6:00 pm CST", 7971);
                 vd.getOptions().add(timeOption1);
 
@@ -290,6 +293,7 @@ public class Contract extends AbstractGameObject {
                 vd.getOptions().add(timeOption5);
                 break;
             case 798: // set bane cap
+                vd = VendorDialog.getVendorDialog(200299);
                 if(treesInNation < 6) {
                     MenuOption capOption1 = new MenuOption(7981, "10 Maximum Players", 7981);
                     vd.getOptions().add(capOption1);
