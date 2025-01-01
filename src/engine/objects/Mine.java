@@ -83,7 +83,10 @@ public class Mine extends AbstractGameObject {
             this.zoneName = this.parentZone.getParent().getName();
         }else{
             this.parentZone = ZoneManager.getSeaFloor();
-            this.zoneName = this.parentZone.getParent().getName();
+            if(this.parentZone.getParent() != null)
+                this.zoneName = this.parentZone.getParent().getName();
+            else
+                this.zoneName = "FAILED TO LOAD ZONE";
             Logger.error("MINE FAILED TO LOAD PARENT: ");
             Logger.error("MINE UID: " + rs.getInt("UID"));
             Logger.error("MINE buildingID: " + buildingID);
