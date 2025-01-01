@@ -520,7 +520,44 @@ public class WorldServer {
 		Logger.info("Starting Player Update Thread");
 		UpdateThread.startUpdateThread();
 
+
+		printThreads();
+		Logger.info("Threads Running:");
+
 		return true;
+	}
+
+	public static void printThreads() {
+		// Get the root thread group
+		ThreadGroup rootGroup = Thread.currentThread().getThreadGroup();
+		while (rootGroup.getParent() != null) {
+			rootGroup = rootGroup.getParent();
+		}
+
+		// Estimate the number of threads
+		int activeThreads = rootGroup.activeCount();
+
+		// Create an array to hold the threads
+		Thread[] threads = new Thread[activeThreads];
+
+		// Get the active threads
+		rootGroup.enumerate(threads, true);
+
+		int availableThreads = Runtime.getRuntime().availableProcessors();
+
+		// Print the count
+		Logger.info("Total threads in application: " + threads.length + " / " + availableThreads + " Total Threads On Machine");
+		if(threads.length > (int)(availableThreads * 0.75f)){
+			Logger.error("WARNING! Too many threads are being used, hardware update recommended");
+		}
+
+		// Optionally, list the thread names
+		Logger.info("Active threads:");
+		for (Thread thread : threads) {
+			if (thread != null) {
+				Logger.info(thread.getName());
+			}
+		}
 	}
 
 	protected boolean initDatabaselayer() {
