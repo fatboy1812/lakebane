@@ -354,18 +354,7 @@ public enum NPCManager {
 
         // Rotate slot position by the building rotation
 
-        if (abstractCharacter != null && abstractCharacter.building != null && abstractCharacter.bindLoc != null
-                && abstractCharacter.building.getLoc() != null && abstractCharacter.building.getBounds() != null
-                && abstractCharacter.building.getBounds().getQuaternion() != null) {
-            abstractCharacter.bindLoc = Vector3fImmutable.rotateAroundPoint(
-                    abstractCharacter.building.getLoc(),
-                    abstractCharacter.bindLoc,
-                    abstractCharacter.building.getBounds().getQuaternion().angleY
-            );
-        } else {
-            Logger.error("Null value detected in abstractCharacter or its properties. Skipping rotation logic.");
-            // Handle the case where one or more objects are null, if needed
-        }
+        abstractCharacter.bindLoc = Vector3fImmutable.rotateAroundPoint(abstractCharacter.building.getLoc(), abstractCharacter.bindLoc, abstractCharacter.building.getBounds().getQuaternion().angleY);
 
         abstractCharacter.loc = new Vector3fImmutable(abstractCharacter.bindLoc);
 
