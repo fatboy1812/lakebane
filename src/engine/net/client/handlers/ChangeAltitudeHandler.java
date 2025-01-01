@@ -47,12 +47,15 @@ public class ChangeAltitudeHandler extends AbstractClientMsgHandler {
         if (pc.region != null && !pc.region.isOutside())
             return false;
 
-
         // Find out if we already have an altitude timer running and if so
         // do not process more alt change requests
 
+        pc.updateFlight();
+
         if (pc.getTakeOffTime() != 0)
             return false;
+
+        pc.setTakeOffTime(System.currentTimeMillis());
 
 
         // remove all movement timers and jobs
