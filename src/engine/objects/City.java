@@ -1012,7 +1012,7 @@ public class City extends AbstractWorldObject {
 
         // Gather current list of players within the zone bounds
 
-        currentPlayers = WorldGrid.getObjectsInRangePartial(this.location, CityBoundsType.ZONE.extents, MBServerStatics.MASK_PLAYER);
+        currentPlayers = WorldGrid.getObjectsInRangePartial(this.location, CityBoundsType.ZONE.extents * 2, MBServerStatics.MASK_PLAYER);
         currentMemory = new HashSet<>();
 
         for (AbstractWorldObject playerObject : currentPlayers) {
@@ -1061,19 +1061,19 @@ public class City extends AbstractWorldObject {
         }
     }
 
-    private void onExitBane(){
-        ArrayList<Integer> toRemove = new ArrayList<>();
-        for(int uuid : this.baneAttendees.keySet()){
-            if(!_playerMemory.contains(uuid)){
-                if(System.currentTimeMillis() - this.baneAttendees.get(uuid) > 180000){
-                    toRemove.add(uuid);
+    private void onExitBane() {
+        Iterator<Integer> iterator = this.baneAttendees.keySet().iterator();
+        while (iterator.hasNext()) {
+            Integer uuid = iterator.next();
+            if (!_playerMemory.contains(uuid)) {
+                long timeGone = System.currentTimeMillis() - this.baneAttendees.get(uuid).longValue();
+                if (timeGone > 180000) { // 3 minutes
+                    iterator.remove();
                 }
             }
         }
-        for(Integer uuid : toRemove){
-            this.baneAttendees.remove(uuid);
-        }
     }
+
 
     private void onExit(HashSet<Integer> currentMemory) {
 

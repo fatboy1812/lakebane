@@ -728,7 +728,7 @@ public final class Bane {
         ArrayList<Integer> defenders = new ArrayList<>();
         Guild attackNation = this.getOwner().getGuild().getNation();
         Guild defendNation = this.getCity().getGuild().getNation();
-        for(int uuid : city.baneAttendees.keySet()){
+        for(int uuid : city._playerMemory){
             PlayerCharacter player = PlayerCharacter.getPlayerCharacter(uuid);
             if(player == null)
                 continue;
@@ -739,12 +739,25 @@ public final class Bane {
             else if(playerNation.equals(attackNation))
                 attackers.add(uuid);
             else
-                MovementManager.translocate(player,player.bindLoc,Regions.GetRegionForTeleport(player.bindLoc));
+                if(city._playerMemory.contains(uuid))
+                    MovementManager.translocate(player,new Vector3fImmutable(88853,32,45079),Regions.GetRegionForTeleport(player.bindLoc));
+        }
+        int attackerSize = 0;
+        int defenderSize = 0;
+        for(int uuid : city.baneAttendees.keySet()){
+            PlayerCharacter player = PlayerCharacter.getPlayerCharacter(uuid);
+            if(player == null)
+                continue;
+            if(player.guild.getNation().equals(defendNation))
+                defenderSize += 1;
+            else if(player.guild.getNation().equals(attackNation))
+                attackerSize += 1;
         }
 
+        this.capSize = 3;
         //apply zerg mechanic for attackers
-        float attackerMultiplier = ZergManager.getCurrentMultiplier(attackers.size(),this.capSize);
-        float defenderMultiplier = ZergManager.getCurrentMultiplier(defenders.size(),this.capSize);
+        float attackerMultiplier = ZergManager.getCurrentMultiplier(attackerSize,this.capSize);
+        float defenderMultiplier = ZergManager.getCurrentMultiplier(defenderSize,this.capSize);
         for(int uuid : attackers){
             if(city._playerMemory.contains(uuid)) //player is still physically here, needs updated multiplier
                 PlayerCharacter.getPlayerCharacter(uuid).ZergMultiplier = attackerMultiplier;
