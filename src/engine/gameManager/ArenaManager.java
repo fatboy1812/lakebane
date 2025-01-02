@@ -92,8 +92,10 @@ public class ArenaManager {
         while (!locSet) {
             try {
                 // Generate random X and Z coordinates within the range [10,000, 90,000]
-                float x = ThreadLocalRandom.current().nextInt(10000, 90000);
-                float z = ThreadLocalRandom.current().nextInt(10000, 90000);
+                //float x = ThreadLocalRandom.current().nextInt(30000, 50000);
+                //float z = ThreadLocalRandom.current().nextInt(30000, 50000);
+                float x = ThreadLocalRandom.current().nextInt(114300, 123600);
+                float z = ThreadLocalRandom.current().nextInt(82675, 91700);
                 float y = 0; // Y coordinate is always 0
 
                 loc = new Vector3fImmutable(x, y, z);
