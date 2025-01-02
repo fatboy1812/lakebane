@@ -4825,7 +4825,7 @@ public class PlayerCharacter extends AbstractCharacter {
         return false;
     }
 
-    private static void forceRespawn(PlayerCharacter sourcePlayer) throws MsgSendException {
+    public static void forceRespawn(PlayerCharacter sourcePlayer) throws MsgSendException {
 
         if (sourcePlayer == null)
             return;

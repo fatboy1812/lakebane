@@ -1,6 +1,8 @@
 package engine.gameManager;
 
+import engine.Enum;
 import engine.InterestManagement.WorldGrid;
+import engine.exception.MsgSendException;
 import engine.math.Vector3fImmutable;
 import engine.objects.*;
 import engine.server.MBServerStatics;
@@ -57,6 +59,8 @@ public class ArenaManager {
             Collections.shuffle(playerQueue);
             Arena newArena = new Arena();
 
+            //set starting time
+            newArena.startTime = System.currentTimeMillis();
             //decide an arena location
             newArena.loc = selectRandomArenaLocation();
 
@@ -65,15 +69,16 @@ public class ArenaManager {
             newArena.player2 = playerQueue.remove(0);
 
             // Teleport players to the arena location
-            MovementManager.translocate(newArena.player1, newArena.loc, Regions.GetRegionForTeleport(newArena.loc));
-            MovementManager.translocate(newArena.player2, newArena.loc, Regions.GetRegionForTeleport(newArena.loc));
+            Zone sdr = ZoneManager.getZoneByUUID(656);
+            MovementManager.translocate(newArena.player1, Vector3fImmutable.getRandomPointOnCircle(newArena.loc,75f), null);
+            MovementManager.translocate(newArena.player2, Vector3fImmutable.getRandomPointOnCircle(newArena.loc,75f), null);
 
             // Add the new arena to the active arenas list
             activeArenas.add(newArena);
         }
     }
 
-    public static void endArena(Arena arena, PlayerCharacter winner, PlayerCharacter loser, String condition) {
+    public static void endArena(Arena arena, PlayerCharacter winner, PlayerCharacter loser, String condition) throws MsgSendException {
         if (winner != null && loser != null) {
             Logger.info("[ARENA] The fight between {} and {} is concluded. Victor: {}",
                     arena.player1.getName(), arena.player2.getName(), winner.getName());
@@ -81,7 +86,14 @@ public class ArenaManager {
             Logger.info("[ARENA] The fight between {} and {} is concluded. No Winner Declared.",
                     arena.player1.getName(), arena.player2.getName());
         }
-
+        if(loser != null) {
+            PlayerCharacter.forceRespawn(loser);
+            loser.removeEffectBySource(Enum.EffectSourceType.DeathShroud,41,false);
+        }
+        // Teleport players to the arena location
+        Zone sdr = ZoneManager.getZoneByUUID(656);
+        MovementManager.translocate(arena.player1, Vector3fImmutable.getRandomPointOnCircle(sdr.getLoc(),50f), null);
+        MovementManager.translocate(arena.player2, Vector3fImmutable.getRandomPointOnCircle(sdr.getLoc(),50f), null);
         activeArenas.remove(arena);
     }
 
@@ -91,20 +103,17 @@ public class ArenaManager {
 
         while (!locSet) {
             try {
-                // Generate random X and Z coordinates within the range [10,000, 90,000]
-                //float x = ThreadLocalRandom.current().nextInt(30000, 50000);
-                //float z = ThreadLocalRandom.current().nextInt(30000, 50000);
                 float x = ThreadLocalRandom.current().nextInt(114300, 123600);
                 float z = ThreadLocalRandom.current().nextInt(82675, 91700);
                 float y = 0; // Y coordinate is always 0
 
-                loc = new Vector3fImmutable(x, y, z);
-                Zone zone = ZoneManager.findSmallestZone(loc);
-                if (zone.isContinent() && !ZoneManager.getSeaFloor().equals(zone)) {
-                    HashSet<AbstractWorldObject> inRange = WorldGrid.getObjectsInRangePartial(loc,250f, MBServerStatics.MASK_PLAYER);
-                    if(inRange.isEmpty())
-                        locSet = true;
-                }
+                loc = new Vector3fImmutable(x, y, z * -1);
+                //Zone zone = ZoneManager.findSmallestZone(loc);
+                //if (zone.isContinent() && !ZoneManager.getSeaFloor().equals(zone)) {
+                HashSet<AbstractWorldObject> inRange = WorldGrid.getObjectsInRangePartial(loc,500f, MBServerStatics.MASK_PLAYER);
+                if(inRange.isEmpty())
+                    locSet = true;
+                //}
             }catch(Exception e){
 
             }

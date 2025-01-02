@@ -55,6 +55,12 @@ public class Arena {
 
     public Boolean checkToComplete(){
 
+        if(this.startTime == null)
+            this.startTime = System.currentTimeMillis();
+
+        if(System.currentTimeMillis() - this.startTime < 10000L)
+            return false;
+
         if(this.disqualify())
             return true;
 
@@ -67,7 +73,7 @@ public class Arena {
         } else if(!this.player1.isAlive() && !this.player2.isAlive()){
             ArenaManager.endArena(this,null,null,"Both Players Have Died");
             return true;
-        } else if(this.startTime + 300000 > System.currentTimeMillis()){
+        } else if(this.startTime + 300000L < System.currentTimeMillis()){
             ArenaManager.endArena(this,null,null,"Time Has Elapsed");
             return true;
         }
