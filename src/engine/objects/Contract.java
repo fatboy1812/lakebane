@@ -203,16 +203,16 @@ public class Contract extends AbstractGameObject {
 
         switch(optionId){
             case 15020431:
-                if(pc.isBoxed){
-                    ChatManager.chatSystemInfo(pc, "You Cannot Join The Que, You Are Boxed");
-                }else {
+                //if(pc.isBoxed){
+                //    ChatManager.chatSystemInfo(pc, "You Cannot Join The Que, You Are Boxed");
+                //}else {
                     if (ArenaManager.playerQueue.contains(pc)) {
                         ChatManager.chatSystemInfo(pc, "You Are Already In The Arena Que");
                     } else {
                         ArenaManager.joinQueue(pc);
                         ChatManager.chatSystemInfo(pc, "You Have Joined The Arena Que");
                     }
-                }
+                //}
                 break;
             case 15020432:
                 if(ArenaManager.playerQueue.contains(pc)) {

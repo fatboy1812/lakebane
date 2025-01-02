@@ -114,8 +114,16 @@ public enum SimulationManager {
 
         try {
             if ((_cityPulseTime != 0) && (System.currentTimeMillis() > _cityPulseTime)) {
-                pulseCities();
-                ArenaManager.pulseArenas();
+                try {
+                    pulseCities();
+                }catch(Exception e){
+
+                }
+                try {
+                    ArenaManager.pulseArenas();
+                }catch(Exception e){
+
+                }
             }
         } catch (Exception e) {
             Logger.error(

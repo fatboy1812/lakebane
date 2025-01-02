@@ -20,6 +20,9 @@ public class ArenaManager {
             lastExecution = System.currentTimeMillis();
         }
 
+        if(activeArenas.isEmpty() && playerQueue.isEmpty())
+            return;
+
         Iterator<Arena> iterator = activeArenas.iterator();
 
         while (iterator.hasNext()) {
