@@ -32,8 +32,8 @@ public class ArenaManager {
             }
         }
 
-        if(lastExecution + pulseDelay < System.currentTimeMillis())
-            return;
+        //if(lastExecution + pulseDelay > System.currentTimeMillis())
+        //    return;
 
         lastExecution = System.currentTimeMillis();
 
@@ -93,7 +93,7 @@ public class ArenaManager {
             try {
                 // Generate random X and Z coordinates within the range [10,000, 90,000]
                 float x = ThreadLocalRandom.current().nextInt(10000, 90000);
-                float z = ThreadLocalRandom.current().nextInt(-10000, -90000);
+                float z = ThreadLocalRandom.current().nextInt(10000, 90000);
                 float y = 0; // Y coordinate is always 0
 
                 loc = new Vector3fImmutable(x, y, z);
