@@ -14,6 +14,7 @@ public class Arena {
     public PlayerCharacter player2;
     public Long startTime;
     public Vector3fImmutable loc;
+    public Building arenaCircle;
 
     public Arena(){
 
