@@ -78,17 +78,13 @@ public class ArenaManager {
         }
     }
 
-    public static void endArena(Arena arena, PlayerCharacter winner, PlayerCharacter loser, String condition) throws MsgSendException {
+    public static void endArena(Arena arena, PlayerCharacter winner, PlayerCharacter loser, String condition){
         if (winner != null && loser != null) {
             Logger.info("[ARENA] The fight between {} and {} is concluded. Victor: {}",
                     arena.player1.getName(), arena.player2.getName(), winner.getName());
         } else {
             Logger.info("[ARENA] The fight between {} and {} is concluded. No Winner Declared.",
                     arena.player1.getName(), arena.player2.getName());
-        }
-        if(loser != null) {
-            PlayerCharacter.forceRespawn(loser);
-            loser.removeEffectBySource(Enum.EffectSourceType.DeathShroud,41,false);
         }
         // Teleport players to the arena location
         Zone sdr = ZoneManager.getZoneByUUID(656);
