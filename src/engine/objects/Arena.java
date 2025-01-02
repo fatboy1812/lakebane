@@ -2,6 +2,7 @@ package engine.objects;
 
 import engine.InterestManagement.WorldGrid;
 import engine.gameManager.ArenaManager;
+import engine.gameManager.ChatManager;
 import engine.gameManager.MovementManager;
 import engine.math.Vector3fImmutable;
 import engine.server.MBServerStatics;
@@ -19,7 +20,14 @@ public class Arena {
     }
     public Boolean disqualify() {
         HashSet<AbstractWorldObject> inRange = WorldGrid.getObjectsInRangePartial(this.loc, 250f, MBServerStatics.MASK_PLAYER);
+        HashSet<AbstractWorldObject> warningRange = WorldGrid.getObjectsInRangePartial(this.loc, 500f, MBServerStatics.MASK_PLAYER);
+        for(AbstractWorldObject obj : warningRange){
+            PlayerCharacter pc = (PlayerCharacter)obj;
+            if(pc.equals(this.player1) || pc.equals(this.player2))
+                continue;
 
+            ChatManager.chatSystemInfo(pc, "WARNING!! You are entering an arena zone!");
+        }
         //boot out all non competitors
         for(AbstractWorldObject obj : inRange){
             if(obj.equals(this.player1))

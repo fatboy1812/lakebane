@@ -113,9 +113,10 @@ public enum SimulationManager {
         }
 
         try {
-            if ((_cityPulseTime != 0)
-                    && (System.currentTimeMillis() > _cityPulseTime))
+            if ((_cityPulseTime != 0) && (System.currentTimeMillis() > _cityPulseTime)) {
                 pulseCities();
+                ArenaManager.pulseArenas();
+            }
         } catch (Exception e) {
             Logger.error(
                     "Fatal error in City Pulse: DISABLED. Error Message : "

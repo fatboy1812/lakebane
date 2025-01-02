@@ -202,23 +202,31 @@ public class Contract extends AbstractGameObject {
         vd.getOptions().clear();
 
         switch(optionId){
-            default:
-                MenuOption option1 = new MenuOption(15020431, "Join Arena Que", 15020431);
-                vd.getOptions().add(option1);
-                MenuOption option2 = new MenuOption(15020432, "Leave Arena Que", 15020432);
-                vd.getOptions().add(option2);
-            break;
             case 15020431:
-                ArenaManager.joinQueue(pc);
-                ChatManager.chatSystemInfo(pc, "You Have Joined The Arena Que");
+                if(pc.isBoxed){
+                    ChatManager.chatSystemInfo(pc, "You Cannot Join The Que, You Are Boxed");
+                }else {
+                    if (ArenaManager.playerQueue.contains(pc)) {
+                        ChatManager.chatSystemInfo(pc, "You Are Already In The Arena Que");
+                    } else {
+                        ArenaManager.joinQueue(pc);
+                        ChatManager.chatSystemInfo(pc, "You Have Joined The Arena Que");
+                    }
+                }
                 break;
             case 15020432:
-                if(ArenaManager.playerQueue.contains(pc))
+                if(ArenaManager.playerQueue.contains(pc)) {
                     ArenaManager.leaveQueue(pc);
-                ChatManager.chatSystemInfo(pc, "You Have Left The Arena Que");
+                    ChatManager.chatSystemInfo(pc, "You Have Left The Arena Que");
+                }else{
+                    ChatManager.chatSystemInfo(pc, "You Are Not In The Arena Que");
+                }
                 break;
         }
-
+        MenuOption option1 = new MenuOption(15020431, "Join Arena Que", 15020431);
+        vd.getOptions().add(option1);
+        MenuOption option2 = new MenuOption(15020432, "Leave Arena Que", 15020432);
+        vd.getOptions().add(option2);
         return vd;
     }
     public static VendorDialog HandleEnrollmentOfficer(int optionId, NPC npc, PlayerCharacter pc){

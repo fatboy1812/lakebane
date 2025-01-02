@@ -1,22 +1,25 @@
 package engine.gameManager;
 
+import engine.InterestManagement.WorldGrid;
 import engine.math.Vector3fImmutable;
-import engine.objects.Arena;
-import engine.objects.PlayerCharacter;
-import engine.objects.Regions;
-import engine.objects.Zone;
+import engine.objects.*;
+import engine.server.MBServerStatics;
 import org.pmw.tinylog.Logger;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class ArenaManager {
     private static final List<Arena> activeArenas = new ArrayList<>();
     public static final List<PlayerCharacter> playerQueue = new ArrayList<>();
+    public static Long pulseDelay = 180000L;
+    public static Long lastExecution = 0L;
 
     public static void pulseArenas() {
+        if(lastExecution == 0L){
+            lastExecution = System.currentTimeMillis();
+        }
+
         Iterator<Arena> iterator = activeArenas.iterator();
 
         while (iterator.hasNext()) {
@@ -25,6 +28,11 @@ public class ArenaManager {
                 iterator.remove();
             }
         }
+
+        if(lastExecution + pulseDelay < System.currentTimeMillis())
+            return;
+
+        lastExecution = System.currentTimeMillis();
 
         while (playerQueue.size() > 1) {
             createArena();
@@ -43,6 +51,7 @@ public class ArenaManager {
 
     private static void createArena() {
         if (playerQueue.size() > 1) {
+            Collections.shuffle(playerQueue);
             Arena newArena = new Arena();
 
             //decide an arena location
@@ -87,7 +96,9 @@ public class ArenaManager {
                 loc = new Vector3fImmutable(x, y, z);
                 Zone zone = ZoneManager.findSmallestZone(loc);
                 if (zone.isContinent() && !ZoneManager.getSeaFloor().equals(zone)) {
-                    locSet = true;
+                    HashSet<AbstractWorldObject> inRange = WorldGrid.getObjectsInRangePartial(loc,250f, MBServerStatics.MASK_PLAYER);
+                    if(inRange.isEmpty())
+                        locSet = true;
                 }
             }catch(Exception e){
 
