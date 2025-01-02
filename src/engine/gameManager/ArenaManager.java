@@ -134,7 +134,7 @@ public class ArenaManager {
 
                 loc = new Vector3fImmutable(x, y, z * -1);
                 HashSet<AbstractWorldObject> inRange = WorldGrid.getObjectsInRangePartial(loc,500f, MBServerStatics.MASK_PLAYER);
-                if(inRange.isEmpty())
+                if(inRange.isEmpty() && !isUnderWater(loc))
                     locSet = true;
                 //}
             }catch(Exception e){
@@ -143,5 +143,27 @@ public class ArenaManager {
         }
 
         return loc;
+    }
+
+    public static boolean isUnderWater(Vector3fImmutable loc) {
+
+        try {
+
+            Zone zone = ZoneManager.findSmallestZone(loc);
+
+            if (zone.getSeaLevel() != 0) {
+
+                float localAltitude = loc.y;
+                if (localAltitude < zone.getSeaLevel())
+                    return true;
+            } else {
+                if (loc.y < 0)
+                    return true;
+            }
+        } catch (Exception e) {
+
+        }
+
+        return false;
     }
 }
