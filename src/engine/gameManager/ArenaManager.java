@@ -67,13 +67,6 @@ public class ArenaManager {
             //decide an arena location
             newArena.loc = selectRandomArenaLocation();
 
-            //create building for arena
-            //arena mesh uuid = 423600
-            Vector3f rot = new Vector3f(0.0f, 0.0f, 0.0f);
-            float w = 1f;
-            Building building = DbManager.BuildingQueries.CREATE_BUILDING(992, 0, "Duelling Arena", 423600, newArena.loc, 3.0f, 0, Enum.ProtectionState.PROTECTED, 0, 1, null, 423600, w, rot.y);
-            newArena.arenaCircle = building;
-
             // Assign players to the arena
             newArena.player1 = playerQueue.remove(0);
             newArena.player2 = playerQueue.remove(0);
@@ -101,16 +94,12 @@ public class ArenaManager {
         MovementManager.translocate(arena.player1, Vector3fImmutable.getRandomPointOnCircle(sdr.getLoc(),50f), null);
         MovementManager.translocate(arena.player2, Vector3fImmutable.getRandomPointOnCircle(sdr.getLoc(),50f), null);
 
-        Building building = arena.arenaCircle;
-        Zone zone = building.getParentZone();
-        DbManager.BuildingQueries.DELETE_FROM_DATABASE(building);
-        DbManager.removeFromCache(building);
-        zone.zoneBuildingSet.remove(building);
-        WorldGrid.RemoveWorldObject(building);
+
 
         activeArenas.remove(arena);
 
         if(winner != null){
+            ChatManager.chatPVP("[ARENA] " + winner.getName() + " has slain " + loser.getName() + " in the arena!");
             //handle prize distribution
             //ItemBase specialLoot = ItemBase.getItemBase(866);
             //Item promoted = new MobLoot(winner, specialLoot, 1, false).promoteToItem(winner);
