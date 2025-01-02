@@ -91,6 +91,14 @@ public class ArenaManager {
         MovementManager.translocate(arena.player1, Vector3fImmutable.getRandomPointOnCircle(sdr.getLoc(),50f), null);
         MovementManager.translocate(arena.player2, Vector3fImmutable.getRandomPointOnCircle(sdr.getLoc(),50f), null);
         activeArenas.remove(arena);
+
+        if(winner != null){
+            //handle prize distribution
+            CharacterItemManager charItemMan = winner.getCharItemManager();
+            ItemBase specialLoot = ItemBase.getItemBase(866);
+            Item promoted = new MobLoot(null,specialLoot,false).promoteToItem(winner);
+            DbManager.ItemQueries.UPDATE_NUM_ITEMS(promoted,21235);
+        }
     }
 
     public static Vector3fImmutable selectRandomArenaLocation() {
@@ -104,8 +112,6 @@ public class ArenaManager {
                 float y = 0; // Y coordinate is always 0
 
                 loc = new Vector3fImmutable(x, y, z * -1);
-                //Zone zone = ZoneManager.findSmallestZone(loc);
-                //if (zone.isContinent() && !ZoneManager.getSeaFloor().equals(zone)) {
                 HashSet<AbstractWorldObject> inRange = WorldGrid.getObjectsInRangePartial(loc,500f, MBServerStatics.MASK_PLAYER);
                 if(inRange.isEmpty())
                     locSet = true;
