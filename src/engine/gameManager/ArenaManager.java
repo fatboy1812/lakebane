@@ -34,8 +34,8 @@ public class ArenaManager {
             }
         }
 
-        //if(lastExecution + pulseDelay > System.currentTimeMillis())
-        //    return;
+        if(lastExecution + pulseDelay > System.currentTimeMillis())
+            return;
 
         lastExecution = System.currentTimeMillis();
 
@@ -94,10 +94,13 @@ public class ArenaManager {
 
         if(winner != null){
             //handle prize distribution
-            CharacterItemManager charItemMan = winner.getCharItemManager();
-            ItemBase specialLoot = ItemBase.getItemBase(866);
-            Item promoted = new MobLoot(null,specialLoot,false).promoteToItem(winner);
-            DbManager.ItemQueries.UPDATE_NUM_ITEMS(promoted,21235);
+            //ItemBase specialLoot = ItemBase.getItemBase(866);
+            //Item promoted = new MobLoot(winner, specialLoot, 1, false).promoteToItem(winner);
+            //promoted.setNumOfItems(21235);
+            //promoted.setName("Special Banker(21235)");
+            //DbManager.ItemQueries.UPDATE_NUM_ITEMS(promoted,21235);
+            //winner.getCharItemManager().addItemToInventory(promoted);
+            //winner.getCharItemManager().updateInventory();
         }
     }
 
