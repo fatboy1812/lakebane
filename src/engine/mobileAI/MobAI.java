@@ -601,6 +601,9 @@ public class MobAI {
 
             if (mob == null)
                 return;
+            if(mob.isAlive())
+                if(!mob.getMovementLoc().equals(Vector3fImmutable.ZERO))
+                    mob.setLoc(mob.getMovementLoc());
 
             if (mob.getTimestamps().containsKey("lastExecution") == false)
                 mob.getTimestamps().put("lastExecution", System.currentTimeMillis());

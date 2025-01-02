@@ -198,6 +198,23 @@ public class Contract extends AbstractGameObject {
         return this.vendorDialog;
     }
 
+    public static VendorDialog HandleEnrollmentOfficer(int optionId, NPC npc, PlayerCharacter pc){
+        pc.setLastNPCDialog(npc);
+        VendorDialog vd = new VendorDialog(VendorDialog.getHostileVendorDialog().getDialogType(),VendorDialog.getHostileVendorDialog().getIntro(),-1);//VendorDialog.getHostileVendorDialog();
+        vd.getOptions().clear();
+        switch(optionId) {
+            default:
+            if (pc.isBoxed) {
+                MenuOption option1 = new MenuOption(15020401, "Unbox", 15020401);
+                vd.getOptions().add(option1);
+            }
+            break;
+            case 15020401:
+                PlayerCharacter.unboxPlayer(pc);
+                break;
+        }
+        return vd;
+    }
     public static VendorDialog HandleBaneCommanderOptions(int optionId, NPC npc, PlayerCharacter pc){
         pc.setLastNPCDialog(npc);
         VendorDialog vd = new VendorDialog(VendorDialog.getHostileVendorDialog().getDialogType(),VendorDialog.getHostileVendorDialog().getIntro(),-1);//VendorDialog.getHostileVendorDialog();

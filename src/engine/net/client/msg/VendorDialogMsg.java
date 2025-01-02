@@ -96,11 +96,6 @@ public class VendorDialogMsg extends ClientNetMsg {
             return;
         }
 
-
-        if(npc.contractUUID == 1502040){ //enrollment officer
-            PlayerCharacter.unboxPlayer(playerCharacter);
-        }
-
         // Restrict disc trainers to only characters who have
         // tht disc applied.
 
@@ -119,6 +114,12 @@ public class VendorDialogMsg extends ClientNetMsg {
 
         VendorDialog vd = null;
         Contract contract = npc.getContract();
+
+        if(npc.contractUUID == 1502040){ //enrollment officer
+            //PlayerCharacter.unboxPlayer(playerCharacter);
+            vd = Contract.HandleEnrollmentOfficer(msg.unknown03,npc,playerCharacter);
+            msg.updateMessage(3, vd);
+        }
 
         if(contract.getContractID() == 1502042){
            vd = Contract.HandleBaneCommanderOptions(msg.unknown03, npc, playerCharacter);
