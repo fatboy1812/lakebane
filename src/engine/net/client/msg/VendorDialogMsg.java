@@ -119,9 +119,7 @@ public class VendorDialogMsg extends ClientNetMsg {
             //PlayerCharacter.unboxPlayer(playerCharacter);
             vd = Contract.HandleEnrollmentOfficer(msg.unknown03,npc,playerCharacter);
             msg.updateMessage(3, vd);
-        }
-
-        if(contract.getContractID() == 1502042){
+        }else if(contract.getContractID() == 1502042){
            vd = Contract.HandleBaneCommanderOptions(msg.unknown03, npc, playerCharacter);
            msg.updateMessage(3, vd);
         }else {

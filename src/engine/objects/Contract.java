@@ -200,7 +200,8 @@ public class Contract extends AbstractGameObject {
 
     public static VendorDialog HandleEnrollmentOfficer(int optionId, NPC npc, PlayerCharacter pc){
         pc.setLastNPCDialog(npc);
-        VendorDialog vd = new VendorDialog(VendorDialog.getHostileVendorDialog().getDialogType(),VendorDialog.getHostileVendorDialog().getIntro(),-1);//VendorDialog.getHostileVendorDialog();
+        //VendorDialog vd = new VendorDialog(npc.contract.getVendorDialog().getDialogType(),npc.contract.getVendorDialog().getIntro(),-1);//VendorDialog.getHostileVendorDialog();
+        VendorDialog vd = new VendorDialog(npc.contract.getVendorDialog().getDialogType(),npc.contract.getVendorDialog().getIntro(),-1);//VendorDialog.getHostileVendorDialog();
         vd.getOptions().clear();
         switch(optionId) {
             default:
@@ -211,6 +212,7 @@ public class Contract extends AbstractGameObject {
             break;
             case 15020401:
                 PlayerCharacter.unboxPlayer(pc);
+                vd.getOptions().clear();
                 break;
         }
         return vd;
