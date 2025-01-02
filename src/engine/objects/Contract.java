@@ -206,7 +206,7 @@ public class Contract extends AbstractGameObject {
         switch(optionId) {
             default:
             if (pc.isBoxed) {
-                MenuOption option1 = new MenuOption(15020401, "Unbox", 15020401);
+                MenuOption option1 = new MenuOption(15020401, "Unbox Character", 15020401);
                 vd.getOptions().add(option1);
             }
             break;
