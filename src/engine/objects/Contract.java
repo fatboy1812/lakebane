@@ -11,10 +11,7 @@ package engine.objects;
 
 import ch.claude_martin.enumbitset.EnumBitSet;
 import engine.Enum;
-import engine.gameManager.BuildingManager;
-import engine.gameManager.DbManager;
-import engine.gameManager.SessionManager;
-import engine.gameManager.ZoneManager;
+import engine.gameManager.*;
 import engine.net.Dispatch;
 import engine.net.DispatchMessage;
 import engine.net.client.msg.CityDataMsg;
@@ -198,6 +195,32 @@ public class Contract extends AbstractGameObject {
         return this.vendorDialog;
     }
 
+    public static VendorDialog HandleArenaMaster(int optionId, NPC npc, PlayerCharacter pc){
+        //1502043
+        pc.setLastNPCDialog(npc);
+        VendorDialog vd = new VendorDialog(VendorDialog.getHostileVendorDialog().getDialogType(),VendorDialog.getHostileVendorDialog().getIntro(),-1);//VendorDialog.getHostileVendorDialog();
+        vd.getOptions().clear();
+
+        switch(optionId){
+            default:
+                MenuOption option1 = new MenuOption(15020431, "Join Arena Que", 15020431);
+                vd.getOptions().add(option1);
+                MenuOption option2 = new MenuOption(15020432, "Leave Arena Que", 15020432);
+                vd.getOptions().add(option2);
+            break;
+            case 15020431:
+                ArenaManager.joinQueue(pc);
+                ChatManager.chatSystemInfo(pc, "You Have Joined The Arena Que");
+                break;
+            case 15020432:
+                if(ArenaManager.playerQueue.contains(pc))
+                    ArenaManager.leaveQueue(pc);
+                ChatManager.chatSystemInfo(pc, "You Have Left The Arena Que");
+                break;
+        }
+
+        return vd;
+    }
     public static VendorDialog HandleEnrollmentOfficer(int optionId, NPC npc, PlayerCharacter pc){
         pc.setLastNPCDialog(npc);
         //VendorDialog vd = new VendorDialog(npc.contract.getVendorDialog().getDialogType(),npc.contract.getVendorDialog().getIntro(),-1);//VendorDialog.getHostileVendorDialog();

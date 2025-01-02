@@ -14,7 +14,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class ArenaManager {
     private static final List<Arena> activeArenas = new ArrayList<>();
-    private static final List<PlayerCharacter> playerQueue = new ArrayList<>();
+    public static final List<PlayerCharacter> playerQueue = new ArrayList<>();
 
     public static void pulseArenas() {
         Iterator<Arena> iterator = activeArenas.iterator();

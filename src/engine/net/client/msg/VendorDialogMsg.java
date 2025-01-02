@@ -114,8 +114,10 @@ public class VendorDialogMsg extends ClientNetMsg {
 
         VendorDialog vd = null;
         Contract contract = npc.getContract();
-
-        if(npc.contractUUID == 1502040){ //enrollment officer
+        if(npc.contractUUID == 1502043){
+            vd = Contract.HandleArenaMaster(msg.unknown03,npc,playerCharacter);
+            msg.updateMessage(3, vd);
+        }else if(npc.contractUUID == 1502040){ //enrollment officer
             //PlayerCharacter.unboxPlayer(playerCharacter);
             vd = Contract.HandleEnrollmentOfficer(msg.unknown03,npc,playerCharacter);
             msg.updateMessage(3, vd);
