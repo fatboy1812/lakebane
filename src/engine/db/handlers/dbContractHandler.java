@@ -135,7 +135,8 @@ public class dbContractHandler extends dbHandlerBase {
                 ResultSet rs = preparedStatement.executeQuery();
 
                 while (rs.next()) {
-                    contract.getBuySkillToken().add(rs.getInt("value"));
+                    if(!contract.getBuySkillToken().contains(rs.getInt("value")))
+                        contract.getBuySkillToken().add(rs.getInt("value"));
                 }
             } catch (SQLException e) {
                 Logger.error(e);
