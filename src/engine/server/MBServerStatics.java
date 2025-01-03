@@ -326,7 +326,7 @@ public class MBServerStatics {
     public static final int REGEN_SENSITIVITY_MOB = 1000; // calc regen ever X
     public static final int TOMBSTONE = 2024;
     public static final int LOGOUT_TIMER_MS = 1000; // logout delay applied
-    public static final int CORPSE_CLEANUP_TIMER_MS = 15 * 60 * 1000; // Cleanup
+    public static final int CORPSE_CLEANUP_TIMER_MS = 10 * 60 * 1000; // Cleanup
     public static final int DEFAULT_SPAWN_TIME_MS = 3 * 60 * 1000; // 3 minute
     public static final int SESSION_CLEANUP_TIMER_MS = 30 * 1000; // cleanup
     public static final int MOVEMENT_FREQUENCY_MS = 1000; // Update movement
