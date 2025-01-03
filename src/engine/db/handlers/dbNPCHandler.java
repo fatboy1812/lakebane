@@ -207,7 +207,7 @@ public class dbNPCHandler extends dbHandlerBase {
         try (Connection connection = DbManager.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement("UPDATE obj_npc SET npc_name=?, npc_contractID=?, npc_typeID=?, npc_guildID=?,"
                      + " npc_spawnX=?, npc_spawnY=?, npc_spawnZ=?, npc_level=? ,"
-                     + " npc_buyPercent=?, npc_sellPercent=?, npc_buildingID=? WHERE UID = ?")) {
+                     + " npc_buyPercent=?, npc_sellPercent=?, npc_buildingID=?, specialPrice=? WHERE UID = ?")) {
 
             preparedStatement.setString(1, npc.getName());
             preparedStatement.setInt(2, (npc.getContract() != null) ? npc.getContract().getObjectUUID() : 0);
@@ -221,6 +221,7 @@ public class dbNPCHandler extends dbHandlerBase {
             preparedStatement.setFloat(10, npc.getSellPercent());
             preparedStatement.setInt(11, (npc.getBuilding() != null) ? npc.getBuilding().getObjectUUID() : 0);
             preparedStatement.setInt(12, npc.getDBID());
+            preparedStatement.setInt(13, npc.getSpecialPrice());
 
             preparedStatement.executeUpdate();
 

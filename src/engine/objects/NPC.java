@@ -79,7 +79,7 @@ public class NPC extends AbstractCharacter {
     private HashSet<Integer> canRoll = null;
     public int parentZoneUUID;
     public int equipmentSetID = 0;
-    private int repairCost = 5;
+    private int specialPrice = 5;
 
     // New NPC constructor.  Fill in the blanks and then call
     // PERSIST.
@@ -152,6 +152,12 @@ public class NPC extends AbstractCharacter {
                 submitUpgradeJob();
 
             this.name = rs.getString("npc_name");
+
+            try {
+                this.specialPrice = rs.getInt("specialPrice");
+            }catch(Exception e){
+                this.specialPrice = 5;
+            }
 
         } catch (Exception e) {
             Logger.error("NPC: " + this.dbID + " :" + e);
@@ -1290,12 +1296,13 @@ public class NPC extends AbstractCharacter {
         return name;
     }
 
-    public int getRepairCost() {
-        return repairCost;
+    public int getSpecialPrice() {
+        return specialPrice;
     }
 
-    public void setRepairCost(int repairCost) {
-        this.repairCost = repairCost;
+    public void setSpecialPrice(int specialPrice) {
+        this.specialPrice = specialPrice;
+        DbManager.NPCQueries.updateDatabase(this);
     }
 
     public void processUpgradeNPC(PlayerCharacter player) {

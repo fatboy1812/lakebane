@@ -1681,7 +1681,7 @@ public class ClientMessagePump implements NetMsgHandler {
                 return;
             }
 
-            int cost = (int)((toRepair.getMagicValue()/max*(max - dur)) + (npc.getRepairCost() * npc.buyPercent));
+            int cost = ((int)((toRepair.getMagicValue()/max*(max - dur)) + (npc.getSpecialPrice() * npc.buyPercent))) + npc.getSpecialPrice();
 
             Building b = (!npc.isStatic()) ? npc.getBuilding() : null;
 
