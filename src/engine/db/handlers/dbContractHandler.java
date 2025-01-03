@@ -98,32 +98,48 @@ public class dbContractHandler extends dbHandlerBase {
 
     public void LOAD_SELL_LIST_FOR_CONTRACT(final Contract contract) {
 
-        try (Connection connection = DbManager.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `static_npc_contract_selltype` WHERE `contractID` = ?;")) {
+        if(!contract.getName().contains("Sage")) {
+            try (Connection connection = DbManager.getConnection();
+                 PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `static_npc_contract_selltype` WHERE `contractID` = ?;")) {
 
-            preparedStatement.setInt(1, contract.getObjectUUID());
+                preparedStatement.setInt(1, contract.getObjectUUID());
 
-            ResultSet rs = preparedStatement.executeQuery();
+                ResultSet rs = preparedStatement.executeQuery();
 
-            while (rs.next()) {
+                while (rs.next()) {
 
-                int type = rs.getInt("type");
-                int value = rs.getInt("value");
+                    int type = rs.getInt("type");
+                    int value = rs.getInt("value");
 
-                switch (type) {
-                    case 1:
-                        contract.getBuyItemType().add(value);
-                        break;
-                    case 2:
-                        contract.getBuySkillToken().add(value);
-                        break;
-                    case 3:
-                        contract.getBuyUnknownToken().add(value);
-                        break;
+                    switch (type) {
+                        case 1:
+                            contract.getBuyItemType().add(value);
+                            break;
+                        case 2:
+                            contract.getBuySkillToken().add(value);
+                            break;
+                        case 3:
+                            contract.getBuyUnknownToken().add(value);
+                            break;
+                    }
                 }
+            } catch (SQLException e) {
+                Logger.error(e);
             }
-        } catch (SQLException e) {
-            Logger.error(e);
+        }else{
+            try (Connection connection = DbManager.getConnection();
+                 PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `static_npc_contract_selltype` WHERE `type` = ?;")) {
+
+                preparedStatement.setInt(1, 2);
+
+                ResultSet rs = preparedStatement.executeQuery();
+
+                while (rs.next()) {
+                    contract.getBuySkillToken().add(rs.getInt("value"));
+                }
+            } catch (SQLException e) {
+                Logger.error(e);
+            }
         }
     }
 
