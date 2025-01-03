@@ -136,6 +136,12 @@ public class dbContractHandler extends dbHandlerBase {
                     int value = rs.getInt("value");
                     if(!contract.getBuySkillToken().contains(value))
                         contract.getBuySkillToken().add(value);
+
+                    if(!contract.getBuyItemType().contains(value))
+                        contract.getBuyItemType().add(value);
+
+                    if(!contract.getBuyUnknownToken().contains(value))
+                        contract.getBuyUnknownToken().add(value);
                 }
             } catch (SQLException e) {
                 Logger.error(e);
