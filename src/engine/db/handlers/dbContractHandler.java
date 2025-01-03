@@ -128,15 +128,14 @@ public class dbContractHandler extends dbHandlerBase {
             }
         }else{
             try (Connection connection = DbManager.getConnection();
-                 PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `static_npc_contract_selltype` WHERE `type` = ?;")) {
-
-                preparedStatement.setInt(1, 2);
+                 PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `static_npc_contract_selltype`;")) {
 
                 ResultSet rs = preparedStatement.executeQuery();
 
                 while (rs.next()) {
-                    if(!contract.getBuySkillToken().contains(rs.getInt("value")))
-                        contract.getBuySkillToken().add(rs.getInt("value"));
+                    int value = rs.getInt("value");
+                    if(!contract.getBuySkillToken().contains(value))
+                        contract.getBuySkillToken().add(value);
                 }
             } catch (SQLException e) {
                 Logger.error(e);
