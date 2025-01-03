@@ -804,7 +804,7 @@ public class NPC extends AbstractCharacter {
 
     @Override
     public void updateDatabase() {
-        DbManager.NPCQueries.updateDatabase(this);
+        DbManager.NPCQueries.updateSpecialPricing(this);
     }
 
     public int getSymbol() {
