@@ -2895,7 +2895,7 @@ public class PlayerCharacter extends AbstractCharacter {
 
         float speed;
 
-        if (this.getAltitude() > 0)
+        if (this.isFlying())
             if (this.walkMode) {
                 speed = race.getRaceType().getRunSpeed().getFlyWalk();
             } else {
