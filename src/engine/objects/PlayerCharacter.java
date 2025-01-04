@@ -3161,6 +3161,8 @@ public class PlayerCharacter extends AbstractCharacter {
 
         // TODO get equip bonus
         this.update(false);
+        if(this.getRaceID() == 2013 || this.getRaceID() == 2014)
+            bonus -= 0.1f;
         this.speedMod = bonus;
     }
 
