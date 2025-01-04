@@ -765,12 +765,16 @@ public final class Bane {
             PlayerCharacter player = PlayerCharacter.getPlayerCharacter(uuid);
             if(inSiegeRange.contains(player)) //player is still physically here, needs updated multiplier
                 player.ZergMultiplier = attackerMultiplier;
+            else
+                player.ZergMultiplier = 1.0f;
         }
 
         for(int uuid : defenders){
             PlayerCharacter player = PlayerCharacter.getPlayerCharacter(uuid);
             if(inSiegeRange.contains(player)) //player is still physically here, needs updated multiplier
                 player.ZergMultiplier = defenderMultiplier;
+            else
+                player.ZergMultiplier = 1.0f;
         }
 
     }
