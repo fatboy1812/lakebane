@@ -744,7 +744,7 @@ public final class Bane {
             else if(playerNation.equals(attackNation))
                 attackers.add(uuid);
             else
-                MovementManager.translocate(player,new Vector3fImmutable(88853,32,45079),Regions.GetRegionForTeleport(new Vector3fImmutable(88853,32,45079)));
+                MovementManager.translocate(player,Vector3fImmutable.getRandomPointOnCircle(ZoneManager.getZoneByUUID(656).getLoc(),30f),Regions.GetRegionForTeleport(ZoneManager.getZoneByUUID(656).getLoc()));
         }
         int attackerSize = 0;
         int defenderSize = 0;
