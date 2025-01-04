@@ -4877,20 +4877,14 @@ public class PlayerCharacter extends AbstractCharacter {
                 }
 
                 if(this.level < 10) {
-                    this.setLevel((short) 10);
+                   // this.setLevel((short) 10);
+                    while (this.level < 10) {
+                        grantXP(Experience.getBaseExperience(this.level + 1) - this.exp);
+                    }
                     if(this.charItemManager != null && this.charItemManager.getGoldInventory() != null && this.charItemManager.getGoldInventory().getNumOfItems() < 1000) {
                         this.getCharItemManager().addGoldToInventory(1000, false);
                         this.getCharItemManager().addItemToInventory(new MobLoot(this, ItemBase.getItemBase(980066), 1, false).promoteToItem(this));
                     }
-                }
-                if(this.enteredWorld && !this.timestamps.containsKey("refreshCharacter")) {
-                    this.timestamps.put("refreshCharacter",System.currentTimeMillis() + 10000L);
-                }
-                if(System.currentTimeMillis() > this.timestamps.get("refreshCharacter")){
-                    this.setOverFlowEXP(0);
-                    TargetedActionMsg cmm = new TargetedActionMsg(this);
-                    DispatchMessage.dispatchMsgToInterestArea(this, cmm, DispatchChannel.PRIMARY, MBServerStatics.CHARACTER_LOAD_RANGE, true, false);
-                    this.timestamps.put("refreshCharacter",System.currentTimeMillis() + 10000L);
                 }
 
                 if(this.isBoxed && !this.containsEffect(1672601862)) {
