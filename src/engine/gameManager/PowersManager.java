@@ -165,6 +165,8 @@ public enum PowersManager {
 
         PlayerCharacter pc = SessionManager.getPlayerCharacter(origin);
         CombatManager.toggleSit(false,origin);
+        if(pc.isMoving())
+            pc.stopMovement(pc.getMovementLoc());
 
         if (usePowerA(msg, origin, sendCastToSelf)) {
             // Cast failed for some reason, reset timer
