@@ -139,8 +139,8 @@ public class Enum {
         HALFGIANTMALE(2010, MonsterType.HalfGiant, RunSpeed.STANDARD, CharacterSex.MALE, 1.15f),
         HUMANMALE(2011, MonsterType.Human, RunSpeed.STANDARD, CharacterSex.MALE, 1),
         HUMANFEMALE(2012, MonsterType.Human, RunSpeed.STANDARD, CharacterSex.FEMALE, 1),
-        IREKEIMALE(2013, MonsterType.Irekei, RunSpeed.STANDARD, CharacterSex.MALE, 1.1f),
-        IREKEIFEMALE(2014, MonsterType.Irekei, RunSpeed.STANDARD, CharacterSex.FEMALE, 1.1f),
+        IREKEIMALE(2013, MonsterType.Irekei, RunSpeed.IREKEI, CharacterSex.MALE, 1.1f),
+        IREKEIFEMALE(2014, MonsterType.Irekei, RunSpeed.IREKEI, CharacterSex.FEMALE, 1.1f),
         SHADEMALE(2015, MonsterType.Shade, RunSpeed.STANDARD, CharacterSex.MALE, 1),
         SHADEFEMALE(2016, MonsterType.Shade, RunSpeed.STANDARD, CharacterSex.FEMALE, 1),
         MINOMALE(2017, MonsterType.Minotaur, RunSpeed.MINOTAUR, CharacterSex.MALE, 1.3f),
@@ -210,7 +210,8 @@ public class Enum {
         SENTINEL(0, 0, 0, 0, 0, 0, 0),
         STANDARD(6.1900001f, 13.97f, 4.2199998f, 13.97f, 6.3299999f, 18.379999f, 6.5f),
         CENTAUR(6.1900001f, 16.940001f, 5.5500002f, 16.940001f, 6.3299999f, 18.379999f, 6.5f),
-        MINOTAUR(6.6300001f, 15.95f, 4.2199998f, 15.95f, 6.3299999f, 18.379999f, 6.5f);
+        MINOTAUR(6.6300001f, 15.95f, 4.2199998f, 15.95f, 6.3299999f, 18.379999f, 6.5f),
+        IREKEI(6.499500105f, 14.6685f, 4.2199998f, 14.6685f, 6.3299999f, 18.379999f, 6.5f);
         private float walkStandard;
         private float walkCombat;
         private float runStandard;
