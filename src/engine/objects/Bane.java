@@ -37,6 +37,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class Bane {
@@ -730,7 +731,9 @@ public final class Bane {
         ArrayList<Integer> defenders = new ArrayList<>();
         Guild attackNation = this.getOwner().getGuild().getNation();
         Guild defendNation = this.getCity().getGuild().getNation();
-        for(int uuid : city._playerMemory){
+        HashSet<AbstractWorldObject> inSiegeRange = WorldGrid.getObjectsInRangePartial(city.getTOL().loc,1750f,1);
+        for(AbstractWorldObject obj : inSiegeRange){
+            int uuid = obj.getObjectUUID();
             PlayerCharacter player = PlayerCharacter.getPlayerCharacter(uuid);
             if(player == null)
                 continue;
@@ -741,8 +744,7 @@ public final class Bane {
             else if(playerNation.equals(attackNation))
                 attackers.add(uuid);
             else
-                if(city._playerMemory.contains(uuid))
-                    MovementManager.translocate(player,new Vector3fImmutable(88853,32,45079),Regions.GetRegionForTeleport(new Vector3fImmutable(88853,32,45079)));
+                MovementManager.translocate(player,new Vector3fImmutable(88853,32,45079),Regions.GetRegionForTeleport(new Vector3fImmutable(88853,32,45079)));
         }
         int attackerSize = 0;
         int defenderSize = 0;
