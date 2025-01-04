@@ -2915,7 +2915,8 @@ public class PlayerCharacter extends AbstractCharacter {
                 speed = race.getRaceType().getRunSpeed().getRunStandard();
         }
 
-        float endSpeed = speed * this.speedMod;
+        float mod = this.speedMod;
+        float endSpeed = speed * mod;
 
         if (endSpeed > 41 && !this.isCSR)
             endSpeed = 41;
