@@ -210,9 +210,7 @@ public class Enum {
         SENTINEL(0, 0, 0, 0, 0, 0, 0),
         STANDARD(6.1900001f, 13.97f, 4.2199998f, 13.97f, 6.3299999f, 18.379999f, 6.5f),
         CENTAUR(6.1900001f, 16.940001f, 5.5500002f, 16.940001f, 6.3299999f, 18.379999f, 6.5f),
-        MINOTAUR(6.6300001f, 15.95f, 4.2199998f, 15.95f, 6.3299999f, 18.379999f, 6.5f),
-        IREKEI(6.349999904632568f, 15.25f, 4.21999979019165f, 14.5f, 6.329999923706055f, 18.3799991607666f, 6.5f);
-
+        MINOTAUR(6.6300001f, 15.95f, 4.2199998f, 15.95f, 6.3299999f, 18.379999f, 6.5f);
         private float walkStandard;
         private float walkCombat;
         private float runStandard;
