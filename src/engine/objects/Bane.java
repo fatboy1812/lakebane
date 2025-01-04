@@ -762,13 +762,15 @@ public final class Bane {
         float attackerMultiplier = ZergManager.getCurrentMultiplier(attackerSize,this.capSize);
         float defenderMultiplier = ZergManager.getCurrentMultiplier(defenderSize,this.capSize);
         for(int uuid : attackers){
-            if(city._playerMemory.contains(uuid)) //player is still physically here, needs updated multiplier
-                PlayerCharacter.getPlayerCharacter(uuid).ZergMultiplier = attackerMultiplier;
+            PlayerCharacter player = PlayerCharacter.getPlayerCharacter(uuid);
+            if(inSiegeRange.contains(player)) //player is still physically here, needs updated multiplier
+                player.ZergMultiplier = attackerMultiplier;
         }
 
         for(int uuid : defenders){
-            if(city._playerMemory.contains(uuid)) //player is still physically here, needs updated multiplier
-                PlayerCharacter.getPlayerCharacter(uuid).ZergMultiplier = defenderMultiplier;
+            PlayerCharacter player = PlayerCharacter.getPlayerCharacter(uuid);
+            if(inSiegeRange.contains(player)) //player is still physically here, needs updated multiplier
+                player.ZergMultiplier = defenderMultiplier;
         }
 
     }

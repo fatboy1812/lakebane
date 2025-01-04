@@ -1063,14 +1063,18 @@ public class City extends AbstractWorldObject {
 
     private void onExitBane() {
         Iterator<Integer> iterator = this.baneAttendees.keySet().iterator();
+        ArrayList<Integer> toRemove = new ArrayList<>();
         while (iterator.hasNext()) {
             Integer uuid = iterator.next();
             if (!_playerMemory.contains(uuid)) {
                 long timeGone = System.currentTimeMillis() - this.baneAttendees.get(uuid).longValue();
-                if (timeGone > 180000) { // 3 minutes
-                    iterator.remove();
+                if (timeGone > 180000L) { // 3 minutes
+                    toRemove.add(uuid);
                 }
             }
+        }
+        for(int uuid : toRemove){
+            this.baneAttendees.remove(uuid);
         }
     }
 
