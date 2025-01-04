@@ -346,6 +346,9 @@ public class Experience {
         if (killer == null || mob == null)
             return;
 
+        if(killer.equals(mob))
+            return;
+
         double grantedExperience = 0.0;
 
         if (g != null) { // Do group EXP stuff
