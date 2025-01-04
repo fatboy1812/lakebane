@@ -154,6 +154,7 @@ public class ApplyRuneMsg extends ClientNetMsg {
             ConcurrentHashMap<Integer, Boolean> promotionClasses = rb.getPromotionClass();
             if (promotionClasses.size() > 0) {
                 int promotionClassID = playerCharacter.getPromotionClassID();
+                int baseClassID = playerCharacter.getBaseClassID();
                 boolean valid = false;
                 for (int validID : promotionClasses.keySet()) {
                     if (validID == promotionClassID) {
@@ -170,6 +171,8 @@ public class ApplyRuneMsg extends ClientNetMsg {
                 if(runeID == 3033 && raceID == 1999)
                     valid = true;
                 if(runeID == 3028 && (raceID == 2013 || raceID == 2014) && playerCharacter.getBaseClassID() == 2501)
+                    valid = true;
+                if(runeID == 3035 && baseClassID == 2501)
                     valid = true;
                 if (!valid) {
                     return false;
