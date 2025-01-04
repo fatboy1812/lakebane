@@ -1302,7 +1302,7 @@ public class NPC extends AbstractCharacter {
 
     public void setSpecialPrice(int specialPrice) {
         this.specialPrice = specialPrice;
-        DbManager.NPCQueries.updateDatabase(this);
+        DbManager.NPCQueries.updateSpecialPricing(this);
     }
 
     public void processUpgradeNPC(PlayerCharacter player) {

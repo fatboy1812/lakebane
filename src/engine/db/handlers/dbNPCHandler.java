@@ -206,6 +206,7 @@ public class dbNPCHandler extends dbHandlerBase {
         try (Connection connection = DbManager.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement("UPDATE obj_npc SET specialPrice=? WHERE UID = ?")) {
             preparedStatement.setInt(1, npc.getSpecialPrice());
+            preparedStatement.setInt(2, npc.getDBID());
 
             preparedStatement.executeUpdate();
 

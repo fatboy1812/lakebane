@@ -1683,6 +1683,13 @@ public class ClientMessagePump implements NetMsgHandler {
 
             int cost = ((int)((toRepair.getMagicValue()/max*(max - dur)) + (npc.getSpecialPrice() * npc.buyPercent))) + (int)(npc.getSpecialPrice() * (max - dur));
 
+            //int pointsToRepair = max - dur;
+            //int magicValue = toRepair.getMagicValue();
+            //if(magicValue == 0)
+            //    magicValue = 1;
+            //int calculatedValue = toRepair.getDurabilityMax() * magicValue;
+            //float costPerPoint = (magicValue / max) * ( 1 + npc.buyPercent);
+            //cost = (int)(pointsToRepair * costPerPoint) + npc.getSpecialPrice();
             Building b = (!npc.isStatic()) ? npc.getBuilding() : null;
 
             if (b != null)
