@@ -406,6 +406,7 @@ public class Experience {
 
                 grantedExperience = (double) LOOTMANAGER.NORMAL_EXP_RATE * maxXPPerKill(playerCharacter.getLevel());
 
+                grantedExperience *= (1/ giveEXPTo.size()+0.9);
                 // Adjust XP for Mob Level
 
                 grantedExperience *= getConMod(playerCharacter, mob);
