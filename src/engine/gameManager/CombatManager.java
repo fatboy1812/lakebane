@@ -1249,7 +1249,10 @@ public enum CombatManager {
         if (pc == null)
             return;
 
-        pc.setSit(toggle);
+        if(pc.isFlying())
+            pc.setSit(false);
+        else
+            pc.setSit(toggle);
 
         UpdateStateMsg rwss = new UpdateStateMsg();
         rwss.setPlayer(pc);

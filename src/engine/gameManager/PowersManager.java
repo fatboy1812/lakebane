@@ -164,7 +164,10 @@ public enum PowersManager {
                                 boolean sendCastToSelf) {
 
         PlayerCharacter pc = SessionManager.getPlayerCharacter(origin);
-        CombatManager.toggleSit(false,origin);
+
+        if(!pc.isFlying()) //cant be sitting if flying
+            CombatManager.toggleSit(false,origin);
+
         if(pc.isMoving())
             pc.stopMovement(pc.getMovementLoc());
 
@@ -2691,7 +2694,7 @@ public enum PowersManager {
 
     public static void cancelOnStun(AbstractCharacter ac) {
         if(ac.getObjectType().equals(GameObjectType.PlayerCharacter)){
-            PlayerCharacter.GroundPlayer((PlayerCharacter)ac);
+            //PlayerCharacter.GroundPlayer((PlayerCharacter)ac);
         }
     }
 
