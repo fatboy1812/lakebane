@@ -3162,8 +3162,6 @@ public class PlayerCharacter extends AbstractCharacter {
 
         // TODO get equip bonus
         this.update(false);
-        if(this.getRaceID() == 2013 || this.getRaceID() == 2014)
-            bonus -= 0.1f;
         this.speedMod = bonus;
     }
 
@@ -3396,11 +3394,11 @@ public class PlayerCharacter extends AbstractCharacter {
     public void recalculatePlayerStats(boolean initialized) {
 
         //calculate base stats
-        calculateBaseStats();
+        this.calculateBaseStats();
 
         //calculate base skills
         CharacterSkill.updateAllBaseAmounts(this);
-        calculateModifiedStats();
+        this.calculateModifiedStats();
 
         //calculate modified skills
         CharacterSkill.updateAllModifiedAmounts(this);
@@ -3410,13 +3408,13 @@ public class PlayerCharacter extends AbstractCharacter {
 
 
         //calculate ATR, damage and defense
-        calculateAtrDefenseDamage();
+        this.calculateAtrDefenseDamage();
 
         //calculate movement bonus
-        calculateSpeedMod();
+        this.calculateSpeedMod();
 
         // recalculate Max Health/Mana/Stamina
-        calculateMaxHealthManaStamina();
+        this.calculateMaxHealthManaStamina();
 
         // recalculate Resists
         Resists.calculateResists(this);
