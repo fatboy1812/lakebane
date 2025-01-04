@@ -4882,9 +4882,12 @@ public class PlayerCharacter extends AbstractCharacter {
                         this.getCharItemManager().addGoldToInventory(1000, false);
                         this.getCharItemManager().addItemToInventory(new MobLoot(this, ItemBase.getItemBase(980066), 1, false).promoteToItem(this));
                     }
+                }
+                if(this.enteredWorld && !this.timestamps.containsKey("lastUpdate")){
                     this.setOverFlowEXP(0);
                     TargetedActionMsg cmm = new TargetedActionMsg(this);
                     DispatchMessage.dispatchMsgToInterestArea(this, cmm, DispatchChannel.PRIMARY, MBServerStatics.CHARACTER_LOAD_RANGE, true, false);
+                    this.timestamps.put("lastUpdate",System.currentTimeMillis());
                 }
 
                 if(this.isBoxed && !this.containsEffect(1672601862)) {
