@@ -2206,6 +2206,10 @@ public class PlayerCharacter extends AbstractCharacter {
         if (bindLocation == null)
             bindLocation = Enum.Ruins.getRandomRuin().getLocation();
 
+        if(this.guild.getNation().equals(Guild.getErrantGuild())){
+            bindLocation = Vector3fImmutable.getRandomPointOnCircle(BuildingManager.getBuilding(27977).loc,20f);
+        }
+
         return bindLocation;
 
     }
