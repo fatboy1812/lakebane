@@ -4876,7 +4876,7 @@ public class PlayerCharacter extends AbstractCharacter {
                     this.timestamps.put("nextBoxCheck", System.currentTimeMillis() + 10000);
                 }
 
-                if(this.level < 10) {
+                if(this.level < 10 && this.enteredWorld) {
                    // this.setLevel((short) 10);
                     while (this.level < 10) {
                         grantXP(Experience.getBaseExperience(this.level + 1) - this.exp);
