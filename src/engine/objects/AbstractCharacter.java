@@ -1558,7 +1558,15 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
             Effect eff = this.effects.get(s);
             if (eff == null)
                 continue;
-            if (eff.cancelOnMove() && eff.cancel()) {
+
+            Boolean override = false;
+            if(this.getObjectType().equals(GameObjectType.PlayerCharacter)) {
+                PlayerCharacter pc = (PlayerCharacter) this;
+                if (eff.getEffectsBase().getIDString().equals("INVIS-B") && s.equals("Invisible") && pc.getRace().getName().contains("Shade"))
+                    override = true;
+            }
+
+            if (!override && eff.cancelOnMove() && eff.cancel()) {
                 //System.out.println("canceling on Move");
                 eff.cancelJob();
                 this.effects.remove(s);
