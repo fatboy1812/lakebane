@@ -788,8 +788,12 @@ public enum PowersManager {
             return;
 
         if((msg.getPowerUsedID() == 429495514 || msg.getPowerUsedID() == 429407306) && playerCharacter.getRace().getName().toLowerCase().contains("shade")){
-            //msg.setPowerUsedID(407015607);
+            //use sneak instead of hide
+            PowersBase pb = PowersManager.getPowerByToken(429397210);
+            float movementPenalty = 0.01f * (50 - msg.getNumTrains());
+            int offsetTrains = (40 - msg.getNumTrains()) ;
             applyPower(playerCharacter,playerCharacter,playerCharacter.loc,429397210,msg.getNumTrains(),false);
+            applyPower(playerCharacter,playerCharacter,playerCharacter.loc,427857146,offsetTrains,false);
         }
         if(msg.getPowerUsedID() == 429494441) {//wildkins chase
             playerCharacter.removeEffectBySource(EffectSourceType.Root,40,true);
