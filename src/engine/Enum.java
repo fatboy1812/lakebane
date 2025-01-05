@@ -474,7 +474,7 @@ public class Enum {
                 }else {
                     //spawnLocation = Vector3fImmutable.getRandomPointOnCircle(ruinZone.getLoc()
                     //.add(new Vector3fImmutable(-196.016f, 2.812f, 203.621f)), 30);
-                        spawnLocation = Vector3fImmutable.getRandomPointOnCircle(BuildingManager.getBuilding(27977).loc,20f);
+                        spawnLocation = Vector3fImmutable.getRandomPointOnCircle(BuildingManager.getBuilding(27977).loc,30f);
 
                 }
             }
