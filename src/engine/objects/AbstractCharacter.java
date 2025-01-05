@@ -14,10 +14,7 @@ import engine.Enum.*;
 import engine.InterestManagement.InterestManager;
 import engine.InterestManagement.WorldGrid;
 import engine.exception.SerializationException;
-import engine.gameManager.CombatManager;
-import engine.gameManager.ConfigManager;
-import engine.gameManager.MovementManager;
-import engine.gameManager.PowersManager;
+import engine.gameManager.*;
 import engine.job.AbstractJob;
 import engine.job.JobContainer;
 import engine.job.JobScheduler;
@@ -764,7 +761,11 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
     public abstract Vector3fImmutable getBindLoc();
 
     public final void setBindLoc(final Vector3fImmutable value) {
-        this.bindLoc = value;
+        if(this.getObjectType().equals(GameObjectType.PlayerCharacter) && this.guild.getNation().equals(Guild.getErrantGuild())){
+            this.bindLoc = Vector3fImmutable.getRandomPointOnCircle(BuildingManager.getBuilding(27977).loc,20f);
+        }else {
+            this.bindLoc = value;
+        }
     }
 
     public final Vector3fImmutable getFaceDir() {
