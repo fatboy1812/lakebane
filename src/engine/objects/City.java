@@ -1012,7 +1012,7 @@ public class City extends AbstractWorldObject {
 
         // Gather current list of players within the zone bounds
 
-        currentPlayers = WorldGrid.getObjectsInRangePartial(this.location, 1250, MBServerStatics.MASK_PLAYER);
+        currentPlayers = WorldGrid.getObjectsInRangePartial(this.location, 1500, MBServerStatics.MASK_PLAYER);
         currentMemory = new HashSet<>();
 
         for (AbstractWorldObject playerObject : currentPlayers) {
