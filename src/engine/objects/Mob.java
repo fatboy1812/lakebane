@@ -12,6 +12,7 @@ package engine.objects;
 import ch.claude_martin.enumbitset.EnumBitSet;
 import engine.Enum;
 import engine.Enum.*;
+import engine.InterestManagement.InterestManager;
 import engine.InterestManagement.WorldGrid;
 import engine.exception.SerializationException;
 import engine.gameManager.*;
@@ -2165,7 +2166,7 @@ public class Mob extends AbstractIntelligenceAgent {
                 }
 
             this.deathTime = 0;
-            WorldGrid.updateObject(this);
+            InterestManager.setObjectDirty(this);
         } catch (Exception e) {
             Logger.error(e.getMessage());
         }
