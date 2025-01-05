@@ -4845,8 +4845,8 @@ public class PlayerCharacter extends AbstractCharacter {
     @Override
     public void update(Boolean newSystem) {
 
-        if(!newSystem)
-            return;
+        //if(!newSystem)
+        //    return;
 
         if (this.updateLock.writeLock().tryLock()) {
             try {
@@ -4858,19 +4858,19 @@ public class PlayerCharacter extends AbstractCharacter {
                         forceRespawn(this);
                     return;
                 }
-                updateLocation();
-                updateMovementState();
-                updateRegen();
+                this.updateLocation();
+                this.updateMovementState();
+                this.updateRegen();
 
                 if (this.getStamina() < 10) {
                     if (this.getAltitude() > 0 || this.getDesiredAltitude() > 0) {
                         PlayerCharacter.GroundPlayer(this);
-                        updateRegen();
+                        this.updateRegen();
                     }
                 }
 
                 RealmMap.updateRealm(this);
-                updateBlessingMessage();
+                this.updateBlessingMessage();
 
                 this.safeZone = this.isInSafeZone();
                 if(!this.timestamps.containsKey("nextBoxCheck"))
