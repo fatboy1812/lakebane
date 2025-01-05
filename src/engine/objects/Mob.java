@@ -1327,9 +1327,6 @@ public class Mob extends AbstractIntelligenceAgent {
         Dispatch dispatch;
 
         try {
-            //resync corpses
-            InterestManager.setObjectDirty(this);
-            //this.setLoc(this.getMovementLoc());
             if (this.isSiege) {
                 this.deathTime = System.currentTimeMillis();
                 //this.state = STATE.Dead;
@@ -1409,6 +1406,8 @@ public class Mob extends AbstractIntelligenceAgent {
             Logger.error(e);
         }
         this.updateLocation();
+        //resync corpses
+        InterestManager.setObjectDirty(this);
     }
 
     public void respawn() {
