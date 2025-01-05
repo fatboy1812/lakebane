@@ -1300,7 +1300,7 @@ public class PlayerCharacter extends AbstractCharacter {
 
 
         if (ConfigManager.serverType.equals(ServerType.WORLDSERVER))
-            player.setLoc(player.bindLoc);
+            player.setLoc(player.getBindLoc());
         player.endLoc = Vector3fImmutable.ZERO;
 
         //get level based on experience
