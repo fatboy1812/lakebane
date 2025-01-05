@@ -9,15 +9,13 @@
 package engine;
 
 import ch.claude_martin.enumbitset.EnumBitSetHelper;
+import engine.gameManager.BuildingManager;
 import engine.gameManager.ConfigManager;
 import engine.gameManager.PowersManager;
 import engine.gameManager.ZoneManager;
 import engine.math.Vector2f;
 import engine.math.Vector3fImmutable;
-import engine.objects.AbstractCharacter;
-import engine.objects.ItemBase;
-import engine.objects.Shrine;
-import engine.objects.Zone;
+import engine.objects.*;
 import engine.powers.EffectsBase;
 import org.pmw.tinylog.Logger;
 
@@ -471,11 +469,14 @@ public class Enum {
 
                 // 14001 does not have a banestone to bind at
 
-                if (ruinZone.getLoadNum() == 14001)
+                if (ruinZone.getLoadNum() == 14001) {
                     spawnLocation = Vector3fImmutable.getRandomPointOnCircle(ruinZone.getLoc(), 30);
-                else
-                    spawnLocation = Vector3fImmutable.getRandomPointOnCircle(ruinZone.getLoc()
-                            .add(new Vector3fImmutable(-196.016f, 2.812f, 203.621f)), 30);
+                }else {
+                    //spawnLocation = Vector3fImmutable.getRandomPointOnCircle(ruinZone.getLoc()
+                    //.add(new Vector3fImmutable(-196.016f, 2.812f, 203.621f)), 30);
+                        spawnLocation = Vector3fImmutable.getRandomPointOnCircle(BuildingManager.getBuilding(27977).loc,20f);
+
+                }
             }
 
 
