@@ -146,6 +146,8 @@ public class ApplyRuneMsg extends ClientNetMsg {
                     valid = true;
                 if(runeID == 3035 && baseClassID == 2501)
                     valid = true;
+                if(runeID == 3028 && baseClassID == 2501 && playerCharacter.getRace().getName().contains("Irekei"))
+                    valid = true;
                 if (!valid) {
                     return false;
                 }
