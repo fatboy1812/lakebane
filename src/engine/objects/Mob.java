@@ -2165,6 +2165,7 @@ public class Mob extends AbstractIntelligenceAgent {
                 }
 
             this.deathTime = 0;
+            WorldGrid.updateObject(this);
         } catch (Exception e) {
             Logger.error(e.getMessage());
         }
