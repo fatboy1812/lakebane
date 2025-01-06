@@ -43,6 +43,7 @@ public class Corpse extends AbstractWorldObject {
     private int inBuildingID = 0;
     private int inFloorID = -1;
     private int inBuilding = -1;
+    public Long spawnedTime = 0L;
 
     /**
      * No Id Constructor

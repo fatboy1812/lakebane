@@ -18,6 +18,7 @@ import engine.gameManager.BuildingManager;
 import engine.gameManager.SessionManager;
 import engine.math.Vector3fImmutable;
 import engine.objects.*;
+import engine.server.MBServerStatics;
 import engine.util.StringUtils;
 
 import java.text.DecimalFormat;
@@ -529,6 +530,13 @@ public class InfoCmd extends AbstractDevCmd {
                     //	output += eff.getEffectToken() + (eff.bakedInStat() ? " (baked in)" : "") + newline;
                 }
 
+                break;
+
+            case Corpse:
+                Corpse corpse = (Corpse)target;
+                Long timeLeft = MBServerStatics.CORPSE_CLEANUP_TIMER_MS - (System.currentTimeMillis() - corpse.spawnedTime);
+                output += "Despawn in: " + timeLeft;
+                output += newline;
                 break;
         }
 
