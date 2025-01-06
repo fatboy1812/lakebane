@@ -1455,17 +1455,32 @@ public enum CombatManager {
 
     public static boolean LandHit(int atr, int defense){
 
+        //int roll = ThreadLocalRandom.current().nextInt(101);
+        //float chance = (float)((atr-((atr+defense)*0.315))/((defense-((atr+defense)*0.315))+(atr-((atr+defense)*0.315))));
+
+        //int connvertedChance = (int)(chance * 100);
+
+        //if(connvertedChance < 5)
+        //    connvertedChance = 5;
+
+        //if(connvertedChance > 95)
+        //    connvertedChance = 95;
+
+        //return connvertedChance > roll;
+
+        // Calculate raw chance to hit
+        float adjustedAtr = (float) atr - (atr + defense) * 0.315f;
+        float adjustedDefense = (float) defense - (atr + defense) * 0.315f;
+
+        // Prevent division by zero
+        float chance = adjustedAtr / (adjustedDefense + adjustedAtr);
+
+        // Convert to percentage and clamp between 5% and 95%
+        int convertedChance = Math.round(chance * 100);
+        convertedChance = Math.max(5, Math.min(95, convertedChance));
+
+        // Generate random roll (0–100) and determine hit
         int roll = ThreadLocalRandom.current().nextInt(101);
-        float chance = (float)((atr-((atr+defense)*0.315))/((defense-((atr+defense)*0.315))+(atr-((atr+defense)*0.315))));
-
-        int connvertedChance = (int)(chance * 100);
-
-        if(connvertedChance < 5)
-            connvertedChance = 5;
-
-        if(connvertedChance > 95)
-            connvertedChance = 95;
-
-        return connvertedChance > roll;
+        return convertedChance > roll;
     }
 }
