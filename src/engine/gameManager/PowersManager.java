@@ -165,7 +165,7 @@ public enum PowersManager {
 
         PlayerCharacter pc = SessionManager.getPlayerCharacter(origin);
 
-        if(!pc.isFlying()) //cant be sitting if flying
+        if(!pc.isFlying() && powersBaseByToken.get(msg.getPowerUsedID()) != null && powersBaseByToken.get(msg.getPowerUsedID()).isSpell) //cant be sitting if flying
             CombatManager.toggleSit(false,origin);
 
         if(pc.isMoving())
