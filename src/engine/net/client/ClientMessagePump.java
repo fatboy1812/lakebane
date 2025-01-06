@@ -1681,23 +1681,12 @@ public class ClientMessagePump implements NetMsgHandler {
                 return;
             }
 
-            //int cost = ((int)((toRepair.getMagicValue()/max*(max - dur)) + (npc.getSpecialPrice() * npc.buyPercent))) + (int)(npc.getSpecialPrice() * (max - dur));
-            double repairRate = 0.067; // A proportional repair rate based on example
-            int maxRepairCost = (int)(toRepair.getMagicValue() * repairRate);
-
-            // Calculate the percentage of the durability that is damaged
-            double damageRatio = (double)(toRepair.getDurabilityMax() - toRepair.getDurabilityCurrent()) / toRepair.getDurabilityMax();
-
-            // Calculate the repair cost based on the damage ratio and item value
-            int cost = (int)(maxRepairCost * damageRatio);
-
-            //int pointsToRepair = max - dur;
-            //int magicValue = toRepair.getMagicValue();
-            //if(magicValue == 0)
-            //    magicValue = 1;
-            //int calculatedValue = toRepair.getDurabilityMax() * magicValue;
-            //float costPerPoint = (magicValue / max) * ( 1 + npc.buyPercent);
-            //cost = (int)(pointsToRepair * costPerPoint) + npc.getSpecialPrice();
+            int pointsToRepair = max - dur;
+            double damageRatio = (double)1.0d - (toRepair.getDurabilityMax() - toRepair.getDurabilityCurrent()) / toRepair.getDurabilityMax();
+            int modifiedValue = (int)(damageRatio * toRepair.getMagicValue());
+            int costPerPoint = modifiedValue / toRepair.getDurabilityMax();
+            int modifiedRepairCost = (int)(pointsToRepair * costPerPoint)+ npc.getSpecialPrice();
+            int cost = (int)(modifiedRepairCost * 1 + npc.buyPercent) + npc.getSpecialPrice();
             Building b = (!npc.isStatic()) ? npc.getBuilding() : null;
 
             if (b != null)

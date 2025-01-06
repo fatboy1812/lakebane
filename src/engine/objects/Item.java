@@ -1227,7 +1227,10 @@ public class Item extends AbstractWorldObject {
     }
 
     public final int getMagicValue() {
-        return this.magicValue;
+        int val = this.calcMagicValue();
+        if(val == 0)
+            val = 1;
+        return val + this.getItemBase().getMagicValue();
     }
 
     public int getBaseValue() {
