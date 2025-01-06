@@ -1681,7 +1681,15 @@ public class ClientMessagePump implements NetMsgHandler {
                 return;
             }
 
-            int cost = ((int)((toRepair.getMagicValue()/max*(max - dur)) + (npc.getSpecialPrice() * npc.buyPercent))) + (int)(npc.getSpecialPrice() * (max - dur));
+            //int cost = ((int)((toRepair.getMagicValue()/max*(max - dur)) + (npc.getSpecialPrice() * npc.buyPercent))) + (int)(npc.getSpecialPrice() * (max - dur));
+            double repairRate = 0.067; // A proportional repair rate based on example
+            int maxRepairCost = (int)(toRepair.getMagicValue() * repairRate);
+
+            // Calculate the percentage of the durability that is damaged
+            double damageRatio = (double)(toRepair.getDurabilityMax() - toRepair.getDurabilityCurrent()) / toRepair.getDurabilityMax();
+
+            // Calculate the repair cost based on the damage ratio and item value
+            int cost = (int)(maxRepairCost * damageRatio);
 
             //int pointsToRepair = max - dur;
             //int magicValue = toRepair.getMagicValue();
