@@ -154,7 +154,7 @@ public class CombatUtilities {
             case Building:
                 return false;
         }
-        return CombatManager.LandHit(atr,defense);
+        return !CombatManager.LandHit(atr,defense);
     }
 
     public static boolean triggerBlock(Mob agent, AbstractWorldObject ac) {

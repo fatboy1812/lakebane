@@ -1453,34 +1453,17 @@ public enum CombatManager {
             ((AbstractCharacter) awo).getCharItemManager().damageRandomArmor(1);
     }
 
-    public static boolean LandHit(int atr, int defense){
+    public static boolean LandHit(int C5, int D5){
 
-        //int roll = ThreadLocalRandom.current().nextInt(101);
-        //float chance = (float)((atr-((atr+defense)*0.315))/((defense-((atr+defense)*0.315))+(atr-((atr+defense)*0.315))));
-
-        //int connvertedChance = (int)(chance * 100);
-
-        //if(connvertedChance < 5)
-        //    connvertedChance = 5;
-
-        //if(connvertedChance > 95)
-        //    connvertedChance = 95;
-
-        //return connvertedChance > roll;
-
-        // Calculate raw chance to hit
-        float adjustedAtr = (float) atr - (atr + defense) * 0.315f;
-        float adjustedDefense = (float) defense - (atr + defense) * 0.315f;
-
-        // Prevent division by zero
-        float chance = adjustedAtr / (adjustedDefense + adjustedAtr);
-
-        // Convert to percentage and clamp between 5% and 95%
+        float chance = (C5-((C5+D5)*.315f)) / ((D5-((C5+D5)*.315f)) + (C5-((C5+D5)*.315f)));
         int convertedChance = Math.round(chance * 100);
-        convertedChance = Math.max(5, Math.min(95, convertedChance));
+        //convertedChance = Math.max(5, Math.min(95, convertedChance));
 
-        // Generate random roll (0–100) and determine hit
         int roll = ThreadLocalRandom.current().nextInt(101);
-        return convertedChance > roll;
+
+        if(roll < 5)//always 5% chance ot miss
+            return false;
+
+        return roll <= convertedChance;
     }
 }
