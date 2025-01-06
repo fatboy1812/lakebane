@@ -75,7 +75,7 @@ public class Corpse extends AbstractWorldObject {
         }
         this.setObjectTypeMask(MBServerStatics.MASK_CORPSE);
 
-        this.spawnedTime = System.currentTimeMillis()
+        this.spawnedTime = System.currentTimeMillis();
         if (!safeZone)
             transferInventory(belongsTo, enterWorld);
 
