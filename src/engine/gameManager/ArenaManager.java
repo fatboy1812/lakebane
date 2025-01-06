@@ -49,10 +49,20 @@ public class ArenaManager {
         if (!playerQueue.contains(player)) {
             playerQueue.add(player);
         }
+        for(PlayerCharacter pc : playerQueue){
+            if(pc.equals(player))
+                continue;
+            ChatManager.chatSystemInfo(pc, player.getName() + " has joined the arena que. There are now " + playerQueue.size() + " players queued.");
+        }
     }
 
     public static void leaveQueue(PlayerCharacter player) {
         playerQueue.remove(player);
+        for(PlayerCharacter pc : playerQueue){
+            if(pc.equals(player))
+                continue;
+            ChatManager.chatSystemInfo(pc, player.getName() + " has left the arena que. There are now " + playerQueue.size() + " players queued.");
+        }
     }
 
     private static void createArena() {
