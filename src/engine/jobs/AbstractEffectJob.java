@@ -117,7 +117,7 @@ public abstract class AbstractEffectJob extends AbstractScheduleJob {
     }
 
     public void endEffect() {
-        if (this.eb == null)
+        if (this.eb == null || this.power == null)
             return;
         this.eb.endEffect(this.source, this.target, this.trains, this.power, this);
     }
