@@ -2925,6 +2925,9 @@ public class PlayerCharacter extends AbstractCharacter {
     }
 
     public synchronized void grantXP(int xp) {
+        int groupSize = 1;
+        if(GroupManager.getGroup(this)!= null)
+            groupSize = GroupManager.getGroup(this).members.size();
         if(this.promotionClass == null && this.level == 10){
             this.setOverFlowEXP(0);
             this.update(false);
@@ -3075,6 +3078,12 @@ public class PlayerCharacter extends AbstractCharacter {
                 SetObjectValueMsg upm = new SetObjectValueMsg(this, 9);
                 DispatchMessage.dispatchMsgToInterestArea(this, upm, DispatchChannel.PRIMARY, MBServerStatics.CHARACTER_LOAD_RANGE, false, false);
                 checkGuildStatus();
+
+                //give gold for level up if level is under or equal to 20
+                int gold = (int)((100000 * (this.level - 10) / 55.0) / groupSize);
+                this.charItemManager.addGoldToInventory((int)(xp *0.1f),false);
+                this.charItemManager.updateInventory();
+
             } else {
 
                 this.exp += remainingXP;
@@ -4640,7 +4649,7 @@ public class PlayerCharacter extends AbstractCharacter {
 
         tmpLevel = targetLevel;
 
-        tmpLevel = (short) Math.min(tmpLevel, 75);
+        tmpLevel = (short) Math.min(tmpLevel, MBServerStatics.LEVELCAP);
 
         while (this.level < tmpLevel) {
             grantXP(Experience.getBaseExperience(tmpLevel) - this.exp);

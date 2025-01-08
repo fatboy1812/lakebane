@@ -75,6 +75,12 @@ public enum LootManager {
     }
 
     public static void GenerateMobLoot(Mob mob) {
+
+        //no loot for safezones
+        if(mob == null || mob.getSafeZone()){
+            return;
+        }
+
         //determine if mob is in hotzone
         boolean inHotzone = false;
 
