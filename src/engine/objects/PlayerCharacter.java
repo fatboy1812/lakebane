@@ -3079,10 +3079,12 @@ public class PlayerCharacter extends AbstractCharacter {
                 DispatchMessage.dispatchMsgToInterestArea(this, upm, DispatchChannel.PRIMARY, MBServerStatics.CHARACTER_LOAD_RANGE, false, false);
                 checkGuildStatus();
 
-                //give gold for level up if level is under or equal to 20
-                int gold = (int)((100000 * (this.level - 10) / 55.0) / groupSize);
-                this.charItemManager.addGoldToInventory((int)(xp *0.1f),false);
-                this.charItemManager.updateInventory();
+                //give gold for level up if level is under or equal to 20 and over 10
+                if(this.level >= 10 && this.level < 20) {
+                    int gold = (int) ((100000 * (this.level - 10) / 55.0) / groupSize);
+                    this.charItemManager.addGoldToInventory(gold, false);
+                    this.charItemManager.updateInventory();
+                }
 
             } else {
 
@@ -4895,11 +4897,11 @@ public class PlayerCharacter extends AbstractCharacter {
                     while (this.level < 10) {
                         grantXP(Experience.getBaseExperience(this.level + 1) - this.exp);
                     }
-                    if(this.charItemManager != null && this.charItemManager.getGoldInventory() != null && this.charItemManager.getGoldInventory().getNumOfItems() < 1000) {
-                        this.getCharItemManager().addGoldToInventory(1000, false);
-                        this.getCharItemManager().addItemToInventory(new MobLoot(this, ItemBase.getItemBase(980066), 1, false).promoteToItem(this));
-                        this.getCharItemManager().updateInventory();
-                    }
+                    //if(this.charItemManager != null && this.charItemManager.getGoldInventory() != null && this.charItemManager.getGoldInventory().getNumOfItems() < 1000) {
+                    //    this.getCharItemManager().addGoldToInventory(1000, false);
+                    //    this.getCharItemManager().addItemToInventory(new MobLoot(this, ItemBase.getItemBase(980066), 1, false).promoteToItem(this));
+                    //    this.getCharItemManager().updateInventory();
+                    //}
                 }
 
                 if(this.isBoxed && !this.containsEffect(1672601862)) {
