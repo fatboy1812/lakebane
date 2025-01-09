@@ -227,10 +227,10 @@ public class ClientConnection extends AbstractConnection {
             SessionManager.remSession(
                     SessionManager.getSession(sessionID));
         } catch (NullPointerException e) {
-            Logger
-                    .error(
-                            "Tried to remove improperly initialized session. Skipping." +
-                                    e);
+            //Logger
+                    //.error(
+                            //"Tried to remove improperly initialized session. Skipping." +
+                                    //e);
         }
     }
 

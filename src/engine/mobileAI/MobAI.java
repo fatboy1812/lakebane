@@ -321,20 +321,20 @@ public class MobAI {
             if (mob == null)
                 return false;
 
-            if(mob.isPlayerGuard == true){
+            if(mob.isPlayerGuard){
 
-                int contractID;
+                int contractID = 0;
 
-                if(mob.BehaviourType.equals(Enum.MobBehaviourType.GuardMinion))
+                if(mob.BehaviourType.equals(Enum.MobBehaviourType.GuardMinion) && mob.npcOwner != null)
                     contractID = mob.npcOwner.contract.getContractID();
-                 else
+                 else if(mob.contract != null)
                     contractID = mob.contract.getContractID();
 
-                if(Enum.MinionType.ContractToMinionMap.get(contractID).isMage() == false)
+                if(Enum.MinionType.ContractToMinionMap.containsKey(contractID) && !Enum.MinionType.ContractToMinionMap.get(contractID).isMage())
                     return false;
             }
 
-            if (mob.mobPowers.isEmpty())
+            if (mob.mobPowers == null || mob.mobPowers.isEmpty())
                 return false;
 
             if (!mob.canSee((PlayerCharacter) mob.getCombatTarget())) {
