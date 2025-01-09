@@ -4914,6 +4914,15 @@ public class PlayerCharacter extends AbstractCharacter {
                         GroundPlayer(this);
                         //ChatManager.chatSystemInfo(this, "You Cannot Fly While Having A MovementBuff");
                     }
+                    if(this.getDesiredAltitude() == this.getAltitude() && this.bonuses.getBool(ModType.Stunned, SourceType.None)){
+                        this.setAltitude(this.getAltitude());
+                        this.setDesiredAltitude(this.getAltitude() - 10);
+                        this.setTakeOffTime(System.currentTimeMillis());
+
+                        ChangeAltitudeMsg msg = new ChangeAltitudeMsg(this.getObjectType().ordinal(), this.getObjectUUID(), false, this.getAltitude(), this.getDesiredAltitude(), this.getAltitude());
+                        // force a landing
+                        DispatchMessage.dispatchMsgToInterestArea(this, msg, DispatchChannel.PRIMARY, MBServerStatics.CHARACTER_LOAD_RANGE, true, false);
+                    }
                 }
 
             } catch (Exception e) {
