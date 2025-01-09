@@ -499,7 +499,8 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
         if(flyer.effects.containsKey("MoveBuff")){
             canFly = false;
         }
-
+        if(flyer.bonuses.getBool(ModType.Stunned, SourceType.None))
+            canFly = false;
 
         return canFly;
 
