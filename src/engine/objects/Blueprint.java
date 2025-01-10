@@ -360,6 +360,10 @@ this.maxRank = rs.getInt("MaxRank");
                 return 3;
         }
 
+        if(bg != null && bg.equals(BuildingGroup.TOL) && currentRank == 8){
+            return 5;
+        }
+
         if (this.maxRank == 1 && currentRank == 1)
             return getMaxSlots();
 
