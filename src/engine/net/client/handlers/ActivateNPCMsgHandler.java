@@ -78,7 +78,7 @@ public class ActivateNPCMsgHandler extends AbstractClientMsgHandler {
                 return false;
             }
 
-            if (building.getBlueprint().getMaxSlots() == building.getHirelings().size())
+            if (building.getBlueprint().getMaxSlots() == building.getHirelings().size() && building.getRank() != 8)
                 return false;
 
             Item contractItem = Item.getFromCache(msg.getContractItem());
