@@ -1148,6 +1148,15 @@ public class PlaceAssetMsgHandler extends AbstractClientMsgHandler {
             wallPiece.setProtectionState(ProtectionState.PROTECTED);
             PlaceAssetMsg.sendPlaceAssetConfirmWall(origin, serverZone);
 
+            //walls in R8 city are immediately granted extra HP by 10%
+            if(cityObject.getTOL().getRank() == 8) {
+                if (wallPiece.getBlueprint() != null && wallPiece.getBlueprint().getBuildingGroup() != null && wallPiece.getBlueprint().isWallPiece()) {
+                    float currentHealthRatio = wallPiece.getCurrentHitpoints() / wallPiece.healthMax;
+                    float newMax = wallPiece.healthMax * 1.1f;
+                    wallPiece.setMaxHitPoints(newMax);
+                    wallPiece.setHealth(wallPiece.healthMax * currentHealthRatio);
+                }
+            }
         }
 
         // Deduct gold from character's inventory

@@ -166,8 +166,19 @@ public class Building extends AbstractWorldObject {
                 if (this.blueprintUUID != 0)
                     this.meshUUID = blueprint.getMeshForRank(rank);
 
-                this.healthMax = blueprint.getMaxHealth(this.rank);
-
+                if(this.getBlueprint() != null && this.getBlueprint().getBuildingGroup() != null && this.getBlueprint().isWallPiece()){
+                    City cityObject = ZoneManager.getCityAtLocation(this.loc);
+                    if(cityObject.getTOL().getRank() == 8) {
+                        float currentHealthRatio = this.getCurrentHitpoints() / this.healthMax;
+                        float newMax = this.healthMax * 1.1f;
+                        this.setMaxHitPoints(newMax);
+                        this.setHealth(this.healthMax * currentHealthRatio);
+                    }else {
+                        this.healthMax = blueprint.getMaxHealth(this.rank);
+                    }
+                } else {
+                    this.healthMax = blueprint.getMaxHealth(this.rank);
+                }
                 // If this object has no blueprint but is a blueprint
                 // mesh then set it's current health to max health
 
