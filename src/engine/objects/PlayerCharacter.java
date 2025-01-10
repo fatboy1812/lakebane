@@ -4914,15 +4914,22 @@ public class PlayerCharacter extends AbstractCharacter {
                         GroundPlayer(this);
                         //ChatManager.chatSystemInfo(this, "You Cannot Fly While Having A MovementBuff");
                     }
-                    if(this.getDesiredAltitude() == this.getAltitude() && this.bonuses.getBool(ModType.Stunned, SourceType.None)){
-                        this.setAltitude(this.getAltitude());
-                        this.setDesiredAltitude(this.getAltitude() - 10);
-                        this.setTakeOffTime(System.currentTimeMillis());
+                    if(!this.timestamps.containsKey("StunGrounded"))
+                        this.timestamps.put("StunGrounded",System.currentTimeMillis() - 1000L);
+                    if(this.bonuses.getBool(ModType.Stunned, SourceType.None) && this.timestamps.get("StunGrounded") < System.currentTimeMillis()){
+                        boolean isFlyMoving = this.getDesiredAltitude() != this.altitude;
+                        if(!isFlyMoving && this.bonuses.getBool(ModType.Stunned, SourceType.None)){
+                            this.setDesiredAltitude(this.altitude - 10);
+                            this.setTakeOffTime(System.currentTimeMillis());
 
-                        ChangeAltitudeMsg msg = new ChangeAltitudeMsg(this.getObjectType().ordinal(), this.getObjectUUID(), false, this.getAltitude(), this.getDesiredAltitude(), this.getAltitude());
-                        // force a landing
-                        DispatchMessage.dispatchMsgToInterestArea(this, msg, DispatchChannel.PRIMARY, MBServerStatics.CHARACTER_LOAD_RANGE, true, false);
+                            ChangeAltitudeMsg msg = new ChangeAltitudeMsg(this.getObjectType().ordinal(), this.getObjectUUID(), false, this.getAltitude(), this.getDesiredAltitude(), this.getAltitude());
+                            // force a landing
+                            DispatchMessage.dispatchMsgToInterestArea(this, msg, DispatchChannel.PRIMARY, MBServerStatics.CHARACTER_LOAD_RANGE, true, false);
+                            this.timestamps.put("StunGrounded",System.currentTimeMillis() + 1500L);
+                            ChatManager.chatSystemInfo(this,"Applying 1 Tier Ground");
+                        }
                     }
+
                 }
 
             } catch (Exception e) {
