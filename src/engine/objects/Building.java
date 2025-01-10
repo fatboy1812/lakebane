@@ -160,38 +160,20 @@ public class Building extends AbstractWorldObject {
             // in City resulting in a stack ovreflow.
 
             if (blueprint != null) {
-
                 // Only switch mesh for player dropped structures
-
                 if (this.blueprintUUID != 0)
                     this.meshUUID = blueprint.getMeshForRank(rank);
-
                 this.healthMax = blueprint.getMaxHealth(this.rank);
-
+                // If this object has no blueprint but is a blueprint
+                // mesh then set it's current health to max health
+                if (this.blueprintUUID == 0)
+                    this.setHealth(healthMax);
+                if (blueprint.getBuildingGroup().equals(BuildingGroup.BARRACK))
+                    this.patrolPoints = DbManager.BuildingQueries.LOAD_PATROL_POINTS(this);
             } else {
                 this.healthMax = 100000;  // Structures with no blueprint mesh
                 this.setHealth(healthMax);
             }
-
-                if(this.getBlueprint() != null && this.getBlueprint().getBuildingGroup() != null && this.getBlueprint().isWallPiece()){
-                    City cityObject = ZoneManager.getCityAtLocation(this.loc);
-                    if(cityObject.getTOL().getRank() == 8) {
-                        float currentHealthRatio = this.getCurrentHitpoints() / this.healthMax;
-                        float newMax = this.healthMax * 1.1f;
-                        this.setMaxHitPoints(newMax);
-                        this.setHealth(this.healthMax * currentHealthRatio);
-                    }
-                }
-
-                // If this object has no blueprint but is a blueprint
-                // mesh then set it's current health to max health
-
-                if (this.blueprintUUID == 0)
-                    this.setHealth(healthMax);
-
-                if (blueprint.getBuildingGroup().equals(BuildingGroup.BARRACK))
-                    this.patrolPoints = DbManager.BuildingQueries.LOAD_PATROL_POINTS(this);
-
 
             if(!this.ownerIsNPC){
                 //add extra HP for city walls of R8 trees
