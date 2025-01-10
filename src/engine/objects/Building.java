@@ -1137,6 +1137,22 @@ public class Building extends AbstractWorldObject {
                 }
             }
 
+            if(!this.ownerIsNPC && this.getBlueprint() != null && this.getBlueprint().isWallPiece()){
+                //add extra HP for city walls of R8 trees
+                City city = ZoneManager.getCityAtLocation(this.loc);
+                if(city != null){
+                    Building ToL = city.getTOL();
+                    if(ToL != null){
+                        if(ToL.rank == 8){
+                            float currentHealth = this.health.get();
+                            float newHealth = (currentHealth/this.healthMax) * (this.healthMax * 1.1f);
+                            this.healthMax *= 1.1f;
+                            this.setHealth(newHealth);
+                        }
+                    }
+                }
+            }
+
             // Set bounds for this building
 
             Bounds buildingBounds = Bounds.borrow();
