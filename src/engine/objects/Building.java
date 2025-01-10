@@ -412,6 +412,22 @@ public class Building extends AbstractWorldObject {
         this.healthMax = this.getBlueprint().getMaxHealth(this.rank);
         this.setCurrentHitPoints(this.healthMax);
 
+        if(!this.ownerIsNPC){
+            //add extra HP for city walls of R8 trees
+            City city = ZoneManager.getCityAtLocation(this.loc);
+            if(city != null){
+                Building ToL = city.getTOL();
+                if(ToL != null){
+                    if(ToL.rank == 8){
+                        float currentHealth = this.health.get();
+                        float newHealth = (currentHealth/this.healthMax) * (this.healthMax * 1.1f);
+                        this.healthMax *= 1.1f;
+                        this.setHealth(newHealth);
+                    }
+                }
+            }
+        }
+
         if (this.getUpgradeDateTime() != null)
             BuildingManager.setUpgradeDateTime(this, null, 0);
 
