@@ -9,6 +9,7 @@
 
 package engine.net.client.handlers;
 
+import engine.Enum;
 import engine.Enum.DispatchChannel;
 import engine.exception.MsgSendException;
 import engine.net.DispatchMessage;
@@ -40,6 +41,9 @@ public class ChangeAltitudeHandler extends AbstractClientMsgHandler {
         }
 
         if (!AbstractCharacter.CanFly(pc))
+            return false;
+
+        if(pc.getBonuses().getBool(Enum.ModType.Stunned, Enum.SourceType.None))
             return false;
 
         if (pc.isSwimming())
