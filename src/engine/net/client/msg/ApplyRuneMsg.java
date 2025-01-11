@@ -352,7 +352,7 @@ public class ApplyRuneMsg extends ClientNetMsg {
                     break;
             }
 
-            if(discCount == discAllowed)
+            if(discCount >= discAllowed)
                 return false;
         }
         //Everything succeeded. Let's apply the rune
