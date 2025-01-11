@@ -312,10 +312,10 @@ public class MBServerStatics {
     public static final float HEALTH_REGEN_SWIM_NOSTAMINA_STATIC = 0f; // 100%
     // weapon
     public static final float MANA_REGEN_STATIC = 0.16666666666666666666666666666667f;
-    public static final float MANA_REGEN_SIT = 0.008333333f; // 100% in 2
-    public static final float MANA_REGEN_IDLE = 0.00166667f; // 100% in 10
-    public static final float MANA_REGEN_WALK = 0.00125f; // 100% in 13.333
-    public static final float MANA_REGEN_RUN = 0f;
+    public static final float MANA_REGEN_SIT = 0.8333333f; // 1% every 1.2 seconds
+    public static final float MANA_REGEN_IDLE = 0.1666667f; // 1% every 6 seconds
+    public static final float MANA_REGEN_WALK = 0.125f; // 1% every 8 seconds
+    public static final float MANA_REGEN_RUN = 0.0f; // No regeneration while running
     public static final float STAMINA_REGEN_SIT = 2f; // 2 per second
     public static final float STAMINA_REGEN_IDLE = 0.2f; // 1 per 5 seconds
     public static final float STAMINA_REGEN_WALK = 0f;
