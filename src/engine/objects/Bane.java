@@ -428,32 +428,24 @@ public final class Bane {
 
     // Cache access
 
-    private void setDefaultTime() {
+    public void setDefaultTime() {
 
         DateTime timeToSetDefault = new DateTime(this.placementDate);
         timeToSetDefault = timeToSetDefault.plusDays(1);
 
-        DateTime currentTime = DateTime.now();
-        DateTime defaultTime = new DateTime(this.placementDate);
-        defaultTime = defaultTime.plusDays(2);
-        defaultTime = defaultTime.hourOfDay().setCopy(22);
-        defaultTime = defaultTime.minuteOfHour().setCopy(0);
-        defaultTime = defaultTime.secondOfMinute().setCopy(0);
-
-        if (currentTime.isAfter(timeToSetDefault)){
-            DbManager.BaneQueries.SET_BANE_CAP_NEW(20,this.getCityUUID());
-            DbManager.BaneQueries.SET_BANE_TIME_NEW(9,this.getCityUUID());
-            DbManager.BaneQueries.SET_BANE_DAY_NEW(3,this.getCityUUID());
-        }
-            //this.setLiveDate(defaultTime);
-        else {
-
-            if (this.defaultTimeJob != null)
-                this.defaultTimeJob.cancelJob();
-
-            BaneDefaultTimeJob bdtj = new BaneDefaultTimeJob(this);
-            JobScheduler.getInstance().scheduleJob(bdtj, timeToSetDefault.getMillis());
-            this.defaultTimeJob = bdtj;
+        if (DateTime.now().isAfter(timeToSetDefault)){
+            if(!this.capSet){
+                DbManager.BaneQueries.SET_BANE_CAP_NEW(20,this.getCityUUID());
+                this.capSet = true;
+            }
+            if(!this.daySet){
+                DbManager.BaneQueries.SET_BANE_DAY_NEW(3,this.getCityUUID());
+                this.daySet = true;
+            }
+            if(!this.timeSet){
+                DbManager.BaneQueries.SET_BANE_TIME_NEW(9,this.getCityUUID());
+                this.timeSet = true;
+            }
         }
     }
 

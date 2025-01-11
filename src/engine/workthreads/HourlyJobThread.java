@@ -88,5 +88,11 @@ public class HourlyJobThread implements Runnable {
         Logger.info(SimulationManager.getPopulationString());
         Logger.info(MessageDispatcher.getNetstatString());
         Logger.info(PurgeOprhans.recordsDeleted.toString() + "orphaned items deleted");
+
+        for (Bane bane : Bane.banes.values()){
+            if(bane.getSiegePhase().equals(Enum.SiegePhase.CHALLENGE)){
+                bane.setDefaultTime();
+            }
+        }
     }
 }
