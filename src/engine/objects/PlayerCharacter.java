@@ -5170,7 +5170,7 @@ public class PlayerCharacter extends AbstractCharacter {
                 if (this.walkMode)
                     manaRegen = ((this.manaMax * MBServerStatics.MANA_REGEN_IDLE) * getRegenModifier(ModType.ManaRecoverRate));
                 else if (!this.isCasting() && !this.isItemCasting())
-                    manaRegen = ((this.manaMax * MBServerStatics.MANA_REGEN_IDLE) * getRegenModifier(ModType.ManaRecoverRate));
+                    manaRegen = ((this.manaMax * MBServerStatics.MANA_REGEN_RUN) * getRegenModifier(ModType.ManaRecoverRate));
                 else
                     manaRegen = 0;
 
