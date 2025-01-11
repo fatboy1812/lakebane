@@ -349,6 +349,9 @@ public class Experience {
         if(killer.equals(mob))
             return;
 
+        if(killer.pvpKills.contains(mob.getObjectUUID()))
+            return;
+
         double grantedExperience = 0.0;
 
         if (g != null) { // Do group EXP stuff
