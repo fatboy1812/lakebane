@@ -202,7 +202,7 @@ public class ApplyRuneMsg extends ClientNetMsg {
         for (CharacterRune cr : runes) {
             int runeBaseID = cr.getRuneBaseID();
             //count number of discipline runes
-            if (runeBaseID > 3000 && runeBaseID < 3049) {
+            if(isDiscipline(runeBaseID)){
                 discCount++;
             }
             //see if rune is already applied
@@ -331,23 +331,29 @@ public class ApplyRuneMsg extends ClientNetMsg {
                 break;
         }
         //if discipline, check number applied
+        int discAllowed = 0;
         if (isDiscipline(runeID)) {
             switch(playerCharacter.getRank()){
                 case 1:
+                    discAllowed = 0;
+                    break;
                 case 2:
                 case 3:
                 case 4:
                 case 5:
                 case 6:
-                    if(discCount > 3)
-                        return false;
+                    discAllowed = 3;
                     break;
                 case 7:
+                    discAllowed = 4;
+                    break;
                 case 8:
-                    if(discCount > 5)
-                        return false;
+                    discAllowed = 5;
                     break;
             }
+
+            if(discCount == discAllowed)
+                return false;
         }
         //Everything succeeded. Let's apply the rune
         //Attempt add rune to database
