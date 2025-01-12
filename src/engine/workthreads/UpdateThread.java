@@ -30,7 +30,7 @@ public class UpdateThread implements Runnable {
         try {
             for(PlayerCharacter player : SessionManager.getAllActivePlayerCharacters()){
                 //player.update(true);
-                player.regenerate();
+                player.doRegen();
             }
         } catch (Exception e) {
             Logger.error("UPDATE ERROR");
