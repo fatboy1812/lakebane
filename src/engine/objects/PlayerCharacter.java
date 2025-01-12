@@ -5867,6 +5867,10 @@ public class PlayerCharacter extends AbstractCharacter {
     public void doRegen(){
         if (this.updateLock.writeLock().tryLock()) {
             try {
+                if(!this.isAlive() || !this.enteredWorld || !this.isActive) {
+                    this.resetRegenUpdateTime();
+                    return;
+                }
                 regenerateHealth();
                 regenerateMana();
                 regenerateStamina();
@@ -5877,6 +5881,7 @@ public class PlayerCharacter extends AbstractCharacter {
                 this.updateLock.writeLock().unlock();
             }
         }
+        //ChatManager.chatSystemInfo(this,"HEALTH: " + this.health.get() + " MANA: " + this.mana.get() + " STAM: " + this.stamina.get());
     }
 
     public void regenerateHealth(){
@@ -5885,11 +5890,14 @@ public class PlayerCharacter extends AbstractCharacter {
         regenTime = this.timestamps.getOrDefault("LastRegenHealth", currentTime);
         float secondsPassed = (currentTime - regenTime) / 1000f;
         float onePercent = this.healthMax * 0.01f;
-        float rate = RecoveryType.getRecoveryType(this).healthRate;
+        float rate = 1.0f / RecoveryType.getRecoveryType(this).healthRate;
         rate *= this.getRegenModifier(ModType.HealthRecoverRate);
 
-        float healthRegenerated = onePercent * secondsPassed * rate;
+        if(this.isMoving() && !this.walkMode)
+            rate = 0.0f;
 
+        float healthRegenerated = onePercent * rate * secondsPassed;
+        //ChatManager.chatSystemInfo(this,"HEALTH REGENERATED: " + healthRegenerated + " SECONDS PASSED: " + secondsPassed);
         boolean workedHealth = false;
         float old,mod;
         while(!workedHealth) {
@@ -5913,8 +5921,11 @@ public class PlayerCharacter extends AbstractCharacter {
         regenTime = this.timestamps.getOrDefault("LastRegenMana", currentTime);
         float secondsPassed = (currentTime - regenTime) / 1000f;
         float onePercent = this.manaMax * 0.01f;
-        float rate = RecoveryType.getRecoveryType(this).manaRate;
+        float rate = 1.0f / RecoveryType.getRecoveryType(this).manaRate;
         rate *= this.getRegenModifier(ModType.ManaRecoverRate);
+
+        if(this.isMoving() && !this.walkMode)
+            rate = 0.0f;
 
         float manaRegenerated = onePercent * secondsPassed * rate;
 
@@ -5933,6 +5944,8 @@ public class PlayerCharacter extends AbstractCharacter {
         this.timestamps.put("LastRegenMana",currentTime);
     }
     public void regenerateStamina(){
+        if(this.isMoving())
+            return;
         Long regenTime;
         Long currentTime = System.currentTimeMillis();
         regenTime = this.timestamps.getOrDefault("LastRegenStamina", currentTime);
@@ -5954,7 +5967,7 @@ public class PlayerCharacter extends AbstractCharacter {
                 mod = 0;
             workedStamina = this.stamina.compareAndSet(old, mod);
         }
-
+        //ChatManager.chatSystemInfo(this, "STAM: " + this.stamina.get() + " / " + this.staminaMax);
         this.timestamps.put("LastRegenStamina", currentTime);
     }
     public void consumeStamina(){
@@ -5964,9 +5977,10 @@ public class PlayerCharacter extends AbstractCharacter {
         float secondsPassed = (currentTime - regenTime) / 1000f;
 
         float consumption;
-        if(!this.isMoving() && !this.isFlying())
+        if(!this.isMoving() && !this.isFlying()) {
+            this.timestamps.put("LastConsumeStamina",currentTime);
             return;
-
+        }
         if(!this.combat){
             consumption = 0.4f * secondsPassed;
         }else{
@@ -5984,6 +5998,8 @@ public class PlayerCharacter extends AbstractCharacter {
                 mod = 0;
             workedStamina = this.stamina.compareAndSet(old, mod);
         }
+        //ChatManager.chatSystemInfo(this, "CONSUMED STAM: " + consumption);
+        this.timestamps.put("LastConsumeStamina",currentTime);
     }
 
     enum RecoveryType{
