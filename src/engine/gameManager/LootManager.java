@@ -76,8 +76,7 @@ public enum LootManager {
 
     public static void GenerateMobLoot(Mob mob) {
 
-        //no loot for safezones
-        if(mob == null || mob.getSafeZone()){
+        if(mob == null){
             return;
         }
 
@@ -186,14 +185,16 @@ public enum LootManager {
 
 
         // Iterate all entries in this bootySet and process accordingly
+        Zone zone = ZoneManager.findSmallestZone(mob.loc);
         for (BootySetEntry bse : entries) {
             switch (bse.bootyType) {
                 case "GOLD":
+                    if (zone != null && zone.getSafeZone() == (byte)1)
+                        return; // no loot to drop in safezones
                     GenerateGoldDrop(mob, bse, inHotzone);
                     break;
                 case "LOOT":
-
-                    if (mob.getSafeZone())
+                    if (zone != null && zone.getSafeZone() == (byte)1)
                         return; // no loot to drop in safezones
 
                     dropRate = LootManager.NORMAL_DROP_RATE;

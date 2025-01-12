@@ -884,7 +884,6 @@ public class MobAI {
                             return;
                         }
                     }
-                aiAgent.despawn();
                 return;
                 }
 
