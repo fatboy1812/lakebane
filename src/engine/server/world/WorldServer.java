@@ -517,8 +517,8 @@ public class WorldServer {
 		Logger.info("Starting Bane Thread");
 		BaneThread.startBaneThread();
 
-		//Logger.info("Starting Player Update Thread");
-		//UpdateThread.startUpdateThread();
+		Logger.info("Starting Player Regen Thread");
+		UpdateThread.startUpdateThread();
 
 
 		printThreads();

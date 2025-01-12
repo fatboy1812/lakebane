@@ -5849,6 +5849,8 @@ public class PlayerCharacter extends AbstractCharacter {
         boolean workedMana = false;
         boolean workedStamina = false;
 
+        ChatManager.chatSystemInfo(this,"Recovering Mana: " + manaRegen);
+
         float old, mod;
         while (!workedHealth || !workedMana || !workedStamina) {
             if (!this.isAlive() || !this.isActive())
