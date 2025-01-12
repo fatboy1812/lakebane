@@ -884,6 +884,8 @@ public class MobAI {
                             return;
                         }
                     }
+                aiAgent.despawn();
+                return;
                 }
 
             if(Mob.discDroppers.contains(aiAgent))
@@ -892,7 +894,7 @@ public class MobAI {
             if(aiAgent.StrongholdGuardian || aiAgent.StrongholdEpic || aiAgent.StrongholdCommander)
                 return;
 
-            if (System.currentTimeMillis() > (aiAgent.deathTime + (aiAgent.spawnTime * 1000L))) {
+            if (aiAgent.despawned && System.currentTimeMillis() > (aiAgent.deathTime + (aiAgent.spawnTime * 1000L))) {
                 if (!Zone.respawnQue.contains(aiAgent)) {
                     Zone.respawnQue.add(aiAgent);
                 }

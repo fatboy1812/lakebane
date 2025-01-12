@@ -1442,6 +1442,8 @@ public class Mob extends AbstractIntelligenceAgent {
             loadInventory();
 
         this.updateLocation();
+        this.stopPatrolTime = 0;
+        this.lastPatrolPointIndex = 0;
     }
 
     public void despawn() {
