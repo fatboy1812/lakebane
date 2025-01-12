@@ -29,7 +29,8 @@ public class UpdateThread implements Runnable {
 
         try {
             for(PlayerCharacter player : SessionManager.getAllActivePlayerCharacters()){
-                player.update(true);
+                //player.update(true);
+                player.RunRegen();
             }
         } catch (Exception e) {
             Logger.error("UPDATE ERROR");
