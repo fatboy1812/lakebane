@@ -5845,7 +5845,7 @@ public class PlayerCharacter extends AbstractCharacter {
 
         this.timestamps.put("LastRegen",currentTime);
 
-        ChatManager.chatSystemInfo(this,"Mana: " + this.mana.get());
+        //ChatManager.chatSystemInfo(this,"Mana: " + this.mana.get());
 
         boolean workedHealth = false;
         boolean workedMana = false;
