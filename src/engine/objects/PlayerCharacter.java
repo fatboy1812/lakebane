@@ -5691,14 +5691,6 @@ public class PlayerCharacter extends AbstractCharacter {
     }
 
     public void RunRegen(){
-        //this.updateRegen();
-        Long lastRegen;
-        if(this.timestamps.containsKey("LastRegen"))
-            lastRegen = this.timestamps.get("LastRegen");
-        else
-            lastRegen = System.currentTimeMillis();
-
-        float secondsDifference = (System.currentTimeMillis() - lastRegen) / 1000.0f;
 
         float healthRegen = 0f;
         float manaRegen = 0f;
@@ -5722,11 +5714,10 @@ public class PlayerCharacter extends AbstractCharacter {
                     healthRegen *= .75f;
                 // Characters regen mana when in only walk mode and idle
                 if (this.walkMode)
-                    manaRegen = ((this.manaMax * MBServerStatics.MANA_REGEN_IDLE) * getRegenModifier(ModType.ManaRecoverRate));
-                else if (!this.isCasting() && !this.isItemCasting())
-                    manaRegen = ((this.manaMax * MBServerStatics.MANA_REGEN_RUN) * getRegenModifier(ModType.ManaRecoverRate));
-                else
-                    manaRegen = 0;
+                    manaRegen = (this.manaMax * 0.01f) * getRegenModifier(ModType.ManaRecoverRate) * MBServerStatics.MANA_REGEN_WALK;
+                else {
+                    manaRegen = (this.manaMax * 0.01f) * getRegenModifier(ModType.ManaRecoverRate) * MBServerStatics.MANA_REGEN_IDLE;
+                }
 
                 if (!PlayerCharacter.CanBreathe(this))
                     stamRegen = MBServerStatics.STAMINA_REGEN_SWIM;
@@ -5841,15 +5832,24 @@ public class PlayerCharacter extends AbstractCharacter {
 
         // Multiple regen values by current deltaTime
         //     Logger.info("", healthRegen + "");
-        healthRegen *= getDeltaTime();
-        manaRegen *= getDeltaTime();
-        stamRegen *= getStamDeltaTime();
+        long currentTime = System.currentTimeMillis();
+        Long regenTime;
+        if(this.timestamps.containsKey("LastRegen"))
+            regenTime = this.timestamps.get("LastRegen");
+        else
+            regenTime = currentTime;
+        float secondsPassed = (currentTime - regenTime) / 1000f;
+        healthRegen *= secondsPassed;
+        manaRegen *= secondsPassed;
+        stamRegen *= secondsPassed;
+
+        this.timestamps.put("LastRegen",currentTime);
+
+        ChatManager.chatSystemInfo(this,"Mana: " + this.mana.get());
 
         boolean workedHealth = false;
         boolean workedMana = false;
         boolean workedStamina = false;
-
-        ChatManager.chatSystemInfo(this,"Recovering Mana: " + manaRegen);
 
         float old, mod;
         while (!workedHealth || !workedMana || !workedStamina) {
@@ -5887,7 +5887,7 @@ public class PlayerCharacter extends AbstractCharacter {
             }
         }
 
-        if (updateClient || secondsDifference > 2.5f)
+        if (updateClient)
             this.syncClient();
 
         // Reset this char's frame time.
