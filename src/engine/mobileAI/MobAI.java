@@ -9,7 +9,6 @@
 package engine.mobileAI;
 
 import engine.Enum;
-import engine.Enum.DispatchChannel;
 import engine.InterestManagement.WorldGrid;
 import engine.gameManager.*;
 import engine.math.Vector3f;
@@ -19,7 +18,6 @@ import engine.mobileAI.utilities.CombatUtilities;
 import engine.mobileAI.utilities.MovementUtilities;
 import engine.net.DispatchMessage;
 import engine.net.client.msg.PerformActionMsg;
-import engine.net.client.msg.PowerProjectileMsg;
 import engine.net.client.msg.UpdateStateMsg;
 import engine.objects.*;
 import engine.powers.ActionsBase;
@@ -110,7 +108,7 @@ public class MobAI {
             if (mob.BehaviourType.callsForHelp)
                 MobCallForHelp(mob);
 
-            if (!MovementUtilities.inRangeDropAggro(mob, target)) {
+            if (MovementUtilities.outOfAggroRange(mob, target)) {
                 mob.setCombatTarget(null);
                 return;
             }
@@ -918,7 +916,7 @@ public class MobAI {
             if(!mob.isCombat())
                 enterCombat(mob);
 
-            if (mob.getCombatTarget().getObjectType().equals(Enum.GameObjectType.PlayerCharacter) && !MovementUtilities.inRangeDropAggro(mob, (PlayerCharacter) mob.getCombatTarget()) && mob.BehaviourType.ordinal() != Enum.MobBehaviourType.Pet1.ordinal()) {
+            if (mob.getCombatTarget().getObjectType().equals(Enum.GameObjectType.PlayerCharacter) && MovementUtilities.outOfAggroRange(mob, (PlayerCharacter) mob.getCombatTarget()) && mob.BehaviourType.ordinal() != Enum.MobBehaviourType.Pet1.ordinal()) {
                 mob.setCombatTarget(null);
                 return;
             }
