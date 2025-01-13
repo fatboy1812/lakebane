@@ -5998,7 +5998,7 @@ public class PlayerCharacter extends AbstractCharacter {
         }else{
             consumption = 0.65f * secondsPassed;
         }
-        if(this.canBreathe)
+        if(this.movementState.equals(MovementState.SWIMMING))
             consumption = 1.5f * secondsPassed;
         else if(this.isFlying())
             consumption = 2.0f * secondsPassed;
@@ -6014,6 +6014,28 @@ public class PlayerCharacter extends AbstractCharacter {
         }
         ChatManager.chatSystemInfo(this, "STAM: " + this.stamina.get() + " / " + this.staminaMax);
         this.timestamps.put("LastConsumeStamina",currentTime);
+        if(this.stamina.get() == 0){
+            this.consumeHealth(secondsPassed);
+        }
+    }
+
+    public void consumeHealth(float secondsPassed){
+        float consumption = 2.0f * secondsPassed;
+        boolean workedHealth = false;
+        float old,mod;
+        while(!workedHealth) {
+            old = this.health.get();
+            mod = old - consumption;
+            if (mod > this.healthMax)
+                mod = healthMax;
+            else if (mod <= 0) {
+                if (this.isAlive.compareAndSet(true, false))
+                    killCharacter("Water");
+                return;
+            }
+            workedHealth = this.health.compareAndSet(old, mod);
+        }
+        ChatManager.chatSystemInfo(this, "HEALTH: " + this.health.get() + " / " + this.healthMax);
     }
 
     enum RecoveryType{
