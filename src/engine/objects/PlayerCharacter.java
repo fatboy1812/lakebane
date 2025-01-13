@@ -5871,10 +5871,12 @@ public class PlayerCharacter extends AbstractCharacter {
                     this.resetRegenUpdateTime();
                     return;
                 }
-                regenerateHealth();
-                regenerateMana();
-                regenerateStamina();
-                consumeStamina();
+                this.updateMovementState();
+                this.regenerateHealth();
+                this.regenerateMana();
+                this.regenerateStamina();
+                this.consumeStamina();
+                this.syncClient();
             } catch (Exception e) {
                 Logger.error(e);
             } finally {
@@ -5944,17 +5946,26 @@ public class PlayerCharacter extends AbstractCharacter {
         this.timestamps.put("LastRegenMana",currentTime);
     }
     public void regenerateStamina(){
-        if(this.isMoving())
-            return;
-        Long regenTime;
+
         Long currentTime = System.currentTimeMillis();
+
+        if(this.isMoving() || this.isFlying() || !this.canBreathe) {
+            this.timestamps.put("LastRegenStamina",currentTime);
+            return;
+        }
+
+        Long regenTime;
+
         regenTime = this.timestamps.getOrDefault("LastRegenStamina", currentTime);
         float secondsPassed = (currentTime - regenTime) / 1000f;
 
-        float rate = RecoveryType.getRecoveryType(this).staminaRate;
-        rate *= this.getRegenModifier(ModType.StaminaRecoverRate); // Adjust rate with modifiers
+        float secondsToRecover1 = RecoveryType.getRecoveryType(this).staminaRate;
 
-        float staminaRegenerated = secondsPassed / rate; // Stamina regenerates 1 point per `rate` seconds
+        float ratio = secondsPassed / secondsToRecover1;
+        //rate *= this.getRegenModifier(ModType.StaminaRecoverRate); // Adjust rate with modifiers
+
+        //float staminaRegenerated = secondsPassed / rate; // Stamina regenerates 1 point per `rate` seconds
+        float staminaRegenerated = secondsPassed * ratio; // Stamina regenerates 1 point per `rate` seconds
 
         boolean workedStamina = false;
         float old, mod;
@@ -5967,7 +5978,7 @@ public class PlayerCharacter extends AbstractCharacter {
                 mod = 0;
             workedStamina = this.stamina.compareAndSet(old, mod);
         }
-        //ChatManager.chatSystemInfo(this, "STAM: " + this.stamina.get() + " / " + this.staminaMax);
+        ChatManager.chatSystemInfo(this, "STAM: " + this.stamina.get() + " / " + this.staminaMax);
         this.timestamps.put("LastRegenStamina", currentTime);
     }
     public void consumeStamina(){
@@ -5977,7 +5988,8 @@ public class PlayerCharacter extends AbstractCharacter {
         float secondsPassed = (currentTime - regenTime) / 1000f;
 
         float consumption;
-        if(!this.isMoving() && !this.isFlying()) {
+
+        if(!this.isMoving() && !this.isFlying() && this.canBreathe) {
             this.timestamps.put("LastConsumeStamina",currentTime);
             return;
         }
@@ -5986,8 +5998,10 @@ public class PlayerCharacter extends AbstractCharacter {
         }else{
             consumption = 0.65f * secondsPassed;
         }
-        if(!this.canBreathe || this.isFlying())
-            consumption *= 2;
+        if(this.canBreathe)
+            consumption = 1.5f * secondsPassed;
+        else if(this.isFlying())
+            consumption = 2.0f * secondsPassed;
 
         boolean workedStamina = false;
         float old,mod;
@@ -5998,7 +6012,7 @@ public class PlayerCharacter extends AbstractCharacter {
                 mod = 0;
             workedStamina = this.stamina.compareAndSet(old, mod);
         }
-        //ChatManager.chatSystemInfo(this, "CONSUMED STAM: " + consumption);
+        ChatManager.chatSystemInfo(this, "STAM: " + this.stamina.get() + " / " + this.staminaMax);
         this.timestamps.put("LastConsumeStamina",currentTime);
     }
 
