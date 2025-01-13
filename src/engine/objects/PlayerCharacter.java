@@ -6012,7 +6012,7 @@ public class PlayerCharacter extends AbstractCharacter {
                 mod = 0;
             workedStamina = this.stamina.compareAndSet(old, mod);
         }
-        ChatManager.chatSystemInfo(this, "STAM: " + this.stamina.get() + " / " + this.staminaMax);
+        //ChatManager.chatSystemInfo(this, "STAM: " + this.stamina.get() + " / " + this.staminaMax);
         this.timestamps.put("LastConsumeStamina",currentTime);
         if(this.stamina.get() == 0){
             this.consumeHealth(secondsPassed);
@@ -6035,7 +6035,7 @@ public class PlayerCharacter extends AbstractCharacter {
             }
             workedHealth = this.health.compareAndSet(old, mod);
         }
-        ChatManager.chatSystemInfo(this, "HEALTH: " + this.health.get() + " / " + this.healthMax);
+        //ChatManager.chatSystemInfo(this, "HEALTH: " + this.health.get() + " / " + this.healthMax);
     }
 
     enum RecoveryType{
