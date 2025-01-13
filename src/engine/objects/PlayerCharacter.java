@@ -3133,25 +3133,7 @@ public class PlayerCharacter extends AbstractCharacter {
     public void calculateSpeedMod() {
         // get base race speed modifer
 
-
-        //this is retarded. *** Refactor
-        //        if (this.race != null) {
-        //            int ID = this.race.getObjectUUID();
-        //            if (ID == 2004 || ID == 2005)
-        //                this.raceRunMod = 1.21f; // centaur run bonus 22%
-        ////            else if (ID == 2017)
-        ////                this.raceRunMod = 1.14f; // mino run bonus 15%
-        //            else
-        //                this.raceRunMod = 1;
-        //        } else
-        //            this.raceRunMod = 1;
-
-
         float bonus = 1f;
-
-        //        // TODO: hardcoded, as didnt have time to introduce DB column to base object
-        //        if (baseClass.getName().equals("Fighter") || baseClass.getName().equals("Rogue"))
-        //            bonus += .05f;
 
         // get running skill
         if (this.skills != null) {
@@ -3205,14 +3187,6 @@ public class PlayerCharacter extends AbstractCharacter {
         return this.follow;
     }
 
-    public int getLastGroupToInvite() {
-        return this.lastGroupToInvite;
-    }
-
-    public void setLastGroupToInvite(int value) {
-        this.lastGroupToInvite = value;
-    }
-
     @Override
     public float getAltitude() {
         if (this.altitude < 0)
@@ -3261,10 +3235,6 @@ public class PlayerCharacter extends AbstractCharacter {
         return this.loadedStaticObjects;
     }
 
-    public void setLoadedStaticObjects(HashSet<AbstractWorldObject> value) {
-        this.loadedStaticObjects = value;
-    }
-
     public boolean isTeleportMode() {
         return teleportMode;
     }
@@ -3272,20 +3242,6 @@ public class PlayerCharacter extends AbstractCharacter {
     public void setTeleportMode(boolean teleportMode) {
         this.teleportMode = teleportMode;
     }
-
-    // public ConcurrentHashMap<Integer, FinishRecycleTimeJob>
-    // getRecycleTimers() {
-    // return this.recycleTimers;
-    // }
-    // public UsePowerJob getLastPower() {
-    // return this.lastPower;
-    // }
-    // public void setLastPower(UsePowerJob value) {
-    // this.lastPower = value;
-    // }
-    // public void clearLastPower() {
-    // this.lastPower = null;
-    // }
     public long chatFloodTime(int chatOpcode, long chatTimeMilli, int qtyToSave) {
         if (qtyToSave < 1)
             return 0L; // disabled
@@ -3799,22 +3755,6 @@ public class PlayerCharacter extends AbstractCharacter {
         return this.statStrCurrent - this.race.getStrStart() - this.baseClass.getStrMod();
     }
 
-    public int getDexForClient() {
-        return this.statDexCurrent - this.race.getDexStart() - this.baseClass.getDexMod();
-    }
-
-    public int getConForClient() {
-        return this.statConCurrent - this.race.getConStart() - this.baseClass.getConMod();
-    }
-
-    public int getIntForClient() {
-        return this.statIntCurrent - this.race.getIntStart() - this.baseClass.getIntMod();
-    }
-
-    public int getSpiForClient() {
-        return this.statSpiCurrent - this.race.getSpiStart() - this.baseClass.getSpiMod();
-    }
-
     public int getTrainsAvailable() {
         return this.trainsAvailable.get();
     }
@@ -3852,15 +3792,6 @@ public class PlayerCharacter extends AbstractCharacter {
         }
         ConcurrentHashMap<Integer, Item> equipped = this.charItemManager.getEquipped();
 
-        //		// Reset passives
-        //		if (this.bonuses != null) {
-        //			this.bonuses.setBool("Block", false);
-        //			this.bonuses.setBool("Parry", false);
-        //			if (this.baseClass != null && this.baseClass.getUUID() == 2502)
-        //				this.bonuses.setBool("Dodge", true);
-        //			else
-        //				this.bonuses.setBool("Dodge", false);
-        //		}
         // calculate atr and damage for each hand
         calculateAtrDamageForWeapon(equipped.get(MBServerStatics.SLOT_MAINHAND), true, equipped.get(MBServerStatics.SLOT_OFFHAND));
         calculateAtrDamageForWeapon(equipped.get(MBServerStatics.SLOT_OFFHAND), false, equipped.get(MBServerStatics.SLOT_MAINHAND));
@@ -3985,17 +3916,6 @@ public class PlayerCharacter extends AbstractCharacter {
             max = (float) wb.getMaxDamage();
             strBased = wb.isStrBased();
 
-            //
-            // Add parry bonus for weapon and allow parry if needed
-
-            //					// Only Fighters and Thieves can Parry
-            //					if ((this.baseClass != null && this.baseClass.getUUID() == 2500)
-            //							|| (this.promotionClass != null && this.promotionClass.getUUID() == 2520)) {
-            //						if (wbMain == null || wbMain.getRange() < MBServerStatics.RANGED_WEAPON_RANGE)
-            //							if (wbOff == null || wbOff.getRange() < MBServerStatics.RANGED_WEAPON_RANGE)
-            //								this.bonuses.setBool("Parry", true);
-            //					}
-            //				}
         }
 
         if (this.effects != null && this.effects.containsKey("DeathShroud"))
@@ -4479,36 +4399,6 @@ public class PlayerCharacter extends AbstractCharacter {
             return (amount - attackerLevel + this.getLevel()) / 4;
     }
 
-    public float getPassiveChance1(ModType modType, SourceType sourceType, int attackerLevel, boolean fromCombat) {
-        if (this.skills == null || this.bonuses == null)
-            return 0f;
-
-        // must be allowed to use this passive
-        if (!this.bonuses.getBool(modType, sourceType))
-            return 0f;
-
-        // must not be stunned
-        if (this.bonuses.getBool(ModType.Stunned, SourceType.None))
-            return 0f;
-
-        // Get base skill amount
-        CharacterSkill sk = this.skills.get(sourceType.name());
-        float amount;
-        if (sk == null)
-            amount = CharacterSkill.getQuickMastery(this, modType.name());
-        else
-            amount = sk.getModifiedAmount();
-
-        // Add bonuses
-        amount += this.bonuses.getFloat(modType, sourceType);
-
-        // Add item bonuses and return
-        if (sourceType.equals(SourceType.Dodge) && !fromCombat)
-            return ((amount / 4) - attackerLevel + this.getLevel()) / 4;
-        else
-            return (amount - attackerLevel + this.getLevel()) / 4;
-    }
-
     public float getRegenModifier(ModType type) {
         float regen = 1f;
 
@@ -4591,10 +4481,6 @@ public class PlayerCharacter extends AbstractCharacter {
         }
 
         super.removeFromCache();
-    }
-
-    public void storeIgnoreListDB() {
-
     }
 
     public void updateSkillsAndPowersToDatabase() {
@@ -4765,17 +4651,6 @@ public class PlayerCharacter extends AbstractCharacter {
         return true;
     }
 
-    // Method is called by Server Heartbeat simulation tick.
-    // Stat regen and transform updates should go in here.
-
-    public boolean isNoTeleScreen() {
-        return noTeleScreen;
-    }
-
-    public void setNoTeleScreen(boolean noTeleScreen) {
-        this.noTeleScreen = noTeleScreen;
-    }
-
     private double getDeltaTime() {
 
         return (System.currentTimeMillis() - lastUpdateTime) * .001f;
@@ -4808,30 +4683,6 @@ public class PlayerCharacter extends AbstractCharacter {
                     return true;
             } else {
                 if (this.getLoc().y + this.centerHeight < 0)
-                    return true;
-            }
-        } catch (Exception e) {
-            Logger.info(this.getName() + e);
-        }
-
-        return false;
-    }
-
-    public boolean isSwimming(Vector3fImmutable currentLoc) {
-
-        // If char is flying they aren't quite swimming
-        try {
-
-            float localAltitude = HeightMap.getWorldHeight(currentLoc);
-
-            Zone zone = ZoneManager.findSmallestZone(currentLoc);
-
-            if (zone.getSeaLevel() != 0) {
-
-                if (localAltitude < zone.getSeaLevel())
-                    return true;
-            } else {
-                if (localAltitude < 0)
                     return true;
             }
         } catch (Exception e) {
@@ -4897,11 +4748,6 @@ public class PlayerCharacter extends AbstractCharacter {
                     while (this.level < 10) {
                         grantXP(Experience.getBaseExperience(this.level + 1) - this.exp);
                     }
-                    //if(this.charItemManager != null && this.charItemManager.getGoldInventory() != null && this.charItemManager.getGoldInventory().getNumOfItems() < 1000) {
-                    //    this.getCharItemManager().addGoldToInventory(1000, false);
-                    //    this.getCharItemManager().addItemToInventory(new MobLoot(this, ItemBase.getItemBase(980066), 1, false).promoteToItem(this));
-                    //    this.getCharItemManager().updateInventory();
-                    //}
                 }
 
                 if(this.isBoxed && !this.containsEffect(1672601862)) {
@@ -5064,7 +4910,6 @@ public class PlayerCharacter extends AbstractCharacter {
                 ChatManager.chatSystemInfo(this,
                         "Arrived at End location. " + this.getEndLoc());
             return;
-            //Next upda
         }
 
         setLoc(newLoc);
@@ -5076,11 +4921,6 @@ public class PlayerCharacter extends AbstractCharacter {
 
         if (this.getStamina() < 10)
             MovementManager.sendOOS(this);
-
-        //	if (MBServerStatics.MOVEMENT_SYNC_DEBUG || this.getDebug(1))
-        //                Logger.info("MovementManager", "Updating movement current loc:" + this.getLoc().getX() + " " + this.getLoc().getZ()
-        //                        + " end loc: " + this.getEndLoc().getX() + " " + this.getEndLoc().getZ() + " distance " + this.getEndLoc().distance2D(this.getLoc()));
-
     }
 
     @Override
@@ -5457,21 +5297,9 @@ public class PlayerCharacter extends AbstractCharacter {
         return movementState;
     }
 
-    public boolean isHasAnniversery() {
-        return hasAnniversery;
-    }
-
     public void setHasAnniversery(boolean hasAnniversery) {
         DbManager.PlayerCharacterQueries.SET_ANNIVERSERY(this, hasAnniversery);
         this.hasAnniversery = hasAnniversery;
-    }
-
-    public int getSpamCount() {
-        return spamCount;
-    }
-
-    public void setSpamCount(int spamCount) {
-        this.spamCount = spamCount;
     }
 
     public String getHash() {
@@ -5499,10 +5327,6 @@ public class PlayerCharacter extends AbstractCharacter {
         this.lastRealmID = lastRealmID;
     }
 
-    public int getSubRaceID() {
-        return subRaceID;
-    }
-
     public void setSubRaceID(int subRaceID) {
         this.subRaceID = subRaceID;
     }
@@ -5513,29 +5337,6 @@ public class PlayerCharacter extends AbstractCharacter {
 
     public void setGuildHistory(ArrayList<GuildHistory> guildHistory) {
         this.guildHistory = guildHistory;
-    }
-
-    public void moveTo(Vector3fImmutable endLoc) {
-        this.setInBuilding(-1);
-        this.setInFloorID(-1);
-        MoveToPointMsg moveToMsg = new MoveToPointMsg();
-        moveToMsg.setStartCoord(this.getLoc());
-        moveToMsg.setEndCoord(endLoc);
-        moveToMsg.setInBuilding(-1);
-        moveToMsg.setUnknown01(-1);
-        moveToMsg.setSourceType(GameObjectType.PlayerCharacter.ordinal());
-        moveToMsg.setSourceID(this.getObjectUUID());
-
-        Dispatch dispatch = Dispatch.borrow(this, moveToMsg);
-        DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.PRIMARY);
-
-        try {
-            MovementManager.movement(moveToMsg, this);
-        } catch (MsgSendException e) {
-            // TODO Auto-generated catch block
-            Logger.error("Player.MoveTo", this.getName() + " tripped error " + e.getMessage());
-        }
-
     }
 
     public void updateScaleHeight() {
@@ -5574,10 +5375,6 @@ public class PlayerCharacter extends AbstractCharacter {
         this.overFlowEXP = overFlowEXP;
     }
 
-    public MovementState getLastMovementState() {
-        return lastMovementState;
-    }
-
     public void setLastMovementState(MovementState lastMovementState) {
         this.lastMovementState = lastMovementState;
     }
@@ -5609,14 +5406,6 @@ public class PlayerCharacter extends AbstractCharacter {
         return characterHeight;
     }
 
-    public void setCharacterHeight(float characterHeight) {
-        this.characterHeight = characterHeight;
-    }
-
-    public void setCenterHeight(float centerHeight) {
-        this.centerHeight = centerHeight;
-    }
-
     public boolean isEnteredWorld() {
         return enteredWorld;
     }
@@ -5625,24 +5414,8 @@ public class PlayerCharacter extends AbstractCharacter {
         this.enteredWorld = enteredWorld;
     }
 
-    public long getChannelMute() {
-        return channelMute;
-    }
-
-    public void setChannelMute(long channelMute) {
-        this.channelMute = channelMute;
-    }
-
     public boolean isLastSwimming() {
         return lastSwimming;
-    }
-
-    public boolean isTeleporting() {
-        return isTeleporting;
-    }
-
-    public void setTeleporting(boolean isTeleporting) {
-        this.isTeleporting = isTeleporting;
     }
 
     @Override
@@ -5692,176 +5465,6 @@ public class PlayerCharacter extends AbstractCharacter {
         dirtyLock.writeLock().lock();
         this.dirtyLoad = dirtyLoad;
         dirtyLock.writeLock().unlock();
-    }
-
-    public static float getRegenRate(PlayerCharacter player, ModType type){
-        float regenRate = player.getRegenModifier(type);
-
-        player.updateMovementState();
-        switch (player.movementState) {
-            case IDLE:
-                if(player.walkMode){
-                    switch(type){
-                        case HealthRecoverRate:
-                            regenRate = MBServerStatics.HEALTH_REGEN_WALK * regenRate;
-                            break;
-                        case ManaRecoverRate:
-                            regenRate = MBServerStatics.MANA_REGEN_WALK * regenRate;
-                            break;
-                        case StaminaRecoverRate:
-                            regenRate = MBServerStatics.STAMINA_REGEN_WALK * regenRate;
-                            break;
-                    }
-                }else{
-                    switch(type){
-                        case HealthRecoverRate:
-                            regenRate = MBServerStatics.HEALTH_REGEN_IDLE * regenRate;
-                            break;
-                        case ManaRecoverRate:
-                            regenRate = MBServerStatics.MANA_REGEN_IDLE * regenRate;
-                            break;
-                        case StaminaRecoverRate:
-                            regenRate = MBServerStatics.STAMINA_REGEN_IDLE * regenRate;
-                            break;
-                    }
-                }
-                break;
-            case RUNNING:
-                if(type.equals(ModType.StaminaRecoverRate)){
-                    if(player.walkMode){
-                        regenRate = 0f;
-                    }else{
-                        if(player.combat){
-                            regenRate = MBServerStatics.STAMINA_REGEN_RUN_COMBAT * regenRate;
-                        }else{
-                            regenRate = MBServerStatics.STAMINA_REGEN_RUN_NONCOMBAT * regenRate;
-                        }
-                    }
-                }else{
-                    regenRate = 0f;
-                }
-                break;
-            case SWIMMING:
-                switch(type){
-                    case HealthRecoverRate:
-                        regenRate = MBServerStatics.HEALTH_REGEN_IDLE_STATIC * regenRate;
-                        break;
-                    case ManaRecoverRate:
-                        regenRate = MBServerStatics.MANA_REGEN_IDLE * regenRate;
-                        break;
-                    case StaminaRecoverRate:
-                        regenRate = MBServerStatics.STAMINA_REGEN_SWIM;
-                        break;
-                }
-                break;
-            case SITTING:
-                switch(type){
-                    case HealthRecoverRate:
-                        regenRate = MBServerStatics.HEALTH_REGEN_SIT * regenRate;
-                        break;
-                    case ManaRecoverRate:
-                        regenRate = MBServerStatics.MANA_REGEN_SIT * regenRate;
-                        break;
-                    case StaminaRecoverRate:
-                        regenRate = MBServerStatics.STAMINA_REGEN_SIT * regenRate;
-                        break;
-                }
-                break;
-            case FLYING:
-                switch(type){
-                    case HealthRecoverRate:
-                        regenRate = MBServerStatics.HEALTH_REGEN_SIT * regenRate;
-                        break;
-                    case ManaRecoverRate:
-                        regenRate = MBServerStatics.MANA_REGEN_IDLE * regenRate;
-                        break;
-                    case StaminaRecoverRate:
-                        regenRate = MBServerStatics.STAMINA_REGEN_FLY_IDLE * regenRate;
-                        break;
-                }
-                break;
-        }
-
-        return regenRate;
-    }
-
-    public void regenerate(){
-
-        if ((!this.isAlive()) || (!this.isActive()) || this.getLoc().x == 0 && this.getLoc().z == 0)
-            return;
-
-        float healthPerSecond = this.healthMax * 0.01f; // 1% of health
-        float manaPerSecond = this.manaMax * 0.01f; // 1% of health
-        float staminaPerSecond = this.staminaMax * 0.01f; // 1% of health
-
-        float healthRegenrated = 0f;
-        float manaRegenrated = 0f;
-        float staminaRegenrated = 0f;
-
-        long currentTime = System.currentTimeMillis();
-
-        if (this.updateLock.writeLock().tryLock()) {
-            try {
-                Long regenTime;
-                if(this.timestamps.containsKey("LastRegen"))
-                    regenTime = this.timestamps.get("LastRegen");
-                else
-                    regenTime = currentTime;
-                float secondsPassed = (currentTime - regenTime) / 1000f;
-
-                healthRegenrated = healthPerSecond * secondsPassed * getRegenRate(this, ModType.HealthRecoverRate);
-                manaRegenrated = manaPerSecond * secondsPassed * getRegenRate(this, ModType.ManaRecoverRate);
-                staminaRegenrated = staminaPerSecond * secondsPassed * getRegenRate(this, ModType.StaminaRecoverRate);
-
-                boolean workedHealth = false;
-                boolean workedMana = false;
-                boolean workedStamina = false;
-
-                float old, mod;
-                while (!workedHealth || !workedMana || !workedStamina) {
-                    if (!this.isAlive() || !this.isActive())
-                        return;
-                    if (!workedHealth) {
-                        old = this.health.get();
-                        mod = old + healthRegenrated;
-                        if (mod > this.healthMax)
-                            mod = healthMax;
-                        else if (mod <= 0) {
-                            if (this.isAlive.compareAndSet(true, false))
-                                killCharacter("Water");
-                            return;
-                        }
-                        workedHealth = this.health.compareAndSet(old, mod);
-                    }
-                    if (!workedStamina) {
-                        old = this.stamina.get();
-                        mod = old + staminaRegenrated;
-                        if (mod > this.staminaMax)
-                            mod = staminaMax;
-                        else if (mod < 0)
-                            mod = 0;
-                        workedStamina = this.stamina.compareAndSet(old, mod);
-                    }
-                    if (!workedMana) {
-                        old = this.mana.get();
-                        mod = old + manaRegenrated;
-                        if (mod > this.manaMax)
-                            mod = manaMax;
-                        else if (mod < 0)
-                            mod = 0;
-                        workedMana = this.mana.compareAndSet(old, mod);
-                    }
-                }
-                if (this.stamina.get() < this.staminaMax * 0.1f && this.isFlying())
-                    this.syncClient();
-
-            } catch (Exception e) {
-                Logger.error(e);
-            } finally {
-                this.timestamps.put("LastRegen",currentTime);
-                this.updateLock.writeLock().unlock();
-            }
-        }
     }
 
     public void doRegen(){
