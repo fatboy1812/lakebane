@@ -1068,8 +1068,8 @@ public class MobAI {
         if(mob.combatTarget == null)
             return;
 
-        if(city._playerMemory.contains(mob.combatTarget.getObjectUUID()) && mob.combatTarget.getObjectType().equals(Enum.GameObjectType.PlayerCharacter))
-            mob.setCombatTarget(null);
+        //if(city._playerMemory.contains(mob.combatTarget.getObjectUUID()) && mob.combatTarget.getObjectType().equals(Enum.GameObjectType.PlayerCharacter))
+        //    mob.setCombatTarget(null);
     }
 
     public static void GuardCaptainLogic(Mob mob) {
