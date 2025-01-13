@@ -1101,17 +1101,10 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
     }
 
     public final void setCombatTarget(final AbstractWorldObject value) {
-        if(this.getObjectTypeMask() == 2050) {//MOB?
+        if (this.getObjectTypeMask() == 2050) {//MOB?
             if (value == null) {
                 if (this.isCombat()) {
                     this.setCombat(false);
-                    UpdateStateMsg rwss = new UpdateStateMsg();
-                    rwss.setPlayer(this);
-                    DispatchMessage.sendToAllInRange(this, rwss);
-                }
-                }else {
-                if (!this.isCombat()) {
-                    this.setCombat(true);
                     UpdateStateMsg rwss = new UpdateStateMsg();
                     rwss.setPlayer(this);
                     DispatchMessage.sendToAllInRange(this, rwss);

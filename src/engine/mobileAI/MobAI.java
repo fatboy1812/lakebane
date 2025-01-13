@@ -20,6 +20,7 @@ import engine.mobileAI.utilities.MovementUtilities;
 import engine.net.DispatchMessage;
 import engine.net.client.msg.PerformActionMsg;
 import engine.net.client.msg.PowerProjectileMsg;
+import engine.net.client.msg.UpdateStateMsg;
 import engine.objects.*;
 import engine.powers.ActionsBase;
 import engine.powers.PowersBase;
@@ -914,8 +915,10 @@ public class MobAI {
             if (mob.getCombatTarget() == null)
                 return;
 
-            if (mob.getCombatTarget().getObjectType().equals(Enum.GameObjectType.PlayerCharacter) && MovementUtilities.inRangeDropAggro(mob, (PlayerCharacter) mob.getCombatTarget()) == false && mob.BehaviourType.ordinal() != Enum.MobBehaviourType.Pet1.ordinal()) {
+            if(!mob.isCombat())
+                enterCombat(mob);
 
+            if (mob.getCombatTarget().getObjectType().equals(Enum.GameObjectType.PlayerCharacter) && !MovementUtilities.inRangeDropAggro(mob, (PlayerCharacter) mob.getCombatTarget()) && mob.BehaviourType.ordinal() != Enum.MobBehaviourType.Pet1.ordinal()) {
                 mob.setCombatTarget(null);
                 return;
             }
@@ -1417,5 +1420,12 @@ public class MobAI {
         } catch (Exception e) {
             Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: RecoverHealth" + " " + e.getMessage());
         }
+    }
+
+    public static void enterCombat(Mob mob){
+        mob.setCombat(true);
+        UpdateStateMsg rwss = new UpdateStateMsg();
+        rwss.setPlayer(mob);
+        DispatchMessage.sendToAllInRange(mob, rwss);
     }
 }
