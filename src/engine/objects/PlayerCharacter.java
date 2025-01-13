@@ -5978,7 +5978,7 @@ public class PlayerCharacter extends AbstractCharacter {
                 mod = 0;
             workedStamina = this.stamina.compareAndSet(old, mod);
         }
-        ChatManager.chatSystemInfo(this, "STAM: " + this.stamina.get() + " / " + this.staminaMax);
+        //ChatManager.chatSystemInfo(this, "STAM: " + this.stamina.get() + " / " + this.staminaMax);
         this.timestamps.put("LastRegenStamina", currentTime);
     }
     public void consumeStamina(){
