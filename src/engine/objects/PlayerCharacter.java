@@ -5475,11 +5475,12 @@ public class PlayerCharacter extends AbstractCharacter {
                     return;
                 }
                 this.updateMovementState();
-                this.regenerateHealth();
-                this.regenerateMana();
-                this.regenerateStamina();
-                this.consumeStamina();
-                this.syncClient();
+                boolean updateHealth = this.regenerateHealth();
+                boolean updateMana = this.regenerateMana();
+                boolean updateStamina = this.regenerateStamina();
+                boolean consumeStamina = this.consumeStamina();
+                if(updateHealth || updateMana || updateStamina || consumeStamina)
+                    this.syncClient();
             } catch (Exception e) {
                 Logger.error(e);
             } finally {
@@ -5489,7 +5490,7 @@ public class PlayerCharacter extends AbstractCharacter {
         //ChatManager.chatSystemInfo(this,"HEALTH: " + this.health.get() + " MANA: " + this.mana.get() + " STAM: " + this.stamina.get());
     }
 
-    public void regenerateHealth(){
+    public boolean regenerateHealth(){
         Long regenTime;
         Long currentTime = System.currentTimeMillis();
         regenTime = this.timestamps.getOrDefault("LastRegenHealth", currentTime);
@@ -5504,23 +5505,23 @@ public class PlayerCharacter extends AbstractCharacter {
         float healthRegenerated = onePercent * rate * secondsPassed;
         //ChatManager.chatSystemInfo(this,"HEALTH REGENERATED: " + healthRegenerated + " SECONDS PASSED: " + secondsPassed);
         boolean workedHealth = false;
-        float old,mod;
+        float old = this.health.get();
+        float mod = old + healthRegenerated;
         while(!workedHealth) {
-            old = this.health.get();
-            mod = old + healthRegenerated;
             if (mod > this.healthMax)
                 mod = healthMax;
             else if (mod <= 0) {
                 if (this.isAlive.compareAndSet(true, false))
                     killCharacter("Water");
-                return;
+                return false;
             }
             workedHealth = this.health.compareAndSet(old, mod);
         }
 
         this.timestamps.put("LastRegenHealth",currentTime);
+        return mod > old;
     }
-    public void regenerateMana(){
+    public boolean regenerateMana(){
         Long regenTime;
         Long currentTime = System.currentTimeMillis();
         regenTime = this.timestamps.getOrDefault("LastRegenMana", currentTime);
@@ -5535,10 +5536,10 @@ public class PlayerCharacter extends AbstractCharacter {
         float manaRegenerated = onePercent * secondsPassed * rate;
 
         boolean workedMana = false;
-        float old,mod;
+        float  old = this.mana.get();
+        float mod = old + manaRegenerated;
         while(!workedMana) {
-            old = this.mana.get();
-            mod = old + manaRegenerated;
+
             if (mod > this.manaMax)
                 mod = manaMax;
             else if (mod < 0)
@@ -5547,14 +5548,15 @@ public class PlayerCharacter extends AbstractCharacter {
         }
 
         this.timestamps.put("LastRegenMana",currentTime);
+        return mod > old;
     }
-    public void regenerateStamina(){
+    public boolean regenerateStamina(){
 
         Long currentTime = System.currentTimeMillis();
 
         if(this.isMoving() || this.isFlying() || !this.canBreathe) {
             this.timestamps.put("LastRegenStamina",currentTime);
-            return;
+            return false;
         }
 
         Long regenTime;
@@ -5571,10 +5573,9 @@ public class PlayerCharacter extends AbstractCharacter {
         float staminaRegenerated = secondsPassed * ratio; // Stamina regenerates 1 point per `rate` seconds
 
         boolean workedStamina = false;
-        float old, mod;
+        float old = this.stamina.get();
+        float mod = old + staminaRegenerated;
         while (!workedStamina) {
-            old = this.stamina.get();
-            mod = old + staminaRegenerated;
             if (mod > this.staminaMax)
                 mod = staminaMax;
             else if (mod < 0)
@@ -5583,8 +5584,9 @@ public class PlayerCharacter extends AbstractCharacter {
         }
         //ChatManager.chatSystemInfo(this, "STAM: " + this.stamina.get() + " / " + this.staminaMax);
         this.timestamps.put("LastRegenStamina", currentTime);
+        return mod > old;
     }
-    public void consumeStamina(){
+    public boolean consumeStamina(){
         Long regenTime;
         Long currentTime = System.currentTimeMillis();
         regenTime = this.timestamps.getOrDefault("LastConsumeStamina", currentTime);
@@ -5594,7 +5596,7 @@ public class PlayerCharacter extends AbstractCharacter {
 
         if(!this.isMoving() && !this.isFlying() && this.canBreathe) {
             this.timestamps.put("LastConsumeStamina",currentTime);
-            return;
+            return false;
         }
         if(!this.combat){
             consumption = 0.4f * secondsPassed;
@@ -5607,10 +5609,9 @@ public class PlayerCharacter extends AbstractCharacter {
             consumption = 2.0f * secondsPassed;
 
         boolean workedStamina = false;
-        float old,mod;
+        float old = this.stamina.get();
+        float mod = old - consumption;
         while (!workedStamina) {
-            old = this.stamina.get();
-            mod = old - consumption;
             if (mod <= 0)
                 mod = 0;
             workedStamina = this.stamina.compareAndSet(old, mod);
@@ -5618,27 +5619,28 @@ public class PlayerCharacter extends AbstractCharacter {
         //ChatManager.chatSystemInfo(this, "STAM: " + this.stamina.get() + " / " + this.staminaMax);
         this.timestamps.put("LastConsumeStamina",currentTime);
         if(this.stamina.get() == 0){
-            this.consumeHealth(secondsPassed);
+            return this.consumeHealth(secondsPassed);
         }
+        return mod < old;
     }
 
-    public void consumeHealth(float secondsPassed){
+    public boolean consumeHealth(float secondsPassed){
         float consumption = 2.0f * secondsPassed;
         boolean workedHealth = false;
-        float old,mod;
+        float old = this.health.get();
+        float mod = old - consumption;
         while(!workedHealth) {
-            old = this.health.get();
-            mod = old - consumption;
+
             if (mod > this.healthMax)
                 mod = healthMax;
             else if (mod <= 0) {
                 if (this.isAlive.compareAndSet(true, false))
                     killCharacter("Water");
-                return;
+                return true;
             }
             workedHealth = this.health.compareAndSet(old, mod);
         }
-        //ChatManager.chatSystemInfo(this, "HEALTH: " + this.health.get() + " / " + this.healthMax);
+        return mod < old;
     }
 
     enum RecoveryType{
