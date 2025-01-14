@@ -602,12 +602,12 @@ public enum PowersManager {
         }
 
         // update cast (use skill) fail condition
-        if(pb.token != 429396028) {
+        if(pb.token != 429396028 && breakForm(pb.token)) {
             playerCharacter.cancelOnCast();
         }
 
         // update castSpell (use spell) fail condition if spell
-        if (pb.isSpell())
+        if (pb.isSpell() && breakForm(pb.token))
             playerCharacter.cancelOnSpell();
 
         // get cast time in ms.
@@ -748,10 +748,11 @@ public enum PowersManager {
 
         // make person casting stand up if spell (unless they're casting a chant which does not make them stand up)
         // update cast (use skill) fail condition
-        caster.cancelOnCast();
+        if(breakForm(pb.token))
+            caster.cancelOnCast();
 
         // update castSpell (use spell) fail condition if spell
-        if (pb.isSpell())
+        if (pb.isSpell() && breakForm(pb.token))
             caster.cancelOnSpell();
 
         // get cast time in ms.
@@ -2844,6 +2845,14 @@ public enum PowersManager {
         }
     }
 
+    public static boolean breakForm(int token) {
+        switch (token) {
+            case 0:
+
+                return false;
+        }
+        return true;
+    }
 }
 
 
