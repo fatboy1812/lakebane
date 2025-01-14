@@ -349,6 +349,7 @@ public enum PowersManager {
             msg.setNumTrains(trains);
         }
 
+        //double stack point values for some useless disc spells
         switch(pb.token){
             case 429420458: // BH eyes
             case 429601664: // huntsman skin the beast
