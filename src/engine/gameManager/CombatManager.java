@@ -662,9 +662,8 @@ public enum CombatManager {
 
             DeferredPowerJob dpj = null;
 
-
-
-            if (LandHit((int)atr,(int)defense)) {
+            boolean hitLanded = LandHit((int)atr,(int)defense);
+            if (hitLanded) {
 
                 if (ac.getObjectType().equals(GameObjectType.PlayerCharacter))
                     updateAttackTimers((PlayerCharacter) ac, target, true);
@@ -693,7 +692,13 @@ public enum CombatManager {
 
                         PlayerBonuses bonus = ac.getBonuses();
                         float attackRange = getWeaponRange(wb, bonus);
-                        dpj.attack(target, attackRange);
+                        if(specialCaseHitRoll(dpj.getPowerToken())) {
+                            if(hitLanded) {
+                                dpj.attack(target, attackRange);
+                            }
+                        }else{
+                            dpj.attack(target, attackRange);
+                        }
 
                         if (dpj.getPower() != null && (dpj.getPowerToken() == -1851459567 || dpj.getPowerToken() == -1851489518))
                             ((PlayerCharacter) ac).setWeaponPower(dpj);
@@ -708,7 +713,13 @@ public enum CombatManager {
 
                     if (dpj != null && dpj.getPower() != null && (dpj.getPowerToken() == -1851459567 || dpj.getPowerToken() == -1851489518)) {
                         float attackRange = getWeaponRange(wb, bonuses);
-                        dpj.attack(target, attackRange);
+                        if(specialCaseHitRoll(dpj.getPowerToken())) {
+                            if(hitLanded) {
+                                dpj.attack(target, attackRange);
+                            }
+                        }else{
+                            dpj.attack(target, attackRange);
+                        }
                     }
                 }
 
@@ -916,7 +927,13 @@ public enum CombatManager {
                         if (wp.requiresHitRoll() == false) {
                             PlayerBonuses bonus = ac.getBonuses();
                             float attackRange = getWeaponRange(wb, bonus);
-                            dpj.attack(target, attackRange);
+                            if(specialCaseHitRoll(dpj.getPowerToken())) {
+                                if(hitLanded) {
+                                    dpj.attack(target, attackRange);
+                                }
+                            }else{
+                                dpj.attack(target, attackRange);
+                            }
                         } else
                             ((PlayerCharacter) ac).setWeaponPower(null);
                     }
@@ -1465,5 +1482,16 @@ public enum CombatManager {
             return false;
 
         return roll <= convertedChance;
+    }
+
+    public static boolean specialCaseHitRoll(int powerID){
+        switch(powerID) {
+            case 563200808: // Naargal's Bite
+            case 563205337: // Naargal's Dart
+            case 563205930: // Sword of Saint Malorn
+                return true;
+            default:
+                return false;
+        }
     }
 }
