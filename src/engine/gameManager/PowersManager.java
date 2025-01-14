@@ -351,6 +351,7 @@ public enum PowersManager {
 
         switch(pb.token){
             case 429420458: // BH eyes
+            case 429601664: // huntsman skin the beast
                 msg.setNumTrains(msg.getNumTrains() * 2);
                 break;
         }
