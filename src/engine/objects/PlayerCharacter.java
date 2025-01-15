@@ -3929,10 +3929,12 @@ public class PlayerCharacter extends AbstractCharacter {
             //(Primary Stat / 2) + (Weapon Skill * 4) + (Weapon Mastery * 3) + (ATR Enchantments) * 1.stance modifier
             float atr = 0;
             int primaryStat;
-            if(weaponBase != null && !weaponBase.isStrBased()){
-                primaryStat = this.statDexCurrent;
-            }else{
+            int dexMod = this.getDexMod();
+            int strMod = this.getStrMod();
+            if(weaponBase != null && weaponBase.isStrBased()){
                 primaryStat = this.statStrCurrent;
+            }else{
+                primaryStat = this.statDexCurrent;
             }
 
             atr = (primaryStat * 0.5f) + (skillPercentage * 4) + (masteryPercentage * 3);
