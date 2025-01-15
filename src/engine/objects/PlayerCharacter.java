@@ -3080,8 +3080,8 @@ public class PlayerCharacter extends AbstractCharacter {
                 checkGuildStatus();
 
                 //give gold for level up if level is under or equal to 20 and over 10
-                if(this.level >= 10 && this.level < 20) {
-                    int gold = (int) ((100000 * (this.level - 10) / 55.0) / groupSize);
+                if(!this.isBoxed && this.level > 10 && this.level <= 20) {
+                    int gold = (int) ((100000 * (this.level - 10) / 55.0) );
                     this.charItemManager.addGoldToInventory(gold, false);
                     this.charItemManager.updateInventory();
                 }
