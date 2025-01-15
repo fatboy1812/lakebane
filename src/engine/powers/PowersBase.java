@@ -11,6 +11,7 @@ package engine.powers;
 
 import engine.Enum.PowerCategoryType;
 import engine.Enum.PowerTargetType;
+import engine.gameManager.PowersManager;
 import org.pmw.tinylog.Logger;
 
 import java.sql.ResultSet;
@@ -108,6 +109,8 @@ public class PowersBase {
     public PowerTargetType targetType;
     public PowerCategoryType powerCategory;
     public String description;
+
+    public boolean breaksForm = true;
 
     /**
      * No Table ID Constructor
@@ -325,6 +328,8 @@ public class PowersBase {
         ct = rs.getString("monsterTypeRestrict3").trim();
         if (!ct.isEmpty())
             this.monsterTypeRestrictions.add(ct);
+
+        this.breaksForm = PowersManager.breakForm(this.token);
     }
 
 

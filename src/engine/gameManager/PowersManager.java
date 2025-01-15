@@ -604,12 +604,12 @@ public enum PowersManager {
         }
 
         // update cast (use skill) fail condition
-        if(pb.token != 429396028 && breakForm(pb.token)) {
+        if(pb.token != 429396028 && pb.breaksForm) {
             playerCharacter.cancelOnCast();
         }
 
         // update castSpell (use spell) fail condition if spell
-        if (pb.isSpell() && breakForm(pb.token))
+        if (pb.isSpell() && pb.breaksForm)
             playerCharacter.cancelOnSpell();
 
         // get cast time in ms.
@@ -750,11 +750,11 @@ public enum PowersManager {
 
         // make person casting stand up if spell (unless they're casting a chant which does not make them stand up)
         // update cast (use skill) fail condition
-        if(breakForm(pb.token))
+        if(pb.breaksForm)
             caster.cancelOnCast();
 
         // update castSpell (use spell) fail condition if spell
-        if (pb.isSpell() && breakForm(pb.token))
+        if (pb.isSpell() && pb.breaksForm)
             caster.cancelOnSpell();
 
         // get cast time in ms.
@@ -2849,8 +2849,117 @@ public enum PowersManager {
 
     public static boolean breakForm(int token) {
         switch (token) {
-            case 0:
-
+            case 429505865:
+            case 429407561:
+            case 429492073:
+            case 429644123:
+            case 429393769:
+            case 429545819:
+            case 429426537:
+            case 429590377:
+            case 429508425:
+            case 429541193:
+            case 429573961:
+            case 427924330:
+            case 429402918:
+            case 429545688:
+            case 429005674:
+            case 429637823:
+            case 429590426:
+            case 428066972:
+            case 429441862:
+            case 431611756:
+            case 431578988:
+            case 429502506:
+            case 429398191:
+            case 429447384:
+            case 428892191:
+            case 431579167:
+            case 430977067:
+            case 429409100:
+            case 429441868:
+            case 429594877:
+            case 427908971:
+            case 683741153:
+            case 429770569:
+            case 429452379:
+            case 429605055:
+            case 429086971:
+            case 429443230:
+            case 429505400:
+            case 429492122:
+            case 429643992:
+            case 550062236:
+            case 429498252:
+            case 429611224:
+            case 429441834:
+            case 428918940:
+            case 429633739:
+            case 429633579:
+            case 429568043:
+            case 429048646:
+            case 428392639:
+            case 428425407:
+            case 429054168:
+            case 429021400:
+            case 428955864:
+            case 429119704:
+            case 428890328:
+            case 428923096:
+            case 429218008:
+            case 429086936:
+            case 428988632:
+            case 428688204:
+            case 429514603:
+            case 428924959:
+            case 429393818:
+            case 429720966:
+            case 428982463:
+            case 427933887:
+            case 429572287:
+            case 429501222:
+            case 430694431:
+            case 429436131:
+            case 430006124:
+            case 429611355:
+            case 428005600:
+            case 427935608:
+            case 428949695:
+            case 427988218:
+            case 429414616:
+            case 429496495:
+            case 429428796:
+            case 563795754:
+            case 428988217:
+            case 429432716:
+            case 428955899:
+            case 429393286:
+            case 550062220:
+            case 429495557:
+            case 429401278:
+            case 428377478:
+            case 429409094:
+            case 428191947:
+            case 429434474:
+            case 429403363:
+            case 429512920:
+            case 429419611:
+            case 429645676:
+            case 429602895:
+            case 429605071:
+            case 429592428:
+            case 429500010:
+            case 429406602:
+            case 429426586:
+            case 429633898:
+            case 550062212:
+            case 429994027:
+            case 430813227:
+            case 429928491:
+            case 430026795:
+            case 429517915:
+            case 431854842:
+            case 429767544:
                 return false;
         }
         return true;
