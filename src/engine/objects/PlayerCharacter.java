@@ -3844,7 +3844,7 @@ public class PlayerCharacter extends AbstractCharacter {
 
         // make sure weapon exists
         boolean noWeapon = false;
-        ItemBase wb = null;
+        ItemBase weaponBase = null;
         if (weapon == null)
             noWeapon = true;
         else {
@@ -3855,7 +3855,7 @@ public class PlayerCharacter extends AbstractCharacter {
                 defaultAtrAndDamage(mainHand);
                 return;
             } else
-                wb = ib;
+                weaponBase = ib;
         }
         float skillPercentage, masteryPercentage;
         float mastDam;
@@ -3905,16 +3905,16 @@ public class PlayerCharacter extends AbstractCharacter {
                     this.rangeHandTwo *= range_bonus;
 
             }
-            skillPercentage = getModifiedAmount(this.skills.get(wb.getSkillRequired()));
-            masteryPercentage = getModifiedAmount(this.skills.get(wb.getMastery()));
+            skillPercentage = getModifiedAmount(this.skills.get(weaponBase.getSkillRequired()));
+            masteryPercentage = getModifiedAmount(this.skills.get(weaponBase.getMastery()));
             if (masteryPercentage == 0f)
                 mastDam = 0f;
-                //				mastDam = CharacterSkill.getQuickMastery(this, wb.getMastery());
+                //				mastDam = CharacterSkill.getQuickMastery(this, weaponBase.getMastery());
             else
                 mastDam = masteryPercentage;
-            min = (float) wb.getMinDamage();
-            max = (float) wb.getMaxDamage();
-            strBased = wb.isStrBased();
+            min = (float) weaponBase.getMinDamage();
+            max = (float) weaponBase.getMaxDamage();
+            strBased = weaponBase.isStrBased();
 
         }
 
@@ -3926,13 +3926,16 @@ public class PlayerCharacter extends AbstractCharacter {
                 this.atrHandTwo = (short) 0;
         else {
             // calculate atr
+            //(Primary Stat / 2) + (Weapon Skill * 4) + (Weapon Mastery * 3) + (ATR Enchantments) * 1.stance modifier
             float atr = 0;
-            atr += (int) skillPercentage * 4f; //<-round down skill% -
-            atr += (int) masteryPercentage * 3f;
-            if (this.statStrCurrent > this.statDexCurrent)
-                atr += statStrCurrent / 2;
-            else
-                atr += statDexCurrent / 2;
+            int primaryStat;
+            if(weaponBase != null && !weaponBase.isStrBased()){
+                primaryStat = this.statDexCurrent;
+            }else{
+                primaryStat = this.statStrCurrent;
+            }
+
+            atr = (primaryStat * 0.5f) + (skillPercentage * 4) + (masteryPercentage * 3);
 
             // add in any bonuses to atr
             if (this.bonuses != null) {
@@ -3942,10 +3945,6 @@ public class PlayerCharacter extends AbstractCharacter {
                 // Finally use any multipliers. DO THIS LAST!
                 float pos_Bonus = (1 + this.bonuses.getFloatPercentPositive(ModType.OCV, SourceType.None));
                 atr *= pos_Bonus;
-
-                // next precise
-                //runes will have their own bonuses.
-                //	atr *= (1 + ((float) this.bonuses.getShort("rune.Attack") / 100));
 
                 //and negative percent modifiers
                 float neg_Bonus = this.bonuses.getFloatPercentNegative(ModType.OCV, SourceType.None);
@@ -3963,8 +3962,8 @@ public class PlayerCharacter extends AbstractCharacter {
         }
 
         //calculate speed
-        if (wb != null)
-            speed = wb.getSpeed();
+        if (weaponBase != null)
+            speed = weaponBase.getSpeed();
         else
             speed = 20f; //unarmed attack speed
         if (weapon != null)
