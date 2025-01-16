@@ -790,13 +790,10 @@ public enum PowersManager {
         if (playerCharacter == null || msg == null)
             return;
 
-        //if((msg.getPowerUsedID() == 429495514 || msg.getPowerUsedID() == 429407306) && playerCharacter.getRace().getName().toLowerCase().contains("shade")){
-        //    //use sneak instead of hide
-        //    PowersBase pb = PowersManager.getPowerByToken(429397210);
-        //    int offsetTrains = (40 - msg.getNumTrains()) ;
-        //    applyPower(playerCharacter,playerCharacter,playerCharacter.loc,429397210,msg.getNumTrains(),false);
-        //    applyPower(playerCharacter,playerCharacter,playerCharacter.loc,427857146,offsetTrains,false);
-        //}
+        if(msg.getPowerUsedID() == 429005674){ //bard sprint
+            //use sprint instead of ballad of beregund the bold
+            applyPower(playerCharacter,playerCharacter,playerCharacter.loc,429611355,msg.getNumTrains(),false);
+        }
         if(msg.getPowerUsedID() == 429494441) {//wildkins chase
             playerCharacter.removeEffectBySource(EffectSourceType.Root,40,true);
             playerCharacter.removeEffectBySource(EffectSourceType.Snare,40,true);
