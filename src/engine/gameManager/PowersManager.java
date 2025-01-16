@@ -792,7 +792,8 @@ public enum PowersManager {
 
         if(msg.getPowerUsedID() == 429005674){ //bard sprint
             //use sprint instead of ballad of beregund the bold
-            applyPower(playerCharacter,playerCharacter,playerCharacter.loc,429611355,msg.getNumTrains(),false);
+            //applyPower(playerCharacter,playerCharacter,playerCharacter.loc,429611355,msg.getNumTrains(),false);
+            msg.setPowerUsedID(429611355);
         }
         if(msg.getPowerUsedID() == 429494441) {//wildkins chase
             playerCharacter.removeEffectBySource(EffectSourceType.Root,40,true);
