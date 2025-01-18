@@ -5469,6 +5469,8 @@ public class PlayerCharacter extends AbstractCharacter {
     }
 
     public void doRegen(){
+        if(!this.timestamps.contains("SyncClient"))
+            this.timestamps.put("SyncClient",System.currentTimeMillis());
         if (this.updateLock.writeLock().tryLock()) {
             try {
                 if(!this.isAlive() || !this.enteredWorld || !this.isActive) {
@@ -5480,15 +5482,15 @@ public class PlayerCharacter extends AbstractCharacter {
                 boolean updateMana = this.regenerateMana();
                 boolean updateStamina = this.regenerateStamina();
                 boolean consumeStamina = this.consumeStamina();
-                if(updateHealth || updateMana || updateStamina || consumeStamina)
-                    this.syncClient();
+                if(this.timestamps.get("SyncClient") + 5000L > System.currentTimeMillis())
+                    if(updateHealth || updateMana || updateStamina || consumeStamina)
+                        this.syncClient();
             } catch (Exception e) {
                 Logger.error(e);
             } finally {
                 this.updateLock.writeLock().unlock();
             }
         }
-        //ChatManager.chatSystemInfo(this,"HEALTH: " + this.health.get() + " MANA: " + this.mana.get() + " STAM: " + this.stamina.get());
     }
 
     public boolean regenerateHealth(){
