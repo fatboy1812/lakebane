@@ -252,12 +252,12 @@ public class CombatUtilities {
             if (agent.getEquip().get(1) != null && agent.getEquip().get(2) != null && agent.getEquip().get(2).getItemBase().isShield() == false) {
                 //mob is duel wielding and should conduct an attack for each hand
                 ItemBase weapon1 = agent.getEquip().get(1).getItemBase();
-                double range1 = getMaxDmg(weapon1.getMinDamage(), agent, weapon1) - getMinDmg(weapon1.getMinDamage(), agent, weapon1);
-                double damage1 = getMinDmg(weapon1.getMinDamage(), agent, weapon1) + ((ThreadLocalRandom.current().nextFloat() * range1) + (ThreadLocalRandom.current().nextFloat() * range1)) / 2;
+                double range1 = getMaxDmg(agent) - getMinDmg(agent);
+                double damage1 = getMinDmg(agent) + ((ThreadLocalRandom.current().nextFloat() * range1) + (ThreadLocalRandom.current().nextFloat() * range1)) / 2;
                 swingIsDamage(agent, target, (float) damage1, CombatManager.getSwingAnimation(weapon1, null, true));
                 ItemBase weapon2 = agent.getEquip().get(2).getItemBase();
-                double range2 = getMaxDmg(weapon2.getMinDamage(), agent, weapon2) - getMinDmg(weapon2.getMinDamage(), agent, weapon2);
-                double damage2 = getMinDmg(weapon2.getMinDamage(), agent, weapon2) + ((ThreadLocalRandom.current().nextFloat() * range2) + (ThreadLocalRandom.current().nextFloat() * range2)) / 2;
+                double range2 = getMaxDmg(agent) - getMinDmg(agent);
+                double damage2 = getMinDmg(agent) + ((ThreadLocalRandom.current().nextFloat() * range2) + (ThreadLocalRandom.current().nextFloat() * range2)) / 2;
                 swingIsDamage(agent, target, (float) damage2, CombatManager.getSwingAnimation(weapon1, null, false));
             } else {
                 swingIsDamage(agent, target, determineDamage(agent), anim);
@@ -307,9 +307,9 @@ public class CombatUtilities {
         float damage = 0;
 
         DamageType dt = getDamageType(agent);
-        if ((agent.agentType.equals(AIAgentType.PET)) == true || agent.isPet() == true || agent.isNecroPet() == true) {
-            damage = calculatePetDamage(agent);
-        } else if (agent.isPlayerGuard() == true) {
+        if (agent.BehaviourType.equals(MobBehaviourType.Pet1)) {
+            damage = calculateMobDamage(agent);
+        } else if (agent.isPlayerGuard()) {
             //damage = calculateGuardDamage(agent);
             damage = calculateMobDamage(agent);
         } else if (agent.getLevel() > 80) {
@@ -349,8 +349,8 @@ public class CombatUtilities {
         float min = 40;
         float max = 60;
         float dmgMultiplier = 1 + agent.getBonuses().getFloatPercentAll(ModType.MeleeDamageModifier, SourceType.None);
-        double minDmg = getMinDmg(min, agent, null);
-        double maxDmg = getMaxDmg(max, agent, null);
+        double minDmg = getMinDmg(agent);
+        double maxDmg = getMaxDmg(agent);
         dmgMultiplier += agent.getLevel() * 0.1f;
         range = (float) (maxDmg - minDmg);
         damage = min + ((ThreadLocalRandom.current().nextFloat() * range) + (ThreadLocalRandom.current().nextFloat() * range)) / 2;
@@ -366,8 +366,8 @@ public class CombatUtilities {
 
         double minDmg = weapon.getMinDamage();
         double maxDmg = weapon.getMaxDamage();
-        double min = getMinDmg(minDmg, agent, weapon);
-        double max = getMaxDmg(maxDmg, agent, weapon);
+        double min = getMinDmg(agent);
+        double max = getMaxDmg(agent);
 
         DamageType dt = weapon.getDamageType();
 
@@ -408,92 +408,48 @@ public class CombatUtilities {
     }
 
     public static int calculateMobDamage(Mob agent) {
-        ItemBase weapon = null;
-        double minDmg;
-        double maxDmg;
-        DamageType dt;
-
-        //main hand or offhand damage
-
-        if (agent.getEquip().get(1) != null)
-            weapon = agent.getEquip().get(1).getItemBase();
-        else if (agent.getEquip().get(2) != null)
-            weapon = agent.getEquip().get(2).getItemBase();
-
-        if (weapon != null) {
-            minDmg = getMinDmg(weapon.getMinDamage(), agent, weapon);
-            maxDmg = getMaxDmg(weapon.getMaxDamage(), agent, weapon);
-            dt = weapon.getDamageType();
-        } else {
-            minDmg = agent.getMobBase().getDamageMin();
-            maxDmg = agent.getMobBase().getDamageMax();
-            dt = DamageType.Crush;
-        }
+        double minDmg = getMinDmg(agent);
+        double maxDmg = getMaxDmg(agent);
+        DamageType dt = getDamageType(agent);
 
         AbstractWorldObject target = agent.getCombatTarget();
 
-        float dmgMultiplier = 1 + agent.getBonuses().getFloatPercentAll(ModType.MeleeDamageModifier, SourceType.None);
-        double range = maxDmg - minDmg;
-        double damage = minDmg + ((ThreadLocalRandom.current().nextFloat() * range) + (ThreadLocalRandom.current().nextFloat() * range)) / 2;
+        double damage = ThreadLocalRandom.current().nextInt((int)minDmg,(int)maxDmg + 1);
 
         if (AbstractWorldObject.IsAbstractCharacter(target))
             if (((AbstractCharacter) target).isSit())
                 damage *= 2.5f; //increase damage if sitting
         if (AbstractWorldObject.IsAbstractCharacter(target))
-            return (int) (((AbstractCharacter) target).getResists().getResistedDamage(agent, (AbstractCharacter) target, dt, (float) damage, 0) * dmgMultiplier);
+            return (int) (((AbstractCharacter) target).getResists().getResistedDamage(agent, (AbstractCharacter) target, dt, (float) damage, 0));
         return 0;
     }
 
-    public static double getMinDmg(double min, Mob agent, ItemBase weapon) {
-
-        int primary = agent.getStatStrCurrent();
-        int secondary = agent.getStatDexCurrent();
-        int focusLevel = 0;
-        int masteryLevel = 0;
-
-        if (weapon != null) {
-            if (weapon.isStrBased() == true) {
-                primary = agent.getStatStrCurrent();
-                secondary = agent.getStatDexCurrent();
-            } else {
-                primary = agent.getStatDexCurrent();
-                secondary = agent.getStatStrCurrent();
-                if (agent.getSkills().containsKey(weapon.getSkillRequired())) {
-                    focusLevel = (int) agent.getSkills().get(weapon.getSkillRequired()).getModifiedAmount();
+    public static double getMinDmg(Mob agent) {
+            if(agent.getEquip() != null){
+                if(agent.getEquip().get(ItemSlotType.RHELD) != null){
+                    return agent.minDamageHandOne;
+                }else if(agent.getEquip().get(ItemSlotType.LHELD) != null){
+                    return agent.getMinDamageHandTwo();
+                }else{
+                    return agent.minDamageHandOne;
                 }
-                if (agent.getSkills().containsKey(weapon.getMastery())) {
-                    masteryLevel = (int) agent.getSkills().get(weapon.getMastery()).getModifiedAmount();
-                }
+            }else{
+                return agent.minDamageHandOne;
             }
-        }
-        return min * (pow(0.0048 * primary + .049 * (primary - 0.75), 0.5) + pow(0.0066 * secondary + 0.064 * (secondary - 0.75), 0.5) + +0.01 * (focusLevel + masteryLevel));
     }
 
-    public static double getMaxDmg(double max, Mob agent, ItemBase weapon) {
-
-        int primary = agent.getStatStrCurrent();
-        int secondary = agent.getStatDexCurrent();
-        int focusLevel = 0;
-        int masteryLevel = 0;
-
-        if (weapon != null) {
-
-            if (weapon.isStrBased() == true) {
-                primary = agent.getStatStrCurrent();
-                secondary = agent.getStatDexCurrent();
-            } else {
-                primary = agent.getStatDexCurrent();
-                secondary = agent.getStatStrCurrent();
+    public static double getMaxDmg(Mob agent) {
+            if(agent.getEquip() != null){
+                if(agent.getEquip().get(ItemSlotType.RHELD) != null){
+                    return agent.maxDamageHandOne;
+                }else if(agent.getEquip().get(ItemSlotType.LHELD) != null){
+                    return agent.getMaxDamageHandTwo();
+                }else{
+                    return agent.maxDamageHandOne;
+                }
+            }else{
+                return agent.maxDamageHandOne;
             }
-
-            if (agent.getSkills().containsKey(weapon.getSkillRequired()))
-                focusLevel = (int) agent.getSkills().get(weapon.getSkillRequired()).getModifiedAmount();
-
-            if (agent.getSkills().containsKey(weapon.getSkillRequired()))
-                masteryLevel = (int) agent.getSkills().get(weapon.getMastery()).getModifiedAmount();
-
-        }
-        return max * (pow(0.0124 * primary + 0.118 * (primary - 0.75), 0.5) + pow(0.0022 * secondary + 0.028 * (secondary - 0.75), 0.5) + 0.0075 * (focusLevel + masteryLevel));
     }
 
 }
