@@ -1652,8 +1652,8 @@ public class Mob extends AbstractIntelligenceAgent {
             } catch (Exception e) {
 
                 this.atrHandOne = GetAttackRating(this.mobBase.getAttackRating(), this);
-                this.minDamageHandOne = (short) this.mobBase.getMinDmg();
-                this.maxDamageHandOne = (short) this.mobBase.getMaxDmg();
+                this.minDamageHandOne = (short) this.mobBase.getDamageMin();
+                this.maxDamageHandOne = (short) this.mobBase.getDamageMax();
                 this.rangeHandOne = 6.5f;
                 this.speedHandOne = 20;
                 Logger.info("Mobbase ID " + this.getMobBaseID() + " returned an error. setting to default ATR and Damage." + e.getMessage());
@@ -1665,8 +1665,8 @@ public class Mob extends AbstractIntelligenceAgent {
             } catch (Exception e) {
 
                 this.atrHandTwo = GetAttackRating(this.mobBase.getAttackRating(), this);
-                this.minDamageHandTwo = (short) this.mobBase.getMinDmg();
-                this.maxDamageHandTwo = (short) this.mobBase.getMaxDmg();
+                this.minDamageHandTwo = (short) this.mobBase.getDamageMin();
+                this.maxDamageHandTwo = (short) this.mobBase.getDamageMax();
                 this.rangeHandTwo = 6.5f;
                 this.speedHandTwo = 20;
                 Logger.info("Mobbase ID " + this.getMobBaseID() + " returned an error. setting to default ATR and Damage." + e.getMessage());

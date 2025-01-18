@@ -260,7 +260,7 @@ public class MobBase extends AbstractGameObject {
     }
 
     public int getAtr() {
-        return atr;
+        return attackRating;
     }
 
     public void setAtr(int atr) {

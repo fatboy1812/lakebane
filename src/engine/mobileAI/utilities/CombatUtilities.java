@@ -143,7 +143,7 @@ public class CombatUtilities {
         int atr = agent.mobBase.getAtr();
         if(agent.getBonuses() != null){
             atr += agent.getBonuses().getFloat(ModType.OCV,SourceType.None);
-            atr *= agent.getBonuses().getFloatPercentAll(ModType.OCV,SourceType.None);
+            atr *= 1 + agent.getBonuses().getFloatPercentAll(ModType.OCV,SourceType.None);
         }
         switch (target.getObjectType()) {
             case PlayerCharacter:
