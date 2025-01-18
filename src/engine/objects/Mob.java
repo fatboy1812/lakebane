@@ -2117,6 +2117,7 @@ public class Mob extends AbstractIntelligenceAgent {
 
         try {
             NPCManager.applyRuneSetEffects(this);
+            MobBase.applyMobbaseEffects(this);
             recalculateStats();
             this.setHealth(this.healthMax);
 
