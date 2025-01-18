@@ -27,8 +27,8 @@ import java.util.ArrayList;
 
 public class BaneThread implements Runnable {
 
-    public Long lastRun;
-    public static int instancedelay = 10000;
+    private volatile Long lastRun;
+    public static final Long instancedelay = 1000L;
     public BaneThread() {
         Logger.info(" BaneThread thread has started!");
     }
@@ -37,14 +37,16 @@ public class BaneThread implements Runnable {
     public void processBanesWindow() {
 
         try {
-            for(int baneId : Bane.banes.keySet()){
-                Bane bane = Bane.banes.get(baneId);
-                if(bane.getSiegePhase().equals(Enum.SiegePhase.WAR)){
-                    bane.applyZergBuffs();
+            synchronized (Bane.banes) {
+                for (int baneId : Bane.banes.keySet()) {
+                    Bane bane = Bane.banes.get(baneId);
+                    if (bane != null && bane.getSiegePhase().equals(Enum.SiegePhase.WAR)) {
+                        bane.applyZergBuffs();
+                    }
                 }
             }
         } catch (Exception e) {
-            Logger.error("BANE ERROR");
+            Logger.error("BANE ERROR",e);
         }
 
 
@@ -56,6 +58,13 @@ public class BaneThread implements Runnable {
             if (System.currentTimeMillis() >= lastRun + instancedelay) { // Correct condition
                 this.processBanesWindow();
                 lastRun = System.currentTimeMillis(); // Update lastRun after processing
+            }else {
+                try {
+                    Thread.sleep(100); // Pause for 10ms to reduce CPU usage
+                } catch (InterruptedException e) {
+                    Logger.error("Thread interrupted", e);
+                    Thread.currentThread().interrupt();
+                }
             }
         }
     }
