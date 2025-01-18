@@ -140,7 +140,11 @@ public class CombatUtilities {
 
     public static boolean triggerDefense(Mob agent, AbstractWorldObject target) {
         int defense = 0;
-        int atr = agent.getAtrHandOne();
+        int atr = agent.mobBase.getAtr();
+        if(agent.getBonuses() != null){
+            atr += agent.getBonuses().getFloat(ModType.OCV,SourceType.None);
+            atr *= agent.getBonuses().getFloatPercentAll(ModType.OCV,SourceType.None);
+        }
         switch (target.getObjectType()) {
             case PlayerCharacter:
                 defense = ((AbstractCharacter) target).getDefenseRating();
