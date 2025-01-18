@@ -130,7 +130,7 @@ public class ApplyEffectPowerAction extends AbstractPowerAction {
                     ((Mob) awo).setCombatTarget(source);
                     ChatSystemMsg msg = ChatManager.CombatInfo(source, awo);
                     DispatchMessage.sendToAllInRange(source, msg);
-                    ((Mob)awo).refresh();
+                    //((Mob)awo).refresh();
                 }
             }
             if (awo != null && awo.getObjectType() == GameObjectType.Mob) {

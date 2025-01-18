@@ -1638,66 +1638,66 @@ public class Mob extends AbstractIntelligenceAgent {
             this.defenseRating = defense;
             this.atrHandOne = atr;
             return;
+        }else {
+            if (this.charItemManager == null || this.equip == null) {
+                Logger.error("Player " + currentID + " missing skills or equipment");
+                defaultAtrAndDamage(true);
+                defaultAtrAndDamage(false);
+                this.defenseRating = 0;
+                return;
+            }
+
+            try {
+                calculateAtrDamageForWeapon(this.equip.get(MBServerStatics.SLOT_MAINHAND), true);
+            } catch (Exception e) {
+
+                this.atrHandOne = GetAttackRating(this.mobBase.getAttackRating(), this);
+                this.minDamageHandOne = (short) this.mobBase.getMinDmg();
+                this.maxDamageHandOne = (short) this.mobBase.getMaxDmg();
+                this.rangeHandOne = 6.5f;
+                this.speedHandOne = 20;
+                Logger.info("Mobbase ID " + this.getMobBaseID() + " returned an error. setting to default ATR and Damage." + e.getMessage());
+            }
+
+            try {
+                calculateAtrDamageForWeapon(this.equip.get(MBServerStatics.SLOT_OFFHAND), false);
+
+            } catch (Exception e) {
+
+                this.atrHandTwo = GetAttackRating(this.mobBase.getAttackRating(), this);
+                this.minDamageHandTwo = (short) this.mobBase.getMinDmg();
+                this.maxDamageHandTwo = (short) this.mobBase.getMaxDmg();
+                this.rangeHandTwo = 6.5f;
+                this.speedHandTwo = 20;
+                Logger.info("Mobbase ID " + this.getMobBaseID() + " returned an error. setting to default ATR and Damage." + e.getMessage());
+            }
+
+            try {
+                float defense = this.mobBase.getDefenseRating();
+                defense += getShieldDefense(equip.get(MBServerStatics.SLOT_OFFHAND));
+                defense += getArmorDefense(equip.get(MBServerStatics.SLOT_HELMET));
+                defense += getArmorDefense(equip.get(MBServerStatics.SLOT_CHEST));
+                defense += getArmorDefense(equip.get(MBServerStatics.SLOT_ARMS));
+                defense += getArmorDefense(equip.get(MBServerStatics.SLOT_GLOVES));
+                defense += getArmorDefense(equip.get(MBServerStatics.SLOT_LEGGINGS));
+                defense += getArmorDefense(equip.get(MBServerStatics.SLOT_FEET));
+                defense += getWeaponDefense(equip);
+
+                // TODO add error log here
+                if (this.bonuses != null) {
+                    defense = GetDefense((int) defense, this);
+
+                } else
+                    Logger.error("Error: missing bonuses");
+
+                defense = (defense < 1) ? 1 : defense;
+                this.defenseRating = (short) (defense + 0.5f);
+            } catch (Exception e) {
+                Logger.info("Mobbase ID " + this.getMobBaseID() + " returned an error. Setting to Default Defense." + e.getMessage());
+                this.defenseRating = (short) this.mobBase.getDefense();
+            }
+            // calculate defense for equipment
         }
-        if (this.charItemManager == null || this.equip == null) {
-            Logger.error("Player " + currentID + " missing skills or equipment");
-            defaultAtrAndDamage(true);
-            defaultAtrAndDamage(false);
-            this.defenseRating = 0;
-            return;
-        }
-
-        try {
-            calculateAtrDamageForWeapon(this.equip.get(MBServerStatics.SLOT_MAINHAND), true);
-        } catch (Exception e) {
-
-            this.atrHandOne = GetAttackRating(this.mobBase.getAttackRating(), this);
-            this.minDamageHandOne = (short) this.mobBase.getMinDmg();
-            this.maxDamageHandOne = (short) this.mobBase.getMaxDmg();
-            this.rangeHandOne = 6.5f;
-            this.speedHandOne = 20;
-            Logger.info("Mobbase ID " + this.getMobBaseID() + " returned an error. setting to default ATR and Damage." + e.getMessage());
-        }
-
-        try {
-            calculateAtrDamageForWeapon(this.equip.get(MBServerStatics.SLOT_OFFHAND), false);
-
-        } catch (Exception e) {
-
-            this.atrHandTwo = GetAttackRating(this.mobBase.getAttackRating(), this);
-            this.minDamageHandTwo = (short) this.mobBase.getMinDmg();
-            this.maxDamageHandTwo = (short) this.mobBase.getMaxDmg();
-            this.rangeHandTwo = 6.5f;
-            this.speedHandTwo = 20;
-            Logger.info("Mobbase ID " + this.getMobBaseID() + " returned an error. setting to default ATR and Damage." + e.getMessage());
-        }
-
-        try {
-            float defense = this.mobBase.getDefenseRating();
-            defense += getShieldDefense(equip.get(MBServerStatics.SLOT_OFFHAND));
-            defense += getArmorDefense(equip.get(MBServerStatics.SLOT_HELMET));
-            defense += getArmorDefense(equip.get(MBServerStatics.SLOT_CHEST));
-            defense += getArmorDefense(equip.get(MBServerStatics.SLOT_ARMS));
-            defense += getArmorDefense(equip.get(MBServerStatics.SLOT_GLOVES));
-            defense += getArmorDefense(equip.get(MBServerStatics.SLOT_LEGGINGS));
-            defense += getArmorDefense(equip.get(MBServerStatics.SLOT_FEET));
-            defense += getWeaponDefense(equip);
-
-            // TODO add error log here
-            if (this.bonuses != null) {
-                defense = GetDefense((int)defense, this);
-
-            } else
-                Logger.error("Error: missing bonuses");
-
-            defense = (defense < 1) ? 1 : defense;
-            this.defenseRating = (short) (defense + 0.5f);
-        } catch (Exception e) {
-            Logger.info("Mobbase ID " + this.getMobBaseID() + " returned an error. Setting to Default Defense." + e.getMessage());
-            this.defenseRating = (short) this.mobBase.getDefense();
-        }
-        // calculate defense for equipment
-
         if(this.isDropper || Mob.discDroppers.contains(this)){
             this.defenseRating *= 2;
             this.atrHandOne *= 2;
@@ -1842,168 +1842,46 @@ public class Mob extends AbstractIntelligenceAgent {
 
     private void calculateAtrDamageForWeapon(MobEquipment weapon, boolean mainHand) {
 
-        int baseStrength = 0;
-
-        float skillPercentage, masteryPercentage;
-        float mastDam;
-
-        // make sure weapon exists
-
-        boolean noWeapon = false;
-        ItemBase wb = null;
-
-        if (weapon == null)
-            noWeapon = true;
-
-        else {
-
-            ItemBase ib = weapon.getItemBase();
-
-            if (ib == null)
-                noWeapon = true;
-            else if (ib.getType().equals(ItemType.WEAPON) == false) {
-                defaultAtrAndDamage(mainHand);
-                return;
-            } else
-                wb = ib;
-        }
-
-        float min, max;
-        float speed;
-        boolean strBased = false;
-
-        // get skill percentages and min and max damage for weapons
-
-        if (noWeapon) {
-
-            if (mainHand)
+        if(mainHand){
+            int min = (int)this.mobBase.getDamageMin();
+            int max = (int)this.mobBase.getDamageMax();
+            int atr = this.mobBase.getAtr();
+            if(this.bonuses != null){
+                min *= 1 + this.bonuses.getFloatPercentAll(ModType.MeleeDamageModifier, SourceType.None);
+                max *= 1 + this.bonuses.getFloatPercentAll(ModType.MeleeDamageModifier, SourceType.None);
+                atr *= 1 + this.bonuses.getFloatPercentAll(ModType.OCV,SourceType.None);
+                atr += this.bonuses.getFloat(ModType.OCV,SourceType.None);
+            }
+            this.minDamageHandOne = min;
+            this.maxDamageHandOne = max;
+            this.atrHandOne = atr;
+            if(weapon == null){
                 this.rangeHandOne = this.mobBase.getAttackRange();
-            else
-                this.rangeHandTwo = -1; // set to do not attack
-
-            skillPercentage = getModifiedAmount(this.skills.get("Unarmed Combat"));
-            masteryPercentage = getModifiedAmount(this.skills.get("Unarmed Combat Mastery"));
-
-            if (masteryPercentage == 0f)
-                mastDam = CharacterSkill.getQuickMastery(this, "Unarmed Combat Mastery");
-            else
-                mastDam = masteryPercentage;
-
-            // TODO Correct these
-            min = this.mobBase.getMinDmg();
-            max = this.mobBase.getMaxDmg();
-        } else {
-
-            if (mainHand)
-                this.rangeHandOne = weapon.getItemBase().getRange() * (1 + (baseStrength / 600.0f));
-            else
-                this.rangeHandTwo = weapon.getItemBase().getRange() * (1 + (baseStrength / 600.0f));
-
-            skillPercentage = getModifiedAmount(this.skills.get(wb.getSkillRequired()));
-            masteryPercentage = getModifiedAmount(this.skills.get(wb.getMastery()));
-
-            if (masteryPercentage == 0f)
-                mastDam = 0f;
-            else
-                mastDam = masteryPercentage;
-
-            min = wb.getMinDamage();
-            max = wb.getMaxDamage();
-            strBased = wb.isStrBased();
-        }
-
-        // calculate atr
-        float atr = this.mobBase.getAttackRating();
-
-        if (this.statStrCurrent > this.statDexCurrent)
-            atr += statStrCurrent * .5;
-        else
-            atr += statDexCurrent * .5;
-
-        // add in any bonuses to atr
-
-        if (this.bonuses != null) {
-            atr += this.bonuses.getFloat(ModType.OCV, SourceType.None);
-
-            // Finally use any multipliers. DO THIS LAST!
-            float pos_Bonus = 1 + this.bonuses.getFloatPercentPositive(ModType.OCV, SourceType.None);
-
-            atr *= pos_Bonus;
-
-            //and negative percent modifiers
-            //TODO DO DEBUFFS AFTER?? wILL TEst when finished
-            float neg_Bonus = this.bonuses.getFloatPercentNegative(ModType.OCV, SourceType.None);
-
-            atr *= (1 + neg_Bonus);
-        }
-
-        atr = (atr < 1) ? 1 : atr;
-
-        // set atr
-
-        if (mainHand)
-            this.atrHandOne = (short) (atr + 0.5f);
-        else
-            this.atrHandTwo = (short) (atr + 0.5f);
-
-        //calculate speed
-
-        if (wb != null)
-            speed = wb.getSpeed();
-        else
-            speed = 20f; //unarmed attack speed
-
-        if (this.bonuses != null && this.bonuses.getFloat(ModType.AttackDelay, SourceType.None) != 0f) //add effects speed bonus
-            speed *= (1 + this.bonuses.getFloatPercentAll(ModType.AttackDelay, SourceType.None));
-
-        if (speed < 10)
-            speed = 10;
-
-        //add min/max damage bonuses for weapon  **REMOVED
-
-        //if duel wielding, cut damage by 30%
-        // calculate damage
-
-        float minDamage;
-        float maxDamage;
-        float pri = (strBased) ? (float) this.statStrCurrent : (float) this.statDexCurrent;
-        float sec = (strBased) ? (float) this.statDexCurrent : (float) this.statStrCurrent;
-
-        minDamage = (float) (min * ((0.0315f * Math.pow(pri, 0.75f)) + (0.042f * Math.pow(sec, 0.75f)) + (0.01f * ((int) skillPercentage + (int) mastDam))));
-        maxDamage = (float) (max * ((0.0785f * Math.pow(pri, 0.75f)) + (0.016f * Math.pow(sec, 0.75f)) + (0.0075f * ((int) skillPercentage + (int) mastDam))));
-
-        minDamage = (float) ((int) (minDamage + 0.5f)); //round to nearest decimal
-        maxDamage = (float) ((int) (maxDamage + 0.5f)); //round to nearest decimal
-
-        //add Base damage last.
-        float minDamageMod = this.mobBase.getDamageMin();
-        float maxDamageMod = this.mobBase.getDamageMax();
-
-        minDamage += minDamageMod;
-        maxDamage += maxDamageMod;
-
-        // add in any bonuses to damage
-
-        if (this.bonuses != null) {
-            // Add any base bonuses
-            minDamage += this.bonuses.getFloat(ModType.MinDamage, SourceType.None);
-            maxDamage += this.bonuses.getFloat(ModType.MaxDamage, SourceType.None);
-
-            // Finally use any multipliers. DO THIS LAST!
-            minDamage *= (1 + this.bonuses.getFloatPercentAll(ModType.MinDamage, SourceType.None));
-            maxDamage *= (1 + this.bonuses.getFloatPercentAll(ModType.MaxDamage, SourceType.None));
-        }
-
-        // set damages
-
-        if (mainHand) {
-            this.minDamageHandOne = (short) minDamage;
-            this.maxDamageHandOne = (short) maxDamage;
-            this.speedHandOne = 30;
-        } else {
-            this.minDamageHandTwo = (short) minDamage;
-            this.maxDamageHandTwo = (short) maxDamage;
-            this.speedHandTwo = 30;
+                this.speedHandTwo = 20.0f;
+            }else{
+                this.rangeHandOne = weapon.getItemBase().getRange();
+                this.speedHandTwo = weapon.getItemBase().getSpeed();
+            }
+        }else{
+            int min = (int)this.mobBase.getDamageMin();
+            int max = (int)this.mobBase.getDamageMax();
+            int atr = this.mobBase.getAtr();
+            if(this.bonuses != null){
+                min *= 1 + this.bonuses.getFloatPercentAll(ModType.MeleeDamageModifier, SourceType.None);
+                max *= 1 + this.bonuses.getFloatPercentAll(ModType.MeleeDamageModifier, SourceType.None);
+                atr *= 1 + this.bonuses.getFloatPercentAll(ModType.OCV,SourceType.None);
+                atr += this.bonuses.getFloat(ModType.OCV,SourceType.None);
+            }
+            this.minDamageHandTwo = min;
+            this.maxDamageHandTwo = max;
+            this.atrHandTwo = atr;
+            if(weapon == null){
+                this.rangeHandTwo = this.mobBase.getAttackRange();
+                this.speedHandTwo = 20.0f;
+            }else{
+                this.rangeHandTwo = weapon.getItemBase().getRange();
+                this.speedHandTwo = weapon.getItemBase().getSpeed();
+            }
         }
     }
 

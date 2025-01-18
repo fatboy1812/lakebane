@@ -500,8 +500,8 @@ public class InfoCmd extends AbstractDevCmd {
 
                 output += "Damage: " + targetMob.mobBase.getDamageMin() + " - " + targetMob.mobBase.getDamageMax() + newline;
                 output += "ATR: " + targetMob.mobBase.getAttackRating() + newline;
-                output += "DEF: " + targetMob.mobBase.getDefenseRating() + newline;
-                output += "RANGE: " + targetMob.mobBase.getAttackRange() + newline;
+                output += "DEF: " + targetMob.defenseRating + newline;
+                output += "RANGE: " + targetMob.getRange() + newline;
                 output += "Effects:" + newline;
                 for(MobBaseEffects mbe : targetMob.mobBase.mobbaseEffects){
                     EffectsBase eb = PowersManager.getEffectByToken(mbe.getToken());
