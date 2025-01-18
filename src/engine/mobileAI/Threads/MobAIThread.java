@@ -28,17 +28,25 @@ public class MobAIThread implements Runnable{
         AI_BASE_AGGRO_RANGE = (int)(60 * Float.parseFloat(ConfigManager.MB_AI_AGGRO_RANGE.getValue()));
         while (true) {
             for (Zone zone : ZoneManager.getAllZones()) {
-
-                for (Mob mob : zone.zoneMobSet) {
-
-                    try {
-                        if (mob != null)
-                            MobAI.DetermineAction(mob);
-                    } catch (Exception e) {
-                        Logger.error("Mob: " + mob.getName() + " UUID: " + mob.getObjectUUID() + " ERROR: " + e);
-                        e.printStackTrace();
+                if (zone != null && zone.zoneMobSet != null) {
+                    synchronized (zone.zoneMobSet) {
+                        for (Mob mob : zone.zoneMobSet) {
+                            try {
+                                if (mob != null) {
+                                    MobAI.DetermineAction(mob);
+                                }
+                            } catch (Exception e) {
+                                Logger.error("Error processing Mob [Name: {}, UUID: {}]", mob.getName(), mob.getObjectUUID(), e);
+                            }
+                        }
                     }
                 }
+            }
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                Logger.error("AI Thread interrupted", e);
+                Thread.currentThread().interrupt();
             }
         }
     }
