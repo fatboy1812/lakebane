@@ -15,9 +15,11 @@ import engine.Enum.GameObjectType;
 import engine.Enum.TargetColor;
 import engine.devcmd.AbstractDevCmd;
 import engine.gameManager.BuildingManager;
+import engine.gameManager.PowersManager;
 import engine.gameManager.SessionManager;
 import engine.math.Vector3fImmutable;
 import engine.objects.*;
+import engine.powers.PowersBase;
 import engine.server.MBServerStatics;
 import engine.util.StringUtils;
 
@@ -499,8 +501,13 @@ public class InfoCmd extends AbstractDevCmd {
                     max = 321;
                 }
                 int min = (int)(4.469 * targetMob.level - 3.469);
-                output += "Min Loot Roll = " + min;
-                output += "Max Loot Roll = " + max;
+                output += "Min Loot Roll = " + min + newline;
+                output += "Max Loot Roll = " + max + newline;
+                output += "Effects:" + newline;
+                for(MobBaseEffects mbe : targetMob.mobBase.mobbaseEffects){
+                    PowersBase pb = PowersManager.getPowerByToken(mbe.getToken());
+                    output += pb.name + newline;
+                }
                 break;
             case Item:  //intentional passthrough
             case MobLoot:
