@@ -5469,7 +5469,7 @@ public class PlayerCharacter extends AbstractCharacter {
     }
 
     public void doRegen(){
-        if(!this.timestamps.contains("SyncClient"))
+        if(!this.timestamps.containsKey("SyncClient"))
             this.timestamps.put("SyncClient",System.currentTimeMillis());
         if (this.updateLock.writeLock().tryLock()) {
             try {
