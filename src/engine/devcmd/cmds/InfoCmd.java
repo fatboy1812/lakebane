@@ -19,6 +19,7 @@ import engine.gameManager.PowersManager;
 import engine.gameManager.SessionManager;
 import engine.math.Vector3fImmutable;
 import engine.objects.*;
+import engine.powers.EffectsBase;
 import engine.powers.PowersBase;
 import engine.server.MBServerStatics;
 import engine.util.StringUtils;
@@ -503,8 +504,8 @@ public class InfoCmd extends AbstractDevCmd {
                 output += "RANGE: " + targetMob.mobBase.getAttackRange() + newline;
                 output += "Effects:" + newline;
                 for(MobBaseEffects mbe : targetMob.mobBase.mobbaseEffects){
-                    PowersBase pb = PowersManager.getPowerByToken(mbe.getToken());
-                    output += pb.name + newline;
+                    EffectsBase eb = PowersManager.getEffectByToken(mbe.getToken());
+                    output += eb.getName() + newline;
                 }
                 break;
             case Item:  //intentional passthrough

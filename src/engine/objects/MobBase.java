@@ -309,7 +309,7 @@ public class MobBase extends AbstractGameObject {
 
     public static void applyMobbaseEffects(Mob mob){
         for(MobBaseEffects mbe : mob.mobBase.mobbaseEffects){
-            if(mob.level == mbe.getReqLvl()){
+            if(mob.level >= mbe.getReqLvl()){
                 try {
                     //PowersManager.applyPower(mob, mob, mob.loc, mbe.getToken(), mbe.getRank(), false);
                     EffectsBase effectsBase = PowersManager.getEffectByToken(mbe.getToken());
