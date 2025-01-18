@@ -18,8 +18,9 @@ import org.pmw.tinylog.Logger;
 
 public class UpdateThread implements Runnable {
 
-    public Long lastRun;
-    public static int instancedelay = 1000;
+    private volatile Long lastRun;
+
+    public static final Long instancedelay = 1000L;
     public UpdateThread() {
         Logger.info(" UpdateThread thread has started!");
     }
@@ -29,11 +30,12 @@ public class UpdateThread implements Runnable {
 
         try {
             for(PlayerCharacter player : SessionManager.getAllActivePlayerCharacters()){
-                //player.update(true);
-                player.doRegen();
+                if (player != null) {
+                    player.doRegen();
+                }
             }
         } catch (Exception e) {
-            Logger.error("UPDATE ERROR");
+            Logger.error("UPDATE ERROR",e);
         }
 
 
@@ -45,6 +47,13 @@ public class UpdateThread implements Runnable {
             if (System.currentTimeMillis() >= lastRun + instancedelay) { // Correct condition
                 this.processPlayerUpdate();
                 lastRun = System.currentTimeMillis(); // Update lastRun after processing
+            }else {
+                try {
+                    Thread.sleep(100); // Pause for 10ms to reduce CPU usage
+                } catch (InterruptedException e) {
+                    Logger.error("Thread interrupted", e);
+                    Thread.currentThread().interrupt();
+                }
             }
         }
     }
