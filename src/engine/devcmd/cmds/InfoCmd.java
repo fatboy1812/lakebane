@@ -496,13 +496,11 @@ public class InfoCmd extends AbstractDevCmd {
                     output += newline;
                     output += "No building found." + newline;
                 }
-                int max = (int)(4.882 * targetMob.level + 121.0);
-                if(max > 321){
-                    max = 321;
-                }
-                int min = (int)(4.469 * targetMob.level - 3.469);
-                output += "Min Loot Roll = " + min + newline;
-                output += "Max Loot Roll = " + max + newline;
+
+                output += "Damage: " + targetMob.mobBase.getDamageMin() + " - " + targetMob.mobBase.getDamageMax() + newline;
+                output += "ATR: " + targetMob.mobBase.getAttackRating() + newline;
+                output += "DEF: " + targetMob.mobBase.getDefenseRating() + newline;
+                output += "RANGE: " + targetMob.mobBase.getAttackRange() + newline;
                 output += "Effects:" + newline;
                 for(MobBaseEffects mbe : targetMob.mobBase.mobbaseEffects){
                     PowersBase pb = PowersManager.getPowerByToken(mbe.getToken());
