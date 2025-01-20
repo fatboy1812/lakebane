@@ -27,7 +27,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class PlayerBonuses {
 
     //First bonus set
-    private ConcurrentHashMap<AbstractEffectModifier, Float> bonusFloats = new ConcurrentHashMap<>();
+    ConcurrentHashMap<AbstractEffectModifier, Float> bonusFloats = new ConcurrentHashMap<>();
     private ConcurrentHashMap<AbstractEffectModifier, DamageShield> bonusDamageShields = new ConcurrentHashMap<>();
     private ConcurrentHashMap<AbstractEffectModifier, String> bonusStrings = new ConcurrentHashMap<>();
     private ConcurrentHashMap<ModType, HashSet<SourceType>> bonusLists = new ConcurrentHashMap<>();

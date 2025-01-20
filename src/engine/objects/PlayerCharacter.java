@@ -3970,27 +3970,34 @@ public class PlayerCharacter extends AbstractCharacter {
         else
             speed = 20f; //unarmed attack speed
 
-        //if (weapon != null) {
-            //speed *= (1 + this.bonuses.getFloatPercentAll(ModType.WeaponSpeed, SourceType.None));
-            for(Effect eff : this.effects.values()){
-                for(AbstractEffectModifier mod : eff.getEffectModifiers()){
-                    if(mod.modType.equals(ModType.WeaponSpeed)){
-                        float modValue = 1 +  mod.getPercentMod() * 0.01f;
+        if(this.effects != null) {
+            for (Effect eff : this.effects.values()) {
+                for (AbstractEffectModifier mod : eff.getEffectModifiers()) {
+                    if (mod.modType.equals(ModType.WeaponSpeed)) {
+                        float modValue = 1 + mod.getPercentMod() * 0.01f;
                         speed *= modValue;
                     }
                 }
             }
-        //}
-        //speed *= (1 + this.bonuses.getFloatPercentAll(ModType.AttackDelay, SourceType.None));
 
-        for(Effect eff : this.effects.values()){
-            for(AbstractEffectModifier mod : eff.getEffectModifiers()){
-                if(mod.modType.equals(ModType.AttackDelay)){
-                    float modValue = 1 +  mod.getPercentMod() * 0.01f;
+            for (Effect eff : this.effects.values()) {
+                for (AbstractEffectModifier mod : eff.getEffectModifiers()) {
+                    if (mod.modType.equals(ModType.AttackDelay)) {
+                        float modValue = 1 + mod.getPercentMod() * 0.01f;
+                        speed *= modValue;
+                    }
+                }
+            }
+        }
+        if(this.bonuses!= null){
+            for (AbstractEffectModifier mod : this.bonuses.bonusFloats.keySet()) {
+                if (mod.modType.equals(ModType.AttackDelay) || mod.modType.equals(ModType.WeaponSpeed)) {
+                    float modValue = 1 + mod.getPercentMod() * 0.01f;
                     speed *= modValue;
                 }
             }
         }
+
 
         if (speed < 10)
             speed = 10;
