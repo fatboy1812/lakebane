@@ -3970,25 +3970,25 @@ public class PlayerCharacter extends AbstractCharacter {
         else
             speed = 20f; //unarmed attack speed
 
-        if(this.effects != null) {
-            for (Effect eff : this.effects.values()) {
-                for (AbstractEffectModifier mod : eff.getEffectModifiers()) {
-                    if (mod.modType.equals(ModType.WeaponSpeed)) {
-                        float modValue = 1 + mod.getPercentMod() * 0.01f;
-                        speed *= modValue;
-                    }
-                }
-            }
+        //if(this.effects != null) {
+        //    for (Effect eff : this.effects.values()) {
+        //        for (AbstractEffectModifier mod : eff.getEffectModifiers()) {
+        //            if (mod.modType.equals(ModType.WeaponSpeed)) {
+        //                float modValue = 1 + mod.getPercentMod() * 0.01f;
+        //                speed *= modValue;
+        //            }
+        //        }
+        //    }
 
-            for (Effect eff : this.effects.values()) {
-                for (AbstractEffectModifier mod : eff.getEffectModifiers()) {
-                    if (mod.modType.equals(ModType.AttackDelay)) {
-                        float modValue = 1 + mod.getPercentMod() * 0.01f;
-                        speed *= modValue;
-                    }
-                }
-            }
-        }
+        //    for (Effect eff : this.effects.values()) {
+        //        for (AbstractEffectModifier mod : eff.getEffectModifiers()) {
+        //            if (mod.modType.equals(ModType.AttackDelay)) {
+        //                float modValue = 1 + mod.getPercentMod() * 0.01f;
+        //                speed *= modValue;
+        //            }
+        //        }
+        //    }
+        //}
         if(this.bonuses!= null){
             for (AbstractEffectModifier mod : this.bonuses.bonusFloats.keySet()) {
                 if (mod.modType.equals(ModType.AttackDelay) || mod.modType.equals(ModType.WeaponSpeed)) {
