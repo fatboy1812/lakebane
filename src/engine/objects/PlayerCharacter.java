@@ -36,6 +36,7 @@ import engine.net.client.ClientConnection;
 import engine.net.client.msg.*;
 import engine.net.client.msg.login.CommitNewCharacterMsg;
 import engine.powers.EffectsBase;
+import engine.powers.effectmodifiers.AbstractEffectModifier;
 import engine.server.MBServerStatics;
 import engine.server.login.LoginServer;
 import engine.server.login.LoginServerMsgHandler;
@@ -3968,9 +3969,26 @@ public class PlayerCharacter extends AbstractCharacter {
             speed = weaponBase.getSpeed();
         else
             speed = 20f; //unarmed attack speed
-        if (weapon != null)
-            speed *= (1 + this.bonuses.getFloatPercentAll(ModType.WeaponSpeed, SourceType.None));
-        speed *= (1 + this.bonuses.getFloatPercentAll(ModType.AttackDelay, SourceType.None));
+        if (weapon != null) {
+            //speed *= (1 + this.bonuses.getFloatPercentAll(ModType.WeaponSpeed, SourceType.None));
+            for(Effect eff : this.effects.values()){
+                for(AbstractEffectModifier mod : eff.getEffectModifiers()){
+                    if(mod.modType.equals(ModType.WeaponSpeed)){
+                        speed *= 1 + mod.getPercentMod();
+                    }
+                }
+            }
+        }
+        //speed *= (1 + this.bonuses.getFloatPercentAll(ModType.AttackDelay, SourceType.None));
+
+        for(Effect eff : this.effects.values()){
+            for(AbstractEffectModifier mod : eff.getEffectModifiers()){
+                if(mod.modType.equals(ModType.AttackDelay)){
+                    speed *= 1 + mod.getPercentMod();
+                }
+            }
+        }
+
         if (speed < 10)
             speed = 10;
 
