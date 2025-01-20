@@ -1472,14 +1472,16 @@ public enum CombatManager {
 
     public static boolean LandHit(int C5, int D5){
 
-        float chance = (C5-((C5+D5)*.315f)) / ((D5-((C5+D5)*.315f)) + (C5-((C5+D5)*.315f)));
-        int convertedChance = Math.round(chance * 100);
-        //convertedChance = Math.max(5, Math.min(95, convertedChance));
+        float chance = (C5-((C5+D5) * 0.315f)) / ((D5-((C5+D5) * 0.315f)) + (C5-((C5+D5) * 0.315f)));
+        float convertedChance = chance * 100;
 
         int roll = ThreadLocalRandom.current().nextInt(101);
 
-        if(roll < 5)//always 5% chance ot miss
+        if(roll <= 5)//always 5% chance to miss
             return false;
+
+        if(roll >= 95)//always 5% chance to hit
+            return true;
 
         return roll <= convertedChance;
     }

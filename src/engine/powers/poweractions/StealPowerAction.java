@@ -187,8 +187,10 @@ public class StealPowerAction extends AbstractPowerAction {
         DispatchMessage.dispatchMsgDispatch(dispatch, engine.Enum.DispatchChannel.SECONDARY);
 
         //update thief's inventory
-        if (sourcePlayer.getCharItemManager() != null)
+        if (sourcePlayer.getCharItemManager() != null) {
             sourcePlayer.getCharItemManager().updateInventory();
+            sourcePlayer.cancelOnAttackSwing();
+        }
 
         //update victims inventory
         if (owner.getObjectType().equals(Enum.GameObjectType.PlayerCharacter)) {
