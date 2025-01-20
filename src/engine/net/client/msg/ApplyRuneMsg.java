@@ -345,8 +345,6 @@ public class ApplyRuneMsg extends ClientNetMsg {
                     discAllowed = 3;
                     break;
                 case 7:
-                    discAllowed = 4;
-                    break;
                 case 8:
                     discAllowed = 5;
                     break;
