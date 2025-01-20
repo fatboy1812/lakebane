@@ -3969,7 +3969,8 @@ public class PlayerCharacter extends AbstractCharacter {
             speed = weaponBase.getSpeed();
         else
             speed = 20f; //unarmed attack speed
-        if (weapon != null) {
+
+        //if (weapon != null) {
             //speed *= (1 + this.bonuses.getFloatPercentAll(ModType.WeaponSpeed, SourceType.None));
             for(Effect eff : this.effects.values()){
                 for(AbstractEffectModifier mod : eff.getEffectModifiers()){
@@ -3979,7 +3980,7 @@ public class PlayerCharacter extends AbstractCharacter {
                     }
                 }
             }
-        }
+        //}
         //speed *= (1 + this.bonuses.getFloatPercentAll(ModType.AttackDelay, SourceType.None));
 
         for(Effect eff : this.effects.values()){
