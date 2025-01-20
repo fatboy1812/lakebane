@@ -342,7 +342,8 @@ public class InfoCmd extends AbstractDevCmd {
                 output += newline;
                 output += "isMoving : " + targetPC.isMoving();
                 output += newline;
-                output += "Zerg Multiplier : " + targetPC.ZergMultiplier;
+                output += "Zerg Multiplier : " + targetPC.ZergMultiplier+ newline;
+                output += "Hidden : " + targetPC.getHidden();
                 break;
 
             case NPC:

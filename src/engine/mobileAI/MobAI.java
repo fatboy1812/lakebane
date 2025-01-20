@@ -994,6 +994,11 @@ public class MobAI {
 
         try {
 
+            if(mob.combatTarget != null && mob.combatTarget.getObjectType().equals(Enum.GameObjectType.PlayerCharacter) && !mob.canSee((PlayerCharacter)mob.combatTarget)){
+                mob.setCombatTarget(null);
+                return;
+            }
+
             float rangeSquared = mob.getRange() * mob.getRange();
             float distanceSquared = mob.getLoc().distanceSquared2D(mob.getCombatTarget().getLoc());
 
