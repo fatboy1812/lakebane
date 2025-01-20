@@ -3974,7 +3974,8 @@ public class PlayerCharacter extends AbstractCharacter {
             for(Effect eff : this.effects.values()){
                 for(AbstractEffectModifier mod : eff.getEffectModifiers()){
                     if(mod.modType.equals(ModType.WeaponSpeed)){
-                        speed *= 1 + mod.getPercentMod();
+                        float modValue = 1 +  mod.getPercentMod() * 0.01f;
+                        speed *= modValue;
                     }
                 }
             }
@@ -3984,7 +3985,8 @@ public class PlayerCharacter extends AbstractCharacter {
         for(Effect eff : this.effects.values()){
             for(AbstractEffectModifier mod : eff.getEffectModifiers()){
                 if(mod.modType.equals(ModType.AttackDelay)){
-                    speed *= 1 + mod.getPercentMod();
+                    float modValue = 1 +  mod.getPercentMod() * 0.01f;
+                    speed *= modValue;
                 }
             }
         }
