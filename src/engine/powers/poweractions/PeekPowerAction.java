@@ -106,7 +106,7 @@ public class PeekPowerAction extends AbstractPowerAction {
             if (!tar.isAlive())
                 return;
 
-            lwrm = new LootWindowResponseMsg(tar.getObjectType().ordinal(), tar.getObjectUUID(), tar.getInventory(true));
+            lwrm = new LootWindowResponseMsg(tar.getObjectType().ordinal(), tar.getObjectUUID(), tar.getInventory(false));
         } else if (awo.getObjectType().equals(Enum.GameObjectType.Mob)) {
 
             Mob tar = (Mob) awo;

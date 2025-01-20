@@ -89,6 +89,8 @@ public class StealPowerAction extends AbstractPowerAction {
         if (!sourcePlayer.isAlive())
             return;
 
+        sourcePlayer.cancelOnAttackSwing();
+
         //prevent stealing no steal mob loot
         if (awo instanceof MobLoot && ((MobLoot) awo).noSteal())
             return;
@@ -173,8 +175,21 @@ public class StealPowerAction extends AbstractPowerAction {
 
         if (tar.getItemBase().getType().equals(ItemType.GOLD)) {
             //stealing gold
-            if (!myCIM.transferGoldToMyInventory((AbstractCharacter) owner, amount))
+            //if (!myCIM.transferGoldToMyInventory((AbstractCharacter) owner, amount))
+            //    return;
+
+            int targetGold = ownerCIM.getGoldInventory().getNumOfItems();
+            int myGold = myCIM.getGoldInventory().getNumOfItems();
+            if(myGold + amount > 10000000)
                 return;
+
+            ownerCIM.getGoldInventory().setNumOfItems(targetGold - amount);
+            ownerCIM.updateInventory();
+
+            myCIM.addGoldToInventory(amount,false);
+            myCIM.updateInventory();
+
+
         } else {
             //stealing items
             if (ownerCIM.lootItemFromMe(tar, sourcePlayer, origin, true, amount) == null)
@@ -189,7 +204,6 @@ public class StealPowerAction extends AbstractPowerAction {
         //update thief's inventory
         if (sourcePlayer.getCharItemManager() != null) {
             sourcePlayer.getCharItemManager().updateInventory();
-            sourcePlayer.cancelOnAttackSwing();
         }
 
         //update victims inventory
