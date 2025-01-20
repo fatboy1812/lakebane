@@ -194,6 +194,17 @@ public enum DevCmdManager {
                         target = pcSender;
                     break;
             }
+        }else{
+            switch (adc.getMainCmdString()) {
+                case "printresists":
+                case "printstats":
+                case "printskills":
+                case "printpowers":
+                    playerAllowed = true;
+                    if (!a.status.equals(Enum.AccountStatus.ADMIN))
+                        target = pcSender;
+                    break;
+            }
         }
         if (!playerAllowed && !a.status.equals(Enum.AccountStatus.ADMIN)) {
             Logger.info("Account " + a.getUname() + "attempted to use dev command " + cmd);
