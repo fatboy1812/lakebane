@@ -5108,13 +5108,13 @@ public class PlayerCharacter extends AbstractCharacter {
 
                 }
 
-
-                if(this.combatStats == null){
-                    this.combatStats = new PlayerCombatStats(this);
+                if(this.isAlive() && this.isActive && this.enteredWorld) {
+                    if (this.combatStats == null) {
+                        this.combatStats = new PlayerCombatStats(this);
+                    }
+                    PlayerCombatStats cStats = this.combatStats;
+                    cStats.update();
                 }
-                PlayerCombatStats cStats = this.combatStats;
-                cStats.update();
-
             } catch (Exception e) {
                 Logger.error(e);
             } finally {

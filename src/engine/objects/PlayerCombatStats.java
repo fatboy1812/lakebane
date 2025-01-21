@@ -112,7 +112,7 @@ public class PlayerCombatStats {
 
     public void calculateMin(boolean mainHand) {
         Item weapon;
-        double baseDMG = 6;
+        double baseDMG = 1;
         int primaryStat = this.owner.statDexCurrent;
         int secondaryStat = this.owner.statStrCurrent;
         double weaponSkill = 0;
@@ -128,7 +128,7 @@ public class PlayerCombatStats {
         String mastery = "Unarmed Combat Mastery";
 
         if (weapon != null) {
-            baseDMG = weapon.getItemBase().getMaxDamage();
+            baseDMG = weapon.getItemBase().getMinDamage();
             skill = weapon.getItemBase().getSkillRequired();
             mastery = weapon.getItemBase().getMastery();
             if (weapon.getItemBase().isStrBased()) {
@@ -229,14 +229,14 @@ public class PlayerCombatStats {
             speed = weapon.getItemBase().getSpeed();
             for(Effect eff : weapon.effects.values()){
                 for(AbstractEffectModifier mod : eff.getEffectModifiers()){
-                    if(mod.modType.equals(Enum.ModType.WeaponProc)){
+                    if(mod.modType.equals(Enum.ModType.WeaponSpeed)){
                         speed *= 1 + (mod.getPercentMod() * 0.01f);
                     }
                 }
             }
         }
 
-        float stanceValue = 1.0f;
+        float stanceValue = 0.0f;
         for(String effID : this.owner.effects.keySet()){
             if(effID.contains("STC")){
                 for(AbstractEffectModifier mod : this.owner.effects.get(effID).getEffectModifiers()){
@@ -247,14 +247,14 @@ public class PlayerCombatStats {
             }
         }
 
-        float bonusValues = 1.0f;
-        if(this.owner.bonuses != null){
-            for(AbstractEffectModifier mod : this.owner.bonuses.bonusFloats.keySet()){
-                if(mod.modType.equals(Enum.ModType.AttackDelay)){
-                    bonusValues += mod.getPercentMod() * 0.01f; // calculate all alac bonuses
-                }
-            }
-        }
+        float bonusValues = 1 + this.owner.bonuses.getFloatPercentAll(Enum.ModType.AttackDelay,Enum.SourceType.None);//1.0f;
+        //if(this.owner.bonuses != null){
+        //    for(AbstractEffectModifier mod : this.owner.bonuses.bonusFloats.keySet()){
+        //        if(mod.modType.equals(Enum.ModType.AttackDelay)){
+        //            bonusValues += mod.getPercentMod() * 0.01f; // calculate all alac bonuses
+        //        }
+        //    }
+        //}
 
         bonusValues -= stanceValue; // take away stance modifier from alac bonus values
         speed *= 1 + stanceValue; // apply stance bonus
