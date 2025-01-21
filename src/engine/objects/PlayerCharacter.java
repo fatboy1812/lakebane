@@ -4264,9 +4264,21 @@ public class PlayerCharacter extends AbstractCharacter {
         //        }
         //    }
         //}
+
+
+        if(weapon != null){
+            for(Effect eff : weapon.effects.values()){
+                for (AbstractEffectModifier mod : eff.getEffectModifiers()){
+                    if(mod.modType.equals(ModType.WeaponSpeed)){
+                        speed *= 1 + (mod.getPercentMod() * 0.01f);
+                    }
+                }
+            }
+        }
+
         if(this.bonuses!= null){
             for (AbstractEffectModifier mod : this.bonuses.bonusFloats.keySet()) {
-                if (mod.modType.equals(ModType.AttackDelay) || mod.modType.equals(ModType.WeaponSpeed)) {
+                if (mod.modType.equals(ModType.AttackDelay)) {
                     float modValue = 1 + mod.getPercentMod() * 0.01f;
                     speed *= modValue;
                 }
@@ -4362,7 +4374,7 @@ public class PlayerCharacter extends AbstractCharacter {
             this.speedHandTwo = speed;
         }
 
-        this.calculateATR();
+        //this.calculateATR();
         //this.calculateDamage();
         //this.calculateSpeed();
     }
