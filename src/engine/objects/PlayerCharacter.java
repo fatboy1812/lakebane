@@ -4352,6 +4352,7 @@ public class PlayerCharacter extends AbstractCharacter {
 
         }
 
+
         // set damages
         if (mainHand) {
             this.minDamageHandOne = (int) minDamage;
