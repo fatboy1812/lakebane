@@ -10,6 +10,7 @@ package engine.gameManager;
 
 import engine.Enum.*;
 import engine.InterestManagement.HeightMap;
+import engine.InterestManagement.InterestManager;
 import engine.InterestManagement.WorldGrid;
 import engine.db.handlers.dbEffectsBaseHandler;
 import engine.db.handlers.dbPowerHandler;
@@ -197,7 +198,8 @@ public enum PowersManager {
         msg.setUnknown04(1);
 
         if (useMobPowerA(msg, caster)) {
-            //sendMobPowerMsg(caster,2,msg); //Lol wtf was i thinking sending msg's to mobs... ZZZZ
+            if(pb.token == -1994153779)
+                InterestManager.setObjectDirty(caster);
         }
     }
 

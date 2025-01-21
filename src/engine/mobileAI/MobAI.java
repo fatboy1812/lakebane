@@ -964,7 +964,6 @@ public class MobAI {
                     PowersBase recall = PowersManager.getPowerByToken(-1994153779);
                     PowersManager.useMobPower(mob, mob, recall, 40);
                     mob.setCombatTarget(null);
-
                     if (mob.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardCaptain.ordinal() && mob.isAlive()) {
 
                         //guard captain pulls his minions home with him
