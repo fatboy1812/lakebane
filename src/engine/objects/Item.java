@@ -1492,4 +1492,21 @@ public class Item extends AbstractWorldObject {
             return false;
         return true;
     }
+
+    public float getModifiedSpeed() {
+        float speed = this.getItemBase().getSpeed();
+        try {
+            for (Effect eff : this.effects.values()) {
+                for (AbstractEffectModifier mod : eff.getEffectModifiers()) {
+                    if (mod.modType.equals(ModType.WeaponSpeed)) {
+                        float modValue = 1 + mod.getPercentMod() * 0.01f;
+                        speed *= modValue;
+                    }
+                }
+            }
+        }catch(Exception e){
+
+        }
+        return speed;
+    }
 }
