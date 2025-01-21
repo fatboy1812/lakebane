@@ -3838,6 +3838,227 @@ public class PlayerCharacter extends AbstractCharacter {
         }
     }
 
+    public void calculateATR(){
+        if(this.charItemManager == null){
+            this.atrHandOne = 1;
+            this.atrHandTwo = 1;
+            return;
+        }
+        Item equippedRight = this.charItemManager.getItemFromEquipped(ItemSlotType.RHELD.ordinal());
+        int weaponSkill1 = this.skills.get("Unarmed Combat").getTotalSkillPercet();
+        int weaponMastery1 = this.skills.get("Unarmed Combat Mastery").getTotalSkillPercet();
+        float atr1 = 0;
+        int primaryStat1;
+        if(equippedRight != null && equippedRight.getItemBase().isStrBased()){
+            primaryStat1 = this.statStrCurrent;
+        }else{
+            primaryStat1 = this.statDexCurrent;
+        }
+        atr1 = (primaryStat1 * 0.5f) + (weaponSkill1 * 4) + (weaponMastery1 * 3);
+        if (this.bonuses != null) {
+            atr1 += this.bonuses.getFloat(ModType.OCV, SourceType.None);
+            float pos_Bonus = (1 + this.bonuses.getFloatPercentPositive(ModType.OCV, SourceType.None));
+            atr1 *= pos_Bonus;
+            float neg_Bonus = this.bonuses.getFloatPercentNegative(ModType.OCV, SourceType.None);
+            atr1 *= (1 + neg_Bonus);
+        }
+        atr1 = (atr1 < 1) ? 1 : atr1;
+        this.atrHandOne = (short) (atr1 + 0.5f);
+
+        Item equippedLeft = this.charItemManager.getItemFromEquipped(ItemSlotType.LHELD.ordinal());
+        int weaponSkill2 = this.skills.get("Unarmed Combat").getTotalSkillPercet();
+        int weaponMastery2 = this.skills.get("Unarmed Combat Mastery").getTotalSkillPercet();
+        float atr2 = 0;
+        int primaryStat2;
+
+        if (equippedLeft != null && equippedLeft.getItemBase().isStrBased()) {
+            primaryStat2 = this.statStrCurrent;
+        } else {
+            primaryStat2 = this.statDexCurrent;
+        }
+
+        atr2 = (primaryStat2 * 0.5f) + (weaponSkill2 * 4) + (weaponMastery2 * 3);
+
+        if (this.bonuses != null) {
+            atr2 += this.bonuses.getFloat(ModType.OCV, SourceType.None);
+            float pos_Bonus = (1 + this.bonuses.getFloatPercentPositive(ModType.OCV, SourceType.None));
+            atr2 *= pos_Bonus;
+            float neg_Bonus = this.bonuses.getFloatPercentNegative(ModType.OCV, SourceType.None);
+            atr2 *= (1 + neg_Bonus);
+        }
+
+        atr2 = (atr2 < 1) ? 1 : atr2;
+        this.atrHandTwo = (short) (atr2 + 0.5f);
+    }
+    public void calculateDamage(){
+        if(this.charItemManager == null){
+            this.minDamageHandOne = 1;
+            this.maxDamageHandOne = 5;
+            this.minDamageHandTwo = 1;
+            this.maxDamageHandTwo = 5;
+            return;
+        }
+        this.calculateMinDamage();
+        this.calculateMaxDamage();
+    }
+    public void calculateMinDamage(){
+        int baseDMG1 = 1;
+        int baseDMG2 = 1;
+        int weaponSkill1 = this.skills.get("Unarmed Combat").getTotalSkillPercet();
+        int weaponSkill2 = this.skills.get("Unarmed Combat").getTotalSkillPercet();
+        int weaponMastery1 = this.skills.get("Unarmed Combat Mastery").getTotalSkillPercet();
+        int weaponMastery2 = this.skills.get("Unarmed Combat Mastery").getTotalSkillPercet();
+
+        Item equippedRight = this.charItemManager.getItemFromEquipped(ItemSlotType.RHELD.ordinal());
+        Item equippedLeft = this.charItemManager.getItemFromEquipped(ItemSlotType.LHELD.ordinal());
+
+        int primary1 = this.statDexCurrent;
+        int secondary1 = this.statStrCurrent;
+        int primary2 = this.statDexCurrent;
+        int secondary2 = this.statStrCurrent;
+
+        if(equippedRight != null){
+            baseDMG1 = equippedRight.getItemBase().getMinDamage();
+            weaponSkill1 = this.skills.get(equippedRight.getItemBase().getSkillRequired()).getTotalSkillPercet();
+            weaponMastery1 = this.skills.get(equippedRight.getItemBase().getMastery()).getTotalSkillPercet();
+            if(equippedRight.getItemBase().isStrBased()) {
+                primary1 = this.statStrCurrent;
+                secondary1 = this.statDexCurrent;
+            }
+        }
+        if(equippedLeft != null){
+            baseDMG2 = equippedLeft.getItemBase().getMinDamage();
+            weaponSkill2 = this.skills.get(equippedLeft.getItemBase().getSkillRequired()).getTotalSkillPercet();
+            weaponMastery2 = this.skills.get(equippedLeft.getItemBase().getMastery()).getTotalSkillPercet();
+            if(equippedLeft.getItemBase().isStrBased()) {
+                primary2 = this.statStrCurrent;
+                secondary2 = this.statDexCurrent;
+            }
+        }
+
+        double primaryComponent1 = 0.0048 * primary1 + 0.049 * Math.sqrt(primary1 - 0.75);
+        double secondaryComponent1 = 0.0066 * secondary1 + 0.064 * Math.sqrt(secondary1 - 0.75);
+        double skillComponent1 = 0.01 * (weaponSkill1 + weaponMastery1);
+
+        int min1 =  (int)(baseDMG1 * (primaryComponent1 + secondaryComponent1 + skillComponent1));
+
+        double primaryComponent2 = 0.0048 * primary2 + 0.049 * Math.sqrt(primary2 - 0.75);
+        double secondaryComponent2 = 0.0066 * secondary2 + 0.064 * Math.sqrt(secondary2 - 0.75);
+        double skillComponent2 = 0.01 * (weaponSkill2 + weaponMastery2);
+
+        int min2 =  (int)(baseDMG2 * (primaryComponent2 + secondaryComponent2 + skillComponent2));
+
+        this.minDamageHandOne = min1;
+        this.minDamageHandTwo = min2;
+    }
+    public void calculateMaxDamage() {
+        int baseDMG1 = 1;
+        int baseDMG2 = 1;
+        int weaponSkill1 = this.skills.get("Unarmed Combat").getTotalSkillPercet();
+        int weaponSkill2 = this.skills.get("Unarmed Combat").getTotalSkillPercet();
+        int weaponMastery1 = this.skills.get("Unarmed Combat Mastery").getTotalSkillPercet();
+        int weaponMastery2 = this.skills.get("Unarmed Combat Mastery").getTotalSkillPercet();
+
+        Item equippedRight = this.charItemManager.getItemFromEquipped(ItemSlotType.RHELD.ordinal());
+        Item equippedLeft = this.charItemManager.getItemFromEquipped(ItemSlotType.LHELD.ordinal());
+
+        int primary1 = this.statDexCurrent;
+        int secondary1 = this.statStrCurrent;
+        int primary2 = this.statDexCurrent;
+        int secondary2 = this.statStrCurrent;
+
+        if (equippedRight != null) {
+            baseDMG1 = equippedRight.getItemBase().getMaxDamage();
+            weaponSkill1 = this.skills.get(equippedRight.getItemBase().getSkillRequired()).getTotalSkillPercet();
+            weaponMastery1 = this.skills.get(equippedRight.getItemBase().getMastery()).getTotalSkillPercet();
+            if (equippedRight.getItemBase().isStrBased()) {
+                primary1 = this.statStrCurrent;
+                secondary1 = this.statDexCurrent;
+            }
+        }
+
+        if (equippedLeft != null) {
+            baseDMG2 = equippedLeft.getItemBase().getMaxDamage();
+            weaponSkill2 = this.skills.get(equippedLeft.getItemBase().getSkillRequired()).getTotalSkillPercet();
+            weaponMastery2 = this.skills.get(equippedLeft.getItemBase().getMastery()).getTotalSkillPercet();
+            if (equippedLeft.getItemBase().isStrBased()) {
+                primary2 = this.statStrCurrent;
+                secondary2 = this.statDexCurrent;
+            }
+        }
+
+        // Calculate max damage for right hand weapon
+        double primaryComponent1 = 0.0124 * primary1 + 0.118 * Math.sqrt(primary1 - 0.75);
+        double secondaryComponent1 = 0.0022 * secondary1 + 0.028 * Math.sqrt(secondary1 - 0.75);
+        double skillComponent1 = 0.0075 * (weaponSkill1 + weaponMastery1);
+
+        int max1 = (int) (baseDMG1 * (primaryComponent1 + secondaryComponent1 + skillComponent1));
+
+        // Calculate max damage for left hand weapon
+        double primaryComponent2 = 0.0124 * primary2 + 0.118 * Math.sqrt(primary2 - 0.75);
+        double secondaryComponent2 = 0.0022 * secondary2 + 0.028 * Math.sqrt(secondary2 - 0.75);
+        double skillComponent2 = 0.0075 * (weaponSkill2 + weaponMastery2);
+
+        int max2 = (int) (baseDMG2 * (primaryComponent2 + secondaryComponent2 + skillComponent2));
+
+        this.maxDamageHandOne = max1;
+        this.maxDamageHandTwo = max2;
+    }
+    public void calculateSpeed(){
+        if(this.charItemManager == null){
+            this.speedHandOne = 20.0f;
+            this.speedHandTwo = 20.0f;
+            return;
+        }
+
+        ItemBase weaponBase1 = null;
+        ItemBase weaponBase2 = null;
+        if(this.charItemManager.getItemFromEquipped(ItemSlotType.RHELD.ordinal()) != null){
+            weaponBase1 = this.charItemManager.getItemFromEquipped(ItemSlotType.RHELD.ordinal()).getItemBase();
+        }
+        if(this.charItemManager.getItemFromEquipped(ItemSlotType.LHELD.ordinal()) != null){
+            weaponBase2 = this.charItemManager.getItemFromEquipped(ItemSlotType.LHELD.ordinal()).getItemBase();
+        }
+
+        float speed1;
+        float speed2;
+        if (weaponBase1 != null)
+            speed1 = weaponBase1.getSpeed();
+        else
+            speed1 = 20f;
+        if (weaponBase2 != null)
+            speed2 = weaponBase2.getSpeed();
+        else
+            speed2 = 20f;
+
+        if(this.bonuses!= null){
+            for (AbstractEffectModifier mod : this.bonuses.bonusFloats.keySet()) {
+                if (mod.modType.equals(ModType.AttackDelay) || mod.modType.equals(ModType.WeaponSpeed)) {
+                    float modValue = 1 + mod.getPercentMod() * 0.01f;
+                    speed1 *= modValue;
+                }
+            }
+        }
+
+        if(this.bonuses!= null){
+            for (AbstractEffectModifier mod : this.bonuses.bonusFloats.keySet()) {
+                if (mod.modType.equals(ModType.AttackDelay) || mod.modType.equals(ModType.WeaponSpeed)) {
+                    float modValue = 1 + mod.getPercentMod() * 0.01f;
+                    speed2 *= modValue;
+                }
+            }
+        }
+
+        if (speed1 < 10)
+            speed1 = 10;
+
+        if (speed2 < 10)
+            speed2 = 10;
+
+        this.speedHandOne = speed1;
+        this.speedHandTwo= speed2;
+    }
+
     /**
      * @ Calculates Atr, and Damage for each weapon
      */
@@ -3863,9 +4084,6 @@ public class PlayerCharacter extends AbstractCharacter {
         float min, max;
         float speed = 20f;
         boolean strBased = false;
-
-        ItemBase wbMain = (weapon != null) ? weapon.getItemBase() : null;
-        ItemBase wbOff = (otherHand != null) ? otherHand.getItemBase() : null;
 
         // get skill percentages and min and max damage for weapons
         if (noWeapon) {
@@ -3930,8 +4148,6 @@ public class PlayerCharacter extends AbstractCharacter {
             //(Primary Stat / 2) + (Weapon Skill * 4) + (Weapon Mastery * 3) + (ATR Enchantments) * 1.stance modifier
             float atr = 0;
             int primaryStat;
-            int dexMod = this.getDexMod();
-            int strMod = this.getStrMod();
             if(weaponBase != null && weaponBase.isStrBased()){
                 primaryStat = this.statStrCurrent;
             }else{
@@ -3953,6 +4169,7 @@ public class PlayerCharacter extends AbstractCharacter {
                 float neg_Bonus = this.bonuses.getFloatPercentNegative(ModType.OCV, SourceType.None);
 
                 atr *= (1 + neg_Bonus);
+
             }
 
             atr = (atr < 1) ? 1 : atr;
@@ -4086,6 +4303,10 @@ public class PlayerCharacter extends AbstractCharacter {
             this.maxDamageHandTwo = (int) maxDamage;
             this.speedHandTwo = speed;
         }
+
+        this.calculateATR();
+        this.calculateDamage();
+        this.calculateSpeed();
     }
 
     /**
@@ -4107,9 +4328,15 @@ public class PlayerCharacter extends AbstractCharacter {
         float def = ab.getDefense();
         //apply item defense bonuses
         if (shield != null) {
-            def += shield.getBonus(ModType.DR, SourceType.None);
-            def *= (1 + shield.getBonusPercent(ModType.DR, SourceType.None));
-
+            //def += shield.getBonus(ModType.DR, SourceType.None);
+            //def *= (1 + shield.getBonusPercent(ModType.DR, SourceType.None));
+            for(Effect eff : shield.effects.values()) {
+                for (AbstractEffectModifier mod : eff.getEffectModifiers()) {
+                    if (mod.modType.equals(ModType.DR)) {
+                        def += mod.minMod * (1 + (eff.getTrains() * mod.getRamp()));
+                    }
+                }
+            }
         }
 
         // float val = ((float)ab.getDefense()) * (1 + (skillMod / 100));
@@ -4167,8 +4394,10 @@ public class PlayerCharacter extends AbstractCharacter {
 
         if (!ib.getType().equals(ItemType.ARMOR))
             return 0;
+
         if (ib.getSkillRequired().isEmpty())
             return ib.getDefense();
+
         CharacterSkill armorSkill = this.skills.get(ib.getSkillRequired());
         if (armorSkill == null) {
             Logger.error("Player " + this.getObjectUUID()
@@ -4179,8 +4408,18 @@ public class PlayerCharacter extends AbstractCharacter {
         float def = ib.getDefense();
         //apply item defense bonuses
         if (armor != null) {
-            def += armor.getBonus(ModType.DR, SourceType.None);
-            def *= (1 + armor.getBonusPercent(ModType.DR, SourceType.None));
+
+            for(Effect eff : armor.effects.values()){
+                for(AbstractEffectModifier mod : eff.getEffectModifiers()){
+                    if(mod.modType.equals(ModType.DR)){
+                        def += mod.minMod * (1+(eff.getTrains() * mod.getRamp()));
+                    }
+                }
+            }
+
+
+            //def += armor.getBonus(ModType.DR, SourceType.None);
+            //def *= (1 + armor.getBonusPercent(ModType.DR, SourceType.None));
         }
 
 
