@@ -180,6 +180,8 @@ public class PlayerCharacter extends AbstractCharacter {
 
     public boolean isBoxed = false;
 
+    public PlayerCombatStats combatStats;
+
     /**
      * No Id Constructor
      */
@@ -5105,6 +5107,13 @@ public class PlayerCharacter extends AbstractCharacter {
                     }
 
                 }
+
+
+                if(this.combatStats == null){
+                    this.combatStats = new PlayerCombatStats(this);
+                }
+                PlayerCombatStats cStats = this.combatStats;
+                cStats.update();
 
             } catch (Exception e) {
                 Logger.error(e);
