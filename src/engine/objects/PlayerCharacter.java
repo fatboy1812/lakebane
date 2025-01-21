@@ -3844,51 +3844,59 @@ public class PlayerCharacter extends AbstractCharacter {
             this.atrHandTwo = 1;
             return;
         }
-        Item equippedRight = this.charItemManager.getItemFromEquipped(ItemSlotType.RHELD.ordinal());
-        int weaponSkill1 = this.skills.get("Unarmed Combat").getTotalSkillPercet();
-        int weaponMastery1 = this.skills.get("Unarmed Combat Mastery").getTotalSkillPercet();
-        float atr1 = 0;
-        int primaryStat1;
-        if(equippedRight != null && equippedRight.getItemBase().isStrBased()){
-            primaryStat1 = this.statStrCurrent;
-        }else{
-            primaryStat1 = this.statDexCurrent;
+        for(int i = 1; i < 3; i++){
+            float atr = 0;
+            int primaryStat;
+            Item weapon = this.charItemManager.getEquipped(i);
+            ItemBase weaponBase = null;
+            String skill = "Unarmed Combat";
+            String mastery = "Unarmed Combat Mastery";
+
+            if(weapon != null) {
+                weaponBase = weapon.getItemBase();
+                skill = weaponBase.getSkillRequired();
+                mastery = weaponBase.getMastery();
+            }
+            int skillPercentage = this.skills.containsKey(skill) && this.skills.get(skill) != null
+                    ? this.skills.get(skill).getTotalSkillPercet()
+                    : 1;
+            int masteryPercentage = this.skills.containsKey(mastery) && this.skills.get(mastery) != null
+                    ? this.skills.get(mastery).getTotalSkillPercet()
+                    : 1;
+
+            // Determine the primary stat based on the weapon base
+            if (weaponBase != null && weaponBase.isStrBased()) {
+                primaryStat = this.statStrCurrent;
+            } else {
+                primaryStat = this.statDexCurrent;
+            }
+
+            // Calculate ATR based on primary stat, skill, and mastery
+            atr = (primaryStat * 0.5f) + (skillPercentage * 4) + (masteryPercentage * 3);
+
+            // Add any bonuses to ATR
+            if (this.bonuses != null) {
+                atr += this.bonuses.getFloat(ModType.OCV, SourceType.None);
+
+                // Apply positive bonus multipliers
+                float pos_Bonus = (1 + this.bonuses.getFloatPercentPositive(ModType.OCV, SourceType.None));
+                atr *= pos_Bonus;
+
+                // Apply negative bonus multipliers
+                float neg_Bonus = this.bonuses.getFloatPercentNegative(ModType.OCV, SourceType.None);
+                atr *= (1 + neg_Bonus);
+            }
+
+            atr -= 2;//no idea why, need for sync
+            // Ensure ATR is at least 1
+            atr = (atr < 1) ? 1 : atr;
+
+            // Set atrHandOne
+            if(i == 1)
+                this.atrHandOne = (short) atr;
+            else if(i == 2)
+                this.atrHandTwo = (short) atr;
         }
-        atr1 = (primaryStat1 * 0.5f) + (weaponSkill1 * 4) + (weaponMastery1 * 3);
-        if (this.bonuses != null) {
-            atr1 += this.bonuses.getFloat(ModType.OCV, SourceType.None);
-            float pos_Bonus = (1 + this.bonuses.getFloatPercentPositive(ModType.OCV, SourceType.None));
-            atr1 *= pos_Bonus;
-            float neg_Bonus = this.bonuses.getFloatPercentNegative(ModType.OCV, SourceType.None);
-            atr1 *= (1 + neg_Bonus);
-        }
-        atr1 = (atr1 < 1) ? 1 : atr1;
-        this.atrHandOne = (short) (atr1 + 0.5f);
-
-        Item equippedLeft = this.charItemManager.getItemFromEquipped(ItemSlotType.LHELD.ordinal());
-        int weaponSkill2 = this.skills.get("Unarmed Combat").getTotalSkillPercet();
-        int weaponMastery2 = this.skills.get("Unarmed Combat Mastery").getTotalSkillPercet();
-        float atr2 = 0;
-        int primaryStat2;
-
-        if (equippedLeft != null && equippedLeft.getItemBase().isStrBased()) {
-            primaryStat2 = this.statStrCurrent;
-        } else {
-            primaryStat2 = this.statDexCurrent;
-        }
-
-        atr2 = (primaryStat2 * 0.5f) + (weaponSkill2 * 4) + (weaponMastery2 * 3);
-
-        if (this.bonuses != null) {
-            atr2 += this.bonuses.getFloat(ModType.OCV, SourceType.None);
-            float pos_Bonus = (1 + this.bonuses.getFloatPercentPositive(ModType.OCV, SourceType.None));
-            atr2 *= pos_Bonus;
-            float neg_Bonus = this.bonuses.getFloatPercentNegative(ModType.OCV, SourceType.None);
-            atr2 *= (1 + neg_Bonus);
-        }
-
-        atr2 = (atr2 < 1) ? 1 : atr2;
-        this.atrHandTwo = (short) (atr2 + 0.5f);
     }
     public void calculateDamage(){
         if(this.charItemManager == null){
@@ -3902,15 +3910,26 @@ public class PlayerCharacter extends AbstractCharacter {
         this.calculateMaxDamage();
     }
     public void calculateMinDamage(){
-        int baseDMG1 = 1;
-        int baseDMG2 = 1;
-        int weaponSkill1 = this.skills.get("Unarmed Combat").getTotalSkillPercet();
-        int weaponSkill2 = this.skills.get("Unarmed Combat").getTotalSkillPercet();
-        int weaponMastery1 = this.skills.get("Unarmed Combat Mastery").getTotalSkillPercet();
-        int weaponMastery2 = this.skills.get("Unarmed Combat Mastery").getTotalSkillPercet();
+        int baseDMG1 = 2;
+        int baseDMG2 = 2;
+        int weaponSkill1 = this.skills.containsKey("Unarmed Combat") && this.skills.get("Unarmed Combat") != null
+                ? this.skills.get("Unarmed Combat").getTotalSkillPercet()
+                : 0;
 
-        Item equippedRight = this.charItemManager.getItemFromEquipped(ItemSlotType.RHELD.ordinal());
-        Item equippedLeft = this.charItemManager.getItemFromEquipped(ItemSlotType.LHELD.ordinal());
+        int weaponSkill2 = this.skills.containsKey("Unarmed Combat") && this.skills.get("Unarmed Combat") != null
+                ? this.skills.get("Unarmed Combat").getTotalSkillPercet()
+                : 0;
+
+        int weaponMastery1 = this.skills.containsKey("Unarmed Combat Mastery") && this.skills.get("Unarmed Combat Mastery") != null
+                ? this.skills.get("Unarmed Combat Mastery").getTotalSkillPercet()
+                : 0;
+
+        int weaponMastery2 = this.skills.containsKey("Unarmed Combat Mastery") && this.skills.get("Unarmed Combat Mastery") != null
+                ? this.skills.get("Unarmed Combat Mastery").getTotalSkillPercet()
+                : 0;
+
+        Item equippedRight = this.charItemManager.getEquipped(1);
+        Item equippedLeft = this.charItemManager.getEquipped(2);
 
         int primary1 = this.statDexCurrent;
         int secondary1 = this.statStrCurrent;
@@ -3919,8 +3938,15 @@ public class PlayerCharacter extends AbstractCharacter {
 
         if(equippedRight != null){
             baseDMG1 = equippedRight.getItemBase().getMinDamage();
-            weaponSkill1 = this.skills.get(equippedRight.getItemBase().getSkillRequired()).getTotalSkillPercet();
-            weaponMastery1 = this.skills.get(equippedRight.getItemBase().getMastery()).getTotalSkillPercet();
+            weaponSkill1 = this.skills.containsKey(equippedRight.getItemBase().getSkillRequired())
+                    && this.skills.get(equippedRight.getItemBase().getSkillRequired()) != null
+                    ? this.skills.get(equippedRight.getItemBase().getSkillRequired()).getTotalSkillPercet()
+                    : 0;
+
+            weaponMastery1 = this.skills.containsKey(equippedRight.getItemBase().getMastery())
+                    && this.skills.get(equippedRight.getItemBase().getMastery()) != null
+                    ? this.skills.get(equippedRight.getItemBase().getMastery()).getTotalSkillPercet()
+                    : 0;
             if(equippedRight.getItemBase().isStrBased()) {
                 primary1 = this.statStrCurrent;
                 secondary1 = this.statDexCurrent;
@@ -3928,8 +3954,15 @@ public class PlayerCharacter extends AbstractCharacter {
         }
         if(equippedLeft != null){
             baseDMG2 = equippedLeft.getItemBase().getMinDamage();
-            weaponSkill2 = this.skills.get(equippedLeft.getItemBase().getSkillRequired()).getTotalSkillPercet();
-            weaponMastery2 = this.skills.get(equippedLeft.getItemBase().getMastery()).getTotalSkillPercet();
+            weaponSkill2 = this.skills.containsKey(equippedLeft.getItemBase().getSkillRequired())
+                    && this.skills.get(equippedLeft.getItemBase().getSkillRequired()) != null
+                    ? this.skills.get(equippedLeft.getItemBase().getSkillRequired()).getTotalSkillPercet()
+                    : 0;
+
+            weaponMastery2 = this.skills.containsKey(equippedLeft.getItemBase().getMastery())
+                    && this.skills.get(equippedLeft.getItemBase().getMastery()) != null
+                    ? this.skills.get(equippedLeft.getItemBase().getMastery()).getTotalSkillPercet()
+                    : 0;
             if(equippedLeft.getItemBase().isStrBased()) {
                 primary2 = this.statStrCurrent;
                 secondary2 = this.statDexCurrent;
@@ -3952,12 +3985,23 @@ public class PlayerCharacter extends AbstractCharacter {
         this.minDamageHandTwo = min2;
     }
     public void calculateMaxDamage() {
-        int baseDMG1 = 1;
-        int baseDMG2 = 1;
-        int weaponSkill1 = this.skills.get("Unarmed Combat").getTotalSkillPercet();
-        int weaponSkill2 = this.skills.get("Unarmed Combat").getTotalSkillPercet();
-        int weaponMastery1 = this.skills.get("Unarmed Combat Mastery").getTotalSkillPercet();
-        int weaponMastery2 = this.skills.get("Unarmed Combat Mastery").getTotalSkillPercet();
+        int baseDMG1 = 8;
+        int baseDMG2 = 8;
+        int weaponSkill1 = this.skills.containsKey("Unarmed Combat") && this.skills.get("Unarmed Combat") != null
+                ? this.skills.get("Unarmed Combat").getTotalSkillPercet()
+                : 0;
+
+        int weaponSkill2 = this.skills.containsKey("Unarmed Combat") && this.skills.get("Unarmed Combat") != null
+                ? this.skills.get("Unarmed Combat").getTotalSkillPercet()
+                : 0;
+
+        int weaponMastery1 = this.skills.containsKey("Unarmed Combat Mastery") && this.skills.get("Unarmed Combat Mastery") != null
+                ? this.skills.get("Unarmed Combat Mastery").getTotalSkillPercet()
+                : 0;
+
+        int weaponMastery2 = this.skills.containsKey("Unarmed Combat Mastery") && this.skills.get("Unarmed Combat Mastery") != null
+                ? this.skills.get("Unarmed Combat Mastery").getTotalSkillPercet()
+                : 0;
 
         Item equippedRight = this.charItemManager.getItemFromEquipped(ItemSlotType.RHELD.ordinal());
         Item equippedLeft = this.charItemManager.getItemFromEquipped(ItemSlotType.LHELD.ordinal());
@@ -3969,8 +4013,15 @@ public class PlayerCharacter extends AbstractCharacter {
 
         if (equippedRight != null) {
             baseDMG1 = equippedRight.getItemBase().getMaxDamage();
-            weaponSkill1 = this.skills.get(equippedRight.getItemBase().getSkillRequired()).getTotalSkillPercet();
-            weaponMastery1 = this.skills.get(equippedRight.getItemBase().getMastery()).getTotalSkillPercet();
+            weaponSkill1 = this.skills.containsKey(equippedRight.getItemBase().getSkillRequired())
+                    && this.skills.get(equippedRight.getItemBase().getSkillRequired()) != null
+                    ? this.skills.get(equippedRight.getItemBase().getSkillRequired()).getTotalSkillPercet()
+                    : 1;
+
+            weaponMastery1 = this.skills.containsKey(equippedRight.getItemBase().getMastery())
+                    && this.skills.get(equippedRight.getItemBase().getMastery()) != null
+                    ? this.skills.get(equippedRight.getItemBase().getMastery()).getTotalSkillPercet()
+                    : 1;
             if (equippedRight.getItemBase().isStrBased()) {
                 primary1 = this.statStrCurrent;
                 secondary1 = this.statDexCurrent;
@@ -3979,8 +4030,15 @@ public class PlayerCharacter extends AbstractCharacter {
 
         if (equippedLeft != null) {
             baseDMG2 = equippedLeft.getItemBase().getMaxDamage();
-            weaponSkill2 = this.skills.get(equippedLeft.getItemBase().getSkillRequired()).getTotalSkillPercet();
-            weaponMastery2 = this.skills.get(equippedLeft.getItemBase().getMastery()).getTotalSkillPercet();
+            weaponSkill2 = this.skills.containsKey(equippedLeft.getItemBase().getSkillRequired())
+                    && this.skills.get(equippedLeft.getItemBase().getSkillRequired()) != null
+                    ? this.skills.get(equippedLeft.getItemBase().getSkillRequired()).getTotalSkillPercet()
+                    : 1;
+
+            weaponMastery2 = this.skills.containsKey(equippedLeft.getItemBase().getMastery())
+                    && this.skills.get(equippedLeft.getItemBase().getMastery()) != null
+                    ? this.skills.get(equippedLeft.getItemBase().getMastery()).getTotalSkillPercet()
+                    : 1;
             if (equippedLeft.getItemBase().isStrBased()) {
                 primary2 = this.statStrCurrent;
                 secondary2 = this.statDexCurrent;
@@ -4296,15 +4354,15 @@ public class PlayerCharacter extends AbstractCharacter {
         // set damages
         if (mainHand) {
             this.minDamageHandOne = (int) minDamage;
-            this.maxDamageHandOne = (int) maxDamage;
+            this.maxDamageHandOne = (int) maxDamage + 1;
             this.speedHandOne = speed;
         } else {
             this.minDamageHandTwo = (int) minDamage;
-            this.maxDamageHandTwo = (int) maxDamage;
+            this.maxDamageHandTwo = (int) maxDamage + 1;
             this.speedHandTwo = speed;
         }
 
-        //this.calculateATR();
+        this.calculateATR();
         //this.calculateDamage();
         //this.calculateSpeed();
     }
