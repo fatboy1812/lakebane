@@ -4304,9 +4304,9 @@ public class PlayerCharacter extends AbstractCharacter {
             this.speedHandTwo = speed;
         }
 
-        this.calculateATR();
-        this.calculateDamage();
-        this.calculateSpeed();
+        //this.calculateATR();
+        //this.calculateDamage();
+        //this.calculateSpeed();
     }
 
     /**
