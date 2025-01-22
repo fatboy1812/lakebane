@@ -69,14 +69,14 @@ public class PlayerCombatStats {
                 primary = this.owner.statStrCurrent;
         }
 
-        float skillLevel = 0;
-        float masteryLevel = 0;
+        float skillLevel = 5;
+        float masteryLevel = 5;
 
         if(this.owner.skills.containsKey(skill))
-            skillLevel = this.owner.skills.get(skill).getModifiedAmount();
+            skillLevel = this.owner.skills.get(skill).getTotalSkillPercet();
 
         if(this.owner.skills.containsKey(mastery))
-            masteryLevel = this.owner.skills.get(mastery).getModifiedAmount();
+            masteryLevel = this.owner.skills.get(mastery).getTotalSkillPercet();
 
         float primaryCalc = primary * 0.5f;
         float skillCalc = skillLevel * 4;
@@ -102,11 +102,15 @@ public class PlayerCombatStats {
 
         atr = primaryCalc + skillCalc + masteryCalc + atrEnchants;
         atr *= 1 + stanceValue;
+        atr += 0.5f;
 
         if(mainHand){
             this.atrHandOne = atr;
         }else{
             this.atrHandTwo = atr;
+            if(this.owner.charItemManager.getEquipped(1) == null && this.owner.charItemManager.getEquipped(2) != null){
+                this.atrHandOne = 0.0f;
+            }
         }
     }
 
@@ -115,8 +119,8 @@ public class PlayerCombatStats {
         double baseDMG = 1;
         int primaryStat = this.owner.statDexCurrent;
         int secondaryStat = this.owner.statStrCurrent;
-        double weaponSkill = 0;
-        double weaponMastery = 0;
+        double weaponSkill = 5;
+        double weaponMastery = 5;
 
         if (mainHand) {
             weapon = this.owner.charItemManager.getEquipped(1);
@@ -157,6 +161,9 @@ public class PlayerCombatStats {
             this.minDamageHandOne = (int) minDMG;
         } else {
             this.minDamageHandTwo = (int) minDMG;
+            if(this.owner.charItemManager.getEquipped(1) == null && this.owner.charItemManager.getEquipped(2) != null){
+                this.minDamageHandOne = 0;
+            }
         }
     }
 
@@ -191,8 +198,6 @@ public class PlayerCombatStats {
 
         if (this.owner.skills.containsKey(skill)) {
             weaponSkill = this.owner.skills.get(skill).getModifiedAmount();
-        }else{
-
         }
 
         if (this.owner.skills.containsKey(mastery)) {
@@ -211,6 +216,9 @@ public class PlayerCombatStats {
             this.maxDamageHandOne = (int) maxDMG;
         }else{
             this.maxDamageHandTwo = (int) maxDMG;
+            if(this.owner.charItemManager.getEquipped(1) == null && this.owner.charItemManager.getEquipped(2) != null){
+                this.maxDamageHandOne = 0;
+            }
         }
     }
 
@@ -238,7 +246,7 @@ public class PlayerCombatStats {
 
         float stanceValue = 0.0f;
         for(String effID : this.owner.effects.keySet()){
-            if(effID.contains("STC")){
+            if(effID.contains("Stance")){
                 for(AbstractEffectModifier mod : this.owner.effects.get(effID).getEffectModifiers()){
                     if(mod.modType.equals(Enum.ModType.AttackDelay)){
                         stanceValue = mod.getPercentMod() * 0.01f; // account for weapon prefix and suffix mods
@@ -248,13 +256,6 @@ public class PlayerCombatStats {
         }
 
         float bonusValues = 1 + this.owner.bonuses.getFloatPercentAll(Enum.ModType.AttackDelay,Enum.SourceType.None);//1.0f;
-        //if(this.owner.bonuses != null){
-        //    for(AbstractEffectModifier mod : this.owner.bonuses.bonusFloats.keySet()){
-        //        if(mod.modType.equals(Enum.ModType.AttackDelay)){
-        //            bonusValues += mod.getPercentMod() * 0.01f; // calculate all alac bonuses
-        //        }
-        //    }
-        //}
 
         bonusValues -= stanceValue; // take away stance modifier from alac bonus values
         speed *= 1 + stanceValue; // apply stance bonus
@@ -267,6 +268,9 @@ public class PlayerCombatStats {
             this.attackSpeedHandOne = speed;
         }else{
             this.attackSpeedHandTwo = speed;
+            if(this.owner.charItemManager.getEquipped(1) == null && this.owner.charItemManager.getEquipped(2) != null){
+                this.attackSpeedHandOne = 0.0f;
+            }
         }
     }
 
@@ -291,6 +295,9 @@ public class PlayerCombatStats {
             this.rangeHandOne = range;
         }else{
             this.rangeHandTwo = range;
+            if(this.owner.charItemManager.getEquipped(1) == null && this.owner.charItemManager.getEquipped(2) != null){
+                this.rangeHandOne = 0.0f;
+            }
         }
     }
 

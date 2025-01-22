@@ -78,6 +78,35 @@ public class PrintStatsCmd extends AbstractDevCmd {
         out += "Mana Regen: " + tar.getRegenModifier(Enum.ModType.ManaRecoverRate) + newline;
         out += "Stamina Regen: " + tar.getRegenModifier(Enum.ModType.StaminaRecoverRate) + newline;
         throwbackInfo(pc, out);
+
+
+        String newOut = "Server stats for Player " + tar.getFirstName() + newline;
+        newOut += "Unused Stats: " + tar.getUnusedStatPoints() + newline;
+        newOut += "Stats Base (Modified)" + newline;
+        newOut += "  Str: " + (int) tar.statStrBase + " (" + tar.getStatStrCurrent() + ')' + ", maxStr: " + tar.getStrMax() + newline;
+        newOut += "  Dex: " + (int) tar.statDexBase + " (" + tar.getStatDexCurrent() + ')' + ", maxDex: " + tar.getDexMax() + newline;
+        newOut += "  Con: " + (int) tar.statConBase + " (" + tar.getStatConCurrent() + ')' + ", maxCon: " + tar.getConMax() + newline;
+        newOut += "  Int: " + (int) tar.statIntBase + " (" + tar.getStatIntCurrent() + ')' + ", maxInt: " + tar.getIntMax() + newline;
+        newOut += "  Spi: " + (int) tar.statSpiBase + " (" + tar.getStatSpiCurrent() + ')' + ", maxSpi: " + tar.getSpiMax() + newline;
+        newOut += "Move Speed: " + tar.getSpeed() + newline;
+        newOut += "Health Regen: " + tar.combatStats.healthRegen + newline;
+        newOut += "Mana Regen: " + tar.combatStats.manaRegen + newline;
+        newOut += "Stamina Regen: " + tar.combatStats.staminaRegen + newline;
+        newOut += "DEFENSE: " + tar.combatStats.defense + newline;
+        newOut += "HAND ONE" + newline;
+        newOut += "ATR: " +  tar.combatStats.atrHandOne + newline;
+        newOut += "MIN: " + tar.combatStats.minDamageHandOne + newline;
+        newOut += "MAX: " + " VS " + tar.combatStats.maxDamageHandOne + newline;
+        newOut += "RANGE: " + tar.combatStats.rangeHandOne + newline;
+        newOut += "ATTACK SPEED: " + tar.combatStats.attackSpeedHandOne + newline;
+        newOut += "HAND TWO" + newline;
+        newOut += "ATR: " + tar.combatStats.atrHandTwo + newline;
+        newOut += "MIN: " + tar.combatStats.minDamageHandTwo + newline;
+        newOut += "MAX: " + tar.combatStats.maxDamageHandTwo + newline;
+        newOut += "RANGE: " + tar.combatStats.rangeHandTwo + newline;
+        newOut += "ATTACK SPEED: " + tar.combatStats.attackSpeedHandTwo + newline;
+        throwbackInfo(pc, newOut);
+
     }
 
     public void printStatsMob(PlayerCharacter pc, Mob tar) {
