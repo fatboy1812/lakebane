@@ -155,6 +155,11 @@ public class PlayerCombatStats {
                         0.064 * Math.sqrt(secondaryStat - 0.75) +
                         0.01 * (weaponSkill + weaponMastery)
         );
+        if(this.owner.bonuses != null){
+            minDMG += this.owner.bonuses.getFloat(Enum.ModType.MinDamage, Enum.SourceType.None);
+            minDMG *= 1+ this.owner.bonuses.getFloatPercentAll(Enum.ModType.MeleeDamageModifier, Enum.SourceType.None);
+        }
+
 
         if (mainHand) {
             this.minDamageHandOne = (int) minDMG;
@@ -210,6 +215,11 @@ public class PlayerCombatStats {
                         0.028 * Math.sqrt(secondaryStat - 0.75) +
                         0.0075 * (weaponSkill + weaponMastery)
         );
+
+        if(this.owner.bonuses != null){
+            maxDMG += this.owner.bonuses.getFloat(Enum.ModType.MaxDamage, Enum.SourceType.None);
+            maxDMG *= 1+ this.owner.bonuses.getFloatPercentAll(Enum.ModType.MeleeDamageModifier, Enum.SourceType.None);
+        }
 
         if(mainHand){
             this.maxDamageHandOne = (int) maxDMG;
