@@ -98,9 +98,8 @@ public class PlayerCombatStats {
             atrEnchants = this.owner.bonuses.getFloat(Enum.ModType.OCV, Enum.SourceType.None);
         }
 
-        atrEnchants -= stanceValue;
-
         atr = primaryCalc + skillCalc + masteryCalc + atrEnchants;
+        atr *= 1 + (this.owner.bonuses.getFloatPercentAll(Enum.ModType.OCV, Enum.SourceType.None) - stanceValue);
         atr *= 1 + stanceValue;
         atr += 0.5f;
 
