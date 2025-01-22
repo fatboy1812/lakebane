@@ -14,6 +14,7 @@ import engine.gameManager.SessionManager;
 import engine.gameManager.SimulationManager;
 import engine.objects.Bane;
 import engine.objects.PlayerCharacter;
+import engine.objects.PlayerCombatStats;
 import org.pmw.tinylog.Logger;
 
 public class UpdateThread implements Runnable {
@@ -32,6 +33,17 @@ public class UpdateThread implements Runnable {
             for(PlayerCharacter player : SessionManager.getAllActivePlayerCharacters()){
                 if (player != null) {
                     player.doRegen();
+                    try {
+                        if (player.isAlive() && player.isActive() && player.isEnteredWorld()) {
+                            if (player.combatStats == null) {
+                                player.combatStats = new PlayerCombatStats(player);
+                            }
+                            PlayerCombatStats cStats = player.combatStats;
+                            cStats.update();
+                        }
+                    }catch(Exception e){
+
+                    }
                 }
             }
         } catch (Exception e) {
