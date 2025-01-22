@@ -178,8 +178,8 @@ public class PlayerCombatStats {
         double baseDMG = 6;
         int primaryStat = this.owner.statDexCurrent;
         int secondaryStat = this.owner.statStrCurrent;
-        double weaponSkill = 0;
-        double weaponMastery = 0;
+        double weaponSkill = 5;
+        double weaponMastery = 5;
 
         if (mainHand) {
             weapon = this.owner.charItemManager.getEquipped(1);
@@ -218,7 +218,7 @@ public class PlayerCombatStats {
 
         if(this.owner.bonuses != null){
             maxDMG += this.owner.bonuses.getFloat(Enum.ModType.MaxDamage, Enum.SourceType.None);
-            maxDMG *= 1+ this.owner.bonuses.getFloatPercentAll(Enum.ModType.MeleeDamageModifier, Enum.SourceType.None);
+            maxDMG *= 1 + this.owner.bonuses.getFloatPercentAll(Enum.ModType.MeleeDamageModifier, Enum.SourceType.None);
         }
 
         if(mainHand){
