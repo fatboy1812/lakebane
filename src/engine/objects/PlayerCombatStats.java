@@ -51,6 +51,7 @@ public class PlayerCombatStats {
     public void calculateATR(boolean mainHand) {
         Item weapon;
         float atr;
+
         if(mainHand) {
             weapon = this.owner.charItemManager.getEquipped(1);
         }else {
@@ -59,16 +60,16 @@ public class PlayerCombatStats {
 
         String skill = "Unarmed Combat";
         String mastery = "Unarmed Combat Mastery";
-        int primary = this.owner.statDexCurrent;
+        int primaryStat = this.owner.statDexCurrent;
         if(weapon != null) {
             skill= weapon.getItemBase().getSkillRequired();
             mastery = weapon.getItemBase().getMastery();
             if(weapon.getItemBase().isStrBased())
-                primary = this.owner.statStrCurrent;
+                primaryStat = this.owner.statStrCurrent;
         }
 
-        float skillLevel = 5;
-        float masteryLevel = 5;
+        float skillLevel = 0;
+        float masteryLevel = 0;
 
         if(this.owner.skills.containsKey(skill))
             skillLevel = this.owner.skills.get(skill).getTotalSkillPercet();
@@ -76,34 +77,61 @@ public class PlayerCombatStats {
         if(this.owner.skills.containsKey(mastery))
             masteryLevel = this.owner.skills.get(mastery).getTotalSkillPercet();
 
-        float masteryCalc = masteryLevel * 3;
-        float primaryCalc = primary * 0.5f;
-        float skillCalc = skillLevel * 4;
-
-        float atrEnchants = 0;
         float stanceValue = 0.0f;
+        float atrEnchants = 0;
 
-        for(String effID : this.owner.effects.keySet()){
-            if(effID.contains("Stance")){
-                for(AbstractEffectModifier mod : this.owner.effects.get(effID).getEffectModifiers()){
-                    if(mod.modType.equals(Enum.ModType.OCV)){
+        for(String effID : this.owner.effects.keySet()) {
+            if (effID.contains("Stance")) {
+                for (AbstractEffectModifier mod : this.owner.effects.get(effID).getEffectModifiers()) {
+                    if (mod.modType.equals(Enum.ModType.OCV)) {
                         float percent = mod.getPercentMod();
                         int trains = this.owner.effects.get(effID).getTrains();
                         float modValue = percent + (trains * mod.getRamp());
                         stanceValue += modValue * 0.01f;
                     }
                 }
+            } else {
+                for (AbstractEffectModifier mod : this.owner.effects.get(effID).getEffectModifiers()) {
+                    if (mod.modType.equals(Enum.ModType.OCV)) {
+                        float value = mod.getMinMod();
+                        int trains = this.owner.effects.get(effID).getTrains();
+                        float modValue = value + (trains * mod.getRamp());
+                        atrEnchants += modValue;
+                    }
+                }
             }
         }
 
-        if(this.owner.bonuses != null){
-            atrEnchants = this.owner.bonuses.getFloat(Enum.ModType.OCV, Enum.SourceType.None);
+        float prefixValues = 0.0f;
+        if(weapon != null){
+            if(this.owner.charItemManager.getEquipped(1) != null){
+                for(Effect eff : this.owner.charItemManager.getEquipped(1).effects.values()){
+                    for(AbstractEffectModifier mod : eff.getEffectModifiers()){
+                        if(mod.modType.equals(Enum.ModType.OCV)){
+                            prefixValues += mod.minMod * (mod.getRamp() * eff.getTrains());
+                        }
+                    }
+                }
+            }
+        }
+        if(this.owner.charItemManager.getEquipped(2) != null){
+            for(Effect eff : this.owner.charItemManager.getEquipped(2).effects.values()){
+                for(AbstractEffectModifier mod : eff.getEffectModifiers()){
+                    if(mod.modType.equals(Enum.ModType.OCV)){
+                        prefixValues += mod.minMod * (mod.getRamp() * eff.getTrains());
+                    }
+                }
+            }
         }
 
-        atr = primaryCalc + skillCalc + masteryCalc + atrEnchants;
-        atr *= 1 + (this.owner.bonuses.getFloatPercentAll(Enum.ModType.OCV, Enum.SourceType.None) - stanceValue);
-        atr *= 1 + stanceValue;
-        atr = (float) Math.ceil(atr);
+        float preciseRune = 1.0f;
+        for(CharacterRune rune : this.owner.runes){
+            if(rune.getRuneBase().getName().equals("Precise"))
+                preciseRune += 0.05f;
+        }
+
+
+        atr = (((primaryStat / 2) + (skillLevel * 4 + masteryLevel * 3) + prefixValues) * preciseRune + atrEnchants) * (1.0f + stanceValue);
 
         if(mainHand){
             this.atrHandOne = atr;
