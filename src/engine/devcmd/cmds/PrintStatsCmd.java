@@ -59,6 +59,9 @@ public class PrintStatsCmd extends AbstractDevCmd {
         String newline = "\r\n ";
 
         String newOut = "Server stats for Player " + tar.getFirstName() + newline;
+        newOut += "HEALTH: " + tar.getHealth() + " / " + tar.getHealthMax() + newline;
+        newOut += "MANA: " + tar.getMana() + " / " + tar.getManaMax() + newline;
+        newOut += "STAMINA: " + tar.getStamina() + " / " + tar.getStaminaMax() + newline;
         newOut += "Unused Stats: " + tar.getUnusedStatPoints() + newline;
         newOut += "Stats Base (Modified)" + newline;
         newOut += "  Str: " + (int) tar.statStrBase + " (" + tar.getStatStrCurrent() + ')' + ", maxStr: " + tar.getStrMax() + newline;
