@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 public class PlayerCombatStats {
-    public static HashMap<PlayerCharacter, PlayerCombatStats> combatstats = new HashMap<>();
 
     public PlayerCharacter owner;
     //main hand data
@@ -47,7 +46,6 @@ public class PlayerCombatStats {
         this.calculateAttackRange(false);
         this.calculateRegen();
         this.calculateDefense();
-        combatstats.put(this.owner, this);
     }
 
     public void calculateATR(boolean mainHand) {
@@ -330,7 +328,7 @@ public class PlayerCombatStats {
         }
     }
 
-    public void calculateDefense(){
+    public void calculateDefense() {
         int armorDefense = 0;
         int shieldDefense = 0;
         int dexterity = this.owner.statDexCurrent;
@@ -338,36 +336,35 @@ public class PlayerCombatStats {
         double blockSkill = 0;
         double weaponSkill = 0;
         double weaponMastery = 0;
-        int flatBonuses = 0;
 
         //armor defense value need to loop all equipped items and log armor defense values
         ArrayList<String> armorTypes = new ArrayList<>();
-        if(this.owner.charItemManager != null){
-            for(Item equipped : this.owner.charItemManager.getEquippedList()){
-                if(equipped.getItemBase().isHeavyArmor()){
+        if (this.owner.charItemManager != null) {
+            for (Item equipped : this.owner.charItemManager.getEquippedList()) {
+                if (equipped.getItemBase().isHeavyArmor()) {
                     armorDefense += equipped.getItemBase().getDefense();
-                    if(!armorTypes.contains(equipped.getItemBase().getSkillRequired()))
+                    if (!armorTypes.contains(equipped.getItemBase().getSkillRequired()))
                         armorTypes.add(equipped.getItemBase().getSkillRequired());
-                } else if(equipped.getItemBase().isLightArmor()){
+                } else if (equipped.getItemBase().isLightArmor()) {
                     armorDefense += equipped.getItemBase().getDefense();
-                    if(!armorTypes.contains(equipped.getItemBase().getSkillRequired()))
+                    if (!armorTypes.contains(equipped.getItemBase().getSkillRequired()))
                         armorTypes.add(equipped.getItemBase().getSkillRequired());
-                } else if(equipped.getItemBase().isMediumArmor()){
+                } else if (equipped.getItemBase().isMediumArmor()) {
                     armorDefense += equipped.getItemBase().getDefense();
-                    if(!armorTypes.contains(equipped.getItemBase().getSkillRequired()))
+                    if (!armorTypes.contains(equipped.getItemBase().getSkillRequired()))
                         armorTypes.add(equipped.getItemBase().getSkillRequired());
-                } else if(equipped.getItemBase().isClothArmor()){
+                } else if (equipped.getItemBase().isClothArmor()) {
                     armorDefense += equipped.getItemBase().getDefense();
-                }else if(equipped.getItemBase().isShield()){
+                } else if (equipped.getItemBase().isShield()) {
                     shieldDefense += equipped.getItemBase().getDefense();
                 }
             }
         }
 
         //armor skill needs to calculate all trains in armor types
-        for(String armorType : armorTypes){
-            if(this.owner.skills!= null){
-                if(this.owner.skills.containsKey(armorType)){
+        for (String armorType : armorTypes) {
+            if (this.owner.skills != null) {
+                if (this.owner.skills.containsKey(armorType)) {
                     armorSkill += this.owner.skills.get(armorType).getModifiedAmount();
                 }
             }
@@ -381,39 +378,41 @@ public class PlayerCombatStats {
         String primarySkillName = "Unarmed Combat";
         String primaryMasteryName = "Unarmed Combat Mastery";
         Item weapon = this.owner.charItemManager.getEquipped(1);
-        if(weapon == null){
+        if (weapon == null) {
             weapon = this.owner.charItemManager.getEquipped(2);
         }
-        if(weapon != null){
+        if (weapon != null) {
             primarySkillName = weapon.getItemBase().getSkillRequired();
             primaryMasteryName = weapon.getItemBase().getMastery();
         }
 
-        if(this.owner.skills != null){
-            if(this.owner.skills.containsKey(primarySkillName)){
+        if (this.owner.skills != null) {
+            if (this.owner.skills.containsKey(primarySkillName)) {
                 weaponSkill = this.owner.skills.get(primarySkillName).getModifiedAmount();
             }
-            if(this.owner.skills.containsKey(primaryMasteryName)){
+            if (this.owner.skills.containsKey(primaryMasteryName)) {
                 weaponMastery = this.owner.skills.get(primaryMasteryName).getModifiedAmount();
             }
         }
 
         float stanceValue = 0.0f;
-        if(this.owner.bonuses != null){
-            for(String effID : this.owner.effects.keySet()){
-                if(effID.contains("STC")){
-                    for(AbstractEffectModifier mod : this.owner.effects.get(effID).getEffectModifiers()){
-                        if(mod.modType.equals(Enum.ModType.AttackDelay)){
-                            stanceValue = mod.getPercentMod() * 0.01f; // account for weapon prefix and suffix mods
+        float bonusValues = 0;
+        float percentBonus = 0;
+        if (this.owner.bonuses != null) {
+            for (String effID : this.owner.effects.keySet()) {
+                if (effID.contains("Stance")) {
+                    if (this.owner.effects != null) {
+                        for (AbstractEffectModifier mod : this.owner.effects.get(effID).getEffectModifiers()) {
+                            if (mod.modType.equals(Enum.ModType.DCV)) {
+                                stanceValue = mod.getPercentMod() * 0.01f; // account for weapon prefix and suffix mods
+                            }
                         }
                     }
                 }
             }
 
-            float bonusValues = 1.0f + this.owner.bonuses.getFloat(Enum.ModType.DCV, Enum.SourceType.None);
-
-            bonusValues -= stanceValue; // take away stance modifier from alac bonus values
-            flatBonuses += bonusValues; // apply alac bonuses without stance mod
+            bonusValues = this.owner.bonuses.getFloat(Enum.ModType.DCV, Enum.SourceType.None);
+            percentBonus = this.owner.bonuses.getFloatPercentAll(Enum.ModType.DCV, Enum.SourceType.None) - stanceValue;
         }
 
         double defense = (1 + armorSkill / 50.0) * armorDefense +
@@ -421,8 +420,10 @@ public class PlayerCombatStats {
                 (weaponSkill / 2.0) +
                 (weaponMastery / 2.0) +
                 dexterity * 2.0 +
-                flatBonuses;
+                bonusValues;
+        defense *= 1.0f + percentBonus;
+        defense *= 1.0f + stanceValue;
 
-        this.defense = (int) (defense * 1.0f + stanceValue);
+        this.defense = (int) defense;
     }
 }
