@@ -113,7 +113,7 @@ public class PlayerCombatStats {
 
     public void calculateMin(boolean mainHand) {
         Item weapon;
-        double baseDMG = 1;
+        float baseDMG = 1;
         int primaryStat = this.owner.statDexCurrent;
         int secondaryStat = this.owner.statStrCurrent;
         double weaponSkill = 5;
@@ -139,11 +139,11 @@ public class PlayerCombatStats {
         }
 
         if (this.owner.skills.containsKey(skill)) {
-            weaponSkill = this.owner.skills.get(skill).getModifiedAmount();
+            weaponSkill = this.owner.skills.get(skill).getTotalSkillPercet();
         }
 
         if (this.owner.skills.containsKey(mastery)) {
-            weaponMastery = this.owner.skills.get(mastery).getModifiedAmount();
+            weaponMastery = this.owner.skills.get(mastery).getTotalSkillPercet();
         }
 
         double minDMG = baseDMG * (
@@ -155,14 +155,15 @@ public class PlayerCombatStats {
         );
         if(this.owner.bonuses != null){
             minDMG += this.owner.bonuses.getFloat(Enum.ModType.MinDamage, Enum.SourceType.None);
-            minDMG *= 1+ this.owner.bonuses.getFloatPercentAll(Enum.ModType.MeleeDamageModifier, Enum.SourceType.None);
+            minDMG *= 1 + this.owner.bonuses.getFloatPercentAll(Enum.ModType.MeleeDamageModifier, Enum.SourceType.None);
         }
 
+        int roundedMin = (int)Math.round(minDMG);
 
         if (mainHand) {
-            this.minDamageHandOne = (int) minDMG;
+            this.minDamageHandOne = roundedMin;
         } else {
-            this.minDamageHandTwo = (int) minDMG;
+            this.minDamageHandTwo = roundedMin;
             if(this.owner.charItemManager.getEquipped(1) == null && this.owner.charItemManager.getEquipped(2) != null){
                 this.minDamageHandOne = 0;
             }
@@ -219,10 +220,12 @@ public class PlayerCombatStats {
             maxDMG *= 1 + this.owner.bonuses.getFloatPercentAll(Enum.ModType.MeleeDamageModifier, Enum.SourceType.None);
         }
 
+        int roundedMax = (int)Math.round(maxDMG);
+
         if(mainHand){
-            this.maxDamageHandOne = (int) maxDMG;
+            this.maxDamageHandOne = roundedMax;
         }else{
-            this.maxDamageHandTwo = (int) maxDMG;
+            this.maxDamageHandTwo = roundedMax;
             if(this.owner.charItemManager.getEquipped(1) == null && this.owner.charItemManager.getEquipped(2) != null){
                 this.maxDamageHandOne = 0;
             }
