@@ -76,9 +76,10 @@ public class PlayerCombatStats {
         if(this.owner.skills.containsKey(mastery))
             masteryLevel = this.owner.skills.get(mastery).getTotalSkillPercet();
 
+        float masteryCalc = masteryLevel * 3;
         float primaryCalc = primary * 0.5f;
         float skillCalc = skillLevel * 4;
-        float masteryCalc = masteryLevel * 3;
+
         float atrEnchants = 0;
         float stanceValue = 0.0f;
 
@@ -102,14 +103,15 @@ public class PlayerCombatStats {
         atr = primaryCalc + skillCalc + masteryCalc + atrEnchants;
         atr *= 1 + (this.owner.bonuses.getFloatPercentAll(Enum.ModType.OCV, Enum.SourceType.None) - stanceValue);
         atr *= 1 + stanceValue;
-        atr += 0.5f;
+        atr = Math.round(atr);
 
         if(mainHand){
             this.atrHandOne = atr;
         }else{
             this.atrHandTwo = atr;
             if(this.owner.charItemManager.getEquipped(1) == null && this.owner.charItemManager.getEquipped(2) != null){
-                this.atrHandOne = 0.0f;
+                if(!this.owner.charItemManager.getEquipped(2).getItemBase().isShield())
+                    this.atrHandOne = 0.0f;
             }
         }
     }
@@ -168,7 +170,8 @@ public class PlayerCombatStats {
         } else {
             this.minDamageHandTwo = roundedMin;
             if(this.owner.charItemManager.getEquipped(1) == null && this.owner.charItemManager.getEquipped(2) != null){
-                this.minDamageHandOne = 0;
+                if(!this.owner.charItemManager.getEquipped(2).getItemBase().isShield())
+                    this.minDamageHandOne = 0;
             }
         }
     }
@@ -230,7 +233,8 @@ public class PlayerCombatStats {
         }else{
             this.maxDamageHandTwo = roundedMax;
             if(this.owner.charItemManager.getEquipped(1) == null && this.owner.charItemManager.getEquipped(2) != null){
-                this.maxDamageHandOne = 0;
+                if(!this.owner.charItemManager.getEquipped(2).getItemBase().isShield())
+                    this.maxDamageHandOne = 0;
             }
         }
     }
@@ -289,7 +293,8 @@ public class PlayerCombatStats {
         }else{
             this.attackSpeedHandTwo = speed;
             if(this.owner.charItemManager.getEquipped(1) == null && this.owner.charItemManager.getEquipped(2) != null){
-                this.attackSpeedHandOne = 0.0f;
+                if(!this.owner.charItemManager.getEquipped(2).getItemBase().isShield())
+                    this.attackSpeedHandOne = 0.0f;
             }
         }
     }
@@ -316,7 +321,8 @@ public class PlayerCombatStats {
         }else{
             this.rangeHandTwo = range;
             if(this.owner.charItemManager.getEquipped(1) == null && this.owner.charItemManager.getEquipped(2) != null){
-                this.rangeHandOne = 0.0f;
+                if(!this.owner.charItemManager.getEquipped(2).getItemBase().isShield())
+                    this.rangeHandOne = 0.0f;
             }
         }
     }
