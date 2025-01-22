@@ -423,7 +423,7 @@ public class PlayerCombatStats {
                 bonusValues;
         defense *= 1.0f + percentBonus;
         defense *= 1.0f + stanceValue;
-
+        defense += 0.5f;
         this.defense = (int) defense;
     }
 }
