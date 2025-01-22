@@ -83,10 +83,13 @@ public class PlayerCombatStats {
         float stanceValue = 0.0f;
 
         for(String effID : this.owner.effects.keySet()){
-            if(effID.contains("STC")){
+            if(effID.contains("Stance")){
                 for(AbstractEffectModifier mod : this.owner.effects.get(effID).getEffectModifiers()){
-                    if(mod.modType.equals(Enum.ModType.AttackDelay)){
-                        stanceValue = mod.getPercentMod() * 0.01f; // account for weapon prefix and suffix mods
+                    if(mod.modType.equals(Enum.ModType.OCV)){
+                        float percent = mod.getPercentMod();
+                        int trains = this.owner.effects.get(effID).getTrains();
+                        float modValue = percent + (trains * mod.getRamp());
+                        stanceValue += modValue * 0.01f;
                     }
                 }
             }
@@ -407,7 +410,10 @@ public class PlayerCombatStats {
                     if (this.owner.effects != null) {
                         for (AbstractEffectModifier mod : this.owner.effects.get(effID).getEffectModifiers()) {
                             if (mod.modType.equals(Enum.ModType.DCV)) {
-                                stanceValue = mod.getPercentMod() * 0.01f; // account for weapon prefix and suffix mods
+                                float percent = mod.getPercentMod();
+                                int trains = this.owner.effects.get(effID).getTrains();
+                                float modValue = percent + (trains * mod.getRamp());
+                                stanceValue += modValue * 0.01f;
                             }
                         }
                     }
