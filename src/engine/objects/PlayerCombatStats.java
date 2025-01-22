@@ -103,7 +103,7 @@ public class PlayerCombatStats {
         atr = primaryCalc + skillCalc + masteryCalc + atrEnchants;
         atr *= 1 + (this.owner.bonuses.getFloatPercentAll(Enum.ModType.OCV, Enum.SourceType.None) - stanceValue);
         atr *= 1 + stanceValue;
-        atr = Math.round(atr);
+        atr = (float) Math.ceil(atr);
 
         if(mainHand){
             this.atrHandOne = atr;
