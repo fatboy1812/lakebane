@@ -231,14 +231,16 @@ public class PlayerCombatStats {
             weapon = this.owner.charItemManager.getEquipped(2);
         }
 
+        float weaponSpecificValues = 0.0f;
         if(weapon == null) {
             speed = 20.0f;
         }else{
             speed = weapon.getItemBase().getSpeed();
             for(Effect eff : weapon.effects.values()){
                 for(AbstractEffectModifier mod : eff.getEffectModifiers()){
-                    if(mod.modType.equals(Enum.ModType.WeaponSpeed)){
+                    if(mod.modType.equals(Enum.ModType.WeaponSpeed) || mod.modType.equals(Enum.ModType.AttackDelay)){
                         speed *= 1 + (mod.getPercentMod() * 0.01f);
+                        weaponSpecificValues += (mod.getPercentMod() * 0.01f);
                     }
                 }
             }
@@ -247,9 +249,14 @@ public class PlayerCombatStats {
         float stanceValue = 0.0f;
         for(String effID : this.owner.effects.keySet()){
             if(effID.contains("Stance")){
-                for(AbstractEffectModifier mod : this.owner.effects.get(effID).getEffectModifiers()){
-                    if(mod.modType.equals(Enum.ModType.AttackDelay)){
-                        stanceValue = mod.getPercentMod() * 0.01f; // account for weapon prefix and suffix mods
+                if(this.owner.effects != null) {
+                    for (AbstractEffectModifier mod : this.owner.effects.get(effID).getEffectModifiers()) {
+                        if (mod.modType.equals(Enum.ModType.AttackDelay)) {
+                            float percent = mod.getPercentMod();
+                            int trains = this.owner.effects.get(effID).getTrains();
+                            float modValue = percent + (trains * mod.getRamp());
+                            stanceValue += modValue * 0.01f;
+                        }
                     }
                 }
             }
@@ -257,7 +264,7 @@ public class PlayerCombatStats {
 
         float bonusValues = 1 + this.owner.bonuses.getFloatPercentAll(Enum.ModType.AttackDelay,Enum.SourceType.None);//1.0f;
 
-        bonusValues -= stanceValue; // take away stance modifier from alac bonus values
+        bonusValues -= (stanceValue + weaponSpecificValues); // take away stance modifier from alac bonus values
         speed *= 1 + stanceValue; // apply stance bonus
         speed *= bonusValues; // apply alac bonuses without stance mod
 
