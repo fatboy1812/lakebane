@@ -424,9 +424,9 @@ public class PlayerCombatStats {
                 (weaponMastery / 2.0) +
                 dexterity * 2.0 +
                 bonusValues;
-        defense *= 1.0f + percentBonus;
-        defense *= 1.0f + stanceValue;
-        defense += 0.5f;
+        defense *= 1.0f + percentBonus + stanceValue;
+        //defense *= 1.0f + stanceValue;
+        defense = Math.round(defense);
         this.defense = (int) defense;
     }
 }
