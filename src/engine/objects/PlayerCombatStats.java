@@ -3,6 +3,7 @@ package engine.objects;
 import engine.Enum;
 import engine.powers.effectmodifiers.AbstractEffectModifier;
 import engine.server.MBServerStatics;
+import org.pmw.tinylog.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -35,18 +36,66 @@ public class PlayerCombatStats {
     }
 
     public void update() {
-        this.calculateATR(true);
-        this.calculateATR(false);
-        this.calculateMin(true);
-        this.calculateMin(false);
-        this.calculateMax(true);
-        this.calculateMax(false);
-        this.calculateAttackSpeed(true);
-        this.calculateAttackSpeed(false);
-        this.calculateAttackRange(true);
-        this.calculateAttackRange(false);
-        this.calculateRegen();
-        this.calculateDefense();
+        try {
+            this.calculateATR(true);
+        } catch (Exception e) {
+            Logger.error("FAILED TO CALCULATE ATR FOR: " + this.owner.getObjectUUID());
+        }
+        try {
+            this.calculateATR(false);
+        } catch (Exception e) {
+            Logger.error("FAILED TO CALCULATE ATR FOR: " + this.owner.getObjectUUID());
+        }
+        try {
+            this.calculateMin(true);
+        } catch (Exception e) {
+            Logger.error("FAILED TO CALCULATE Min FOR: " + this.owner.getObjectUUID());
+        }
+        try {
+            this.calculateMin(false);
+        } catch (Exception e) {
+            Logger.error("FAILED TO CALCULATE Min FOR: " + this.owner.getObjectUUID());
+        }
+        try {
+            this.calculateMax(true);
+        } catch (Exception e) {
+            Logger.error("FAILED TO CALCULATE Max FOR: " + this.owner.getObjectUUID());
+        }
+        try {
+            this.calculateMax(false);
+        } catch (Exception e) {
+            Logger.error("FAILED TO CALCULATE Max FOR: " + this.owner.getObjectUUID());
+        }
+        try {
+            this.calculateAttackSpeed(true);
+        } catch (Exception e) {
+            Logger.error("FAILED TO CALCULATE Attack Speed FOR: " + this.owner.getObjectUUID());
+        }
+        try {
+            this.calculateAttackSpeed(false);
+        } catch (Exception e) {
+            Logger.error("FAILED TO CALCULATE Attack Speed FOR: " + this.owner.getObjectUUID());
+        }
+        try {
+            this.calculateAttackRange(true);
+        } catch (Exception e) {
+            Logger.error("FAILED TO CALCULATE Attack Range FOR: " + this.owner.getObjectUUID());
+        }
+        try {
+            this.calculateAttackRange(false);
+        } catch (Exception e) {
+            Logger.error("FAILED TO CALCULATE Attack Range FOR: " + this.owner.getObjectUUID());
+        }
+        try {
+            this.calculateRegen();
+        } catch (Exception e) {
+            Logger.error("FAILED TO CALCULATE Regen FOR: " + this.owner.getObjectUUID());
+        }
+        try {
+            this.calculateDefense();
+        } catch (Exception e) {
+            Logger.error("FAILED TO CALCULATE Defense FOR: " + this.owner.getObjectUUID());
+        }
     }
 
     public void calculateATR(boolean mainHand) {
@@ -226,7 +275,7 @@ public class PlayerCombatStats {
         //Weapon Max DMG = BaseDMG * (0.0124*Primary Stat + 0.118*(Primary Stat -0.75)^0.5
         // + 0.0022*Secondary Stat + 0.028*(Secondary Stat-0.75)^0.5 + 0.0075*(Weapon Skill + Weapon Mastery))
         Item weapon;
-        double baseDMG = 6;
+        double baseDMG = 5;
         int primaryStat = this.owner.statDexCurrent;
         int secondaryStat = this.owner.statStrCurrent;
         double weaponSkill = 5;
@@ -302,6 +351,7 @@ public class PlayerCombatStats {
             for(Effect eff : weapon.effects.values()){
                 for(AbstractEffectModifier mod : eff.getEffectModifiers()){
                     if(mod.modType.equals(Enum.ModType.WeaponSpeed) || mod.modType.equals(Enum.ModType.AttackDelay)){
+                        float percent = mod.getPercentMod() * 0.01f;
                         speed *= 1 + (mod.getPercentMod() * 0.01f);
                         weaponSpecificValues += (mod.getPercentMod() * 0.01f);
                     }

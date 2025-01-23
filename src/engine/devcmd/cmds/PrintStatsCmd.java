@@ -77,7 +77,7 @@ public class PrintStatsCmd extends AbstractDevCmd {
         newOut += "HAND ONE" + newline;
         newOut += "ATR: " +  tar.combatStats.atrHandOne + newline;
         newOut += "MIN: " + tar.combatStats.minDamageHandOne + newline;
-        newOut += "MAX: " + " VS " + tar.combatStats.maxDamageHandOne + newline;
+        newOut += "MAX: " + tar.combatStats.maxDamageHandOne + newline;
         newOut += "RANGE: " + tar.combatStats.rangeHandOne + newline;
         newOut += "ATTACK SPEED: " + tar.combatStats.attackSpeedHandOne + newline;
         newOut += "HAND TWO" + newline;
