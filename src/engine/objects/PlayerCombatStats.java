@@ -72,10 +72,10 @@ public class PlayerCombatStats {
         float masteryLevel = 0;
 
         if(this.owner.skills.containsKey(skill))
-            skillLevel = this.owner.skills.get(skill).getTotalSkillPercet();
+            skillLevel = this.owner.skills.get(skill).getModifiedAmount();
 
         if(this.owner.skills.containsKey(mastery))
-            masteryLevel = this.owner.skills.get(mastery).getTotalSkillPercet();
+            masteryLevel = this.owner.skills.get(mastery).getModifiedAmount();
 
         float stanceValue = 0.0f;
         float atrEnchants = 0;
@@ -108,7 +108,7 @@ public class PlayerCombatStats {
                 for(Effect eff : this.owner.charItemManager.getEquipped(1).effects.values()){
                     for(AbstractEffectModifier mod : eff.getEffectModifiers()){
                         if(mod.modType.equals(Enum.ModType.OCV)){
-                            prefixValues += mod.minMod * (mod.getRamp() * eff.getTrains());
+                            prefixValues += mod.minMod + (eff.getTrains() * mod.getRamp());
                         }
                     }
                 }
@@ -118,7 +118,7 @@ public class PlayerCombatStats {
             for(Effect eff : this.owner.charItemManager.getEquipped(2).effects.values()){
                 for(AbstractEffectModifier mod : eff.getEffectModifiers()){
                     if(mod.modType.equals(Enum.ModType.OCV)){
-                        prefixValues += mod.minMod * (mod.getRamp() * eff.getTrains());
+                        prefixValues += mod.minMod + (eff.getTrains() * mod.getRamp());
                     }
                 }
             }
@@ -131,7 +131,24 @@ public class PlayerCombatStats {
         }
 
 
-        atr = (((primaryStat / 2) + (skillLevel * 4 + masteryLevel * 3) + prefixValues) * preciseRune + atrEnchants) * (1.0f + stanceValue);
+        if(weapon != null && weapon.getItemBase().isStrBased()){
+            atr = (((primaryStat / 2) + (skillLevel * 4 + masteryLevel * 3) + prefixValues) * preciseRune + atrEnchants) * (1.0f + stanceValue);
+            atr += 1;
+            atr = (float) Math.ceil(atr);
+        }else {
+            float dexterity = this.owner.statDexBase;
+            dexterity += this.owner.bonuses.getFloat(Enum.ModType.Attr, Enum.SourceType.Dexterity);
+            atr = dexterity / 2;
+            atr += skillLevel * 4;
+            atr += masteryLevel * 3;
+            atr += prefixValues;
+            atr *= preciseRune;
+            atr += atrEnchants;
+            atr *= 1.0f + stanceValue;
+            atr = (float) Math.ceil(atr);
+        }
+
+
 
         if(mainHand){
             this.atrHandOne = atr;
