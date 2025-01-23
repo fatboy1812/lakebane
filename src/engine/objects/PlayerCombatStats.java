@@ -2,6 +2,7 @@ package engine.objects;
 
 import engine.Enum;
 import engine.powers.effectmodifiers.AbstractEffectModifier;
+import engine.server.MBServerStatics;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -159,7 +160,7 @@ public class PlayerCombatStats {
                     this.atrHandOne = 0.0f;
             }
         }
-    }
+    } //perfect DO NOT TOUCH
 
     public void calculateMin(boolean mainHand) {
         Item weapon;
@@ -386,104 +387,105 @@ public class PlayerCombatStats {
     }
 
     public void calculateDefense() {
-        int armorDefense = 0;
-        int shieldDefense = 0;
-        int dexterity = this.owner.statDexCurrent;
-        double armorSkill = 0;
-        double blockSkill = 0;
-        double weaponSkill = 0;
-        double weaponMastery = 0;
-
-        //armor defense value need to loop all equipped items and log armor defense values
-        ArrayList<String> armorTypes = new ArrayList<>();
-        if (this.owner.charItemManager != null) {
-            for (Item equipped : this.owner.charItemManager.getEquippedList()) {
-                if (equipped.getItemBase().isHeavyArmor()) {
-                    armorDefense += equipped.getItemBase().getDefense();
-                    if (!armorTypes.contains(equipped.getItemBase().getSkillRequired()))
-                        armorTypes.add(equipped.getItemBase().getSkillRequired());
-                } else if (equipped.getItemBase().isLightArmor()) {
-                    armorDefense += equipped.getItemBase().getDefense();
-                    if (!armorTypes.contains(equipped.getItemBase().getSkillRequired()))
-                        armorTypes.add(equipped.getItemBase().getSkillRequired());
-                } else if (equipped.getItemBase().isMediumArmor()) {
-                    armorDefense += equipped.getItemBase().getDefense();
-                    if (!armorTypes.contains(equipped.getItemBase().getSkillRequired()))
-                        armorTypes.add(equipped.getItemBase().getSkillRequired());
-                } else if (equipped.getItemBase().isClothArmor()) {
-                    armorDefense += equipped.getItemBase().getDefense();
-                } else if (equipped.getItemBase().isShield()) {
-                    shieldDefense += equipped.getItemBase().getDefense();
-                }
-            }
-        }
-
-        //armor skill needs to calculate all trains in armor types
-        for (String armorType : armorTypes) {
-            if (this.owner.skills != null) {
-                if (this.owner.skills.containsKey(armorType)) {
-                    armorSkill += this.owner.skills.get(armorType).getModifiedAmount();
-                }
-            }
-        }
-
-
-        if (this.owner.skills.containsKey("Block")) {
-            blockSkill = this.owner.skills.get("Block").getModifiedAmount();
-        }
-
-        String primarySkillName = "Unarmed Combat";
-        String primaryMasteryName = "Unarmed Combat Mastery";
-        Item weapon = this.owner.charItemManager.getEquipped(1);
-        if (weapon == null) {
-            weapon = this.owner.charItemManager.getEquipped(2);
-        }
-        if (weapon != null) {
-            primarySkillName = weapon.getItemBase().getSkillRequired();
-            primaryMasteryName = weapon.getItemBase().getMastery();
-        }
-
-        if (this.owner.skills != null) {
-            if (this.owner.skills.containsKey(primarySkillName)) {
-                weaponSkill = this.owner.skills.get(primarySkillName).getModifiedAmount();
-            }
-            if (this.owner.skills.containsKey(primaryMasteryName)) {
-                weaponMastery = this.owner.skills.get(primaryMasteryName).getModifiedAmount();
-            }
-        }
-
-        float stanceValue = 0.0f;
-        float bonusValues = 0;
-        float percentBonus = 0;
-        if (this.owner.bonuses != null) {
-            for (String effID : this.owner.effects.keySet()) {
-                if (effID.contains("Stance")) {
-                    if (this.owner.effects != null) {
-                        for (AbstractEffectModifier mod : this.owner.effects.get(effID).getEffectModifiers()) {
-                            if (mod.modType.equals(Enum.ModType.DCV)) {
-                                float percent = mod.getPercentMod();
-                                int trains = this.owner.effects.get(effID).getTrains();
-                                float modValue = percent + (trains * mod.getRamp());
-                                stanceValue += modValue * 0.01f;
-                            }
+        //Defense = (1+Armor skill / 50) * Armor defense + (1 + Block skill / 100) * Shield defense + (Primary weapon skill / 2)
+        // + (Weapon mastery skill/ 2) + Dexterity * 2 + Flat bonuses from rings or cloth
+        float armorSkill = this.owner.skills.get(this.owner.charItemManager.getEquipped(MBServerStatics.SLOT_CHEST)).getTotalSkillPercet();
+        float armorDefense = 0.0f;
+        for(Item equipped : this.owner.charItemManager.getEquipped().values()){
+            ItemBase ib = equipped.getItemBase();
+            if(ib.isHeavyArmor() || ib.isMediumArmor() || ib.isLightArmor() || ib.isClothArmor()){
+                armorDefense += ib.getDefense();
+                for(Effect eff : equipped.effects.values()){
+                    for(AbstractEffectModifier mod : eff.getEffectModifiers()){
+                        if(mod.modType.equals(Enum.ModType.DR)){
+                            armorDefense += mod.minMod + (mod.getRamp() * eff.getTrains());
                         }
                     }
                 }
             }
-
-            bonusValues = this.owner.bonuses.getFloat(Enum.ModType.DCV, Enum.SourceType.None);
-            percentBonus = this.owner.bonuses.getFloatPercentAll(Enum.ModType.DCV, Enum.SourceType.None) - stanceValue;
         }
 
-        double defense = (1 + armorSkill / 50.0) * armorDefense +
-                (1 + blockSkill / 100.0) * shieldDefense +
-                (weaponSkill / 2.0) +
-                (weaponMastery / 2.0) +
-                dexterity * 2.0 +
-                bonusValues;
-        defense *= 1.0f + percentBonus + stanceValue;
-        //defense *= 1.0f + stanceValue;
-        defense = Math.round(defense);
-        this.defense = (int) defense;
+        float blockSkill = 0.0f;
+        if(this.owner.skills.containsKey("Block"))
+            blockSkill = this.owner.skills.get("Block").getTotalSkillPercet();
+
+        float shieldDefense = 0.0f;
+        if(this.owner.charItemManager.getEquipped(2) != null && this.owner.charItemManager.getEquipped(2).getItemBase().isShield()){
+            Item shield = this.owner.charItemManager.getEquipped(2);
+            shieldDefense += shield.getItemBase().getDefense();
+            for(Effect eff : shield.effects.values()){
+                for(AbstractEffectModifier mod : eff.getEffectModifiers()){
+                    if(mod.modType.equals(Enum.ModType.DR)){
+                        shieldDefense += mod.minMod + (mod.getRamp() * eff.getTrains());
+                    }
+                }
+            }
+        }
+
+        float weaponSkill = 0.0f;
+        float masterySkill = 0.0f;
+        Item weapon = this.owner.charItemManager.getEquipped(1);
+        if(weapon == null){
+            weapon = this.owner.charItemManager.getEquipped(2);
+        }
+        if(weapon != null && !weapon.getItemBase().isShield())
+            weapon = null;
+
+        String skillName = "Unarmed Combat";
+        String masteryName = "Unarmed Combat Mastery";
+
+        if(weapon != null){
+            skillName = weapon.getItemBase().getSkillRequired();
+            masteryName = weapon.getItemBase().getMastery();
+        }
+        if(this.owner.skills.containsKey(skillName))
+            weaponSkill = this.owner.skills.get(skillName).getTotalSkillPercet();
+
+        if(this.owner.skills.containsKey(masteryName))
+            masterySkill = this.owner.skills.get(masteryName).getTotalSkillPercet();
+
+        float dexterity = this.owner.statDexBase;
+        dexterity += this.owner.bonuses.getFloat(Enum.ModType.Attr, Enum.SourceType.Dexterity);
+
+        float luckyRune = 1.0f;
+        for(CharacterRune rune : this.owner.runes){
+            if(rune.getRuneBase().getName().equals("Lucky"))
+                luckyRune += 0.05f;
+        }
+
+        float flatBonuses = 0.0f;
+        float stanceMod = 1.0f;
+        for(String effID : this.owner.effects.keySet()) {
+            if (effID.contains("Stance")) {
+                for (AbstractEffectModifier mod : this.owner.effects.get(effID).getEffectModifiers()) {
+                    if (mod.modType.equals(Enum.ModType.OCV)) {
+                        float percent = mod.getPercentMod();
+                        int trains = this.owner.effects.get(effID).getTrains();
+                        float modValue = percent + (trains * mod.getRamp());
+                        stanceMod += modValue * 0.01f;
+                    }
+                }
+            } else {
+                for (AbstractEffectModifier mod : this.owner.effects.get(effID).getEffectModifiers()) {
+                    if (mod.modType.equals(Enum.ModType.OCV)) {
+                        float value = mod.getMinMod();
+                        int trains = this.owner.effects.get(effID).getTrains();
+                        float modValue = value + (trains * mod.getRamp());
+                        flatBonuses += modValue;
+                    }
+                }
+            }
+        }
+
+        float defense = (1 + armorDefense/ 50) * armorDefense;
+        defense += (1 + blockSkill / 100) * shieldDefense;
+        defense += (weaponSkill / 2);
+        defense += (masterySkill / 2);
+        defense += dexterity * 2;
+        defense *= luckyRune;
+        defense += flatBonuses;
+        defense *= stanceMod;
+
+        this.defense = Math.round(defense);
     }
 }
