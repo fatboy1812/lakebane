@@ -361,7 +361,6 @@ public class PlayerCombatStats {
             weapon = this.owner.charItemManager.getEquipped(2);
         }
 
-        float weaponSpecificValues = 0.0f;
         if(weapon == null) {
             speed = 20.0f;
         }else{
@@ -372,7 +371,6 @@ public class PlayerCombatStats {
                         float percent = mod.getPercentMod();
                         int trains = eff.getTrains();
                         float modValue = percent + (trains * mod.getRamp());
-                        weaponSpecificValues += modValue * 0.01f;
                         speed *= 1 + (modValue * 0.01f);
                     }
                 }
@@ -396,7 +394,6 @@ public class PlayerCombatStats {
         }
 
         float bonusValues = 1 + this.owner.bonuses.getFloatPercentAll(Enum.ModType.AttackDelay,Enum.SourceType.None);//1.0f;
-        //speed *= 1 + weaponSpecificValues;
         bonusValues -= stanceValue; // take away stance modifier from alac bonus values
         speed *= 1 + stanceValue; // apply stance bonus
         speed *= bonusValues; // apply alac bonuses without stance mod
