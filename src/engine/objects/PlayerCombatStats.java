@@ -207,6 +207,8 @@ public class PlayerCombatStats {
             if(this.owner.charItemManager.getEquipped(1) == null && this.owner.charItemManager.getEquipped(2) != null){
                 if(!this.owner.charItemManager.getEquipped(2).getItemBase().isShield())
                     this.atrHandOne = 0.0f;
+            }else if(this.owner.charItemManager.getEquipped(2) == null && this.owner.charItemManager.getEquipped(1) != null){
+                this.atrHandTwo = 0.0f;
             }
         }
     } //perfect DO NOT TOUCH
@@ -267,6 +269,8 @@ public class PlayerCombatStats {
             if(this.owner.charItemManager.getEquipped(1) == null && this.owner.charItemManager.getEquipped(2) != null){
                 if(!this.owner.charItemManager.getEquipped(2).getItemBase().isShield())
                     this.minDamageHandOne = 0;
+            }else if(this.owner.charItemManager.getEquipped(2) == null && this.owner.charItemManager.getEquipped(1) != null){
+                this.minDamageHandTwo = 0;
             }
         }
     }
@@ -330,6 +334,8 @@ public class PlayerCombatStats {
             if(this.owner.charItemManager.getEquipped(1) == null && this.owner.charItemManager.getEquipped(2) != null){
                 if(!this.owner.charItemManager.getEquipped(2).getItemBase().isShield())
                     this.maxDamageHandOne = 0;
+            }else if(this.owner.charItemManager.getEquipped(2) == null && this.owner.charItemManager.getEquipped(1) != null){
+                this.maxDamageHandTwo = 0;
             }
         }
     }
@@ -351,9 +357,10 @@ public class PlayerCombatStats {
             for(Effect eff : weapon.effects.values()){
                 for(AbstractEffectModifier mod : eff.getEffectModifiers()){
                     if(mod.modType.equals(Enum.ModType.WeaponSpeed) || mod.modType.equals(Enum.ModType.AttackDelay)){
-                        float percent = mod.getPercentMod() * 0.01f;
-                        speed *= 1 + (mod.getPercentMod() * 0.01f);
-                        weaponSpecificValues += (mod.getPercentMod() * 0.01f);
+                        float percent = mod.getPercentMod();
+                        int trains = eff.getTrains();
+                        float modValue = percent + (trains * mod.getRamp());
+                        weaponSpecificValues += modValue * 0.01f;
                     }
                 }
             }
@@ -376,8 +383,8 @@ public class PlayerCombatStats {
         }
 
         float bonusValues = 1 + this.owner.bonuses.getFloatPercentAll(Enum.ModType.AttackDelay,Enum.SourceType.None);//1.0f;
-
-        bonusValues -= (stanceValue + weaponSpecificValues); // take away stance modifier from alac bonus values
+        speed *= 1 + weaponSpecificValues;
+        bonusValues -= stanceValue; // take away stance modifier from alac bonus values
         speed *= 1 + stanceValue; // apply stance bonus
         speed *= bonusValues; // apply alac bonuses without stance mod
 
@@ -391,6 +398,8 @@ public class PlayerCombatStats {
             if(this.owner.charItemManager.getEquipped(1) == null && this.owner.charItemManager.getEquipped(2) != null){
                 if(!this.owner.charItemManager.getEquipped(2).getItemBase().isShield())
                     this.attackSpeedHandOne = 0.0f;
+            }else if(this.owner.charItemManager.getEquipped(2) == null && this.owner.charItemManager.getEquipped(1) != null){
+                this.attackSpeedHandTwo = 0.0f;
             }
         }
     }
@@ -419,6 +428,8 @@ public class PlayerCombatStats {
             if(this.owner.charItemManager.getEquipped(1) == null && this.owner.charItemManager.getEquipped(2) != null){
                 if(!this.owner.charItemManager.getEquipped(2).getItemBase().isShield())
                     this.rangeHandOne = 0.0f;
+            }else if(this.owner.charItemManager.getEquipped(2) == null && this.owner.charItemManager.getEquipped(1) != null){
+                this.rangeHandTwo = 0.0f;
             }
         }
     }
