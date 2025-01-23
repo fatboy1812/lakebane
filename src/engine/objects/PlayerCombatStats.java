@@ -180,7 +180,6 @@ public class PlayerCombatStats {
                 preciseRune += 0.05f;
         }
 
-
         if(weapon != null && weapon.getItemBase().isStrBased()){
             atr = (((primaryStat / 2) + (skillLevel * 4 + masteryLevel * 3) + prefixValues) * preciseRune + atrEnchants) * (1.0f + stanceValue);
             atr += 1;
@@ -238,6 +237,13 @@ public class PlayerCombatStats {
                 primaryStat = this.owner.statStrCurrent;
                 secondaryStat = this.owner.statDexCurrent;
             }
+            for(Effect eff : weapon.effects.values()){
+                for(AbstractEffectModifier mod : eff.getEffectModifiers()){
+                    if(mod.modType.equals(Enum.ModType.MinDamage)){
+                        baseDMG += mod.minMod + (mod.getRamp() * eff.getTrains());
+                    }
+                }
+            }
         }
 
         if (this.owner.skills.containsKey(skill)) {
@@ -293,7 +299,6 @@ public class PlayerCombatStats {
 
         String skill = "Unarmed Combat";
         String mastery = "Unarmed Combat Mastery";
-
         if (weapon != null) {
             baseDMG = weapon.getItemBase().getMaxDamage();
             skill = weapon.getItemBase().getSkillRequired();
@@ -301,6 +306,13 @@ public class PlayerCombatStats {
             if (weapon.getItemBase().isStrBased()) {
                 primaryStat = this.owner.statStrCurrent;
                 secondaryStat = this.owner.statDexCurrent;
+            }
+            for(Effect eff : weapon.effects.values()){
+                for(AbstractEffectModifier mod : eff.getEffectModifiers()){
+                    if(mod.modType.equals(Enum.ModType.MaxDamage)){
+                        baseDMG += mod.minMod + (mod.getRamp() * eff.getTrains());
+                    }
+                }
             }
         }
 
