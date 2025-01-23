@@ -389,8 +389,9 @@ public class PlayerCombatStats {
     public void calculateDefense() {
         //Defense = (1+Armor skill / 50) * Armor defense + (1 + Block skill / 100) * Shield defense + (Primary weapon skill / 2)
         // + (Weapon mastery skill/ 2) + Dexterity * 2 + Flat bonuses from rings or cloth
-        float armorSkill = this.owner.skills.get(this.owner.charItemManager.getEquipped(MBServerStatics.SLOT_CHEST)).getTotalSkillPercet();
+        float armorSkill = 0.0f;
         float armorDefense = 0.0f;
+        ArrayList<String> armorsUsed = new ArrayList<>();
         for(Item equipped : this.owner.charItemManager.getEquipped().values()){
             ItemBase ib = equipped.getItemBase();
             if(ib.isHeavyArmor() || ib.isMediumArmor() || ib.isLightArmor() || ib.isClothArmor()){
@@ -402,12 +403,21 @@ public class PlayerCombatStats {
                         }
                     }
                 }
+                if(!ib.isClothArmor() && !armorsUsed.contains(ib.getSkillRequired())) {
+                    armorsUsed.add(ib.getSkillRequired());
+                }
             }
         }
+        for(String armorUsed : armorsUsed){
+            if(this.owner.skills.containsKey(armorUsed))
+                armorSkill += this.owner.skills.get(armorUsed).getModifiedAmount();
+        }
+        if(armorsUsed.size() > 0)
+            armorSkill = armorSkill / armorsUsed.size();
 
         float blockSkill = 0.0f;
         if(this.owner.skills.containsKey("Block"))
-            blockSkill = this.owner.skills.get("Block").getTotalSkillPercet();
+            blockSkill = this.owner.skills.get("Block").getModifiedAmount();
 
         float shieldDefense = 0.0f;
         if(this.owner.charItemManager.getEquipped(2) != null && this.owner.charItemManager.getEquipped(2).getItemBase().isShield()){
@@ -428,7 +438,7 @@ public class PlayerCombatStats {
         if(weapon == null){
             weapon = this.owner.charItemManager.getEquipped(2);
         }
-        if(weapon != null && !weapon.getItemBase().isShield())
+        if(weapon != null && weapon.getItemBase().isShield())
             weapon = null;
 
         String skillName = "Unarmed Combat";
@@ -439,13 +449,13 @@ public class PlayerCombatStats {
             masteryName = weapon.getItemBase().getMastery();
         }
         if(this.owner.skills.containsKey(skillName))
-            weaponSkill = this.owner.skills.get(skillName).getTotalSkillPercet();
+            weaponSkill = this.owner.skills.get(skillName).getModifiedAmount();
 
         if(this.owner.skills.containsKey(masteryName))
-            masterySkill = this.owner.skills.get(masteryName).getTotalSkillPercet();
+            masterySkill = this.owner.skills.get(masteryName).getModifiedAmount();
 
-        float dexterity = this.owner.statDexBase;
-        dexterity += this.owner.bonuses.getFloat(Enum.ModType.Attr, Enum.SourceType.Dexterity);
+        float dexterity = this.owner.statDexCurrent;//this.owner.statDexBase;
+        //dexterity += this.owner.bonuses.getFloat(Enum.ModType.Attr, Enum.SourceType.Dexterity);
 
         float luckyRune = 1.0f;
         for(CharacterRune rune : this.owner.runes){
@@ -458,7 +468,7 @@ public class PlayerCombatStats {
         for(String effID : this.owner.effects.keySet()) {
             if (effID.contains("Stance")) {
                 for (AbstractEffectModifier mod : this.owner.effects.get(effID).getEffectModifiers()) {
-                    if (mod.modType.equals(Enum.ModType.OCV)) {
+                    if (mod.modType.equals(Enum.ModType.DCV)) {
                         float percent = mod.getPercentMod();
                         int trains = this.owner.effects.get(effID).getTrains();
                         float modValue = percent + (trains * mod.getRamp());
@@ -467,7 +477,7 @@ public class PlayerCombatStats {
                 }
             } else {
                 for (AbstractEffectModifier mod : this.owner.effects.get(effID).getEffectModifiers()) {
-                    if (mod.modType.equals(Enum.ModType.OCV)) {
+                    if (mod.modType.equals(Enum.ModType.DCV)) {
                         float value = mod.getMinMod();
                         int trains = this.owner.effects.get(effID).getTrains();
                         float modValue = value + (trains * mod.getRamp());
@@ -477,7 +487,7 @@ public class PlayerCombatStats {
             }
         }
 
-        float defense = (1 + armorDefense/ 50) * armorDefense;
+        float defense = (1 + armorSkill/ 50) * armorDefense;
         defense += (1 + blockSkill / 100) * shieldDefense;
         defense += (weaponSkill / 2);
         defense += (masterySkill / 2);
