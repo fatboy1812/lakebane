@@ -570,7 +570,7 @@ public class PlayerCombatStats {
         this.defense = Math.round(defense);
     }
 
-    public static float calculateModifiedSkill(String skillName, PlayerCharacter pc, int baseSkill) {
+    public static float calculateModifiedSkill(String skillName, PlayerCharacter pc) {
         // Define the contribution percentages for intelligence and strength
         CharacterSkill skill = null;
         if (pc.skills.containsKey(skillName)) {
