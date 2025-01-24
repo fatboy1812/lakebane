@@ -123,10 +123,6 @@ public class PlayerCombatStats {
 
         if(this.owner.skills.containsKey(skill)) {
             skillLevel = this.owner.skills.get(skill).getModifiedAmount();
-            float newCalc = calculateModifiedSkill(skill, this.owner);
-            if(newCalc != skillLevel){
-                int i = 0;
-            }
         }
         if(this.owner.skills.containsKey(mastery))
             masteryLevel = this.owner.skills.get(mastery).getModifiedAmount();
