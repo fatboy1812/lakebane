@@ -364,7 +364,7 @@ public class PlayerCombatStats {
         }else {
             weapon = this.owner.charItemManager.getEquipped(2);
         }
-
+        float delayExtra = 0;
         if(weapon == null) {
             speed = 20.0f;
         }else{
@@ -376,6 +376,9 @@ public class PlayerCombatStats {
                         int trains = eff.getTrains();
                         float modValue = percent + (trains * mod.getRamp());
                         speed *= 1 + (modValue * 0.01f);
+                        if(mod.modType.equals(Enum.ModType.AttackDelay)){
+                            delayExtra += modValue * 0.01f;
+                        }
                     }
                 }
             }
@@ -398,7 +401,7 @@ public class PlayerCombatStats {
         }
 
         float bonusValues = 1 + this.owner.bonuses.getFloatPercentAll(Enum.ModType.AttackDelay,Enum.SourceType.None);//1.0f;
-        bonusValues -= stanceValue; // take away stance modifier from alac bonus values
+        bonusValues -= stanceValue + delayExtra; // take away stance modifier from alac bonus values
         speed *= 1 + stanceValue; // apply stance bonus
         speed *= bonusValues; // apply alac bonuses without stance mod
 
@@ -484,8 +487,10 @@ public class PlayerCombatStats {
             }
         }
         for(String armorUsed : armorsUsed){
-            if(this.owner.skills.containsKey(armorUsed))
-                armorSkill += this.owner.skills.get(armorUsed).getModifiedAmount();
+            if(this.owner.skills.containsKey(armorUsed)) {
+                armorSkill += this.owner.skills.get(armorUsed).getSkillPercentFromAttributes();
+                armorSkill += this.owner.skills.get(armorUsed).getSkillPercentFromTrains();
+            }
         }
         if(armorsUsed.size() > 0)
             armorSkill = armorSkill / armorsUsed.size();
@@ -575,7 +580,6 @@ public class PlayerCombatStats {
     }
 
     public static float calculateModifiedSkill(String skillName, PlayerCharacter pc) {
-        // Define the contribution percentages for intelligence and strength
         CharacterSkill skill = null;
         if (pc.skills.containsKey(skillName)) {
             skill = pc.skills.get(skillName);
@@ -585,45 +589,72 @@ public class PlayerCombatStats {
         if(skillBase == null)
             return 0;
 
-        float strMod = skillBase.getStrMod();
-        float dexMod = skillBase.getDexMod();
-        float conMod = skillBase.getConMod();
-        float intMod = skillBase.getIntMod();
-        float spiMod = skillBase.getSpiMod();
-        float totalMod = strMod + dexMod + conMod + intMod + spiMod;
-        // Calculate percentage contribution for each modifier
-        float strModPercentage = (strMod / totalMod);
-        float dexModPercentage = (dexMod / totalMod);
-        float conModPercentage = (conMod / totalMod);
-        float intModPercentage = (intMod / totalMod);
-        float spiModPercentage = (spiMod / totalMod);
-        //calculate stat weight
-        float weight = 0;
-        weight += pc.statStrBase * strModPercentage;
-        weight += pc.statDexBase * dexModPercentage;
-        weight += pc.statConBase * conModPercentage;
-        weight += pc.statIntBase * intModPercentage;
-        weight += pc.statSpiBase * spiModPercentage;
-
-        Enum.SourceType sourceType = Enum.SourceType.GetSourceType(skillBase.getNameNoSpace());
-        float base = 7f;
-        base += CharacterSkill.baseSkillValues[(int) weight];
+        //Get any rune bonus
         float bonus = 0f;
-        if (CharacterSkill.GetOwner(skill).getBonuses() != null) {
+        if (pc.getBonuses() != null) {
             //Get bonuses from runes
-            bonus = CharacterSkill.GetOwner(skill).getBonuses().getSkillBonus(skillBase.sourceType);
+            bonus = pc.getBonuses().getSkillBonus(skillBase.sourceType);
         }
-        if (CharacterSkill.GetOwner(skill).getBonuses() != null) {
-            //add bonuses from effects/items and runes
-            base += bonus + CharacterSkill.GetOwner(skill).getBonuses().getFloat(Enum.ModType.Skill, sourceType);
-        }
-        float modAmount = skill.getBaseAmount();
-        if (CharacterSkill.GetOwner(skill).getBonuses() != null) {
-            //Multiply any percent bonuses
-            modAmount *= (1 + CharacterSkill.GetOwner(skill).getBonuses().getFloatPercentAll(Enum.ModType.Skill, sourceType));
-        }
-        float modifiedSkill = modAmount;
 
-        return modifiedSkill;
+        //Get Base skill for modified stats
+        float base = 7f;
+        if(skillBase.getToken() == -660435875){
+            base = 0;
+        }
+        float statMod = 0.5f;
+        if (skillBase.getStrMod() > 0)
+            statMod += (float) skillBase.getStrMod() * (float) pc.getStatStrCurrent() / 100f;
+        if (skillBase.getDexMod() > 0)
+            statMod += (float) skillBase.getDexMod() * (float) pc.getStatDexCurrent() / 100f;
+        if (skillBase.getConMod() > 0)
+            statMod += (float) skillBase.getConMod() * (float) pc.getStatConCurrent() / 100f;
+        if (skillBase.getIntMod() > 0)
+            statMod += (float) skillBase.getIntMod() * (float) pc.getStatIntCurrent() / 100f;
+        if (skillBase.getSpiMod() > 0)
+            statMod += (float) skillBase.getSpiMod() * (float) pc.getStatSpiCurrent() / 100f;
+
+        if (statMod < 1)
+            statMod = 1f;
+
+        if(skillBase.getToken() == -660435875){
+            statMod = 0;
+        }
+        base += CharacterSkill.baseSkillValues[(int) statMod];
+        Enum.SourceType sourceType = Enum.SourceType.GetSourceType(skillBase.getNameNoSpace());
+
+        //Get any rune, effect and item bonus
+
+        if (pc.getBonuses() != null) {
+            //add bonuses from effects/items and runes
+            base += bonus + pc.getBonuses().getFloat(Enum.ModType.Skill, sourceType);
+        }
+        float baseAmount;
+        if (base < 1f && skillBase.getToken() != -660435875)
+            baseAmount = 1f;
+        else
+            baseAmount = base;
+
+        int amount;
+
+        int trains = skill.getNumTrains();
+        if (trains < 10)
+            amount = (trains * 2);
+        else if (trains < 90)
+            amount = 10 + trains;
+        else if (trains < 134)
+            amount = 100 + ((trains - 90) / 2);
+        else
+            amount = 122 + ((trains - 134) / 3);
+
+        float modAmount = baseAmount + amount;
+
+        if (pc.getBonuses() != null) {
+            //Multiply any percent bonuses
+            modAmount *= (1 + pc.getBonuses().getFloatPercentAll(Enum.ModType.Skill, sourceType));
+        }
+
+        float modifiedAmount = (int) (modAmount);
+
+        return modifiedAmount;
     }
 }
