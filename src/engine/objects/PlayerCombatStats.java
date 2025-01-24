@@ -270,6 +270,12 @@ public class PlayerCombatStats {
             minDMG *= 1 + this.owner.bonuses.getFloatPercentAll(Enum.ModType.MeleeDamageModifier, Enum.SourceType.None);
         }
 
+        if(this.owner.charItemManager != null){
+            if(this.owner.charItemManager.getEquipped(1) != null && this.owner.charItemManager.getEquipped(2) != null && !this.owner.charItemManager.getEquipped(2).getItemBase().isShield()){
+                minDMG *= 0.7f;
+            }
+        }
+
         int roundedMin = (int)Math.round(minDMG);
 
         if (mainHand) {
@@ -339,6 +345,12 @@ public class PlayerCombatStats {
         if(this.owner.bonuses != null){
             maxDMG += this.owner.bonuses.getFloat(Enum.ModType.MaxDamage, Enum.SourceType.None);
             maxDMG *= 1 + this.owner.bonuses.getFloatPercentAll(Enum.ModType.MeleeDamageModifier, Enum.SourceType.None);
+        }
+
+        if(this.owner.charItemManager != null){
+            if(this.owner.charItemManager.getEquipped(1) != null && this.owner.charItemManager.getEquipped(2) != null && !this.owner.charItemManager.getEquipped(2).getItemBase().isShield()){
+                maxDMG *= 0.7f;
+            }
         }
 
         int roundedMax = (int)Math.round(maxDMG);
