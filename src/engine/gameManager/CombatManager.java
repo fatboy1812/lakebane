@@ -483,16 +483,24 @@ public enum CombatManager {
                     createTimer(abstractCharacter, slot, 20, true); //2 second for no weapon
                 else {
                     int wepSpeed = (int) (wb.getSpeed());
+                    if(abstractCharacter.getObjectType().equals(GameObjectType.PlayerCharacter)){
+                        PlayerCharacter pc = (PlayerCharacter)abstractCharacter;
+                        if(slot == 1){
+                            wepSpeed = (int) pc.combatStats.attackSpeedHandOne;
+                        }else{
+                            wepSpeed = (int) pc.combatStats.attackSpeedHandTwo;
+                        }
+                    }else {
 
-                    if (weapon != null && weapon.getBonusPercent(ModType.WeaponSpeed, SourceType.None) != 0f) //add weapon speed bonus
-                        wepSpeed *= (1 + weapon.getBonus(ModType.WeaponSpeed, SourceType.None));
+                        if (weapon != null && weapon.getBonusPercent(ModType.WeaponSpeed, SourceType.None) != 0f) //add weapon speed bonus
+                            wepSpeed *= (1 + weapon.getBonus(ModType.WeaponSpeed, SourceType.None));
 
-                    if (abstractCharacter.getBonuses() != null && abstractCharacter.getBonuses().getFloatPercentAll(ModType.AttackDelay, SourceType.None) != 0f) //add effects speed bonus
-                        wepSpeed *= (1 + abstractCharacter.getBonuses().getFloatPercentAll(ModType.AttackDelay, SourceType.None));
+                        if (abstractCharacter.getBonuses() != null && abstractCharacter.getBonuses().getFloatPercentAll(ModType.AttackDelay, SourceType.None) != 0f) //add effects speed bonus
+                            wepSpeed *= (1 + abstractCharacter.getBonuses().getFloatPercentAll(ModType.AttackDelay, SourceType.None));
 
-                    if (wepSpeed < 10)
-                        wepSpeed = 10; //Old was 10, but it can be reached lower with legit buffs,effects.
-
+                        if (wepSpeed < 10)
+                            wepSpeed = 10; //Old was 10, but it can be reached lower with legit buffs,effects.
+                    }
                     createTimer(abstractCharacter, slot, wepSpeed, true);
                 }
 
@@ -536,15 +544,27 @@ public enum CombatManager {
 
             if (target == null)
                 return;
-
-            if (mainHand) {
-                atr = ac.getAtrHandOne();
-                minDamage = ac.getMinDamageHandOne();
-                maxDamage = ac.getMaxDamageHandOne();
-            } else {
-                atr = ac.getAtrHandTwo();
-                minDamage = ac.getMinDamageHandTwo();
-                maxDamage = ac.getMaxDamageHandTwo();
+            if(ac.getObjectType().equals(GameObjectType.PlayerCharacter)){
+                PlayerCharacter pc = (PlayerCharacter) ac;
+                if (mainHand) {
+                    atr = pc.combatStats.atrHandOne;
+                    minDamage = pc.combatStats.minDamageHandOne;
+                    maxDamage = pc.combatStats.maxDamageHandOne;
+                } else {
+                    atr = pc.combatStats.atrHandTwo;
+                    minDamage = pc.combatStats.minDamageHandTwo;
+                    maxDamage = pc.combatStats.maxDamageHandTwo;
+                }
+            }else {
+                if (mainHand) {
+                    atr = ac.getAtrHandOne();
+                    minDamage = ac.getMinDamageHandOne();
+                    maxDamage = ac.getMaxDamageHandOne();
+                } else {
+                    atr = ac.getAtrHandTwo();
+                    minDamage = ac.getMinDamageHandTwo();
+                    maxDamage = ac.getMaxDamageHandTwo();
+                }
             }
 
             boolean tarIsRat = false;
@@ -638,7 +658,11 @@ public enum CombatManager {
                 }
             } else {
                 AbstractCharacter tar = (AbstractCharacter) target;
-                defense = tar.getDefenseRating();
+                if(tar.getObjectType().equals(GameObjectType.PlayerCharacter)){
+                    defense = ((PlayerCharacter)tar).combatStats.defense;
+                }else {
+                    defense = tar.getDefenseRating();
+                }
                 handleRetaliate(tar, ac);   //Handle target attacking back if in combat and has no other target
             }
 
