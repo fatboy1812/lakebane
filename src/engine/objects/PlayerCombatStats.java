@@ -569,4 +569,40 @@ public class PlayerCombatStats {
 
         this.defense = Math.round(defense);
     }
+
+    public static float calculateModifiedSkill(String skillName, PlayerCharacter pc, int baseSkill) {
+        // Define the contribution percentages for intelligence and strength
+        CharacterSkill skill = null;
+        if (pc.skills.containsKey(skillName)) {
+            skill = pc.skills.get(skillName);
+        }
+
+        SkillsBase skillBase = skill.getSkillsBase();
+        if(skillBase == null)
+            return 0;
+
+        float strMod = skillBase.getStrMod();
+        float dexMod = skillBase.getDexMod();
+        float conMod = skillBase.getConMod();
+        float intMod = skillBase.getIntMod();
+        float spiMod = skillBase.getSpiMod();
+        float totalMod = strMod + dexMod + conMod + intMod + spiMod;
+        // Calculate percentage contribution for each modifier
+        float strModPercentage = (strMod / totalMod);
+        float dexModPercentage = (dexMod / totalMod);
+        float conModPercentage = (conMod / totalMod);
+        float intModPercentage = (intMod / totalMod);
+        float spiModPercentage = (spiMod / totalMod);
+        //calculate stat weight
+        float weight = 0;
+        weight += pc.statStrCurrent * strModPercentage;
+        weight += pc.statDexCurrent * dexModPercentage;
+        weight += pc.statConCurrent * conModPercentage;
+        weight += pc.statIntCurrent * intModPercentage;
+        weight += pc.statSpiCurrent * spiModPercentage;
+
+        float modifiedSkill = (75 + 3*pc.statIntCurrent + 2 * weight) / 20;
+
+        return modifiedSkill;
+    }
 }
