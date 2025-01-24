@@ -902,27 +902,18 @@ public enum CombatManager {
 
                 if (weapon != null && tarAc != null && tarAc.isAlive()) {
 
-                    ConcurrentHashMap<String, Effect> effects = weapon.getEffects();
-
-                    for (Effect eff : effects.values()) {
-                        if (eff == null)
-                            continue;
-
-                        HashSet<AbstractEffectModifier> aems = eff.getEffectModifiers();
-
-                        if (aems != null) {
-                            for (AbstractEffectModifier aem : aems) {
-
-                                if (!tarAc.isAlive())
-                                    break;
-
-                                if (aem instanceof WeaponProcEffectModifier) {
-
+                    if(weapon.effects != null){
+                        for (Effect eff : weapon.effects.values()){
+                            for(AbstractEffectModifier mod : eff.getEffectModifiers()){
+                                if(mod.modType.equals(ModType.WeaponProc)){
                                     int procChance = ThreadLocalRandom.current().nextInt(100);
-
-                                    if (procChance < MBServerStatics.PROC_CHANCE)
-                                        ((WeaponProcEffectModifier) aem).applyProc(ac, target);
-
+                                    if (procChance < MBServerStatics.PROC_CHANCE) {
+                                        try {
+                                            ((WeaponProcEffectModifier) mod).applyProc(ac, target);
+                                        }catch(Exception e){
+                                            Logger.error(eff.getName() + " Failed To Cast Proc");
+                                        }
+                                    }
                                 }
                             }
                         }
