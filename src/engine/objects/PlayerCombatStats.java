@@ -121,9 +121,13 @@ public class PlayerCombatStats {
         float skillLevel = 0;
         float masteryLevel = 0;
 
-        if(this.owner.skills.containsKey(skill))
+        if(this.owner.skills.containsKey(skill)) {
             skillLevel = this.owner.skills.get(skill).getModifiedAmount();
-
+            float newCalc = calculateModifiedSkill(skill, this.owner);
+            if(newCalc != skillLevel){
+                int i = 0;
+            }
+        }
         if(this.owner.skills.containsKey(mastery))
             masteryLevel = this.owner.skills.get(mastery).getModifiedAmount();
 
@@ -595,13 +599,30 @@ public class PlayerCombatStats {
         float spiModPercentage = (spiMod / totalMod);
         //calculate stat weight
         float weight = 0;
-        weight += pc.statStrCurrent * strModPercentage;
-        weight += pc.statDexCurrent * dexModPercentage;
-        weight += pc.statConCurrent * conModPercentage;
-        weight += pc.statIntCurrent * intModPercentage;
-        weight += pc.statSpiCurrent * spiModPercentage;
+        weight += pc.statStrBase * strModPercentage;
+        weight += pc.statDexBase * dexModPercentage;
+        weight += pc.statConBase * conModPercentage;
+        weight += pc.statIntBase * intModPercentage;
+        weight += pc.statSpiBase * spiModPercentage;
 
-        float modifiedSkill = (75 + 3*pc.statIntCurrent + 2 * weight) / 20;
+        Enum.SourceType sourceType = Enum.SourceType.GetSourceType(skillBase.getNameNoSpace());
+        float base = 7f;
+        base += CharacterSkill.baseSkillValues[(int) weight];
+        float bonus = 0f;
+        if (CharacterSkill.GetOwner(skill).getBonuses() != null) {
+            //Get bonuses from runes
+            bonus = CharacterSkill.GetOwner(skill).getBonuses().getSkillBonus(skillBase.sourceType);
+        }
+        if (CharacterSkill.GetOwner(skill).getBonuses() != null) {
+            //add bonuses from effects/items and runes
+            base += bonus + CharacterSkill.GetOwner(skill).getBonuses().getFloat(Enum.ModType.Skill, sourceType);
+        }
+        float modAmount = skill.getBaseAmount();
+        if (CharacterSkill.GetOwner(skill).getBonuses() != null) {
+            //Multiply any percent bonuses
+            modAmount *= (1 + CharacterSkill.GetOwner(skill).getBonuses().getFloatPercentAll(Enum.ModType.Skill, sourceType));
+        }
+        float modifiedSkill = modAmount;
 
         return modifiedSkill;
     }

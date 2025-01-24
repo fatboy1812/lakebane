@@ -68,7 +68,7 @@ public class CharacterSkill extends AbstractGameObject {
             165, 166, 166, 167, 167, //185 to 189
             168}; //190
 
-    private static final float[] baseSkillValues = {
+    static final float[] baseSkillValues = {
             0.0f, 0.0f, 0.2f, 0.4f, 0.6f,  //0 to 4
             0.8f, 1.0f, 1.1666666f, 1.3333334f, 1.5f,  //5 to 9
             1.6666667f, 1.8333334f, 2.0f, 2.2f, 2.4f,  //10 to 14
