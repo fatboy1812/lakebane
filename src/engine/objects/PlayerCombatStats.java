@@ -7,6 +7,7 @@ import org.pmw.tinylog.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class PlayerCombatStats {
 
@@ -534,10 +535,10 @@ public class PlayerCombatStats {
             masteryName = weapon.getItemBase().getMastery();
         }
         if(this.owner.skills.containsKey(skillName))
-            weaponSkill = this.owner.skills.get(skillName).getModifiedAmount();
+            weaponSkill = this.owner.skills.get(skillName).getSkillPercentFromTrains();//calculateModifiedSkill(skillName,this.owner);//this.owner.skills.get(skillName).getModifiedAmount();
 
         if(this.owner.skills.containsKey(masteryName))
-            masterySkill = this.owner.skills.get(masteryName).getModifiedAmount();
+            masterySkill = this.owner.skills.get(masteryName).getSkillPercentFromTrains();//calculateModifiedSkill(masteryName,this.owner);//this.owner.skills.get(masteryName).getModifiedAmount();
 
         float dexterity = getDexAfterPenalty(this.owner);
 
@@ -578,7 +579,7 @@ public class PlayerCombatStats {
         //Defense = (1+Armor skill / 50) * Armor defense + (1 + Block skill / 100) * Shield defense
         // + (Primary weapon skill / 2) + (Weapon mastery skill/ 2) + ROUND((Dexterity-Dex penalty),0) * 2 + Flat bonuses from rings or cloth
 
-        float defense = (1 + armorSkill/ 50) * armorDefense;
+        float defense = (1 + armorSkill / 50) * armorDefense;
         defense += (1 + blockSkill / 100) * shieldDefense;
         defense += (weaponSkill / 2);
         defense += (masterySkill / 2);
@@ -586,7 +587,9 @@ public class PlayerCombatStats {
         defense += flatBonuses;
         defense *= luckyRune;
         defense *= stanceMod;
+
         defense = Math.round(defense);
+
         this.defense = (int) defense;
     }
 
@@ -664,7 +667,7 @@ public class PlayerCombatStats {
             modAmount *= (1 + pc.getBonuses().getFloatPercentAll(Enum.ModType.Skill, sourceType));
         }
 
-        float modifiedAmount = Math.round(modAmount);
+        float modifiedAmount = (float) Math.round(modAmount);
 
         return modifiedAmount;
     }
