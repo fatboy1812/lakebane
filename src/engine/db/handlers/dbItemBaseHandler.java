@@ -52,8 +52,11 @@ public class dbItemBaseHandler extends dbHandlerBase {
 
             preparedStatement.setInt(1, itemBase.getUUID());
             ResultSet rs = preparedStatement.executeQuery();
-
-            itemBase.dexReduction = rs.getFloat("item_bulk_factor");
+            try {
+                itemBase.dexReduction = rs.getFloat("item_bulk_factor");
+            }catch(Exception e){
+                Logger.error("No Value Found For Dex Penalty FOr Item: " + itemBase.getUUID());
+            }
 
         } catch (SQLException e) {
             Logger.error(e);
