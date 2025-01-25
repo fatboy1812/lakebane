@@ -578,8 +578,14 @@ public class PlayerCombatStats {
 
         //Defense = (1+Armor skill / 50) * Armor defense + (1 + Block skill / 100) * Shield defense
         // + (Primary weapon skill / 2) + (Weapon mastery skill/ 2) + ROUND((Dexterity-Dex penalty),0) * 2 + Flat bonuses from rings or cloth
-
-        float defense = (1 + armorSkill / 50) * armorDefense;
+        float defense = 0;
+        for(Item equipped : this.owner.charItemManager.getEquippedList()){
+            ItemBase ib = equipped.getItemBase();
+            if(ib.isHeavyArmor() || ib.isClothArmor() || ib.isMediumArmor() || ib.isLightArmor()){
+                defense += getArmorDefense(equipped,this.owner);
+            }
+        }
+        //float defense = (1 + armorSkill / 50) * armorDefense;
         defense += (1 + blockSkill / 100) * shieldDefense;
         defense += (weaponSkill / 2);
         defense += (masterySkill / 2);
@@ -696,5 +702,49 @@ public class PlayerCombatStats {
         float returnedDex = Math.round(dex - totalPenalty);
         return (int) returnedDex;
 
+    }
+
+    private static float getArmorDefense(Item armor, PlayerCharacter pc) {
+
+        if (armor == null)
+            return 0;
+
+        ItemBase ib = armor.getItemBase();
+
+        if (ib == null)
+            return 0;
+
+        if (!ib.getType().equals(Enum.ItemType.ARMOR))
+            return 0;
+
+        if (ib.getSkillRequired().isEmpty())
+            return ib.getDefense();
+
+        CharacterSkill armorSkill = pc.skills.get(ib.getSkillRequired());
+        if (armorSkill == null) {
+            Logger.error("Player " + pc.getObjectUUID()
+                    + " has armor equipped without the nescessary skill to equip it");
+            return ib.getDefense();
+        }
+
+        float def = ib.getDefense();
+        //apply item defense bonuses
+        if (armor != null) {
+
+            for(Effect eff : armor.effects.values()){
+                for(AbstractEffectModifier mod : eff.getEffectModifiers()){
+                    if(mod.modType.equals(Enum.ModType.DR)){
+                        def += mod.minMod * (1+(eff.getTrains() * mod.getRamp()));
+                    }
+                }
+            }
+
+
+            //def += armor.getBonus(ModType.DR, SourceType.None);
+            //def *= (1 + armor.getBonusPercent(ModType.DR, SourceType.None));
+        }
+
+
+        return (def * (1 + ((int) armorSkill.getModifiedAmount() / 50f)));
     }
 }
