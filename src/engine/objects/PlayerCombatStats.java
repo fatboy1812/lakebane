@@ -110,7 +110,7 @@ public class PlayerCombatStats {
 
         String skill = "Unarmed Combat";
         String mastery = "Unarmed Combat Mastery";
-        int primaryStat = this.owner.statDexCurrent;
+        int primaryStat = getDexAfterPenalty(this.owner);
         if(weapon != null) {
             skill= weapon.getItemBase().getSkillRequired();
             mastery = weapon.getItemBase().getMastery();
@@ -185,8 +185,7 @@ public class PlayerCombatStats {
             atr += 1;
             atr = (float) Math.ceil(atr);
         }else {
-            float dexterity = this.owner.statDexBase;
-            dexterity += this.owner.bonuses.getFloat(Enum.ModType.Attr, Enum.SourceType.Dexterity);
+            float dexterity = getDexAfterPenalty(this.owner);
             atr = dexterity / 2;
             atr += skillLevel * 4;
             atr += masteryLevel * 3;
@@ -215,7 +214,7 @@ public class PlayerCombatStats {
     public void calculateMin(boolean mainHand) {
         Item weapon;
         float baseDMG = 1;
-        int primaryStat = this.owner.statDexCurrent;
+        int primaryStat = getDexAfterPenalty(this.owner);
         int secondaryStat = this.owner.statStrCurrent;
         double weaponSkill = 5;
         double weaponMastery = 5;
@@ -235,7 +234,7 @@ public class PlayerCombatStats {
             mastery = weapon.getItemBase().getMastery();
             if (weapon.getItemBase().isStrBased()) {
                 primaryStat = this.owner.statStrCurrent;
-                secondaryStat = this.owner.statDexCurrent;
+                secondaryStat = getDexAfterPenalty(this.owner);
             }
             for(Effect eff : weapon.effects.values()){
                 for(AbstractEffectModifier mod : eff.getEffectModifiers()){
@@ -292,7 +291,7 @@ public class PlayerCombatStats {
         // + 0.0022*Secondary Stat + 0.028*(Secondary Stat-0.75)^0.5 + 0.0075*(Weapon Skill + Weapon Mastery))
         Item weapon;
         double baseDMG = 5;
-        int primaryStat = this.owner.statDexCurrent;
+        int primaryStat = getDexAfterPenalty(this.owner);
         int secondaryStat = this.owner.statStrCurrent;
         double weaponSkill = 5;
         double weaponMastery = 5;
@@ -311,7 +310,7 @@ public class PlayerCombatStats {
             mastery = weapon.getItemBase().getMastery();
             if (weapon.getItemBase().isStrBased()) {
                 primaryStat = this.owner.statStrCurrent;
-                secondaryStat = this.owner.statDexCurrent;
+                secondaryStat = getDexAfterPenalty(this.owner);
             }
             for(Effect eff : weapon.effects.values()){
                 for(AbstractEffectModifier mod : eff.getEffectModifiers()){
@@ -541,7 +540,7 @@ public class PlayerCombatStats {
         if(this.owner.skills.containsKey(masteryName))
             masterySkill = this.owner.skills.get(masteryName).getModifiedAmount();
 
-        float dexterity = this.owner.statDexCurrent;//this.owner.statDexBase;
+        float dexterity = getDexAfterPenalty(this.owner);
         //dexterity += this.owner.bonuses.getFloat(Enum.ModType.Attr, Enum.SourceType.Dexterity);
 
         float luckyRune = 1.0f;
@@ -616,7 +615,7 @@ public class PlayerCombatStats {
         if (skillBase.getStrMod() > 0)
             statMod += (float) skillBase.getStrMod() * (float) pc.getStatStrCurrent() / 100f;
         if (skillBase.getDexMod() > 0)
-            statMod += (float) skillBase.getDexMod() * (float) pc.getStatDexCurrent() / 100f;
+            statMod += (float) skillBase.getDexMod() * (float) getDexAfterPenalty(pc) / 100f;
         if (skillBase.getConMod() > 0)
             statMod += (float) skillBase.getConMod() * (float) pc.getStatConCurrent() / 100f;
         if (skillBase.getIntMod() > 0)
@@ -667,5 +666,29 @@ public class PlayerCombatStats {
         float modifiedAmount = Math.round(modAmount);
 
         return modifiedAmount;
+    }
+
+    public static int getDexAfterPenalty(PlayerCharacter pc){
+        if(pc.charItemManager == null)
+            return pc.statDexCurrent;
+
+        float dex = pc.statDexBase;
+        if(pc.bonuses != null)
+            dex += pc.bonuses.getFloat(Enum.ModType.Attr, Enum.SourceType.Dexterity);
+
+        float penaltyFactor = 0.0f;
+        for(Item equipped : pc.charItemManager.getEquipped().values()){
+            ItemBase ib = equipped.getItemBase();
+            if(ib.isHeavyArmor() || ib.isLightArmor() || ib.isMediumArmor()){
+                penaltyFactor += (ib.dexReduction);
+            }
+        }
+
+        if(penaltyFactor > 0)
+            penaltyFactor *= 0.01f;
+
+        float totalPenalty = dex * (1 + penaltyFactor);
+
+        return Math.round(dex - totalPenalty);
     }
 }

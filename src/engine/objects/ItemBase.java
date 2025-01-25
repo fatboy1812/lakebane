@@ -76,6 +76,8 @@ public class ItemBase {
     private ArrayList<Integer> animations = new ArrayList<>();
     private ArrayList<Integer> offHandAnimations = new ArrayList<>();
 
+    public float dexReduction = 0.0f;
+
     /**
      * ResultSet Constructor
      */
@@ -151,7 +153,7 @@ public class ItemBase {
         }
         initBakedInStats();
         initializeHashes();
-
+        initDexReduction();
     }
 
     public static void addToCache(ItemBase itemBase) {
@@ -317,6 +319,10 @@ public class ItemBase {
 
     private void initBakedInStats() {
         DbManager.ItemBaseQueries.LOAD_BAKEDINSTATS(this);
+    }
+
+    private void initDexReduction(){
+        DbManager.ItemBaseQueries.LOAD_DEX_REDUCTION(this);
     }
 
     //TODO fix this later. Shouldn't be gotten from item base

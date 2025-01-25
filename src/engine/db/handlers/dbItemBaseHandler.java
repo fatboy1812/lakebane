@@ -45,6 +45,21 @@ public class dbItemBaseHandler extends dbHandlerBase {
         }
     }
 
+    public void LOAD_DEX_REDUCTION(ItemBase itemBase) {
+
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `static_item_dexpenalty` WHERE `ID` = ?")) {
+
+            preparedStatement.setInt(1, itemBase.getUUID());
+            ResultSet rs = preparedStatement.executeQuery();
+
+            itemBase.dexReduction = rs.getFloat("item_bulk_factor");
+
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
+    }
+
     public void LOAD_ANIMATIONS(ItemBase itemBase) {
 
         ArrayList<Integer> tempList = new ArrayList<>();
