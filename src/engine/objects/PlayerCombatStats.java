@@ -535,10 +535,10 @@ public class PlayerCombatStats {
             masteryName = weapon.getItemBase().getMastery();
         }
         if(this.owner.skills.containsKey(skillName))
-            weaponSkill = this.owner.skills.get(skillName).getSkillPercentFromTrains();//calculateModifiedSkill(skillName,this.owner);//this.owner.skills.get(skillName).getModifiedAmount();
+            weaponSkill = this.owner.skills.get(skillName).getModifiedAmount();//calculateModifiedSkill(skillName,this.owner);//this.owner.skills.get(skillName).getModifiedAmount();
 
         if(this.owner.skills.containsKey(masteryName))
-            masterySkill = this.owner.skills.get(masteryName).getSkillPercentFromTrains();//calculateModifiedSkill(masteryName,this.owner);//this.owner.skills.get(masteryName).getModifiedAmount();
+            masterySkill = this.owner.skills.get(masteryName).getModifiedAmount();//calculateModifiedSkill(masteryName,this.owner);//this.owner.skills.get(masteryName).getModifiedAmount();
 
         float dexterity = getDexAfterPenalty(this.owner);
 
@@ -594,11 +594,11 @@ public class PlayerCombatStats {
     }
 
     public static float calculateModifiedSkill(String skillName, PlayerCharacter pc) {
+
         CharacterSkill skill = null;
         if (pc.skills.containsKey(skillName)) {
             skill = pc.skills.get(skillName);
         }
-
         SkillsBase skillBase = skill.getSkillsBase();
         if(skillBase == null)
             return 0;
