@@ -687,7 +687,7 @@ public class PlayerCombatStats {
         if(penaltyFactor > 0)
             penaltyFactor *= 0.01f;
 
-        float totalPenalty = dex * (1 + penaltyFactor);
+        float totalPenalty = dex *  penaltyFactor;
 
         return Math.round(dex - totalPenalty);
 
