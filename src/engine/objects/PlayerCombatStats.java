@@ -727,7 +727,7 @@ public class PlayerCombatStats {
             return ib.getDefense();
         }
 
-        float def = ib.getDefense();
+        float def = (1 + armorSkill.getModifiedAmount() / 50f) * ib.getDefense();
         //apply item defense bonuses
         if (armor != null) {
 
@@ -743,8 +743,6 @@ public class PlayerCombatStats {
             //def += armor.getBonus(ModType.DR, SourceType.None);
             //def *= (1 + armor.getBonusPercent(ModType.DR, SourceType.None));
         }
-
-
-        return (def * (1 + ((int) armorSkill.getModifiedAmount() / 50f)));
+        return def;
     }
 }
