@@ -182,8 +182,7 @@ public class PlayerCombatStats {
 
         if(weapon != null && weapon.getItemBase().isStrBased()){
             atr = (((primaryStat / 2) + (skillLevel * 4 + masteryLevel * 3) + prefixValues) * preciseRune + atrEnchants) * (1.0f + stanceValue);
-            atr += 1;
-            atr = (float) Math.ceil(atr);
+            atr = (float) Math.round(atr);
         }else {
             float dexterity = getDexAfterPenalty(this.owner);
             atr = dexterity / 2;
@@ -193,7 +192,7 @@ public class PlayerCombatStats {
             atr *= preciseRune;
             atr += atrEnchants;
             atr *= 1.0f + stanceValue;
-            atr = (float) Math.ceil(atr);
+            atr = (float) Math.round(atr);
         }
 
 
@@ -541,7 +540,6 @@ public class PlayerCombatStats {
             masterySkill = this.owner.skills.get(masteryName).getModifiedAmount();
 
         float dexterity = getDexAfterPenalty(this.owner);
-        //dexterity += this.owner.bonuses.getFloat(Enum.ModType.Attr, Enum.SourceType.Dexterity);
 
         float luckyRune = 1.0f;
         for(CharacterRune rune : this.owner.runes){
@@ -577,16 +575,19 @@ public class PlayerCombatStats {
         else if(this.owner.charItemManager != null && this.owner.charItemManager.getEquipped(2) != null && !this.owner.charItemManager.getEquipped(2).getItemBase().isShield())
             blockSkill = 0;
 
+        //Defense = (1+Armor skill / 50) * Armor defense + (1 + Block skill / 100) * Shield defense
+        // + (Primary weapon skill / 2) + (Weapon mastery skill/ 2) + ROUND((Dexterity-Dex penalty),0) * 2 + Flat bonuses from rings or cloth
+
         float defense = (1 + armorSkill/ 50) * armorDefense;
         defense += (1 + blockSkill / 100) * shieldDefense;
         defense += (weaponSkill / 2);
         defense += (masterySkill / 2);
         defense += dexterity * 2;
-        defense *= luckyRune;
         defense += flatBonuses;
+        defense *= luckyRune;
         defense *= stanceMod;
-        defense = (int)defense;
-        this.defense = (int)defense;
+        defense = Math.round(defense);
+        this.defense = (int) defense;
     }
 
     public static float calculateModifiedSkill(String skillName, PlayerCharacter pc) {
@@ -680,7 +681,7 @@ public class PlayerCombatStats {
         for(Item equipped : pc.charItemManager.getEquipped().values()){
             ItemBase ib = equipped.getItemBase();
             if(ib.isHeavyArmor() || ib.isLightArmor() || ib.isMediumArmor()){
-                penaltyFactor += (ib.dexReduction);
+                penaltyFactor += ib.dexReduction;
             }
         }
 
@@ -689,7 +690,8 @@ public class PlayerCombatStats {
 
         float totalPenalty = dex *  penaltyFactor;
 
-        return Math.round(dex - totalPenalty);
+        float returnedDex = Math.round(dex - totalPenalty);
+        return (int) returnedDex;
 
     }
 }
