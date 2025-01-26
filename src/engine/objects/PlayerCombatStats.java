@@ -581,7 +581,7 @@ public class PlayerCombatStats {
         float defense = 0;
         for(Item equipped : this.owner.charItemManager.getEquippedList()){
             ItemBase ib = equipped.getItemBase();
-            if(ib.isHeavyArmor() || ib.isClothArmor() || ib.isMediumArmor() || ib.isLightArmor()){
+            if(ib.getType().equals(Enum.ItemType.ARMOR) && !ib.isShield()){
                 defense += getArmorDefense(equipped,this.owner);
             }
         }
@@ -589,7 +589,7 @@ public class PlayerCombatStats {
         defense += (1 + blockSkill / 100) * shieldDefense;
         defense += (weaponSkill / 2);
         defense += (masterySkill / 2);
-        defense += dexterity;// * 2;
+        defense += dexterity * 2;
         defense += flatBonuses;
         defense *= luckyRune;
         defense *= stanceMod;
@@ -698,9 +698,6 @@ public class PlayerCombatStats {
             penaltyFactor *= 0.01f;
 
         float totalPenalty = dex *  penaltyFactor;
-
-        dex *= 2;
-
         float returnedDex = Math.round(dex - totalPenalty);
         return (int) returnedDex;
 
@@ -729,7 +726,7 @@ public class PlayerCombatStats {
             return ib.getDefense();
         }
 
-        float def = (1 + armorSkill.getModifiedAmount() / 50f) * ib.getDefense();
+        float def = ib.getDefense();
         //apply item defense bonuses
         if (armor != null) {
 
@@ -745,6 +742,6 @@ public class PlayerCombatStats {
             //def += armor.getBonus(ModType.DR, SourceType.None);
             //def *= (1 + armor.getBonusPercent(ModType.DR, SourceType.None));
         }
-        return def;
+        return (def * (1 + ((int) armorSkill.getModifiedAmount() / 50f)));
     }
 }
