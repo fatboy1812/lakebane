@@ -213,9 +213,11 @@ public class PlayerCombatStats {
 
     public void calculateMin(boolean mainHand) {
         Item weapon;
+        float specialDex = this.owner.statDexBase;
+        specialDex += this.owner.bonuses.getFloat(Enum.ModType.Attr, Enum.SourceType.Dexterity);
         float baseDMG = 1;
-        int primaryStat = getDexAfterPenalty(this.owner);
-        int secondaryStat = this.owner.statStrCurrent;
+        float primaryStat = specialDex;//getDexAfterPenalty(this.owner);
+        float secondaryStat = this.owner.statStrCurrent;
         double weaponSkill = 5;
         double weaponMastery = 5;
 
@@ -234,7 +236,7 @@ public class PlayerCombatStats {
             mastery = weapon.getItemBase().getMastery();
             if (weapon.getItemBase().isStrBased()) {
                 primaryStat = this.owner.statStrCurrent;
-                secondaryStat = getDexAfterPenalty(this.owner);
+                secondaryStat = specialDex;//getDexAfterPenalty(this.owner);
             }
             for(Effect eff : weapon.effects.values()){
                 for(AbstractEffectModifier mod : eff.getEffectModifiers()){
@@ -293,8 +295,8 @@ public class PlayerCombatStats {
         float specialDex = this.owner.statDexBase;
         specialDex += this.owner.bonuses.getFloat(Enum.ModType.Attr, Enum.SourceType.Dexterity);
         double baseDMG = 5;
-        int primaryStat = getDexAfterPenalty(this.owner);
-        int secondaryStat = this.owner.statStrCurrent;
+        float primaryStat = specialDex;//getDexAfterPenalty(this.owner);
+        float secondaryStat = this.owner.statStrCurrent;
         double weaponSkill = 5;
         double weaponMastery = 5;
 
@@ -313,7 +315,7 @@ public class PlayerCombatStats {
             mastery = weapon.getItemBase().getMastery();
             if (weapon.getItemBase().isStrBased()) {
                 primaryStat = this.owner.statStrCurrent;
-                secondaryStat = getDexAfterPenalty(this.owner);
+                secondaryStat = specialDex;//getDexAfterPenalty(this.owner);
             }
             for(Effect eff : weapon.effects.values()){
                 for(AbstractEffectModifier mod : eff.getEffectModifiers()){
@@ -351,7 +353,7 @@ public class PlayerCombatStats {
             }
         }
 
-        int roundedMax = (int)Math.round(maxDMG);
+        int roundedMax = (int)(maxDMG);
 
         if(mainHand){
             this.maxDamageHandOne = roundedMax;
