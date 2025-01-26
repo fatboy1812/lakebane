@@ -457,7 +457,9 @@ public class Resists {
         //damage = handleFortitude(target, type, damage);
         //calculate armor piercing
         float ap = source.getBonuses().getFloatPercentAll(ModType.ArmorPiercing, SourceType.None);
-        float damageAfterResists = damage * (1 - (this.getResist(type, trains) * 0.01f) + ap);
+        float damageAfterResists = damage;
+        if(type.equals(DamageType.Pierce) || type.equals(DamageType.Crush) || type.equals(DamageType.Slash))
+            damageAfterResists = damage * (1 - (this.getResist(type, trains) * 0.01f) + ap);
         //check to see if any damage absorbers should cancel
         if (target != null) {
             //debug damage shields if any found
