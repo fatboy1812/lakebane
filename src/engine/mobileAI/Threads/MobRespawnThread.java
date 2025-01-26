@@ -51,6 +51,7 @@ public class MobRespawnThread implements Runnable {
                                     respawner.respawn();
                                     zone.respawnQue.remove(respawner);
                                     zone.lastRespawn = System.currentTimeMillis();
+                                    Thread.sleep(100);
                                 }
                             }
                         }
