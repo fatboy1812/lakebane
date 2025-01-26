@@ -2961,6 +2961,7 @@ public enum PowersManager {
             case 431854842:
             case 429767544:
             case 429502507:
+            case 428398816:
                 return false;
         }
         return true;
