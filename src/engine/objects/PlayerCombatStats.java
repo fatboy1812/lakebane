@@ -589,7 +589,7 @@ public class PlayerCombatStats {
         defense += (1 + blockSkill / 100) * shieldDefense;
         defense += (weaponSkill / 2);
         defense += (masterySkill / 2);
-        defense += dexterity * 2;
+        defense += dexterity;// * 2;
         defense += flatBonuses;
         defense *= luckyRune;
         defense *= stanceMod;
@@ -698,6 +698,8 @@ public class PlayerCombatStats {
             penaltyFactor *= 0.01f;
 
         float totalPenalty = dex *  penaltyFactor;
+
+        dex *= 2;
 
         float returnedDex = Math.round(dex - totalPenalty);
         return (int) returnedDex;
