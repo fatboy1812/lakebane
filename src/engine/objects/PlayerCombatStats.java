@@ -290,11 +290,14 @@ public class PlayerCombatStats {
         //Weapon Max DMG = BaseDMG * (0.0124*Primary Stat + 0.118*(Primary Stat -0.75)^0.5
         // + 0.0022*Secondary Stat + 0.028*(Secondary Stat-0.75)^0.5 + 0.0075*(Weapon Skill + Weapon Mastery))
         Item weapon;
+        float specialDex = this.owner.statDexBase;
+        specialDex += this.owner.bonuses.getFloat(Enum.ModType.Attr, Enum.SourceType.Dexterity);
         double baseDMG = 5;
         int primaryStat = getDexAfterPenalty(this.owner);
         int secondaryStat = this.owner.statStrCurrent;
         double weaponSkill = 5;
         double weaponMastery = 5;
+
 
         if (mainHand) {
             weapon = this.owner.charItemManager.getEquipped(1);
