@@ -818,22 +818,9 @@ public class Item extends AbstractWorldObject {
     }
 
     public void stripCastableEnchants(){
-        ArrayList<String> keys =new ArrayList<>();
-
-        for(String eff : this.effects.keySet()){
-            for(AbstractEffectModifier mod : this.effects.get(eff).getEffectsBase().getModifiers()){
-                if(mod.modType.equals(ModType.WeaponProc)){
-                    keys.add(eff);
-                }
-            }
-        }
-
-        for(String eff : keys){
-            try {
-                this.effects.get(eff).endEffect();
-                this.effects.remove(eff);
-            }catch(Exception e){
-
+        for(Effect eff : this.effects.values()){
+            if(eff.getJobContainer() != null && !eff.getJobContainer().noTimer()){
+                eff.endEffect();
             }
         }
     }
@@ -1085,7 +1072,7 @@ public class Item extends AbstractWorldObject {
         this.ownerID = pc.getObjectUUID();
         this.ownerType = OwnerType.PlayerCharacter;
         this.containerType = ItemContainerType.INVENTORY;
-        this.stripCastableEnchants();
+        //this.stripCastableEnchants();
         return true;
     }
 
@@ -1106,7 +1093,7 @@ public class Item extends AbstractWorldObject {
         this.ownerID = npc.getObjectUUID();
         this.ownerType = OwnerType.Npc;
         this.containerType = Enum.ItemContainerType.INVENTORY;
-        this.stripCastableEnchants();
+        //this.stripCastableEnchants();
         return true;
     }
 
@@ -1124,7 +1111,7 @@ public class Item extends AbstractWorldObject {
         this.ownerID = 0;
         this.ownerType = null;
         this.containerType = Enum.ItemContainerType.INVENTORY;
-        this.stripCastableEnchants();
+        //this.stripCastableEnchants();
         return true;
     }
 
