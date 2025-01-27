@@ -818,11 +818,15 @@ public class Item extends AbstractWorldObject {
     }
 
     public void stripCastableEnchants(){
+        ArrayList<Effect> ToRemove = new ArrayList<>();
         for(Effect eff : this.effects.values()){
             if(eff.getJobContainer() != null && !eff.getJobContainer().noTimer()){
-                eff.endEffect();
+                eff.endEffectNoPower();
+                eff.getJobContainer().cancelJob();
+                ToRemove.add(eff);
             }
         }
+        this.effects.values().removeAll(ToRemove);
     }
     //Only to be used for trading
     public void setOwnerID(int ownerID) {

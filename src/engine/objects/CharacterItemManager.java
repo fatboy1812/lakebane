@@ -1056,7 +1056,7 @@ public class CharacterItemManager {
         // add to Bank
         this.bank.add(i);
         i.addToCache();
-        //i.stripCastableEnchants();
+        i.stripCastableEnchants();
 
         calculateWeights();
 
@@ -1205,7 +1205,7 @@ public class CharacterItemManager {
 
         calculateWeights();
 
-        //i.stripCastableEnchants();
+        i.stripCastableEnchants();
         return true;
     }
 
