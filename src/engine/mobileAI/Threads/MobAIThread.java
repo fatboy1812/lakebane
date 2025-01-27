@@ -34,18 +34,18 @@ public class MobAIThread implements Runnable{
                             try {
                                 if (mob != null) {
                                     MobAI.DetermineAction(mob);
-                                    try {
-                                        Thread.sleep(100);
-                                    } catch (InterruptedException e) {
-                                        Logger.error("AI Thread interrupted", e);
-                                        Thread.currentThread().interrupt();
-                                    }
                                 }
                             } catch (Exception e) {
                                 Logger.error("Error processing Mob [Name: {}, UUID: {}]", mob.getName(), mob.getObjectUUID(), e);
                             }
                         }
                     }
+                }
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    Logger.error("AI Thread interrupted", e);
+                    Thread.currentThread().interrupt();
                 }
             }
         }
