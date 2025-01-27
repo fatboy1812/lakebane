@@ -41,12 +41,12 @@ public class MobAIThread implements Runnable{
                         }
                     }
                 }
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    Logger.error("AI Thread interrupted", e);
-                    Thread.currentThread().interrupt();
-                }
+            }
+            try {
+                Thread.sleep(100);
+            } catch (InterruptedException e) {
+                Logger.error("AI Thread interrupted", e);
+                Thread.currentThread().interrupt();
             }
         }
     }
