@@ -303,9 +303,10 @@ public class HealthEffectModifier extends AbstractEffectModifier {
 
         // calculate resists in if any
         if (resists != null) {
-            if (AbstractWorldObject.IsAbstractCharacter(awo))
+            if (AbstractWorldObject.IsAbstractCharacter(awo)) {
+                damage = Resists.handleFortitude((AbstractCharacter) awo, damageType, damage * -1);
                 damage = resists.getResistedDamage(source, (AbstractCharacter) awo, damageType, damage * -1, trains) * -1;
-            else
+            }else
                 damage = resists.getResistedDamage(source, null, damageType, damage * -1, trains) * -1;
         }
 

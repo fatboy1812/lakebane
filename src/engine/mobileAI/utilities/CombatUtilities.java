@@ -101,9 +101,10 @@ public class CombatUtilities {
         if (!target.isAlive())
             return;
 
-        if (AbstractWorldObject.IsAbstractCharacter(target))
+        if (AbstractWorldObject.IsAbstractCharacter(target)) {
+            damage = Resists.handleFortitude((AbstractCharacter) target,DamageType.Crush,damage);
             trueDamage = ((AbstractCharacter) target).modifyHealth(-damage, agent, false);
-        else if (target.getObjectType() == GameObjectType.Building)
+        }else if (target.getObjectType() == GameObjectType.Building)
             trueDamage = ((Building) target).modifyHealth(-damage, agent);
 
         //Don't send 0 damage kay thanx.

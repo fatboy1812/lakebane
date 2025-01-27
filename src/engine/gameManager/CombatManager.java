@@ -850,6 +850,22 @@ public enum CombatManager {
                 else
                     damage = calculateDamage(ac, tarAc, minDamage, maxDamage, damageType, resists);
 
+                if(weapon != null && weapon.effects != null){
+                    float armorPierce = 0;
+                    for(Effect eff : weapon.effects.values()){
+                        for(AbstractEffectModifier mod : eff.getEffectModifiers()){
+                            if(mod.modType.equals(ModType.ArmorPiercing)){
+                                armorPierce += mod.minMod * (mod.getRamp() * eff.getTrains());
+                            }
+                        }
+                    }
+                    if(armorPierce > 0){
+                        damage *= 1 - armorPierce;
+                    }
+                }
+
+                Resists.handleFortitude(tarAc,damageType,damage);
+
                 float d = 0f;
 
                 errorTrack = 12;
@@ -1055,10 +1071,12 @@ public enum CombatManager {
 
         //calculate resists in if any
 
+
+
         if (resists != null)
-            return resists.getResistedDamage(source, target, damageType, damage, 0);
-        else
-            return damage;
+            damage = resists.getResistedDamage(source, target, damageType, damage, 0);
+
+        return damage;
     }
 
     private static void sendPassiveDefenseMessage(AbstractCharacter source, ItemBase wb, AbstractWorldObject target, int passiveType, DeferredPowerJob dpj, boolean mainHand) {
@@ -1400,9 +1418,9 @@ public enum CombatManager {
 
                 Resists resists = ac.getResists();
 
-                if (resists != null)
+                if (resists != null) {
                     amount = resists.getResistedDamage(target, ac, ds.getDamageType(), amount, 0);
-
+                }
                 total += amount;
             }
 
