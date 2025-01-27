@@ -494,6 +494,19 @@ public enum PowersManager {
                 }
             }
 
+            if(!passed){
+                if (playerCharacter.getRace().getName().equals("Shade")) {
+                    if(playerCharacter.effects.containsKey("INVIS-B")){
+                        switch(msg.getPowerUsedID()){
+                            case 0:
+
+                                passed = true;
+                                break;
+                        }
+                    }
+                }
+            }
+
             if (!passed)
                 return true;
         }
