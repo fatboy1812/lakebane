@@ -821,6 +821,14 @@ public enum PowersManager {
         if(msg.getPowerUsedID() == 429407306 || msg.getPowerUsedID() == 429495514){
             applyPower(playerCharacter,playerCharacter,playerCharacter.loc,-1357244487,msg.getNumTrains(),false); // 3 second power block
         }
+
+        if(msg.getTargetType() == GameObjectType.PlayerCharacter.ordinal()) {
+            PlayerCharacter target = PlayerCharacter.getPlayerCharacter(msg.getTargetID());
+            if (msg.getPowerUsedID() == 429601664)
+                if(target.getPromotionClassID() != 2516)
+                    PlayerCharacter.getPlayerCharacter(msg.getTargetID()).removeEffectBySource(EffectSourceType.Transform, msg.getNumTrains(), true);
+        }
+
         if (playerCharacter.isCasting()) {
             playerCharacter.update(false);
             playerCharacter.updateStamRegen(-100);
