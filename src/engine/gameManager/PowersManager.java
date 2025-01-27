@@ -818,6 +818,9 @@ public enum PowersManager {
             playerCharacter.removeEffectBySource(EffectSourceType.Root,40,true);
             playerCharacter.removeEffectBySource(EffectSourceType.Snare,40,true);
         }
+        if(msg.getPowerUsedID() == 429407306 || msg.getPowerUsedID() == 429495514){
+            applyPower(playerCharacter,playerCharacter,playerCharacter.loc,-1357244487,msg.getNumTrains(),false); // 3 second power block
+        }
         if (playerCharacter.isCasting()) {
             playerCharacter.update(false);
             playerCharacter.updateStamRegen(-100);
