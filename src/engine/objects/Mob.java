@@ -1699,7 +1699,7 @@ public class Mob extends AbstractIntelligenceAgent {
             }
             // calculate defense for equipment
         }
-        if(this.isDropper || Mob.discDroppers.contains(this)){
+        if((this.isDropper || Mob.discDroppers.contains(this)) && !this.mobBase.getFirstName().contains("Blood Mage")){
             this.defenseRating *= 2;
             this.atrHandOne *= 2;
             this.atrHandTwo *= 2;
