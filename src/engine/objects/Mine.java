@@ -341,6 +341,7 @@ public class Mine extends AbstractGameObject {
             if(!mine.isActive)
                 if(mine.getOwningGuild() != null)
                   if(mine.getOwningGuild().getNation().equals(player.getGuild().getNation()))
+                      if(!mine.getOwningGuild().equals(Guild.getErrantGuild()))
                          mines.add(mine);
 
         return mines;
