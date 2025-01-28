@@ -102,7 +102,7 @@ public class CombatUtilities {
             return;
 
         if (AbstractWorldObject.IsAbstractCharacter(target)) {
-            damage = Resists.handleFortitude((AbstractCharacter) target,DamageType.Crush,damage);
+            //damage = Resists.handleFortitude((AbstractCharacter) target,DamageType.Crush,damage);
             trueDamage = ((AbstractCharacter) target).modifyHealth(-damage, agent, false);
         }else if (target.getObjectType() == GameObjectType.Building)
             trueDamage = ((Building) target).modifyHealth(-damage, agent);

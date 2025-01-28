@@ -864,7 +864,7 @@ public enum CombatManager {
                     }
                 }
 
-                Resists.handleFortitude(tarAc,damageType,damage);
+                //Resists.handleFortitude(tarAc,damageType,damage);
 
                 float d = 0f;
 

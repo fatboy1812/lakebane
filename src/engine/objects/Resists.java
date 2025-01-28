@@ -480,7 +480,7 @@ public class Resists {
             }
             target.cancelOnTakeDamage(type, (damageAfterResists));
         }
-        //damageAfterResists = handleFortitude(target, type, damageAfterResists);
+        damageAfterResists = handleFortitude(target, type, damageAfterResists);
         return damageAfterResists;
     }
 
