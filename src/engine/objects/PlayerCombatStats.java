@@ -388,9 +388,30 @@ public class PlayerCombatStats {
                         int trains = eff.getTrains();
                         float modValue = percent + (trains * mod.getRamp());
                         speed *= 1 + (modValue * 0.01f);
-                        if(mod.modType.equals(Enum.ModType.AttackDelay)){
-                            delayExtra += modValue * 0.01f;
-                        }
+                    }
+                }
+            }
+        }
+        if(this.owner.charItemManager.getEquipped(1) != null){
+            for(Effect eff : this.owner.charItemManager.getEquipped(1).effects.values()){
+                for(AbstractEffectModifier mod : eff.getEffectModifiers()){
+                    if(mod.modType.equals(Enum.ModType.AttackDelay)){
+                        float percent = mod.getPercentMod();
+                        int trains = eff.getTrains();
+                        float modValue = percent + (trains * mod.getRamp());
+                        delayExtra += modValue * 0.01f;
+                    }
+                }
+            }
+        }
+        if(this.owner.charItemManager.getEquipped(2) != null){
+            for(Effect eff : this.owner.charItemManager.getEquipped(2).effects.values()){
+                for(AbstractEffectModifier mod : eff.getEffectModifiers()){
+                    if(mod.modType.equals(Enum.ModType.AttackDelay)){
+                        float percent = mod.getPercentMod();
+                        int trains = eff.getTrains();
+                        float modValue = percent + (trains * mod.getRamp());
+                        delayExtra += modValue * 0.01f;
                     }
                 }
             }
