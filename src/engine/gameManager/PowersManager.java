@@ -809,19 +809,27 @@ public enum PowersManager {
         if (playerCharacter == null || msg == null)
             return;
 
-        if(msg.getPowerUsedID() == 429005674){ //bard sprint
-            //use sprint instead of ballad of beregund the bold
-            //applyPower(playerCharacter,playerCharacter,playerCharacter.loc,429611355,msg.getNumTrains(),false);
+
+        //handle sprint for bard sprint
+        if(msg.getPowerUsedID() == 429005674){
             msg.setPowerUsedID(429611355);
         }
-        if(msg.getPowerUsedID() == 429494441) {//wildkins chase
+
+        //handle root and snare break for wildkin's chase
+        if(msg.getPowerUsedID() == 429494441) {
             playerCharacter.removeEffectBySource(EffectSourceType.Root,40,true);
             playerCharacter.removeEffectBySource(EffectSourceType.Snare,40,true);
         }
-        if(msg.getPowerUsedID() == 429407306 || msg.getPowerUsedID() == 429495514){
-            applyPower(playerCharacter,playerCharacter,playerCharacter.loc,-1357244487,msg.getNumTrains(),false); // 3 second power block
-        }
 
+        //handle power block portion for shade hide
+        if(playerCharacter.getRace().getName().contains("Shade")) {
+            if (msg.getPowerUsedID() == 429407306 || msg.getPowerUsedID() == 429495514) {
+                int trains = msg.getNumTrains() - 1;
+                if (trains < 1)
+                    trains = 1;
+                applyPower(playerCharacter, playerCharacter, playerCharacter.loc, 429397210, trains, false);
+            }
+        }
         if(msg.getTargetType() == GameObjectType.PlayerCharacter.ordinal()) {
             PlayerCharacter target = PlayerCharacter.getPlayerCharacter(msg.getTargetID());
             if (msg.getPowerUsedID() == 429601664)
