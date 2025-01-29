@@ -5040,6 +5040,10 @@ public class PlayerCharacter extends AbstractCharacter {
         //if(!newSystem)
         //    return;
 
+        if (((ReentrantReadWriteLock) this.updateLock).isWriteLockedByCurrentThread()) {
+            this.updateLock.writeLock().unlock();
+        }
+
         if (this.updateLock.writeLock().tryLock()) {
             try {
 
@@ -5047,12 +5051,16 @@ public class PlayerCharacter extends AbstractCharacter {
                     if(!this.timestamps.containsKey("DeathTime")){
                         this.timestamps.put("DeathTime",System.currentTimeMillis());
                     }else if((System.currentTimeMillis() - this.timestamps.get("DeathTime")) > 600000)
-                        forceRespawn(this);
+                        try {
+                            forceRespawn(this);
+                        }catch(Exception e){
+                            this.updateLock.writeLock().unlock();
+                        }
                     return;
                 }
                 this.updateLocation();
-                this.updateMovementState();
-                this.updateRegen();
+                //this.updateMovementState();
+                //this.updateRegen();
 
                 if (this.getStamina() < 10) {
                     if (this.getAltitude() > 0 || this.getDesiredAltitude() > 0) {
@@ -5109,6 +5117,7 @@ public class PlayerCharacter extends AbstractCharacter {
                 }
 
             } catch (Exception e) {
+                this.updateLock.writeLock().unlock();
                 Logger.error(e);
             } finally {
                 this.updateLock.writeLock().unlock();
