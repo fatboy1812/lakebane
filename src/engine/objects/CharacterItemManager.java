@@ -1197,6 +1197,8 @@ public class CharacterItemManager {
         } else
             return false; // NPC's dont have vaults!
 
+        i.stripCastableEnchants();
+
         // remove it from other lists:
         this.remItemFromLists(i, slot);
 
@@ -1205,7 +1207,6 @@ public class CharacterItemManager {
 
         calculateWeights();
 
-        i.stripCastableEnchants();
         return true;
     }
 
