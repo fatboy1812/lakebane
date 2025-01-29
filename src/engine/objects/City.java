@@ -811,8 +811,10 @@ public class City extends AbstractWorldObject {
 
         // Set city motto to current guild motto
 
-        if (BuildingManager.getBuilding(this.treeOfLifeID) == null)
+        if (BuildingManager.getBuilding(this.treeOfLifeID) == null) {
             Logger.info("City UID " + this.getObjectUUID() + " Failed to Load Tree of Life with ID " + this.treeOfLifeID);
+            this.destroy();
+        }
 
         if ((ConfigManager.serverType.equals(ServerType.WORLDSERVER))
                 && (this.isNpc == (byte) 0)) {
