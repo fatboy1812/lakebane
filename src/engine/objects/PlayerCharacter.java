@@ -5039,9 +5039,11 @@ public class PlayerCharacter extends AbstractCharacter {
 
         //if(!newSystem)
         //    return;
+        ReentrantReadWriteLock reentrantLock = (ReentrantReadWriteLock) updateLock;
 
-        if (((ReentrantReadWriteLock) this.updateLock).isWriteLockedByCurrentThread()) {
-            this.updateLock.writeLock().unlock();
+        // Check if the lock is currently held by another thread (either for reading or writing)
+        if (reentrantLock.isWriteLocked() || reentrantLock.getReadLockCount() > 0) {
+            return; // Or throw an exception if needed
         }
 
         if (this.updateLock.writeLock().tryLock()) {
