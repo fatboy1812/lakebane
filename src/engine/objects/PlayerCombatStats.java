@@ -1,6 +1,7 @@
 package engine.objects;
 
 import engine.Enum;
+import engine.powers.EffectsBase;
 import engine.powers.effectmodifiers.AbstractEffectModifier;
 import engine.server.MBServerStatics;
 import org.pmw.tinylog.Logger;
@@ -133,6 +134,10 @@ public class PlayerCombatStats {
 
         for(String effID : this.owner.effects.keySet()) {
             if (effID.contains("Stance")) {
+                Effect effect = this.owner.effects.get(effID);
+                EffectsBase eb = effect.getEffectsBase();
+                if(eb.getIDString().equals("STC-H-DA"))
+                    continue;
                 for (AbstractEffectModifier mod : this.owner.effects.get(effID).getEffectModifiers()) {
                     if (mod.modType.equals(Enum.ModType.OCV)) {
                         float percent = mod.getPercentMod();
