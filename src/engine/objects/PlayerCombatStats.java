@@ -192,6 +192,7 @@ public class PlayerCombatStats {
             atr += prefixValues;
             atr *= preciseRune;
             atr += atrEnchants;
+            atr *= 1 + this.owner.bonuses.getFloatPercentAll(Enum.ModType.OCV, Enum.SourceType.None);
             atr *= 1.0f + stanceValue;
             atr = (float) Math.round(atr);
         }
