@@ -271,7 +271,8 @@ public abstract class AbstractWorldObject extends AbstractGameObject {
             if (this.getObjectType().equals(GameObjectType.PlayerCharacter))
                 if (name.equals("Flight")) {
                     ((PlayerCharacter) this).update(false);
-                    PlayerCharacter.GroundPlayer((PlayerCharacter) this);
+                    if(!AbstractCharacter.CanFly((PlayerCharacter) this))
+                        PlayerCharacter.GroundPlayer((PlayerCharacter) this);
                 }
         }
         applyAllBonuses();
