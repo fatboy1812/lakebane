@@ -5743,7 +5743,7 @@ public class PlayerCharacter extends AbstractCharacter {
         }else{
             consumption = 0.65f * secondsPassed;
         }
-        if(this.movementState.equals(MovementState.SWIMMING))
+        if(!this.canBreathe)
             consumption = 1.5f * secondsPassed;
         else if(this.isFlying())
             consumption = 2.0f * secondsPassed;
