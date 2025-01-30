@@ -5037,8 +5037,6 @@ public class PlayerCharacter extends AbstractCharacter {
     @Override
     public void update(Boolean newSystem) {
 
-        //if(!newSystem)
-        //    return;
         try {
             ReentrantReadWriteLock reentrantLock = (ReentrantReadWriteLock) this.updateLock;
 
@@ -5054,26 +5052,27 @@ public class PlayerCharacter extends AbstractCharacter {
         }
         if (this.updateLock.writeLock().tryLock()) {
             try {
-
                 if (!this.isAlive() && this.isEnteredWorld()) {
                     if(!this.timestamps.containsKey("DeathTime")){
                         this.timestamps.put("DeathTime",System.currentTimeMillis());
                     }else if((System.currentTimeMillis() - this.timestamps.get("DeathTime")) > 600000)
-                        try {
-                            forceRespawn(this);
-                        }catch(Exception e){
-                            this.updateLock.writeLock().unlock();
-                        }
+                        forceRespawn(this);
                     return;
                 }
                 this.updateLocation();
-                //this.updateMovementState();
-                //this.updateRegen();
+                this.updateMovementState();
+                this.doRegen();
+                if (this.combatStats == null) {
+                    this.combatStats = new PlayerCombatStats(this);
+                }
+                if(this.combatStats != null){
+                    this.combatStats.update();
+                }
+
 
                 if (this.getStamina() < 10) {
                     if (this.getAltitude() > 0 || this.getDesiredAltitude() > 0) {
                         PlayerCharacter.GroundPlayer(this);
-                        this.updateRegen();
                     }
                 }
 
@@ -5090,7 +5089,6 @@ public class PlayerCharacter extends AbstractCharacter {
                 }
 
                 if(this.level < 10 && this.enteredWorld) {
-                   // this.setLevel((short) 10);
                     while (this.level < 10) {
                         grantXP(Experience.getBaseExperience(this.level + 1) - this.exp);
                     }
@@ -5101,10 +5099,8 @@ public class PlayerCharacter extends AbstractCharacter {
                 }
 
                 if(this.isFlying()){
-                    //if (!AbstractCharacter.CanFly(this)) {
                     if(this.effects.containsKey("MoveBuff")){
                         GroundPlayer(this);
-                        //ChatManager.chatSystemInfo(this, "You Cannot Fly While Having A MovementBuff");
                     }
                     if(!this.timestamps.containsKey("StunGrounded"))
                         this.timestamps.put("StunGrounded",System.currentTimeMillis() - 1000L);
@@ -5327,206 +5323,6 @@ public class PlayerCharacter extends AbstractCharacter {
 
         // Char is moving, yet not swimming or flying he must be running
         this.movementState = MovementState.RUNNING;
-
-    }
-
-    @Override
-    public void updateRegen() {
-
-        if(true)
-            return;
-
-        float healthRegen = 0f;
-        float manaRegen = 0f;
-        float stamRegen = 0f;
-
-        boolean updateClient = false;
-
-        // Early exit if char is dead or disconnected
-        if ((this.isAlive() == false)
-                || (this.isActive() == false) || this.getLoc().x == 0 && this.getLoc().z == 0)
-            return;
-
-        // Calculate Regen amount from last simulation tick
-        switch (this.movementState) {
-
-            case IDLE:
-
-                healthRegen = ((this.healthMax * MBServerStatics.HEALTH_REGEN_IDLE) + MBServerStatics.HEALTH_REGEN_IDLE_STATIC) * (getRegenModifier(ModType.HealthRecoverRate));
-
-                if (this.isCasting() || this.isItemCasting())
-                    healthRegen *= .75f;
-                // Characters regen mana when in only walk mode and idle
-                if (this.walkMode)
-                    manaRegen = ((this.manaMax * MBServerStatics.MANA_REGEN_IDLE) * getRegenModifier(ModType.ManaRecoverRate));
-                else if (!this.isCasting() && !this.isItemCasting())
-                    manaRegen = ((this.manaMax * MBServerStatics.MANA_REGEN_RUN) * getRegenModifier(ModType.ManaRecoverRate));
-                else
-                    manaRegen = 0;
-
-                if (!PlayerCharacter.CanBreathe(this))
-                    stamRegen = MBServerStatics.STAMINA_REGEN_SWIM;
-                else if ((!this.isCasting() && !this.isItemCasting()) || this.lastMovementState.equals(MovementState.FLYING))
-                    stamRegen = MBServerStatics.STAMINA_REGEN_IDLE * getRegenModifier(ModType.StaminaRecoverRate);
-                else
-                    stamRegen = 0;
-                break;
-            case SITTING:
-                healthRegen = ((this.healthMax * MBServerStatics.HEALTH_REGEN_SIT) + MBServerStatics.HEALTH_REGEN_SIT_STATIC) * getRegenModifier(ModType.HealthRecoverRate);
-                manaRegen = (this.manaMax * MBServerStatics.MANA_REGEN_SIT) * (getRegenModifier(ModType.ManaRecoverRate));
-                stamRegen = MBServerStatics.STAMINA_REGEN_SIT * getRegenModifier(ModType.StaminaRecoverRate);
-                break;
-            case RUNNING:
-                if (this.walkMode == true) {
-                    healthRegen = ((this.healthMax * MBServerStatics.HEALTH_REGEN_WALK) + MBServerStatics.HEALTH_REGEN_IDLE_STATIC) * getRegenModifier(ModType.HealthRecoverRate);
-                    manaRegen = this.manaMax * MBServerStatics.MANA_REGEN_WALK * getRegenModifier(ModType.ManaRecoverRate);
-                    stamRegen = MBServerStatics.STAMINA_REGEN_WALK;
-                } else {
-                    healthRegen = 0;
-                    manaRegen = 0;
-
-                    if (this.combat == true)
-                        stamRegen = MBServerStatics.STAMINA_REGEN_RUN_COMBAT;
-                    else
-                        stamRegen = MBServerStatics.STAMINA_REGEN_RUN_NONCOMBAT;
-                }
-                break;
-            case FLYING:
-
-                float seventyFive = this.staminaMax * .75f;
-                float fifty = this.staminaMax * .5f;
-                float twentyFive = this.staminaMax * .25f;
-
-                if (this.getDesiredAltitude() == 0 && this.getAltitude() <= 10) {
-                    if (this.isCombat())
-                        stamRegen = 0;
-                    else
-                        stamRegen = MBServerStatics.STAMINA_REGEN_IDLE * getRegenModifier(ModType.StaminaRecoverRate);
-                } else if (!this.useFlyMoveRegen()) {
-
-                    healthRegen = ((this.healthMax * MBServerStatics.HEALTH_REGEN_IDLE) + MBServerStatics.HEALTH_REGEN_IDLE_STATIC) * (getRegenModifier(ModType.HealthRecoverRate));
-
-                    if (this.isCasting() || this.isItemCasting())
-                        healthRegen *= .75f;
-                    // Characters regen mana when in only walk mode and idle
-                    if (this.walkMode)
-                        manaRegen = (this.manaMax * MBServerStatics.MANA_REGEN_IDLE + (this.getSpiMod() * .015f)) * (getRegenModifier(ModType.ManaRecoverRate));
-                    else if (!this.isCasting() && !this.isItemCasting())
-                        manaRegen = (this.manaMax * MBServerStatics.MANA_REGEN_IDLE + (this.getSpiMod() * .015f)) * (getRegenModifier(ModType.ManaRecoverRate));
-                    else
-                        manaRegen = 0;
-
-                    if (!this.isItemCasting() && !this.isCasting() || this.getTakeOffTime() != 0)
-                        stamRegen = MBServerStatics.STAMINA_REGEN_FLY_IDLE;
-                    else
-                        stamRegen = -1f;
-                } else if (this.walkMode == true) {
-                    healthRegen = ((this.healthMax * MBServerStatics.HEALTH_REGEN_WALK) + MBServerStatics.HEALTH_REGEN_IDLE_STATIC) * getRegenModifier(ModType.HealthRecoverRate);
-                    manaRegen = ((this.manaMax * MBServerStatics.MANA_REGEN_WALK) + (this.getSpiMod() * .015f)) * (getRegenModifier(ModType.ManaRecoverRate));
-                    stamRegen = MBServerStatics.STAMINA_REGEN_FLY_WALK;
-                } else {
-                    healthRegen = 0;
-                    manaRegen = 0;
-                    if (this.isCombat())
-                        stamRegen = MBServerStatics.STAMINA_REGEN_FLY_RUN_COMBAT;
-                    else
-                        stamRegen = MBServerStatics.STAMINA_REGEN_FLY_RUN;
-                }
-
-                float oldStamina = this.stamina.get();
-
-                if (FastMath.between(oldStamina, 0, twentyFive) && !this.wasTripped25) {
-                    updateClient = true;
-                    this.wasTripped25 = true;
-                    this.wasTripped50 = false;
-                    this.wasTripped75 = false;
-                } else if (FastMath.between(oldStamina, twentyFive, fifty) && !this.wasTripped50) {
-                    updateClient = true;
-                    this.wasTripped25 = false;
-                    this.wasTripped50 = true;
-                    this.wasTripped75 = false;
-                } else if (FastMath.between(oldStamina, fifty, seventyFive) && !this.wasTripped75) {
-                    updateClient = true;
-                    this.wasTripped25 = false;
-                    this.wasTripped50 = false;
-                    this.wasTripped75 = true;
-                }
-                break;
-            case SWIMMING:
-                if (this.walkMode == true) {
-                    healthRegen = ((this.healthMax * MBServerStatics.HEALTH_REGEN_WALK) + MBServerStatics.HEALTH_REGEN_IDLE_STATIC) * getRegenModifier(ModType.HealthRecoverRate);
-                    manaRegen = ((this.manaMax * MBServerStatics.MANA_REGEN_WALK) + (this.getSpiMod() * .015f)) * (getRegenModifier(ModType.ManaRecoverRate));
-                    stamRegen = MBServerStatics.STAMINA_REGEN_SWIM;
-                } else {
-                    healthRegen = 0;
-                    manaRegen = 0;
-                    stamRegen = MBServerStatics.STAMINA_REGEN_SWIM;
-
-                    if (this.combat == true)
-                        stamRegen += MBServerStatics.STAMINA_REGEN_RUN_COMBAT;
-                    else
-                        stamRegen += MBServerStatics.STAMINA_REGEN_RUN_NONCOMBAT;
-                }
-                break;
-        }
-
-        // Are we drowning?
-        if ((this.getStamina() <= 0)
-                && (PlayerCharacter.CanBreathe(this) == false))
-            healthRegen = (this.healthMax * -.03f);
-
-        // Multiple regen values by current deltaTime
-        //     Logger.info("", healthRegen + "");
-        healthRegen *= getDeltaTime();
-        manaRegen *= getDeltaTime();
-        stamRegen *= getStamDeltaTime();
-
-        boolean workedHealth = false;
-        boolean workedMana = false;
-        boolean workedStamina = false;
-
-        float old, mod;
-        while (!workedHealth || !workedMana || !workedStamina) {
-            if (!this.isAlive() || !this.isActive())
-                return;
-            if (!workedHealth) {
-                old = this.health.get();
-                mod = old + healthRegen;
-                if (mod > this.healthMax)
-                    mod = healthMax;
-                else if (mod <= 0) {
-                    if (this.isAlive.compareAndSet(true, false))
-                        killCharacter("Water");
-                    return;
-                }
-                workedHealth = this.health.compareAndSet(old, mod);
-            }
-            if (!workedStamina) {
-                old = this.stamina.get();
-                mod = old + stamRegen;
-                if (mod > this.staminaMax)
-                    mod = staminaMax;
-                else if (mod < 0)
-                    mod = 0;
-                workedStamina = this.stamina.compareAndSet(old, mod);
-            }
-            if (!workedMana) {
-                old = this.mana.get();
-                mod = old + manaRegen;
-                if (mod > this.manaMax)
-                    mod = manaMax;
-                else if (mod < 0)
-                    mod = 0;
-                workedMana = this.mana.compareAndSet(old, mod);
-            }
-        }
-
-        if (updateClient)
-            this.syncClient();
-
-        // Reset this char's frame time.
-        this.lastUpdateTime = System.currentTimeMillis();
-        this.lastStamUpdateTime = System.currentTimeMillis();
 
     }
 
@@ -5814,44 +5610,22 @@ public class PlayerCharacter extends AbstractCharacter {
         dirtyLock.writeLock().unlock();
     }
 
-    public void doRegen(){
-        if(!this.timestamps.containsKey("SyncClient"))
-            this.timestamps.put("SyncClient",System.currentTimeMillis());
+    public void doRegen() {
+        if (!this.timestamps.containsKey("SyncClient"))
+            this.timestamps.put("SyncClient", System.currentTimeMillis());
 
-        try {
-            ReentrantReadWriteLock reentrantLock = (ReentrantReadWriteLock) this.updateLock;
-
-            if(reentrantLock.writeLock().isHeldByCurrentThread()){
-                this.updateLock.writeLock().unlock();
-            }
-            // Check if the lock is currently held by another thread (either for reading or writing)
-            if (reentrantLock.isWriteLocked() || reentrantLock.getReadLockCount() > 0) {
-                return; // Or throw an exception if needed
-            }
-        }catch(Exception e){
-            Logger.error(e);
+        if (!this.isAlive() || !this.enteredWorld || !this.isActive) {
+            this.resetRegenUpdateTime();
+            return;
         }
-
-        if (this.updateLock.writeLock().tryLock()) {
-            try {
-                if(!this.isAlive() || !this.enteredWorld || !this.isActive) {
-                    this.resetRegenUpdateTime();
-                    return;
-                }
-                this.updateMovementState();
-                boolean updateHealth = this.regenerateHealth();
-                boolean updateMana = this.regenerateMana();
-                boolean updateStamina = this.regenerateStamina();
-                boolean consumeStamina = this.consumeStamina();
-                if(this.timestamps.get("SyncClient") + 5000L > System.currentTimeMillis())
-                    if(updateHealth || updateMana || updateStamina || consumeStamina)
-                        this.syncClient();
-            } catch (Exception e) {
-                Logger.error(e);
-            } finally {
-                this.updateLock.writeLock().unlock();
-            }
-        }
+        //this.updateMovementState();
+        boolean updateHealth = this.regenerateHealth();
+        boolean updateMana = this.regenerateMana();
+        boolean updateStamina = this.regenerateStamina();
+        boolean consumeStamina = this.consumeStamina();
+        if (this.timestamps.get("SyncClient") + 5000L > System.currentTimeMillis())
+            if (updateHealth || updateMana || updateStamina || consumeStamina)
+                this.syncClient();
     }
 
     public boolean regenerateHealth(){
@@ -5861,7 +5635,8 @@ public class PlayerCharacter extends AbstractCharacter {
         float secondsPassed = (currentTime - regenTime) / 1000f;
         float onePercent = this.healthMax * 0.01f;
         float rate = 1.0f / RecoveryType.getRecoveryType(this).healthRate;
-        rate *= this.getRegenModifier(ModType.HealthRecoverRate);
+        //rate *= this.getRegenModifier(ModType.HealthRecoverRate);
+        rate *= this.combatStats.healthRegen;
 
         if(this.isMoving() && !this.walkMode)
             rate = 0.0f;
@@ -5892,7 +5667,7 @@ public class PlayerCharacter extends AbstractCharacter {
         float secondsPassed = (currentTime - regenTime) / 1000f;
         float onePercent = this.manaMax * 0.01f;
         float rate = 1.0f / RecoveryType.getRecoveryType(this).manaRate;
-        rate *= this.getRegenModifier(ModType.ManaRecoverRate);
+        rate *= this.combatStats.manaRegen;
 
         if(this.isMoving() && !this.walkMode)
             rate = 0.0f;
@@ -5929,6 +5704,7 @@ public class PlayerCharacter extends AbstractCharacter {
         float secondsPassed = (currentTime - regenTime) / 1000f;
 
         float secondsToRecover1 = RecoveryType.getRecoveryType(this).staminaRate;
+        secondsToRecover1 *= this.combatStats.staminaRegen;
 
         float ratio = secondsPassed / secondsToRecover1;
         //rate *= this.getRegenModifier(ModType.StaminaRecoverRate); // Adjust rate with modifiers
