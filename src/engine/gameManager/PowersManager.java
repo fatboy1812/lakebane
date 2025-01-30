@@ -828,6 +828,8 @@ public enum PowersManager {
                 if (trains < 1)
                     trains = 1;
                 applyPower(playerCharacter, playerCharacter, playerCharacter.loc, 429397210, trains, false);
+                playerCharacter.removeEffectBySource(EffectSourceType.Invisibility,40,true);
+                applyPower(playerCharacter, playerCharacter, playerCharacter.loc, msg.getPowerUsedID(), msg.getNumTrains(), false);
             }
         }
         if(msg.getTargetType() == GameObjectType.PlayerCharacter.ordinal()) {
