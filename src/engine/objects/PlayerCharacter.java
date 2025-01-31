@@ -5061,14 +5061,16 @@ public class PlayerCharacter extends AbstractCharacter {
                 }
                 this.updateLocation();
                 if(this.isAlive() && this.isActive && this.enteredWorld) {
+
                     this.updateMovementState();
-                    this.doRegen();
 
                     if (this.combatStats == null) {
                         this.combatStats = new PlayerCombatStats(this);
                     } else {
                         this.combatStats.update();
                     }
+
+                    this.doRegen();
                 }
 
                 if (this.getStamina() < 10) {
