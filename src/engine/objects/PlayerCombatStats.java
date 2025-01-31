@@ -729,12 +729,6 @@ public class PlayerCombatStats {
 
         level += amount;
 
-        //add any bonuses to the skill
-        Enum.SourceType sourceType = Enum.SourceType.GetSourceType(skillBase.getNameNoSpace());
-        if(sourceType != null && pc.bonuses != null) {
-            level += pc.bonuses.getFloat(Enum.ModType.Skill, sourceType);
-            level *= (1 + pc.bonuses.getFloatPercentAll(Enum.ModType.Skill, sourceType));
-        }
         return Math.round(level);
     }
     public static int calculateBuffedSkillLevel(String skillName, PlayerCharacter pc){
