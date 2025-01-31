@@ -331,17 +331,18 @@ public enum PowersManager {
 
 
         // Check powers for normal users
-        if (playerCharacter.getPowers() == null || !playerCharacter.getPowers().containsKey(msg.getPowerUsedID()))
-            if (!playerCharacter.isCSR()) {
-                if (!MBServerStatics.POWERS_DEBUG) {
-                    //  ChatManager.chatSayInfo(pc, "You may not cast that spell!");
+        if(msg.getPowerUsedID() != 421084024) {
+            if (playerCharacter.getPowers() == null || !playerCharacter.getPowers().containsKey(msg.getPowerUsedID()))
+                if (!playerCharacter.isCSR()) {
+                    if (!MBServerStatics.POWERS_DEBUG) {
+                        //  ChatManager.chatSayInfo(pc, "You may not cast that spell!");
 
-                    Logger.info("usePowerA(): Cheat attempted? '" + msg.getPowerUsedID() + "' was not associated with " + playerCharacter.getName());
-                    return true;
-                }
-            } else
-                CSRCast = true;
-
+                        Logger.info("usePowerA(): Cheat attempted? '" + msg.getPowerUsedID() + "' was not associated with " + playerCharacter.getName());
+                        return true;
+                    }
+                } else
+                    CSRCast = true;
+        }
         // get numTrains for power
         int trains = msg.getNumTrains();
 
