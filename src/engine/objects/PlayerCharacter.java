@@ -5048,7 +5048,7 @@ public class PlayerCharacter extends AbstractCharacter {
                 return; // Or throw an exception if needed
             }
         }catch(Exception e){
-            Logger.error(e);
+            //Logger.error(e);
         }
         if (this.updateLock.writeLock().tryLock()) {
             try {
