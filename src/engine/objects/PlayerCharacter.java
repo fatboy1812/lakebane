@@ -5070,6 +5070,7 @@ public class PlayerCharacter extends AbstractCharacter {
                         this.combatStats.update();
                     }
 
+                    //this.doRegen();
                     this.doRegen();
                 }
 
@@ -5626,7 +5627,7 @@ public class PlayerCharacter extends AbstractCharacter {
         boolean updateMana = this.regenerateMana();
         boolean updateStamina = this.regenerateStamina();
         boolean consumeStamina = this.consumeStamina();
-        if (this.timestamps.get("SyncClient") + 5000L > System.currentTimeMillis())
+        if (this.timestamps.get("SyncClient") + 5000L < System.currentTimeMillis())
             if (updateHealth || updateMana || updateStamina || consumeStamina)
                 this.syncClient();
     }
