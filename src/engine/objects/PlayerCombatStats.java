@@ -41,62 +41,62 @@ public class PlayerCombatStats {
         try {
             this.calculateATR(true);
         } catch (Exception e) {
-            Logger.error("FAILED TO CALCULATE ATR FOR: " + this.owner.getObjectUUID());
+            //Logger.error("FAILED TO CALCULATE ATR FOR: " + this.owner.getObjectUUID());
         }
         try {
             this.calculateATR(false);
         } catch (Exception e) {
-            Logger.error("FAILED TO CALCULATE ATR FOR: " + this.owner.getObjectUUID());
+            //Logger.error("FAILED TO CALCULATE ATR FOR: " + this.owner.getObjectUUID());
         }
         try {
             this.calculateMin(true);
         } catch (Exception e) {
-            Logger.error("FAILED TO CALCULATE Min FOR: " + this.owner.getObjectUUID());
+            //Logger.error("FAILED TO CALCULATE Min FOR: " + this.owner.getObjectUUID());
         }
         try {
             this.calculateMin(false);
         } catch (Exception e) {
-            Logger.error("FAILED TO CALCULATE Min FOR: " + this.owner.getObjectUUID());
+            //Logger.error("FAILED TO CALCULATE Min FOR: " + this.owner.getObjectUUID());
         }
         try {
             this.calculateMax(true);
         } catch (Exception e) {
-            Logger.error("FAILED TO CALCULATE Max FOR: " + this.owner.getObjectUUID());
+            //Logger.error("FAILED TO CALCULATE Max FOR: " + this.owner.getObjectUUID());
         }
         try {
             this.calculateMax(false);
         } catch (Exception e) {
-            Logger.error("FAILED TO CALCULATE Max FOR: " + this.owner.getObjectUUID());
+            //Logger.error("FAILED TO CALCULATE Max FOR: " + this.owner.getObjectUUID());
         }
         try {
             this.calculateAttackSpeed(true);
         } catch (Exception e) {
-            Logger.error("FAILED TO CALCULATE Attack Speed FOR: " + this.owner.getObjectUUID());
+            //Logger.error("FAILED TO CALCULATE Attack Speed FOR: " + this.owner.getObjectUUID());
         }
         try {
             this.calculateAttackSpeed(false);
         } catch (Exception e) {
-            Logger.error("FAILED TO CALCULATE Attack Speed FOR: " + this.owner.getObjectUUID());
+            //Logger.error("FAILED TO CALCULATE Attack Speed FOR: " + this.owner.getObjectUUID());
         }
         try {
             this.calculateAttackRange(true);
         } catch (Exception e) {
-            Logger.error("FAILED TO CALCULATE Attack Range FOR: " + this.owner.getObjectUUID());
+            //Logger.error("FAILED TO CALCULATE Attack Range FOR: " + this.owner.getObjectUUID());
         }
         try {
             this.calculateAttackRange(false);
         } catch (Exception e) {
-            Logger.error("FAILED TO CALCULATE Attack Range FOR: " + this.owner.getObjectUUID());
+            //Logger.error("FAILED TO CALCULATE Attack Range FOR: " + this.owner.getObjectUUID());
         }
         try {
             this.calculateRegen();
         } catch (Exception e) {
-            Logger.error("FAILED TO CALCULATE Regen FOR: " + this.owner.getObjectUUID());
+            //Logger.error("FAILED TO CALCULATE Regen FOR: " + this.owner.getObjectUUID());
         }
         try {
             this.calculateDefense();
         } catch (Exception e) {
-            Logger.error("FAILED TO CALCULATE Defense FOR: " + this.owner.getObjectUUID());
+            //Logger.error("FAILED TO CALCULATE Defense FOR: " + this.owner.getObjectUUID());
         }
     }
 
