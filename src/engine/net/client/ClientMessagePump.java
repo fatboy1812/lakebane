@@ -238,6 +238,11 @@ public class ClientMessagePump implements NetMsgHandler {
             return;
         }
 
+        if(pc.getRaceID() == 1999 && msg.getSlotNumber() == MBServerStatics.SLOT_FEET){
+            forceTransferFromEquipToInventory(msg, origin, "Saetors Cannot Wear FEET Slot Items");
+            return;
+        }
+
         //dupe check
         if (!i.validForInventory(origin, pc, itemManager))
             return;
