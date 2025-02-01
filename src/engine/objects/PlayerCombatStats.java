@@ -7,6 +7,7 @@ import engine.powers.effectmodifiers.AbstractEffectModifier;
 import engine.server.MBServerStatics;
 import org.pmw.tinylog.Logger;
 
+import javax.swing.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
@@ -702,83 +703,66 @@ public class PlayerCombatStats {
     }
 
     public static int calculateBaseSkillLevel(String skillName, PlayerCharacter pc){
-        //calculates the base level of any skill
-        if(!pc.skills.containsKey(skillName))
+        if(pc.skills.containsKey(skillName)) {
+            CharacterSkill skill = pc.skills.get(skillName);
+            SkillsBase skillsBase = skill.getSkillsBase();
+
+            float Strength = ((pc.statStrBase / (skillsBase.getStrMod() * 0.1f)) * (skillsBase.getStrMod() * 0.1f));
+            float Dexterity = ((pc.statDexBase / (skillsBase.getDexMod() * 0.1f)) * (skillsBase.getDexMod() * 0.1f));
+            float Intelligence = ((pc.statIntBase / (skillsBase.getIntMod() * 0.1f)) * (skillsBase.getIntMod() * 0.1f));
+            float Constitution = ((pc.statConBase / (skillsBase.getConMod() * 0.1f)) * (skillsBase.getConMod() * 0.1f));
+            float Spirit = ((pc.statSpiBase / (skillsBase.getSpiMod() * 0.1f)) * (skillsBase.getSpiMod() * 0.1f));
+
+            float statMod = 0;
+            if (skillsBase.getStrMod() > 0) {
+                float strengthModPercent = (float) skillsBase.getStrMod() * .01f;
+                strengthModPercent *= Strength * .01f + .6f;
+                statMod += strengthModPercent;
+            }
+
+            if (skillsBase.getDexMod() > 0) {
+                float dexModPercent = (float) skillsBase.getDexMod() * .01f;
+                dexModPercent *= Dexterity * .01f + .6f;
+                statMod += dexModPercent;
+            }
+            if (skillsBase.getConMod() > 0) {
+                float conModPercent = (float) skillsBase.getConMod() * .01f;
+                conModPercent *= Constitution * .01f + .6f;
+                statMod += conModPercent;
+            }
+            if (skillsBase.getIntMod() > 0) {
+                float intModPercent = (float) skillsBase.getIntMod() * .01f;
+                intModPercent *= Intelligence * .01f + .6f;
+                statMod += intModPercent;
+            }
+            if (skillsBase.getSpiMod() > 0) {
+                float spiModPercent = (float) skillsBase.getSpiMod() * .01f;
+                spiModPercent *= Spirit * .01f + .6f;
+                statMod += spiModPercent;
+            }
+
+            statMod = (float) (Math.pow(statMod, 1.5f) * 15f);
+            if (statMod < 1)
+                statMod = 1f;
+
+            return Math.round(statMod + skill.calculateAmountAfterTrains());
+        }else {
             return 0;
-
-        CharacterSkill skill = pc.skills.get(skillName);
-        SkillsBase skillBase = skill.getSkillsBase();
-
-        //get amounts from skills
-        float level  = 0;
-        level  += pc.statStrBase * skillBase.getStrMod();
-        level  += pc.statDexBase * skillBase.getDexMod();
-        level  += pc.statIntBase * skillBase.getIntMod();
-        level  += pc.statConBase * skillBase.getConMod();
-        level  += pc.statSpiBase * skillBase.getSpiMod();
-        level = level / 100;
-
-        //get amounts from trains
-        int amount;
-        int trains = skill.getNumTrains();
-        if (trains < 10)
-            amount = (trains * 2);
-        else if (trains < 90)
-            amount = 10 + trains;
-        else if (trains < 134)
-            amount = 100 + ((trains - 90) / 2);
-        else
-            amount = 122 + ((trains - 134) / 3);
-
-        level += amount;
-
-        return Math.round(level);
+        }
     }
     public static int calculateBuffedSkillLevel(String skillName, PlayerCharacter pc){
-        //calculates the "current" or modified level of any skill
-        if(!pc.skills.containsKey(skillName))
+        if(pc.skills.containsKey(skillName)) {
+            return Math.round(pc.skills.get(skillName).getModifiedAmount());
+        }else {
             return 0;
-
-        CharacterSkill skill = pc.skills.get(skillName);
-        SkillsBase skillBase = skill.getSkillsBase();
-
-        //get amounts from skills
-        float level  = 0;
-        level  += pc.statStrCurrent * skillBase.getStrMod();
-        level  += getDexAfterPenalty(pc) * skillBase.getDexMod();
-        level  += pc.statIntCurrent * skillBase.getIntMod();
-        level  += pc.statConCurrent * skillBase.getConMod();
-        level  += pc.statSpiCurrent * skillBase.getSpiMod();
-        level = level / 100;
-
-        //get amounts from trains
-        int amount;
-        int trains = skill.getNumTrains();
-        if (trains < 10)
-            amount = (trains * 2);
-        else if (trains < 90)
-            amount = 10 + trains;
-        else if (trains < 134)
-            amount = 100 + ((trains - 90) / 2);
-        else
-            amount = 122 + ((trains - 134) / 3);
-
-        level += amount;
-
-        //add any bonuses to the skill
-        Enum.SourceType sourceType = Enum.SourceType.GetSourceType(skillBase.getNameNoSpace());
-        if(sourceType != null && pc.bonuses != null) {
-            level += pc.bonuses.getFloat(Enum.ModType.Skill, sourceType);
-            level *= (1 + pc.bonuses.getFloatPercentAll(Enum.ModType.Skill, sourceType));
         }
-        return Math.round(level);
     }
 
     public static void PrintSkillsToClient(PlayerCharacter pc){
         for(CharacterSkill skill : pc.skills.values()){
             String name = skill.getName();
-            int base = calculateBaseSkillLevel(name,pc);
-            int buffed = calculateBuffedSkillLevel(name,pc);
+            int base = calculateBaseSkillLevel(name,pc);//calculateBaseSkillLevel(name,pc);
+            int buffed = calculateBuffedSkillLevel(name,pc);//calculateBuffedSkillLevel(name,pc);
             ChatManager.chatSystemInfo(pc,name + " = " + base + " (" + buffed + ")");
         }
     }
