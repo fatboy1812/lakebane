@@ -742,8 +742,6 @@ public class PlayerCombatStats {
             }
 
             statMod = (float) (Math.pow(statMod, 1.5f) * 15f);
-            if (statMod < 1)
-                statMod = 1f;
 
             return Math.round(statMod + skill.calculateAmountAfterTrains());
         }else {
