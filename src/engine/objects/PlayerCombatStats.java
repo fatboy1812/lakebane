@@ -705,42 +705,14 @@ public class PlayerCombatStats {
     public static int calculateBaseSkillLevel(String skillName, PlayerCharacter pc){
         if(pc.skills.containsKey(skillName)) {
             CharacterSkill skill = pc.skills.get(skillName);
-            SkillsBase skillsBase = skill.getSkillsBase();
-
-            float statmod = 0.5f;
-            statmod += pc.statStrBase * (skillsBase.getStrMod() * 0.01f);
-            statmod += pc.statDexBase * (skillsBase.getDexMod() * 0.01f);
-            statmod += pc.statConBase * (skillsBase.getConMod() * 0.01f);
-            statmod += pc.statIntBase * (skillsBase.getIntMod() * 0.01f) ;
-            statmod += pc.statSpiBase * (skillsBase.getSpiMod() * 0.01f);
-            float base = statmod < 2 ? 0.0f : (statmod - 2) * 0.2f + (statmod / 10) * 0.1666667f;
-
-            int amount;
-
-            int trains = skill.getNumTrains();
-            if (trains < 10)
-                amount = (trains * 2);
-            else if (trains < 90)
-                amount = 10 + trains;
-            else if (trains < 134)
-                amount = 100 + ((trains - 90) / 2);
-            else
-                amount = 122 + ((trains - 134) / 3);
-
-            base  += 6.5f;
-
-            if(pc.bonuses != null){
-                amount += pc.bonuses.getSkillBonus(skillsBase.sourceType);
-            }
-
-            return Math.round(base + amount);
+            return Math.round(skill.getModifiedAmountBeforeMods());
         }else {
             return 0;
         }
     }
     public static int calculateBuffedSkillLevel(String skillName, PlayerCharacter pc){
         if(pc.skills.containsKey(skillName)) {
-            return Math.round(pc.skills.get(skillName).getModifiedAmount());
+            return Math.round(pc.skills.get(skillName).getTotalSkillPercet());
         }else {
             return 0;
         }
