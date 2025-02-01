@@ -90,11 +90,11 @@ public class PlayerCombatStats {
         } catch (Exception e) {
             //Logger.error("FAILED TO CALCULATE Attack Range FOR: " + this.owner.getObjectUUID());
         }
-        try {
-            this.calculateRegen();
-        } catch (Exception e) {
+        //try {
+            //this.calculateRegen();
+        //} catch (Exception e) {
             //Logger.error("FAILED TO CALCULATE Regen FOR: " + this.owner.getObjectUUID());
-        }
+        //}
         try {
             this.calculateDefense();
         } catch (Exception e) {
@@ -126,10 +126,10 @@ public class PlayerCombatStats {
         float masteryLevel = 0;
 
         if(this.owner.skills.containsKey(skill)) {
-            skillLevel = calculateBaseSkillLevel(skill,this.owner);//this.owner.skills.get(skill).getTotalSkillPercet();
+            skillLevel = this.owner.skills.get(skill).getTotalSkillPercet();//calculateBuffedSkillLevel(skill,this.owner);//this.owner.skills.get(skill).getTotalSkillPercet();
         }
         if(this.owner.skills.containsKey(mastery))
-            masteryLevel = calculateBaseSkillLevel(mastery,this.owner);//this.owner.skills.get(mastery).getTotalSkillPercet();
+            masteryLevel = this.owner.skills.get(mastery).getTotalSkillPercet();//calculateBuffedSkillLevel(mastery,this.owner);//this.owner.skills.get(mastery).getTotalSkillPercet();
 
         float stanceValue = 0.0f;
         float atrEnchants = 0;
@@ -188,21 +188,21 @@ public class PlayerCombatStats {
                 preciseRune += 0.05f;
         }
 
-        if(weapon != null && weapon.getItemBase().isStrBased()){
-            atr = (((primaryStat / 2) + (skillLevel * 4 + masteryLevel * 3) + prefixValues) * preciseRune + atrEnchants) * (1.0f + stanceValue);
-            atr = (float) Math.round(atr);
-        }else {
-            float dexterity = getDexAfterPenalty(this.owner);
-            atr = dexterity / 2;
+        //if(weapon != null && weapon.getItemBase().isStrBased()){
+        //    atr = (((primaryStat / 2) + (skillLevel * 4 + masteryLevel * 3) + prefixValues) * preciseRune + atrEnchants) * (1.0f + stanceValue);
+        //    atr = (float) Math.round(atr);
+        //}else {
+            //float dexterity = getDexAfterPenalty(this.owner);
+            atr = primaryStat / 2;
             atr += skillLevel * 4;
             atr += masteryLevel * 3;
             atr += prefixValues;
             atr *= preciseRune;
             atr += atrEnchants;
-            atr *= 1 + this.owner.bonuses.getFloatPercentAll(Enum.ModType.OCV, Enum.SourceType.None);
+            atr *= 1 + (this.owner.bonuses.getFloatPercentAll(Enum.ModType.OCV, Enum.SourceType.Buff) - this.owner.bonuses.getFloatPercentAll(Enum.ModType.OCV, Enum.SourceType.DeBuff));
             atr *= 1.0f + stanceValue;
             atr = (float) Math.round(atr);
-        }
+        //}
 
 
 
