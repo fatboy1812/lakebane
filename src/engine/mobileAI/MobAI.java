@@ -1145,6 +1145,10 @@ public class MobAI {
                 if (ZoneManager.getSeaFloor().zoneMobSet.contains(mob))
                     mob.killCharacter("no owner");
 
+            if(!mob.isSiege())
+                mob.BehaviourType.canRoam = true;
+
+
             if (MovementUtilities.canMove(mob) && mob.BehaviourType.canRoam)
                 CheckMobMovement(mob);
 
