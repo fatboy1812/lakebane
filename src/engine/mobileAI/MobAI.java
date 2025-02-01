@@ -406,6 +406,9 @@ public class MobAI {
 
             PowersBase mobPower = PowersManager.getPowerByToken(powerToken);
 
+            if(mobPower.powerCategory.equals(Enum.PowerCategoryType.DEBUFF))
+                return false;
+
             //check for hit-roll
 
             if (mobPower.requiresHitRoll)
