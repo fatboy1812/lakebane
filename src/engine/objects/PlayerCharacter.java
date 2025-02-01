@@ -4704,7 +4704,7 @@ public class PlayerCharacter extends AbstractCharacter {
         ModType modType = ModType.GetModType(type);
 
         // must be allowed to use this passive
-        if (!this.bonuses.getBool(modType, SourceType.None) && this.getRaceID() != 1999)
+        if (!this.bonuses.getBool(modType, SourceType.None) && (this.getRaceID() != 1999 && !modType.equals(ModType.Parry)))
             return 0f;
 
         // must not be stunned
