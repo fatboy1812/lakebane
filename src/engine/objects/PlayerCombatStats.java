@@ -1,6 +1,7 @@
 package engine.objects;
 
 import engine.Enum;
+import engine.gameManager.ChatManager;
 import engine.powers.EffectsBase;
 import engine.powers.effectmodifiers.AbstractEffectModifier;
 import engine.server.MBServerStatics;
@@ -771,5 +772,14 @@ public class PlayerCombatStats {
             level *= (1 + pc.bonuses.getFloatPercentAll(Enum.ModType.Skill, sourceType));
         }
         return Math.round(level);
+    }
+
+    public static void PrintSkillsToClient(PlayerCharacter pc){
+        for(CharacterSkill skill : pc.skills.values()){
+            String name = skill.getName();
+            int base = calculateBaseSkillLevel(name,pc);
+            int buffed = calculateBuffedSkillLevel(name,pc);
+            ChatManager.chatSystemInfo(pc,name + " = " + base + " (" + buffed + ")");
+        }
     }
 }
