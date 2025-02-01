@@ -320,6 +320,14 @@ public class MobAI {
             if (mob == null)
                 return false;
 
+            if (mob.nextCastTime == 0)
+                mob.nextCastTime = System.currentTimeMillis() - 1000L;
+
+            if(mob.nextCastTime > System.currentTimeMillis())
+                return false;
+
+            mob.nextCastTime = (long) (System.currentTimeMillis() + Float.parseFloat(ConfigManager.MB_AI_CAST_FREQUENCY.getValue()) * 1000L);
+
             if(mob.isPlayerGuard){
 
                 int contractID = 0;
@@ -340,8 +348,6 @@ public class MobAI {
                 mob.setCombatTarget(null);
                 return false;
             }
-            if (mob.nextCastTime == 0)
-                mob.nextCastTime = System.currentTimeMillis();
 
             return mob.nextCastTime <= System.currentTimeMillis();
 
@@ -425,7 +431,6 @@ public class MobAI {
                 PowersManager.finishUseMobPower(msg, mob, 0, 0);
                 long randomCooldown = (long)((ThreadLocalRandom.current().nextInt(10,15) * 1000) * MobAIThread.AI_CAST_FREQUENCY);
 
-                mob.nextCastTime = System.currentTimeMillis() + randomCooldown;
                 return true;
             }
         } catch (Exception e) {
@@ -548,7 +553,6 @@ public class MobAI {
                 PowersManager.finishUseMobPower(msg, mob, 0, 0);
 
                 long randomCooldown = (long)((ThreadLocalRandom.current().nextInt(10,15) * 1000) * MobAIThread.AI_CAST_FREQUENCY);
-                mob.nextCastTime = System.currentTimeMillis() + randomCooldown;
                 return true;
             }
         } catch (Exception e) {
