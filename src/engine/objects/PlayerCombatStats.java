@@ -124,10 +124,10 @@ public class PlayerCombatStats {
         float masteryLevel = 0;
 
         if(this.owner.skills.containsKey(skill)) {
-            skillLevel = this.owner.skills.get(skill).getTotalSkillPercet();
+            skillLevel = calculateBaseSkillLevel(skill,this.owner);//this.owner.skills.get(skill).getTotalSkillPercet();
         }
         if(this.owner.skills.containsKey(mastery))
-            masteryLevel = this.owner.skills.get(mastery).getTotalSkillPercet();
+            masteryLevel = calculateBaseSkillLevel(mastery,this.owner);//this.owner.skills.get(mastery).getTotalSkillPercet();
 
         float stanceValue = 0.0f;
         float atrEnchants = 0;
@@ -254,11 +254,11 @@ public class PlayerCombatStats {
         }
 
         if (this.owner.skills.containsKey(skill)) {
-            weaponSkill = this.owner.skills.get(skill).getTotalSkillPercet();
+            weaponSkill = calculateBaseSkillLevel(skill,this.owner);//this.owner.skills.get(skill).getTotalSkillPercet();
         }
 
         if (this.owner.skills.containsKey(mastery)) {
-            weaponMastery = this.owner.skills.get(mastery).getTotalSkillPercet();
+            weaponMastery = calculateBaseSkillLevel(mastery,this.owner);this.owner.skills.get(mastery).getTotalSkillPercet();
         }
 
         double minDMG = baseDMG * (
@@ -333,11 +333,11 @@ public class PlayerCombatStats {
         }
 
         if (this.owner.skills.containsKey(skill)) {
-            weaponSkill = this.owner.skills.get(skill).getModifiedAmount();
+            weaponSkill = calculateBuffedSkillLevel(skill,this.owner);//this.owner.skills.get(skill).getModifiedAmount();
         }
 
         if (this.owner.skills.containsKey(mastery)) {
-            weaponMastery = this.owner.skills.get(mastery).getModifiedAmount();
+            weaponMastery = calculateBuffedSkillLevel(mastery,this.owner);//this.owner.skills.get(mastery).getModifiedAmount();
         }
 
         double maxDMG = baseDMG * (
@@ -567,10 +567,10 @@ public class PlayerCombatStats {
             masteryName = weapon.getItemBase().getMastery();
         }
         if(this.owner.skills.containsKey(skillName))
-            weaponSkill = this.owner.skills.get(skillName).getModifiedAmount();//calculateModifiedSkill(skillName,this.owner);//this.owner.skills.get(skillName).getModifiedAmount();
+            weaponSkill = calculateBuffedSkillLevel(skillName,this.owner);//this.owner.skills.get(skillName).getModifiedAmount();//calculateModifiedSkill(skillName,this.owner);//this.owner.skills.get(skillName).getModifiedAmount();
 
         if(this.owner.skills.containsKey(masteryName))
-            masterySkill = this.owner.skills.get(masteryName).getModifiedAmount();//calculateModifiedSkill(masteryName,this.owner);//this.owner.skills.get(masteryName).getModifiedAmount();
+            masterySkill = calculateBuffedSkillLevel(masteryName,this.owner);//this.owner.skills.get(masteryName).getModifiedAmount();//calculateModifiedSkill(masteryName,this.owner);//this.owner.skills.get(masteryName).getModifiedAmount();
 
         float dexterity = getDexAfterPenalty(this.owner);
 
@@ -695,7 +695,9 @@ public class PlayerCombatStats {
             //def += armor.getBonus(ModType.DR, SourceType.None);
             //def *= (1 + armor.getBonusPercent(ModType.DR, SourceType.None));
         }
-        return (def * (1 + ((int) armorSkill.getModifiedAmount() / 50f)));
+        float skillLevel = calculateBuffedSkillLevel(armorSkill.getName(),pc);
+        //return (def * (1 + ((int) armorSkill.getModifiedAmount() / 50f)));
+        return (def * (1 + ((int) skillLevel / 50f)));
     }
 
     public static int calculateBaseSkillLevel(String skillName, PlayerCharacter pc){
