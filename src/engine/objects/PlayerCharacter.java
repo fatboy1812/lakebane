@@ -4724,9 +4724,9 @@ public class PlayerCharacter extends AbstractCharacter {
 
         // Add item bonuses and return
         if (type.equals(ModType.Dodge) && !fromCombat)
-            return ((amount / 4) - attackerLevel + this.getLevel()) / 4;
+            return (amount - attackerLevel + this.getLevel()) / 16; // spells
         else
-            return (amount - attackerLevel + this.getLevel()) / 4;
+            return (amount - attackerLevel + this.getLevel()) / 4; // combat
     }
 
     public float getRegenModifier(ModType type) {
