@@ -707,43 +707,31 @@ public class PlayerCombatStats {
             CharacterSkill skill = pc.skills.get(skillName);
             SkillsBase skillsBase = skill.getSkillsBase();
 
-            float Strength = ((pc.statStrBase / (skillsBase.getStrMod() * 0.1f)) * (skillsBase.getStrMod() * 0.1f));
-            float Dexterity = ((pc.statDexBase / (skillsBase.getDexMod() * 0.1f)) * (skillsBase.getDexMod() * 0.1f));
-            float Intelligence = ((pc.statIntBase / (skillsBase.getIntMod() * 0.1f)) * (skillsBase.getIntMod() * 0.1f));
-            float Constitution = ((pc.statConBase / (skillsBase.getConMod() * 0.1f)) * (skillsBase.getConMod() * 0.1f));
-            float Spirit = ((pc.statSpiBase / (skillsBase.getSpiMod() * 0.1f)) * (skillsBase.getSpiMod() * 0.1f));
+            float statmod = 0;
+            statmod += pc.statStrBase * (skillsBase.getStrMod() * 0.01f);
+            statmod += pc.statDexBase * (skillsBase.getDexMod() * 0.01f);
+            statmod += pc.statConBase * (skillsBase.getConMod() * 0.01f);
+            statmod += pc.statIntBase * (skillsBase.getIntMod() * 0.01f);
+            statmod += pc.statSpiBase * (skillsBase.getSpiMod() * 0.01f);
+            float base = CharacterSkill.baseSkillValues[Math.round(statmod)];
 
-            float statMod = 0;
-            if (skillsBase.getStrMod() > 0) {
-                float strengthModPercent = (float) skillsBase.getStrMod() * .01f;
-                strengthModPercent *= Strength * .01f + .6f;
-                statMod += strengthModPercent;
-            }
+            int amount;
 
-            if (skillsBase.getDexMod() > 0) {
-                float dexModPercent = (float) skillsBase.getDexMod() * .01f;
-                dexModPercent *= Dexterity * .01f + .6f;
-                statMod += dexModPercent;
-            }
-            if (skillsBase.getConMod() > 0) {
-                float conModPercent = (float) skillsBase.getConMod() * .01f;
-                conModPercent *= Constitution * .01f + .6f;
-                statMod += conModPercent;
-            }
-            if (skillsBase.getIntMod() > 0) {
-                float intModPercent = (float) skillsBase.getIntMod() * .01f;
-                intModPercent *= Intelligence * .01f + .6f;
-                statMod += intModPercent;
-            }
-            if (skillsBase.getSpiMod() > 0) {
-                float spiModPercent = (float) skillsBase.getSpiMod() * .01f;
-                spiModPercent *= Spirit * .01f + .6f;
-                statMod += spiModPercent;
+            int trains = skill.getNumTrains();
+            if (trains < 10)
+                amount = (trains * 2);
+            else if (trains < 90)
+                amount = 10 + trains;
+            else if (trains < 134)
+                amount = 100 + ((trains - 90) / 2);
+            else
+                amount = 122 + ((trains - 134) / 3);
+
+            if(pc.bonuses != null){
+                amount += pc.bonuses.getSkillBonus(skillsBase.sourceType);
             }
 
-            statMod = (float) (Math.pow(statMod, 1.5f) * 15f);
-
-            return Math.round(statMod + skill.calculateAmountAfterTrains());
+            return Math.round(base + amount);
         }else {
             return 0;
         }
