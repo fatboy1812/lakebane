@@ -707,13 +707,13 @@ public class PlayerCombatStats {
             CharacterSkill skill = pc.skills.get(skillName);
             SkillsBase skillsBase = skill.getSkillsBase();
 
-            float statmod = 0;
+            float statmod = 0.5f;
             statmod += pc.statStrBase * (skillsBase.getStrMod() * 0.01f);
             statmod += pc.statDexBase * (skillsBase.getDexMod() * 0.01f);
             statmod += pc.statConBase * (skillsBase.getConMod() * 0.01f);
-            statmod += pc.statIntBase * (skillsBase.getIntMod() * 0.01f);
+            statmod += pc.statIntBase * (skillsBase.getIntMod() * 0.01f) ;
             statmod += pc.statSpiBase * (skillsBase.getSpiMod() * 0.01f);
-            float base = CharacterSkill.baseSkillValues[Math.round(statmod)];
+            float base = statmod < 2 ? 0.0f : (statmod - 2) * 0.2f + (statmod / 10) * 0.1666667f;
 
             int amount;
 
@@ -726,6 +726,8 @@ public class PlayerCombatStats {
                 amount = 100 + ((trains - 90) / 2);
             else
                 amount = 122 + ((trains - 134) / 3);
+
+            base  += 6.5f;
 
             if(pc.bonuses != null){
                 amount += pc.bonuses.getSkillBonus(skillsBase.sourceType);
