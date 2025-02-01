@@ -1718,7 +1718,11 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
 
                 // clear bonuses and reapply rune bonuses
                 if (this.getObjectType().equals(GameObjectType.PlayerCharacter)) {
-                    this.bonuses.calculateRuneBaseEffects((PlayerCharacter) this);
+                    try {
+                        this.bonuses.calculateRuneBaseEffects((PlayerCharacter) this);
+                    }catch(Exception ignored){
+
+                    }
                 } else {
                     this.bonuses.clearRuneBaseEffects();
                 }
