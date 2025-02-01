@@ -5627,9 +5627,12 @@ public class PlayerCharacter extends AbstractCharacter {
         boolean updateMana = this.regenerateMana();
         boolean updateStamina = this.regenerateStamina();
         boolean consumeStamina = this.consumeStamina();
-        if (this.timestamps.get("SyncClient") + 5000L < System.currentTimeMillis())
-            if (updateHealth || updateMana || updateStamina || consumeStamina)
+        if (this.timestamps.get("SyncClient") + 5000L < System.currentTimeMillis()) {
+            if (updateHealth || updateMana || updateStamina || consumeStamina) {
                 this.syncClient();
+                this.timestamps.put("SyncClient", System.currentTimeMillis());
+            }
+        }
     }
 
     public boolean regenerateHealth(){
