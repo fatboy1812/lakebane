@@ -5151,7 +5151,7 @@ public class PlayerCharacter extends AbstractCharacter {
 
     }
     public static boolean checkIfBoxed(PlayerCharacter player){
-        if(ConfigManager.MB_WORLD_TESTMODE.getValue().equals("true")) {
+        if(ConfigManager.MB_WORLD_BOXLIMIT.getValue().equals("true")) {
             return false;
         }
         try {
