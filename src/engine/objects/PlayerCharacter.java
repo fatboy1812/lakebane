@@ -4432,7 +4432,7 @@ public class PlayerCharacter extends AbstractCharacter {
             //set parry if fighter or thief and no invalid weapon found
             this.bonuses.setBool(ModType.Parry, SourceType.None, false);
             if ((this.baseClass != null && this.baseClass.getObjectUUID() == 2500)
-                    || (this.promotionClass != null && this.promotionClass.getObjectUUID() == 2520))
+                    || (this.promotionClass != null && this.promotionClass.getObjectUUID() == 2520) || this.getRaceID() == 1999)
                 if (wbMain == null || wbMain.getRange() < MBServerStatics.RANGED_WEAPON_RANGE)
                     if (wbOff == null || wbOff.getRange() < MBServerStatics.RANGED_WEAPON_RANGE)
                         this.bonuses.setBool(ModType.Parry, SourceType.None, true);
@@ -4704,7 +4704,7 @@ public class PlayerCharacter extends AbstractCharacter {
         ModType modType = ModType.GetModType(type);
 
         // must be allowed to use this passive
-        if (!this.bonuses.getBool(modType, SourceType.None) && (this.getRaceID() != 1999 && !modType.equals(ModType.Parry)))
+        if (!this.bonuses.getBool(modType, SourceType.None))
             return 0f;
 
         // must not be stunned
