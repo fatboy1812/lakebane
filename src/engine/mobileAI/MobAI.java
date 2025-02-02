@@ -430,7 +430,7 @@ public class MobAI {
                 msg.setUnknown04(2);
 
                 PowersManager.finishUseMobPower(msg, mob, 0, 0);
-                long delay = (long)(Float.parseFloat(ConfigManager.MB_AI_CAST_FREQUENCY.getValue()) * 1000L);
+                long delay = 20000L;
                 mob.nextCastTime = System.currentTimeMillis() + delay;
 
                 return true;
