@@ -49,8 +49,8 @@ public class PrintSkillsCmd extends AbstractDevCmd {
                         + skill.getModifiedAmount() + '('
                         + skill.getTotalSkillPercet() + " )");
             }
-            throwbackInfo(pc, "= = = = = NEW CALCULATIONS = = = = =");
-            PlayerCombatStats.PrintSkillsToClient(pc);
+            //throwbackInfo(pc, "= = = = = NEW CALCULATIONS = = = = =");
+           // PlayerCombatStats.PrintSkillsToClient(pc);
         } else
             throwbackInfo(pc, "Skills not found for player");
     }

@@ -126,10 +126,10 @@ public class PlayerCombatStats {
         float masteryLevel = 0;
 
         if(this.owner.skills.containsKey(skill)) {
-            skillLevel = this.owner.skills.get(skill).getTotalSkillPercet();//calculateBuffedSkillLevel(skill,this.owner);//this.owner.skills.get(skill).getTotalSkillPercet();
+            skillLevel = this.owner.skills.get(skill).getModifiedAmount();//calculateBuffedSkillLevel(skill,this.owner);//this.owner.skills.get(skill).getTotalSkillPercet();
         }
         if(this.owner.skills.containsKey(mastery))
-            masteryLevel = this.owner.skills.get(mastery).getTotalSkillPercet();//calculateBuffedSkillLevel(mastery,this.owner);//this.owner.skills.get(mastery).getTotalSkillPercet();
+            masteryLevel = this.owner.skills.get(mastery).getModifiedAmount();//calculateBuffedSkillLevel(mastery,this.owner);//this.owner.skills.get(mastery).getTotalSkillPercet();
 
         float stanceValue = 0.0f;
         float atrEnchants = 0;
