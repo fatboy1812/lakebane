@@ -93,13 +93,10 @@ public enum SimulationManager {
         }
         try {
 
-            if ((_updatePulseTime != 0)
-                    && (System.currentTimeMillis() > _updatePulseTime))
+            if ((_updatePulseTime != 0) && (System.currentTimeMillis() > _updatePulseTime))
                 pulseUpdate();
         } catch (Exception e) {
-            Logger.error(
-                    "Fatal error in Update Pulse: DISABLED");
-            //  _runegatePulseTime = 0;
+            Logger.error("Fatal error in Update Pulse: DISABLED");
         }
 
         try {
@@ -160,7 +157,11 @@ public enum SimulationManager {
 
             if (player == null)
                 continue;
-            player.update(false);
+            try {
+                player.update(true);
+            }catch(Exception e){
+
+            }
         }
 
         _updatePulseTime = System.currentTimeMillis() + 500;

@@ -5037,19 +5037,9 @@ public class PlayerCharacter extends AbstractCharacter {
     @Override
     public void update(Boolean newSystem) {
 
-        try {
-            ReentrantReadWriteLock reentrantLock = (ReentrantReadWriteLock) this.updateLock;
+        if(!newSystem)
+            return;
 
-            if(reentrantLock.writeLock().isHeldByCurrentThread()){
-                this.updateLock.writeLock().unlock();
-            }
-            // Check if the lock is currently held by another thread (either for reading or writing)
-            if (reentrantLock.isWriteLocked() || reentrantLock.getReadLockCount() > 0) {
-                return; // Or throw an exception if needed
-            }
-        }catch(Exception e){
-            //Logger.error(e);
-        }
         if (this.updateLock.writeLock().tryLock()) {
             try {
                 if (!this.isAlive() && this.isEnteredWorld()) {
@@ -5069,8 +5059,6 @@ public class PlayerCharacter extends AbstractCharacter {
                     } else {
                         this.combatStats.update();
                     }
-
-                    //this.doRegen();
                     this.doRegen();
                 }
 
@@ -5125,7 +5113,6 @@ public class PlayerCharacter extends AbstractCharacter {
                 }
 
             } catch (Exception e) {
-                this.updateLock.writeLock().unlock();
                 Logger.error(e);
             } finally {
                 this.updateLock.writeLock().unlock();
