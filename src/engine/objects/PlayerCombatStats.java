@@ -532,7 +532,7 @@ public class PlayerCombatStats {
         }
         for(String armorUsed : armorsUsed){
             if(this.owner.skills.containsKey(armorUsed)) {
-                armorSkill += calculateBuffedSkillLevel(armorUsed,this.owner);
+                armorSkill += this.owner.skills.get(armorUsed).getModifiedAmount();//calculateBuffedSkillLevel(armorUsed,this.owner);
             }
         }
         if(armorsUsed.size() > 0)
@@ -572,10 +572,10 @@ public class PlayerCombatStats {
             masteryName = weapon.getItemBase().getMastery();
         }
         if(this.owner.skills.containsKey(skillName))
-            weaponSkill = calculateBuffedSkillLevel(skillName,this.owner);//this.owner.skills.get(skillName).getModifiedAmount();//calculateModifiedSkill(skillName,this.owner);//this.owner.skills.get(skillName).getModifiedAmount();
+            weaponSkill = this.owner.skills.get(skillName).getModifiedAmount();//calculateBuffedSkillLevel(skillName,this.owner);//this.owner.skills.get(skillName).getModifiedAmount();//calculateModifiedSkill(skillName,this.owner);//this.owner.skills.get(skillName).getModifiedAmount();
 
         if(this.owner.skills.containsKey(masteryName))
-            masterySkill = calculateBuffedSkillLevel(masteryName,this.owner);//this.owner.skills.get(masteryName).getModifiedAmount();//calculateModifiedSkill(masteryName,this.owner);//this.owner.skills.get(masteryName).getModifiedAmount();
+            masterySkill = this.owner.skills.get(masteryName).getModifiedAmount();//calculateBuffedSkillLevel(masteryName,this.owner);//this.owner.skills.get(masteryName).getModifiedAmount();//calculateModifiedSkill(masteryName,this.owner);//this.owner.skills.get(masteryName).getModifiedAmount();
 
         float dexterity = getDexAfterPenalty(this.owner);
 
@@ -613,16 +613,11 @@ public class PlayerCombatStats {
         else if(this.owner.charItemManager != null && this.owner.charItemManager.getEquipped(2) != null && !this.owner.charItemManager.getEquipped(2).getItemBase().isShield())
             blockSkill = 0;
 
-        //Defense = (1+Armor skill / 50) * Armor defense + (1 + Block skill / 100) * Shield defense
-        // + (Primary weapon skill / 2) + (Weapon mastery skill/ 2) + ROUND((Dexterity-Dex penalty),0) * 2 + Flat bonuses from rings or cloth
-        float defense = 0;
-        for(Item equipped : this.owner.charItemManager.getEquippedList()){
-            ItemBase ib = equipped.getItemBase();
-            if(ib.getType().equals(Enum.ItemType.ARMOR) && !ib.isShield()){
-                defense += getArmorDefense(equipped,this.owner);
-            }
-        }
-        //float defense = (1 + armorSkill / 50) * armorDefense;
+
+        //Defense = (  (1 + ModArmorskill / 50) * TotalArmorDef + “if shield” (1 + ModBlockskill / 100 * ShieldDef) + modifiedweaponskill/2 “unarmed if no weapon equipped”
+        // + modifiedweaponmastery/2 + ModifiedDex * 2 + Flatdefensemodifiers ) * 1.05 “if lucky” * Stancemodifier
+
+        float defense = (1 + armorSkill / 50) * armorDefense;
         defense += (1 + blockSkill / 100) * shieldDefense;
         defense += (weaponSkill / 2);
         defense += (masterySkill / 2);
