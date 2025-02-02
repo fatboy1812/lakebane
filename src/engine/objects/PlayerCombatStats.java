@@ -122,6 +122,9 @@ public class PlayerCombatStats {
                 primaryStat = this.owner.statStrCurrent;
         }
 
+        if(weapon == null)
+            primaryStat = this.owner.statStrCurrent;
+
         float skillLevel = 0;
         float masteryLevel = 0;
 
@@ -300,10 +303,10 @@ public class PlayerCombatStats {
         //Weapon Max DMG = BaseDMG * (0.0124*Primary Stat + 0.118*(Primary Stat -0.75)^0.5
         // + 0.0022*Secondary Stat + 0.028*(Secondary Stat-0.75)^0.5 + 0.0075*(Weapon Skill + Weapon Mastery))
         Item weapon;
-        float specialDex = this.owner.statDexBase;
-        specialDex += this.owner.bonuses.getFloat(Enum.ModType.Attr, Enum.SourceType.Dexterity);
+        //float specialDex = this.owner.statDexBase;
+        //specialDex += this.owner.bonuses.getFloat(Enum.ModType.Attr, Enum.SourceType.Dexterity);
         double baseDMG = 5;
-        float primaryStat = specialDex;//getDexAfterPenalty(this.owner);
+        float primaryStat = getDexAfterPenalty(this.owner);
         float secondaryStat = this.owner.statStrCurrent;
         double weaponSkill = 5;
         double weaponMastery = 5;
@@ -323,7 +326,7 @@ public class PlayerCombatStats {
             mastery = weapon.getItemBase().getMastery();
             if (weapon.getItemBase().isStrBased()) {
                 primaryStat = this.owner.statStrCurrent;
-                secondaryStat = specialDex;//getDexAfterPenalty(this.owner);
+                secondaryStat = getDexAfterPenalty(this.owner);
             }
             for(Effect eff : weapon.effects.values()){
                 for(AbstractEffectModifier mod : eff.getEffectModifiers()){

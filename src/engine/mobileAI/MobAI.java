@@ -326,8 +326,6 @@ public class MobAI {
             if(mob.nextCastTime > System.currentTimeMillis())
                 return false;
 
-            mob.nextCastTime = (long) (System.currentTimeMillis() + Float.parseFloat(ConfigManager.MB_AI_CAST_FREQUENCY.getValue()) * 1000L);
-
             if(mob.isPlayerGuard){
 
                 int contractID = 0;
@@ -432,7 +430,7 @@ public class MobAI {
                 msg.setUnknown04(2);
 
                 PowersManager.finishUseMobPower(msg, mob, 0, 0);
-                long randomCooldown = (long)((ThreadLocalRandom.current().nextInt(10,15) * 1000) * MobAIThread.AI_CAST_FREQUENCY);
+                mob.nextCastTime = System.currentTimeMillis() + (long)(Float.parseFloat(ConfigManager.MB_AI_CAST_FREQUENCY.getValue()) * 1000L);
 
                 return true;
             }
