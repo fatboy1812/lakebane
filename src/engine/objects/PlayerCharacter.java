@@ -4711,22 +4711,90 @@ public class PlayerCharacter extends AbstractCharacter {
         if (this.bonuses.getBool(ModType.Stunned, SourceType.None))
             return 0f;
 
-        // Get base skill amount
-        CharacterSkill sk = this.skills.get(type);
-        float amount;
-        if (sk == null)
-            amount = CharacterSkill.getQuickMastery(this, type);
-        else
-            amount = sk.getModifiedAmount();
+        int levelDifference = this.level - attackerLevel;
+        CharacterSkill passiveSkill;
 
-        // Add bonuses
-        amount += this.bonuses.getFloat(modType, SourceType.None);
+        Item mainHand = null;
+        Item offHand = null;
+        if(this.charItemManager != null){
+            mainHand = this.charItemManager.getEquipped(1);
+            offHand = this.charItemManager.getEquipped(2);
+        }
+        switch(type){
+            case "Block":
+                if(!fromCombat)
+                    return 0;
 
-        // Add item bonuses and return
-        if (type.equals(ModType.Dodge) && !fromCombat)
-            return (amount - attackerLevel + this.getLevel()) / 16; // spells
-        else
-            return (amount - attackerLevel + this.getLevel()) / 4; // combat
+                if(offHand == null)
+                    return 0;
+
+                if(!offHand.getItemBase().isShield())
+                    return 0;
+
+                passiveSkill = this.skills.get("Block");
+                if(passiveSkill == null)
+                    return 0;
+
+                float blockBonusFromShield = 0;
+                blockBonusFromShield = offHand.getItemBase().getBlockMod() * 100;
+                for(Effect eff : offHand.effects.values()){
+                    for(AbstractEffectModifier mod : eff.getEffectModifiers()){
+                        if(mod.modType.equals(ModType.PassiveDefense)){
+                            float min = mod.minMod;
+                            int trains = eff.getTrains();
+                            float ramp = mod.getRamp();
+                            blockBonusFromShield += (min + (trains * ramp)) * 10;
+                        }
+                    }
+                }
+                float blockChance = ((passiveSkill.getModifiedAmount() + blockBonusFromShield) / 4) + levelDifference;
+                if(this.bonuses != null)
+                    blockChance *= 1 + this.bonuses.getFloatPercentAll(ModType.PassiveDefense, SourceType.None);
+                return blockChance;
+
+            case "Parry":
+                if(!fromCombat)
+                    return 0;
+
+                if(mainHand == null)
+                    return 0;
+                int parryBonus = 0;
+
+                if(mainHand != null && offHand != null && !offHand.getItemBase().isShield())
+                    parryBonus = 5;
+
+                if(mainHand != null && mainHand.getItemBase().isTwoHanded())
+                    parryBonus = 10;
+
+                parryBonus *= 10;
+
+                passiveSkill = this.skills.get("Parry");
+                if(passiveSkill == null)
+                    return 0;
+
+                float parryChance =((passiveSkill.getModifiedAmount() + parryBonus) / 4) + levelDifference;
+
+                if(this.bonuses != null)
+                    parryChance *= 1 + this.bonuses.getFloatPercentAll(ModType.Parry, SourceType.None);
+
+                return parryChance;
+
+            case "Dodge":
+                passiveSkill = this.skills.get("Dodge");
+                if(passiveSkill == null)
+                    return 0;
+
+                int divisor = 4;
+                if(!fromCombat)
+                    divisor = 16;
+
+                float dodgeChance = ((passiveSkill.getModifiedAmount()) / divisor) + levelDifference;
+
+                return dodgeChance;
+            default:
+                return 0;
+
+        }
     }
 
     public float getRegenModifier(ModType type) {
