@@ -4722,8 +4722,8 @@ public class PlayerCharacter extends AbstractCharacter {
         }
         switch(type){
             case "Block":
-                if(!fromCombat)
-                    return 0;
+                //if(!fromCombat)
+                    //return 0;
 
                 if(offHand == null)
                     return 0;
@@ -4748,7 +4748,10 @@ public class PlayerCharacter extends AbstractCharacter {
                         }
                     }
                 }
-                float blockChance = ((passiveSkill.getModifiedAmount() + blockBonusFromShield) / 4) + levelDifference;
+                int divisr = 4;
+                if(!fromCombat)
+                    divisr = 16;
+                float blockChance = ((passiveSkill.getModifiedAmount() + blockBonusFromShield) / divisr) + levelDifference;
                 if(this.bonuses != null)
                     blockChance *= 1 + this.bonuses.getFloatPercentAll(ModType.Block, SourceType.None);
                 return blockChance;
