@@ -4736,27 +4736,28 @@ public class PlayerCharacter extends AbstractCharacter {
                     return 0;
 
                 float blockBonusFromShield = 0;
-                blockBonusFromShield = offHand.getItemBase().getBlockMod() * 100;
+                ItemBase ib = offHand.getItemBase();
+                blockBonusFromShield = ib.getBlockMod() * 5;
                 for(Effect eff : offHand.effects.values()){
                     for(AbstractEffectModifier mod : eff.getEffectModifiers()){
                         if(mod.modType.equals(ModType.PassiveDefense)){
                             float min = mod.minMod;
                             int trains = eff.getTrains();
                             float ramp = mod.getRamp();
-                            blockBonusFromShield += (min + (trains * ramp)) * 10;
+                            blockBonusFromShield += (min + (trains * ramp)) * 5;
                         }
                     }
                 }
                 float blockChance = ((passiveSkill.getModifiedAmount() + blockBonusFromShield) / 4) + levelDifference;
                 if(this.bonuses != null)
-                    blockChance *= 1 + this.bonuses.getFloatPercentAll(ModType.PassiveDefense, SourceType.None);
+                    blockChance *= 1 + this.bonuses.getFloatPercentAll(ModType.Block, SourceType.None);
                 return blockChance;
 
             case "Parry":
                 if(!fromCombat)
                     return 0;
 
-                if(mainHand == null)
+                if(mainHand == null && this.getRaceID() != 1999) // saetors can always parry using their horns
                     return 0;
                 int parryBonus = 0;
 
@@ -4789,6 +4790,9 @@ public class PlayerCharacter extends AbstractCharacter {
                     divisor = 16;
 
                 float dodgeChance = ((passiveSkill.getModifiedAmount()) / divisor) + levelDifference;
+
+                if(this.bonuses != null)
+                    dodgeChance *= 1 + this.bonuses.getFloatPercentAll(ModType.Dodge, SourceType.None);
 
                 return dodgeChance;
             default:
