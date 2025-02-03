@@ -2450,6 +2450,13 @@ public enum PowersManager {
                     dodgeMsg.setTargetID(awo.getObjectUUID());
                     sendPowerMsg(pc, 4, dodgeMsg);
                     return true;
+                } else if (testPassive(pc, tarAc, "Block")) {
+                    // Dodge fired, send dodge message
+                    PerformActionMsg dodgeMsg = new PerformActionMsg(msg);
+                    dodgeMsg.setTargetType(awo.getObjectType().ordinal());
+                    dodgeMsg.setTargetID(awo.getObjectUUID());
+                    sendPowerMsg(pc, 4, dodgeMsg);
+                    return true;
                 }
             }
             return false;
@@ -2497,7 +2504,12 @@ public enum PowersManager {
             if (AbstractWorldObject.IsAbstractCharacter(awo)) {
                 AbstractCharacter tarAc = (AbstractCharacter) awo;
                 // Handle Dodge passive
-                return testPassive(caster, tarAc, "Dodge");
+                boolean passiveFired = false;
+                passiveFired =  testPassive(caster, tarAc, "Dodge");
+                if(!passiveFired)
+                    passiveFired =  testPassive(caster, tarAc, "Block");
+
+                return passiveFired;
             }
             return false;
         } else
