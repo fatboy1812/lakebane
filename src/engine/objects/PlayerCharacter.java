@@ -5114,84 +5114,88 @@ public class PlayerCharacter extends AbstractCharacter {
 
         if(!newSystem)
             return;
+        try {
 
-        if (this.updateLock.writeLock().tryLock()) {
-            try {
-                if (!this.isAlive() && this.isEnteredWorld()) {
-                    if(!this.timestamps.containsKey("DeathTime")){
-                        this.timestamps.put("DeathTime",System.currentTimeMillis());
-                    }else if((System.currentTimeMillis() - this.timestamps.get("DeathTime")) > 600000)
-                        forceRespawn(this);
-                    return;
-                }
-                this.updateLocation();
-                if(this.isAlive() && this.isActive && this.enteredWorld) {
-
-                    this.updateMovementState();
-
-                    if (this.combatStats == null) {
-                        this.combatStats = new PlayerCombatStats(this);
-                    } else {
-                        this.combatStats.update();
+            if (this.updateLock.writeLock().tryLock()) {
+                try {
+                    if (!this.isAlive() && this.isEnteredWorld()) {
+                        if (!this.timestamps.containsKey("DeathTime")) {
+                            this.timestamps.put("DeathTime", System.currentTimeMillis());
+                        } else if ((System.currentTimeMillis() - this.timestamps.get("DeathTime")) > 600000)
+                            forceRespawn(this);
+                        return;
                     }
-                    this.doRegen();
-                }
+                    this.updateLocation();
+                    if (this.isAlive() && this.isActive && this.enteredWorld) {
 
-                if (this.getStamina() < 10) {
-                    if (this.getAltitude() > 0 || this.getDesiredAltitude() > 0) {
-                        PlayerCharacter.GroundPlayer(this);
+                        this.updateMovementState();
+
+                        if (this.combatStats == null) {
+                            this.combatStats = new PlayerCombatStats(this);
+                        } else {
+                            this.combatStats.update();
+                        }
+                        this.doRegen();
                     }
-                }
 
-                RealmMap.updateRealm(this);
-                this.updateBlessingMessage();
-
-                this.safeZone = this.isInSafeZone();
-                if(!this.timestamps.containsKey("nextBoxCheck"))
-                    this.timestamps.put("nextBoxCheck", System.currentTimeMillis() + 10000);
-
-                if(!this.isBoxed && this.timestamps.get("nextBoxCheck") < System.currentTimeMillis()) {
-                    this.isBoxed = checkIfBoxed(this);
-                    this.timestamps.put("nextBoxCheck", System.currentTimeMillis() + 10000);
-                }
-
-                if(this.level < 10 && this.enteredWorld) {
-                    while (this.level < 10) {
-                        grantXP(Experience.getBaseExperience(this.level + 1) - this.exp);
-                    }
-                }
-
-                if(this.isBoxed && !this.containsEffect(1672601862)) {
-                    PowersManager.applyPower(this, this, Vector3fImmutable.ZERO, 1672601862, 40, false);
-                }
-
-                if(this.isFlying()){
-                    if(this.effects.containsKey("MoveBuff")){
-                        GroundPlayer(this);
-                    }
-                    if(!this.timestamps.containsKey("StunGrounded"))
-                        this.timestamps.put("StunGrounded",System.currentTimeMillis() - 1000L);
-                    if(this.bonuses.getBool(ModType.Stunned, SourceType.None) && this.timestamps.get("StunGrounded") < System.currentTimeMillis()){
-                        boolean isFlyMoving = this.getDesiredAltitude() != this.altitude;
-                        if(!isFlyMoving && this.bonuses.getBool(ModType.Stunned, SourceType.None)){
-                            this.setDesiredAltitude(this.altitude - 10);
-                            this.setTakeOffTime(System.currentTimeMillis());
-
-                            ChangeAltitudeMsg msg = new ChangeAltitudeMsg(this.getObjectType().ordinal(), this.getObjectUUID(), false, this.getAltitude(), this.getDesiredAltitude(), this.getAltitude());
-                            // force a landing
-                            DispatchMessage.dispatchMsgToInterestArea(this, msg, DispatchChannel.PRIMARY, MBServerStatics.CHARACTER_LOAD_RANGE, true, false);
-                            this.timestamps.put("StunGrounded",System.currentTimeMillis() + 1500L);
-                            ChatManager.chatSystemInfo(this,"Applying 1 Tier Ground");
+                    if (this.getStamina() < 10) {
+                        if (this.getAltitude() > 0 || this.getDesiredAltitude() > 0) {
+                            PlayerCharacter.GroundPlayer(this);
                         }
                     }
 
-                }
+                    RealmMap.updateRealm(this);
+                    this.updateBlessingMessage();
 
-            } catch (Exception e) {
-                Logger.error(e);
-            } finally {
-                this.updateLock.writeLock().unlock();
+                    this.safeZone = this.isInSafeZone();
+                    if (!this.timestamps.containsKey("nextBoxCheck"))
+                        this.timestamps.put("nextBoxCheck", System.currentTimeMillis() + 10000);
+
+                    if (!this.isBoxed && this.timestamps.get("nextBoxCheck") < System.currentTimeMillis()) {
+                        this.isBoxed = checkIfBoxed(this);
+                        this.timestamps.put("nextBoxCheck", System.currentTimeMillis() + 10000);
+                    }
+
+                    if (this.level < 10 && this.enteredWorld) {
+                        while (this.level < 10) {
+                            grantXP(Experience.getBaseExperience(this.level + 1) - this.exp);
+                        }
+                    }
+
+                    if (this.isBoxed && !this.containsEffect(1672601862)) {
+                        PowersManager.applyPower(this, this, Vector3fImmutable.ZERO, 1672601862, 40, false);
+                    }
+
+                    if (this.isFlying()) {
+                        if (this.effects.containsKey("MoveBuff")) {
+                            GroundPlayer(this);
+                        }
+                        if (!this.timestamps.containsKey("StunGrounded"))
+                            this.timestamps.put("StunGrounded", System.currentTimeMillis() - 1000L);
+                        if (this.bonuses.getBool(ModType.Stunned, SourceType.None) && this.timestamps.get("StunGrounded") < System.currentTimeMillis()) {
+                            boolean isFlyMoving = this.getDesiredAltitude() != this.altitude;
+                            if (!isFlyMoving && this.bonuses.getBool(ModType.Stunned, SourceType.None)) {
+                                this.setDesiredAltitude(this.altitude - 10);
+                                this.setTakeOffTime(System.currentTimeMillis());
+
+                                ChangeAltitudeMsg msg = new ChangeAltitudeMsg(this.getObjectType().ordinal(), this.getObjectUUID(), false, this.getAltitude(), this.getDesiredAltitude(), this.getAltitude());
+                                // force a landing
+                                DispatchMessage.dispatchMsgToInterestArea(this, msg, DispatchChannel.PRIMARY, MBServerStatics.CHARACTER_LOAD_RANGE, true, false);
+                                this.timestamps.put("StunGrounded", System.currentTimeMillis() + 1500L);
+                                ChatManager.chatSystemInfo(this, "Applying 1 Tier Ground");
+                            }
+                        }
+
+                    }
+
+                } catch (Exception e) {
+                    Logger.error(e);
+                } finally {
+                    this.updateLock.writeLock().unlock();
+                }
             }
+        }catch(Exception e){
+            Logger.error("UPDATE ISSUE: " + e);
         }
     }
     public static void unboxPlayer(PlayerCharacter player){
