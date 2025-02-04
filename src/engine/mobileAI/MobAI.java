@@ -171,14 +171,14 @@ public class MobAI {
 
             if (target.getRank() == -1 || !target.isVulnerable() || BuildingManager.getBuildingFromCache(target.getObjectUUID()) == null) {
                 mob.setCombatTarget(null);
-            return;
+                return;
             }
 
             City playercity = ZoneManager.getCityAtLocation(mob.getLoc());
 
             if (playercity != null)
                 for (Mob guard : playercity.getParent().zoneMobSet)
-                    if (guard.BehaviourType != null && guard.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardCaptain.ordinal())
+                    if (guard.BehaviourType != null && guard.BehaviourType.equals(Enum.MobBehaviourType.GuardCaptain))
                         if (guard.getCombatTarget() == null && guard.getGuild() != null && mob.getGuild() != null && !guard.getGuild().equals(mob.getGuild()))
                             guard.setCombatTarget(mob);
 
