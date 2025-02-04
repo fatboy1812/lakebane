@@ -48,18 +48,19 @@ public class MobAI {
                 return;
             }
 
-            if (target.getObjectType() == Enum.GameObjectType.PlayerCharacter && canCast(mob)) {
+            //mob casting disabled
+            //if (target.getObjectType() == Enum.GameObjectType.PlayerCharacter && canCast(mob)) {
 
-                if (mob.isPlayerGuard() == false && MobCast(mob)) {
-                    mob.updateLocation();
-                    return;
-                }
+                //if (mob.isPlayerGuard() == false && MobCast(mob)) {
+                //    mob.updateLocation();
+                //    return;
+                //}
 
-                if (mob.isPlayerGuard() == true && GuardCast(mob)) {
-                    mob.updateLocation();
-                    return;
-                }
-            }
+                //if (mob.isPlayerGuard() == true && GuardCast(mob)) {
+                //    mob.updateLocation();
+                //    return;
+                //}
+            //}
 
             if (!CombatUtilities.inRangeToAttack(mob, target))
                 return;
