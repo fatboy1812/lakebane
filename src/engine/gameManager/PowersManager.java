@@ -244,8 +244,15 @@ public enum PowersManager {
                 }
             }
 
-            if(failed)
+            if(failed) {
+                playerCharacter.setIsCasting(false);
+
+                RecyclePowerMsg recyclePowerMsg = new RecyclePowerMsg(msg.getPowerUsedID());
+                Dispatch dispatch = Dispatch.borrow(playerCharacter, recyclePowerMsg);
+                DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.PRIMARY);
+
                 return false;
+            }
         }
 
         if (MBServerStatics.POWERS_DEBUG) {
