@@ -1,5 +1,6 @@
 package engine.devcmd.cmds;
 
+import engine.Enum;
 import engine.devcmd.AbstractDevCmd;
 import engine.gameManager.LootManager;
 import engine.gameManager.ZoneManager;
@@ -26,7 +27,52 @@ public class SimulateBootyCmd extends AbstractDevCmd {
         String newline = "\r\n ";
 
         String output;
+        if(target.getObjectType().equals(Enum.GameObjectType.PlayerCharacter)){
+            int ATR = Integer.parseInt(words[0]);
+            int DEF = Integer.parseInt(words[1]);
+            int attacks = Integer.parseInt(words[2]);
 
+            int hits = 0;
+            int misses = 0;
+            int defaultHits = 0;
+            int defualtMisses = 0;
+
+            float chance = (ATR-((ATR+DEF) * 0.315f)) / ((DEF-((ATR+DEF) * 0.315f)) + (ATR-((ATR+DEF) * 0.315f)));
+            float convertedChance = chance * 100;
+            output = "" + newline;
+            output += "DEF VS ATR SIMULATION: " + attacks + " ATTACKS SIMULATED" + newline;
+            output += "DEF = " + DEF + newline;
+            output += "ATR = " + ATR + newline;
+            output += "CHANCE TO LAND HIT: " + convertedChance + "%" + newline;
+            if(convertedChance < 5){
+                output += "CHANCE ADJUSTED TO 5.0%" + newline;
+                convertedChance = 5.0f;
+            }
+            if(convertedChance > 95){
+                output += "CHANCE ADJUSTED TO 95.0%" + newline;
+                convertedChance = 95.0f;
+            }
+            for(int i = 0; i < attacks; i++){
+                int roll = ThreadLocalRandom.current().nextInt(101);
+
+                if(roll <= convertedChance){
+                    hits += 1;
+                }else{
+                    misses += 1;
+                }
+            }
+
+            float totalHits = defaultHits + hits;
+            float totalMisses = defualtMisses + misses;
+            float hitPercent = Math.round(totalHits / attacks * 100);
+            float missPercent = Math.round(totalMisses / attacks * 100);
+
+            output += "HITS LANDED: " + (defaultHits + hits) + "(" + Math.round(hitPercent) + "%)" + newline;
+            output += "HITS MISSED: " + (defualtMisses + misses) + "(" + Math.round(missPercent) + "%)";
+
+            throwbackInfo(playerCharacter,output);
+            return;
+        }
         try
         {
             simCount = Integer.parseInt(words[0]);
