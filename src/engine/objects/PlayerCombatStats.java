@@ -532,7 +532,7 @@ public class PlayerCombatStats {
         }
         for(String armorUsed : armorsUsed){
             if(this.owner.skills.containsKey(armorUsed)) {
-                armorSkill += this.owner.skills.get(armorUsed).getModifiedAmount();//calculateBuffedSkillLevel(armorUsed,this.owner);
+                armorSkill += this.owner.skills.get(armorUsed).getTotalSkillPercet();//calculateBuffedSkillLevel(armorUsed,this.owner);
             }
         }
         if(armorsUsed.size() > 0)
@@ -572,10 +572,10 @@ public class PlayerCombatStats {
             masteryName = weapon.getItemBase().getMastery();
         }
         if(this.owner.skills.containsKey(skillName))
-            weaponSkill = this.owner.skills.get(skillName).getModifiedAmount();//calculateBuffedSkillLevel(skillName,this.owner);//this.owner.skills.get(skillName).getModifiedAmount();//calculateModifiedSkill(skillName,this.owner);//this.owner.skills.get(skillName).getModifiedAmount();
+            weaponSkill = this.owner.skills.get(skillName).getTotalSkillPercet();//calculateBuffedSkillLevel(skillName,this.owner);//this.owner.skills.get(skillName).getModifiedAmount();//calculateModifiedSkill(skillName,this.owner);//this.owner.skills.get(skillName).getModifiedAmount();
 
         if(this.owner.skills.containsKey(masteryName))
-            masterySkill = this.owner.skills.get(masteryName).getModifiedAmount();//calculateBuffedSkillLevel(masteryName,this.owner);//this.owner.skills.get(masteryName).getModifiedAmount();//calculateModifiedSkill(masteryName,this.owner);//this.owner.skills.get(masteryName).getModifiedAmount();
+            masterySkill = this.owner.skills.get(masteryName).getTotalSkillPercet();//calculateBuffedSkillLevel(masteryName,this.owner);//this.owner.skills.get(masteryName).getModifiedAmount();//calculateModifiedSkill(masteryName,this.owner);//this.owner.skills.get(masteryName).getModifiedAmount();
 
         float dexterity = getDexAfterPenalty(this.owner);
 

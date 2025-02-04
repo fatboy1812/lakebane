@@ -5112,8 +5112,12 @@ public class PlayerCharacter extends AbstractCharacter {
     @Override
     public void update(Boolean newSystem) {
 
+        this.updateLocation();
+        this.updateMovementState();
+
         if(!newSystem)
             return;
+
         try {
 
             if (this.updateLock.writeLock().tryLock()) {
@@ -5125,7 +5129,7 @@ public class PlayerCharacter extends AbstractCharacter {
                             forceRespawn(this);
                         return;
                     }
-                    this.updateLocation();
+
                     if (this.isAlive() && this.isActive && this.enteredWorld) {
 
                         this.updateMovementState();
