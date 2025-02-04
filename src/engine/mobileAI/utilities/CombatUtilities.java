@@ -148,7 +148,9 @@ public class CombatUtilities {
         }
         switch (target.getObjectType()) {
             case PlayerCharacter:
-                defense = ((AbstractCharacter) target).getDefenseRating();
+                PlayerCharacter pc = (PlayerCharacter)target;
+                pc.combatStats.calculateDefense();
+                defense = pc.combatStats.defense;
                 break;
             case Mob:
 

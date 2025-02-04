@@ -546,6 +546,8 @@ public enum CombatManager {
                 return;
             if(ac.getObjectType().equals(GameObjectType.PlayerCharacter)){
                 PlayerCharacter pc = (PlayerCharacter) ac;
+                pc.combatStats.calculateATR(true);
+                pc.combatStats.calculateATR(false);
                 if (mainHand) {
                     atr = pc.combatStats.atrHandOne;
                     minDamage = pc.combatStats.minDamageHandOne;
@@ -659,6 +661,7 @@ public enum CombatManager {
             } else {
                 AbstractCharacter tar = (AbstractCharacter) target;
                 if(tar.getObjectType().equals(GameObjectType.PlayerCharacter)){
+                    ((PlayerCharacter)tar).combatStats.calculateDefense();
                     defense = ((PlayerCharacter)tar).combatStats.defense;
                 }else {
                     defense = tar.getDefenseRating();
@@ -671,7 +674,7 @@ public enum CombatManager {
             //Get hit chance
 
             //int chance;
-            float dif = atr - defense;
+            //float dif = atr - defense;
 
             //if (dif > 100)
             //    chance = 94;

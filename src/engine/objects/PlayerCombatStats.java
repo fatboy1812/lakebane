@@ -42,51 +42,61 @@ public class PlayerCombatStats {
     public void update() {
         try {
             this.calculateATR(true);
+            this.owner.atrHandOne = (int) this.atrHandOne;
         } catch (Exception e) {
             //Logger.error("FAILED TO CALCULATE ATR FOR: " + this.owner.getObjectUUID());
         }
         try {
             this.calculateATR(false);
+            this.owner.atrHandTwo = (int) this.atrHandTwo;
         } catch (Exception e) {
             //Logger.error("FAILED TO CALCULATE ATR FOR: " + this.owner.getObjectUUID());
         }
         try {
             this.calculateMin(true);
+            this.owner.minDamageHandOne = this.minDamageHandOne;
         } catch (Exception e) {
             //Logger.error("FAILED TO CALCULATE Min FOR: " + this.owner.getObjectUUID());
         }
         try {
             this.calculateMin(false);
+            this.owner.minDamageHandTwo = this.minDamageHandTwo;
         } catch (Exception e) {
             //Logger.error("FAILED TO CALCULATE Min FOR: " + this.owner.getObjectUUID());
         }
         try {
             this.calculateMax(true);
+            this.owner.maxDamageHandOne = this.maxDamageHandOne;
         } catch (Exception e) {
             //Logger.error("FAILED TO CALCULATE Max FOR: " + this.owner.getObjectUUID());
         }
         try {
             this.calculateMax(false);
+            this.owner.maxDamageHandTwo = this.maxDamageHandTwo;
         } catch (Exception e) {
             //Logger.error("FAILED TO CALCULATE Max FOR: " + this.owner.getObjectUUID());
         }
         try {
             this.calculateAttackSpeed(true);
+            this.owner.speedHandOne = this.attackSpeedHandOne;
         } catch (Exception e) {
             //Logger.error("FAILED TO CALCULATE Attack Speed FOR: " + this.owner.getObjectUUID());
         }
         try {
             this.calculateAttackSpeed(false);
+            this.owner.speedHandTwo = this.attackSpeedHandTwo;
         } catch (Exception e) {
             //Logger.error("FAILED TO CALCULATE Attack Speed FOR: " + this.owner.getObjectUUID());
         }
         try {
             this.calculateAttackRange(true);
+            this.owner.rangeHandOne = this.rangeHandOne;
         } catch (Exception e) {
             //Logger.error("FAILED TO CALCULATE Attack Range FOR: " + this.owner.getObjectUUID());
         }
         try {
             this.calculateAttackRange(false);
+            this.owner.rangeHandTwo = this.rangeHandTwo;
         } catch (Exception e) {
             //Logger.error("FAILED TO CALCULATE Attack Range FOR: " + this.owner.getObjectUUID());
         }
@@ -97,9 +107,11 @@ public class PlayerCombatStats {
         //}
         try {
             this.calculateDefense();
+            this.owner.defenseRating = this.defense;
         } catch (Exception e) {
             //Logger.error("FAILED TO CALCULATE Defense FOR: " + this.owner.getObjectUUID());
         }
+
     }
 
     public void calculateATR(boolean mainHand) {
