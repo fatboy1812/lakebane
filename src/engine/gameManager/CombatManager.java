@@ -1503,9 +1503,9 @@ public enum CombatManager {
             ((AbstractCharacter) awo).getCharItemManager().damageRandomArmor(1);
     }
 
-    public static boolean LandHit(int C5, int D5){
+    public static boolean LandHit(int ATR, int DEF){
 
-        float chance = (C5-((C5+D5) * 0.315f)) / ((D5-((C5+D5) * 0.315f)) + (C5-((C5+D5) * 0.315f)));
+        float chance = (ATR-((ATR+DEF) * 0.315f)) / ((DEF-((ATR+DEF) * 0.315f)) + (ATR-((ATR+DEF) * 0.315f)));
         float convertedChance = chance * 100;
 
         int roll = ThreadLocalRandom.current().nextInt(101);
