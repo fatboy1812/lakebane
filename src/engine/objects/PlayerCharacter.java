@@ -4770,8 +4770,6 @@ public class PlayerCharacter extends AbstractCharacter {
                 if(mainHand != null && mainHand.getItemBase().isTwoHanded())
                     parryBonus = 10;
 
-                parryBonus *= 10;
-
                 passiveSkill = this.skills.get("Parry");
                 if(passiveSkill == null)
                     return 0;
