@@ -5110,11 +5110,11 @@ public class PlayerCharacter extends AbstractCharacter {
     @Override
     public void update(Boolean newSystem) {
 
-        this.updateLocation();
-        this.updateMovementState();
-
         if(!newSystem)
             return;
+
+        this.updateLocation();
+        this.updateMovementState();
 
         try {
 

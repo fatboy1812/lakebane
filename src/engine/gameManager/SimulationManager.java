@@ -158,7 +158,7 @@ public enum SimulationManager {
             if (player == null)
                 continue;
             try {
-                player.update(true);
+                player.update(false);
             }catch(Exception e){
 
             }

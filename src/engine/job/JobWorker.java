@@ -61,7 +61,7 @@ public class JobWorker extends ControlledRunnable {
                 this.currentJob.executeJob(this.getThreadName());
                 this.currentJob = null;
             }
-
+            Thread.yield();
         }
         return true;
     }

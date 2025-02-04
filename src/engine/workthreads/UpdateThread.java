@@ -32,18 +32,7 @@ public class UpdateThread implements Runnable {
         try {
             for(PlayerCharacter player : SessionManager.getAllActivePlayerCharacters()){
                 if (player != null) {
-                    player.doRegen();
-                    try {
-                        if (player.isAlive() && player.isActive() && player.isEnteredWorld()) {
-                            if (player.combatStats == null) {
-                                player.combatStats = new PlayerCombatStats(player);
-                            }
-                            PlayerCombatStats cStats = player.combatStats;
-                            cStats.update();
-                        }
-                    }catch(Exception e){
-
-                    }
+                    player.update(true);
                 }
             }
         } catch (Exception e) {
@@ -61,7 +50,7 @@ public class UpdateThread implements Runnable {
                 lastRun = System.currentTimeMillis(); // Update lastRun after processing
             }else {
                 try {
-                    Thread.sleep(100); // Pause for 10ms to reduce CPU usage
+                    Thread.sleep(100); // Pause for 100ms to reduce CPU usage
                 } catch (InterruptedException e) {
                     Logger.error("Thread interrupted", e);
                     Thread.currentThread().interrupt();
