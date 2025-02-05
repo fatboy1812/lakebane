@@ -126,7 +126,7 @@ public class PlayerCombatStats {
 
         String skill = "Unarmed Combat";
         String mastery = "Unarmed Combat Mastery";
-        int primaryStat = getDexAfterPenalty(this.owner);
+        int primaryStat = this.owner.statDexCurrent;
         if(weapon != null) {
             skill= weapon.getItemBase().getSkillRequired();
             mastery = weapon.getItemBase().getMastery();
@@ -166,10 +166,12 @@ public class PlayerCombatStats {
             } else {
                 for (AbstractEffectModifier mod : this.owner.effects.get(effID).getEffectModifiers()) {
                     if (mod.modType.equals(Enum.ModType.OCV)) {
-                        float value = mod.getMinMod();
-                        int trains = this.owner.effects.get(effID).getTrains();
-                        float modValue = value + (trains * mod.getRamp());
-                        atrEnchants += modValue;
+                        if(mod.getPercentMod() == 0) {
+                            float value = mod.getMinMod();
+                            int trains = this.owner.effects.get(effID).getTrains();
+                            float modValue = value + (trains * mod.getRamp());
+                            atrEnchants += modValue;
+                        }
                     }
                 }
             }
@@ -214,8 +216,14 @@ public class PlayerCombatStats {
             atr += prefixValues;
             atr *= preciseRune;
             atr += atrEnchants;
-            atr *= 1 + (this.owner.bonuses.getFloatPercentAll(Enum.ModType.OCV, Enum.SourceType.Buff) - this.owner.bonuses.getFloatPercentAll(Enum.ModType.OCV, Enum.SourceType.DeBuff));
+            //atr *= 1 + (this.owner.bonuses.getFloatPercentAll(Enum.ModType.OCV, Enum.SourceType.Buff) - this.owner.bonuses.getFloatPercentAll(Enum.ModType.OCV, Enum.SourceType.DeBuff));
             atr *= 1.0f + stanceValue;
+        if(this.owner.bonuses != null) {
+            float positivePercentBonuses = this.owner.bonuses.getFloatPercentPositive(Enum.ModType.OCV, Enum.SourceType.None);
+            float negativePercentBonuses = this.owner.bonuses.getFloatPercentNegative(Enum.ModType.OCV, Enum.SourceType.None);
+            float modifier = 1 + (positivePercentBonuses + negativePercentBonuses - (preciseRune - 1.0f) - (stanceValue - 1.0f));
+            atr *= modifier;
+        }
             atr = (float) Math.round(atr);
         //}
 
@@ -614,7 +622,7 @@ public class PlayerCombatStats {
             } else {
                 for (AbstractEffectModifier mod : this.owner.effects.get(effID).getEffectModifiers()) {
                     if (mod.modType.equals(Enum.ModType.DCV)) {
-                        if(mod.getPercentMod() != 0) {
+                        if(mod.getPercentMod() == 0) {
                             float value = mod.getMinMod();
                             int trains = this.owner.effects.get(effID).getTrains();
                             float modValue = value + (trains * mod.getRamp());
@@ -629,10 +637,6 @@ public class PlayerCombatStats {
         else if(this.owner.charItemManager != null && this.owner.charItemManager.getEquipped(2) != null && !this.owner.charItemManager.getEquipped(2).getItemBase().isShield())
             blockSkill = 0;
 
-
-        //Defense = (  (1 + ModArmorskill / 50) * TotalArmorDef + “if shield” (1 + ModBlockskill / 100 * ShieldDef) + modifiedweaponskill/2 “unarmed if no weapon equipped”
-        // + modifiedweaponmastery/2 + ModifiedDex * 2 + Flatdefensemodifiers ) * 1.05 “if lucky” * Stancemodifier
-
         float defense = (1 + armorSkill / 50) * armorDefense;
         defense += (1 + blockSkill / 100) * shieldDefense;
         defense += (weaponSkill / 2);
@@ -643,11 +647,10 @@ public class PlayerCombatStats {
         defense *= stanceMod;
 
         if(this.owner.bonuses != null) {
-            float percentBonuses = this.owner.bonuses.getFloatPercentPositive(Enum.ModType.DCV, Enum.SourceType.None);
-            percentBonuses -= this.owner.bonuses.getFloatPercentNegative(Enum.ModType.DCV, Enum.SourceType.None);
-            percentBonuses -= luckyRune - 1;
-            percentBonuses -= stanceMod - 1;
-            defense *= 1 + percentBonuses;
+            float positivePercentBonuses = this.owner.bonuses.getFloatPercentPositive(Enum.ModType.DCV, Enum.SourceType.None);
+            float negativePercentBonuses = this.owner.bonuses.getFloatPercentNegative(Enum.ModType.DCV, Enum.SourceType.None);
+            float modifier = 1 + (positivePercentBonuses + negativePercentBonuses - (luckyRune - 1.0f) - (stanceMod - 1.0f));
+            defense *= modifier;
         }
         defense = Math.round(defense);
 
