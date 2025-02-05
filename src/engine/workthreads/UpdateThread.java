@@ -56,6 +56,7 @@ public class UpdateThread implements Runnable {
                     Thread.currentThread().interrupt();
                 }
             }
+            Thread.yield();
         }
     }
 
