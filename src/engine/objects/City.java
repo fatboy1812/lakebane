@@ -389,18 +389,14 @@ public class City extends AbstractWorldObject {
 
                     if (pc.getAccount().status.equals(AccountStatus.ADMIN)) {
                         cities.add(city);
-                    } else
+                    } else {
                         //list Player cities
 
                         //open city, just list
                         if (city.open && city.getTOL() != null && city.getTOL().getRank() > 4) {
-
-                            if (!BuildingManager.IsPlayerHostile(city.getTOL(), pc))
-                                cities.add(city); //verify nation or guild is same
-                        } else if (Guild.sameNationExcludeErrant(city.getGuild(), pcG))
                             cities.add(city);
-
-
+                        }
+                    }
                 } else if (city.isNpc == 1) {
                     //list NPC cities
                     Guild g = city.getGuild();
