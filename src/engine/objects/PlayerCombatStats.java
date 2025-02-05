@@ -544,7 +544,7 @@ public class PlayerCombatStats {
         }
         for(String armorUsed : armorsUsed){
             if(this.owner.skills.containsKey(armorUsed)) {
-                armorSkill += this.owner.skills.get(armorUsed).getTotalSkillPercet();//calculateBuffedSkillLevel(armorUsed,this.owner);
+                armorSkill += this.owner.skills.get(armorUsed).getModifiedAmount();//calculateBuffedSkillLevel(armorUsed,this.owner);
             }
         }
         if(armorsUsed.size() > 0)
@@ -552,7 +552,7 @@ public class PlayerCombatStats {
 
         float blockSkill = 0.0f;
         if(this.owner.skills.containsKey("Block"))
-            blockSkill = calculateBuffedSkillLevel("Block",this.owner);
+            blockSkill = this.owner.skills.get("Block").getModifiedAmount();
 
         float shieldDefense = 0.0f;
         if(this.owner.charItemManager.getEquipped(2) != null && this.owner.charItemManager.getEquipped(2).getItemBase().isShield()){
@@ -584,17 +584,19 @@ public class PlayerCombatStats {
             masteryName = weapon.getItemBase().getMastery();
         }
         if(this.owner.skills.containsKey(skillName))
-            weaponSkill = this.owner.skills.get(skillName).getTotalSkillPercet();//calculateBuffedSkillLevel(skillName,this.owner);//this.owner.skills.get(skillName).getModifiedAmount();//calculateModifiedSkill(skillName,this.owner);//this.owner.skills.get(skillName).getModifiedAmount();
+            weaponSkill = this.owner.skills.get(skillName).getModifiedAmount();//calculateBuffedSkillLevel(skillName,this.owner);//this.owner.skills.get(skillName).getModifiedAmount();//calculateModifiedSkill(skillName,this.owner);//this.owner.skills.get(skillName).getModifiedAmount();
 
         if(this.owner.skills.containsKey(masteryName))
-            masterySkill = this.owner.skills.get(masteryName).getTotalSkillPercet();//calculateBuffedSkillLevel(masteryName,this.owner);//this.owner.skills.get(masteryName).getModifiedAmount();//calculateModifiedSkill(masteryName,this.owner);//this.owner.skills.get(masteryName).getModifiedAmount();
+            masterySkill = this.owner.skills.get(masteryName).getModifiedAmount();//calculateBuffedSkillLevel(masteryName,this.owner);//this.owner.skills.get(masteryName).getModifiedAmount();//calculateModifiedSkill(masteryName,this.owner);//this.owner.skills.get(masteryName).getModifiedAmount();
 
-        float dexterity = getDexAfterPenalty(this.owner);
+        float dexterity = this.owner.statDexCurrent;//getDexAfterPenalty(this.owner);
 
         float luckyRune = 1.0f;
         for(CharacterRune rune : this.owner.runes){
-            if(rune.getRuneBase().getName().equals("Lucky"))
+            if(rune.getRuneBase().getName().equals("Lucky")) {
                 luckyRune += 0.05f;
+                break;
+            }
         }
 
         float flatBonuses = 0.0f;
@@ -612,10 +614,12 @@ public class PlayerCombatStats {
             } else {
                 for (AbstractEffectModifier mod : this.owner.effects.get(effID).getEffectModifiers()) {
                     if (mod.modType.equals(Enum.ModType.DCV)) {
-                        float value = mod.getMinMod();
-                        int trains = this.owner.effects.get(effID).getTrains();
-                        float modValue = value + (trains * mod.getRamp());
-                        flatBonuses += modValue;
+                        if(mod.getPercentMod() != 0) {
+                            float value = mod.getMinMod();
+                            int trains = this.owner.effects.get(effID).getTrains();
+                            float modValue = value + (trains * mod.getRamp());
+                            flatBonuses += modValue;
+                        }
                     }
                 }
             }
@@ -638,6 +642,13 @@ public class PlayerCombatStats {
         defense *= luckyRune;
         defense *= stanceMod;
 
+        if(this.owner.bonuses != null) {
+            float percentBonuses = this.owner.bonuses.getFloatPercentPositive(Enum.ModType.DCV, Enum.SourceType.None);
+            percentBonuses -= this.owner.bonuses.getFloatPercentNegative(Enum.ModType.DCV, Enum.SourceType.None);
+            percentBonuses -= luckyRune - 1;
+            percentBonuses -= stanceMod - 1;
+            defense *= 1 + percentBonuses;
+        }
         defense = Math.round(defense);
 
         this.defense = (int) defense;
@@ -647,7 +658,7 @@ public class PlayerCombatStats {
         if(pc.charItemManager == null)
             return pc.statDexCurrent;
 
-        float dex = pc.statDexBase;
+        float dex = pc.statDexCurrent;
         if(pc.bonuses != null)
             dex += pc.bonuses.getFloat(Enum.ModType.Attr, Enum.SourceType.Dexterity);
 
