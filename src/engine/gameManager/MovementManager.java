@@ -67,8 +67,10 @@ public enum MovementManager {
             return;
 
         if (toMove.getObjectType().equals(GameObjectType.PlayerCharacter)) {
-            if (((PlayerCharacter) toMove).isCasting())
-                ((PlayerCharacter) toMove).update(false);
+            if (((PlayerCharacter) toMove).isCasting()) {
+                ((PlayerCharacter) toMove).updateLocation();
+                ((PlayerCharacter) toMove).updateMovementState();
+            }
         }
 
 
@@ -408,7 +410,9 @@ public enum MovementManager {
             if (bonus.getBool(ModType.Stunned, SourceType.None) || bonus.getBool(ModType.CannotMove, SourceType.None))
                 continue;
 
-            member.update(false);
+            //member.update(false);
+            member.updateLocation();
+            member.updateMovementState();
 
 
             // All checks passed, let's move the player

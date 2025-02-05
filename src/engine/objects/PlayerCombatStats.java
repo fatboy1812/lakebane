@@ -216,12 +216,17 @@ public class PlayerCombatStats {
             atr += prefixValues;
             atr *= preciseRune;
             atr += atrEnchants;
-            //atr *= 1 + (this.owner.bonuses.getFloatPercentAll(Enum.ModType.OCV, Enum.SourceType.Buff) - this.owner.bonuses.getFloatPercentAll(Enum.ModType.OCV, Enum.SourceType.DeBuff));
+
             atr *= 1.0f + stanceValue;
         if(this.owner.bonuses != null) {
             float positivePercentBonuses = this.owner.bonuses.getFloatPercentPositive(Enum.ModType.OCV, Enum.SourceType.None);
             float negativePercentBonuses = this.owner.bonuses.getFloatPercentNegative(Enum.ModType.OCV, Enum.SourceType.None);
-            float modifier = 1 + (positivePercentBonuses + negativePercentBonuses - (preciseRune - 1.0f) - (stanceValue - 1.0f));
+            float modifier = 1 + (positivePercentBonuses + negativePercentBonuses);
+            if(preciseRune > 1.0f)
+                modifier -= 0.05f;
+            if(stanceValue > 1.0f){
+                modifier -= (stanceValue - 1.0f);
+            }
             atr *= modifier;
         }
             atr = (float) Math.round(atr);
