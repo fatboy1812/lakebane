@@ -232,11 +232,13 @@ public class ObjectActionMsgHandler extends AbstractClientMsgHandler {
         if (pc == null || origin == null) {
             return;
         }
+        ItemBase runeBase = ItemBase.getItemBase(runeID);
 
-        //remove only if rune is discipline
-        if (runeID < 3001 || runeID > 3048) {
+        boolean discRune = runeBase.isDiscRune();
+        boolean statRune = runeBase.isStatRune();
+        if(!runeBase.isDiscRune() && !runeBase.isStatRune())
             return;
-        }
+
 
         //see if pc has rune
         ArrayList<CharacterRune> runes = pc.getRunes();
