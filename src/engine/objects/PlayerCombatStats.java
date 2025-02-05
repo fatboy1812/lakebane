@@ -326,6 +326,7 @@ public class PlayerCombatStats {
             weapon = this.owner.charItemManager.getEquipped(2);
         }
 
+        int extraDamage = 0;
         String skill = "Unarmed Combat";
         String mastery = "Unarmed Combat Mastery";
         if (weapon != null) {
@@ -335,6 +336,7 @@ public class PlayerCombatStats {
             if (weapon.getItemBase().isStrBased()) {
                 primaryStat = this.owner.statStrCurrent;
                 secondaryStat = this.owner.statDexCurrent;
+                extraDamage = 3;
             }
             for(Effect eff : weapon.effects.values()){
                 for(AbstractEffectModifier mod : eff.getEffectModifiers()){
@@ -372,7 +374,7 @@ public class PlayerCombatStats {
             }
         }
 
-        int roundedMax = (int)(maxDMG);
+        int roundedMax = (int) (Math.round(maxDMG) + extraDamage);
 
         if(mainHand){
             this.maxDamageHandOne = roundedMax;
