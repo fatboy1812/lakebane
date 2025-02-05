@@ -177,6 +177,11 @@ public enum DevCmdManager {
             return false;
         }
 
+        if(!pcSender.getTimestamps().containsKey("DEVCOMMAND"))
+            pcSender.getTimestamps().put("DEVCOMMAND",System.currentTimeMillis());
+        else if(System.currentTimeMillis() - pcSender.getTimestamps().get("DEVCOMMAND") < 1000L)
+            return false;
+
         //kill any commands not available to everyone on production server
         //only admin level can run dev commands on production
         boolean playerAllowed = false;
