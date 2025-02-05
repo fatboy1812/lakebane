@@ -100,11 +100,6 @@ public class PlayerCombatStats {
         } catch (Exception e) {
             //Logger.error("FAILED TO CALCULATE Attack Range FOR: " + this.owner.getObjectUUID());
         }
-        //try {
-            //this.calculateRegen();
-        //} catch (Exception e) {
-            //Logger.error("FAILED TO CALCULATE Regen FOR: " + this.owner.getObjectUUID());
-        //}
         try {
             this.calculateDefense();
             this.owner.defenseRating = this.defense;
@@ -205,11 +200,6 @@ public class PlayerCombatStats {
                 preciseRune += 0.05f;
         }
 
-        //if(weapon != null && weapon.getItemBase().isStrBased()){
-        //    atr = (((primaryStat / 2) + (skillLevel * 4 + masteryLevel * 3) + prefixValues) * preciseRune + atrEnchants) * (1.0f + stanceValue);
-        //    atr = (float) Math.round(atr);
-        //}else {
-            //float dexterity = getDexAfterPenalty(this.owner);
             atr = primaryStat / 2;
             atr += skillLevel * 4;
             atr += masteryLevel * 3;
@@ -230,9 +220,6 @@ public class PlayerCombatStats {
             atr *= modifier;
         }
             atr = (float) Math.round(atr);
-        //}
-
-
 
         if(mainHand){
             this.atrHandOne = atr;
@@ -245,7 +232,7 @@ public class PlayerCombatStats {
                 this.atrHandTwo = 0.0f;
             }
         }
-    } //perfect DO NOT TOUCH
+    } //PERFECT DO NOT TOUCH
 
     public void calculateMin(boolean mainHand) {
         Item weapon;
@@ -284,11 +271,11 @@ public class PlayerCombatStats {
         }
 
         if (this.owner.skills.containsKey(skill)) {
-            weaponSkill = calculateBaseSkillLevel(skill,this.owner);//this.owner.skills.get(skill).getTotalSkillPercet();
+            weaponSkill = this.owner.skills.get(skill).getModifiedAmount();
         }
 
         if (this.owner.skills.containsKey(mastery)) {
-            weaponMastery = calculateBaseSkillLevel(mastery,this.owner);this.owner.skills.get(mastery).getTotalSkillPercet();
+            weaponMastery = this.owner.skills.get(weaponMastery).getModifiedAmount();
         }
 
         double minDMG = baseDMG * (
@@ -325,13 +312,9 @@ public class PlayerCombatStats {
     }
 
     public void calculateMax(boolean mainHand) {
-        //Weapon Max DMG = BaseDMG * (0.0124*Primary Stat + 0.118*(Primary Stat -0.75)^0.5
-        // + 0.0022*Secondary Stat + 0.028*(Secondary Stat-0.75)^0.5 + 0.0075*(Weapon Skill + Weapon Mastery))
         Item weapon;
-        //float specialDex = this.owner.statDexBase;
-        //specialDex += this.owner.bonuses.getFloat(Enum.ModType.Attr, Enum.SourceType.Dexterity);
         double baseDMG = 5;
-        float primaryStat = getDexAfterPenalty(this.owner);
+        float primaryStat = this.owner.statDexCurrent;
         float secondaryStat = this.owner.statStrCurrent;
         double weaponSkill = 5;
         double weaponMastery = 5;
@@ -351,7 +334,7 @@ public class PlayerCombatStats {
             mastery = weapon.getItemBase().getMastery();
             if (weapon.getItemBase().isStrBased()) {
                 primaryStat = this.owner.statStrCurrent;
-                secondaryStat = getDexAfterPenalty(this.owner);
+                secondaryStat = this.owner.statDexCurrent;
             }
             for(Effect eff : weapon.effects.values()){
                 for(AbstractEffectModifier mod : eff.getEffectModifiers()){
@@ -363,11 +346,11 @@ public class PlayerCombatStats {
         }
 
         if (this.owner.skills.containsKey(skill)) {
-            weaponSkill = calculateBuffedSkillLevel(skill,this.owner);//this.owner.skills.get(skill).getModifiedAmount();
+            weaponSkill = this.owner.skills.get(skill).getModifiedAmount();
         }
 
         if (this.owner.skills.containsKey(mastery)) {
-            weaponMastery = calculateBuffedSkillLevel(mastery,this.owner);//this.owner.skills.get(mastery).getModifiedAmount();
+            weaponMastery = this.owner.skills.get(mastery).getModifiedAmount();
         }
 
         double maxDMG = baseDMG * (
@@ -520,19 +503,6 @@ public class PlayerCombatStats {
         }
     }
 
-    public void calculateRegen(){
-        if(owner.bonuses != null){
-            this.healthRegen = 1.0f + this.owner.bonuses.getFloatPercentAll(Enum.ModType.HealthRecoverRate, Enum.SourceType.None);
-            this.manaRegen = 1.0f + this.owner.bonuses.getFloatPercentAll(Enum.ModType.ManaRecoverRate, Enum.SourceType.None);
-            this.staminaRegen = 1.0f + this.owner.bonuses.getFloatPercentAll(Enum.ModType.StaminaRecoverRate, Enum.SourceType.None);
-
-        }else{
-            this.healthRegen = 1.0f;
-            this.manaRegen = 1.0f;
-            this.staminaRegen = 1.0f;
-        }
-    }
-
     public void calculateDefense() {
         //Defense = (1+Armor skill / 50) * Armor defense + (1 + Block skill / 100) * Shield defense + (Primary weapon skill / 2)
         // + (Weapon mastery skill/ 2) + Dexterity * 2 + Flat bonuses from rings or cloth
@@ -660,99 +630,6 @@ public class PlayerCombatStats {
         defense = Math.round(defense);
 
         this.defense = (int) defense;
-    }
+    } // PERFECT DO NOT TOUCH
 
-    public static int getDexAfterPenalty(PlayerCharacter pc){
-        if(pc.charItemManager == null)
-            return pc.statDexCurrent;
-
-        float dex = pc.statDexCurrent;
-        if(pc.bonuses != null)
-            dex += pc.bonuses.getFloat(Enum.ModType.Attr, Enum.SourceType.Dexterity);
-
-        float penaltyFactor = 0.0f;
-        for(Item equipped : pc.charItemManager.getEquipped().values()){
-            ItemBase ib = equipped.getItemBase();
-            if(ib.isHeavyArmor() || ib.isLightArmor() || ib.isMediumArmor()){
-                penaltyFactor += ib.dexReduction;
-            }
-        }
-
-        if(penaltyFactor > 0)
-            penaltyFactor *= 0.01f;
-
-        float totalPenalty = dex *  penaltyFactor;
-        float returnedDex = Math.round(dex - totalPenalty);
-        return (int) returnedDex;
-
-    }
-
-    private static float getArmorDefense(Item armor, PlayerCharacter pc) {
-
-        if (armor == null)
-            return 0;
-
-        ItemBase ib = armor.getItemBase();
-
-        if (ib == null)
-            return 0;
-
-        if (!ib.getType().equals(Enum.ItemType.ARMOR))
-            return 0;
-
-        if (ib.getSkillRequired().isEmpty())
-            return ib.getDefense();
-
-        CharacterSkill armorSkill = pc.skills.get(ib.getSkillRequired());
-        if (armorSkill == null) {
-            Logger.error("Player " + pc.getObjectUUID()
-                    + " has armor equipped without the nescessary skill to equip it");
-            return ib.getDefense();
-        }
-
-        float def = ib.getDefense();
-        //apply item defense bonuses
-        if (armor != null) {
-
-            for(Effect eff : armor.effects.values()){
-                for(AbstractEffectModifier mod : eff.getEffectModifiers()){
-                    if(mod.modType.equals(Enum.ModType.DR)){
-                        def += mod.minMod * (1+(eff.getTrains() * mod.getRamp()));
-                    }
-                }
-            }
-
-
-            //def += armor.getBonus(ModType.DR, SourceType.None);
-            //def *= (1 + armor.getBonusPercent(ModType.DR, SourceType.None));
-        }
-        float skillLevel = calculateBuffedSkillLevel(armorSkill.getName(),pc);
-        //return (def * (1 + ((int) armorSkill.getModifiedAmount() / 50f)));
-        return (def * (1 + ((int) skillLevel / 50f)));
-    }
-
-    public static int calculateBaseSkillLevel(String skillName, PlayerCharacter pc){
-        if(pc.skills.containsKey(skillName)) {
-            CharacterSkill skill = pc.skills.get(skillName);
-            return Math.round(skill.getModifiedAmountBeforeMods());
-        }else {
-            return 0;
-        }
-    }
-    public static int calculateBuffedSkillLevel(String skillName, PlayerCharacter pc){
-        if(pc.skills.containsKey(skillName)) {
-            return Math.round(pc.skills.get(skillName).getTotalSkillPercet());
-        }else {
-            return 0;
-        }
-    }
-
-    public static void PrintSkillsToClient(PlayerCharacter pc){
-        for(CharacterSkill skill : pc.skills.values()){
-            String name = skill.getName();
-            int base = calculateBaseSkillLevel(name,pc);//calculateBaseSkillLevel(name,pc);
-            int buffed = calculateBuffedSkillLevel(name,pc);//calculateBuffedSkillLevel(name,pc);
-            ChatManager.chatSystemInfo(pc,name + " = " + base + " (" + buffed + ")");
-        }
-    }
 }
