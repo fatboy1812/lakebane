@@ -5825,7 +5825,6 @@ public class PlayerCharacter extends AbstractCharacter {
                 manaRegen *= 1.5;
                 stamRegen *= 1.5;
             }
-            ChatManager.chatSystemInfo(this,"STAMINA: " + this.stamina.get());
             boolean workedHealth = false;
             boolean workedMana = false;
             boolean workedStamina = false;
