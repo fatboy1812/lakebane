@@ -5833,10 +5833,6 @@ public class PlayerCharacter extends AbstractCharacter {
             while (!workedHealth || !workedMana || !workedStamina) {
                 if (!this.isAlive() || !this.isActive())
                     return;
-                if(this.isCasting){
-                    manaRegen = 0;
-                    workedMana = true;
-                }
                 if (!workedHealth) {
                     old = this.health.get();
                     mod = old + healthRegen;
