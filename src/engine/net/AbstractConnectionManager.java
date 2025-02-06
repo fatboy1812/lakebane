@@ -87,7 +87,8 @@ public abstract class AbstractConnectionManager extends ControlledRunnable {
 
                 this.processChangeRequests();
                 this.auditSocketChannelToConnectionMap();
-                this.selector.select(250L);
+                this.selector.select();
+                //this.selector.select(250L);
                 this.processNewEvents();
 
             } catch (Exception e) {
