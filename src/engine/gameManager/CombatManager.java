@@ -1508,18 +1508,18 @@ public enum CombatManager {
 
     public static boolean LandHit(int ATR, int DEF){
 
-        float chance = (ATR-((ATR+DEF) * 0.315f)) / ((DEF-((ATR+DEF) * 0.315f)) + (ATR-((ATR+DEF) * 0.315f)));
-        float convertedChance = chance * 100;
+        //float chance = (ATR-((ATR+DEF) * 0.315f)) / ((DEF-((ATR+DEF) * 0.315f)) + (ATR-((ATR+DEF) * 0.315f)));
+        //float convertedChance = chance * 100;
 
         int roll = ThreadLocalRandom.current().nextInt(101);
 
-        if(roll <= 5)//always 5% chance to miss
-            return false;
+        //if(roll <= 5)//always 5% chance to miss
+        //    return false;
 
-        if(roll >= 95)//always 5% chance to hit
-            return true;
+        //if(roll >= 95)//always 5% chance to hit
+        //    return true;
 
-        return roll <= convertedChance;
+        return PlayerCombatStats.getHitChance(ATR,DEF) >= roll;
     }
 
     public static boolean specialCaseHitRoll(int powerID){
