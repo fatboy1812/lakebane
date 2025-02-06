@@ -1519,7 +1519,8 @@ public enum CombatManager {
         //if(roll >= 95)//always 5% chance to hit
         //    return true;
 
-        return PlayerCombatStats.getHitChance(ATR,DEF) >= roll;
+        float chance = PlayerCombatStats.getHitChance(ATR,DEF);
+        return chance >= roll;
     }
 
     public static boolean specialCaseHitRoll(int powerID){
