@@ -5817,8 +5817,15 @@ public class PlayerCharacter extends AbstractCharacter {
             // Multiple regen values by current deltaTime
             //     Logger.info("", healthRegen + "");
             healthRegen *= getDeltaTime();
+            manaRegen *= 0.01f;
             manaRegen *= getDeltaTime();
             stamRegen *= getStamDeltaTime();
+            if(this.isSit()){
+                healthRegen *= 1.5;
+                manaRegen *= 1.5;
+                stamRegen *= 1.5;
+            }
+            ChatManager.chatSystemInfo(this,"STAMINA: " + this.stamina.get());
             boolean workedHealth = false;
             boolean workedMana = false;
             boolean workedStamina = false;
