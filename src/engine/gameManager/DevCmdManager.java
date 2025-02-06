@@ -178,7 +178,7 @@ public enum DevCmdManager {
         }
 
         if(!pcSender.getTimestamps().containsKey("DEVCOMMAND"))
-            pcSender.getTimestamps().put("DEVCOMMAND",System.currentTimeMillis());
+            pcSender.getTimestamps().put("DEVCOMMAND",System.currentTimeMillis() - 1500L);
         else if(System.currentTimeMillis() - pcSender.getTimestamps().get("DEVCOMMAND") < 1000L)
             return false;
 
