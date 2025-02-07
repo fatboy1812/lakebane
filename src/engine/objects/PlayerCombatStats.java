@@ -457,7 +457,7 @@ public class PlayerCombatStats {
         float specialDex = this.owner.statDexBase;
         specialDex += this.owner.bonuses.getFloat(Enum.ModType.Attr, Enum.SourceType.Dexterity);
         float baseDMG = 1;
-        float primaryStat = specialDex;//getDexAfterPenalty(this.owner);
+        float primaryStat = specialDex;
         float secondaryStat = this.owner.statStrCurrent;
         double weaponSkill = 5;
         double weaponMastery = 5;
@@ -476,8 +476,10 @@ public class PlayerCombatStats {
             skill = weapon.getItemBase().getSkillRequired();
             mastery = weapon.getItemBase().getMastery();
             if (weapon.getItemBase().isStrBased()) {
+                //primaryStat = this.owner.statStrCurrent;
+                //secondaryStat = specialDex;//getDexAfterPenalty(this.owner);
                 primaryStat = this.owner.statStrCurrent;
-                secondaryStat = specialDex;//getDexAfterPenalty(this.owner);
+                secondaryStat = this.owner.statDexCurrent;
             }
             for(Effect eff : weapon.effects.values()){
                 for(AbstractEffectModifier mod : eff.getEffectModifiers()){
@@ -493,7 +495,7 @@ public class PlayerCombatStats {
         }
 
         if (this.owner.skills.containsKey(mastery)) {
-            weaponMastery = this.owner.skills.get(weaponMastery).getModifiedAmount();
+            weaponMastery = this.owner.skills.get(mastery).getModifiedAmount();
         }
 
         double minDMG = baseDMG * (
@@ -544,7 +546,7 @@ public class PlayerCombatStats {
             weapon = this.owner.charItemManager.getEquipped(2);
         }
 
-        int extraDamage = 0;
+        int extraDamage = 3;
         String skill = "Unarmed Combat";
         String mastery = "Unarmed Combat Mastery";
         if (weapon != null) {
@@ -554,7 +556,7 @@ public class PlayerCombatStats {
             if (weapon.getItemBase().isStrBased()) {
                 primaryStat = this.owner.statStrCurrent;
                 secondaryStat = this.owner.statDexCurrent;
-                extraDamage = 3;
+                //extraDamage = 3;
             }
             for(Effect eff : weapon.effects.values()){
                 for(AbstractEffectModifier mod : eff.getEffectModifiers()){
@@ -729,20 +731,23 @@ public class PlayerCombatStats {
         float armorSkill = 0.0f;
         float armorDefense = 0.0f;
         ArrayList<String> armorsUsed = new ArrayList<>();
+        int itemdef = 0;
         for(Item equipped : this.owner.charItemManager.getEquipped().values()){
             ItemBase ib = equipped.getItemBase();
             if(ib.isHeavyArmor() || ib.isMediumArmor() || ib.isLightArmor() || ib.isClothArmor()){
-                armorDefense += ib.getDefense();
+                itemdef = ib.getDefense();
+
                 for(Effect eff : equipped.effects.values()){
                     for(AbstractEffectModifier mod : eff.getEffectModifiers()){
                         if(mod.modType.equals(Enum.ModType.DR)){
-                            armorDefense += mod.minMod + (mod.getRamp() * eff.getTrains());
+                            itemdef += mod.minMod + (mod.getRamp() * eff.getTrains());
                         }
                     }
                 }
                 if(!ib.isClothArmor() && !armorsUsed.contains(ib.getSkillRequired())) {
                     armorsUsed.add(ib.getSkillRequired());
                 }
+                armorDefense += itemdef;
             }
         }
         for(String armorUsed : armorsUsed){

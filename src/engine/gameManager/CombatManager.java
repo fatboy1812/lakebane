@@ -1233,6 +1233,14 @@ public enum CombatManager {
 
     private static boolean testPassive(AbstractCharacter source, AbstractCharacter target, String type) {
 
+        if(target.getBonuses() != null)
+            if(target.getBonuses().getBool(ModType.Stunned, SourceType.None))
+                return false;
+
+        if(source.getBonuses() != null)
+            if(source.getBonuses().getBool(ModType.IgnorePassiveDefense, SourceType.None))
+                return false;
+
         float chance = target.getPassiveChance(type, source.getLevel(), true);
 
         if (chance == 0f)
@@ -1243,7 +1251,7 @@ public enum CombatManager {
         if (chance > 75f)
             chance = 75f;
 
-        int roll = ThreadLocalRandom.current().nextInt(100);
+        int roll = ThreadLocalRandom.current().nextInt(1,100);
 
         return roll < chance;
 
