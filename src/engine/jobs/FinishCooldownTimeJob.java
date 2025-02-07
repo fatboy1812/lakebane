@@ -26,7 +26,7 @@ public class FinishCooldownTimeJob extends AbstractJob {
     }
 
     @Override
-    protected void doJob() {
+    public void doJob() {
         PowersManager.finishCooldownTime(this.msg, this.pc);
     }
 }

@@ -35,7 +35,7 @@ public class UsePowerJob extends AbstractScheduleJob {
     }
 
     @Override
-    protected void doJob() {
+    public void doJob() {
         PowersManager.finishUsePower(this.msg, this.pc, casterLiveCounter, targetLiveCounter);
     }
 

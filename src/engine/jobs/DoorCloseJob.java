@@ -28,7 +28,7 @@ public class DoorCloseJob extends AbstractScheduleJob {
     }
 
     @Override
-    protected void doJob() {
+    public void doJob() {
 
         int doorNumber;
 

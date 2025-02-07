@@ -28,7 +28,7 @@ public class LoadEffectsJob extends AbstractJob {
     }
 
     @Override
-    protected void doJob() {
+    public void doJob() {
         if (this.originToSend == null) {
             return;
         }

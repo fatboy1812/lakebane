@@ -26,7 +26,7 @@ public class ConnectionMonitorJob extends AbstractJob {
     }
 
     @Override
-    protected void doJob() {
+    public void doJob() {
 
         if (this.cnt >= 5) {
             this.connMan.auditSocketChannelToConnectionMap();

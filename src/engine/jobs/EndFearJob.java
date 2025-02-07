@@ -22,7 +22,7 @@ public class EndFearJob extends AbstractEffectJob {
     }
 
     @Override
-    protected void doJob() {
+    public void doJob() {
 
         //cancel fear for mob.
 

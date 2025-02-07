@@ -45,7 +45,7 @@ public abstract class AbstractEffectJob extends AbstractScheduleJob {
     }
 
     @Override
-    protected abstract void doJob();
+    public abstract void doJob();
 
     @Override
     protected abstract void _cancelJob();

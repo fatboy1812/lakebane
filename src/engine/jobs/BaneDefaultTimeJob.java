@@ -24,7 +24,7 @@ public class BaneDefaultTimeJob extends AbstractScheduleJob {
     }
 
     @Override
-    protected void doJob() {
+    public void doJob() {
 
         //bane already set.
         if (this.bane.getLiveDate() != null) {

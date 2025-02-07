@@ -37,7 +37,7 @@ public class DeferredPowerJob extends AbstractEffectJob {
     }
 
     @Override
-    protected void doJob() {
+    public void doJob() {
         //Power ended with no attack, cancel weapon power boost
         if (this.source != null && this.source instanceof PlayerCharacter) {
             ((PlayerCharacter) this.source).setWeaponPower(null);

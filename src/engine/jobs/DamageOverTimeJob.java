@@ -37,7 +37,7 @@ public class DamageOverTimeJob extends AbstractEffectJob {
     }
 
     @Override
-    protected void doJob() {
+    public void doJob() {
         if (this.target.getObjectType().equals(GameObjectType.Building)
                 && ((Building) this.target).isVulnerable() == false) {
             _cancelJob();

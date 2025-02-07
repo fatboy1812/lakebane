@@ -39,7 +39,7 @@ public class TeleportJob extends AbstractScheduleJob {
     }
 
     @Override
-    protected void doJob() {
+    public void doJob() {
 
         if (this.pc == null || this.npc == null || this.origin == null)
             return;

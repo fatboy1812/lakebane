@@ -35,7 +35,7 @@ public class TrackJob extends AbstractEffectJob {
     }
 
     @Override
-    protected void doJob() {
+    public void doJob() {
 
         if (this.tpa == null || this.target == null || this.action == null || this.source == null || this.eb == null || !(this.source instanceof PlayerCharacter))
             return;

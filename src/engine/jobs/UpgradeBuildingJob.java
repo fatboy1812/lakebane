@@ -22,7 +22,7 @@ public class UpgradeBuildingJob extends AbstractScheduleJob {
     }
 
     @Override
-    protected void doJob() {
+    public void doJob() {
 
 
         // Must have a building to rank!

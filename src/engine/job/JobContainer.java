@@ -16,7 +16,7 @@ public class JobContainer implements Comparable<JobContainer> {
     final long timeOfExecution;
     final boolean noTimer;
 
-    JobContainer(AbstractJob job, long timeOfExecution) {
+    public JobContainer(AbstractJob job, long timeOfExecution) {
         if (job == null) {
             throw new IllegalArgumentException("No 'null' jobs allowed.");
         }

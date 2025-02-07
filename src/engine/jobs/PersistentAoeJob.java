@@ -40,7 +40,7 @@ public class PersistentAoeJob extends AbstractEffectJob {
     }
 
     @Override
-    protected void doJob() {
+    public void doJob() {
 
         if (this.aej == null || this.source == null || this.action == null || this.power == null || this.source == null || this.eb == null)
             return;

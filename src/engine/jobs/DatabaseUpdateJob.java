@@ -28,7 +28,7 @@ public class DatabaseUpdateJob extends AbstractScheduleJob {
     }
 
     @Override
-    protected void doJob() {
+    public void doJob() {
         if (this.ago == null)
             return;
         ago.removeDatabaseJob(this.type, false);

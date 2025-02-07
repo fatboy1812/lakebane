@@ -97,7 +97,7 @@ public class BasicScheduledJob extends AbstractJob {
     }
 
     @Override
-    protected void doJob() {
+    public void doJob() {
         if (execution == null) {
             Logger.error("BasicScheduledJob executed with nothing to execute.");
             return;

@@ -58,8 +58,11 @@ public class JobWorker extends ControlledRunnable {
             } else {
 
                 // execute the new job..
-                this.currentJob.executeJob(this.getThreadName());
-                this.currentJob = null;
+                //this.currentJob.executeJob(this.getThreadName());
+                if(this.currentJob != null) {
+                    JobThread.startJobThread(this.currentJob);
+                    this.currentJob = null;
+                }
             }
             Thread.yield();
         }

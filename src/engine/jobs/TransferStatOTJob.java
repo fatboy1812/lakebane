@@ -29,7 +29,7 @@ public class TransferStatOTJob extends AbstractEffectJob {
     }
 
     @Override
-    protected void doJob() {
+    public void doJob() {
         if (this.dot == null || this.target == null || this.action == null || this.source == null || this.eb == null || this.action == null || this.power == null)
             return;
         if (!this.target.isAlive()) {

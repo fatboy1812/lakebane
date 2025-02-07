@@ -22,7 +22,7 @@ public class CSessionCleanupJob extends AbstractJob {
     }
 
     @Override
-    protected void doJob() {
+    public void doJob() {
         SessionManager.cSessionCleanup(secKey);
     }
 }

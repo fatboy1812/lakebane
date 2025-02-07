@@ -19,7 +19,7 @@ public class NoTimeJob extends AbstractEffectJob {
     }
 
     @Override
-    protected void doJob() {
+    public void doJob() {
     }
 
     @Override

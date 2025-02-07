@@ -27,7 +27,7 @@ public class AttackJob extends AbstractJob {
     }
 
     @Override
-    protected void doJob() {
+    public void doJob() {
         CombatManager.doCombat(this.source, slot);
     }
 

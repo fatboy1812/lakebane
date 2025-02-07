@@ -36,7 +36,7 @@ public class ChantJob extends AbstractEffectJob {
     }
 
     @Override
-    protected void doJob() {
+    public void doJob() {
         if (this.aej == null || this.source == null || this.target == null || this.action == null || this.power == null || this.source == null || this.eb == null)
             return;
         PlayerBonuses bonuses = null;

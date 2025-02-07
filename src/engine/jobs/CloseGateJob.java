@@ -29,7 +29,7 @@ public class CloseGateJob extends AbstractScheduleJob {
     }
 
     @Override
-    protected void doJob() {
+    public void doJob() {
 
         if (building == null) {
             Logger.error("Rungate building was null");

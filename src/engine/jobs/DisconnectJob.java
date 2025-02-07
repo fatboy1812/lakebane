@@ -22,7 +22,7 @@ public class DisconnectJob extends AbstractScheduleJob {
     }
 
     @Override
-    protected void doJob() {
+    public void doJob() {
         if (this.origin != null) {
             this.origin.disconnect();
         }

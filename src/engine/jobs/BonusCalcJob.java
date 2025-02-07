@@ -22,7 +22,7 @@ public class BonusCalcJob extends AbstractJob {
     }
 
     @Override
-    protected void doJob() {
+    public void doJob() {
         if (this.ac != null) {
             this.ac.applyBonuses();
 
