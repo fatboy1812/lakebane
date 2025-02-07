@@ -1,5 +1,6 @@
 package engine.job;
 
+import engine.server.world.WorldServer;
 import org.pmw.tinylog.Logger;
 
 import java.util.concurrent.TimeUnit;
@@ -8,6 +9,8 @@ import java.util.concurrent.locks.ReentrantLock;
 public class JobThread implements Runnable {
     private final AbstractJob currentJob;
     private final ReentrantLock lock = new ReentrantLock();
+
+    private static Long nextThreadPrint;
 
     public JobThread(AbstractJob job){
         this.currentJob = job;
@@ -37,5 +40,35 @@ public class JobThread implements Runnable {
         Thread thread = new Thread(jobThread);
         thread.setName("JOB THREAD: " + job.getWorkerID());
         thread.start();
+
+       if(JobThread.nextThreadPrint == null){
+           JobThread.nextThreadPrint = System.currentTimeMillis();
+       }else{
+           if(JobThread.nextThreadPrint < System.currentTimeMillis()){
+               JobThread.tryPrintThreads();
+               JobThread.nextThreadPrint = System.currentTimeMillis() + 10000L;
+           }
+       }
+    }
+
+    public static void tryPrintThreads(){
+        ThreadGroup rootGroup = Thread.currentThread().getThreadGroup();
+        while (rootGroup.getParent() != null) {
+            rootGroup = rootGroup.getParent();
+        }
+
+        // Estimate the number of threads
+        int activeThreads = rootGroup.activeCount();
+
+        // Create an array to hold the threads
+        Thread[] threads = new Thread[activeThreads];
+
+        // Get the active threads
+        rootGroup.enumerate(threads, true);
+
+        int availableThreads = Runtime.getRuntime().availableProcessors();
+
+        // Print the count
+        Logger.info("Total threads in application: " + threads.length + " / " + availableThreads);
     }
 }
