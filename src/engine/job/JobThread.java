@@ -35,6 +35,7 @@ public class JobThread implements Runnable {
     public static void startJobThread(AbstractJob job){
         JobThread jobThread = new JobThread(job);
         Thread thread = new Thread(jobThread);
+        thread.setName("JOB THREAD: " + job.getWorkerID());
         thread.start();
     }
 }
