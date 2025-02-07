@@ -69,6 +69,7 @@ public class JobThread implements Runnable {
         int availableThreads = Runtime.getRuntime().availableProcessors();
 
         // Print the count
-        Logger.info("Total threads in application: " + threads.length + " / " + availableThreads);
+        if(threads.length > 30)
+            Logger.info("Total threads in application: " + threads.length + " / " + availableThreads);
     }
 }
