@@ -4710,8 +4710,6 @@ public class PlayerCharacter extends AbstractCharacter {
         // must not be stunned
         if (this.bonuses.getBool(ModType.Stunned, SourceType.None))
             return 0f;
-
-        int levelDifference = this.level - attackerLevel;
         CharacterSkill passiveSkill;
 
         Item mainHand = null;
@@ -4751,7 +4749,7 @@ public class PlayerCharacter extends AbstractCharacter {
                 int divisr = 4;
                 if(!fromCombat)
                     divisr = 16;
-                float blockChance = ((passiveSkill.getModifiedAmount() + blockBonusFromShield) / divisr) + levelDifference;
+                float blockChance = ((passiveSkill.getModifiedAmount() + blockBonusFromShield) / divisr);
                 if(this.bonuses != null)
                     blockChance *= 1 + this.bonuses.getFloatPercentAll(ModType.Block, SourceType.None);
                 return blockChance;
@@ -4774,7 +4772,7 @@ public class PlayerCharacter extends AbstractCharacter {
                 if(passiveSkill == null)
                     return 0;
 
-                float parryChance =((passiveSkill.getModifiedAmount() + parryBonus) / 4) + levelDifference;
+                float parryChance =((passiveSkill.getModifiedAmount() + parryBonus) / 4);
 
                 if(this.bonuses != null)
                     parryChance *= 1 + this.bonuses.getFloatPercentAll(ModType.Parry, SourceType.None);
@@ -4790,7 +4788,7 @@ public class PlayerCharacter extends AbstractCharacter {
                 if(!fromCombat)
                     divisor = 16;
 
-                float dodgeChance = ((passiveSkill.getModifiedAmount()) / divisor) + levelDifference;
+                float dodgeChance = ((passiveSkill.getModifiedAmount()) / divisor);
 
                 if(this.bonuses != null)
                     dodgeChance *= 1 + this.bonuses.getFloatPercentAll(ModType.Dodge, SourceType.None);
