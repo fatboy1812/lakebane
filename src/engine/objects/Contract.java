@@ -282,22 +282,26 @@ public class Contract extends AbstractGameObject {
 
         int goldAmount = pc.charItemManager.getGoldInventory().getNumOfItems();
 
-        if(goldAmount < amount)
+        if(goldAmount < amount) {
             ChatManager.chatSystemInfo(pc, "You Cannot Afford This Wager");
-
+            return;
+        }
         goldAmount -= amount;
 
+        pc.charItemManager.getGoldInventory().setNumOfItems(goldAmount);
+        pc.charItemManager.updateInventory();
+
         ChatManager.chatSystemInfo(pc, "You Attempt To Gamble " + amount + " ...");
-        int roll1 = ThreadLocalRandom.current().nextInt(1,10);
-        int roll2 = ThreadLocalRandom.current().nextInt(1,10);
-        int roll3 = ThreadLocalRandom.current().nextInt(1,10);
+        int roll1 = ThreadLocalRandom.current().nextInt(1,7);
+        int roll2 = ThreadLocalRandom.current().nextInt(1,7);
+        int roll3 = ThreadLocalRandom.current().nextInt(1,7);
 
         ChatManager.chatSystemInfo(pc, "Gambler Has Rolled: " + roll1 + "     " + roll2 + "     " + roll3);
 
         int winnings = 0;
 
         if(roll1 == roll2 && roll1 == roll3)
-            winnings = amount * roll1;
+            winnings = amount * roll1 * 10;
 
         if(winnings > 0)
             ChatManager.chatSystemInfo(pc, "You Have Won " + winnings + " Gold Coins!");
