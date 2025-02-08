@@ -221,16 +221,16 @@ public enum PowersManager {
             City city = ZoneManager.getCityAtLocation(playerCharacter.loc);
             if (city == null) {
                 failed = true;
-            }else{
-                Bane bane = city.getBane();
-                if (bane == null) {
-                    failed = true;
-                }else{
-                    if(!bane.getSiegePhase().equals(SiegePhase.WAR)){
-                        failed = true;
-                    }
-                }
-            }
+            }//else{
+             //   Bane bane = city.getBane();
+             //   if (bane == null) {
+             //       failed = true;
+             //   }else{
+             //       if(!bane.getSiegePhase().equals(SiegePhase.WAR)){
+             //           failed = true;
+             //       }
+             //   }
+            //}
             if(failed){
                 //check to see if we are at an active mine
                 Zone zone = ZoneManager.findSmallestZone(playerCharacter.loc);
