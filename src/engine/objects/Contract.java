@@ -276,6 +276,15 @@ public class Contract extends AbstractGameObject {
     }
 
     public static void gamble(PlayerCharacter pc, int amount){
+
+        if(!pc.timestamps.containsKey("NextSlot"))
+            pc.timestamps.put("NextSlot",System.currentTimeMillis());
+
+        if(pc.timestamps.get("NextSlot") > System.currentTimeMillis())
+            return;
+
+        pc.timestamps.put("NextSlot",System.currentTimeMillis() + 2000L);
+
         if(pc.charItemManager == null){
             return;
         }
