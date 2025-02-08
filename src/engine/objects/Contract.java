@@ -22,6 +22,7 @@ import org.pmw.tinylog.Logger;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class Contract extends AbstractGameObject {
 
@@ -247,6 +248,67 @@ public class Contract extends AbstractGameObject {
                 break;
         }
         return vd;
+    }
+    public static VendorDialog HandleGamblerOptions(int optionId, NPC npc, PlayerCharacter pc){
+        pc.setLastNPCDialog(npc);
+        VendorDialog vd = new VendorDialog(VendorDialog.getHostileVendorDialog().getDialogType(),VendorDialog.getHostileVendorDialog().getIntro(),-1);//VendorDialog.getHostileVendorDialog();
+        vd.getOptions().clear();
+        MenuOption option1 = new MenuOption(15020441, "Gamble 1000", 15020441);
+        vd.getOptions().add(option1);
+
+        MenuOption option2 = new MenuOption(15020442, "Gamble 10,000", 15020442);
+        vd.getOptions().add(option2);
+
+        MenuOption option3 = new MenuOption(15020443, "Gamble 100,000", 15020443);
+        vd.getOptions().add(option3);
+        switch(optionId) {
+            case 15020441: // gamble 1000
+                gamble(pc,1000);
+                break;
+            case 15020442: // gamble 10,000
+                gamble(pc,10000);
+                break;
+            case 15020443: // gamble 100,000
+                gamble(pc,100000);
+                break;
+        }
+        return vd;
+    }
+
+    public static void gamble(PlayerCharacter pc, int amount){
+        if(pc.charItemManager == null){
+            return;
+        }
+
+        int goldAmount = pc.charItemManager.getGoldInventory().getNumOfItems();
+
+        if(goldAmount < amount)
+            ChatManager.chatSystemInfo(pc, "You Cannot Afford This Wager");
+
+        goldAmount -= amount;
+
+        ChatManager.chatSystemInfo(pc, "You Attempt To Gamble " + amount + " ...");
+        int roll1 = ThreadLocalRandom.current().nextInt(1,10);
+        int roll2 = ThreadLocalRandom.current().nextInt(1,10);
+        int roll3 = ThreadLocalRandom.current().nextInt(1,10);
+
+        ChatManager.chatSystemInfo(pc, "Gambler Has Rolled: " + roll1 + "     " + roll2 + "     " + roll3);
+
+        int winnings = 0;
+
+        if(roll1 == roll2 && roll1 == roll3)
+            winnings = amount * roll1;
+
+        if(winnings > 0)
+            ChatManager.chatSystemInfo(pc, "You Have Won " + winnings + " Gold Coins!");
+        else
+            ChatManager.chatSystemInfo(pc, "You Have Lost The Wager");
+
+        goldAmount += winnings;
+
+        pc.charItemManager.getGoldInventory().setNumOfItems(goldAmount);
+        pc.charItemManager.updateInventory();
+
     }
     public static VendorDialog HandleBaneCommanderOptions(int optionId, NPC npc, PlayerCharacter pc){
         pc.setLastNPCDialog(npc);
