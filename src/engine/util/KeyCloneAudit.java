@@ -54,7 +54,6 @@ public enum KeyCloneAudit {
                     origin.strikes = 0;
                     origin.finalStrikes = 0;
                     origin.finalStrikeRefresh = System.currentTimeMillis();
-                    return;
                 }
                 // Calculate time since last target switch
                 long timeSinceLastTarget = now - origin.lastTargetSwitchTime;
@@ -65,10 +64,11 @@ public enum KeyCloneAudit {
                 }
                 if (origin.strikes > 20) {
                     origin.finalStrikes++;
-                    ChatManager.chatSystemInfo(pc, "Strike Received");
+                    //ChatManager.chatSystemInfo(pc, "Strike Received: " + origin.finalStrikes);
                 }
                 if (origin.finalStrikes > 3) {
                     origin.forceDisconnect();
+                    DbManager.AccountQueries.SET_TRASH(origin.machineID);
                 }
             }
         } catch (Exception e) {
