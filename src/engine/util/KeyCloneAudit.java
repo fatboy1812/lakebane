@@ -36,7 +36,7 @@ public enum KeyCloneAudit {
 
     public static boolean auditNetMsg(ClientNetMsg msg) {
         boolean valid = true;
-
+    try {
         if (msg.getProtocolMsg().equals(Protocol.KEEPALIVESERVERCLIENT))
             return true;
 
@@ -64,12 +64,26 @@ public enum KeyCloneAudit {
                 }
 
                 if (origin.fastTargetSwitchCount > 5) {
-                    ChatManager.chatSystemInfo(pc, "Possible bot detected: Targeting too quickly.");
                     valid = false;
                 }
             }
         }
+        if(origin.lastStrike + 2000L < System.currentTimeMillis()) {
+            if (!valid) {
+                origin.strikes++;
+                origin.lastStrike = System.currentTimeMillis();
+            }
+        }else{
+            origin.strikes = 0;
+        }
 
+        if(origin.strikes > 10){
+            //origin.forceDisconnect();
+            ChatManager.chatSystemInfo(pc, "Cheater Cheater Pumpkin Eater");
+        }
+    }catch(Exception e) {
+
+    }
         return valid;
     }
 

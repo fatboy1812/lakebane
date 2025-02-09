@@ -51,6 +51,9 @@ public class ClientConnection extends AbstractConnection {
     protected SessionID sessionID = null;
     private byte cryptoInitTries = 0;
 
+    public int strikes = 0;
+    public Long lastStrike = 0L;
+
     public ClientConnection(ClientConnectionManager connMan,
                             SocketChannel sockChan) {
         super(connMan, sockChan, true);
