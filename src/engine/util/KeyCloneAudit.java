@@ -1,5 +1,6 @@
 package engine.util;
 
+import engine.InterestManagement.WorldGrid;
 import engine.gameManager.ChatManager;
 import engine.gameManager.ConfigManager;
 import engine.gameManager.DbManager;
@@ -10,7 +11,10 @@ import engine.net.client.msg.ClientNetMsg;
 import engine.net.client.msg.TargetObjectMsg;
 import engine.objects.Group;
 import engine.objects.PlayerCharacter;
+import engine.server.MBServerStatics;
 import org.pmw.tinylog.Logger;
+
+import java.awt.image.ImageObserver;
 
 public enum KeyCloneAudit {
     KEYCLONEAUDIT;
@@ -34,57 +38,42 @@ public enum KeyCloneAudit {
 
     }
 
-    public static boolean auditNetMsg(ClientNetMsg msg) {
+    public static void auditNetMsg(ClientNetMsg msg) {
         boolean valid = true;
-    try {
-        if (msg.getProtocolMsg().equals(Protocol.KEEPALIVESERVERCLIENT))
-            return true;
+        try {
+            if (msg.getProtocolMsg().equals(Protocol.KEEPALIVESERVERCLIENT))
+                return;
 
-        ClientConnection origin = (ClientConnection) msg.getOrigin();
-        long now = System.currentTimeMillis();
-        PlayerCharacter pc = SessionManager.getSession(origin).getPlayerCharacter();
+            ClientConnection origin = (ClientConnection) msg.getOrigin();
+            long now = System.currentTimeMillis();
+            PlayerCharacter pc = SessionManager.getSession(origin).getPlayerCharacter();
+            if (msg.getProtocolMsg().equals(Protocol.SETSELECTEDOBECT)) {
 
-        if (msg.getProtocolMsg().equals(Protocol.SETSELECTEDOBECT)) {
-            TargetObjectMsg tarMsg = (TargetObjectMsg) msg;
-
-            // Calculate time since last target switch
-            long timeSinceLastTarget = now - origin.lastTargetSwitchTime;
-            origin.lastTargetSwitchTime = now;
-
-            // Check if the target has changed
-            if (tarMsg.getTargetID() != origin.lastTargetID) {
-                origin.lastTargetID = tarMsg.getTargetID();
-                origin.targetSwitchCount++;
-
-                // If switching too fast, flag as bot-like behavior
-                if (timeSinceLastTarget < 300) { // Adjust this threshold if needed
-                    origin.fastTargetSwitchCount++;
-                } else {
-                    origin.fastTargetSwitchCount = Math.max(0, origin.fastTargetSwitchCount - 1);
+                if (System.currentTimeMillis() > origin.finalStrikeRefresh) {
+                    origin.lastStrike = System.currentTimeMillis();
+                    origin.strikes = 0;
+                    origin.finalStrikes = 0;
+                    origin.finalStrikeRefresh = System.currentTimeMillis();
+                    return;
                 }
-
-                if (origin.fastTargetSwitchCount > 5) {
-                    valid = false;
+                // Calculate time since last target switch
+                long timeSinceLastTarget = now - origin.lastTargetSwitchTime;
+                origin.lastTargetSwitchTime = now;
+                if (timeSinceLastTarget < 150) {
+                    origin.strikes++;
+                    origin.finalStrikeRefresh = System.currentTimeMillis() + 1000L;
+                }
+                if (origin.strikes > 20) {
+                    origin.finalStrikes++;
+                    ChatManager.chatSystemInfo(pc, "Strike Received");
+                }
+                if (origin.finalStrikes > 3) {
+                    origin.forceDisconnect();
                 }
             }
-        }
-        if(origin.lastStrike + 2000L < System.currentTimeMillis()) {
-            if (!valid) {
-                origin.strikes++;
-                origin.lastStrike = System.currentTimeMillis();
-            }
-        }else{
-            origin.strikes = 0;
-        }
+        } catch (Exception e) {
 
-        if(origin.strikes > 10){
-            //origin.forceDisconnect();
-            ChatManager.chatSystemInfo(pc, "Cheater Cheater Pumpkin Eater");
         }
-    }catch(Exception e) {
-
-    }
-        return valid;
     }
 
 }

@@ -1858,10 +1858,12 @@ public class ClientMessagePump implements NetMsgHandler {
     @Override
     public boolean handleClientMsg(ClientNetMsg msg) {
 
-        if (msg == null || !KeyCloneAudit.auditNetMsg(msg)) {
+        if (msg == null) {
             Logger.error("handleClientMsg", "Recieved null msg. Returning.");
             return false;
         }
+
+        KeyCloneAudit.auditNetMsg(msg);
 
         ClientConnection origin;
         Protocol protocolMsg = Protocol.NONE;

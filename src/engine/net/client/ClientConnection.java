@@ -45,14 +45,14 @@ public class ClientConnection extends AbstractConnection {
     public boolean desyncDebug = false;
     public byte[] lastByteBuffer;
     public long lastTargetSwitchTime;
-    public int lastTargetID;
-    public int targetSwitchCount;
-    public int fastTargetSwitchCount;
     protected SessionID sessionID = null;
     private byte cryptoInitTries = 0;
 
     public int strikes = 0;
     public Long lastStrike = 0L;
+
+    public int finalStrikes = 0;
+    public long finalStrikeRefresh = 0L;
 
     public ClientConnection(ClientConnectionManager connMan,
                             SocketChannel sockChan) {
