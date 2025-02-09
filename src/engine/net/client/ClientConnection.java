@@ -44,6 +44,10 @@ public class ClientConnection extends AbstractConnection {
     public ReentrantLock buyLock = new ReentrantLock();
     public boolean desyncDebug = false;
     public byte[] lastByteBuffer;
+    public long lastTargetSwitchTime;
+    public int lastTargetID;
+    public int targetSwitchCount;
+    public int fastTargetSwitchCount;
     protected SessionID sessionID = null;
     private byte cryptoInitTries = 0;
 

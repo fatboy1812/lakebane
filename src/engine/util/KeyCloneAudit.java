@@ -1,9 +1,13 @@
 package engine.util;
 
+import engine.gameManager.ChatManager;
 import engine.gameManager.ConfigManager;
 import engine.gameManager.DbManager;
+import engine.gameManager.SessionManager;
+import engine.net.client.ClientConnection;
 import engine.net.client.Protocol;
 import engine.net.client.msg.ClientNetMsg;
+import engine.net.client.msg.TargetObjectMsg;
 import engine.objects.Group;
 import engine.objects.PlayerCharacter;
 import org.pmw.tinylog.Logger;
@@ -30,19 +34,43 @@ public enum KeyCloneAudit {
 
     }
 
-    public static boolean auditNetMsg(ClientNetMsg msg){
+    public static boolean auditNetMsg(ClientNetMsg msg) {
         boolean valid = true;
 
-        if(msg.getProtocolMsg().equals(Protocol.KEEPALIVESERVERCLIENT))
+        if (msg.getProtocolMsg().equals(Protocol.KEEPALIVESERVERCLIENT))
             return true;
 
-        Long msgDelay = System.currentTimeMillis() - msg.getOrigin().lastMsgTime;
+        ClientConnection origin = (ClientConnection) msg.getOrigin();
+        long now = System.currentTimeMillis();
+        PlayerCharacter pc = SessionManager.getSession(origin).getPlayerCharacter();
 
-        if(msgDelay < 100)
-            return false;
+        if (msg.getProtocolMsg().equals(Protocol.SETSELECTEDOBECT)) {
+            TargetObjectMsg tarMsg = (TargetObjectMsg) msg;
 
+            // Calculate time since last target switch
+            long timeSinceLastTarget = now - origin.lastTargetSwitchTime;
+            origin.lastTargetSwitchTime = now;
 
+            // Check if the target has changed
+            if (tarMsg.getTargetID() != origin.lastTargetID) {
+                origin.lastTargetID = tarMsg.getTargetID();
+                origin.targetSwitchCount++;
+
+                // If switching too fast, flag as bot-like behavior
+                if (timeSinceLastTarget < 300) { // Adjust this threshold if needed
+                    origin.fastTargetSwitchCount++;
+                } else {
+                    origin.fastTargetSwitchCount = Math.max(0, origin.fastTargetSwitchCount - 1);
+                }
+
+                if (origin.fastTargetSwitchCount > 5) {
+                    ChatManager.chatSystemInfo(pc, "Possible bot detected: Targeting too quickly.");
+                    valid = false;
+                }
+            }
+        }
 
         return valid;
     }
+
 }
