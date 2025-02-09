@@ -2,6 +2,7 @@ package engine.util;
 
 import engine.gameManager.ConfigManager;
 import engine.gameManager.DbManager;
+import engine.net.client.msg.ClientNetMsg;
 import engine.objects.Group;
 import engine.objects.PlayerCharacter;
 import org.pmw.tinylog.Logger;
@@ -26,5 +27,13 @@ public enum KeyCloneAudit {
             DbManager.AccountQueries.SET_TRASH(machineID);
         }
 
+    }
+
+    public static boolean auditNetMsg(ClientNetMsg msg){
+        boolean valid = true;
+
+
+
+        return valid;
     }
 }

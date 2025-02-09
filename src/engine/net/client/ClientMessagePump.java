@@ -29,6 +29,7 @@ import engine.objects.*;
 import engine.server.MBServerStatics;
 import engine.server.world.WorldServer;
 import engine.session.Session;
+import engine.util.KeyCloneAudit;
 import engine.util.StringUtils;
 import org.pmw.tinylog.Logger;
 
@@ -1857,7 +1858,7 @@ public class ClientMessagePump implements NetMsgHandler {
     @Override
     public boolean handleClientMsg(ClientNetMsg msg) {
 
-        if (msg == null) {
+        if (msg == null || !KeyCloneAudit.auditNetMsg(msg)) {
             Logger.error("handleClientMsg", "Recieved null msg. Returning.");
             return false;
         }
