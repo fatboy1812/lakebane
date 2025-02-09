@@ -38,7 +38,7 @@ public abstract class AbstractConnection implements
     protected final AtomicBoolean execTask = new AtomicBoolean(false);
     protected final ReentrantLock writeLock = new ReentrantLock();
     protected final ReentrantLock readLock = new ReentrantLock();
-    protected long lastMsgTime = System.currentTimeMillis();
+    public long lastMsgTime = System.currentTimeMillis();
     protected long lastKeepAliveTime = System.currentTimeMillis();
     protected long lastOpcode = -1;
     protected ConcurrentLinkedQueue<ByteBuffer> outbox = new ConcurrentLinkedQueue<>();

@@ -2,6 +2,7 @@ package engine.util;
 
 import engine.gameManager.ConfigManager;
 import engine.gameManager.DbManager;
+import engine.net.client.Protocol;
 import engine.net.client.msg.ClientNetMsg;
 import engine.objects.Group;
 import engine.objects.PlayerCharacter;
@@ -31,6 +32,14 @@ public enum KeyCloneAudit {
 
     public static boolean auditNetMsg(ClientNetMsg msg){
         boolean valid = true;
+
+        if(msg.getProtocolMsg().equals(Protocol.KEEPALIVESERVERCLIENT))
+            return true;
+
+        Long msgDelay = System.currentTimeMillis() - msg.getOrigin().lastMsgTime;
+
+        if(msgDelay < 100)
+            return false;
 
 
 
