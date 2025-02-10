@@ -872,6 +872,11 @@ public class PlayerCombatStats {
     } // PERFECT DO NOT TOUCH
 
     public static float getHitChance(int atr,int def){
+        if(atr == 0)
+            return 0.0f;
+        if(def == 0)
+            return 100.0f;
+
         float key = (float)((float)atr / def);
         BigDecimal bd = new BigDecimal(key).setScale(2, RoundingMode.HALF_UP);
         key = bd.floatValue(); // handles rounding for mandatory 2 decimal places
