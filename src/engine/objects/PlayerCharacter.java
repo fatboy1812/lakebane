@@ -5138,7 +5138,7 @@ public class PlayerCharacter extends AbstractCharacter {
                         } else {
                             this.combatStats.update();
                         }
-                        this.doRegen();
+                        //this.doRegen();
                     }
 
                     if (this.getStamina() < 10) {
