@@ -157,6 +157,8 @@ public class CombatUtilities {
                 Mob mob = (Mob) target;
                 if (mob.isSiege())
                     defense = atr;
+                else
+                    defense = ((Mob) target).mobBase.getDefense();
                 break;
             case Building:
                 return false;
