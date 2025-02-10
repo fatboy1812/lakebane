@@ -338,11 +338,6 @@ public class PlayerCombatStats {
         } catch (Exception e) {
             //Logger.error("FAILED TO CALCULATE Defense FOR: " + this.owner.getObjectUUID());
         }
-        try{
-            this.doRegen();
-        }catch(Exception ignored){
-
-        }
 
     }
 
@@ -887,80 +882,4 @@ public class PlayerCombatStats {
         return HIT_VALUE_MAP.get(key);
     }
 
-    public void doRegen(){
-
-        long current = System.currentTimeMillis();
-        Vector3fImmutable regenRate;
-        PlayerCharacter pc = this.owner;
-        if(!pc.timestamps.containsKey("LastRegen")){
-            pc.timestamps.put("LastRegen", current);
-        }
-
-        if(pc.isSit()){
-            regenRate = resting;
-        } else if(!pc.isMoving()){
-            regenRate = idling;
-        }else{
-            if(pc.isWalk()){
-                regenRate = walking;
-            }else{
-                regenRate = running;
-            }
-        }
-
-        double secondsPassed = current - pc.timestamps.get("LastRegen") * 0.001f;
-
-        double healthRegenerated = 0.01f / regenRate.x;
-        double manaRegenerated = 0.01f / regenRate.y;
-        if(pc.bonuses != null){
-            healthRegenerated *= 1 + pc.bonuses.getFloatPercentAll(Enum.ModType.HealthRecoverRate, Enum.SourceType.None);
-            manaRegenerated *= 1 + pc.bonuses.getFloatPercentAll(Enum.ModType.ManaRecoverRate, Enum.SourceType.None);
-        }
-        healthRegenerated *= pc.healthMax * secondsPassed;
-        manaRegenerated *= pc.manaMax * secondsPassed;
-
-        double newHealth = pc.health.get() + healthRegenerated;
-        double newMana = pc.mana.get() + manaRegenerated;
-
-        if(newHealth > pc.healthMax)
-            newHealth = pc.healthMax;
-
-        if(newMana > pc.manaMax)
-            newMana = pc.manaMax;
-
-        pc.health.compareAndSet(pc.health.get(), (float) newHealth);
-        pc.mana.compareAndSet(pc.mana.get(), (float) newMana);
-
-        if(regenRate.z > 0) {
-            //recover stamina
-            double staminaRegenerated = 1 / regenRate.z;
-            if (pc.bonuses != null) {
-                staminaRegenerated *= 1 + pc.bonuses.getFloatPercentAll(Enum.ModType.StaminaRecoverRate, Enum.SourceType.None);
-            }
-            double newStamina = pc.stamina.get() + staminaRegenerated;
-
-            if(newStamina > pc.staminaMax)
-                newStamina = pc.staminaMax;
-
-            pc.stamina.compareAndSet(pc.stamina.get(), (float) newStamina);
-        }else{
-            //consume stamina
-            if(pc.isMoving()){
-                double newStamina;
-                if(pc.walkMode){
-                    //walking
-                    newStamina = consumption.x * secondsPassed;
-                }else{
-                    //running
-                    newStamina = consumption.y * secondsPassed;
-                }
-                if(newStamina < 0)
-                    newStamina = 0;
-
-                pc.stamina.compareAndSet(pc.stamina.get(), pc.stamina.get() - (float) newStamina);
-                if(newStamina == 0 && pc.isSwimming())
-                    pc.health.compareAndSet(pc.health.get(), pc.health.get() - (float) newStamina);
-            }
-        }
-    }
 }
