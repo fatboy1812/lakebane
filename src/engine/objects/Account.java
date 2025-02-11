@@ -59,6 +59,11 @@ public class Account extends AbstractGameObject {
         this.status = Enum.AccountStatus.valueOf(resultSet.getString("status"));
     }
 
+    public Account() {
+        this.uname = "";
+        this.status = Enum.AccountStatus.ACTIVE;
+    }
+
     public ArrayList<Item> getVault() {
         return vault;
     }
