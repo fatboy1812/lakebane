@@ -327,9 +327,9 @@ public class CombatUtilities {
             damage = calculateMobDamage(agent);
         }
         if (AbstractWorldObject.IsAbstractCharacter(target)) {
-            if (((AbstractCharacter) target).isSit()) {
-                damage *= 2.5f; //increase damage if sitting
-            }
+            //if (((AbstractCharacter) target).isSit()) {
+            //    damage *= 2.5f; //increase damage if sitting
+            //}
             return (int) (((AbstractCharacter) target).getResists().getResistedDamage(agent, (AbstractCharacter) target, dt, damage, 0));
         }
         if (target.getObjectType() == GameObjectType.Building) {
