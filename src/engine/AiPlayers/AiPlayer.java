@@ -1,7 +1,9 @@
 package engine.AiPlayers;
 
 import engine.Enum;
+import engine.InterestManagement.InterestManager;
 import engine.InterestManagement.WorldGrid;
+import engine.gameManager.LootManager;
 import engine.math.Vector3fImmutable;
 import engine.net.client.msg.VendorDialogMsg;
 import engine.objects.*;
@@ -13,17 +15,17 @@ import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class AiPlayer {
-    public PlayerCharacter emulated;
+    public Mob emulated;
 
     //randomized constructor
     //creates a random AI player to start at level 10 and progress throughout the game world
     public AiPlayer(){
-        PlayerCharacter emu = generateRandomPlayer();
+        Mob emu = generateRandomPlayer();
         if(emu != null)
             this.emulated = emu;
     }
 
-    public static PlayerCharacter generateRandomPlayer(){
+    public static Mob generateRandomPlayer(){
         Race race = AiPlayerManager.getRandomRace();
         if(race == null)
             return null;
@@ -40,34 +42,28 @@ public class AiPlayer {
         if(baseClass == null)
             return null;
 
-        PromotionClass promo = null;
-        while (promo == null){
-            int promoId = ThreadLocalRandom.current().nextInt(2504,2526);
-            PromotionClass tempPromo = PromotionClass.GetPromtionClassFromCache(promoId);
-            if(tempPromo.isAllowedRune(baseClass.getToken())){
-                promo = tempPromo;
-            }
+        City hamlet = AiPlayerManager.getRandomHamlet();
+        Vector3fImmutable loc = Vector3fImmutable.getRandomPointOnCircle(hamlet.getTOL().loc,30);
+
+        Mob guard = Mob.createStrongholdMob(race.getRaceRuneID(), loc, Guild.getErrantGuild(),true,hamlet.getParent(),null,0, AiPlayerManager.generateFirstName(),10);
+
+        if(guard != null){
+            guard.parentZone = hamlet.getParent();
+            guard.bindLoc = loc;
+            guard.setLoc(loc);
+            guard.StrongholdGuardian = true;
+            guard.runAfterLoad();
+            guard.setLevel((short)10);
+            guard.spawnTime = 1000000000;
+            guard.setFirstName(AiPlayerManager.generateFirstName());
+            guard.setLastName("Ai Player");
+            InterestManager.setObjectDirty(guard);
+            WorldGrid.addObject(guard,loc.x,loc.z);
+            WorldGrid.updateObject(guard);
+            guard.mobPowers.clear();
         }
 
-        Account a = new Account();
-        PlayerCharacter emulated = new PlayerCharacter(AiPlayerManager.generateFirstName(), "AI Player", (short) 0, (short) 0, (short) 0,
-                (short) 0, (short) 0, Guild.getErrantGuild(), (byte) 0, a, race, baseClass, (byte) 1, (byte) 1,
-                (byte) 1, (byte) 1, (byte) 1);
-
-        emulated.setPromotionClass(promo.getObjectUUID());
-
-        return emulated;
-    }
-
-    public void runAfterLoad(){
-        City hamlet = AiPlayerManager.getRandomHamlet();
-        Vector3fImmutable binder = Vector3fImmutable.getRandomPointOnCircle(hamlet.getTOL().loc,30);
-        this.emulated.bindLoc = binder;
-        WorldGrid.addObject(this.emulated,binder.x,binder.z);
-        this.emulated.setLoc(binder);
-        WorldGrid.updateObject(this.emulated);
-        this.emulated.removeEffectBySource(Enum.EffectSourceType.Invisibility,40,true);
-        this.emulated.removeEffectBySource(Enum.EffectSourceType.Invulnerability,40,true);
+        return guard;
     }
 
     public void update(){

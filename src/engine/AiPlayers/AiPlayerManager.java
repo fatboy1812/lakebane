@@ -1,6 +1,7 @@
 package engine.AiPlayers;
 
 import engine.objects.City;
+import engine.objects.Mob;
 import engine.objects.Race;
 import org.pmw.tinylog.Logger;
 
@@ -39,7 +40,6 @@ public class AiPlayerManager {
                 if (aiPlayer != null) {
                     if (aiPlayer.emulated != null) {
                         AiPlayers.add(aiPlayer);
-                        aiPlayer.runAfterLoad();
                     }
                 }
             }catch(Exception e){
@@ -62,6 +62,10 @@ public class AiPlayerManager {
 
     public static City getRandomHamlet() {
         return City.getCity(hamletIds[RANDOM.nextInt(hamletIds.length)]);
+    }
+
+    public static void runAi(Mob mob){
+
     }
 
 }

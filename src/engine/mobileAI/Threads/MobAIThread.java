@@ -1,5 +1,6 @@
 package engine.mobileAI.Threads;
 
+import engine.AiPlayers.AiPlayerManager;
 import engine.gameManager.ConfigManager;
 import engine.mobileAI.MobAI;
 import engine.gameManager.ZoneManager;
@@ -33,7 +34,11 @@ public class MobAIThread implements Runnable{
                         for (Mob mob : zone.zoneMobSet) {
                             try {
                                 if (mob != null) {
-                                    MobAI.DetermineAction(mob);
+                                    if(mob.StrongholdGuardian){
+                                        AiPlayerManager.runAi(mob);
+                                    }else {
+                                        MobAI.DetermineAction(mob);
+                                    }
                                 }
                             } catch (Exception e) {
                                 Logger.error("Error processing Mob [Name: {}, UUID: {}]", mob.getName(), mob.getObjectUUID(), e);
