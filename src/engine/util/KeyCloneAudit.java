@@ -1,7 +1,5 @@
 package engine.util;
 
-import engine.InterestManagement.WorldGrid;
-import engine.gameManager.ChatManager;
 import engine.gameManager.ConfigManager;
 import engine.gameManager.DbManager;
 import engine.gameManager.SessionManager;
@@ -13,8 +11,6 @@ import engine.objects.Group;
 import engine.objects.PlayerCharacter;
 import engine.server.MBServerStatics;
 import org.pmw.tinylog.Logger;
-
-import java.awt.image.ImageObserver;
 
 public enum KeyCloneAudit {
     KEYCLONEAUDIT;
@@ -38,42 +34,33 @@ public enum KeyCloneAudit {
 
     }
 
-    public static void auditNetMsg(ClientNetMsg msg) {
-        boolean valid = true;
+    public static void auditTargetMsg(ClientNetMsg msg) {
         try {
-            if (msg.getProtocolMsg().equals(Protocol.KEEPALIVESERVERCLIENT))
-                return;
-
+            TargetObjectMsg tarMsg = (TargetObjectMsg) msg;
             ClientConnection origin = (ClientConnection) msg.getOrigin();
             long now = System.currentTimeMillis();
-            PlayerCharacter pc = SessionManager.getSession(origin).getPlayerCharacter();
-            if (msg.getProtocolMsg().equals(Protocol.SETSELECTEDOBECT)) {
 
-                TargetObjectMsg tarMsg = (TargetObjectMsg)msg;
-                if(tarMsg.getTargetType() != MBServerStatics.MASK_PLAYER)
-                    return;
+            if (tarMsg.getTargetType() != MBServerStatics.MASK_PLAYER)
+                return;
 
-                if (System.currentTimeMillis() > origin.finalStrikeRefresh) {
-                    origin.lastStrike = System.currentTimeMillis();
-                    origin.strikes = 0;
-                    origin.finalStrikes = 0;
-                    origin.finalStrikeRefresh = System.currentTimeMillis();
-                }
-                // Calculate time since last target switch
-                long timeSinceLastTarget = now - origin.lastTargetSwitchTime;
-                origin.lastTargetSwitchTime = now;
-                if (timeSinceLastTarget < 150) {
-                    origin.strikes++;
-                    origin.finalStrikeRefresh = System.currentTimeMillis() + 1000L;
-                }
-                if (origin.strikes > 20) {
-                    origin.finalStrikes++;
-                    //ChatManager.chatSystemInfo(pc, "Strike Received: " + origin.finalStrikes);
-                }
-                if (origin.finalStrikes > 3) {
-                    origin.forceDisconnect();
-                    DbManager.AccountQueries.SET_TRASH(origin.machineID);
-                }
+            if (System.currentTimeMillis() > origin.finalStrikeRefresh) {
+                origin.lastStrike = System.currentTimeMillis();
+                origin.strikes = 0;
+                origin.finalStrikes = 0;
+                origin.finalStrikeRefresh = System.currentTimeMillis();
+            }
+            // Calculate time since last target switch
+            long timeSinceLastTarget = now - origin.lastTargetSwitchTime;
+            origin.lastTargetSwitchTime = now;
+            if (timeSinceLastTarget < 150) {
+                origin.strikes++;
+                origin.finalStrikeRefresh = System.currentTimeMillis() + 1000L;
+            }
+            if (origin.strikes > 20) {
+                origin.finalStrikes++;
+            }
+            if (origin.finalStrikes > 3) {origin.forceDisconnect();
+                DbManager.AccountQueries.SET_TRASH(origin.machineID);
             }
         } catch (Exception e) {
 

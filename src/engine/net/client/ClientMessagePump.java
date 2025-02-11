@@ -1863,8 +1863,6 @@ public class ClientMessagePump implements NetMsgHandler {
             return false;
         }
 
-        KeyCloneAudit.auditNetMsg(msg);
-
         ClientConnection origin;
         Protocol protocolMsg = Protocol.NONE;
         Session s;
@@ -1888,6 +1886,7 @@ public class ClientMessagePump implements NetMsgHandler {
 
             switch (protocolMsg) {
                 case SETSELECTEDOBECT:
+                    KeyCloneAudit.auditTargetMsg(msg);
                     ClientMessagePump.targetObject((TargetObjectMsg) msg, origin);
                     break;
 
