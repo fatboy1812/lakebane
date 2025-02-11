@@ -34,9 +34,9 @@ public class AiPlayerManager {
     public static void init(){
         while(AiPlayers.size() < totalPlayers){
             AiPlayer aiPlayer = new AiPlayer();
-            if(aiPlayer != null && aiPlayer.emulated != null){
-                AiPlayers.add(aiPlayer);
-            }
+            if(aiPlayer != null)
+                if(aiPlayer.emulated != null)
+                    AiPlayers.add(aiPlayer);
         }
     }
     public static String generateFirstName(){
