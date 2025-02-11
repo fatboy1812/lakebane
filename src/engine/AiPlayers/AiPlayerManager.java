@@ -36,9 +36,12 @@ public class AiPlayerManager {
         while(AiPlayers.size() < totalPlayers){
             try {
                 AiPlayer aiPlayer = new AiPlayer();
-                if (aiPlayer != null)
-                    if (aiPlayer.emulated != null)
+                if (aiPlayer != null) {
+                    if (aiPlayer.emulated != null) {
                         AiPlayers.add(aiPlayer);
+                        aiPlayer.runAfterLoad();
+                    }
+                }
             }catch(Exception e){
                 Logger.error(e);
             }

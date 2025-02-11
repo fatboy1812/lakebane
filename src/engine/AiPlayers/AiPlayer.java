@@ -60,9 +60,11 @@ public class AiPlayer {
     }
 
     public void runAfterLoad(){
-        WorldGrid.addObject(this.emulated,this.emulated.bindLoc.x,this.emulated.bindLoc.z);
         City hamlet = AiPlayerManager.getRandomHamlet();
-        this.emulated.teleport(Vector3fImmutable.getRandomPointOnCircle(hamlet.getTOL().loc,30));
+        Vector3fImmutable binder = Vector3fImmutable.getRandomPointOnCircle(hamlet.getTOL().loc,30);
+        this.emulated.bindLoc = binder;
+        WorldGrid.addObject(this.emulated,binder.x,binder.z);
+        this.emulated.setLoc(binder);
         WorldGrid.updateObject(this.emulated);
         this.emulated.removeEffectBySource(Enum.EffectSourceType.Invisibility,40,true);
         this.emulated.removeEffectBySource(Enum.EffectSourceType.Invulnerability,40,true);
