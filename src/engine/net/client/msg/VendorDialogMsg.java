@@ -636,7 +636,7 @@ public class VendorDialogMsg extends ClientNetMsg {
         DispatchMessage.dispatchMsgToInterestArea(pc, arm, DispatchChannel.PRIMARY, MBServerStatics.CHARACTER_LOAD_RANGE, true, false);
 
         if(pc.getCharItemManager() != null && pc.getCharItemManager().getGoldInventory() != null && pc.getCharItemManager().getGoldInventory().getNumOfItems() < 1000) {
-            pc.getCharItemManager().addGoldToInventory(1000, false);
+            pc.getCharItemManager().addGoldToInventory(1500, false);
             pc.getCharItemManager().addItemToInventory(new MobLoot(pc, ItemBase.getItemBase(980066), 1, false).promoteToItem(pc));
             pc.getCharItemManager().updateInventory();
         }
