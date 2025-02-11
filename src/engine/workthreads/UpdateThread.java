@@ -9,8 +9,6 @@
 
 package engine.workthreads;
 
-import engine.AiPlayers.AiPlayer;
-import engine.AiPlayers.AiPlayerManager;
 import engine.Enum;
 import engine.gameManager.SessionManager;
 import engine.gameManager.SimulationManager;
@@ -35,11 +33,6 @@ public class UpdateThread implements Runnable {
             for(PlayerCharacter player : SessionManager.getAllActivePlayerCharacters()){
                 if (player != null) {
                     player.update(true);
-                }
-            }
-            for(AiPlayer player : AiPlayerManager.AiPlayers){
-                if (player != null) {
-                    player.update();
                 }
             }
         } catch (Exception e) {

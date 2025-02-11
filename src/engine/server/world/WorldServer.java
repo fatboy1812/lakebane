@@ -9,7 +9,6 @@
 
 package engine.server.world;
 
-import engine.AiPlayers.AiPlayerManager;
 import engine.Enum;
 import engine.Enum.BuildingGroup;
 import engine.Enum.DispatchChannel;
@@ -514,9 +513,6 @@ public class WorldServer {
 
 		Logger.info("Running garbage collection...");
 		System.gc();
-
-		Logger.info("Spawning AI Players...");
-		AiPlayerManager.init();
 
 		Logger.info("Starting Bane Thread");
 		BaneThread.startBaneThread();
