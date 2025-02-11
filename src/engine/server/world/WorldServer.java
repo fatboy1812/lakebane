@@ -515,8 +515,8 @@ public class WorldServer {
 		Logger.info("Running garbage collection...");
 		System.gc();
 
-		Logger.info("Spawning AI Players...");
-		AiPlayerManager.init();
+		//Logger.info("Spawning AI Players...");
+		//AiPlayerManager.init();
 
 		Logger.info("Starting Bane Thread");
 		BaneThread.startBaneThread();
