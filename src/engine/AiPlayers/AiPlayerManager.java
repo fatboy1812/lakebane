@@ -2,6 +2,7 @@ package engine.AiPlayers;
 
 import engine.objects.City;
 import engine.objects.Race;
+import org.pmw.tinylog.Logger;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -33,10 +34,14 @@ public class AiPlayerManager {
 
     public static void init(){
         while(AiPlayers.size() < totalPlayers){
-            AiPlayer aiPlayer = new AiPlayer();
-            if(aiPlayer != null)
-                if(aiPlayer.emulated != null)
-                    AiPlayers.add(aiPlayer);
+            try {
+                AiPlayer aiPlayer = new AiPlayer();
+                if (aiPlayer != null)
+                    if (aiPlayer.emulated != null)
+                        AiPlayers.add(aiPlayer);
+            }catch(Exception e){
+                Logger.error(e);
+            }
         }
     }
     public static String generateFirstName(){
