@@ -45,6 +45,7 @@ import engine.util.MiscUtils;
 import org.joda.time.DateTime;
 import org.pmw.tinylog.Logger;
 
+import javax.swing.*;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
@@ -5189,6 +5190,23 @@ public class PlayerCharacter extends AbstractCharacter {
                             }
                         }
 
+                    }
+
+                    if(!this.timestamps.contains("STAMHEALTICK")){
+                        this.timestamps.put("STAMHEALTICK", System.currentTimeMillis());
+                    }else{
+                        if(this.containsEffect(441156479)) {
+                            if (this.timestamps.get("STAMHEALTICK") < System.currentTimeMillis()) {
+                                float stamIncrease = 7;
+                                if (this.stamina.get() + stamIncrease > this.staminaMax)
+                                    this.stamina.compareAndSet(this.stamina.get(), this.staminaMax);
+                                else
+                                    this.stamina.compareAndSet(this.stamina.get(), this.stamina.get() + stamIncrease);
+                                this.timestamps.put("STAMHEALTICK", System.currentTimeMillis() + 10000L);
+                            }
+                        }else{
+                            this.timestamps.put("STAMHEALTICK", System.currentTimeMillis());
+                        }
                     }
 
                 } catch (Exception e) {
