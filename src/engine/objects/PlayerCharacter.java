@@ -5122,6 +5122,24 @@ public class PlayerCharacter extends AbstractCharacter {
 
             if (this.updateLock.writeLock().tryLock()) {
                 try {
+                    if (!this.timestamps.contains("STAMHEALTICK")) {
+                        this.timestamps.put("STAMHEALTICK", System.currentTimeMillis());
+                    }
+                    if (this.containsEffect(441156455)) {
+                        long length = System.currentTimeMillis() - this.timestamps.get("STAMHEALTICK");
+                        if (length > 10000 ) {
+                            float stamIncrease = 0.65f;
+                            if (this.stamina.get() + stamIncrease > this.staminaMax)
+                                this.stamina.compareAndSet(this.stamina.get(), this.staminaMax);
+                            else
+                                this.stamina.compareAndSet(this.stamina.get(), this.stamina.get() + stamIncrease);
+                            this.timestamps.put("STAMHEALTICK", System.currentTimeMillis());
+                            ChatManager.chatSystemInfo(this, "Healed 7 Stamina");
+                        }
+                    } else {
+                        this.timestamps.put("STAMHEALTICK", System.currentTimeMillis());
+                    }
+
                     if (!this.isAlive() && this.isEnteredWorld()) {
                         if (!this.timestamps.containsKey("DeathTime")) {
                             this.timestamps.put("DeathTime", System.currentTimeMillis());
@@ -5190,23 +5208,6 @@ public class PlayerCharacter extends AbstractCharacter {
                             }
                         }
 
-                    }
-
-                    if(!this.timestamps.contains("STAMHEALTICK")){
-                        this.timestamps.put("STAMHEALTICK", System.currentTimeMillis());
-                    }else{
-                        if(this.containsEffect(441156479)) {
-                            if (this.timestamps.get("STAMHEALTICK") < System.currentTimeMillis()) {
-                                float stamIncrease = 7;
-                                if (this.stamina.get() + stamIncrease > this.staminaMax)
-                                    this.stamina.compareAndSet(this.stamina.get(), this.staminaMax);
-                                else
-                                    this.stamina.compareAndSet(this.stamina.get(), this.stamina.get() + stamIncrease);
-                                this.timestamps.put("STAMHEALTICK", System.currentTimeMillis() + 10000L);
-                            }
-                        }else{
-                            this.timestamps.put("STAMHEALTICK", System.currentTimeMillis());
-                        }
                     }
 
                 } catch (Exception e) {
