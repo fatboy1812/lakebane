@@ -49,6 +49,10 @@ public enum KeyCloneAudit {
             PlayerCharacter pc = SessionManager.getSession(origin).getPlayerCharacter();
             if (msg.getProtocolMsg().equals(Protocol.SETSELECTEDOBECT)) {
 
+                TargetObjectMsg tarMsg = (TargetObjectMsg)msg;
+                if(tarMsg.getTargetType() != MBServerStatics.MASK_PLAYER)
+                    return;
+
                 if (System.currentTimeMillis() > origin.finalStrikeRefresh) {
                     origin.lastStrike = System.currentTimeMillis();
                     origin.strikes = 0;
