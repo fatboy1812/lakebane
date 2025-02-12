@@ -207,7 +207,7 @@ public enum DevCmdManager {
                 case "printskills":
                 case "printpowers":
                 case "printbonuses":
-                case "gimme":
+                //case "gimme":
                     playerAllowed = true;
                     if (!a.status.equals(Enum.AccountStatus.ADMIN))
                         target = pcSender;
