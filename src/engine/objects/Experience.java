@@ -409,7 +409,6 @@ public class Experience {
 
                 grantedExperience = (double) LOOTMANAGER.NORMAL_EXP_RATE * maxXPPerKill(playerCharacter.getLevel());
 
-                grantedExperience *= (1/ giveEXPTo.size()+0.9);
                 // Adjust XP for Mob Level
 
                 grantedExperience *= getConMod(playerCharacter, mob);
@@ -446,6 +445,9 @@ public class Experience {
                 if (grantedExperience == 0)
                     grantedExperience = 1;
 
+                //scaling
+                grantedExperience *= (1 / giveEXPTo.size()+0.9);
+
                 // Grant the player the EXP
                 playerCharacter.grantXP((int) Math.floor(grantedExperience));
             }
@@ -469,9 +471,13 @@ public class Experience {
                 grantedExperience *= LOOTMANAGER.HOTZONE_EXP_RATE;
 
             // Errant penalty
-            if (grantedExperience != 1)
+            if (grantedExperience != 1) {
                 if (killer.getGuild().isEmptyGuild())
-                    grantedExperience *= .6;
+                    grantedExperience *= 0.6f;
+            }
+
+            //bonus for no group
+            grantedExperience *= 1.9f;
 
             // Grant XP
             killer.grantXP((int) Math.floor(grantedExperience));
