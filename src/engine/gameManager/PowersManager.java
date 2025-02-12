@@ -175,6 +175,11 @@ public enum PowersManager {
         if(pc.isMoving())
             pc.stopMovement(pc.getMovementLoc());
 
+        if(msg.getPowerUsedID() == 429429978){
+            applyPower(origin.getPlayerCharacter(),origin.getPlayerCharacter(),origin.getPlayerCharacter().getLoc(),429429978,msg.getNumTrains(),false);
+            return;
+        }
+
         if (usePowerA(msg, origin, sendCastToSelf)) {
             // Cast failed for some reason, reset timer
 
