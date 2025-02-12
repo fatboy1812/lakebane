@@ -395,8 +395,14 @@ public class City extends AbstractWorldObject {
                         //open city, just list
                         if (city.open && city.getTOL() != null && city.getTOL().getRank() > 4) {
                             cities.add(city);
-                        }else if(city.getGuild().getNation().equals(pc.guild.getNation())){
-                            cities.add(city);
+                        }else {
+                            try {
+                                if (city.getGuild().getNation().equals(pc.guild.getNation())) {
+                                    cities.add(city);
+                                }
+                            }catch(Exception e){
+                                Logger.error(e);
+                            }
                         }
                     }
                 } else if (city.isNpc == 1) {
