@@ -1056,7 +1056,11 @@ public class CharacterItemManager {
         // add to Bank
         this.bank.add(i);
         i.addToCache();
-        i.stripCastableEnchants();
+        try {
+            i.stripCastableEnchants();
+        }catch(Exception ignored){
+            Logger.error("FAILED TO STRIP CASTABLE ENCHANTS: Move Item To Bank");
+        }
 
         calculateWeights();
 
@@ -1197,7 +1201,11 @@ public class CharacterItemManager {
         } else
             return false; // NPC's dont have vaults!
 
-        i.stripCastableEnchants();
+        try {
+            i.stripCastableEnchants();
+        }catch(Exception ignored){
+            Logger.error("FAILED TO STRIP CASTABLE ENCHANTS: Move Item To Vault");
+        }
 
         // remove it from other lists:
         this.remItemFromLists(i, slot);
