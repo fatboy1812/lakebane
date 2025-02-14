@@ -301,6 +301,17 @@ public enum CombatManager {
             if (target == null)
                 return 0;
 
+            //pet to assist in attacking target
+            if(abstractCharacter.getObjectType().equals(GameObjectType.PlayerCharacter)){
+                PlayerCharacter attacker = (PlayerCharacter)abstractCharacter;
+                if(attacker.getPet() != null){
+                    Mob pet = attacker.getPet();
+                    if(pet.combatTarget == null && pet.assist)
+                        pet.setCombatTarget(attacker.combatTarget);
+                }
+            }
+
+
             //target must be valid type
 
             if (AbstractWorldObject.IsAbstractCharacter(target)) {
