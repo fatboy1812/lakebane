@@ -620,6 +620,7 @@ public class Mob extends AbstractIntelligenceAgent {
             DbManager.addToCache(mob);
             mob.setPet(owner, true);
             mob.setWalkMode(false);
+            mob.level = level;
             mob.runAfterLoad();
 
         } catch (Exception e) {
@@ -628,9 +629,9 @@ public class Mob extends AbstractIntelligenceAgent {
             createLock.writeLock().unlock();
         }
         parent.zoneMobSet.add(mob);
-        mob.level = level;
-        mob.healthMax = mob.getMobBase().getHealthMax() * (mob.level * 0.5f);
-        mob.health.set(mob.healthMax);
+       // mob.level = level;
+        //mob.healthMax = mob.getMobBase().getHealthMax() * (mob.level * 0.5f);
+        //mob.health.set(mob.healthMax);
         return mob;
     }
 
