@@ -630,8 +630,12 @@ public class Mob extends AbstractIntelligenceAgent {
         }
         parent.zoneMobSet.add(mob);
        // mob.level = level;
-        //mob.healthMax = mob.getMobBase().getHealthMax() * (mob.level * 0.5f);
-        //mob.health.set(mob.healthMax);
+        float healthMax = mob.getMobBase().getHealthMax();
+        if(mob.bonuses != null){
+            healthMax += mob.bonuses.getFloat(ModType.HealthFull,SourceType.None);
+        }
+        mob.healthMax = healthMax;
+        mob.health.set(mob.healthMax);
         return mob;
     }
 

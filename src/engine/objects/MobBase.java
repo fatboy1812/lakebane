@@ -308,6 +308,10 @@ public class MobBase extends AbstractGameObject {
     }
 
     public static void applyMobbaseEffects(Mob mob){
+        if(mob.getMobBaseID() == 12008)
+            mob.level = 65;
+        else if(mob.getMobBaseID() == 12019)
+            mob.level = 80;
         for(MobBaseEffects mbe : mob.mobBase.mobbaseEffects){
             if(mob.level >= mbe.getReqLvl()){
                 try {
