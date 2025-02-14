@@ -201,12 +201,10 @@ public class CombatUtilities {
                 return;
 
         int anim = 75;
-        float speed;
 
-        if (mainHand)
-            speed = agent.getSpeedHandOne();
-        else
-            speed = agent.getSpeedHandTwo();
+        //handle the retaliate here because even if the mob misses you can still retaliate
+        if (AbstractWorldObject.IsAbstractCharacter(target))
+            CombatManager.handleRetaliate((AbstractCharacter) target, agent);
 
         DamageType dt = DamageType.Crush;
 
@@ -287,11 +285,6 @@ public class CombatUtilities {
         if (target.getObjectType() == GameObjectType.Mob)
             if (((Mob) target).isSiege())
                 return;
-
-        //handle the retaliate
-
-        if (AbstractWorldObject.IsAbstractCharacter(target))
-            CombatManager.handleRetaliate((AbstractCharacter) target, agent);
 
         if (target.getObjectType() == GameObjectType.Mob) {
             Mob targetMob = (Mob) target;
