@@ -106,6 +106,11 @@ public class MobAI {
                 return;
             }
 
+            if(target.getPet() != null && target.getPet().isAlive()){
+                mob.setCombatTarget(target.getPet());
+                return;
+            }
+
             if (mob.BehaviourType.callsForHelp)
                 MobCallForHelp(mob);
 
