@@ -107,8 +107,9 @@ public class MobAI {
                 return;
             }
 
-            if(target.getPet() != null && target.getPet().isAlive()){
+            if(target.getPet() != null && target.getPet().isAlive() && !target.getPet().isSiege()){
                 mob.setCombatTarget(target.getPet());
+                AttackTarget(mob,mob.combatTarget);
                 return;
             }
 
