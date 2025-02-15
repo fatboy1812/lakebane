@@ -45,18 +45,12 @@ public class UpdateThread implements Runnable {
     public void run() {
         lastRun = System.currentTimeMillis();
         while (true) {
-            if (System.currentTimeMillis() >= lastRun + instancedelay) { // Correct condition
+            try {
                 this.processPlayerUpdate();
-                lastRun = System.currentTimeMillis(); // Update lastRun after processing
-            }else {
-                try {
-                    Thread.sleep(100); // Pause for 100ms to reduce CPU usage
-                } catch (InterruptedException e) {
-                    Logger.error("Thread interrupted", e);
-                    Thread.currentThread().interrupt();
-                }
+                Thread.sleep(100); // Pause for 100ms to reduce CPU usage
+            } catch (InterruptedException e) {
+                Logger.error("Thread interrupted", e);
             }
-            Thread.yield();
         }
     }
 
