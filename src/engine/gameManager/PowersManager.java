@@ -1627,6 +1627,7 @@ public enum PowersManager {
             case 431511776:
             case 429578587:
             case 429503360:
+            case 44106356:
                 trackChars = getTrackList(playerCharacter);
                 break;
             default:
