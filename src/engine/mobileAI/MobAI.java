@@ -9,6 +9,7 @@
 package engine.mobileAI;
 
 import engine.Enum;
+import engine.InterestManagement.InterestManager;
 import engine.InterestManagement.WorldGrid;
 import engine.gameManager.*;
 import engine.math.Vector3f;
@@ -160,6 +161,12 @@ public class MobAI {
             if (target.getPet() != null)
                 if (target.getPet().getCombatTarget() == null && target.getPet().assist == true)
                     target.getPet().setCombatTarget(mob);
+
+            try{
+                InterestManager.forceLoad(mob);
+            }catch(Exception e){
+
+            }
 
         } catch (Exception e) {
             Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: AttackPlayer" + " " + e.getMessage());
@@ -1220,6 +1227,7 @@ public class MobAI {
 
             if (!mob.BehaviourType.isWimpy && mob.getCombatTarget() != null)
                 CheckForAttack(mob);
+
 
         } catch (Exception e) {
             Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: DefaultLogic" + " " + e.getMessage());
