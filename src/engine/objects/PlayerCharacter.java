@@ -5229,14 +5229,22 @@ public class PlayerCharacter extends AbstractCharacter {
             }
         }
 
-        for(PlayerCharacter pc : sameMachine)
-            pc.isBoxed = true;
-
-        player.isBoxed = false;
-        if(player.containsEffect(1672601862)) {
-            player.removeEffectBySource(EffectSourceType.DeathShroud,41,false);
+        boolean valid = true;
+        for(PlayerCharacter pc : sameMachine){
+            if(!pc.safeZone)
+                valid = false;
         }
+        if(valid) {
+            for (PlayerCharacter pc : sameMachine)
+                pc.isBoxed = true;
 
+            player.isBoxed = false;
+            if (player.containsEffect(1672601862)) {
+                player.removeEffectBySource(EffectSourceType.DeathShroud, 41, false);
+            }
+        }else{
+            ChatManager.chatSystemInfo(player, "All Boxes Must Be In Safezone To Switch");
+        }
     }
     public static boolean checkIfBoxed(PlayerCharacter player){
         if(ConfigManager.MB_WORLD_BOXLIMIT.getValue().equals("false")) {
