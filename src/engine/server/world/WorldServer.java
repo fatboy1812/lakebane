@@ -164,7 +164,17 @@ public class WorldServer {
 			long uptimeSeconds = Math.abs(uptimeDuration.getSeconds());
 			String uptime = String.format("%d hours %02d minutes %02d seconds", uptimeSeconds / 3600, (uptimeSeconds % 3600) / 60, (uptimeSeconds % 60));
 			outString += "uptime: " + uptime;
-			outString += " pop: " + SessionManager.getActivePlayerCharacterCount() + " max pop: " + SessionManager._maxPopulation;
+			int activePop = 0;
+			int boxedPop = 0;
+			for(PlayerCharacter pc : SessionManager.getAllActivePlayerCharacters()){
+				if(pc.isBoxed){
+					boxedPop ++;
+				}else{
+					activePop ++;
+				}
+			}
+			//outString += " pop: " + SessionManager.getActivePlayerCharacterCount() + " max pop: " + SessionManager._maxPopulation;
+			outString += "Active Players: " + activePop + " Boxed Players: " + boxedPop;
 		} catch (Exception e) {
 			Logger.error("Failed to build string");
 		}
