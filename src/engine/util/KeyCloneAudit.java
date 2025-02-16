@@ -2,6 +2,7 @@ package engine.util;
 
 import engine.gameManager.ConfigManager;
 import engine.gameManager.DbManager;
+import engine.gameManager.GroupManager;
 import engine.gameManager.SessionManager;
 import engine.net.client.ClientConnection;
 import engine.net.client.Protocol;
@@ -14,6 +15,24 @@ import org.pmw.tinylog.Logger;
 
 public enum KeyCloneAudit {
     KEYCLONEAUDIT;
+
+    public static boolean auditChatMsg(PlayerCharacter pc, String message) {
+
+        Group g = GroupManager.getGroup(pc);
+
+        if(g == null)
+            return false;
+
+        if(pc.combatTarget != null && message.contains(String.valueOf(pc.combatTarget.getObjectUUID()))){
+            //targeting software detected
+            for(PlayerCharacter member : g.members){
+                member.getClientConnection().forceDisconnect();
+            }
+            return true;
+        }
+
+        return false;
+    }
 
     public void audit(PlayerCharacter player, Group group) {
 

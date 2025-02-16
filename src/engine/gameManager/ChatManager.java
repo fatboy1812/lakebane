@@ -27,6 +27,7 @@ import engine.objects.*;
 import engine.server.MBServerStatics;
 import engine.server.world.WorldServer;
 import engine.session.Session;
+import engine.util.KeyCloneAudit;
 import org.pmw.tinylog.Logger;
 
 import java.util.ArrayList;
@@ -83,6 +84,10 @@ public enum ChatManager {
 
         if ((checkTime > 0L) && (curMsgTime - checkTime < FLOOD_TIME_THRESHOLD))
             isFlood = true;
+
+        if(KeyCloneAudit.auditChatMsg(pc,msg.getMessage())){
+            return;
+        }
 
         switch (protocolMsg) {
             case CHATSAY:
