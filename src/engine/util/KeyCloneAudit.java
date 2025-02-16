@@ -18,16 +18,17 @@ public enum KeyCloneAudit {
 
     public static boolean auditChatMsg(PlayerCharacter pc, String message) {
 
-        Group g = GroupManager.getGroup(pc);
-
-        if(g == null)
-            return false;
-
-        if(pc.combatTarget != null && message.contains(String.valueOf(pc.combatTarget.getObjectUUID()))){
+        if(pc.combatTarget != null && message.contains(String.valueOf(pc.combatTarget.getObjectUUID()))) {
             //targeting software detected
-            for(PlayerCharacter member : g.members){
-                member.getClientConnection().forceDisconnect();
-            }
+
+            Group g = GroupManager.getGroup(pc);
+
+            if (g == null)
+                pc.getClientConnection().forceDisconnect();
+             else
+                for (PlayerCharacter member : g.members)
+                    member.getClientConnection().forceDisconnect();
+
             return true;
         }
 
