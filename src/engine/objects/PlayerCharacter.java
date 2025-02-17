@@ -5759,10 +5759,15 @@ public class PlayerCharacter extends AbstractCharacter {
                     } else {
                         healthRegen = 0;
                         manaRegen = 0;
-                        if (this.combat == true)
-                            stamRegen = MBServerStatics.STAMINA_REGEN_RUN_COMBAT;
-                        else
-                            stamRegen = MBServerStatics.STAMINA_REGEN_RUN_NONCOMBAT;
+
+                        if(this.containsEffect(441156479) || this.containsEffect(441156455)) {
+                            stamRegen = MBServerStatics.STAMINA_REGEN_WALK;
+                        }else {
+                            if (this.combat == true)
+                                stamRegen = MBServerStatics.STAMINA_REGEN_RUN_COMBAT;
+                            else
+                                stamRegen = MBServerStatics.STAMINA_REGEN_RUN_NONCOMBAT;
+                        }
                     }
                     break;
                 case FLYING:
