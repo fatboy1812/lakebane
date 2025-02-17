@@ -150,7 +150,8 @@ public class Enum {
         NEPHFEMALE(2026, MonsterType.Nephilim, RunSpeed.STANDARD, CharacterSex.FEMALE, 1.1f),
         HALFGIANTFEMALE(2027, MonsterType.HalfGiant, RunSpeed.STANDARD, CharacterSex.FEMALE, 1.15f),
         VAMPMALE(2028, MonsterType.Vampire, RunSpeed.STANDARD, CharacterSex.MALE, 1),
-        VAMPFEMALE(2029, MonsterType.Vampire, RunSpeed.STANDARD, CharacterSex.FEMALE, 1);
+        VAMPFEMALE(2029, MonsterType.Vampire, RunSpeed.STANDARD, CharacterSex.FEMALE, 1),
+        SAETOR(1999,MonsterType.Minotaur, RunSpeed.MINOTAUR, CharacterSex.MALE,1);
 
         @SuppressWarnings("unchecked")
         private static HashMap<Integer, RaceType> _raceTypeByID = new HashMap<>();
