@@ -82,6 +82,11 @@ public class VendorDialogMsg extends ClientNetMsg {
             return;
         }
 
+        if(msg.getUnknown03() == 19991999){
+            Contract.handleTrainerInventoryWindow(playerCharacter,msg);
+            return;
+        }
+
         // Get NPC that player is talking to
         NPC npc = NPC.getFromCache(msg.vendorObjectID);
         int npcClassID;
@@ -147,6 +152,7 @@ public class VendorDialogMsg extends ClientNetMsg {
                 return;
         }
             //vd = VendorDialog.getVendorDialog(msg.unknown03);
+            vd = Contract.trainerDialog(vd);
             msg.updateMessage(3, vd);
         }
 
