@@ -1964,8 +1964,7 @@ public class PlayerCharacter extends AbstractCharacter {
         this.altitude = (float) 0;
 
         // Release Mine Claims
-
-        Mine.releaseMineClaims(this);
+        //Mine.releaseMineClaims(this);
 
         this.getCharItemManager().closeTradeWindow();
 
