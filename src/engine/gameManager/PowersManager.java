@@ -1623,17 +1623,27 @@ public enum PowersManager {
 
         // create list of characters
         HashSet<AbstractCharacter> trackChars;
-        switch(msg.getPowerToken()){
-            case 431511776:
-            case 429578587:
-            case 429503360:
-            case 44106356:
-                trackChars = getTrackList(playerCharacter);
-                break;
-            default:
-                trackChars = RangeBasedAwo.getTrackList(allTargets, playerCharacter, maxTargets);
-                break;
+
+        PowersBase trackPower = PowersManager.getPowerByToken(msg.getPowerToken());
+        if(trackPower != null && trackPower.category.equals("TRACK")){
+            trackChars = getTrackList(playerCharacter);
+        }else{
+            trackChars = RangeBasedAwo.getTrackList(allTargets, playerCharacter, maxTargets);
         }
+
+
+
+        //switch(msg.getPowerToken()){
+        //    case 431511776: // Hunt Foe Huntress
+        //    case 429578587: // Hunt Foe Scout
+        //    case 429503360: // Track Huntsman
+        //    case 44106356: //
+        //        trackChars = getTrackList(playerCharacter);
+        //        break;
+        //    default:
+        //        trackChars = RangeBasedAwo.getTrackList(allTargets, playerCharacter, maxTargets);
+        //        break;
+        //}
 
         TrackWindowMsg trackWindowMsg = new TrackWindowMsg(msg);
 
