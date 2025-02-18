@@ -1845,6 +1845,11 @@ public class PlayerCharacter extends AbstractCharacter {
         message += " was killed by " + att.getFirstName();
         if (att.guild != null && (!(att.guild.getName().equals("Errant"))))
             message += " of " + att.guild.getName();
+
+        Zone killZone = ZoneManager.findSmallestZone(this.loc);
+        if(killZone != null){
+            message += " in " + killZone.getName();
+        }
         message += "!";
 
 
