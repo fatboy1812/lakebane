@@ -330,23 +330,6 @@ public class Contract extends AbstractGameObject {
             return true;
         return false;
     }
-
-    public static void handleTrainerInventoryWindow(PlayerCharacter pc, VendorDialogMsg msg){
-
-    }
-    public static VendorDialog trainerDialog(VendorDialog vd) {
-
-        VendorDialog returnedVD = new VendorDialog(vd.getDialogType(), vd.getIntro(), 19991999);
-        returnedVD.options = new ArrayList<>();
-        for (MenuOption mo : vd.options)
-            returnedVD.options.add(mo);
-        if (isClassTrainer(vd.getObjectUUID())) {
-            MenuOption option1 = new MenuOption(19991999, "Buy", 19991999);
-            returnedVD.options.add(option1);
-        }
-        return returnedVD;
-    }
-
     public static VendorDialog HandleBaneCommanderOptions(int optionId, NPC npc, PlayerCharacter pc){
         pc.setLastNPCDialog(npc);
         VendorDialog vd = new VendorDialog(VendorDialog.getHostileVendorDialog().getDialogType(),VendorDialog.getHostileVendorDialog().getIntro(),-1);//VendorDialog.getHostileVendorDialog();
