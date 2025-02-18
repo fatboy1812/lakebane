@@ -258,37 +258,47 @@ public enum LootManager {
     }
 
     public static void SpecialCaseRuneDrop(Mob mob,ArrayList<BootySetEntry> entries){
-        int lootTableID = 0;
-        for(BootySetEntry entry : entries){
-            if(entry.bootyType.equals("LOOT")){
-                lootTableID = entry.genTable;
-                break;
-            }
-        }
+       // int lootTableID = 0;
+       // for(BootySetEntry entry : entries){
+        //    if(entry.bootyType.equals("LOOT")){
+        //        lootTableID = entry.genTable;
+        //        break;
+        //    }
+       // }
+//
+        //if(lootTableID == 0)
+        //    return;
+//
+        //int RuneTableID = 0;
+        //for(GenTableEntry entry : _genTables.get(lootTableID)){
+        //    try {
+        //        if (ItemBase.getItemBase(_itemTables.get(entry.itemTableID).get(0).cacheID).getType().equals(Enum.ItemType.RUNE)) {
+        //            RuneTableID = entry.itemTableID;
+        //            break;
+        ///        }
+         //   }catch(Exception e){
 
-        if(lootTableID == 0)
-            return;
+        //    }
+        //}
 
-        int RuneTableID = 0;
-        for(GenTableEntry entry : _genTables.get(lootTableID)){
-            try {
-                if (ItemBase.getItemBase(_itemTables.get(entry.itemTableID).get(0).cacheID).getType().equals(Enum.ItemType.RUNE)) {
-                    RuneTableID = entry.itemTableID;
-                    break;
+        //if(RuneTableID == 0)
+       //     return;
+
+        NPC RuneMerchant = NPC.getNPC(801321);
+        if(RuneMerchant != null) {
+            ArrayList<MobEquipment> runeItems = RuneMerchant.contract.getSellInventory();
+            int roll = ThreadLocalRandom.current().nextInt(0, runeItems.size());
+            MobEquipment me = runeItems.get(roll);
+            if (me != null) {
+                ItemBase ib = me.getItemBase();
+                if (ib != null) {
+                    MobLoot toAdd = new MobLoot(mob, ib, false);
+                    mob.getCharItemManager().addItemToInventory(toAdd);
                 }
-            }catch(Exception e){
-
             }
         }
 
-        if(RuneTableID == 0)
-            return;
 
-        ItemBase ib = ItemBase.getItemBase(rollRandomItem(RuneTableID));
-        if(ib != null){
-            MobLoot toAdd = new MobLoot(mob,ib,false);
-            mob.getCharItemManager().addItemToInventory(toAdd);
-        }
     }
 
     public static void SpecialCaseResourceDrop(Mob mob,ArrayList<BootySetEntry> entries){
@@ -572,7 +582,7 @@ public enum LootManager {
                 ItemBase itemBase = me.getItemBase();
                 if(isVorg) {
                     mob.spawnTime = ThreadLocalRandom.current().nextInt(300, 2700);
-                    dropChance = 10;
+                    dropChance = 7.5f;
                     itemBase = getRandomVorg(itemBase);
                 }
                 if (equipmentRoll > dropChance)
@@ -708,7 +718,7 @@ public enum LootManager {
     public static ItemBase getRandomVorg(ItemBase itemBase){
         int roll = 0;
         if(vorg_ha_uuids.contains(itemBase.getUUID())) {
-            roll = ThreadLocalRandom.current().nextInt(0, 10);
+            roll = ThreadLocalRandom.current().nextInt(0, 9);
             switch (roll) {
                 case 1:
                     return ItemBase.getItemBase(vorg_ha_uuids.get(0));
@@ -732,7 +742,7 @@ public enum LootManager {
         }
 
         if(vorg_ma_uuids.contains(itemBase.getUUID())) {
-            roll = ThreadLocalRandom.current().nextInt(0, 10);
+            roll = ThreadLocalRandom.current().nextInt(0, 8);
             switch (roll) {
                 case 1:
                     return ItemBase.getItemBase(vorg_ma_uuids.get(0));
@@ -754,7 +764,7 @@ public enum LootManager {
         }
 
         if(vorg_la_uuids.contains(itemBase.getUUID())) {
-            roll = ThreadLocalRandom.current().nextInt(0, 10);
+            roll = ThreadLocalRandom.current().nextInt(0, 8);
             switch (roll) {
                 case 1:
                     return ItemBase.getItemBase(vorg_la_uuids.get(0));
@@ -776,7 +786,7 @@ public enum LootManager {
         }
 
         if(vorg_cloth_uuids.contains(itemBase.getUUID())) {
-            roll = ThreadLocalRandom.current().nextInt(0, 10);
+            roll = ThreadLocalRandom.current().nextInt(0, 5);
             switch (roll) {
                 case 1:
                     return ItemBase.getItemBase(vorg_cloth_uuids.get(0));
