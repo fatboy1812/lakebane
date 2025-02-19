@@ -258,45 +258,45 @@ public enum LootManager {
     }
 
     public static void SpecialCaseRuneDrop(Mob mob,ArrayList<BootySetEntry> entries){
-       // int lootTableID = 0;
-       // for(BootySetEntry entry : entries){
-        //    if(entry.bootyType.equals("LOOT")){
-        //        lootTableID = entry.genTable;
-        //        break;
-        //    }
-       // }
-//
-        //if(lootTableID == 0)
-        //    return;
-//
-        //int RuneTableID = 0;
-        //for(GenTableEntry entry : _genTables.get(lootTableID)){
-        //    try {
-        //        if (ItemBase.getItemBase(_itemTables.get(entry.itemTableID).get(0).cacheID).getType().equals(Enum.ItemType.RUNE)) {
-        //            RuneTableID = entry.itemTableID;
-        //            break;
-        ///        }
-         //   }catch(Exception e){
-
-        //    }
-        //}
-
-        //if(RuneTableID == 0)
-       //     return;
-
-        NPC RuneMerchant = NPC.getNPC(801321);
-        if(RuneMerchant != null) {
-            ArrayList<MobEquipment> runeItems = RuneMerchant.contract.getSellInventory();
-            int roll = ThreadLocalRandom.current().nextInt(0, runeItems.size());
-            MobEquipment me = runeItems.get(roll);
-            if (me != null) {
-                ItemBase ib = me.getItemBase();
-                if (ib != null) {
-                    MobLoot toAdd = new MobLoot(mob, ib, false);
-                    mob.getCharItemManager().addItemToInventory(toAdd);
-                }
+        int lootTableID = 0;
+        for(BootySetEntry entry : entries){
+            if(entry.bootyType.equals("LOOT")){
+                lootTableID = entry.genTable;
+                break;
             }
         }
+
+        if(lootTableID == 0)
+            return;
+
+        int RuneTableID = 0;
+        for(GenTableEntry entry : _genTables.get(lootTableID)){
+            try {
+                if (ItemBase.getItemBase(_itemTables.get(entry.itemTableID).get(0).cacheID).getType().equals(Enum.ItemType.RUNE)) {
+                    RuneTableID = entry.itemTableID;
+                    break;
+                }
+            }catch(Exception e){
+
+            }
+        }
+
+        if(RuneTableID == 0)
+            return;
+
+        //NPC RuneMerchant = NPC.getNPC(801321);
+        //if(RuneMerchant != null) {
+        //    ArrayList<MobEquipment> runeItems = RuneMerchant.contract.getSellInventory();
+        //    int roll = ThreadLocalRandom.current().nextInt(0, runeItems.size());
+        //    MobEquipment me = runeItems.get(roll);
+        //    if (me != null) {
+         //       ItemBase ib = me.getItemBase();
+         //       if (ib != null) {
+          //          MobLoot toAdd = new MobLoot(mob, ib, false);
+          //          mob.getCharItemManager().addItemToInventory(toAdd);
+          //      }
+          //  }
+        //}
 
 
     }
