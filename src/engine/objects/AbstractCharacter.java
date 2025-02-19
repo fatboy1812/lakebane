@@ -1214,6 +1214,9 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
                 oldHealth = this.health.get();
                 newHealth = oldHealth + value;
 
+                if(newHealth < oldHealth)//took damage
+                    this.cancelOnTakeDamage();
+
                 if (newHealth > this.healthMax)
                     newHealth = healthMax;
 
