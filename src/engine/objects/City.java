@@ -455,7 +455,7 @@ public class City extends AbstractWorldObject {
 
                         if (!BuildingManager.IsPlayerHostile(city.getTOL(), pc))
                             cities.add(city); //verify nation or guild is same
-                    } else if (Guild.sameNationExcludeErrant(city.getGuild(), pcG))
+                    } else if (city.open && Guild.sameNationExcludeErrant(city.getGuild(), pcG))
                         cities.add(city);
 
                 } else if (city.isNpc == 1) {
