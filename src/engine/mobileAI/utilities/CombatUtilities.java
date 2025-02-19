@@ -101,6 +101,14 @@ public class CombatUtilities {
         if (!target.isAlive())
             return;
 
+        if(agent.isPet()){
+            try{
+                damage *= agent.getOwner().ZergMultiplier;
+            }catch(Exception ignored){
+
+            }
+        }
+
         if (AbstractWorldObject.IsAbstractCharacter(target)) {
             //damage = Resists.handleFortitude((AbstractCharacter) target,DamageType.Crush,damage);
             trueDamage = ((AbstractCharacter) target).modifyHealth(-damage, agent, false);

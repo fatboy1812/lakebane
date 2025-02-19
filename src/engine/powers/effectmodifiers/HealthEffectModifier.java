@@ -122,8 +122,12 @@ public class HealthEffectModifier extends AbstractEffectModifier {
                 float spi = (pc.getStatSpiCurrent() >= 1) ? (float) pc.getStatSpiCurrent() : 1f;
                 //				min *= (intt * 0.0045 + 0.055 * (float)Math.sqrt(intt - 0.5) + spi * 0.006 + 0.07 * (float)Math.sqrt(spi - 0.5) + 0.02 * (int)focus);
                 //				max *= (intt * 0.0117 + 0.13 * (float)Math.sqrt(intt - 0.5) + spi * 0.0024 + (float)Math.sqrt(spi - 0.5) * 0.021 + 0.015 * (int)focus);
+
                 min = HealthEffectModifier.getMinDamage(min, intt, spi, focus);
                 max = HealthEffectModifier.getMaxDamage(max, intt, spi, focus);
+
+                min *= pc.ZergMultiplier;
+                max *= pc.ZergMultiplier;
 
                 //debug for spell damage and atr
                 if (pc.getDebug(16)) {
