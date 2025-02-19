@@ -274,14 +274,14 @@ public class MobEquipment extends AbstractGameObject {
                 EffectsBase effect = PowersManager.getEffectByToken(token);
 
                 AbstractPowerAction apa = PowersManager.getPowerActionByIDString(effect.getIDString());
-                if (apa.getEffectsBase() != null)
+                if (apa != null && apa.getEffectsBase() != null)
                     if (apa.getEffectsBase().getValue() > 0) {
                         //System.out.println(apa.getEffectsBase().getValue());
                         value += apa.getEffectsBase().getValue();
                     }
 
 
-                if (apa.getEffectsBase2() != null)
+                if (apa != null && apa.getEffectsBase2() != null)
                     value += apa.getEffectsBase2().getValue();
             }
 
