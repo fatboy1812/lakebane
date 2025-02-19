@@ -23,18 +23,23 @@ public enum KeyCloneAudit {
 
             Group g = GroupManager.getGroup(pc);
 
-            if (g == null)
-                pc.getClientConnection().forceDisconnect();
-             else
+            if (g == null) {
+                //pc.getClientConnection().forceDisconnect();
+                try {
+                    DbManager.AccountQueries.SET_TRASH(pc.getClientConnection().machineID);
+                }catch(Exception e){
+
+                }
+            }else {
                 for (PlayerCharacter member : g.members) {
-                    member.getClientConnection().forceDisconnect();
+                    //member.getClientConnection().forceDisconnect();
                     try {
                         DbManager.AccountQueries.SET_TRASH(member.getClientConnection().machineID);
-                    }catch(Exception e){
+                    } catch (Exception e) {
 
                     }
                 }
-
+            }
             return true;
         }
 
