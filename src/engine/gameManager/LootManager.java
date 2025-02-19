@@ -42,6 +42,15 @@ public enum LootManager {
     public static final ArrayList<Integer> vorg_cloth_uuids = new ArrayList<>(Arrays.asList(27600,188700,188720,189550,189560));
     public static final ArrayList<Integer> racial_guard_uuids = new ArrayList<>(Arrays.asList(841,951,952,1050,1052,1180,1182,1250,1252,1350,1352,1450,1452,1500,1502,1525,1527,1550,1552,1575,1577,1600,1602,1650,1652,1700,980100,980102));
 
+    public static final ArrayList<Integer> static_rune_ids = new ArrayList<>(Arrays.asList(
+            250001, 250002, 250003, 250004, 250005, 250006, 250007, 250008, 250010, 250011,
+            250012, 250013, 250014, 250015, 250016, 250017, 250019, 250020, 250021, 250022,
+            250023, 250024, 250025, 250026, 250028, 250029, 250030, 250031, 250032, 250033,
+            250034, 250035, 250037, 250038, 250039, 250040, 250041, 250042, 250043, 250044,
+            250115, 250118, 250119, 250120, 250121, 250122, 252123, 252124, 252125, 252126,
+            252127
+    ));
+
     // Drop Rates
 
     public static float NORMAL_DROP_RATE;
@@ -258,47 +267,44 @@ public enum LootManager {
     }
 
     public static void SpecialCaseRuneDrop(Mob mob,ArrayList<BootySetEntry> entries){
-        int lootTableID = 0;
-        for(BootySetEntry entry : entries){
-            if(entry.bootyType.equals("LOOT")){
-                lootTableID = entry.genTable;
-                break;
-            }
-        }
-
-        if(lootTableID == 0)
-            return;
-
-        int RuneTableID = 0;
-        for(GenTableEntry entry : _genTables.get(lootTableID)){
-            try {
-                if (ItemBase.getItemBase(_itemTables.get(entry.itemTableID).get(0).cacheID).getType().equals(Enum.ItemType.RUNE)) {
-                    RuneTableID = entry.itemTableID;
-                    break;
-                }
-            }catch(Exception e){
-
-            }
-        }
-
-        if(RuneTableID == 0)
-            return;
-
-        //NPC RuneMerchant = NPC.getNPC(801321);
-        //if(RuneMerchant != null) {
-        //    ArrayList<MobEquipment> runeItems = RuneMerchant.contract.getSellInventory();
-        //    int roll = ThreadLocalRandom.current().nextInt(0, runeItems.size());
-        //    MobEquipment me = runeItems.get(roll);
-        //    if (me != null) {
-         //       ItemBase ib = me.getItemBase();
-         //       if (ib != null) {
-          //          MobLoot toAdd = new MobLoot(mob, ib, false);
-          //          mob.getCharItemManager().addItemToInventory(toAdd);
-          //      }
-          //  }
+        //int lootTableID = 0;
+        //for(BootySetEntry entry : entries){
+        //    if(entry.bootyType.equals("LOOT")){
+        //        lootTableID = entry.genTable;
+        //        break;
+        //    }
         //}
 
+       // if(lootTableID == 0)
+       //     return;
 
+        //int RuneTableID = 0;
+        //for(GenTableEntry entry : _genTables.get(lootTableID)){
+        //    try {
+        //        if (ItemBase.getItemBase(_itemTables.get(entry.itemTableID).get(0).cacheID).getType().equals(Enum.ItemType.RUNE)) {
+        //            RuneTableID = entry.itemTableID;
+        //            break;
+        //        }
+        //    }catch(Exception e){
+
+        //    }
+        //}
+
+        //if(RuneTableID == 0)
+        //    return;
+
+        int roll = ThreadLocalRandom.current().nextInt(static_rune_ids.size() + 1);
+        int itemId = static_rune_ids.get(0);
+        try {
+            itemId = static_rune_ids.get(roll);
+        }catch(Exception e){
+
+        }
+        ItemBase ib = ItemBase.getItemBase(itemId);
+        if(ib != null){
+            MobLoot toAdd = new MobLoot(mob,ib,false);
+            mob.getCharItemManager().addItemToInventory(toAdd);
+        }
     }
 
     public static void SpecialCaseResourceDrop(Mob mob,ArrayList<BootySetEntry> entries){
