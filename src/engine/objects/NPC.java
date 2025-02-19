@@ -876,10 +876,14 @@ public class NPC extends AbstractCharacter {
         // zone collection
 
         this.parentZone = ZoneManager.getZoneByUUID(this.parentZoneUUID);
-        if(this.parentZone != null) {
-            this.parentZone.zoneNPCSet.remove(this);
-            this.parentZone.zoneNPCSet.add(this);
+        if(this.parentZone == null) {
+            Logger.error("PARENT ZONE NOT IDENTIFIED FOR NPC : " + this.getObjectUUID());
+            return;
         }
+
+        this.parentZone.zoneNPCSet.remove(this);
+        this.parentZone.zoneNPCSet.add(this);
+
         // Setup location for this NPC
 
         this.bindLoc = new Vector3fImmutable(this.statLat, this.statAlt, this.statLon);
