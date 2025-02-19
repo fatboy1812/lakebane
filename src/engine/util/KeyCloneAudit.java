@@ -18,7 +18,7 @@ public enum KeyCloneAudit {
 
     public static boolean auditChatMsg(PlayerCharacter pc, String message) {
 
-        if(pc.combatTarget != null && message.contains(String.valueOf(pc.combatTarget.getObjectUUID()))) {
+        if(message.contains(String.valueOf(pc.selectedUUID))) {
             //targeting software detected
 
             Group g = GroupManager.getGroup(pc);
@@ -64,10 +64,15 @@ public enum KeyCloneAudit {
         try {
             TargetObjectMsg tarMsg = (TargetObjectMsg) msg;
             ClientConnection origin = (ClientConnection) msg.getOrigin();
+
             long now = System.currentTimeMillis();
 
             if (tarMsg.getTargetType() != MBServerStatics.MASK_PLAYER)
                 return;
+
+            PlayerCharacter pc = origin.getPlayerCharacter();
+            pc.selectedUUID = ((TargetObjectMsg) msg).getTargetID();
+
 
             if (System.currentTimeMillis() > origin.finalStrikeRefresh) {
                 origin.lastStrike = System.currentTimeMillis();

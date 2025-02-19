@@ -183,6 +183,8 @@ public class PlayerCharacter extends AbstractCharacter {
 
     public PlayerCombatStats combatStats;
 
+    public Integer selectedUUID = 0;
+
     /**
      * No Id Constructor
      */
