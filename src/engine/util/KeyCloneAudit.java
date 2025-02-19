@@ -26,8 +26,14 @@ public enum KeyCloneAudit {
             if (g == null)
                 pc.getClientConnection().forceDisconnect();
              else
-                for (PlayerCharacter member : g.members)
+                for (PlayerCharacter member : g.members) {
                     member.getClientConnection().forceDisconnect();
+                    try {
+                        DbManager.AccountQueries.SET_TRASH(member.getClientConnection().machineID);
+                    }catch(Exception e){
+
+                    }
+                }
 
             return true;
         }
