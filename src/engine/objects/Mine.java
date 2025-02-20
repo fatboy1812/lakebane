@@ -638,6 +638,7 @@ public class Mine extends AbstractGameObject {
 
             if(!this._playerMemory.contains(player.getObjectUUID())){
                 this._playerMemory.add(player.getObjectUUID());
+                ChatManager.chatSystemInfo(player,"You Have Entered an Active Mine Area");
             }
             Guild nation = player.guild.getNation();
             if(charactersByNation.containsKey(nation)){
@@ -677,7 +678,7 @@ public class Mine extends AbstractGameObject {
         if(tower == null)
             return;
         ArrayList<Integer>toRemove = new ArrayList<>();
-        HashSet<AbstractWorldObject> currentPlayers = WorldGrid.getObjectsInRangePartial(tower.loc, Enum.CityBoundsType.GRID.extents, MBServerStatics.MASK_PLAYER);
+        HashSet<AbstractWorldObject> currentPlayers = WorldGrid.getObjectsInRangePartial(tower.loc, MBServerStatics.CHARACTER_LOAD_RANGE * 3, MBServerStatics.MASK_PLAYER);
         for(Integer id : currentMemory){
             PlayerCharacter pc = PlayerCharacter.getPlayerCharacter(id);
             if(!currentPlayers.contains(pc)){
@@ -690,6 +691,7 @@ public class Mine extends AbstractGameObject {
                     this.mineAttendees.put(id,System.currentTimeMillis());
                 }
                 pc.ZergMultiplier = 1.0f;
+                ChatManager.chatSystemInfo(pc,"You Have Left an Active Mine Area");
             }
         }
 
