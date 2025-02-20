@@ -65,6 +65,7 @@ public class Mine extends AbstractGameObject {
     public boolean isStronghold = false;
     public ArrayList<Mob> strongholdMobs;
     public HashMap<Integer,Integer> oldBuildings;
+    public HashMap<Integer, Long> mineAttendees = new HashMap<>();
 
     /**
      * ResultSet Constructor
@@ -679,8 +680,15 @@ public class Mine extends AbstractGameObject {
         HashSet<AbstractWorldObject> currentPlayers = WorldGrid.getObjectsInRangePartial(tower.loc, Enum.CityBoundsType.GRID.extents, MBServerStatics.MASK_PLAYER);
         for(Integer id : currentMemory){
             PlayerCharacter pc = PlayerCharacter.getPlayerCharacter(id);
-            if(currentPlayers.contains(pc) == false){
-                toRemove.add(id);
+            if(!currentPlayers.contains(pc)){
+                if(this.mineAttendees.containsKey(id)){
+                    long timeGone = System.currentTimeMillis() - this.mineAttendees.get(id).longValue();
+                    if (timeGone > 180000L) { // 3 minutes
+                        toRemove.add(id); // Mark for removal
+                    }
+                }else {
+                    this.mineAttendees.put(id,System.currentTimeMillis());
+                }
                 pc.ZergMultiplier = 1.0f;
             }
         }
@@ -688,6 +696,9 @@ public class Mine extends AbstractGameObject {
         // Remove players from city memory
 
         _playerMemory.removeAll(toRemove);
+        for(int id : toRemove){
+            this.mineAttendees.remove(id);
+        }
     }
     public static Building getTower(Mine mine){
         Building tower = BuildingManager.getBuildingFromCache(mine.buildingID);
