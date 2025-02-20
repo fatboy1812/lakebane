@@ -14,6 +14,7 @@ import engine.net.DispatchMessage;
 import engine.net.client.msg.ErrorPopupMsg;
 import engine.net.client.msg.chat.ChatSystemMsg;
 import engine.objects.*;
+import engine.server.MBServerStatics;
 import org.pmw.tinylog.Logger;
 
 import java.util.ArrayList;
@@ -475,8 +476,9 @@ public enum LootManager {
 
         if (suffixMod == null)
             return inItem;
+
         int moveSpeedRoll = ThreadLocalRandom.current().nextInt(100);
-        if(moveSpeedRoll < 10){
+        if(inItem.getItemBase().getValidSlot() == MBServerStatics.SLOT_FEET && moveSpeedRoll < 10){
             int rankRoll = ThreadLocalRandom.current().nextInt(10);
             String suffixSpeed = "SUF-148";
             switch(rankRoll) {
