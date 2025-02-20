@@ -18,7 +18,7 @@ public enum KeyCloneAudit {
 
     public static boolean auditChatMsg(PlayerCharacter pc, String message) {
 
-        if(message.contains(String.valueOf(pc.selectedUUID))) {
+        if(pc.selectedUUID != 0 && message.contains(String.valueOf(pc.selectedUUID))) {
             //targeting software detected
 
             Group g = GroupManager.getGroup(pc);

@@ -1,21 +1,16 @@
 package engine.objects;
 
 import engine.Enum;
-import engine.gameManager.ChatManager;
 import engine.math.Vector2f;
 import engine.math.Vector3fImmutable;
 import engine.powers.EffectsBase;
 import engine.powers.effectmodifiers.AbstractEffectModifier;
-import engine.server.MBServerStatics;
-import org.pmw.tinylog.Logger;
 
-import javax.swing.*;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 public class PlayerCombatStats {
 
@@ -453,6 +448,9 @@ public class PlayerCombatStats {
         }
             atr = (float) Math.round(atr);
 
+        if(atr < 0)
+            atr = 0;
+
         if(mainHand){
             this.atrHandOne = atr;
         }else{
@@ -521,7 +519,7 @@ public class PlayerCombatStats {
         );
         if(this.owner.bonuses != null){
             minDMG += this.owner.bonuses.getFloat(Enum.ModType.MinDamage, Enum.SourceType.None);
-            minDMG *= 1 + this.owner.bonuses.getFloatPercentAll(Enum.ModType.MeleeDamageModifier, Enum.SourceType.None);
+            minDMG *= 1 + this.owner.bonuses.getFloatPercentAll(Enum.ModType.MeleeDamageModifier, Enum.SourceType.None, this.owner);
         }
 
         if(this.owner.charItemManager != null){
@@ -599,7 +597,7 @@ public class PlayerCombatStats {
 
         if(this.owner.bonuses != null){
             maxDMG += this.owner.bonuses.getFloat(Enum.ModType.MaxDamage, Enum.SourceType.None);
-            maxDMG *= 1 + this.owner.bonuses.getFloatPercentAll(Enum.ModType.MeleeDamageModifier, Enum.SourceType.None);
+            maxDMG *= 1 + this.owner.bonuses.getFloatPercentAll(Enum.ModType.MeleeDamageModifier, Enum.SourceType.None, this.owner);
         }
 
         if(this.owner.charItemManager != null){
@@ -688,7 +686,7 @@ public class PlayerCombatStats {
             }
         }
 
-        float bonusValues = 1 + this.owner.bonuses.getFloatPercentAll(Enum.ModType.AttackDelay,Enum.SourceType.None);//1.0f;
+        float bonusValues = 1 + this.owner.bonuses.getFloatPercentAll(Enum.ModType.AttackDelay,Enum.SourceType.None, null);//1.0f;
         bonusValues -= stanceValue + delayExtra; // take away stance modifier from alac bonus values
         speed *= 1 + stanceValue; // apply stance bonus
         speed *= bonusValues; // apply alac bonuses without stance mod
@@ -724,7 +722,7 @@ public class PlayerCombatStats {
             range = weapon.getItemBase().getRange();
         }
         if(owner.bonuses != null){
-            range *= 1 + this.owner.bonuses.getFloatPercentAll(Enum.ModType.WeaponRange, Enum.SourceType.None);
+            range *= 1 + this.owner.bonuses.getFloatPercentAll(Enum.ModType.WeaponRange, Enum.SourceType.None, null);
         }
         if(mainHand){
             this.rangeHandOne = range;
@@ -867,6 +865,9 @@ public class PlayerCombatStats {
             defense *= modifier;
         }
         defense = Math.round(defense);
+
+        if(defense < 0)
+            defense = 0;
 
         this.defense = (int) defense;
     } // PERFECT DO NOT TOUCH

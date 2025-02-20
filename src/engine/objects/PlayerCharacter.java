@@ -45,7 +45,6 @@ import engine.util.MiscUtils;
 import org.joda.time.DateTime;
 import org.pmw.tinylog.Logger;
 
-import javax.swing.*;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.*;
@@ -3718,11 +3717,11 @@ public class PlayerCharacter extends AbstractCharacter {
             dexVal *= this.dexPenalty;
 
             // modify percent amounts. DO THIS LAST!
-            strVal *= (1 + this.bonuses.getFloatPercentAll(ModType.Attr, SourceType.Strength));
-            dexVal *= (1 + this.bonuses.getFloatPercentAll(ModType.Attr, SourceType.Dexterity));
-            conVal *= (1 + this.bonuses.getFloatPercentAll(ModType.Attr, SourceType.Constitution));
-            intVal *= (1 + this.bonuses.getFloatPercentAll(ModType.Attr, SourceType.Intelligence));
-            spiVal *= (1 + this.bonuses.getFloatPercentAll(ModType.Attr, SourceType.Spirit));
+            strVal *= (1 + this.bonuses.getFloatPercentAll(ModType.Attr, SourceType.Strength, null));
+            dexVal *= (1 + this.bonuses.getFloatPercentAll(ModType.Attr, SourceType.Dexterity, null));
+            conVal *= (1 + this.bonuses.getFloatPercentAll(ModType.Attr, SourceType.Constitution, null));
+            intVal *= (1 + this.bonuses.getFloatPercentAll(ModType.Attr, SourceType.Intelligence, null));
+            spiVal *= (1 + this.bonuses.getFloatPercentAll(ModType.Attr, SourceType.Spirit, null));
 
         } else
             // apply dex penalty for armor
@@ -4183,7 +4182,7 @@ public class PlayerCharacter extends AbstractCharacter {
                 this.rangeHandTwo = weapon.getItemBase().getRange() * (1 + (this.statStrBase / 600));
 
             if (this.bonuses != null) {
-                float range_bonus = 1 + this.bonuses.getFloatPercentAll(ModType.WeaponRange, SourceType.None);
+                float range_bonus = 1 + this.bonuses.getFloatPercentAll(ModType.WeaponRange, SourceType.None, null);
 
                 if (mainHand)
                     this.rangeHandOne *= range_bonus;
@@ -4350,11 +4349,11 @@ public class PlayerCharacter extends AbstractCharacter {
             float percentMinDamage = 1;
             float percentMaxDamage = 1;
 
-            percentMinDamage += this.bonuses.getFloatPercentAll(ModType.MinDamage, SourceType.None);
-            percentMinDamage += this.bonuses.getFloatPercentAll(ModType.MeleeDamageModifier, SourceType.None);
+            percentMinDamage += this.bonuses.getFloatPercentAll(ModType.MinDamage, SourceType.None, null);
+            percentMinDamage += this.bonuses.getFloatPercentAll(ModType.MeleeDamageModifier, SourceType.None, null);
 
-            percentMaxDamage += this.bonuses.getFloatPercentAll(ModType.MaxDamage, SourceType.None);
-            percentMaxDamage += this.bonuses.getFloatPercentAll(ModType.MeleeDamageModifier, SourceType.None);
+            percentMaxDamage += this.bonuses.getFloatPercentAll(ModType.MaxDamage, SourceType.None, null);
+            percentMaxDamage += this.bonuses.getFloatPercentAll(ModType.MeleeDamageModifier, SourceType.None, null);
 
             minDamage *= percentMinDamage;
             maxDamage *= percentMaxDamage;
@@ -4674,9 +4673,9 @@ public class PlayerCharacter extends AbstractCharacter {
             m += this.bonuses.getFloat(ModType.ManaFull, SourceType.None);
             s += this.bonuses.getFloat(ModType.StaminaFull, SourceType.None);
 
-            h *= (1 + this.bonuses.getFloatPercentAll(ModType.HealthFull, SourceType.None));
-            m *= (1 + this.bonuses.getFloatPercentAll(ModType.ManaFull, SourceType.None));
-            s *= (1 + this.bonuses.getFloatPercentAll(ModType.StaminaFull, SourceType.None));
+            h *= (1 + this.bonuses.getFloatPercentAll(ModType.HealthFull, SourceType.None, null));
+            m *= (1 + this.bonuses.getFloatPercentAll(ModType.ManaFull, SourceType.None, null));
+            s *= (1 + this.bonuses.getFloatPercentAll(ModType.StaminaFull, SourceType.None, null));
 
         }
 
@@ -4758,7 +4757,7 @@ public class PlayerCharacter extends AbstractCharacter {
                     divisr = 16;
                 float blockChance = ((passiveSkill.getModifiedAmount() + blockBonusFromShield) / divisr);
                 if(this.bonuses != null)
-                    blockChance *= 1 + this.bonuses.getFloatPercentAll(ModType.Block, SourceType.None);
+                    blockChance *= 1 + this.bonuses.getFloatPercentAll(ModType.Block, SourceType.None, null);
                 return blockChance;
 
             case "Parry":
@@ -4782,7 +4781,7 @@ public class PlayerCharacter extends AbstractCharacter {
                 float parryChance =((passiveSkill.getModifiedAmount() + parryBonus) / 4);
 
                 if(this.bonuses != null)
-                    parryChance *= 1 + this.bonuses.getFloatPercentAll(ModType.Parry, SourceType.None);
+                    parryChance *= 1 + this.bonuses.getFloatPercentAll(ModType.Parry, SourceType.None, null);
 
                 return parryChance;
 
@@ -4798,7 +4797,7 @@ public class PlayerCharacter extends AbstractCharacter {
                 float dodgeChance = ((passiveSkill.getModifiedAmount()) / divisor);
 
                 if(this.bonuses != null)
-                    dodgeChance *= 1 + this.bonuses.getFloatPercentAll(ModType.Dodge, SourceType.None);
+                    dodgeChance *= 1 + this.bonuses.getFloatPercentAll(ModType.Dodge, SourceType.None, null);
 
                 return dodgeChance;
             default:

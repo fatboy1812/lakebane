@@ -9,6 +9,7 @@
 
 package engine.powers.effectmodifiers;
 
+import engine.Enum;
 import engine.Enum.DamageType;
 import engine.Enum.GameObjectType;
 import engine.Enum.ModType;
@@ -126,8 +127,8 @@ public class HealthEffectModifier extends AbstractEffectModifier {
                 min = HealthEffectModifier.getMinDamage(min, intt, spi, focus);
                 max = HealthEffectModifier.getMaxDamage(max, intt, spi, focus);
 
-                min *= pc.ZergMultiplier;
-                max *= pc.ZergMultiplier;
+                //min *= pc.ZergMultiplier;
+                //max *= pc.ZergMultiplier;
 
                 //debug for spell damage and atr
                 if (pc.getDebug(16)) {
@@ -169,8 +170,13 @@ public class HealthEffectModifier extends AbstractEffectModifier {
             PlayerBonuses bonus = source.getBonuses();
 
             // Apply any power effect modifiers (such as stances)
-            if (bonus != null)
-                modAmount *= (1 + (bonus.getFloatPercentAll(ModType.PowerDamageModifier, SourceType.None)));
+            if (bonus != null){
+                if(source.getObjectType().equals(Enum.GameObjectType.PlayerCharacter)){
+                    modAmount *= (1 + bonus.getFloatPercentAll(ModType.PowerDamageModifier, SourceType.None, (PlayerCharacter) source));
+                }else{
+                    modAmount *= (1 + bonus.getFloatPercentAll(ModType.PowerDamageModifier, SourceType.None, null));
+                }
+            }
         }
         if (modAmount == 0f)
             return;

@@ -26,7 +26,6 @@ import engine.powers.effectmodifiers.WeaponProcEffectModifier;
 import engine.server.MBServerStatics;
 import org.pmw.tinylog.Logger;
 
-import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -506,8 +505,8 @@ public enum CombatManager {
                         if (weapon != null && weapon.getBonusPercent(ModType.WeaponSpeed, SourceType.None) != 0f) //add weapon speed bonus
                             wepSpeed *= (1 + weapon.getBonus(ModType.WeaponSpeed, SourceType.None));
 
-                        if (abstractCharacter.getBonuses() != null && abstractCharacter.getBonuses().getFloatPercentAll(ModType.AttackDelay, SourceType.None) != 0f) //add effects speed bonus
-                            wepSpeed *= (1 + abstractCharacter.getBonuses().getFloatPercentAll(ModType.AttackDelay, SourceType.None));
+                        if (abstractCharacter.getBonuses() != null && abstractCharacter.getBonuses().getFloatPercentAll(ModType.AttackDelay, SourceType.None, null) != 0f) //add effects speed bonus
+                            wepSpeed *= (1 + abstractCharacter.getBonuses().getFloatPercentAll(ModType.AttackDelay, SourceType.None, null));
 
                         if (wepSpeed < 10)
                             wepSpeed = 10; //Old was 10, but it can be reached lower with legit buffs,effects.
@@ -596,9 +595,9 @@ public enum CombatManager {
             //Dont think we need to do this anymore.
 
             if (tarIsRat)
-                if (ac.getBonuses().getFloatPercentAll(ModType.Slay, SourceType.Rat) != 0) {   //strip away current % dmg buffs then add with rat %
+                if (ac.getBonuses().getFloatPercentAll(ModType.Slay, SourceType.Rat, null) != 0) {   //strip away current % dmg buffs then add with rat %
 
-                    float percent = 1 + ac.getBonuses().getFloatPercentAll(ModType.Slay, SourceType.Rat);
+                    float percent = 1 + ac.getBonuses().getFloatPercentAll(ModType.Slay, SourceType.Rat, null);
 
                     minDamage *= percent;
                     maxDamage *= percent;
@@ -1119,9 +1118,9 @@ public enum CombatManager {
                 if (eff.getPower() != null && (eff.getPower().getToken() == 429506943 || eff.getPower().getToken() == 429408639 || eff.getPower().getToken() == 429513599 || eff.getPower().getToken() == 429415295))
                     swingAnimation = 0;
 
-        if(source != null && source.getObjectType().equals(GameObjectType.PlayerCharacter)){
-            damage *= ((PlayerCharacter)source).ZergMultiplier;
-        } // Health modifications are modified by the ZergMechanic
+       // if(source != null && source.getObjectType().equals(GameObjectType.PlayerCharacter)){
+        //    damage *= ((PlayerCharacter)source).ZergMultiplier;
+        //} // Health modifications are modified by the ZergMechanic
 
         TargetedActionMsg cmm = new TargetedActionMsg(source, target, damage, swingAnimation);
         DispatchMessage.sendToAllInRange(target, cmm);
@@ -1284,7 +1283,7 @@ public enum CombatManager {
             return 0f;
 
         if (bonus != null)
-            rangeMod += bonus.getFloatPercentAll(ModType.WeaponRange, SourceType.None);
+            rangeMod += bonus.getFloatPercentAll(ModType.WeaponRange, SourceType.None, null);
 
         return weapon.getRange() * rangeMod;
     }
