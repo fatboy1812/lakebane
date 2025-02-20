@@ -898,6 +898,8 @@ public enum CombatManager {
                     if (tarAc.getHealth() > 0)
                         d = tarAc.modifyHealth(-damage, ac, false);
 
+                    tarAc.cancelOnTakeDamage();
+
                 } else if (target.getObjectType().equals(GameObjectType.Building)) {
 
                     if (BuildingManager.getBuildingFromCache(target.getObjectUUID()) == null) {
