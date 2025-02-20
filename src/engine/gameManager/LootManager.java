@@ -475,8 +475,27 @@ public enum LootManager {
 
         if (suffixMod == null)
             return inItem;
+        int moveSpeedRoll = ThreadLocalRandom.current().nextInt(100);
+        if(moveSpeedRoll < 10){
+            int rankRoll = ThreadLocalRandom.current().nextInt(10);
+            String suffixSpeed = "SUF-148";
+            switch(rankRoll) {
+                case 1:
+                case 2:
+                case 3:
+                    suffixSpeed = "SUF-149";
+                    break;
+                case 4:
+                case 5:
+                case 6:
+                case 7:
+                    suffixSpeed = "SUF-150";
+                    break;
 
-        if (suffixMod.action.length() > 0) {
+            }
+            inItem.setSuffix(suffixSpeed);
+            inItem.addPermanentEnchantment(suffixSpeed, 0, suffixMod.level, false);
+        }else if (suffixMod.action.length() > 0) {
             inItem.setSuffix(suffixMod.action);
             inItem.addPermanentEnchantment(suffixMod.action, 0, suffixMod.level, false);
         }
