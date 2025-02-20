@@ -687,11 +687,10 @@ public class Mine extends AbstractGameObject {
                     if (timeGone > 180000L) { // 3 minutes
                         toRemove.add(id); // Mark for removal
                     }
-                }else {
-                    this.mineAttendees.put(id,System.currentTimeMillis());
                 }
                 pc.ZergMultiplier = 1.0f;
-                ChatManager.chatSystemInfo(pc,"You Have Left an Active Mine Area");
+            } else {
+                this.mineAttendees.put(id,System.currentTimeMillis());
             }
         }
 
