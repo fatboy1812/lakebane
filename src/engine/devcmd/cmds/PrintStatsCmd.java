@@ -11,6 +11,7 @@ package engine.devcmd.cmds;
 
 import engine.Enum;
 import engine.devcmd.AbstractDevCmd;
+import engine.gameManager.PowersManager;
 import engine.objects.*;
 
 import java.util.HashMap;
@@ -86,6 +87,12 @@ public class PrintStatsCmd extends AbstractDevCmd {
         newOut += "MAX: " + tar.combatStats.maxDamageHandTwo + newline;
         newOut += "RANGE: " + tar.combatStats.rangeHandTwo + newline;
         newOut += "ATTACK SPEED: " + tar.combatStats.attackSpeedHandTwo + newline;
+        newOut += "=== POWERS ===" + newline;
+        for(CharacterPower power : pc.getPowers().values()){
+            if(power.getPower().requiresHitRoll) {
+                newOut += power.getPower().name + " ATR: " + (int) CharacterSkill.getATR(pc, power.getPower().skillName) + newline;
+            }
+        }
         throwbackInfo(pc, newOut);
     }
 
