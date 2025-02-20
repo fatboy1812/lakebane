@@ -31,6 +31,7 @@ public enum KeyCloneAudit {
             if (g == null) {
                 //pc.getClientConnection().forceDisconnect();
                 try {
+                    Logger.error("TARGET SOFTWARE DETECTED ON ACCOUNT: " + pc.getAccount().getUname());
                     DbManager.AccountQueries.SET_TRASH(pc.getClientConnection().machineID);
                 }catch(Exception e){
 
@@ -39,6 +40,7 @@ public enum KeyCloneAudit {
                 for (PlayerCharacter member : g.members) {
                     //member.getClientConnection().forceDisconnect();
                     try {
+                        Logger.error("TARGET SOFTWARE DETECTED ON ACCOUNT: " + member.getAccount().getUname());
                         DbManager.AccountQueries.SET_TRASH(member.getClientConnection().machineID);
                     } catch (Exception e) {
 
