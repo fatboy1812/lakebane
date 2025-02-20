@@ -427,8 +427,8 @@ public class PlayerCombatStats {
             float modifier = 1 + (positivePercentBonuses + negativePercentBonuses);
             if(preciseRune > 1.0f)
                 modifier -= 0.05f;
-            if(stanceValue > 1.0f){
-                modifier -= (stanceValue - 1.0f);
+            if(stanceValue > 0.0f){
+                modifier -= (stanceValue);
             }
             atr *= modifier;
         }
