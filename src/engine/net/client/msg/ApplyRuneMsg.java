@@ -78,6 +78,27 @@ public class ApplyRuneMsg extends ClientNetMsg {
         }
         int raceID = playerCharacter.getRaceID();
         //Check race is met
+
+        //confirm sub-race runes are applicable only by proper races
+        switch(runeID){
+            case 252134: //elf
+            case 252135: // elf
+            case 252136:  // elf
+                if(playerCharacter.getRaceID() != 2008 && playerCharacter.getRaceID() != 2009)
+                    return false;
+                break;
+            case 252129: // human
+            case 252130: // human
+            case 252131: // human
+            case 252132: // human
+            case 252133: // human
+                if(playerCharacter.getRaceID() != 2011 && playerCharacter.getRaceID() != 2012)
+                    return false;
+                break;
+
+        }
+
+
         ConcurrentHashMap<Integer, Boolean> races = rb.getRace();
         if(runeID != 3007 && runeID != 3014) {//bounty hunter and huntsman
             if (races.size() > 0) {
