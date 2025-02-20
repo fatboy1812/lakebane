@@ -359,7 +359,11 @@ public class PlayerBonuses {
 
         if(pc != null) {
             if (modType.equals(ModType.PowerDamageModifier) || modType.equals(ModType.MeleeDamageModifier)) {
-                amount -= 1.0f - pc.ZergMultiplier;
+                if(pc.ZergMultiplier == 0.0f){
+                    amount = -1.0f;
+                }else {
+                    amount -= 1.0f - pc.ZergMultiplier;
+                }
             }
         }
         return amount;
