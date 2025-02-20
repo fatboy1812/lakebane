@@ -1,8 +1,6 @@
 package engine.objects;
 
 import engine.Enum;
-import engine.math.Vector2f;
-import engine.math.Vector3fImmutable;
 import engine.powers.EffectsBase;
 import engine.powers.effectmodifiers.AbstractEffectModifier;
 
@@ -21,7 +19,7 @@ public class PlayerCombatStats {
     public float attackSpeedHandOne;
     public float rangeHandOne;
     public float atrHandOne;
-    //off hand data
+    //offhand data
     public int minDamageHandTwo;
     public int maxDamageHandTwo;
     public float attackSpeedHandTwo;
@@ -249,18 +247,6 @@ public class PlayerCombatStats {
         HIT_VALUE_MAP.put(2.50f, 100f);
     }
 
-    //Values for health and mana are in terms of the number of seconds it takes to recover 1%
-    //Values for stamina are in terms of the number of seconds it takes to recover 1 point
-    //HEALTH//MANA//STAMINA
-    private static Vector3fImmutable resting = new Vector3fImmutable(3.0f,1.2f,0.5f);
-    private static Vector3fImmutable idling = new Vector3fImmutable(15.0f,6.0f,5.0f);
-    private static Vector3fImmutable walking = new Vector3fImmutable(20.0f,8.0f,0.0f);
-    private static Vector3fImmutable running = new Vector3fImmutable(0.0f,0.0f,0.0f);
-
-    //#Values for how fast mana is consumed.  The first is how fast when player is not in combat
-    //#mode, the second is when he IS in combat mode.  This is in Stamina reduction per second.
-    private static Vector2f consumption = new Vector2f(0.4f,0.65f);
-
     public PlayerCombatStats(PlayerCharacter pc) {
         this.owner = pc;
         this.update();
@@ -363,10 +349,10 @@ public class PlayerCombatStats {
         float masteryLevel = 0;
 
         if(this.owner.skills.containsKey(skill)) {
-            skillLevel = this.owner.skills.get(skill).getModifiedAmount();//calculateBuffedSkillLevel(skill,this.owner);//this.owner.skills.get(skill).getTotalSkillPercet();
+            skillLevel = this.owner.skills.get(skill).getModifiedAmount();
         }
         if(this.owner.skills.containsKey(mastery))
-            masteryLevel = this.owner.skills.get(mastery).getModifiedAmount();//calculateBuffedSkillLevel(mastery,this.owner);//this.owner.skills.get(mastery).getTotalSkillPercet();
+            masteryLevel = this.owner.skills.get(mastery).getModifiedAmount();
 
         float stanceValue = 0.0f;
         float atrEnchants = 0;
@@ -427,7 +413,7 @@ public class PlayerCombatStats {
                 preciseRune += 0.05f;
         }
 
-            atr = primaryStat / 2;
+            atr = primaryStat / 2.0f;
             atr += skillLevel * 4;
             atr += masteryLevel * 3;
             atr += prefixValues;
@@ -488,7 +474,6 @@ public class PlayerCombatStats {
             skill = weapon.getItemBase().getSkillRequired();
             mastery = weapon.getItemBase().getMastery();
             if (weapon.getItemBase().isStrBased()) {
-                //primaryStat = this.owner.statStrCurrent;
                 //secondaryStat = specialDex;//getDexAfterPenalty(this.owner);
                 primaryStat = this.owner.statStrCurrent;
                 secondaryStat = this.owner.statDexCurrent;
@@ -534,11 +519,13 @@ public class PlayerCombatStats {
             this.minDamageHandOne = roundedMin;
         } else {
             this.minDamageHandTwo = roundedMin;
-            if(this.owner.charItemManager.getEquipped(1) == null && this.owner.charItemManager.getEquipped(2) != null){
-                if(!this.owner.charItemManager.getEquipped(2).getItemBase().isShield())
-                    this.minDamageHandOne = 0;
-            }else if(this.owner.charItemManager.getEquipped(2) == null && this.owner.charItemManager.getEquipped(1) != null){
-                this.minDamageHandTwo = 0;
+            if(this.owner.charItemManager != null) {
+                if (this.owner.charItemManager.getEquipped(1) == null && this.owner.charItemManager.getEquipped(2) != null) {
+                    if (!this.owner.charItemManager.getEquipped(2).getItemBase().isShield())
+                        this.minDamageHandOne = 0;
+                } else if (this.owner.charItemManager.getEquipped(2) == null && this.owner.charItemManager.getEquipped(1) != null) {
+                    this.minDamageHandTwo = 0;
+                }
             }
         }
     }
@@ -610,13 +597,15 @@ public class PlayerCombatStats {
 
         if(mainHand){
             this.maxDamageHandOne = roundedMax;
-        }else{
-            this.maxDamageHandTwo = roundedMax;
-            if(this.owner.charItemManager.getEquipped(1) == null && this.owner.charItemManager.getEquipped(2) != null){
-                if(!this.owner.charItemManager.getEquipped(2).getItemBase().isShield())
-                    this.maxDamageHandOne = 0;
-            }else if(this.owner.charItemManager.getEquipped(2) == null && this.owner.charItemManager.getEquipped(1) != null){
-                this.maxDamageHandTwo = 0;
+        }else {
+            if (this.owner.charItemManager != null) {
+                this.maxDamageHandTwo = roundedMax;
+                if (this.owner.charItemManager.getEquipped(1) == null && this.owner.charItemManager.getEquipped(2) != null) {
+                    if (!this.owner.charItemManager.getEquipped(2).getItemBase().isShield())
+                        this.maxDamageHandOne = 0;
+                } else if (this.owner.charItemManager.getEquipped(2) == null && this.owner.charItemManager.getEquipped(1) != null) {
+                    this.maxDamageHandTwo = 0;
+                }
             }
         }
     }
@@ -687,9 +676,9 @@ public class PlayerCombatStats {
         }
 
         float bonusValues = 1 + this.owner.bonuses.getFloatPercentAll(Enum.ModType.AttackDelay,Enum.SourceType.None, null);//1.0f;
-        bonusValues -= stanceValue + delayExtra; // take away stance modifier from alac bonus values
+        bonusValues -= stanceValue + delayExtra; // take away stance modifier from alacrity bonus values
         speed *= 1 + stanceValue; // apply stance bonus
-        speed *= bonusValues; // apply alac bonuses without stance mod
+        speed *= bonusValues; // apply alacrity bonuses without stance mod
 
         if(speed < 10.0f)
             speed = 10.0f;
@@ -743,23 +732,23 @@ public class PlayerCombatStats {
         float armorSkill = 0.0f;
         float armorDefense = 0.0f;
         ArrayList<String> armorsUsed = new ArrayList<>();
-        int itemdef = 0;
+        int itemDef;
         for(Item equipped : this.owner.charItemManager.getEquipped().values()){
             ItemBase ib = equipped.getItemBase();
             if(ib.isHeavyArmor() || ib.isMediumArmor() || ib.isLightArmor() || ib.isClothArmor()){
-                itemdef = ib.getDefense();
+                itemDef = ib.getDefense();
 
                 for(Effect eff : equipped.effects.values()){
                     for(AbstractEffectModifier mod : eff.getEffectModifiers()){
                         if(mod.modType.equals(Enum.ModType.DR)){
-                            itemdef += mod.minMod + (mod.getRamp() * eff.getTrains());
+                            itemDef += mod.minMod + (mod.getRamp() * eff.getTrains());
                         }
                     }
                 }
                 if(!ib.isClothArmor() && !armorsUsed.contains(ib.getSkillRequired())) {
                     armorsUsed.add(ib.getSkillRequired());
                 }
-                armorDefense += itemdef;
+                armorDefense += itemDef;
             }
         }
         for(String armorUsed : armorsUsed){
@@ -878,7 +867,7 @@ public class PlayerCombatStats {
         if(def == 0)
             return 100.0f;
 
-        float key = (float)((float)atr / def);
+        float key = ((float)atr / def);
         BigDecimal bd = new BigDecimal(key).setScale(2, RoundingMode.HALF_UP);
         key = bd.floatValue(); // handles rounding for mandatory 2 decimal places
         if(key < 0.40f)
