@@ -622,7 +622,7 @@ public class Mine extends AbstractGameObject {
 
         // Gather current list of players within the zone bounds
 
-        HashSet<AbstractWorldObject> currentPlayers = WorldGrid.getObjectsInRangePartial(tower.loc, Enum.CityBoundsType.GRID.extents, MBServerStatics.MASK_PLAYER);
+        HashSet<AbstractWorldObject> currentPlayers = WorldGrid.getObjectsInRangePartial(tower.loc, MBServerStatics.CHARACTER_LOAD_RANGE * 3, MBServerStatics.MASK_PLAYER);
         HashMap<Guild,ArrayList<PlayerCharacter>> charactersByNation = new HashMap<>();
         ArrayList<Guild> updatedNations = new ArrayList<>();
         for (AbstractWorldObject playerObject : currentPlayers) {
