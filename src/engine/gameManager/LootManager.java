@@ -642,6 +642,74 @@ public enum LootManager {
         }
     }
 
+    public static void newFatePeddler(PlayerCharacter playerCharacter, Item gift) {
+
+        CharacterItemManager itemMan = playerCharacter.getCharItemManager();
+
+        if (itemMan == null)
+            return;
+
+        //check if player owns the gift he is trying to open
+
+        if (!itemMan.doesCharOwnThisItem(gift.getObjectUUID()))
+            return;
+
+        ItemBase ib = gift.getItemBase();
+
+        MobLoot winnings = null;
+
+        if (ib == null)
+            return;
+        switch (ib.getUUID()) {
+            case 971070: //wrapped rune
+                ItemBase runeBase = null;
+                int roll = ThreadLocalRandom.current().nextInt(static_rune_ids.size() + 1);
+                int itemId = static_rune_ids.get(0);
+                try {
+                    itemId = static_rune_ids.get(roll);
+                }catch(Exception e){
+
+                }
+                runeBase = ItemBase.getItemBase(itemId);
+                if(runeBase != null) {
+                    winnings = new MobLoot(playerCharacter, runeBase, 1, false);
+                }
+                break;
+            case 971012: //wrapped glass
+                int chance = ThreadLocalRandom.current().nextInt(100);
+                if(chance == 50){
+                    ItemBase glassBase =ItemBase.getItemBase(rollRandomItem(126));
+                    if(glassBase != null)
+                        winnings = new MobLoot(playerCharacter, ib, 1, false);
+                }else{
+                    ChatManager.chatSystemInfo(playerCharacter, "Please Try Again!");
+                }
+                break;
+        }
+
+        if (winnings == null)
+            return;
+
+        //early exit if the inventory of the player will not hold the item
+
+        if (!itemMan.hasRoomInventory(winnings.getItemBase().getWeight())) {
+            ErrorPopupMsg.sendErrorPopup(playerCharacter, 21);
+            return;
+        }
+
+        winnings.setIsID(true);
+
+        //remove gift from inventory
+
+        itemMan.consume(gift);
+
+        //add winnings to player inventory
+
+        Item playerWinnings = winnings.promoteToItem(playerCharacter);
+        itemMan.addItemToInventory(playerWinnings);
+        itemMan.updateInventory();
+
+    }
     public static void peddleFate(PlayerCharacter playerCharacter, Item gift) {
 
         //get table ID for the itembase ID

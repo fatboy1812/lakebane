@@ -424,9 +424,9 @@ public class ObjectActionMsgHandler extends AbstractClientMsgHandler {
                             }
                             break;
                         case 31:
-                            LootManager.peddleFate(player,item);
+                            //LootManager.peddleFate(player,item);
+                            LootManager.newFatePeddler(player,item);
                             break;
-
                         case 30: //water bucket
                         case 8: //potions, tears of saedron
                         case 5: //runes, petition, warrant, scrolls
