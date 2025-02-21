@@ -1017,6 +1017,12 @@ public enum CombatManager {
 
         AbstractCharacter tar = (AbstractCharacter) target;
 
+        if(target.getObjectType().equals(GameObjectType.PlayerCharacter)){
+            PlayerCharacter pc = (PlayerCharacter) target;
+            if(pc.getRaceID() == 1999)
+                return true;
+        }
+
         CharacterItemManager acItem = ac.getCharItemManager();
         CharacterItemManager tarItem = tar.getCharItemManager();
 

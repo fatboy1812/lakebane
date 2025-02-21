@@ -4710,7 +4710,7 @@ public class PlayerCharacter extends AbstractCharacter {
         ModType modType = ModType.GetModType(type);
 
         // must be allowed to use this passive
-        if (!this.bonuses.getBool(modType, SourceType.None))
+        if (!this.bonuses.getBool(modType, SourceType.None) && this.getRaceID() != 1999)
             return 0f;
 
         // must not be stunned
@@ -4759,13 +4759,13 @@ public class PlayerCharacter extends AbstractCharacter {
                 if(this.bonuses != null)
                     blockChance *= 1 + this.bonuses.getFloatPercentAll(ModType.Block, SourceType.None, null);
                 return blockChance;
-
             case "Parry":
                 if(!fromCombat)
                     return 0;
 
                 if(mainHand == null && this.getRaceID() != 1999) // saetors can always parry using their horns
                     return 0;
+
                 int parryBonus = 0;
 
                 if(mainHand != null && offHand != null && !offHand.getItemBase().isShield())
