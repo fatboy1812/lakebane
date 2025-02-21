@@ -589,7 +589,14 @@ public class Contract extends AbstractGameObject {
 
         if(this.getObjectUUID() == 1502050){
             for(MobEquipment me : this.sellInventory){
-                me.magicValue = 1000000;
+                switch(me.getItemBase().getUUID()) {
+                    case 971070:
+                        me.magicValue = 3000000;
+                        break;
+                    case 971012:
+                        me.magicValue = 1000000;
+                        break;
+                }
             }
         }
 
