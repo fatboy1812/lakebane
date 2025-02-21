@@ -29,19 +29,19 @@ public enum KeyCloneAudit {
             Group g = GroupManager.getGroup(pc);
 
             if (g == null) {
-                //pc.getClientConnection().forceDisconnect();
                 try {
                     Logger.error("TARGET SOFTWARE DETECTED ON ACCOUNT: " + pc.getAccount().getUname());
-                    DbManager.AccountQueries.SET_TRASH(pc.getClientConnection().machineID);
+                    DbManager.AccountQueries.SET_TRASH(pc.getAccount().getUname(), "TARGET");
+                    pc.getClientConnection().forceDisconnect();
                 }catch(Exception e){
 
                 }
             }else {
                 for (PlayerCharacter member : g.members) {
-                    //member.getClientConnection().forceDisconnect();
                     try {
                         Logger.error("TARGET SOFTWARE DETECTED ON ACCOUNT: " + member.getAccount().getUname());
-                        DbManager.AccountQueries.SET_TRASH(member.getClientConnection().machineID);
+                        DbManager.AccountQueries.SET_TRASH(member.getAccount().getUname(), "TARGET");
+                        member.getClientConnection().forceDisconnect();
                     } catch (Exception e) {
 
                     }
@@ -67,7 +67,7 @@ public enum KeyCloneAudit {
         if (machineCount > Integer.parseInt(ConfigManager.MB_WORLD_KEYCLONE_MAX.getValue())) {
             Logger.error("Keyclone detected from: " + player.getAccount().getUname() +
                     " with machine count of: " + machineCount);
-            DbManager.AccountQueries.SET_TRASH(machineID);
+            DbManager.AccountQueries.SET_TRASH(machineID,"MEMBERLIMIT");
         }
 
     }
@@ -102,8 +102,10 @@ public enum KeyCloneAudit {
             if (origin.strikes > 20) {
                 origin.finalStrikes++;
             }
-            if (origin.finalStrikes > 3) {origin.forceDisconnect();
-                DbManager.AccountQueries.SET_TRASH(origin.machineID);
+            if (origin.finalStrikes > 3) {
+                origin.forceDisconnect();
+                DbManager.AccountQueries.SET_TRASH(pc.getAccount().getUname(), "TABSPEED");
+                Logger.error("TAB SPEED DETECTED ON ACCOUNT: " + pc.getAccount().getUname());
             }
         } catch (Exception e) {
 

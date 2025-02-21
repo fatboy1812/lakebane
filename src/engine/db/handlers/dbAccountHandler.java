@@ -77,13 +77,14 @@ public class dbAccountHandler extends dbHandlerBase {
         }
     }
 
-    public void SET_TRASH(String machineID) {
+    public void SET_TRASH(String machineID, String type) {
 
         try (Connection connection = DbManager.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO dyn_trash(`machineID`, `count`)"
-                     + " VALUES (?, 1) ON DUPLICATE KEY UPDATE `count` = `count` + 1;")) {
+                     + " VALUES (?, 1,?) ON DUPLICATE KEY UPDATE `count` = `count` + 1;")) {
 
             preparedStatement.setString(1, machineID);
+            preparedStatement.setString(2, type);
             preparedStatement.execute();
 
         } catch (SQLException e) {
