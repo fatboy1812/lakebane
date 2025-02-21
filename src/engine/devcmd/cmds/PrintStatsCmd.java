@@ -90,7 +90,7 @@ public class PrintStatsCmd extends AbstractDevCmd {
         newOut += "=== POWERS ===" + newline;
         for(CharacterPower power : pc.getPowers().values()){
             if(power.getPower().requiresHitRoll) {
-                newOut += power.getPower().name + " ATR: " + (int) CharacterSkill.getATR(pc, power.getPower().skillName) + newline;
+                newOut += power.getPower().name + " ATR: " + (int) PlayerCombatStats.getSpellAtr(pc,power) + newline;
             }
         }
         throwbackInfo(pc, newOut);

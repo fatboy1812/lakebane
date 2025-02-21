@@ -2,6 +2,7 @@ package engine.objects;
 
 import engine.Enum;
 import engine.powers.EffectsBase;
+import engine.powers.PowersBase;
 import engine.powers.effectmodifiers.AbstractEffectModifier;
 
 import java.math.BigDecimal;
@@ -875,6 +876,84 @@ public class PlayerCombatStats {
         if(key > 2.50f)
             return 100.0f;
         return HIT_VALUE_MAP.get(key);
+    }
+
+    public static float getSpellAtr(PlayerCharacter pc, CharacterPower power) {
+
+        if (pc == null)
+            return 0f;
+
+        PowersBase pb = power.getPower();
+        if(pb == null)
+            return 0.0f;
+
+        float modifiedfocusline = 0.0f;
+        if(pc.skills.containsKey(pb.skillName)){
+            modifiedfocusline = pc.skills.get(pb.skillName).getModifiedAmount();
+        }
+
+        float modifieddex = pc.statDexCurrent;
+
+        float weaponatr1 = 0.0f;
+        if(pc.charItemManager != null && pc.charItemManager.getEquipped(1) != null){
+            for(Effect eff : pc.charItemManager.getEquipped(1).effects.values()){
+                for (AbstractEffectModifier mod : eff.getEffectModifiers()){
+                    if(mod.modType.equals(Enum.ModType.OCV)){
+                        weaponatr1 += mod.minMod + (mod.getRamp() * power.getTrains());
+                    }
+                }
+            }
+        }
+
+        float weaponatr2 = 0.0f;
+        if(pc.charItemManager != null && pc.charItemManager.getEquipped(2) != null){
+            for(Effect eff : pc.charItemManager.getEquipped(2).effects.values()){
+                for (AbstractEffectModifier mod : eff.getEffectModifiers()){
+                    if(mod.modType.equals(Enum.ModType.OCV)){
+                        weaponatr2 += mod.minMod + (mod.getRamp() * power.getTrains());
+                    }
+                }
+            }
+        }
+
+        float precise = 1.0f;
+        for(CharacterRune rune : pc.runes){
+            if(rune.getRuneBase().getName().equals("Precise"))
+                precise += 0.05f;
+        }
+
+        float stanceMod = 1.0f;
+        float ATRbuffs = 0.0f;
+
+        for(String effID : pc.effects.keySet()) {
+            if (effID.contains("Stance")) {
+                Effect effect = pc.effects.get(effID);
+                EffectsBase eb = effect.getEffectsBase();
+                if(eb.getIDString().equals("STC-H-DA"))
+                    continue;
+                for (AbstractEffectModifier mod : pc.effects.get(effID).getEffectModifiers()) {
+                    if (mod.modType.equals(Enum.ModType.OCV)) {
+                        float percent = mod.getPercentMod();
+                        int trains = pc.effects.get(effID).getTrains();
+                        float modValue = percent + (trains * mod.getRamp());
+                        stanceMod += modValue * 0.01f;
+                    }
+                }
+            } else {
+                for (AbstractEffectModifier mod : pc.effects.get(effID).getEffectModifiers()) {
+                    if (mod.modType.equals(Enum.ModType.OCV)) {
+                        if(mod.getPercentMod() == 0) {
+                            float value = mod.getMinMod();
+                            int trains = pc.effects.get(effID).getTrains();
+                            float modValue = value + (trains * mod.getRamp());
+                            ATRbuffs += modValue;
+                        }
+                    }
+                }
+            }
+        }
+
+        return (float) ((7 * modifiedfocusline +0.5 * (modifieddex)+weaponatr1+weaponatr2) * precise + (ATRbuffs - (weaponatr1+weaponatr2))) * stanceMod;
     }
 
 }
