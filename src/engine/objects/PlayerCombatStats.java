@@ -878,12 +878,11 @@ public class PlayerCombatStats {
         return HIT_VALUE_MAP.get(key);
     }
 
-    public static float getSpellAtr(PlayerCharacter pc, CharacterPower power) {
+    public static float getSpellAtr(PlayerCharacter pc, PowersBase pb) {
 
         if (pc == null)
             return 0f;
 
-        PowersBase pb = power.getPower();
         if(pb == null)
             return 0.0f;
 
@@ -899,7 +898,10 @@ public class PlayerCombatStats {
             for(Effect eff : pc.charItemManager.getEquipped(1).effects.values()){
                 for (AbstractEffectModifier mod : eff.getEffectModifiers()){
                     if(mod.modType.equals(Enum.ModType.OCV)){
-                        weaponatr1 += mod.minMod + (mod.getRamp() * power.getTrains());
+                        float base = mod.minMod;
+                        float ramp = mod.getRamp();
+                        int trains = eff.getTrains();
+                        weaponatr1 = base + (ramp * trains);
                     }
                 }
             }
@@ -910,7 +912,10 @@ public class PlayerCombatStats {
             for(Effect eff : pc.charItemManager.getEquipped(2).effects.values()){
                 for (AbstractEffectModifier mod : eff.getEffectModifiers()){
                     if(mod.modType.equals(Enum.ModType.OCV)){
-                        weaponatr2 += mod.minMod + (mod.getRamp() * power.getTrains());
+                        float base = mod.minMod;
+                        float ramp = mod.getRamp();
+                        int trains = eff.getTrains();
+                        weaponatr2 = base + (ramp * trains);
                     }
                 }
             }
@@ -953,7 +958,12 @@ public class PlayerCombatStats {
             }
         }
 
-        return (float) ((7 * modifiedfocusline +0.5 * (modifieddex)+weaponatr1+weaponatr2) * precise + (ATRbuffs - (weaponatr1+weaponatr2))) * stanceMod;
+        float atr = 7 * modifiedfocusline;
+        atr += (modifieddex * 0.5f) + weaponatr1 + weaponatr2;
+        atr *= precise;
+        atr += ATRbuffs;
+        atr *= stanceMod;
+        return atr;
     }
 
 }

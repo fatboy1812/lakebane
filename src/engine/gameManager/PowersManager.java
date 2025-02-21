@@ -2435,7 +2435,8 @@ public enum PowersManager {
     public static boolean testAttack(PlayerCharacter pc, AbstractWorldObject awo,
                                      PowersBase pb, PerformActionMsg msg) {
         // Get defense for target
-        float atr = CharacterSkill.getATR(pc, pb.getSkillName());
+        //float atr = CharacterSkill.getATR(pc, pb.getSkillName());
+        float atr = PlayerCombatStats.getSpellAtr(pc, pb);
         float defense;
 
         if (AbstractWorldObject.IsAbstractCharacter(awo)) {
