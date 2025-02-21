@@ -678,17 +678,25 @@ public enum LootManager {
             case 971012: //wrapped glass
                 int chance = ThreadLocalRandom.current().nextInt(100);
                 if(chance == 50){
-                    ItemBase glassBase =ItemBase.getItemBase(rollRandomItem(126));
-                    if(glassBase != null)
-                        winnings = new MobLoot(playerCharacter, ib, 1, false);
+                    int ID = 7000000;
+                    int additional = ThreadLocalRandom.current().nextInt(0,28);
+                    ID += (additional * 10);
+                    ItemBase glassBase = ItemBase.getItemBase(ID);
+                    if(glassBase != null) {
+                        winnings = new MobLoot(playerCharacter, glassBase, 1, false);
+                        ChatManager.chatSystemInfo(playerCharacter, "You've Won A " + glassBase.getName());
+                    }
                 }else{
                     ChatManager.chatSystemInfo(playerCharacter, "Please Try Again!");
                 }
                 break;
         }
 
-        if (winnings == null)
+        if (winnings == null) {
+            itemMan.consume(gift);
+            itemMan.updateInventory();
             return;
+        }
 
         //early exit if the inventory of the player will not hold the item
 
