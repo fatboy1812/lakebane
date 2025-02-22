@@ -657,6 +657,19 @@ public class Mine extends AbstractGameObject {
                 }
             }
         }
+
+        for(Integer id : this.mineAttendees.keySet()){
+            PlayerCharacter attendee = PlayerCharacter.getPlayerCharacter(id);
+            if(attendee == null)
+                continue;
+
+            if(charactersByNation.containsKey(attendee.guild.getNation())){
+                if(!charactersByNation.get(attendee.guild.getNation()).contains(attendee)){
+                    charactersByNation.get(attendee.guild.getNation()).add(attendee);
+                }
+            }
+
+        }
         for(Guild nation : updatedNations){
             float multiplier = ZergManager.getCurrentMultiplier(charactersByNation.get(nation).size(),this.capSize);
             for(PlayerCharacter player : charactersByNation.get(nation)){
