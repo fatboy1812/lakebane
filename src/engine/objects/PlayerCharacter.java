@@ -5114,48 +5114,28 @@ public class PlayerCharacter extends AbstractCharacter {
     @Override
     public void update(Boolean newSystem) {
 
-        this.updateLocation();
-        this.updateMovementState();
+        if(this.isAlive() && this.enteredWorld) {
+            this.updateLocation();
+            this.updateMovementState();
+        }
 
         if(!newSystem)
             return;
-
-        this.updateLocation();
-        this.updateMovementState();
 
         try {
 
             if (this.updateLock.writeLock().tryLock()) {
                 try {
-                    //if (!this.timestamps.contains("STAMHEALTICK")) {
-                     //   this.timestamps.put("STAMHEALTICK", System.currentTimeMillis());
-                    //}
-                    //if (this.containsEffect(441156455)) {
-                    //    long length = System.currentTimeMillis() - this.timestamps.get("STAMHEALTICK").longValue();
-                     //   if (length > 10000 ) {
-                     //       float stamIncrease = 6.5f;
-                     //       if (this.stamina.get() + stamIncrease > this.staminaMax)
-                     //           this.stamina.compareAndSet(this.stamina.get(), this.staminaMax);
-                     //       else
-                     //           this.stamina.compareAndSet(this.stamina.get(), this.stamina.get() + stamIncrease);
-                     //       this.timestamps.put("STAMHEALTICK", System.currentTimeMillis());
-                    //        ChatManager.chatSystemInfo(this, "Healed 7 Stamina");
-                    //    }
-                    //} else {
-                    //    this.timestamps.put("STAMHEALTICK", System.currentTimeMillis());
-                    //}
 
-                    if (!this.isAlive() && this.isEnteredWorld()) {
-                        if (!this.timestamps.containsKey("DeathTime")) {
-                            this.timestamps.put("DeathTime", System.currentTimeMillis());
-                        } else if ((System.currentTimeMillis() - this.timestamps.get("DeathTime")) > 600000)
-                            forceRespawn(this);
-                        return;
-                    }
+                    //if (!this.isAlive() && this.isEnteredWorld()) {
+                    //    if (!this.timestamps.containsKey("DeathTime")) {
+                    //        this.timestamps.put("DeathTime", System.currentTimeMillis());
+                     //   } else if ((System.currentTimeMillis() - this.timestamps.get("DeathTime")) > 600000)
+                     //       forceRespawn(this);
+                    //    return;
+                    //}
 
                     if (this.isAlive() && this.isActive && this.enteredWorld) {
-
-                        this.updateMovementState();
 
                         if (this.combatStats == null) {
                             this.combatStats = new PlayerCombatStats(this);
