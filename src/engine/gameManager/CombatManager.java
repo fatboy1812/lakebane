@@ -462,6 +462,17 @@ public enum CombatManager {
 
             //Range check.
 
+            if(abstractCharacter.isMoving()){
+                range += (abstractCharacter.getSpeed() * 0.1f);
+            }
+
+            if(AbstractWorldObject.IsAbstractCharacter(target)) {
+                AbstractCharacter tarAc = (AbstractCharacter) target;
+                if(tarAc != null && tarAc.isMoving()){
+                    range += (tarAc.getSpeed() * 0.1f);
+                }
+            }
+
             if (NotInRange(abstractCharacter, target, range)) {
 
                 //target is in stealth and can't be seen by source
@@ -733,6 +744,18 @@ public enum CombatManager {
 
                         PlayerBonuses bonus = ac.getBonuses();
                         float attackRange = getWeaponRange(wb, bonus);
+
+                        if(ac.isMoving()){
+                            attackRange += (ac.getSpeed() * 0.1f);
+                        }
+
+                        if(AbstractWorldObject.IsAbstractCharacter(target)) {
+                            //AbstractCharacter tarAc = (AbstractCharacter) target;
+                            if(tarAc != null && tarAc.isMoving()){
+                                attackRange += (tarAc.getSpeed() * 0.1f);
+                            }
+                        }
+
                         if(specialCaseHitRoll(dpj.getPowerToken())) {
                             if(hitLanded) {
                                 dpj.attack(target, attackRange);
@@ -754,6 +777,18 @@ public enum CombatManager {
 
                     if (dpj != null && dpj.getPower() != null && (dpj.getPowerToken() == -1851459567 || dpj.getPowerToken() == -1851489518)) {
                         float attackRange = getWeaponRange(wb, bonuses);
+
+                        if(ac.isMoving()){
+                            attackRange += (ac.getSpeed() * 0.1f);
+                        }
+
+                        if(AbstractWorldObject.IsAbstractCharacter(target)) {
+                            //AbstractCharacter tarAc = (AbstractCharacter) target;
+                            if(tarAc != null && tarAc.isMoving()){
+                                attackRange += (tarAc.getSpeed() * 0.1f);
+                            }
+                        }
+
                         if(specialCaseHitRoll(dpj.getPowerToken())) {
                             if(hitLanded) {
                                 dpj.attack(target, attackRange);
@@ -977,6 +1012,19 @@ public enum CombatManager {
                         if (wp.requiresHitRoll() == false) {
                             PlayerBonuses bonus = ac.getBonuses();
                             float attackRange = getWeaponRange(wb, bonus);
+
+                            if(ac.isMoving()){
+                                attackRange += (ac.getSpeed() * 0.1f);
+                            }
+
+                            if(AbstractWorldObject.IsAbstractCharacter(target)) {
+                                AbstractCharacter tarAc = (AbstractCharacter) target;
+                                if(tarAc != null && tarAc.isMoving()){
+                                    attackRange += (tarAc.getSpeed() * 0.1f);
+                                }
+                            }
+
+
                             if(specialCaseHitRoll(dpj.getPowerToken())) {
                                 if(hitLanded) {
                                     dpj.attack(target, attackRange);
