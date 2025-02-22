@@ -134,7 +134,7 @@ public abstract class AbstractIntelligenceAgent extends AbstractCharacter {
         float ret = MobAIThread.AI_BASE_AGGRO_RANGE;
 
         if (this.bonuses != null)
-            ret *= (1 + this.bonuses.getFloatPercentAll(ModType.ScanRange, SourceType.None, null));
+            ret *= (1 + this.bonuses.getFloatPercentAll(ModType.ScanRange, SourceType.None));
 
         return ret;
     }

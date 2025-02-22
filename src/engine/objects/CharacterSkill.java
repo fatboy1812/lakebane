@@ -1127,7 +1127,7 @@ public class CharacterSkill extends AbstractGameObject {
 
         if (CharacterSkill.GetOwner(this).getBonuses() != null) {
             //Multiply any percent bonuses
-            modAmount *= (1 + CharacterSkill.GetOwner(this).getBonuses().getFloatPercentAll(ModType.Skill, sourceType, null));
+            modAmount *= (1 + CharacterSkill.GetOwner(this).getBonuses().getFloatPercentAll(ModType.Skill, sourceType));
         }
 
         this.modifiedAmount = (int) (modAmount);

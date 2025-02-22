@@ -151,7 +151,7 @@ public class CombatUtilities {
         int atr = agent.mobBase.getAtr();
         if(agent.getBonuses() != null){
             atr += agent.getBonuses().getFloat(ModType.OCV,SourceType.None);
-            atr *= 1 + agent.getBonuses().getFloatPercentAll(ModType.OCV,SourceType.None, null);
+            atr *= 1 + agent.getBonuses().getFloatPercentAll(ModType.OCV,SourceType.None);
         }
         switch (target.getObjectType()) {
             case PlayerCharacter:
@@ -357,7 +357,7 @@ public class CombatUtilities {
         float damage;
         float min = 40;
         float max = 60;
-        float dmgMultiplier = 1 + agent.getBonuses().getFloatPercentAll(ModType.MeleeDamageModifier, SourceType.None, null);
+        float dmgMultiplier = 1 + agent.getBonuses().getFloatPercentAll(ModType.MeleeDamageModifier, SourceType.None);
         double minDmg = getMinDmg(agent);
         double maxDmg = getMaxDmg(agent);
         dmgMultiplier += agent.getLevel() * 0.1f;
@@ -371,7 +371,7 @@ public class CombatUtilities {
         ItemBase weapon = agent.getEquip().get(1).getItemBase();
         AbstractWorldObject target = agent.getCombatTarget();
 
-        float dmgMultiplier = 1 + agent.getBonuses().getFloatPercentAll(ModType.MeleeDamageModifier, SourceType.None, null);
+        float dmgMultiplier = 1 + agent.getBonuses().getFloatPercentAll(ModType.MeleeDamageModifier, SourceType.None);
 
         double minDmg = weapon.getMinDamage();
         double maxDmg = weapon.getMaxDamage();
@@ -395,7 +395,7 @@ public class CombatUtilities {
         //handle r8 mob damage
         DamageType dt = DamageType.Crush;
         AbstractWorldObject target = agent.getCombatTarget();
-        float dmgMultiplier = 1 + agent.getBonuses().getFloatPercentAll(ModType.MeleeDamageModifier, SourceType.None, null);
+        float dmgMultiplier = 1 + agent.getBonuses().getFloatPercentAll(ModType.MeleeDamageModifier, SourceType.None);
         double min = agent.getMinDamageHandOne();
         double max = agent.getMaxDamageHandOne();
         if (agent.getEquip().get(1) != null) {

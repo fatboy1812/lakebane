@@ -505,7 +505,7 @@ public class PlayerCombatStats {
         );
         if(this.owner.bonuses != null){
             minDMG += this.owner.bonuses.getFloat(Enum.ModType.MinDamage, Enum.SourceType.None);
-            minDMG *= 1 + this.owner.bonuses.getFloatPercentAll(Enum.ModType.MeleeDamageModifier, Enum.SourceType.None, this.owner);
+            minDMG *= 1 + this.owner.bonuses.getFloatPercentAll(Enum.ModType.MeleeDamageModifier, Enum.SourceType.None);
         }
 
         if(this.owner.charItemManager != null){
@@ -585,7 +585,7 @@ public class PlayerCombatStats {
 
         if(this.owner.bonuses != null){
             maxDMG += this.owner.bonuses.getFloat(Enum.ModType.MaxDamage, Enum.SourceType.None);
-            maxDMG *= 1 + this.owner.bonuses.getFloatPercentAll(Enum.ModType.MeleeDamageModifier, Enum.SourceType.None, this.owner);
+            maxDMG *= 1 + this.owner.bonuses.getFloatPercentAll(Enum.ModType.MeleeDamageModifier, Enum.SourceType.None);
         }
 
         if(this.owner.charItemManager != null){
@@ -676,7 +676,7 @@ public class PlayerCombatStats {
             }
         }
 
-        float bonusValues = 1 + this.owner.bonuses.getFloatPercentAll(Enum.ModType.AttackDelay,Enum.SourceType.None, null);//1.0f;
+        float bonusValues = 1 + this.owner.bonuses.getFloatPercentAll(Enum.ModType.AttackDelay,Enum.SourceType.None);//1.0f;
         bonusValues -= stanceValue + delayExtra; // take away stance modifier from alacrity bonus values
         speed *= 1 + stanceValue; // apply stance bonus
         speed *= bonusValues; // apply alacrity bonuses without stance mod
@@ -712,7 +712,7 @@ public class PlayerCombatStats {
             range = weapon.getItemBase().getRange();
         }
         if(owner.bonuses != null){
-            range *= 1 + this.owner.bonuses.getFloatPercentAll(Enum.ModType.WeaponRange, Enum.SourceType.None, null);
+            range *= 1 + this.owner.bonuses.getFloatPercentAll(Enum.ModType.WeaponRange, Enum.SourceType.None);
         }
         if(mainHand){
             this.rangeHandOne = range;

@@ -1177,11 +1177,11 @@ public class Mob extends AbstractIntelligenceAgent {
 
             // apply dex penalty for armor
             // modify percent amounts. DO THIS LAST!
-            strVal *= (1 + this.bonuses.getFloatPercentAll(ModType.Attr, SourceType.Strength, null));
-            dexVal *= (1 + this.bonuses.getFloatPercentAll(ModType.Attr, SourceType.Dexterity, null));
-            conVal *= (1 + this.bonuses.getFloatPercentAll(ModType.Attr, SourceType.Constitution, null));
-            intVal *= (1 + this.bonuses.getFloatPercentAll(ModType.Attr, SourceType.Intelligence, null));
-            spiVal *= (1 + this.bonuses.getFloatPercentAll(ModType.Attr, SourceType.Spirit, null));
+            strVal *= (1 + this.bonuses.getFloatPercentAll(ModType.Attr, SourceType.Strength));
+            dexVal *= (1 + this.bonuses.getFloatPercentAll(ModType.Attr, SourceType.Dexterity));
+            conVal *= (1 + this.bonuses.getFloatPercentAll(ModType.Attr, SourceType.Constitution));
+            intVal *= (1 + this.bonuses.getFloatPercentAll(ModType.Attr, SourceType.Intelligence));
+            spiVal *= (1 + this.bonuses.getFloatPercentAll(ModType.Attr, SourceType.Spirit));
         } else {
             // apply dex penalty for armor
         }
@@ -1200,7 +1200,7 @@ public class Mob extends AbstractIntelligenceAgent {
         float bonus = 1;
         if (this.bonuses != null)
             // get rune and effect bonuses
-            bonus *= (1 + this.bonuses.getFloatPercentAll(ModType.Speed, SourceType.None, null));
+            bonus *= (1 + this.bonuses.getFloatPercentAll(ModType.Speed, SourceType.None));
 
         if (this.isPlayerGuard)
             switch (this.mobBase.getLoadID()) {
@@ -1568,9 +1568,9 @@ public class Mob extends AbstractIntelligenceAgent {
 
             //apply effects percent modifiers. DO THIS LAST!
 
-            h *= (1 + this.bonuses.getFloatPercentAll(ModType.HealthFull, SourceType.None, null));
-            m *= (1 + this.bonuses.getFloatPercentAll(ModType.ManaFull, SourceType.None, null));
-            s *= (1 + this.bonuses.getFloatPercentAll(ModType.StaminaFull, SourceType.None, null));
+            h *= (1 + this.bonuses.getFloatPercentAll(ModType.HealthFull, SourceType.None));
+            m *= (1 + this.bonuses.getFloatPercentAll(ModType.ManaFull, SourceType.None));
+            s *= (1 + this.bonuses.getFloatPercentAll(ModType.StaminaFull, SourceType.None));
         }
 
         // Set max health, mana and stamina
@@ -1853,9 +1853,9 @@ public class Mob extends AbstractIntelligenceAgent {
             int max = (int)this.mobBase.getDamageMax();
             int atr = this.mobBase.getAtr();
             if(this.bonuses != null){
-                min *= 1 + this.bonuses.getFloatPercentAll(ModType.MeleeDamageModifier, SourceType.None, null);
-                max *= 1 + this.bonuses.getFloatPercentAll(ModType.MeleeDamageModifier, SourceType.None, null);
-                atr *= 1 + this.bonuses.getFloatPercentAll(ModType.OCV,SourceType.None, null);
+                min *= 1 + this.bonuses.getFloatPercentAll(ModType.MeleeDamageModifier, SourceType.None);
+                max *= 1 + this.bonuses.getFloatPercentAll(ModType.MeleeDamageModifier, SourceType.None);
+                atr *= 1 + this.bonuses.getFloatPercentAll(ModType.OCV,SourceType.None);
                 atr += this.bonuses.getFloat(ModType.OCV,SourceType.None);
             }
             this.minDamageHandOne = min;
@@ -1873,9 +1873,9 @@ public class Mob extends AbstractIntelligenceAgent {
             int max = (int)this.mobBase.getDamageMax();
             int atr = this.mobBase.getAtr();
             if(this.bonuses != null){
-                min *= 1 + this.bonuses.getFloatPercentAll(ModType.MeleeDamageModifier, SourceType.None, null);
-                max *= 1 + this.bonuses.getFloatPercentAll(ModType.MeleeDamageModifier, SourceType.None, null);
-                atr *= 1 + this.bonuses.getFloatPercentAll(ModType.OCV,SourceType.None, null);
+                min *= 1 + this.bonuses.getFloatPercentAll(ModType.MeleeDamageModifier, SourceType.None);
+                max *= 1 + this.bonuses.getFloatPercentAll(ModType.MeleeDamageModifier, SourceType.None);
+                atr *= 1 + this.bonuses.getFloatPercentAll(ModType.OCV,SourceType.None);
                 atr += this.bonuses.getFloat(ModType.OCV,SourceType.None);
             }
             this.minDamageHandTwo = min;

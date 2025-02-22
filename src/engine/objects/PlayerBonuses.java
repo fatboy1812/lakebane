@@ -340,7 +340,7 @@ public class PlayerBonuses {
         return amount;
     }
 
-    public float getFloatPercentAll(ModType modType, SourceType sourceType, PlayerCharacter pc) {
+    public float getFloatPercentAll(ModType modType, SourceType sourceType) {
         float amount = 0;
         for (AbstractEffectModifier mod : this.bonusFloats.keySet()) {
 
@@ -357,15 +357,6 @@ public class PlayerBonuses {
             amount += this.bonusFloats.get(mod);
         }
 
-        if(pc != null) {
-            if (modType.equals(ModType.PowerDamageModifier) || modType.equals(ModType.MeleeDamageModifier)) {
-                if(pc.ZergMultiplier == 0.0f){
-                    amount = -1.0f;
-                }else {
-                    amount -= 1.0f - pc.ZergMultiplier;
-                }
-            }
-        }
         return amount;
     }
 

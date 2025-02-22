@@ -1437,7 +1437,7 @@ public class MobAI {
             if (mob.isSit() && mob.getTimeStamp("HEALTHRECOVERED") < System.currentTimeMillis() + 3000)
                 if (mob.getHealth() < mob.getHealthMax()) {
 
-                    float recoveredHealth = mob.getHealthMax() * ((1 + mob.getBonuses().getFloatPercentAll(Enum.ModType.HealthRecoverRate, Enum.SourceType.None, null)) * 0.01f);
+                    float recoveredHealth = mob.getHealthMax() * ((1 + mob.getBonuses().getFloatPercentAll(Enum.ModType.HealthRecoverRate, Enum.SourceType.None)) * 0.01f);
                     mob.setHealth(mob.getHealth() + recoveredHealth);
                     mob.getTimestamps().put("HEALTHRECOVERED", System.currentTimeMillis());
 

@@ -131,7 +131,7 @@ public class Resists {
         PlayerBonuses bonus = target.getBonuses();
 
         //see if there is a fortitude
-        float damageCap = bonus.getFloatPercentAll(ModType.DamageCap, SourceType.None, null);
+        float damageCap = bonus.getFloatPercentAll(ModType.DamageCap, SourceType.None);
         if (damageCap == 0f || type == DamageType.Healing)
             return damage;
 
@@ -152,7 +152,7 @@ public class Resists {
         if (forts == null || !isValidDamageCapType(forts, type, exclusive))
             return damage;
 
-        float adjustedDamage = bonus.getFloatPercentAll(ModType.AdjustAboveDmgCap, SourceType.None, null);
+        float adjustedDamage = bonus.getFloatPercentAll(ModType.AdjustAboveDmgCap, SourceType.None);
         //Adjust damage down and return new amount
         float aadc = 1 + adjustedDamage;
         return capFire * aadc;

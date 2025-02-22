@@ -564,7 +564,7 @@ public enum PowersManager {
             cost = 0;
 
         if (bonus != null)
-            cost *= (1 + bonus.getFloatPercentAll(ModType.PowerCost, SourceType.None, null));
+            cost *= (1 + bonus.getFloatPercentAll(ModType.PowerCost, SourceType.None));
 
         if (playerCharacter.getAltitude() > 0)
             cost *= 1.5f;
