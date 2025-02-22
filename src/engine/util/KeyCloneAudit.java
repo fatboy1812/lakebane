@@ -85,6 +85,8 @@ public enum KeyCloneAudit {
             PlayerCharacter pc = origin.getPlayerCharacter();
             pc.selectedUUID = tarMsg.getTargetID();
 
+            if(pc.getObjectUUID() == tarMsg.getTargetID())
+                return; //dont trigger for targeting yourself
 
             if (System.currentTimeMillis() > origin.finalStrikeRefresh) {
                 origin.lastStrike = System.currentTimeMillis();
