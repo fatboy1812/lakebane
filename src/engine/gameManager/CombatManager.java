@@ -554,8 +554,12 @@ public enum CombatManager {
 
             if (target == null)
                 return;
+
             if(ac.getObjectType().equals(GameObjectType.PlayerCharacter)){
                 PlayerCharacter pc = (PlayerCharacter) ac;
+                if( pc.combatStats == null){
+                    pc.combatStats = new PlayerCombatStats(pc);
+                }
                 pc.combatStats.calculateATR(true);
                 pc.combatStats.calculateATR(false);
                 if (mainHand) {
