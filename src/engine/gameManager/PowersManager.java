@@ -177,6 +177,12 @@ public enum PowersManager {
 
         if(msg.getPowerUsedID() == 429429978){
             applyPower(origin.getPlayerCharacter(),origin.getPlayerCharacter(),origin.getPlayerCharacter().getLoc(),429429978,msg.getNumTrains(),false);
+            origin.getPlayerCharacter().getRecycleTimers().remove(429429978);
+            return;
+        }
+
+        if(!origin.getPlayerCharacter().getPowers().contains(msg.getPowerUsedID())){
+            Logger.error(origin.getPlayerCharacter().getFirstName() + " attempted to cast a power they do not have");
             return;
         }
 
