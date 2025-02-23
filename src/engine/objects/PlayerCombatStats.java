@@ -1009,26 +1009,27 @@ public class PlayerCombatStats {
                 int required = nextLevel - currentLevel;
 
                 //get group member divisor
-                float divisor = switch (group.members.size()) {
-                    case 2 -> 16.0f;
-                    case 3 -> 18.0f;
-                    case 4 -> 20.0f;
-                    case 5 -> 21.0f;
-                    case 6 -> 23.0f;
-                    case 7 -> 25.0f;
-                    case 8 -> 26.0f;
-                    case 9 -> 28.0f;
-                    case 10 -> 30.0f;
-                    default -> 15.0f;
-                };
+               // float divisor =
+                 //       switch (group.members.size()) {
+                 //   case 2 -> 16.0f;
+                ///    case 3 -> 18.0f;
+                //    case 4 -> 20.0f;
+                //    case 5 -> 21.0f;
+                 //   case 6 -> 23.0f;
+                //    case 7 -> 25.0f;
+                //    case 8 -> 26.0f;
+                //    case 9 -> 28.0f;
+                //    case 10 -> 30.0f;
+                //    default -> 15.0f;
+                //};
 
                 //apply the X mob kills required rule
-                grantedXP = required / divisor;
+                //grantedXP = required / divisor;
 
                 if(leadership > 0)
                     multiplier += (multiplier * (leadership * 0.01f));
 
-                member.grantXP((int) Math.floor(grantedXP * multiplier));
+                //member.grantXP((int) Math.floor(grantedXP * multiplier));
             }
         }else{
             //Solo XP
