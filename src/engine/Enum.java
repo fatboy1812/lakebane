@@ -171,8 +171,6 @@ public class Enum {
         }
 
         public static RaceType getRaceTypebyRuneID(int runeID) {
-            if(runeID == 1999)
-                return _raceTypeByID.get(2017);
             return _raceTypeByID.get(runeID);
         }
 
