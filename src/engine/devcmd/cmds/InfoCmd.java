@@ -342,8 +342,11 @@ public class InfoCmd extends AbstractDevCmd {
                 output += newline;
                 output += "isMoving : " + targetPC.isMoving();
                 output += newline;
-                output += "Zerg Multiplier : " + targetPC.ZergMultiplier+ newline;
-                output += "Hidden : " + targetPC.getHidden();
+                output += "Zerg Multiplier : " + targetPC.ZergMultiplier + newline;
+                output += "Hidden : " + targetPC.getHidden() + newline;
+                output += "Target Loc: " + targetPC.loc + newline;
+                output += "Player Loc: " + pc.loc + newline;
+                output += "Distance Squared: " + pc.loc.distanceSquared(targetPC.loc);
                 break;
 
             case NPC:

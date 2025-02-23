@@ -15,6 +15,7 @@ import engine.Enum.GameObjectType;
 import engine.Enum.GridObjectType;
 import engine.InterestManagement.HeightMap;
 import engine.InterestManagement.WorldGrid;
+import engine.gameManager.ZoneManager;
 import engine.job.AbstractScheduleJob;
 import engine.job.JobContainer;
 import engine.job.JobScheduler;
@@ -500,8 +501,24 @@ public abstract class AbstractWorldObject extends AbstractGameObject {
             if (loc.x > MBServerStatics.MAX_WORLD_WIDTH || loc.z < MBServerStatics.MAX_WORLD_HEIGHT)
                 return;
             this.lastLoc = new Vector3fImmutable(this.loc);
+            if(AbstractCharacter.IsAbstractCharacter(this)){
+                float y;
+                float worldHeight = HeightMap.getWorldHeight(loc);
+                Zone zone = ZoneManager.findSmallestZone(loc);
+                if(zone != null && zone.isPlayerCity()){
+                    worldHeight = zone.absY;
+                }
+                if(this.region != null){
+                    float regionAlt = this.region.lerpY(this);
+                    float altitude = this.getAltitude();
+                    y = regionAlt + altitude + worldHeight;
+                }else{
+                    y = HeightMap.getWorldHeight(loc) + this.getAltitude();
+                }
+                loc.setY(y);
+            }
             this.loc = loc;
-            this.loc = this.loc.setY(HeightMap.getWorldHeight(this) + this.getAltitude());
+            //this.loc = this.loc.setY(HeightMap.getWorldHeight(this) + this.getAltitude());
 
             //lets not add mob to world grid if he is currently despawned.
             if (this.getObjectType().equals(GameObjectType.Mob) && ((Mob) this).despawned)

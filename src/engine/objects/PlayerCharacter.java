@@ -5330,8 +5330,10 @@ public class PlayerCharacter extends AbstractCharacter {
             return;
         }
 
-        setLoc(newLoc);
+
         this.region = AbstractWorldObject.GetRegionByWorldObject(this);
+
+        setLoc(newLoc);
 
         if (this.getDebug(1))
             ChatManager.chatSystemInfo(this,

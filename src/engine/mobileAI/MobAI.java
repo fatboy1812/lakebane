@@ -620,9 +620,6 @@ public class MobAI {
 
             if (mob == null)
                 return;
-            if(mob.isAlive())
-                if(!mob.getMovementLoc().equals(Vector3fImmutable.ZERO))
-                    mob.setLoc(mob.getMovementLoc());
 
             if (mob.getTimestamps().containsKey("lastExecution") == false)
                 mob.getTimestamps().put("lastExecution", System.currentTimeMillis());
@@ -677,6 +674,10 @@ public class MobAI {
                     mob.setCombatTarget(null);
                 return;
             }
+
+            if(mob.isAlive())
+                if(!mob.getMovementLoc().equals(Vector3fImmutable.ZERO))
+                    mob.setLoc(mob.getMovementLoc());
 
             if(mob.isPet() == false && mob.isPlayerGuard == false)
                 CheckToSendMobHome(mob);
