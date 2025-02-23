@@ -831,7 +831,6 @@ public enum PowersManager {
         if (playerCharacter == null || msg == null)
             return;
 
-
         //handle sprint for bard sprint
         if(msg.getPowerUsedID() == 429005674){
             msg.setPowerUsedID(429611355);
@@ -857,7 +856,7 @@ public enum PowersManager {
         if(msg.getTargetType() == GameObjectType.PlayerCharacter.ordinal()) {
             PlayerCharacter target = PlayerCharacter.getPlayerCharacter(msg.getTargetID());
             if (msg.getPowerUsedID() == 429601664)
-                if(target.getPromotionClassID() != 2516)
+                if(target.getPromotionClassID() != 2516)//templar
                     PlayerCharacter.getPlayerCharacter(msg.getTargetID()).removeEffectBySource(EffectSourceType.Transform, msg.getNumTrains(), true);
         }
 
@@ -901,6 +900,9 @@ public enum PowersManager {
                             + "' was not found on powersBaseByToken map.");
             return;
         }
+
+        if(pb.targetSelf)
+            msg.setTargetID(playerCharacter.getObjectUUID());
 
         int trains = msg.getNumTrains();
 

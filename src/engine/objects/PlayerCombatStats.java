@@ -1061,7 +1061,7 @@ public class PlayerCombatStats {
 
         if (pc.level >= 26 && pc.level <= 75)
         {
-            mod = 0.10f - (0.001f * (pc.level - 25));
+            mod = 0.10f - (0.001f * (pc.level - 24));
         }
         else if (pc.level > 75)
         {
