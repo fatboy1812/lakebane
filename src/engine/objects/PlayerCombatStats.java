@@ -963,6 +963,8 @@ public class PlayerCombatStats {
         atr += (modifiedDexterity * 0.5f) + weaponATR1 + weaponATR2;
         atr *= precise;
         atr += atrBuffs;
+        if(pc.bonuses != null)
+            atr *= 1 + (pc.bonuses.getFloatPercentAll(Enum.ModType.OCV, Enum.SourceType.None) - (stanceMod - 1) - (precise - 1));
         atr *= stanceMod;
         return atr;
     }
@@ -974,6 +976,11 @@ public class PlayerCombatStats {
         double grantedXP;
 
         if(group != null){
+            float leadership = 0.0f;
+            PlayerCharacter leader = group.getGroupLead();
+            if(leader.skills.containsKey("Leadership"))
+                leadership = leader.skills.get("Leadership").getModifiedAmount();
+
             //Group XP
             for(PlayerCharacter member : group.members){
 
@@ -1017,6 +1024,9 @@ public class PlayerCombatStats {
 
                 //apply the X mob kills required rule
                 grantedXP = required / divisor;
+
+                if(leadership > 0)
+                    multiplier += (multiplier * (leadership * 0.01f));
 
                 member.grantXP((int) Math.floor(grantedXP * multiplier));
             }
