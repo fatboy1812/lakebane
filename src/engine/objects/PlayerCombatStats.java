@@ -835,6 +835,10 @@ public class PlayerCombatStats {
                 }
             }
         }
+
+        if(this.owner.bonuses != null)
+            flatBonuses += this.owner.bonuses.getFloat(Enum.ModType.DCV, Enum.SourceType.None);
+
         if(this.owner.charItemManager.getEquipped(2) == null)
             blockSkill = 0;
         else if(this.owner.charItemManager != null && this.owner.charItemManager.getEquipped(2) != null && !this.owner.charItemManager.getEquipped(2).getItemBase().isShield())
