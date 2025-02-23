@@ -5125,14 +5125,6 @@ public class PlayerCharacter extends AbstractCharacter {
             if (this.updateLock.writeLock().tryLock()) {
                 try {
 
-                    //if (!this.isAlive() && this.isEnteredWorld()) {
-                    //    if (!this.timestamps.containsKey("DeathTime")) {
-                    //        this.timestamps.put("DeathTime", System.currentTimeMillis());
-                     //   } else if ((System.currentTimeMillis() - this.timestamps.get("DeathTime")) > 600000)
-                     //       forceRespawn(this);
-                    //    return;
-                    //}
-
                     if (this.isAlive() && this.isActive && this.enteredWorld) {
 
                         if (this.combatStats == null) {
