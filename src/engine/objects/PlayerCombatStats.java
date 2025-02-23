@@ -4,6 +4,7 @@ import engine.Enum;
 import engine.powers.EffectsBase;
 import engine.powers.PowersBase;
 import engine.powers.effectmodifiers.AbstractEffectModifier;
+import engine.server.MBServerStatics;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -886,14 +887,14 @@ public class PlayerCombatStats {
         if(pb == null)
             return 0.0f;
 
-        float modifiedfocusline = 0.0f;
+        float modifiedFocusLine = 0.0f;
         if(pc.skills.containsKey(pb.skillName)){
-            modifiedfocusline = pc.skills.get(pb.skillName).getModifiedAmount();
+            modifiedFocusLine = pc.skills.get(pb.skillName).getModifiedAmount();
         }
 
-        float modifieddex = pc.statDexCurrent;
+        float modifiedDexterity = pc.statDexCurrent;
 
-        float weaponatr1 = 0.0f;
+        float weaponATR1 = 0.0f;
         if(pc.charItemManager != null && pc.charItemManager.getEquipped(1) != null){
             for(Effect eff : pc.charItemManager.getEquipped(1).effects.values()){
                 for (AbstractEffectModifier mod : eff.getEffectModifiers()){
@@ -901,13 +902,13 @@ public class PlayerCombatStats {
                         float base = mod.minMod;
                         float ramp = mod.getRamp();
                         int trains = eff.getTrains();
-                        weaponatr1 = base + (ramp * trains);
+                        weaponATR1 = base + (ramp * trains);
                     }
                 }
             }
         }
 
-        float weaponatr2 = 0.0f;
+        float weaponATR2 = 0.0f;
         if(pc.charItemManager != null && pc.charItemManager.getEquipped(2) != null){
             for(Effect eff : pc.charItemManager.getEquipped(2).effects.values()){
                 for (AbstractEffectModifier mod : eff.getEffectModifiers()){
@@ -915,7 +916,7 @@ public class PlayerCombatStats {
                         float base = mod.minMod;
                         float ramp = mod.getRamp();
                         int trains = eff.getTrains();
-                        weaponatr2 = base + (ramp * trains);
+                        weaponATR2 = base + (ramp * trains);
                     }
                 }
             }
@@ -928,7 +929,7 @@ public class PlayerCombatStats {
         }
 
         float stanceMod = 1.0f;
-        float ATRbuffs = 0.0f;
+        float atrBuffs = 0.0f;
 
         for(String effID : pc.effects.keySet()) {
             if (effID.contains("Stance")) {
@@ -951,19 +952,101 @@ public class PlayerCombatStats {
                             float value = mod.getMinMod();
                             int trains = pc.effects.get(effID).getTrains();
                             float modValue = value + (trains * mod.getRamp());
-                            ATRbuffs += modValue;
+                            atrBuffs += modValue;
                         }
                     }
                 }
             }
         }
 
-        float atr = 7 * modifiedfocusline;
-        atr += (modifieddex * 0.5f) + weaponatr1 + weaponatr2;
+        float atr = 7 * modifiedFocusLine;
+        atr += (modifiedDexterity * 0.5f) + weaponATR1 + weaponATR2;
         atr *= precise;
-        atr += ATRbuffs;
+        atr += atrBuffs;
         atr *= stanceMod;
         return atr;
+    }
+
+    public void grantExperience(AbstractCharacter killed, Group group){
+
+        if(killed == null)
+            return;
+        double grantedXP;
+
+        if(group != null){
+            //Group XP
+            for(PlayerCharacter member : group.members){
+
+                //cannot level higher than 75 unless killed is a player character
+                if(member.level >= 75 && !killed.getObjectType().equals(Enum.GameObjectType.PlayerCharacter))
+                    continue;
+
+                //not in load range, do not grant XP
+                if(member.loc.distanceSquared(killed.loc) > MBServerStatics.CHARACTER_LOAD_RANGE * MBServerStatics.CHARACTER_LOAD_RANGE)
+                    continue;
+
+                //checking to make sure killed is better than "white"
+                double multiplier = Experience.getConMod(member,killed);
+
+                //stop if killed is not better than "white"
+                if(multiplier == 0)
+                    continue;
+
+                //get experience for current level
+                int currentLevel = Experience.LevelToExp[member.level];
+
+                //get experience required for next level
+                int nextLevel = Experience.LevelToExp[member.level + 1];
+
+                //get the required experience to go form current level to next level
+                int required = nextLevel - currentLevel;
+
+                //get group member divisor
+                float divisor = switch (group.members.size()) {
+                    case 2 -> 16.0f;
+                    case 3 -> 18.0f;
+                    case 4 -> 20.0f;
+                    case 5 -> 21.0f;
+                    case 6 -> 23.0f;
+                    case 7 -> 25.0f;
+                    case 8 -> 26.0f;
+                    case 9 -> 28.0f;
+                    case 10 -> 30.0f;
+                    default -> 15.0f;
+                };
+
+                //apply the X mob kills required rule
+                grantedXP = required / divisor;
+
+                member.grantXP((int) Math.floor(grantedXP * multiplier));
+            }
+        }else{
+            //Solo XP
+            //cannot level higher than 75 unless killed is a player character
+            if(this.owner.level >= 75 && !killed.getObjectType().equals(Enum.GameObjectType.PlayerCharacter))
+                return;
+
+            //checking to make sure killed is better than "white"
+            double multiplier = Experience.getConMod(this.owner,killed);
+
+            //stop if killed is not better than "white"
+            if(multiplier == 0)
+                return;
+
+            //get experience for current level
+            int currentLevel = Experience.LevelToExp[this.owner.level];
+
+            //get experience required for next level
+            int nextLevel = Experience.LevelToExp[this.owner.level + 1];
+
+            //get the required experience to go form current level to next level
+            int required = nextLevel - currentLevel;
+
+            //apply the 15 mob kills required rule
+            grantedXP = required / 15.0f;
+
+            this.owner.grantXP((int) Math.floor(grantedXP * multiplier));
+        }
     }
 
 }

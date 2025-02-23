@@ -23,7 +23,7 @@ import static engine.gameManager.LootManager.LOOTMANAGER;
 public class Experience {
 
     private static final TreeMap<Integer, Integer> ExpToLevel;
-    private static final int[] LevelToExp = {Integer.MIN_VALUE, // Pad
+    public static final int[] LevelToExp = {Integer.MIN_VALUE, // Pad
             // everything
             // over 1
 
@@ -302,7 +302,7 @@ public class Experience {
             case Cyan:
                 return 0.9;
             case Green:
-                return 0.7;
+                return 0.8;
             default:
                 return 0;
         }
@@ -351,6 +351,14 @@ public class Experience {
 
         if(killer.pvpKills.contains(mob.getObjectUUID()))
             return;
+
+        if(true){
+            if(killer.combatStats == null)
+                killer.combatStats = new PlayerCombatStats(killer);
+
+            killer.combatStats.grantExperience(mob,g);
+            return;
+        }
 
         double grantedExperience = 0.0;
 
