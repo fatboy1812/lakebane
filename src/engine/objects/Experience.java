@@ -352,13 +352,13 @@ public class Experience {
         if(killer.pvpKills.contains(mob.getObjectUUID()))
             return;
 
-        if(true){
-            if(killer.combatStats == null)
-                killer.combatStats = new PlayerCombatStats(killer);
+        //if(true){
+        //    if(killer.combatStats == null)
+        //        killer.combatStats = new PlayerCombatStats(killer);
 
-            killer.combatStats.grantExperience(mob,g);
-            return;
-        }
+        //    killer.combatStats.grantExperience(mob,g);
+        //    return;
+        //}
 
         double grantedExperience = 0.0;
 
