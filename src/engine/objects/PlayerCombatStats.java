@@ -976,88 +976,97 @@ public class PlayerCombatStats {
         double grantedXP;
 
         if(group != null){
-            float leadership = 0.0f;
-            PlayerCharacter leader = group.getGroupLead();
-            if(leader.skills.containsKey("Leadership"))
-                leadership = leader.skills.get("Leadership").getModifiedAmount();
 
-            //Group XP
             for(PlayerCharacter member : group.members){
+                //white mob, early exit
+                if(Experience.getConMod(member,killed) <= 0)
+                    continue;
 
-                //cannot level higher than 75 unless killed is a player character
+                //can only get XP over level 75 for player kills
                 if(member.level >= 75 && !killed.getObjectType().equals(Enum.GameObjectType.PlayerCharacter))
                     continue;
 
-                //not in load range, do not grant XP
+                //cannot gain xp while dead
+                if(!member.isAlive())
+                    continue;
+
+                //out of XP range
                 if(member.loc.distanceSquared(killed.loc) > MBServerStatics.CHARACTER_LOAD_RANGE * MBServerStatics.CHARACTER_LOAD_RANGE)
                     continue;
 
-                //checking to make sure killed is better than "white"
-                double multiplier = Experience.getConMod(member,killed);
+                float mod;
+                switch(group.members.size()){
+                    default:
+                        mod = 1.0f;
+                        break;
+                    case 2:
+                        mod = 0.8f;
+                        break;
+                    case 3:
+                        mod = 0.73f;
+                        break;
+                    case 4:
+                        mod = 0.69f;
+                        break;
+                    case 5:
+                        mod = 0.65f;
+                        break;
+                    case 6:
+                        mod = 0.58f;
+                        break;
+                    case 7:
+                        mod = 0.54f;
+                        break;
+                    case 8:
+                        mod = 0.50f;
+                        break;
+                    case 9:
+                        mod = 0.47f;
+                        break;
+                    case 10:
+                        mod = 0.45f;
+                        break;
+                }
+                double xp = getXP(member) * mod;
 
-                //stop if killed is not better than "white"
-                if(multiplier == 0)
-                    continue;
-
-                //get experience for current level
-                int currentLevel = Experience.LevelToExp[member.level];
-
-                //get experience required for next level
-                int nextLevel = Experience.LevelToExp[member.level + 1];
-
-                //get the required experience to go form current level to next level
-                int required = nextLevel - currentLevel;
-
-                //get group member divisor
-               // float divisor =
-                 //       switch (group.members.size()) {
-                 //   case 2 -> 16.0f;
-                ///    case 3 -> 18.0f;
-                //    case 4 -> 20.0f;
-                //    case 5 -> 21.0f;
-                 //   case 6 -> 23.0f;
-                //    case 7 -> 25.0f;
-                //    case 8 -> 26.0f;
-                //    case 9 -> 28.0f;
-                //    case 10 -> 30.0f;
-                //    default -> 15.0f;
-                //};
-
-                //apply the X mob kills required rule
-                //grantedXP = required / divisor;
-
-                if(leadership > 0)
-                    multiplier += (multiplier * (leadership * 0.01f));
-
-                //member.grantXP((int) Math.floor(grantedXP * multiplier));
+                member.grantXP((int) xp);
             }
+
         }else{
             //Solo XP
-            //cannot level higher than 75 unless killed is a player character
+
+            //white mob, early exit
+            if(Experience.getConMod(this.owner,killed) <= 0)
+                return;
+
+            //can only get XP over level 75 for player kills
             if(this.owner.level >= 75 && !killed.getObjectType().equals(Enum.GameObjectType.PlayerCharacter))
                 return;
 
-            //checking to make sure killed is better than "white"
-            double multiplier = Experience.getConMod(this.owner,killed);
-
-            //stop if killed is not better than "white"
-            if(multiplier == 0)
+            //cannot gain xp while dead
+            if(!this.owner.isAlive())
                 return;
 
-            //get experience for current level
-            int currentLevel = Experience.LevelToExp[this.owner.level];
-
-            //get experience required for next level
-            int nextLevel = Experience.LevelToExp[this.owner.level + 1];
-
-            //get the required experience to go form current level to next level
-            int required = nextLevel - currentLevel;
-
-            //apply the 15 mob kills required rule
-            grantedXP = required / 15.0f;
-
-            this.owner.grantXP((int) Math.floor(grantedXP * multiplier));
+            this.owner.grantXP(getXP(this.owner));
         }
+    }
+
+    public static int getXP(PlayerCharacter pc){
+        double xp = 0;
+        float mod = 0.10f;
+
+        if (pc.level >= 26 && pc.level <= 75)
+        {
+            mod = 0.10f - (0.001f * (pc.level - 25));
+        }
+        else if (pc.level > 75)
+        {
+            mod = 0.05f;
+        }
+
+        xp = Experience.LevelToExp[pc.level] * mod;
+
+        return (int) xp;
     }
 
 }

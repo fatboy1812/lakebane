@@ -121,6 +121,8 @@ public class Experience {
             190585732,  // Level 77
             201714185,  // Level 78
             213319687,  // Level 79
+
+            // R8
             225415457,   // Level 80
             238014819   // Level 81
 
@@ -352,13 +354,13 @@ public class Experience {
         if(killer.pvpKills.contains(mob.getObjectUUID()))
             return;
 
-        //if(true){
-        //    if(killer.combatStats == null)
-        //        killer.combatStats = new PlayerCombatStats(killer);
+        if(true){
+            if(killer.combatStats == null)
+                killer.combatStats = new PlayerCombatStats(killer);
 
-        //    killer.combatStats.grantExperience(mob,g);
-        //    return;
-        //}
+            killer.combatStats.grantExperience(mob,g);
+            return;
+        }
 
         double grantedExperience = 0.0;
 
