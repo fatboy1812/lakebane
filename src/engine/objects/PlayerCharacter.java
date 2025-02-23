@@ -1535,25 +1535,48 @@ public class PlayerCharacter extends AbstractCharacter {
                 return true;
             Zone zone = ZoneManager.findSmallestZone(breather.getLoc());
 
+            if(zone == null)
+                return true;
+
+            if(zone.isPlayerCity())
+                return true;
+
+            float seaLevel = zone.getSeaLevel();
+
             if (zone.getSeaLevel() != 0) {
+                Zone parent = zone.getParent();
+                if(parent != null && parent.isMacroZone()){
+                    float parentLevel = parent.getSeaLevel();
+                    seaLevel -= parentLevel;
+                }
+
+                if(seaLevel == 0)
+                    return true;
 
                 float localAltitude = breather.getLoc().y;
+                float characterHeight = breather.characterHeight;
 
-
-                if (localAltitude + breather.characterHeight < zone.getSeaLevel() - 2)
+                if (localAltitude + characterHeight < seaLevel - 2) {
+                    //ChatManager.chatSystemInfo(breather, "YOU CANNOT BREATHE!");
                     return false;
-
+                }
                 if (breather.isMoving()) {
-                    if (localAltitude + breather.characterHeight < zone.getSeaLevel())
+                    if (localAltitude + breather.characterHeight < zone.getSeaLevel()) {
+                        //ChatManager.chatSystemInfo(breather, "YOU CANNOT BREATHE!");
                         return false;
+                    }
                 }
             } else {
-                if (breather.getLoc().y + breather.characterHeight < -2)
+                if (breather.getLoc().y + breather.characterHeight < -2) {
+                    //ChatManager.chatSystemInfo(breather, "YOU CANNOT BREATHE!");
                     return false;
+                }
 
                 if (breather.isMoving()) {
-                    if (breather.getLoc().y + breather.characterHeight < 0)
+                    if (breather.getLoc().y + breather.characterHeight < 0) {
+                        //ChatManager.chatSystemInfo(breather, "YOU CANNOT BREATHE!");
                         return false;
+                    }
                 }
             }
 
@@ -5082,6 +5105,12 @@ public class PlayerCharacter extends AbstractCharacter {
                 return false;
 
             Zone zone = ZoneManager.findSmallestZone(this.getLoc());
+
+            if(zone == null)
+                return false;
+
+            if(zone.isPlayerCity())
+                return false;
 
             if (zone.getSeaLevel() != 0) {
 

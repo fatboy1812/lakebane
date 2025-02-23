@@ -335,9 +335,9 @@ public class InfoCmd extends AbstractDevCmd {
                 output += "Movement State: " + targetPC.getMovementState().name();
                 output += newline;
                 output += "Movement Speed: " + targetPC.getSpeed();
-
+                output += newline;
                 output += "Altitude : " + targetPC.getLoc().y;
-
+                output += newline;
                 output += "Swimming : " + targetPC.isSwimming();
                 output += newline;
                 output += "isMoving : " + targetPC.isMoving();
