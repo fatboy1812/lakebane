@@ -176,11 +176,11 @@ public abstract class AbstractWorldObject extends AbstractGameObject {
         }
 
         //set players new altitude to region lerp altitude.
-        if (region != null)
-            if (region.center.y == region.highLerp.y)
-                worldObject.loc = worldObject.loc.setY(region.center.y + worldObject.getAltitude());
-            else
-                worldObject.loc = worldObject.loc.setY(region.lerpY(worldObject) + worldObject.getAltitude());
+        //if (region != null)
+        //    if (region.center.y == region.highLerp.y)
+        //        worldObject.loc = worldObject.loc.setY(region.center.y + worldObject.getAltitude());
+        //    else
+        //        worldObject.loc = worldObject.loc.setY(region.lerpY(worldObject) + worldObject.getAltitude());
 
         return region;
     }
@@ -506,7 +506,7 @@ public abstract class AbstractWorldObject extends AbstractGameObject {
                 float worldHeight = HeightMap.getWorldHeight(loc);
                 Zone zone = ZoneManager.findSmallestZone(loc);
                 if(zone != null && zone.isPlayerCity()){
-                    worldHeight = zone.absY;
+                    worldHeight = zone.getWorldAltitude();
                 }
                 if(this.region != null){
                     float regionAlt = this.region.lerpY(this);
@@ -515,9 +515,13 @@ public abstract class AbstractWorldObject extends AbstractGameObject {
                 }else{
                     y = HeightMap.getWorldHeight(loc) + this.getAltitude();
                 }
-                loc.setY(y);
+                Vector3fImmutable newLoc = new Vector3fImmutable(loc.x,y,loc.z);
+                this.loc = newLoc;
+                WorldGrid.addObject(this, newLoc.x, newLoc.z);
+                return;
+            }else{
+                this.loc = loc;
             }
-            this.loc = loc;
             //this.loc = this.loc.setY(HeightMap.getWorldHeight(this) + this.getAltitude());
 
             //lets not add mob to world grid if he is currently despawned.
