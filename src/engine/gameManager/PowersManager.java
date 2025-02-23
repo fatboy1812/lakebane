@@ -181,7 +181,7 @@ public enum PowersManager {
             return;
         }
 
-        if(!origin.getPlayerCharacter().getPowers().contains(msg.getPowerUsedID())){
+        if(!origin.getPlayerCharacter().getPowers().containsKey(msg.getPowerUsedID())){
             Logger.error(origin.getPlayerCharacter().getFirstName() + " attempted to cast a power they do not have");
             return;
         }
