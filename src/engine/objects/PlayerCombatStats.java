@@ -1064,7 +1064,9 @@ public class PlayerCombatStats {
             mod = 0.05f;
         }
 
-        xp = Experience.LevelToExp[pc.level] * mod;
+        float levelFull = Experience.LevelToExp[pc.level + 1] - Experience.LevelToExp[pc.level];
+
+        xp = levelFull * mod;
 
         return (int) xp;
     }

@@ -907,12 +907,12 @@ public enum CombatManager {
                     for(Effect eff : weapon.effects.values()){
                         for(AbstractEffectModifier mod : eff.getEffectModifiers()){
                             if(mod.modType.equals(ModType.ArmorPiercing)){
-                                armorPierce += mod.minMod * (mod.getRamp() * eff.getTrains());
+                                armorPierce += mod.getPercentMod() + (mod.getRamp() * eff.getTrains());
                             }
                         }
                     }
                     if(armorPierce > 0){
-                        damage *= 1 + armorPierce;
+                        damage *= 1 + (armorPierce * 0.01f);
                     }
                 }
 
