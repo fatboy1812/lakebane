@@ -912,7 +912,7 @@ public enum CombatManager {
                         }
                     }
                     if(armorPierce > 0){
-                        damage *= 1 - armorPierce;
+                        damage *= 1 + armorPierce;
                     }
                 }
 
