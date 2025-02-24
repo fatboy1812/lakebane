@@ -836,6 +836,7 @@ public class PlayerCombatStats {
             }
         }
 
+        //right ring
         if(this.owner.charItemManager != null){
             if(this.owner.charItemManager.getEquipped(7) != null){
                 for(String effID : this.owner.charItemManager.getEquipped(7).effects.keySet()) {
@@ -851,6 +852,8 @@ public class PlayerCombatStats {
                     }
                 }
             }
+
+            //left ring
             if(this.owner.charItemManager.getEquipped(8) != null){
                 for(String effID : this.owner.charItemManager.getEquipped(8).effects.keySet()) {
                     for (AbstractEffectModifier mod : this.owner.effects.get(effID).getEffectModifiers()) {
@@ -865,6 +868,8 @@ public class PlayerCombatStats {
                     }
                 }
             }
+
+            //necklace
             if(this.owner.charItemManager.getEquipped(9) != null){
                 for(String effID : this.owner.charItemManager.getEquipped(9).effects.keySet()) {
                     for (AbstractEffectModifier mod : this.owner.effects.get(effID).getEffectModifiers()) {
@@ -880,7 +885,6 @@ public class PlayerCombatStats {
                 }
             }
         }
-            flatBonuses += this.owner.bonuses.getFloat(Enum.ModType.DCV, Enum.SourceType.None);
 
         if(this.owner.charItemManager.getEquipped(2) == null)
             blockSkill = 0;
