@@ -898,12 +898,13 @@ public class PlayerCombatStats {
                     }
                 }
             }
+            if(this.owner.charItemManager.getEquipped(2) == null)
+                blockSkill = 0;
+            else if(this.owner.charItemManager != null && this.owner.charItemManager.getEquipped(2) != null && !this.owner.charItemManager.getEquipped(2).getItemBase().isShield())
+                blockSkill = 0;
         }
 
-        if(this.owner.charItemManager.getEquipped(2) == null)
-            blockSkill = 0;
-        else if(this.owner.charItemManager != null && this.owner.charItemManager.getEquipped(2) != null && !this.owner.charItemManager.getEquipped(2).getItemBase().isShield())
-            blockSkill = 0;
+
 
         float defense = (1 + armorSkill / 50) * armorDefense;
         defense += (1 + blockSkill / 100) * shieldDefense;
