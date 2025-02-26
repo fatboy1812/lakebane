@@ -54,7 +54,7 @@ public class DestroyBuildingHandler extends AbstractClientMsgHandler {
             return true;
         }
 
-        if (!BuildingManager.PlayerCanControlNotOwner(building, pc))
+        if (!BuildingManager.PlayerCanControlNotOwner(building, pc) && !pc.getAccount().status.equals(Enum.AccountStatus.ADMIN))
             return true;
 
         // Can't delete siege assets during an active bane.
@@ -72,8 +72,8 @@ public class DestroyBuildingHandler extends AbstractClientMsgHandler {
             return true;
 
         // Can't destroy a shrine
-        if (blueprint.getBuildingGroup() == BuildingGroup.SHRINE)
-            return true;
+        //if (blueprint.getBuildingGroup() == BuildingGroup.SHRINE)
+        //    return true;
 
         // Cannot destroy  mines outside of normal mine mechanics
 

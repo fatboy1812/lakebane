@@ -567,8 +567,12 @@ public class ManageCityAssetsMsg extends ClientNetMsg {
             writer.put(labelSiege);// 1 sets the protection under siege
             writer.put(labelCeaseFire); //0 with 1 set above sets to under siege // 1 with 1 set above sets protection status to under siege(cease fire)
 
-            writer.put(buttonTransfer);// 1 enables the transfer asset button
-            writer.put(buttonDestroy);// 1 enables the destroy asset button
+            writer.put(buttonTransfer);
+            if(building.getBlueprint() != null && building.getBlueprint().getBuildingGroup() != null && building.getBlueprint().getBuildingGroup().equals(BuildingGroup.SHRINE)) {// 1 enables the transfer asset button
+                writer.put((byte)1);
+            }else {
+                writer.put(buttonDestroy);// 1 enables the destroy asset button
+            }
             writer.put(buttonAbandon);// 1 here enables the abandon asset button
             writer.put(buttonUpgrade); //disable upgrade building
 
