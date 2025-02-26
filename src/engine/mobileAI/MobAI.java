@@ -133,6 +133,9 @@ public class MobAI {
                 if (mob.isMoving() && mob.getRange() > 20)
                     return;
 
+                if(target.combatStats == null)
+                    target.combatStats = new PlayerCombatStats(target);
+
                 // add timer for last attack.
 
                 ItemBase mainHand = mob.getWeaponItemBase(true);

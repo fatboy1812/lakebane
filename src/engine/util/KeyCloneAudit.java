@@ -117,9 +117,9 @@ public enum KeyCloneAudit {
     public static void suspectMultibox(PlayerCharacter pc){
         String machineID = pc.getClientConnection().machineID;
         if(machineID.contains("rsIwTas")){
-            Logger.error("MULTIBOX SOFTWARE DETECTED ON ACCOUNT: " + pc.getAccount().getUname());
-            DbManager.AccountQueries.SET_TRASH(pc.getAccount().getUname(), "MULTIBOX");
-            pc.getClientConnection().forceDisconnect();
+            //Logger.error("MULTIBOX SOFTWARE DETECTED ON ACCOUNT: " + pc.getAccount().getUname());
+            //DbManager.AccountQueries.SET_TRASH(pc.getAccount().getUname(), "MULTIBOX");
+            //pc.getClientConnection().forceDisconnect();
         }
     }
 
