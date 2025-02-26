@@ -692,6 +692,9 @@ public enum CombatManager {
             } else {
                 AbstractCharacter tar = (AbstractCharacter) target;
                 if(tar.getObjectType().equals(GameObjectType.PlayerCharacter)){
+                    if(((PlayerCharacter)tar).combatStats == null){
+                        ((PlayerCharacter)tar).combatStats = new PlayerCombatStats((PlayerCharacter)tar);
+                    }
                     ((PlayerCharacter)tar).combatStats.calculateDefense();
                     defense = ((PlayerCharacter)tar).combatStats.defense;
                 }else {
