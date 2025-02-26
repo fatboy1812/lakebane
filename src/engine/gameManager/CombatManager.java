@@ -303,6 +303,9 @@ public enum CombatManager {
             //pet to assist in attacking target
             if(abstractCharacter.getObjectType().equals(GameObjectType.PlayerCharacter)){
                 PlayerCharacter attacker = (PlayerCharacter)abstractCharacter;
+                if(attacker.combatStats == null){
+                    attacker.combatStats = new PlayerCombatStats(attacker);
+                }
                 if(attacker.getPet() != null){
                     Mob pet = attacker.getPet();
                     if(pet.combatTarget == null && pet.assist)
@@ -326,10 +329,13 @@ public enum CombatManager {
                 else if (!tar.isActive())
                     return 0;
 
-                if (target.getObjectType().equals(GameObjectType.PlayerCharacter) && abstractCharacter.getObjectType().equals(GameObjectType.PlayerCharacter) && abstractCharacter.getTimers().get("Attack" + slot) == null)
+                if (target.getObjectType().equals(GameObjectType.PlayerCharacter) && abstractCharacter.getObjectType().equals(GameObjectType.PlayerCharacter) && abstractCharacter.getTimers().get("Attack" + slot) == null) {
+                    if(((PlayerCharacter)target).combatStats == null){
+                        ((PlayerCharacter)target).combatStats = new PlayerCombatStats(((PlayerCharacter)target));
+                    }
                     if (!((PlayerCharacter) abstractCharacter).canSee((PlayerCharacter) target))
                         return 0;
-
+                }
                 //must not be immune to all or immune to attack
 
                 Resists res = tar.getResists();
