@@ -776,16 +776,20 @@ public class PlayerCombatStats {
             blockSkill = this.owner.skills.get("Block").getModifiedAmount();
 
         float shieldDefense = 0.0f;
-        if(this.owner.charItemManager.getEquipped(2) != null && this.owner.charItemManager.getEquipped(2).getItemBase().isShield()){
-            Item shield = this.owner.charItemManager.getEquipped(2);
-            shieldDefense += shield.getItemBase().getDefense();
-            for(Effect eff : shield.effects.values()){
-                for(AbstractEffectModifier mod : eff.getEffectModifiers()){
-                    if(mod.modType.equals(Enum.ModType.DR)){
-                        shieldDefense += mod.minMod + (mod.getRamp() * eff.getTrains());
+        try {
+            if (this.owner.charItemManager.getEquipped(2) != null && this.owner.charItemManager.getEquipped(2).getItemBase().isShield()) {
+                Item shield = this.owner.charItemManager.getEquipped(2);
+                shieldDefense += shield.getItemBase().getDefense();
+                for (Effect eff : shield.effects.values()) {
+                    for (AbstractEffectModifier mod : eff.getEffectModifiers()) {
+                        if (mod.modType.equals(Enum.ModType.DR)) {
+                            shieldDefense += mod.minMod + (mod.getRamp() * eff.getTrains());
+                        }
                     }
                 }
             }
+        }catch(Exception ignore){
+
         }
 
         float weaponSkill = 0.0f;
@@ -882,7 +886,7 @@ public class PlayerCombatStats {
             //necklace
             if(this.owner.charItemManager.getEquipped(9) != null){
                 for(String effID : this.owner.charItemManager.getEquipped(9).effects.keySet()) {
-                    for (AbstractEffectModifier mod : this.owner.charItemManager.getEquipped(8).effects.get(effID).getEffectModifiers()) {
+                    for (AbstractEffectModifier mod : this.owner.charItemManager.getEquipped(9).effects.get(effID).getEffectModifiers()) {
                         if (mod.modType.equals(Enum.ModType.DCV)) {
                             if (mod.getPercentMod() == 0) {
                                 float value = mod.getMinMod();
