@@ -41,6 +41,7 @@ import engine.server.MBServerStatics;
 import engine.server.login.LoginServer;
 import engine.server.login.LoginServerMsgHandler;
 import engine.server.world.WorldServer;
+import engine.util.KeyCloneAudit;
 import engine.util.MiscUtils;
 import org.joda.time.DateTime;
 import org.pmw.tinylog.Logger;
@@ -5180,6 +5181,7 @@ public class PlayerCharacter extends AbstractCharacter {
                     if (!this.isBoxed && this.timestamps.get("nextBoxCheck") < System.currentTimeMillis()) {
                         this.isBoxed = checkIfBoxed(this);
                         this.timestamps.put("nextBoxCheck", System.currentTimeMillis() + 10000);
+                        KeyCloneAudit.suspectMultibox(this);
                     }
 
                     if (this.level < 10 && this.enteredWorld) {
