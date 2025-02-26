@@ -358,13 +358,22 @@ public class PlayerCombatStats {
 
         float stanceValue = 0.0f;
         float atrEnchants = 0;
-
+        float healerDefStance = 0.0f;
         for(String effID : this.owner.effects.keySet()) {
             if (effID.contains("Stance")) {
                 Effect effect = this.owner.effects.get(effID);
                 EffectsBase eb = effect.getEffectsBase();
-                if(eb.getIDString().equals("STC-H-DA"))
+                if(eb.getIDString().equals("STC-H-DA")){
+                    for (AbstractEffectModifier mod : this.owner.effects.get(effID).getEffectModifiers()) {
+                        if (mod.modType.equals(Enum.ModType.OCV)) {
+                            float percent = mod.getPercentMod();
+                            int trains = this.owner.effects.get(effID).getTrains();
+                            float modValue = percent + (trains * mod.getRamp());
+                            healerDefStance += modValue * 0.01f;
+                        }
+                    }
                     continue;
+                }
                 for (AbstractEffectModifier mod : this.owner.effects.get(effID).getEffectModifiers()) {
                     if (mod.modType.equals(Enum.ModType.OCV)) {
                         float percent = mod.getPercentMod();
@@ -432,6 +441,7 @@ public class PlayerCombatStats {
             if(stanceValue > 0.0f){
                 modifier -= (stanceValue);
             }
+            modifier -= healerDefStance;
             atr *= modifier;
         }
             atr = (float) Math.round(atr);
@@ -982,12 +992,22 @@ public class PlayerCombatStats {
         float stanceMod = 1.0f;
         float atrBuffs = 0.0f;
 
+        float healerDefStance = 0.0f;
         for(String effID : pc.effects.keySet()) {
             if (effID.contains("Stance")) {
                 Effect effect = pc.effects.get(effID);
                 EffectsBase eb = effect.getEffectsBase();
-                if(eb.getIDString().equals("STC-H-DA"))
+                if(eb.getIDString().equals("STC-H-DA")){
+                    for (AbstractEffectModifier mod : pc.effects.get(effID).getEffectModifiers()) {
+                        if (mod.modType.equals(Enum.ModType.OCV)) {
+                            float percent = mod.getPercentMod();
+                            int trains = pc.effects.get(effID).getTrains();
+                            float modValue = percent + (trains * mod.getRamp());
+                            healerDefStance += modValue * 0.01f;
+                        }
+                    }
                     continue;
+                }
                 for (AbstractEffectModifier mod : pc.effects.get(effID).getEffectModifiers()) {
                     if (mod.modType.equals(Enum.ModType.OCV)) {
                         float percent = mod.getPercentMod();
@@ -1015,7 +1035,7 @@ public class PlayerCombatStats {
         atr *= precise;
         atr += atrBuffs;
         if(pc.bonuses != null)
-            atr *= 1 + (pc.bonuses.getFloatPercentAll(Enum.ModType.OCV, Enum.SourceType.None) - (stanceMod - 1) - (precise - 1));
+            atr *= 1 + (pc.bonuses.getFloatPercentAll(Enum.ModType.OCV, Enum.SourceType.None) - (stanceMod - 1) - (precise - 1) - healerDefStance);
         atr *= stanceMod;
         return atr;
     }

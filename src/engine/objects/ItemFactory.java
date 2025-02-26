@@ -710,6 +710,8 @@ public class ItemFactory {
             int randomPrefix = TableRoll(vendor.getLevel());
             if(vendor.contract.getName().contains("Heavy") || vendor.contract.getName().contains("Medium") || vendor.contract.getName().contains("Leather"))
                 randomPrefix += vendor.level * 0.5f;
+            if(randomPrefix > 320)
+                randomPrefix = 320;
             prefixEntry = ModTableEntry.rollTable(prefixTypeTable.modTableID, randomPrefix);
 
             if (prefixEntry != null)
@@ -727,6 +729,8 @@ public class ItemFactory {
             int randomSuffix = TableRoll(vendor.getLevel());
             if(vendor.contract.getName().contains("Heavy") || vendor.contract.getName().contains("Medium") || vendor.contract.getName().contains("Leather"))
                 randomSuffix += vendor.level * 0.25f;
+            if(randomSuffix > 320)
+                randomSuffix = 320;
             suffixEntry = ModTableEntry.rollTable(suffixTypeTable.modTableID, randomSuffix);
 
             if (suffixEntry != null)
