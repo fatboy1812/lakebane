@@ -156,6 +156,8 @@ public class CombatUtilities {
         switch (target.getObjectType()) {
             case PlayerCharacter:
                 PlayerCharacter pc = (PlayerCharacter)target;
+                if(pc.combatStats == null)
+                    pc.combatStats = new PlayerCombatStats(pc);
                 pc.combatStats.calculateDefense();
                 defense = pc.combatStats.defense;
                 break;
