@@ -1069,12 +1069,6 @@ public enum CombatManager {
 
         AbstractCharacter tar = (AbstractCharacter) target;
 
-        if(target.getObjectType().equals(GameObjectType.PlayerCharacter)){
-            PlayerCharacter pc = (PlayerCharacter) target;
-            if(pc.getRaceID() == 1999)
-                return true;
-        }
-
         CharacterItemManager acItem = ac.getCharItemManager();
         CharacterItemManager tarItem = tar.getCharItemManager();
 
@@ -1085,6 +1079,12 @@ public enum CombatManager {
         Item acOff = acItem.getItemFromEquipped(2);
         Item tarMain = tarItem.getItemFromEquipped(1);
         Item tarOff = tarItem.getItemFromEquipped(2);
+
+        if(target.getObjectType().equals(GameObjectType.PlayerCharacter)){
+            PlayerCharacter pc = (PlayerCharacter) target;
+            if(pc.getRaceID() == 1999 && !isRanged(acMain) && !isRanged(acOff))
+                return true;
+        }
 
         return !isRanged(acMain) && !isRanged(acOff) && !isRanged(tarMain) && !isRanged(tarOff);
     }
