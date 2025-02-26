@@ -2448,6 +2448,9 @@ public class CharacterItemManager {
     public void damageItem(Item item, int amount) {
         if (item == null || amount < 1 || amount > 5)
             return;
+        if(item.getItemBase().isGlass()){
+            amount = 1;
+        }
 
         //verify the item is equipped by this player
         int slot = item.getEquipSlot();
