@@ -852,6 +852,7 @@ public class PlayerCombatStats {
 
         //right ring
         if(this.owner.charItemManager != null){
+            try{
             if(this.owner.charItemManager.getEquipped(7) != null){
                 for(String effID : this.owner.charItemManager.getEquipped(7).effects.keySet()) {
                     for (AbstractEffectModifier mod : this.owner.charItemManager.getEquipped(7).effects.get(effID).getEffectModifiers()) {
@@ -866,24 +867,30 @@ public class PlayerCombatStats {
                     }
                 }
             }
+            }catch(Exception e){
 
+            }
             //left ring
-            if(this.owner.charItemManager.getEquipped(8) != null){
-                for(String effID : this.owner.charItemManager.getEquipped(8).effects.keySet()) {
-                    for (AbstractEffectModifier mod : this.owner.charItemManager.getEquipped(8).effects.get(effID).getEffectModifiers()) {
-                        if (mod.modType.equals(Enum.ModType.DCV)) {
-                            if (mod.getPercentMod() == 0) {
-                                float value = mod.getMinMod();
-                                int trains = this.owner.effects.get(effID).getTrains();
-                                float modValue = value + (trains * mod.getRamp());
-                                flatBonuses += modValue;
+            try {
+                if (this.owner.charItemManager.getEquipped(8) != null) {
+                    for (String effID : this.owner.charItemManager.getEquipped(8).effects.keySet()) {
+                        for (AbstractEffectModifier mod : this.owner.charItemManager.getEquipped(8).effects.get(effID).getEffectModifiers()) {
+                            if (mod.modType.equals(Enum.ModType.DCV)) {
+                                if (mod.getPercentMod() == 0) {
+                                    float value = mod.getMinMod();
+                                    int trains = this.owner.effects.get(effID).getTrains();
+                                    float modValue = value + (trains * mod.getRamp());
+                                    flatBonuses += modValue;
+                                }
                             }
                         }
                     }
                 }
-            }
+            }catch(Exception e){
 
+            }
             //necklace
+            try{
             if(this.owner.charItemManager.getEquipped(9) != null){
                 for(String effID : this.owner.charItemManager.getEquipped(9).effects.keySet()) {
                     for (AbstractEffectModifier mod : this.owner.charItemManager.getEquipped(9).effects.get(effID).getEffectModifiers()) {
@@ -898,10 +905,17 @@ public class PlayerCombatStats {
                     }
                 }
             }
+            }catch(Exception e){
+
+            }
+            try{
             if(this.owner.charItemManager.getEquipped(2) == null)
                 blockSkill = 0;
             else if(this.owner.charItemManager != null && this.owner.charItemManager.getEquipped(2) != null && !this.owner.charItemManager.getEquipped(2).getItemBase().isShield())
                 blockSkill = 0;
+            }catch(Exception e){
+
+            }
         }
 
 
