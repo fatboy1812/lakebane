@@ -185,6 +185,22 @@ public enum PowersManager {
             Logger.error(origin.getPlayerCharacter().getFirstName() + " attempted to cast a power they do not have");
             return;
         }
+        if((msg.getPowerUsedID() == 428695403 && msg.getTargetID() == pc.getObjectUUID())){
+            RecyclePowerMsg recyclePowerMsg = new RecyclePowerMsg(msg.getPowerUsedID());
+            Dispatch dispatch = Dispatch.borrow(origin.getPlayerCharacter(), recyclePowerMsg);
+            DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.PRIMARY);
+
+            // Send Fail to cast message
+            if (pc != null) {
+                sendPowerMsg(pc, 2, msg);
+                if (pc.isCasting()) {
+                    pc.update(false);
+                }
+
+                pc.setIsCasting(false);
+            }
+            return;
+        }
 
         if (usePowerA(msg, origin, sendCastToSelf)) {
             // Cast failed for some reason, reset timer
