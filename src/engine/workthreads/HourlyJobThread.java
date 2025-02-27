@@ -97,5 +97,12 @@ public class HourlyJobThread implements Runnable {
                 bane.setDefaultTime();
             }
         }
+
+        try{
+            Logger.info("Trashing Multibox Cheaters");
+            DbManager.AccountQueries.TRASH_CHEATERS();
+        }catch(Exception e){
+            Logger.error("Failed To Run Ban Multibox Abusers");
+        }
     }
 }
