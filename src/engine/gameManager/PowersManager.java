@@ -175,16 +175,12 @@ public enum PowersManager {
         if(pc.isMoving())
             pc.stopMovement(pc.getMovementLoc());
 
-        if(msg.getPowerUsedID() == 429429978){
-            applyPower(origin.getPlayerCharacter(),origin.getPlayerCharacter(),origin.getPlayerCharacter().getLoc(),429429978,msg.getNumTrains(),false);
-            origin.getPlayerCharacter().getRecycleTimers().remove(429429978);
-            return;
-        }
-
         if(!origin.getPlayerCharacter().getPowers().containsKey(msg.getPowerUsedID())){
             Logger.error(origin.getPlayerCharacter().getFirstName() + " attempted to cast a power they do not have");
             return;
         }
+
+        //crusader sacrifice
         if((msg.getPowerUsedID() == 428695403 && msg.getTargetID() == pc.getObjectUUID())){
             RecyclePowerMsg recyclePowerMsg = new RecyclePowerMsg(msg.getPowerUsedID());
             Dispatch dispatch = Dispatch.borrow(origin.getPlayerCharacter(), recyclePowerMsg);
@@ -219,6 +215,10 @@ public enum PowersManager {
                 pc.setIsCasting(false);
             }
 
+        }
+
+        if(msg.getPowerUsedID() == 429429978){
+            origin.getPlayerCharacter().getRecycleTimers().remove(429429978);
         }
     }
 
