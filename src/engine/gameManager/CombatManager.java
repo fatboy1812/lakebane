@@ -1006,6 +1006,16 @@ public enum CombatManager {
                 if (ac.isAlive() && tarAc != null && tarAc.isAlive())
                     handleDamageShields(ac, tarAc, damage);
 
+                //handle mob hate values
+                if(target.getObjectType().equals(GameObjectType.Mob) && ac.getObjectType().equals(GameObjectType.PlayerCharacter)){
+                    Mob mobTarget = (Mob)target;
+                    if(mobTarget.hate_values.containsKey((PlayerCharacter) ac)){
+                        mobTarget.hate_values.put((PlayerCharacter) ac,mobTarget.hate_values.get((PlayerCharacter) ac) + damage);
+                    }else{
+                        mobTarget.hate_values.put((PlayerCharacter) ac, damage);
+                    }
+                }
+
             } else {
 
                 // Apply Weapon power effect if any.

@@ -27,6 +27,7 @@ import engine.server.MBServerStatics;
 import org.pmw.tinylog.Logger;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
@@ -738,6 +739,8 @@ public class MobAI {
 
     private static void CheckForAggro(Mob aiAgent) {
 
+
+        //old system
         try {
 
             //looks for and sets mobs combatTarget
@@ -772,13 +775,11 @@ public class MobAI {
                     continue;
 
                 // No aggro for this race type
-
-                if (aiAgent.notEnemy.size() > 0 && aiAgent.notEnemy.contains(loadedPlayer.getRace().getRaceType().getMonsterType()) == true)
+                if (aiAgent.notEnemy.size() > 0 && aiAgent.notEnemy.contains(loadedPlayer.getRace().getRaceType().getMonsterType()))
                     continue;
 
                 //mob has enemies and this player race is not it
-
-                if (aiAgent.enemy.size() > 0 && aiAgent.enemy.contains(loadedPlayer.getRace().getRaceType().getMonsterType()) == false)
+                if (aiAgent.enemy.size() > 0 && !aiAgent.enemy.contains(loadedPlayer.getRace().getRaceType().getMonsterType()))
                     continue;
 
                 if (MovementUtilities.inRangeToAggro(aiAgent, loadedPlayer)) {
@@ -975,7 +976,8 @@ public class MobAI {
                     if (mob.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardCaptain.ordinal())
                         CheckForPlayerGuardAggro(mob);
                 } else {
-                    CheckForAggro(mob);
+                    //CheckForAggro(mob);
+                    NewAggroMechanic(mob);
                 }
             }
 
@@ -1107,17 +1109,6 @@ public class MobAI {
             if (mob.getCombatTarget() == null)
                 CheckForPlayerGuardAggro(mob);
 
-            AbstractWorldObject newTarget = ChangeTargetFromHateValue(mob);
-
-            if (newTarget != null) {
-
-                if (newTarget.getObjectType().equals(Enum.GameObjectType.PlayerCharacter)) {
-                    if (GuardCanAggro(mob, (PlayerCharacter) newTarget))
-                        mob.setCombatTarget(newTarget);
-                } else
-                    mob.setCombatTarget(newTarget);
-
-            }
             CheckMobMovement(mob);
             CheckForAttack(mob);
         } catch (Exception e) {
@@ -1209,17 +1200,11 @@ public class MobAI {
 
             if (mob.BehaviourType.isAgressive) {
 
-                AbstractWorldObject newTarget = ChangeTargetFromHateValue(mob);
-
-                if (newTarget != null)
-                    mob.setCombatTarget(newTarget);
-                else {
-                    if (mob.getCombatTarget() == null) {
-                        if (mob.BehaviourType == Enum.MobBehaviourType.HamletGuard)
-                            SafeGuardAggro(mob);  //safehold guard
-                        else
-                            CheckForAggro(mob);   //normal aggro
-                    }
+                if (mob.getCombatTarget() == null) {
+                    if (mob.BehaviourType == Enum.MobBehaviourType.HamletGuard)
+                        SafeGuardAggro(mob);  //safehold guard
+                    else
+                        NewAggroMechanic(mob);//CheckForAggro(mob);   //normal aggro
                 }
             }
 
@@ -1401,37 +1386,6 @@ public class MobAI {
         }
     }
 
-    public static AbstractWorldObject ChangeTargetFromHateValue(Mob mob) {
-
-        try {
-
-            float CurrentHateValue = 0;
-
-            if (mob.getCombatTarget() != null && mob.getCombatTarget().getObjectType().equals(Enum.GameObjectType.PlayerCharacter))
-                CurrentHateValue = ((PlayerCharacter) mob.getCombatTarget()).getHateValue();
-
-            AbstractWorldObject mostHatedTarget = null;
-
-            for (Entry playerEntry : mob.playerAgroMap.entrySet()) {
-
-                PlayerCharacter potentialTarget = PlayerCharacter.getFromCache((int) playerEntry.getKey());
-
-                if (potentialTarget.equals(mob.getCombatTarget()))
-                    continue;
-
-                if (potentialTarget != null && potentialTarget.getHateValue() > CurrentHateValue && MovementUtilities.inRangeToAggro(mob, potentialTarget)) {
-                    CurrentHateValue = potentialTarget.getHateValue();
-                    mostHatedTarget = potentialTarget;
-                }
-
-            }
-            return mostHatedTarget;
-        } catch (Exception e) {
-            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: ChangeTargetFromMostHated" + " " + e.getMessage());
-        }
-        return null;
-    }
-
     public static void RecoverHealth(Mob mob) {
         //recover health
         try {
@@ -1458,5 +1412,60 @@ public class MobAI {
         UpdateStateMsg rwss = new UpdateStateMsg();
         rwss.setPlayer(mob);
         DispatchMessage.sendToAllInRange(mob, rwss);
+    }
+
+    public static void NewAggroMechanic(Mob mob){
+
+        if(mob == null || !mob.isAlive()){
+            return;
+        }
+
+        HashSet<AbstractWorldObject> inRange = WorldGrid.getObjectsInRangePartial(mob.loc,60.0f,MBServerStatics.MASK_PLAYER);
+
+        if(inRange.isEmpty()){
+            mob.setCombatTarget(null);
+            return;
+        }
+
+        //clear out any players who are not in hated range anymore
+        ArrayList<PlayerCharacter> toRemove = new ArrayList<>();
+        for(PlayerCharacter pc : mob.hate_values.keySet()){
+            if(!inRange.contains(pc))
+                toRemove.add(pc);
+        }
+        for(PlayerCharacter pc : toRemove){
+            mob.hate_values.remove(pc);
+        }
+
+        //find most hated target
+        PlayerCharacter mostHated = (PlayerCharacter)inRange.iterator().next();
+        for(AbstractWorldObject awo : inRange){
+            PlayerCharacter loadedPlayer = (PlayerCharacter)awo;
+            if (loadedPlayer == null)
+                continue;
+
+            //Player is Dead, Mob no longer needs to attempt to aggro. Remove them from aggro map.
+            if (!loadedPlayer.isAlive())
+                continue;
+
+            //Can't see target, skip aggro.
+            if (!mob.canSee(loadedPlayer))
+                continue;
+
+            // No aggro for this race type
+            if (mob.notEnemy != null && mob.notEnemy.size() > 0 && mob.notEnemy.contains(loadedPlayer.getRace().getRaceType().getMonsterType()))
+                continue;
+
+            //mob has enemies and this player race is not it
+            if (mob.enemy != null && mob.enemy.size() > 0 && !mob.enemy.contains(loadedPlayer.getRace().getRaceType().getMonsterType()))
+                continue;
+
+            if(mob.hate_values.containsKey(loadedPlayer))
+                if(mob.hate_values.get(loadedPlayer) > mob.hate_values.get(mostHated))
+                    mostHated = loadedPlayer;
+        }
+
+        if(mostHated != null)
+            mob.setCombatTarget(mostHated);
     }
 }

@@ -1015,6 +1015,19 @@ public enum PowersManager {
 
         playerCharacter.setHateValue(pb.getHateValue(trains));
 
+        //handle mob hate values
+        HashSet<AbstractWorldObject> mobs = WorldGrid.getObjectsInRangePartial(playerCharacter.loc,60.0f,MBServerStatics.MASK_MOB);
+        for(AbstractWorldObject awo : mobs){
+            Mob mobTarget = (Mob)awo;
+            if(mobTarget.hate_values.containsKey(playerCharacter)){
+                mobTarget.hate_values.put(playerCharacter,mobTarget.hate_values.get(playerCharacter) + pb.getHateValue(trains));
+            }else{
+                mobTarget.hate_values.put(playerCharacter, pb.getHateValue(trains));
+            }
+        }
+
+
+
         //Send Cast Message.
 //		PerformActionMsg castMsg = new PerformActionMsg(msg);
 //		castMsg.setNumTrains(9999);

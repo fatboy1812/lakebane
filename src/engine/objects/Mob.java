@@ -111,6 +111,8 @@ public class Mob extends AbstractIntelligenceAgent {
     public boolean StrongholdEpic = false;
     public boolean isDropper = false;
 
+    public HashMap<PlayerCharacter,Float> hate_values;
+
 
     /**
      * No Id Constructor
@@ -1450,6 +1452,7 @@ public class Mob extends AbstractIntelligenceAgent {
         this.stopPatrolTime = 0;
         this.lastPatrolPointIndex = 0;
         InterestManager.setObjectDirty(this);
+        this.hate_values = new HashMap<>();
     }
 
     public void despawn() {
