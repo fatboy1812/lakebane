@@ -101,6 +101,21 @@ public class HourlyJobThread implements Runnable {
         try{
             Logger.info("Trashing Multibox Cheaters");
             DbManager.AccountQueries.TRASH_CHEATERS();
+
+            //disconnect all players who were banned and are still in game
+            for(PlayerCharacter pc : SessionManager.getAllActivePlayers()){
+                Account account = pc.getClientConnection().getAccount();
+                if(account == null)
+                    continue;
+                try {
+                    boolean banned = DbManager.AccountQueries.GET_ACCOUNT(account.getUname()).status.equals(Enum.AccountStatus.BANNED);
+                    if (banned) {
+                        pc.getClientConnection().forceDisconnect();
+                    }
+                }catch(Exception e){
+                    Logger.error(e.getMessage());
+                }
+            }
         }catch(Exception e){
             Logger.error("Failed To Run Ban Multibox Abusers");
         }
