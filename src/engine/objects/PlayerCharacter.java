@@ -5160,7 +5160,11 @@ public class PlayerCharacter extends AbstractCharacter {
                         if (this.combatStats == null) {
                             this.combatStats = new PlayerCombatStats(this);
                         } else {
-                            this.combatStats.update();
+                            try {
+                                this.combatStats.update();
+                            }catch(Exception ignored){
+
+                            }
                         }
                         this.doRegen();
                     }
