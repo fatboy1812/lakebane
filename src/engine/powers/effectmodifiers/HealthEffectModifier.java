@@ -176,7 +176,8 @@ public class HealthEffectModifier extends AbstractEffectModifier {
         }
 
         if(source.getObjectType().equals(Enum.GameObjectType.PlayerCharacter)){
-            modAmount *= ((PlayerCharacter)source).ZergMultiplier;
+            float multiplier = ((PlayerCharacter)source).ZergMultiplier;
+            modAmount *= multiplier;
         }
 
         if (modAmount == 0f)
