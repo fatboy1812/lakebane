@@ -19,10 +19,7 @@ import engine.objects.Account;
 import engine.objects.PlayerCharacter;
 import org.pmw.tinylog.Logger;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 
 public class dbAccountHandler extends dbHandlerBase {
@@ -275,6 +272,23 @@ public class dbAccountHandler extends dbHandlerBase {
 
         } catch (SQLException e) {
             Logger.error(e);
+        }
+    }
+
+    public void TRASH_CHEATERS() {
+        try (Connection connection = DbManager.getConnection();
+             CallableStatement callableStatement = connection.prepareCall("{CALL BanAccountsWithMachineID()}")) {
+
+            boolean hasResultSet = callableStatement.execute();
+
+            if (!hasResultSet && callableStatement.getUpdateCount() > 0) {
+                Logger.info("TRASHED CHEATERS");
+            } else {
+                Logger.warn("No cheaters to trash.");
+            }
+
+        } catch (SQLException e) {
+            Logger.error("Error trashing cheaters: ", e);
         }
     }
 

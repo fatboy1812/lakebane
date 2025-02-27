@@ -281,6 +281,9 @@ public class LoginServer {
         Logger.info("Loading All Realms");
         Realm.loadAllRealms();
 
+        Logger.info("Trashing Multibox Cheaters");
+        DbManager.AccountQueries.TRASH_CHEATERS();
+
         Logger.info("***Boot Successful***");
         return true;
     }
