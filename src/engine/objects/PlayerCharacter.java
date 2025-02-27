@@ -5184,7 +5184,7 @@ public class PlayerCharacter extends AbstractCharacter {
 
                     if (!this.isBoxed && this.timestamps.get("nextBoxCheck") < System.currentTimeMillis()) {
                         this.isBoxed = checkIfBoxed(this);
-                        this.timestamps.put("nextBoxCheck", System.currentTimeMillis() + 10000););
+                        this.timestamps.put("nextBoxCheck", System.currentTimeMillis() + 10000);
                     }
 
                     if (this.level < 10 && this.enteredWorld) {
