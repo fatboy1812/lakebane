@@ -1420,6 +1420,10 @@ public class MobAI {
             return;
         }
 
+        if(mob.BehaviourType.equals(Enum.MobBehaviourType.HamletGuard)){
+            return;
+        }
+
         if(mob.hate_values == null)
             mob.hate_values = new HashMap<>();
 
