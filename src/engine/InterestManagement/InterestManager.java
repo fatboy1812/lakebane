@@ -511,6 +511,18 @@ public enum InterestManager implements Runnable {
         if (player == null)
             return;
 
+        for(PlayerCharacter pc : SessionManager.getAllActivePlayerCharacters()){
+            if(pc.equals(player)){
+                try{
+                    WorldGrid.RemoveWorldObject(player);
+                }catch(Exception e){
+
+                }
+            }
+        }
+
+
+
         ClientConnection origin = player.getClientConnection();
 
         if (origin == null)

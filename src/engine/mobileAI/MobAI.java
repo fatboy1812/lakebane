@@ -976,8 +976,8 @@ public class MobAI {
                     if (mob.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardCaptain.ordinal())
                         CheckForPlayerGuardAggro(mob);
                 } else {
-                    //CheckForAggro(mob);
-                    NewAggroMechanic(mob);
+                    if(mob.combatTarget == null)
+                        NewAggroMechanic(mob);
                 }
             }
 
@@ -1416,9 +1416,15 @@ public class MobAI {
 
     public static void NewAggroMechanic(Mob mob){
 
-        if(mob == null || !mob.isAlive()){
+        if(mob == null || !mob.isAlive() || mob.playerAgroMap.isEmpty()){
             return;
         }
+
+        if(mob.hate_values == null)
+            mob.hate_values = new HashMap<>();
+
+        if(mob.combatTarget != null)
+            return;
 
         HashSet<AbstractWorldObject> inRange = WorldGrid.getObjectsInRangePartial(mob.loc,60.0f,MBServerStatics.MASK_PLAYER);
 
