@@ -2958,6 +2958,7 @@ public class PlayerCharacter extends AbstractCharacter {
     }
 
     public synchronized void grantXP(int xp) {
+        xp *= LootManager.NORMAL_EXP_RATE;
         int groupSize = 1;
         if(GroupManager.getGroup(this)!= null)
             groupSize = GroupManager.getGroup(this).members.size();
