@@ -95,7 +95,7 @@ public class MobAI {
             }
 
         } catch (Exception e) {
-            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: AttackTarget" + " " + e.getMessage());
+            ////(mob.getObjectUUID() + " " + mob.getName() + " Failed At: AttackTarget" + " " + e.getMessage());
         }
     }
 
@@ -174,7 +174,7 @@ public class MobAI {
             }
 
         } catch (Exception e) {
-            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: AttackPlayer" + " " + e.getMessage());
+            ////(mob.getObjectUUID() + " " + mob.getName() + " Failed At: AttackPlayer" + " " + e.getMessage());
         }
 
     }
@@ -232,7 +232,7 @@ public class MobAI {
             //}
 
         } catch (Exception e) {
-            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: AttackBuilding" + " " + e.getMessage());
+            ////(mob.getObjectUUID() + " " + mob.getName() + " Failed At: AttackBuilding" + " " + e.getMessage());
         }
     }
 
@@ -271,7 +271,7 @@ public class MobAI {
                 }
             }
         } catch (Exception e) {
-            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: AttackMob" + " " + e.getMessage());
+            ////(mob.getObjectUUID() + " " + mob.getName() + " Failed At: AttackMob" + " " + e.getMessage());
         }
     }
 
@@ -324,7 +324,7 @@ public class MobAI {
                         }
                     }
         } catch (Exception e) {
-            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: AttackTarget" + " " + e.getMessage());
+            ////(mob.getObjectUUID() + " " + mob.getName() + " Failed At: AttackTarget" + " " + e.getMessage());
         }
     }
 
@@ -368,7 +368,7 @@ public class MobAI {
             return mob.nextCastTime <= System.currentTimeMillis();
 
         } catch (Exception e) {
-            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: canCast" + " " + e.getMessage());
+            ////(mob.getObjectUUID() + " " + mob.getName() + " Failed At: canCast" + " " + e.getMessage());
         }
         return false;
     }
@@ -454,7 +454,7 @@ public class MobAI {
                 return true;
             }
         } catch (Exception e) {
-            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: MobCast" + " " + e.getMessage());
+            ////(mob.getObjectUUID() + " " + mob.getName() + " Failed At: MobCast" + " " + e.getMessage());
         }
         return false;
     }
@@ -576,7 +576,7 @@ public class MobAI {
                 return true;
             }
         } catch (Exception e) {
-            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: MobCast" + " " + e.getMessage());
+            ////(mob.getObjectUUID() + " " + mob.getName() + " Failed At: MobCast" + " " + e.getMessage());
         }
         return false;
     }
@@ -612,7 +612,7 @@ public class MobAI {
                 mob.nextCallForHelp = System.currentTimeMillis() + 60000;
 
         } catch (Exception e) {
-            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: MobCallForHelp" + " " + e.getMessage());
+            //(mob.getObjectUUID() + " " + mob.getName() + " Failed At: MobCallForHelp" + " " + e.getMessage());
         }
     }
 
@@ -733,7 +733,7 @@ public class MobAI {
             if(mob.isAlive())
                 RecoverHealth(mob);
         } catch (Exception e) {
-            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: DetermineAction" + " " + e.getMessage());
+            //(mob.getObjectUUID() + " " + mob.getName() + " Failed At: DetermineAction" + " " + e.getMessage());
         }
     }
 
@@ -808,7 +808,7 @@ public class MobAI {
                 }
             }
         } catch (Exception e) {
-            Logger.info(aiAgent.getObjectUUID() + " " + aiAgent.getName() + " Failed At: CheckForAggro" + " " + e.getMessage());
+            //(aiAgent.getObjectUUID() + " " + aiAgent.getName() + " Failed At: CheckForAggro" + " " + e.getMessage());
         }
     }
 
@@ -869,7 +869,7 @@ public class MobAI {
 
             }
         } catch (Exception e) {
-            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: CheckMobMovement" + " " + e.getMessage());
+            //(mob.getObjectUUID() + " " + mob.getName() + " Failed At: CheckMobMovement" + " " + e.getMessage());
         }
     }
 
@@ -923,7 +923,7 @@ public class MobAI {
                 }
             }
         } catch (Exception e) {
-            Logger.info(aiAgent.getObjectUUID() + " " + aiAgent.getName() + " Failed At: CheckForRespawn" + " " + e.getMessage());
+            //(aiAgent.getObjectUUID() + " " + aiAgent.getName() + " Failed At: CheckForRespawn" + " " + e.getMessage());
         }
     }
 
@@ -949,7 +949,7 @@ public class MobAI {
                 AttackTarget(mob, mob.getCombatTarget());
 
         } catch (Exception e) {
-            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: CheckForAttack" + " " + e.getMessage());
+            //(mob.getObjectUUID() + " " + mob.getName() + " Failed At: CheckForAttack" + " " + e.getMessage());
         }
     }
 
@@ -1011,7 +1011,7 @@ public class MobAI {
                 mob.setCombatTarget(null);
             }
         } catch (Exception e) {
-            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: CheckToSendMobHome" + " " + e.getMessage());
+            //(mob.getObjectUUID() + " " + mob.getName() + " Failed At: CheckToSendMobHome" + " " + e.getMessage());
         }
     }
 
@@ -1054,7 +1054,7 @@ public class MobAI {
             mob.updateMovementState();
             mob.updateLocation();
         } catch (Exception e) {
-            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: chaseTarget" + " " + e.getMessage());
+            //(mob.getObjectUUID() + " " + mob.getName() + " Failed At: chaseTarget" + " " + e.getMessage());
         }
     }
 
@@ -1086,7 +1086,7 @@ public class MobAI {
                 mob.setCombatTarget(aggroMob);
             }
         } catch (Exception e) {
-            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: SafeGuardAggro" + " " + e.getMessage());
+            //(mob.getObjectUUID() + " " + mob.getName() + " Failed At: SafeGuardAggro" + " " + e.getMessage());
         }
     }
 
@@ -1112,7 +1112,7 @@ public class MobAI {
             CheckMobMovement(mob);
             CheckForAttack(mob);
         } catch (Exception e) {
-            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: GuardCaptainLogic" + " " + e.getMessage());
+            //(mob.getObjectUUID() + " " + mob.getName() + " Failed At: GuardCaptainLogic" + " " + e.getMessage());
         }
     }
 
@@ -1134,7 +1134,7 @@ public class MobAI {
             CheckMobMovement(mob);
             CheckForAttack(mob);
         } catch (Exception e) {
-            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: GuardMinionLogic" + " " + e.getMessage());
+            //(mob.getObjectUUID() + " " + mob.getName() + " Failed At: GuardMinionLogic" + " " + e.getMessage());
         }
     }
 
@@ -1148,7 +1148,7 @@ public class MobAI {
             else
                 CheckForAttack(mob);
         } catch (Exception e) {
-            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: GuardWallArcherLogic" + " " + e.getMessage());
+            //(mob.getObjectUUID() + " " + mob.getName() + " Failed At: GuardWallArcherLogic" + " " + e.getMessage());
         }
     }
 
@@ -1169,7 +1169,7 @@ public class MobAI {
 
             CheckForAttack(mob);
         } catch (Exception e) {
-            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: PetLogic" + " " + e.getMessage());
+            //(mob.getObjectUUID() + " " + mob.getName() + " Failed At: PetLogic" + " " + e.getMessage());
         }
     }
 
@@ -1185,7 +1185,7 @@ public class MobAI {
 
             CheckForAttack(mob);
         } catch (Exception e) {
-            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: HamletGuardLogic" + " " + e.getMessage());
+            //(mob.getObjectUUID() + " " + mob.getName() + " Failed At: HamletGuardLogic" + " " + e.getMessage());
         }
     }
 
@@ -1220,7 +1220,7 @@ public class MobAI {
 
 
         } catch (Exception e) {
-            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: DefaultLogic" + " " + e.getMessage());
+            //(mob.getObjectUUID() + " " + mob.getName() + " Failed At: DefaultLogic" + " " + e.getMessage());
         }
     }
 
@@ -1270,7 +1270,7 @@ public class MobAI {
                 }
             }
         } catch (Exception e) {
-            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: CheckForPlayerGuardAggro" + e.getMessage());
+            //(mob.getObjectUUID() + " " + mob.getName() + " Failed At: CheckForPlayerGuardAggro" + e.getMessage());
         }
     }
 
@@ -1333,7 +1333,7 @@ public class MobAI {
                 }
             }
         } catch (Exception e) {
-            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: GuardCanAggro" + " " + e.getMessage());
+            //(mob.getObjectUUID() + " " + mob.getName() + " Failed At: GuardCanAggro" + " " + e.getMessage());
         }
         return false;
     }
@@ -1382,7 +1382,7 @@ public class MobAI {
                 }
             }
         } catch (Exception e) {
-            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: randomGuardPatrolPoints" + " " + e.getMessage());
+            //(mob.getObjectUUID() + " " + mob.getName() + " Failed At: randomGuardPatrolPoints" + " " + e.getMessage());
         }
     }
 
@@ -1403,7 +1403,7 @@ public class MobAI {
                         mob.setHealth(mob.getHealthMax());
                 }
         } catch (Exception e) {
-            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: RecoverHealth" + " " + e.getMessage());
+            //(mob.getObjectUUID() + " " + mob.getName() + " Failed At: RecoverHealth" + " " + e.getMessage());
         }
     }
 
