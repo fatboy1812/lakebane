@@ -9,6 +9,7 @@
 
 package engine.devcmd.cmds;
 
+import engine.Dungeons.DungeonManager;
 import engine.Enum.GameObjectType;
 import engine.devcmd.AbstractDevCmd;
 import engine.gameManager.ChatManager;
@@ -30,31 +31,12 @@ public class DungenonCmd extends AbstractDevCmd {
     @Override
     protected void _doCmd(PlayerCharacter pc, String[] words,
                           AbstractGameObject target) {
-        if (words.length != 1) {
-            this.sendUsage(pc);
-            return;
-        }
-        if(words.length < 1) {
-            throwbackInfo(pc, this._getHelpString());
-            return;
-        }
+
         Zone parent = ZoneManager.findSmallestZone(pc.loc);
         if(parent == null)
             return;
 
-        switch(words[0]){
-            case "mob":
-                int mobbase = Integer.parseInt(words[1]);
-                int level = Integer.parseInt(words[2]);
-                Mob.createStrongholdMob(mobbase,pc.loc,Guild.getErrantGuild(),true,parent,null,0,"",level);
-                break;
-            case "building":
-                int blueprint = Integer.parseInt(words[1]);
-                int rank = Integer.parseInt(words[2]);
-                int rot = Integer.parseInt(words[3]);
-
-                break;
-        }
+        DungeonManager.createDungeon(parent.getLoc(),5);
     }
 
     @Override

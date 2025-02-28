@@ -1,10 +1,11 @@
 package engine.Dungeons;
 
+import engine.Enum;
 import engine.InterestManagement.WorldGrid;
-import engine.objects.AbstractWorldObject;
-import engine.objects.Guild;
-import engine.objects.Mob;
-import engine.objects.PlayerCharacter;
+import engine.gameManager.DbManager;
+import engine.gameManager.ZoneManager;
+import engine.math.Vector3fImmutable;
+import engine.objects.*;
 import engine.powers.EffectsBase;
 import engine.server.MBServerStatics;
 
@@ -99,5 +100,26 @@ public class DungeonManager {
             }
 
         }
+    }
+
+    public static void createDungeon(Vector3fImmutable loc, int count){
+
+        Zone parent = ZoneManager.findSmallestZone(loc);
+
+        Dungeon dungeon = new Dungeon(loc,count);
+
+        Vector3fImmutable loc1 = new Vector3fImmutable(loc.x + 128,loc.y,loc.z + 128);
+        Vector3fImmutable loc2 = new Vector3fImmutable(loc.x - 128,loc.y,loc.z - 128);
+        Vector3fImmutable loc3 = new Vector3fImmutable(loc.x - 128,loc.y,loc.z + 128);
+        Vector3fImmutable loc4 = new Vector3fImmutable(loc.x + 128,loc.y,loc.z - 128);
+
+        Building building1 = DbManager.BuildingQueries.CREATE_BUILDING(parent.getObjectUUID(),1,"Building",450200,loc1,1.0f,5000, Enum.ProtectionState.NPC,0,1,null,454200,0f,0f);
+        Building building2 = DbManager.BuildingQueries.CREATE_BUILDING(parent.getObjectUUID(),1,"Building",450200,loc2,1.0f,5000, Enum.ProtectionState.NPC,0,1,null,454200,0f,0f);
+        Building building3 = DbManager.BuildingQueries.CREATE_BUILDING(parent.getObjectUUID(),1,"Building",450200,loc3,1.0f,5000, Enum.ProtectionState.NPC,0,1,null,454200,0f,0f);
+        Building building4 = DbManager.BuildingQueries.CREATE_BUILDING(parent.getObjectUUID(),1,"Building",450200,loc4,1.0f,5000, Enum.ProtectionState.NPC,0,1,null,454200,0f,0f);
+        WorldGrid.addObject(building1,loc1.x,loc1.z);
+        WorldGrid.addObject(building2,loc2.x,loc2.z);
+        WorldGrid.addObject(building3,loc3.x,loc3.z);
+        WorldGrid.addObject(building4,loc4.x,loc4.z);
     }
 }
