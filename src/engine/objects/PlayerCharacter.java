@@ -5180,24 +5180,26 @@ public class PlayerCharacter extends AbstractCharacter {
                     this.updateBlessingMessage();
 
                     this.safeZone = this.isInSafeZone();
-                    if (!this.timestamps.containsKey("nextBoxCheck"))
-                        this.timestamps.put("nextBoxCheck", System.currentTimeMillis() + 10000);
 
-                    if (!this.isBoxed && this.timestamps.get("nextBoxCheck") < System.currentTimeMillis()) {
-                        this.isBoxed = checkIfBoxed(this);
-                        this.timestamps.put("nextBoxCheck", System.currentTimeMillis() + 10000);
-                    }
+                    if(this.isActive && this.enteredWorld) {
+                        if (!this.timestamps.containsKey("nextBoxCheck"))
+                            this.timestamps.put("nextBoxCheck", System.currentTimeMillis() + 10000);
 
-                    if (this.level < 10 && this.enteredWorld) {
-                        while (this.level < 10) {
-                            grantXP(Experience.getBaseExperience(this.level + 1) - this.exp);
+                        if (!this.isBoxed && this.timestamps.get("nextBoxCheck") < System.currentTimeMillis()) {
+                            this.isBoxed = checkIfBoxed(this);
+                            this.timestamps.put("nextBoxCheck", System.currentTimeMillis() + 10000);
+                        }
+
+                        if (this.level < 10 && this.enteredWorld) {
+                            while (this.level < 10) {
+                                grantXP(Experience.getBaseExperience(this.level + 1) - this.exp);
+                            }
+                        }
+
+                        if (this.isBoxed && !this.containsEffect(1672601862)) {
+                            PowersManager.applyPower(this, this, Vector3fImmutable.ZERO, 1672601862, 40, false);
                         }
                     }
-
-                    if (this.isBoxed && !this.containsEffect(1672601862)) {
-                        PowersManager.applyPower(this, this, Vector3fImmutable.ZERO, 1672601862, 40, false);
-                    }
-
                     if (this.isFlying()) {
                         if (this.effects.containsKey("MoveBuff")) {
                             GroundPlayer(this);
