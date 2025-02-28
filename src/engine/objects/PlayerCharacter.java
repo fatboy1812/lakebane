@@ -5684,6 +5684,7 @@ public class PlayerCharacter extends AbstractCharacter {
     }
 
     public void setEnteredWorld(boolean enteredWorld) {
+        this.timestamps.put("nextBoxCheck", System.currentTimeMillis() + 10000);
         this.enteredWorld = enteredWorld;
     }
 
