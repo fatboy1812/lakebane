@@ -1,8 +1,14 @@
 package engine.gameManager;
 
 import engine.Enum;
+import engine.exception.MsgSendException;
+import engine.job.JobContainer;
+import engine.job.JobScheduler;
+import engine.jobs.AttackJob;
 import engine.jobs.DeferredPowerJob;
 import engine.net.DispatchMessage;
+import engine.net.client.ClientConnection;
+import engine.net.client.msg.AttackCmdMsg;
 import engine.net.client.msg.TargetedActionMsg;
 import engine.objects.*;
 import engine.powers.DamageShield;
@@ -64,13 +70,17 @@ public class CombatSystem {
                 def = source.defenseRating;
             }
 
-            if(!LandHit(atr,def))
+            if(!LandHit(atr,def)) {
+                createTimer(source,mainhand);
                 return;
+            }
 
             if(source.getBonuses() != null)
                 if(!source.getBonuses().getBool(Enum.ModType.IgnorePassiveDefense, Enum.SourceType.None))
-                    if(triggerPassive(source,target))
+                    if(triggerPassive(source,target)) {
+                        createTimer(source,mainhand);
                         return;
+                    }
         }
 
         //commence actual combat management
@@ -305,6 +315,7 @@ public class CombatSystem {
         TargetedActionMsg cmm = new TargetedActionMsg(source, swingAnimation, target, passiveType);
         DispatchMessage.sendToAllInRange(target, cmm);
     }
+
     private static boolean testPassive(AbstractCharacter source, AbstractCharacter target, String type) {
 
         if(target.getBonuses() != null)
@@ -324,6 +335,96 @@ public class CombatSystem {
         int roll = ThreadLocalRandom.current().nextInt(1,100);
 
         return roll < chance;
+
+    }
+
+    private static void createTimer(AbstractCharacter source, boolean mainhand) {
+
+        ConcurrentHashMap<String, JobContainer> timers = source.getTimers();
+        int slot = 1;
+        if(!mainhand)
+            slot = 2;
+
+        int time = 3000;
+        if(source.getObjectType().equals(Enum.GameObjectType.PlayerCharacter)){
+            PlayerCharacter pc = (PlayerCharacter)source;
+            if(mainhand){
+                time = (int) pc.combatStats.attackSpeedHandOne;
+            }else{
+                time = (int) pc.combatStats.attackSpeedHandTwo;
+            }
+        }
+
+        if (timers != null) {
+            AttackJob aj = new AttackJob(source, slot, true);
+            JobContainer job;
+            job = JobScheduler.getInstance().scheduleJob(aj, (time * 100));
+            timers.put("Attack" + slot, job);
+        } else {
+            Logger.error("Unable to find Timers for Character " + source.getObjectUUID());
+        }
+    }
+
+    public static void setAttackTarget(AttackCmdMsg msg, ClientConnection origin) throws MsgSendException {
+
+        PlayerCharacter player;
+        int targetType;
+        AbstractWorldObject target;
+
+        if (TargetedActionMsg.un2cnt == 60 || TargetedActionMsg.un2cnt == 70)
+            return;
+
+        player = SessionManager.getPlayerCharacter(origin);
+
+        if (player == null)
+            return;
+
+        //source must match player this account belongs to
+
+        if (player.getObjectUUID() != msg.getSourceID() || player.getObjectType().ordinal() != msg.getSourceType()) {
+            Logger.error("Msg Source ID " + msg.getSourceID() + " Does not Match Player ID " + player.getObjectUUID());
+            return;
+        }
+
+        targetType = msg.getTargetType();
+
+        if (targetType == Enum.GameObjectType.PlayerCharacter.ordinal()) {
+            target = PlayerCharacter.getFromCache(msg.getTargetID());
+        } else if (targetType == Enum.GameObjectType.Building.ordinal()) {
+            target = BuildingManager.getBuildingFromCache(msg.getTargetID());
+        } else if (targetType == Enum.GameObjectType.Mob.ordinal()) {
+            target = Mob.getFromCache(msg.getTargetID());
+        } else {
+            player.setCombatTarget(null);
+            return; //not valid type to attack
+        }
+
+        // quit of the combat target is already the current combat target
+        // or there is no combat target
+
+        if (target == null)
+            return;
+
+        //set sources target
+
+        player.setCombatTarget(target);
+
+        boolean hasMain = false;
+        boolean hasOff = false;
+        if(player.getCharItemManager() != null && player.getCharItemManager().getEquipped() != null){
+            if(player.getCharItemManager().getEquipped(1) != null)
+                hasMain = true;
+            if(player.getCharItemManager().getEquipped(2) != null && !player.getCharItemManager().getEquipped(2).getItemBase().isShield())
+                hasOff = true;
+        }
+
+        if(hasMain){
+            createTimer(player,true);
+        }
+
+        if(hasOff){
+            createTimer(player,false);
+        }
 
     }
 }
