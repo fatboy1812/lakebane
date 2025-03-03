@@ -1,6 +1,7 @@
 package engine.objects;
 
 import engine.Enum;
+import engine.jobs.DeferredPowerJob;
 import engine.powers.EffectsBase;
 import engine.powers.PowersBase;
 import engine.powers.effectmodifiers.AbstractEffectModifier;
@@ -1053,8 +1054,14 @@ public class PlayerCombatStats {
         atr += (modifiedDexterity * 0.5f) + weaponATR1 + weaponATR2;
         atr *= precise;
         atr += atrBuffs;
+        if(pc.getWeaponPower() != null){
+            DeferredPowerJob dpj = pc.getWeaponPower();
+            dpj.endEffect();
+        }
+
         if(pc.bonuses != null)
             atr *= 1 + (pc.bonuses.getFloatPercentAll(Enum.ModType.OCV, Enum.SourceType.None) - (stanceMod - 1) - (precise - 1) - healerDefStance);
+
         atr *= stanceMod;
         return atr;
     }
