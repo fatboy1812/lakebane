@@ -827,7 +827,12 @@ public class Item extends AbstractWorldObject {
                     ToRemove.add(eff);
                 }
             }
-            this.effects.values().removeAll(ToRemove);
+
+            for(Effect eff : ToRemove)//{
+                this.effects.remove(eff.getEffectsBase().getIDString());
+            //}
+
+            //this.effects.values().removeAll(ToRemove);
         }catch(Exception ignored){
 
         }
