@@ -2,12 +2,17 @@ package engine.Dungeons;
 
 import engine.Enum;
 import engine.InterestManagement.WorldGrid;
+import engine.gameManager.BuildingManager;
 import engine.gameManager.PowersManager;
+import engine.gameManager.ZoneManager;
 import engine.math.Vector3fImmutable;
+import engine.net.ByteBufferWriter;
 import engine.objects.*;
 import engine.powers.EffectsBase;
 import engine.server.MBServerStatics;
+import org.pmw.tinylog.Logger;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashSet;
 
@@ -57,5 +62,93 @@ public class Dungeon {
             if (noSum != null && eff.getEffectsBase().equals(noSum))
                 eff.endEffect();
         }
+    }
+
+    public static void serializeForClientMsgTeleport(ByteBufferWriter writer) {
+        Guild rulingGuild = Guild.getErrantGuild();
+        Guild rulingNation = Guild.getErrantGuild();
+
+        Zone zone = ZoneManager.getZoneByUUID(994);
+        // Begin Serialzing soverign guild data
+        writer.putInt(Enum.GameObjectType.Zone.ordinal());
+        writer.putInt(994);
+        writer.putString("Whitehorn Citadel");
+        writer.putInt(rulingGuild.getObjectType().ordinal());
+        writer.putInt(rulingGuild.getObjectUUID());
+
+        writer.putString(rulingGuild.getName());
+        writer.putString("");
+        writer.putString(rulingGuild.getLeadershipType());
+
+        // Serialize guild ruler's name
+        // If tree is abandoned blank out the name
+        // to allow them a rename.
+
+        writer.putString("");
+
+        writer.putInt(rulingGuild.getCharter());
+        writer.putInt(0); // always 00000000
+
+        writer.put((byte)0);
+
+        writer.put((byte) 1);
+        writer.put((byte) 1);  // *** Refactor: What are these flags?
+        writer.put((byte) 1);
+        writer.put((byte) 1);
+        writer.put((byte) 1);
+
+        GuildTag._serializeForDisplay(rulingGuild.getGuildTag(), writer);
+        GuildTag._serializeForDisplay(rulingNation.getGuildTag(), writer);
+
+        writer.putInt(0);// TODO Implement description text
+
+        writer.put((byte) 1);
+        writer.put((byte) 0);
+        writer.put((byte) 1);
+
+        // Begin serializing nation guild info
+
+        if (rulingNation.isEmptyGuild()) {
+            writer.putInt(rulingGuild.getObjectType().ordinal());
+            writer.putInt(rulingGuild.getObjectUUID());
+        } else {
+            writer.putInt(rulingNation.getObjectType().ordinal());
+            writer.putInt(rulingNation.getObjectUUID());
+        }
+
+
+        // Serialize nation name
+
+        if (rulingNation.isEmptyGuild())
+            writer.putString("None");
+        else
+            writer.putString(rulingNation.getName());
+
+        writer.putInt(1);
+
+        writer.putInt(0xFFFFFFFF);
+
+        writer.putInt(0);
+
+        if (rulingNation.isEmptyGuild())
+            writer.putString(" ");
+
+        writer.putLocalDateTime(LocalDateTime.now());
+
+        //location
+        Vector3fImmutable loc = Vector3fImmutable.getRandomPointOnCircle(BuildingManager.getBuilding(2827951).loc,30f);
+
+        writer.putFloat(loc.x);
+        writer.putFloat(loc.y);
+        writer.putFloat(loc.z);
+
+        writer.putInt(0);
+
+        writer.put((byte) 1);
+        writer.put((byte) 0);
+        writer.putInt(0x64);
+        writer.put((byte) 0);
+        writer.put((byte) 0);
+        writer.put((byte) 0);
     }
 }
