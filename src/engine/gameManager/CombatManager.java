@@ -978,26 +978,7 @@ public enum CombatManager {
                 errorTrack = 14;
 
                 //handle procs
-
-                if (weapon != null && tarAc != null && tarAc.isAlive()) {
-
-                    if(weapon.effects != null){
-                        for (Effect eff : weapon.effects.values()){
-                            for(AbstractEffectModifier mod : eff.getEffectModifiers()){
-                                if(mod.modType.equals(ModType.WeaponProc)){
-                                    int procChance = ThreadLocalRandom.current().nextInt(100);
-                                    if (procChance < MBServerStatics.PROC_CHANCE) {
-                                        try {
-                                            ((WeaponProcEffectModifier) mod).applyProc(ac, target);
-                                        }catch(Exception e){
-                                            Logger.error(eff.getName() + " Failed To Cast Proc");
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+                procChanceHandler(weapon,ac,tarAc);
 
                 errorTrack = 15;
 
@@ -1078,6 +1059,40 @@ public enum CombatManager {
 
         } catch (Exception e) {
             Logger.error(ac.getName() + ' ' + errorTrack + ' ' + e);
+        }
+    }
+
+    private static void procChanceHandler(Item weapon, AbstractCharacter ac, AbstractCharacter tarAc) {
+
+        //no weapon means no proc
+        if(weapon == null)
+            return;
+
+        //caster is dead of null, no proc
+        if(ac == null || !ac.isAlive())
+            return;
+
+        //target is dead or null, no proc
+        if(tarAc == null || !tarAc.isAlive())
+            return;
+
+        //no effects on weapon, skip proc
+        if(weapon.effects == null || weapon.effects.isEmpty())
+            return;
+
+        for (Effect eff : weapon.effects.values()){
+            for(AbstractEffectModifier mod : eff.getEffectModifiers()) {
+                if (mod.modType.equals(ModType.WeaponProc)) {
+                    int procChance = ThreadLocalRandom.current().nextInt(100);
+                    if (procChance < MBServerStatics.PROC_CHANCE) {
+                        try {
+                            ((WeaponProcEffectModifier) mod).applyProc(ac, tarAc);
+                        } catch (Exception e) {
+                            Logger.error(eff.getName() + " Failed To Cast Proc");
+                        }
+                    }
+                }
+            }
         }
     }
 
