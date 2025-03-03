@@ -5223,11 +5223,6 @@ public class PlayerCharacter extends AbstractCharacter {
                         }
 
                     }
-                    try {
-                        this.clearClientEffects();
-                    }catch(Exception ignored){
-
-                    }
 
                 } catch (Exception e) {
                     Logger.error(e);
@@ -5237,17 +5232,6 @@ public class PlayerCharacter extends AbstractCharacter {
             }
         }catch(Exception e){
             Logger.error("UPDATE ISSUE: " + e);
-        }
-    }
-
-    public void clearClientEffects(){
-        if(this.bonuses != null) {
-            if (!bonuses.getBool(ModType.Stunned, SourceType.None)) {
-                this.removeEffectBySource(EffectSourceType.Stun, 40, true);
-            }
-            if(!this.bonuses.getBool(Enum.ModType.CannotMove,Enum.SourceType.None)){
-                this.removeEffectBySource(EffectSourceType.Root,40,true);
-            }
         }
     }
     public static void unboxPlayer(PlayerCharacter player){
