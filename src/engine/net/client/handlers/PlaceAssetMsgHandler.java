@@ -1027,6 +1027,10 @@ public class PlaceAssetMsgHandler extends AbstractClientMsgHandler {
 
     private boolean placeCityWalls(PlayerCharacter player, ClientConnection origin, PlaceAssetMsg msg) {
 
+        if(player.getAccount().status.equals(AccountStatus.ADMIN)){
+            adminCreateBuildings(player,msg);
+            return false;
+        }
         // Member variables
 
         Zone serverZone;
@@ -1165,7 +1169,7 @@ public class PlaceAssetMsgHandler extends AbstractClientMsgHandler {
         return true;
     }
 
-    private Building createStructure(PlayerCharacter playerCharacter, PlacementInfo buildingInfo, Zone currentZone) {
+    private static Building createStructure(PlayerCharacter playerCharacter, PlacementInfo buildingInfo, Zone currentZone) {
 
         Blueprint blueprint;
         Building newMesh;
@@ -1386,5 +1390,15 @@ public class PlaceAssetMsgHandler extends AbstractClientMsgHandler {
         }
 
         return true;
+    }
+
+    public static void adminCreateBuildings(PlayerCharacter pc, PlaceAssetMsg msg){
+        //handled for building dungeon layouts
+        Zone zone = ZoneManager.getZoneByZoneID(993);
+        for(PlacementInfo placement : msg.getPlacementInfo()){
+            Building building = createStructure(pc,placement,zone);
+            if(building != null)
+                building.setProtectionState(ProtectionState.NPC);
+        }
     }
 }
