@@ -819,19 +819,30 @@ public class Item extends AbstractWorldObject {
 
     public void stripCastableEnchants(){
         try {
-            ArrayList<Effect> ToRemove = new ArrayList<>();
-            for (Effect eff : this.effects.values()) {
-                if (eff.getJobContainer() != null && !eff.getJobContainer().noTimer()) {
-                    eff.endEffectNoPower();
-                    eff.getJobContainer().cancelJob();
-                    ToRemove.add(eff);
-                }
-            }
-
-            for(Effect eff : ToRemove)//{
-                this.effects.remove(eff.getEffectsBase().getIDString());
+            //ArrayList<Effect> ToRemove = new ArrayList<>();
+            //for (Effect eff : this.effects.values()) {
+            //    if (eff.getJobContainer() != null && !eff.getJobContainer().noTimer()) {
+            //        eff.endEffectNoPower();
+            //        eff.getJobContainer().cancelJob();
+            //        ToRemove.add(eff);
+            //    }
             //}
 
+            //strip procs
+            if(this.effects.get("EnchantWeapon") != null){
+                this.effects.remove("EnchantWeapon");
+                Effect eff = this.effects.get("EnchantWeapon");
+                eff.endEffectNoPower();
+            }
+
+            //strip forge master hone armor
+            if(this.effects.get("1000") != null){
+                this.effects.remove("1000");
+                Effect eff = this.effects.get("1000");
+                eff.endEffectNoPower();
+            }
+
+            this.applyAllBonuses();
             //this.effects.values().removeAll(ToRemove);
         }catch(Exception ignored){
 

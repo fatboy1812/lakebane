@@ -1058,6 +1058,7 @@ public class CharacterItemManager {
         i.addToCache();
         try {
             i.stripCastableEnchants();
+            this.updateInventory();
         }catch(Exception ignored){
             Logger.error("FAILED TO STRIP CASTABLE ENCHANTS: Move Item To Bank");
         }
@@ -1203,6 +1204,7 @@ public class CharacterItemManager {
 
         try {
             i.stripCastableEnchants();
+            this.updateInventory();
         }catch(Exception ignored){
             Logger.error("FAILED TO STRIP CASTABLE ENCHANTS: Move Item To Vault");
         }
