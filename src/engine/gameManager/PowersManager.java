@@ -28,6 +28,7 @@ import engine.net.client.ClientConnection;
 import engine.net.client.msg.*;
 import engine.objects.*;
 import engine.powers.*;
+import engine.powers.effectmodifiers.AbstractEffectModifier;
 import engine.powers.poweractions.AbstractPowerAction;
 import engine.powers.poweractions.TrackPowerAction;
 import engine.server.MBServerStatics;
@@ -1968,9 +1969,7 @@ public enum PowersManager {
         }
     }
 
-    public static void runPowerAction(AbstractCharacter source,
-                                      AbstractWorldObject awo, Vector3fImmutable targetLoc,
-                                      ActionsBase ab, int trains, PowersBase pb) {
+    public static void runPowerAction(AbstractCharacter source, AbstractWorldObject awo, Vector3fImmutable targetLoc, ActionsBase ab, int trains, PowersBase pb) {
         AbstractPowerAction pa = ab.getPowerAction();
         if (pa == null) {
             Logger.error(
@@ -1978,6 +1977,22 @@ public enum PowersManager {
                             + ab.getEffectID());
             return;
         }
+
+        if(AbstractCharacter.IsAbstractCharacter(awo)) {
+            boolean immune = false;
+            AbstractCharacter absChar = (AbstractCharacter)awo;
+            for (AbstractEffectModifier mod : ab.getPowerAction().getEffectsBase().getModifiers()) {
+                if (absChar.getBonuses() != null){
+                    if(absChar.getBonuses().getBool(ModType.ImmuneTo, mod.sourceType) || absChar.getBonuses().getBool(ModType.NoMod, mod.sourceType))
+                        immune = true;
+                }
+            }
+
+            if(immune)
+                return;
+        }
+
+
         pa.startAction(source, awo, targetLoc, trains, ab, pb);
     }
 
