@@ -1087,6 +1087,7 @@ public enum CombatManager {
                     if (procChance < MBServerStatics.PROC_CHANCE) {
                         try {
                             ((WeaponProcEffectModifier) mod).applyProc(ac, tarAc);
+                            break;
                         } catch (Exception e) {
                             Logger.error(eff.getName() + " Failed To Cast Proc");
                         }
