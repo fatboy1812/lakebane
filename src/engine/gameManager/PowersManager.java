@@ -174,12 +174,12 @@ public enum PowersManager {
 
         if(pc.isMoving())
             pc.stopMovement(pc.getMovementLoc());
-
-        if(!origin.getPlayerCharacter().getPowers().containsKey(msg.getPowerUsedID())){
-            Logger.error(origin.getPlayerCharacter().getFirstName() + " attempted to cast a power they do not have");
-            return;
+        if(msg.getPowerUsedID() != 421084024 && origin.getPlayerCharacter().getPromotionClassID() != 2513) {
+            if (!origin.getPlayerCharacter().getPowers().containsKey(msg.getPowerUsedID())) {
+                Logger.error(origin.getPlayerCharacter().getFirstName() + " attempted to cast a power they do not have");
+                return;
+            }
         }
-
         //crusader sacrifice
         if((msg.getPowerUsedID() == 428695403 && msg.getTargetID() == pc.getObjectUUID())){
             RecyclePowerMsg recyclePowerMsg = new RecyclePowerMsg(msg.getPowerUsedID());
