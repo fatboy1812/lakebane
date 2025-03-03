@@ -1397,8 +1397,10 @@ public class PlaceAssetMsgHandler extends AbstractClientMsgHandler {
         Zone zone = ZoneManager.getZoneByZoneID(993);
         for(PlacementInfo placement : msg.getPlacementInfo()){
             Building building = createStructure(pc,placement,zone);
-            if(building != null)
+            if(building != null) {
                 building.setProtectionState(ProtectionState.NPC);
+                building.setRank(1);
+            }
         }
     }
 }
