@@ -434,7 +434,7 @@ public class PlayerCombatStats {
 
             atr *= 1.0f + stanceValue;
         if(this.owner.bonuses != null) {
-            float positivePercentBonuses = this.owner.bonuses.getFloatPercentPositive(Enum.ModType.OCV, Enum.SourceType.None);
+            float positivePercentBonuses = this.owner.bonuses.getFloatPercentPositive(Enum.ModType.OCV, Enum.SourceType.None) - stanceValue;
             float negativePercentBonuses = this.owner.bonuses.getFloatPercentNegative(Enum.ModType.OCV, Enum.SourceType.None);
             float modifier = 1 + (positivePercentBonuses + negativePercentBonuses);
             if(preciseRune > 1.0f)
