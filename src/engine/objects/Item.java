@@ -819,26 +819,56 @@ public class Item extends AbstractWorldObject {
 
     public void stripCastableEnchants(){
         try {
-            //ArrayList<Effect> ToRemove = new ArrayList<>();
-            //for (Effect eff : this.effects.values()) {
-            //    if (eff.getJobContainer() != null && !eff.getJobContainer().noTimer()) {
-            //        eff.endEffectNoPower();
-            //        eff.getJobContainer().cancelJob();
-            //        ToRemove.add(eff);
-            //    }
-            //}
-
-            //strip procs
+            //strip EnchantWeapon
             if(this.effects.get("EnchantWeapon") != null){
                 this.effects.remove("EnchantWeapon");
                 Effect eff = this.effects.get("EnchantWeapon");
                 eff.endEffectNoPower();
             }
 
-            //strip forge master hone armor
+            //strip FGM-003
             if(this.effects.get("1000") != null){
                 this.effects.remove("1000");
                 Effect eff = this.effects.get("1000");
+                eff.endEffectNoPower();
+            }
+
+            //strip FGM-001
+            if(this.effects.get("996") != null){
+                this.effects.remove("996");
+                Effect eff = this.effects.get("996");
+                eff.endEffectNoPower();
+            }
+
+            //strip ENC-001
+            if(this.effects.get("957") != null){
+                this.effects.remove("957");
+                Effect eff = this.effects.get("957");
+                eff.endEffectNoPower();
+            }
+            if(this.effects.get("958") != null){
+                this.effects.remove("958");
+                Effect eff = this.effects.get("958");
+                eff.endEffectNoPower();
+            }
+            if(this.effects.get("959") != null){
+                this.effects.remove("959");
+                Effect eff = this.effects.get("959");
+                eff.endEffectNoPower();
+            }
+            if(this.effects.get("960") != null){
+                this.effects.remove("960");
+                Effect eff = this.effects.get("960");
+                eff.endEffectNoPower();
+            }
+            if(this.effects.get("961") != null){
+                this.effects.remove("961");
+                Effect eff = this.effects.get("961");
+                eff.endEffectNoPower();
+            }
+            if(this.effects.get("962") != null){
+                this.effects.remove("962");
+                Effect eff = this.effects.get("962");
                 eff.endEffectNoPower();
             }
 
