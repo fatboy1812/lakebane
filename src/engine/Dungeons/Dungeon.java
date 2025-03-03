@@ -76,15 +76,15 @@ public class Dungeon {
         writer.putInt(rulingGuild.getObjectType().ordinal());
         writer.putInt(rulingGuild.getObjectUUID());
 
-        writer.putString(rulingGuild.getName());
-        writer.putString("");
+        writer.putString("Whitehorn Militants"); // guild name
+        writer.putString("In the Citadel, We Fight!"); // motto
         writer.putString(rulingGuild.getLeadershipType());
 
         // Serialize guild ruler's name
         // If tree is abandoned blank out the name
         // to allow them a rename.
 
-        writer.putString("");
+        writer.putString("Kol'roth The Destroyer");//sovreign
 
         writer.putInt(rulingGuild.getCharter());
         writer.putInt(0); // always 00000000
@@ -119,19 +119,15 @@ public class Dungeon {
 
         // Serialize nation name
 
-        if (rulingNation.isEmptyGuild())
-            writer.putString("None");
-        else
-            writer.putString(rulingNation.getName());
+        writer.putString("Whitehorn Militants"); //nation name
 
-        writer.putInt(1);
+        writer.putInt(-1);//city rank, -1 puts it at top of list always
 
         writer.putInt(0xFFFFFFFF);
 
         writer.putInt(0);
 
-        if (rulingNation.isEmptyGuild())
-            writer.putString(" ");
+        writer.putString("Kol'roth The Destroyer");//nation ruler
 
         writer.putLocalDateTime(LocalDateTime.now());
 
