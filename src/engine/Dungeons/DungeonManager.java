@@ -102,24 +102,4 @@ public class DungeonManager {
         }
     }
 
-    public static void createDungeon(Vector3fImmutable loc, int count){
-
-        Zone parent = ZoneManager.getZoneByUUID(993);
-
-        Dungeon dungeon = new Dungeon(loc,count);
-
-        Vector3fImmutable loc1 = new Vector3fImmutable(128,0,128);
-        Vector3fImmutable loc2 = new Vector3fImmutable(-128,0,-128);
-        Vector3fImmutable loc3 = new Vector3fImmutable(-128,0,128);
-        Vector3fImmutable loc4 = new Vector3fImmutable(128,0,-128);
-
-        Building building1 = DbManager.BuildingQueries.CREATE_BUILDING(993,1,"Building",450750,loc1,1.0f,5000, Enum.ProtectionState.NPC,0,1,null,450750,0f,0f);
-        Building building2 = DbManager.BuildingQueries.CREATE_BUILDING(993,1,"Building",450750,loc2,1.0f,5000, Enum.ProtectionState.NPC,0,1,null,450750,0f,0f);
-        Building building3 = DbManager.BuildingQueries.CREATE_BUILDING(993,1,"Building",450750,loc3,1.0f,5000, Enum.ProtectionState.NPC,0,1,null,450750,0f,0f);
-        Building building4 = DbManager.BuildingQueries.CREATE_BUILDING(993,1,"Building",450750,loc4,1.0f,5000, Enum.ProtectionState.NPC,0,1,null,450750,0f,0f);
-        WorldGrid.addObject(building1,parent.getLoc().x + loc1.x,parent.getLoc().z + loc1.z);
-        WorldGrid.addObject(building2,parent.getLoc().x + loc2.x,parent.getLoc().z + loc2.z);
-        WorldGrid.addObject(building3,parent.getLoc().x + loc3.x,parent.getLoc().z + loc3.z);
-        WorldGrid.addObject(building4,parent.getLoc().x + loc4.x,parent.getLoc().z + loc4.z);
-    }
 }

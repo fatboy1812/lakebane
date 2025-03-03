@@ -12,6 +12,7 @@ package engine.devcmd.cmds;
 import engine.Dungeons.DungeonManager;
 import engine.Enum.GameObjectType;
 import engine.devcmd.AbstractDevCmd;
+import engine.gameManager.BuildingManager;
 import engine.gameManager.ChatManager;
 import engine.gameManager.DbManager;
 import engine.gameManager.ZoneManager;
@@ -36,7 +37,8 @@ public class DungenonCmd extends AbstractDevCmd {
         if(parent == null)
             return;
 
-        DungeonManager.createDungeon(parent.getLoc(),5);
+        Vector3fImmutable loc = Vector3fImmutable.getRandomPointOnCircle(BuildingManager.getBuilding(2827951).loc,30f);
+        pc.teleport(loc);
     }
 
     @Override
