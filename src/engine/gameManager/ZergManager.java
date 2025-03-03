@@ -21,9 +21,9 @@ public class ZergManager {
             return 0.0f;
 
         switch(count){
-            case 4: return 0.63f;
-            case 5: return 0.40f;
-            case 6: return 0.25f;
+            case 4: return 0.50f;
+            case 5: return 0.0f;
+            case 6: return 0.0f;
             default: return 1.0f;
         }
     }
