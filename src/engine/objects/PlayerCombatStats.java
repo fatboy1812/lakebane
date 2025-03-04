@@ -517,6 +517,7 @@ public class PlayerCombatStats {
         );
         if(this.owner.bonuses != null){
             minDMG += this.owner.bonuses.getFloat(Enum.ModType.MinDamage, Enum.SourceType.None);
+            minDMG += this.owner.bonuses.getFloat(Enum.ModType.MeleeDamageModifier, Enum.SourceType.None);
             minDMG *= 1 + this.owner.bonuses.getFloatPercentAll(Enum.ModType.MeleeDamageModifier, Enum.SourceType.None);
         }
 
@@ -597,6 +598,7 @@ public class PlayerCombatStats {
 
         if(this.owner.bonuses != null){
             maxDMG += this.owner.bonuses.getFloat(Enum.ModType.MaxDamage, Enum.SourceType.None);
+            maxDMG += this.owner.bonuses.getFloat(Enum.ModType.MeleeDamageModifier, Enum.SourceType.None);
             maxDMG *= 1 + this.owner.bonuses.getFloatPercentAll(Enum.ModType.MeleeDamageModifier, Enum.SourceType.None);
         }
 

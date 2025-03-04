@@ -8,6 +8,7 @@
 
 package engine.gameManager;
 
+import engine.Enum;
 import engine.Enum.*;
 import engine.exception.MsgSendException;
 import engine.job.JobContainer;
@@ -924,7 +925,6 @@ public enum CombatManager {
                         damage *= 1 + (armorPierce * 0.01f);
                     }
                 }
-
                 //Resists.handleFortitude(tarAc,damageType,damage);
 
                 float d = 0f;
