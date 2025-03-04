@@ -2537,10 +2537,12 @@ public enum PowersManager {
                     return true;
                 } else if (testPassive(pc, tarAc, "Block")) {
                     // Dodge fired, send dodge message
-                    PerformActionMsg dodgeMsg = new PerformActionMsg(msg);
-                    dodgeMsg.setTargetType(awo.getObjectType().ordinal());
-                    dodgeMsg.setTargetID(awo.getObjectUUID());
-                    sendPowerMsg(pc, 4, dodgeMsg);
+                    //PerformActionMsg dodgeMsg = new PerformActionMsg(msg);
+                    //dodgeMsg.setTargetType(awo.getObjectType().ordinal());
+                    //dodgeMsg.setTargetID(awo.getObjectUUID());
+                    //sendPowerMsg(pc, 4, dodgeMsg);
+                    TargetedActionMsg cmm = new TargetedActionMsg(pc, 75, tarAc, MBServerStatics.COMBAT_SEND_BLOCK);
+                    DispatchMessage.sendToAllInRange(tarAc, cmm);
                     return true;
                 }
             }
