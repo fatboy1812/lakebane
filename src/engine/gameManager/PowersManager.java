@@ -199,6 +199,10 @@ public enum PowersManager {
             return;
         }
 
+        if(msg.getPowerUsedID() == -1851459567){//backstab
+            applyPower(pc,pc,pc.loc,-1851459567,msg.getNumTrains(),false);
+        }
+
         if (usePowerA(msg, origin, sendCastToSelf)) {
             // Cast failed for some reason, reset timer
 
@@ -1979,17 +1983,21 @@ public enum PowersManager {
         }
 
         if(AbstractCharacter.IsAbstractCharacter(awo)) {
-            boolean immune = false;
-            AbstractCharacter absChar = (AbstractCharacter)awo;
-            for (AbstractEffectModifier mod : ab.getPowerAction().getEffectsBase().getModifiers()) {
-                if (absChar.getBonuses() != null){
-                    if(absChar.getBonuses().getBool(ModType.ImmuneTo, mod.sourceType) || absChar.getBonuses().getBool(ModType.NoMod, mod.sourceType))
-                        immune = true;
+            try {
+                boolean immune = false;
+                AbstractCharacter absChar = (AbstractCharacter) awo;
+                for (AbstractEffectModifier mod : ab.getPowerAction().getEffectsBase().getModifiers()) {
+                    if (absChar.getBonuses() != null) {
+                        if (absChar.getBonuses().getBool(ModType.ImmuneTo, mod.sourceType) || absChar.getBonuses().getBool(ModType.NoMod, mod.sourceType))
+                            immune = true;
+                    }
                 }
-            }
 
-            if(immune)
-                return;
+                if (immune)
+                    return;
+            }catch(Exception e){
+
+            }
         }
 
 

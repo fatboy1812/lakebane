@@ -48,7 +48,7 @@ public class RequestEnterWorldHandler extends AbstractClientMsgHandler {
 
         PlayerCharacter player = origin.getPlayerCharacter();
 
-        WorldGrid.RemoveWorldObject(player);
+
         Dispatch dispatch;
 
         if (player == null) {
@@ -57,6 +57,11 @@ public class RequestEnterWorldHandler extends AbstractClientMsgHandler {
             return true;
         }
 
+        //if(player.isEnteredWorld()){
+        //    if(player != null) {
+       //         WorldGrid.RemoveWorldObject(player);
+       //     }
+        //}
         player.setEnteredWorld(false);
 
         Account acc = SessionManager.getAccount(origin);
@@ -106,9 +111,14 @@ public class RequestEnterWorldHandler extends AbstractClientMsgHandler {
 
         player.getTimestamps().put("EnterWorld", System.currentTimeMillis());
 
-        if (player.getLoc().equals(Vector3fImmutable.ZERO) || System.currentTimeMillis() > player.getTimeStamp("logout") + (15 * 60 * 1000)) {
+        Long logout = player.getTimeStamp("logout");
+        if (player.getLoc().equals(Vector3fImmutable.ZERO) || System.currentTimeMillis() > logout + (15 * 60 * 1000)) {
             player.stopMovement(player.getBindLoc());
-            player.setSafeMode();
+            try {
+                player.setSafeMode();
+            }catch(Exception e){
+                Logger.error(e);
+            }
             player.updateLocation();
             player.setRegion(AbstractWorldObject.GetRegionByWorldObject(player));
         }
