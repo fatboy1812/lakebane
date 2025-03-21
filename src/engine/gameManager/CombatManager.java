@@ -101,10 +101,6 @@ public enum CombatManager {
 
     public static void AttackTarget(PlayerCharacter playerCharacter, AbstractWorldObject target) {
 
-        if(playerCharacter != null && playerCharacter.isBoxed)
-            if(target.getObjectType().equals(GameObjectType.PlayerCharacter))
-                return;
-
         boolean swingOffhand = false;
 
         //check my weapon can I do an offhand attack
@@ -316,6 +312,7 @@ public enum CombatManager {
                     if(pet.combatTarget == null && pet.assist)
                         pet.setCombatTarget(attacker.combatTarget);
                 }
+
             }
 
 
@@ -484,6 +481,7 @@ public enum CombatManager {
                 }
             }
 
+            range += 2;
             if (NotInRange(abstractCharacter, target, range)) {
 
                 //target is in stealth and can't be seen by source
@@ -504,6 +502,16 @@ public enum CombatManager {
                 if (mob.isPet()) {
                     attack(abstractCharacter, target, weapon, wb, slot == MBServerStatics.SLOT_MAINHAND);
                     return 2;
+                }
+            }
+
+            if(abstractCharacter.getObjectType().equals(GameObjectType.PlayerCharacter)){
+                PlayerCharacter pc = (PlayerCharacter)abstractCharacter;
+                if(pc.isBoxed){
+                    if(target.getObjectType().equals(GameObjectType.PlayerCharacter)) {
+                        ChatManager.chatSystemInfo(pc, "You Are PvE Flagged: Cannot Attack Players.");
+                        attackFailure = true;
+                    }
                 }
             }
 
@@ -933,6 +941,11 @@ public enum CombatManager {
 
                 float d = 0f;
 
+                int originalDamage = (int)damage;
+                if(ac != null && ac.getObjectType().equals(GameObjectType.PlayerCharacter)){
+                    damage *= ((PlayerCharacter)ac).ZergMultiplier;
+                } // Health modifications are modified by the ZergMechanic
+
                 errorTrack = 12;
 
                 //Subtract Damage from target's health
@@ -949,9 +962,13 @@ public enum CombatManager {
                         ac.setHateValue(damage * MBServerStatics.PLAYER_COMBAT_HATE_MODIFIER);
                         ((Mob) tarAc).handleDirectAggro(ac);
                     }
-
-                    if (tarAc.getHealth() > 0)
+                    if (tarAc.getHealth() > 0) {
                         d = tarAc.modifyHealth(-damage, ac, false);
+                        if(tarAc != null && tarAc.getObjectType().equals(GameObjectType.PlayerCharacter) && ((PlayerCharacter)ac).ZergMultiplier != 1.0f){
+                            PlayerCharacter debugged = (PlayerCharacter)tarAc;
+                            ChatManager.chatSystemInfo(debugged, "ZERG DEBUG: " + ac.getName() + " Hits You For: " + (int)damage + " instead of " + originalDamage);
+                        }
+                    }
 
                     tarAc.cancelOnTakeDamage();
 

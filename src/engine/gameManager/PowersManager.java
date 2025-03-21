@@ -1093,7 +1093,7 @@ public enum PowersManager {
                     continue;
                 // If something blocks the action, then stop
 
-                if (ab.blocked(target, pb, trains,playerCharacter)) {
+                if (ab.blocked(target, pb, trains, playerCharacter)) {
 
                     PowersManager.sendEffectMsg(playerCharacter, 5, ab, pb);
                     continue;
@@ -1280,7 +1280,7 @@ public enum PowersManager {
                     continue;
                 // If something blocks the action, then stop
 
-                if (ab.blocked(target, pb, trains,caster))
+                if (ab.blocked(target, pb, trains, caster))
                     continue;
                 // TODO handle overwrite stack order here
                 String stackType = ab.getStackType();
@@ -1481,7 +1481,7 @@ public enum PowersManager {
         // Handle Accepting or Denying a summons.
         // set timer based on summon type.
         boolean wentThrough = false;
-        if (msg.accepted())
+        if (msg.accepted()) {
             // summons accepted, let's move the player if within time
             if (source.isAlive()) {
 
@@ -1527,14 +1527,14 @@ public enum PowersManager {
                     duration = 45000; // Belgosh Summons, 45 seconds
 
                 boolean enemiesNear = false;
-                for(AbstractWorldObject awo : WorldGrid.getObjectsInRangePartial(pc.loc,MBServerStatics.CHARACTER_LOAD_RANGE, MBServerStatics.MASK_PLAYER)){
-                    PlayerCharacter playerCharacter = (PlayerCharacter)awo;
-                    if(!playerCharacter.guild.getNation().equals(pc.guild.getNation())){
+                for (AbstractWorldObject awo : WorldGrid.getObjectsInRangePartial(pc.loc, MBServerStatics.CHARACTER_LOAD_RANGE, MBServerStatics.MASK_PLAYER)) {
+                    PlayerCharacter playerCharacter = (PlayerCharacter) awo;
+                    if (!playerCharacter.guild.getNation().equals(pc.guild.getNation())) {
                         enemiesNear = true;
                     }
                 }
 
-                if(enemiesNear && !pc.isInSafeZone())
+                if (enemiesNear && !pc.isInSafeZone())
                     duration += 60000;
 
                 // Teleport to summoners location
@@ -1545,7 +1545,10 @@ public enum PowersManager {
                     timers.put("Summon", jc);
                 wentThrough = true;
             }
-
+        }else{
+            // recycle summons power
+            finishRecycleTime(428523680, source, true);
+        }
         // Summons failed
         if (!wentThrough)
             // summons refused. Let's be nice and reset recycle timer
@@ -1834,6 +1837,10 @@ public enum PowersManager {
     private static void applyPowerA(AbstractCharacter ac, AbstractWorldObject target,
                                     Vector3fImmutable targetLoc, PowersBase pb, int trains,
                                     boolean fromItem) {
+
+        if(fromItem && pb.token == 429021400)
+            trains = 40;
+
         int time = pb.getCastTime(trains);
         if (!fromItem)
             finishApplyPowerA(ac, target, targetLoc, pb, trains, false);
@@ -1899,7 +1906,7 @@ public enum PowersManager {
             if (trains < ab.getMinTrains() || trains > ab.getMaxTrains())
                 continue;
             // If something blocks the action, then stop
-            if (ab.blocked(target, pb, trains,ac))
+            if (ab.blocked(target, pb, trains, ac))
                 // sendPowerMsg(pc, 5, msg);
                 continue;
             // TODO handle overwrite stack order here
@@ -1975,31 +1982,9 @@ public enum PowersManager {
     public static void runPowerAction(AbstractCharacter source, AbstractWorldObject awo, Vector3fImmutable targetLoc, ActionsBase ab, int trains, PowersBase pb) {
         AbstractPowerAction pa = ab.getPowerAction();
         if (pa == null) {
-            Logger.error(
-                    "runPowerAction(): PowerAction not found of IDString: "
-                            + ab.getEffectID());
+            Logger.error("runPowerAction(): PowerAction not found of IDString: " + ab.getEffectID());
             return;
         }
-
-        if(AbstractCharacter.IsAbstractCharacter(awo)) {
-            try {
-                boolean immune = false;
-                AbstractCharacter absChar = (AbstractCharacter) awo;
-                for (AbstractEffectModifier mod : ab.getPowerAction().getEffectsBase().getModifiers()) {
-                    if (absChar.getBonuses() != null) {
-                        if (absChar.getBonuses().getBool(ModType.ImmuneTo, mod.sourceType) || absChar.getBonuses().getBool(ModType.NoMod, mod.sourceType))
-                            immune = true;
-                    }
-                }
-
-                if (immune)
-                    return;
-            }catch(Exception e){
-
-            }
-        }
-
-
         pa.startAction(source, awo, targetLoc, trains, ab, pb);
     }
 
