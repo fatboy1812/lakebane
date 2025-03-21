@@ -173,8 +173,7 @@ public enum PowersManager {
         if(!pc.isFlying() && powersBaseByToken.get(msg.getPowerUsedID()) != null && powersBaseByToken.get(msg.getPowerUsedID()).isSpell) //cant be sitting if flying
             CombatManager.toggleSit(false,origin);
 
-        if(pc.isMoving())
-            pc.stopMovement(pc.getMovementLoc());
+
         if(msg.getPowerUsedID() != 421084024 && origin.getPlayerCharacter().getPromotionClassID() != 2513) {
             if (!origin.getPlayerCharacter().getPowers().containsKey(msg.getPowerUsedID())) {
                 Logger.error(origin.getPlayerCharacter().getFirstName() + " attempted to cast a power they do not have");
@@ -1094,7 +1093,7 @@ public enum PowersManager {
                     continue;
                 // If something blocks the action, then stop
 
-                if (ab.blocked(target, pb, trains)) {
+                if (ab.blocked(target, pb, trains,playerCharacter)) {
 
                     PowersManager.sendEffectMsg(playerCharacter, 5, ab, pb);
                     continue;
@@ -1281,7 +1280,7 @@ public enum PowersManager {
                     continue;
                 // If something blocks the action, then stop
 
-                if (ab.blocked(target, pb, trains))
+                if (ab.blocked(target, pb, trains,caster))
                     continue;
                 // TODO handle overwrite stack order here
                 String stackType = ab.getStackType();
@@ -1900,7 +1899,7 @@ public enum PowersManager {
             if (trains < ab.getMinTrains() || trains > ab.getMaxTrains())
                 continue;
             // If something blocks the action, then stop
-            if (ab.blocked(target, pb, trains))
+            if (ab.blocked(target, pb, trains,ac))
                 // sendPowerMsg(pc, 5, msg);
                 continue;
             // TODO handle overwrite stack order here

@@ -101,6 +101,10 @@ public enum CombatManager {
 
     public static void AttackTarget(PlayerCharacter playerCharacter, AbstractWorldObject target) {
 
+        if(playerCharacter != null && playerCharacter.isBoxed)
+            if(target.getObjectType().equals(GameObjectType.PlayerCharacter))
+                return;
+
         boolean swingOffhand = false;
 
         //check my weapon can I do an offhand attack

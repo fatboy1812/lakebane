@@ -5145,9 +5145,7 @@ public class PlayerCharacter extends AbstractCharacter {
     @Override
     public void update(Boolean newSystem) {
 
-        if(!newSystem)
-            this.updateLocation();
-
+        this.updateLocation();
         this.updateMovementState();
 
         if(!newSystem)
@@ -5198,8 +5196,11 @@ public class PlayerCharacter extends AbstractCharacter {
                             }
                         }
 
-                        if (this.isBoxed && !this.containsEffect(1672601862)) {
-                            PowersManager.applyPower(this, this, Vector3fImmutable.ZERO, 1672601862, 40, false);
+                        if (this.isBoxed && !this.containsEffect(-654906771)) {
+                            PowersManager.applyPower(this, this, Vector3fImmutable.ZERO, -935138707, 40, false);
+                        }else if(!this.isBoxed && this.containsEffect(-654906771)){
+                            this.effects.remove("PvE-Flagged");
+                            this.effects.remove("1258");
                         }
                     }
                     if (this.isFlying()) {
