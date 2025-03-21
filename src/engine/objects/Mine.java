@@ -18,6 +18,7 @@ import engine.math.Vector3fImmutable;
 import engine.net.ByteBufferWriter;
 import engine.net.client.msg.ErrorPopupMsg;
 import engine.server.MBServerStatics;
+import org.joda.time.DateTime;
 import org.pmw.tinylog.Logger;
 
 import java.net.UnknownHostException;
@@ -29,6 +30,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static engine.gameManager.DbManager.MineQueries;
 import static engine.gameManager.DbManager.getObject;
@@ -66,6 +68,10 @@ public class Mine extends AbstractGameObject {
     public ArrayList<Mob> strongholdMobs;
     public HashMap<Integer,Integer> oldBuildings;
     public HashMap<Integer, Long> mineAttendees = new HashMap<>();
+
+    public Long allowed_teleport_time;
+    public Boolean enforceLore = false;
+    public HashMap<Guild, Enum.GuildType> chosen_charters;
 
     /**
      * ResultSet Constructor
@@ -131,6 +137,11 @@ public class Mine extends AbstractGameObject {
             tower.setMaxHitPoints(5000f * this.capSize);
             tower.setCurrentHitPoints(tower.healthMax);
         }
+        this.allowed_teleport_time = System.currentTimeMillis();
+
+        //decide if lore or not
+        this.enforceLore = false;
+        //this.enforceLore = ThreadLocalRandom.current().nextInt(1,5) == 2;
     }
 
     public static void releaseMineClaims(PlayerCharacter playerCharacter) {
@@ -207,12 +218,12 @@ public class Mine extends AbstractGameObject {
             writer.putInt(mine.getObjectType().ordinal());
             writer.putInt(mine.getObjectUUID());
             writer.putInt(mine.getObjectUUID()); //actually a hash of mine
-            if(mine.isStronghold){
-                writer.putString("STRONGHOLD");
-                writer.putString("");
+            if(mine.enforceLore){
+                writer.putString(mine.mineType.name);
+                writer.putString(mine.capSize + " Man LORE");
             }else {
                 writer.putString(mine.mineType.name);
-                writer.putString(mine.capSize + " Man ");
+                writer.putString(mine.capSize + " Man ARAC");
             }
             //writer.putString(mine.zoneName + " " + mine.capSize + " Man ");
 
@@ -339,7 +350,7 @@ public class Mine extends AbstractGameObject {
     public static ArrayList<Mine> getMinesToTeleportTo(PlayerCharacter player) {
         ArrayList<Mine> mines = new ArrayList<>();
         for(Mine mine : Mine.getMines())
-            if(!mine.isActive)
+            if(!mine.isActive && System.currentTimeMillis() > mine.allowed_teleport_time)
                 if(mine.getOwningGuild() != null)
                   if(mine.getOwningGuild().getNation().equals(player.getGuild().getNation()))
                       if(!mine.getOwningGuild().equals(Guild.getErrantGuild()))
@@ -425,6 +436,7 @@ public class Mine extends AbstractGameObject {
                     //something went wrong resetting zerg multiplier, maybe player was deleted?
                 }
             }
+            this.allowed_teleport_time = System.currentTimeMillis() + MBServerStatics.FIVE_MINUTES;
         }
     }
 
@@ -596,16 +608,16 @@ public class Mine extends AbstractGameObject {
         int amount = 0;
         switch(this.capSize){
             case 3:
-                amount = 1800000;
-                break;
-            case 5:
                 amount = 3000000;
                 break;
+            case 5:
+                amount = 4200000;
+                break;
             case 10:
-                amount = 6000000;
+                amount = 7200000;
                 break;
             case 20:
-                amount = 12000000;
+                amount = 13200000;
                 break;
         }
         if(this.production.UUID == 7)
@@ -673,7 +685,11 @@ public class Mine extends AbstractGameObject {
         for(Guild nation : updatedNations){
             float multiplier = ZergManager.getCurrentMultiplier(charactersByNation.get(nation).size(),this.capSize);
             for(PlayerCharacter player : charactersByNation.get(nation)){
-                player.ZergMultiplier = multiplier;
+                if(this.capSize == 3 && player.getPromotionClassID() == 2519) {
+                    player.ZergMultiplier = 0.0f; // priest gets 100% debuff at 3 man mines
+                }else{
+                    player.ZergMultiplier = multiplier;
+                }
             }
         }
         try
