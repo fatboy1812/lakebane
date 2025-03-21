@@ -33,11 +33,11 @@ public class MBServerStatics {
     // hit box
     // calcs
     public static final boolean PRINT_INCOMING_OPCODES = false; // print
-    public static final int BANK_GOLD_LIMIT = 25000000;
+    public static final int BANK_GOLD_LIMIT = 100000000;
     // incoming
     // opcodes to
     // console
-    public static final int PLAYER_GOLD_LIMIT = 10000000;
+    public static final int PLAYER_GOLD_LIMIT = 50000000;
     // buildings, npcs
     /*
      * Login cache flags
@@ -379,6 +379,7 @@ public class MBServerStatics {
     // Mine related
     public static final int MINE_EARLY_WINDOW = 16; // 4pm
     public static final int MINE_LATE_WINDOW = 0; // Midnight
+    public static final Long THREE_MINUTES = 180000L;
     public static boolean DEBUG_PROTOCOL = false;
     public static int SPATIAL_HASH_BUCKETSX = 16384;
     public static int SPATIAL_HASH_BUCKETSY = 12288;

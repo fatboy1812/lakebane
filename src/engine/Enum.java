@@ -979,8 +979,8 @@ public class Enum {
             try {
                 returnMod = SourceType.valueOf(modName.replace(",", ""));
             } catch (Exception e) {
-                Logger.error(modName);
-                Logger.error(e);
+                //Logger.error(modName);
+                //Logger.error(e);
                 return SourceType.None;
             }
             return returnMod;

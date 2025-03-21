@@ -1510,6 +1510,8 @@ public class CharacterItemManager {
         if (purchasedItem == null || npc == null)
             return false;
 
+        purchasedItem.stripCastableEnchants();
+
         itemMan = npc.getCharItemManager();
 
         if (itemMan == null)
@@ -2351,7 +2353,7 @@ public class CharacterItemManager {
         }
 
 
-        if (this.getGoldInventory().getNumOfItems() + goldFrom2 > 10000000) {
+        if (this.getGoldInventory().getNumOfItems() + goldFrom2 > MBServerStatics.PLAYER_GOLD_LIMIT) {
             PlayerCharacter pc = (PlayerCharacter) this.absCharacter;
             if (pc.getClientConnection() != null)
                 ErrorPopupMsg.sendErrorPopup(pc, 202);
@@ -2359,7 +2361,7 @@ public class CharacterItemManager {
         }
 
 
-        if (tradingWith.getGoldInventory().getNumOfItems() + goldFrom1 > 10000000) {
+        if (tradingWith.getGoldInventory().getNumOfItems() + goldFrom1 > MBServerStatics.PLAYER_GOLD_LIMIT) {
             PlayerCharacter pc = (PlayerCharacter) tradingWith.absCharacter;
             if (pc.getClientConnection() != null)
                 ErrorPopupMsg.sendErrorPopup(pc, 202);

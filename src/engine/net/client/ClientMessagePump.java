@@ -571,6 +571,11 @@ public class ClientMessagePump implements NetMsgHandler {
             return;
 
         if (i.isCanDestroy()) {
+
+            if (i.getItemBase().isRune() && !sourcePlayer.isInSafeZone()) {
+                ChatManager.chatSystemInfo(sourcePlayer, "You May Only Delete Runes In A Safe Zone.");
+                return;
+            }
             int goldValue = i.getBaseValue();
             if (i.getItemBase().isRune())
                 goldValue = 500000;
@@ -578,7 +583,7 @@ public class ClientMessagePump implements NetMsgHandler {
             if (i.getItemBaseID() == 980066)
                 goldValue = 0;
 
-            if(itemManager.getGoldInventory().getNumOfItems() + goldValue > 10000000)
+            if(itemManager.getGoldInventory().getNumOfItems() + goldValue > MBServerStatics.PLAYER_GOLD_LIMIT)
                 return;
 
             if (itemManager.delete(i)) {
@@ -791,6 +796,8 @@ public class ClientMessagePump implements NetMsgHandler {
 
         if (item == null)
             return;
+
+        item.stripCastableEnchants();
 
         if (item.lootLock.tryLock()) {
             try {
@@ -1287,7 +1294,7 @@ public class ClientMessagePump implements NetMsgHandler {
 
                 cost *= profit;
 
-                if (gold.getNumOfItems() + cost > 10000000) {
+                if (gold.getNumOfItems() + cost > MBServerStatics.PLAYER_GOLD_LIMIT) {
                     return;
                 }
 
@@ -1480,6 +1487,7 @@ public class ClientMessagePump implements NetMsgHandler {
                                 if (buy != null) {
                                     me.transferEnchants(buy);
                                     itemMan.addItemToInventory(buy);
+                                    buy.stripCastableEnchants();
                                     if(npc.contractUUID == 900 && buy.getItemBaseID() == 1705032){
                                         buy.setNumOfItems(10);
                                         DbManager.ItemQueries.UPDATE_NUM_ITEMS(buy,buy.getNumOfItems());
