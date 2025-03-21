@@ -17,10 +17,7 @@ import engine.objects.*;
 import engine.server.MBServerStatics;
 import org.pmw.tinylog.Logger;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -90,6 +87,13 @@ public enum LootManager {
             return;
         }
 
+        if(!mob.getSafeZone()) {
+            SpecialLootHandler.RollContract(mob);
+            SpecialLootHandler.RollGlass(mob);
+            SpecialLootHandler.RollRune(mob);
+            SpecialLootHandler.RollRacialGuard(mob);
+        }
+
         //determine if mob is in hotzone
         boolean inHotzone = false;
 
@@ -127,7 +131,10 @@ public enum LootManager {
             if (ib == null)
                 break;
             if (ib.isDiscRune() || ib.getName().toLowerCase().contains("of the gods")) {
-                ChatSystemMsg chatMsg = new ChatSystemMsg(null, mob.getName() + " in " + mob.getParentZone().getName() + " has found the " + ib.getName() + ". Are you tough enough to take it?");
+                Zone camp = mob.getParentZone();
+                Zone macro = camp.getParent();
+                String name = camp.getName() + "(" + macro.getName() + ")";
+                ChatSystemMsg chatMsg = new ChatSystemMsg(null, mob.getName() + " in " + name + " has found the " + ib.getName() + ". Are you tough enough to take it?");
                 chatMsg.setMessageType(10);
                 chatMsg.setChannel(Enum.ChatChannelType.SYSTEM.getChannelID());
                 DispatchMessage.dispatchMsgToAll(chatMsg);
@@ -140,59 +147,6 @@ public enum LootManager {
 
         boolean hotzoneWasRan = false;
         float dropRate;
-
-        if (!mob.getSafeZone()) {
-            int contractLow = 1, contractHigh = 400;
-            int runeLow = 401, runeHigh = 800;
-            int resourceLow = 801, resourceHigh = 900;
-            int glassLow = 901, glassHigh = 910;
-            int guardLow = 911, guardHigh = 920;
-
-            // Pre-compute adjusted high values
-            int contractAdjust = 0, runeAdjust = 0, resourceAdjust = 0, glassAdjust = 0, guardAdjust = 0;
-            if (mob.level < 50) {
-                int dif = 50 - mob.level;
-                contractAdjust = (int)(400 * (dif * 0.02f));
-                runeAdjust = (int)(400 * (dif * 0.02f));
-                resourceAdjust = (int)(100 * (dif * 0.02f));
-                glassAdjust = (int)(10 * (dif * 0.02f));
-                guardAdjust = (int)(10 * (dif * 0.02f));
-            }
-
-            // Generate a single random roll
-            int specialCaseRoll = ThreadLocalRandom.current().nextInt(1, 100001);
-
-            // Calculate adjusted high values once
-            int contractHighAdjusted = contractHigh - contractAdjust;
-            int runeHighAdjusted = runeHigh - runeAdjust;
-            int resourceHighAdjusted = resourceHigh - resourceAdjust;
-            int glassHighAdjusted = glassHigh - glassAdjust;
-            int guardHighAdjusted = guardHigh - guardAdjust;
-
-            // Check the roll range and handle accordingly
-            if (specialCaseRoll >= contractLow && specialCaseRoll <= contractHighAdjusted) {
-                SpecialCaseContractDrop(mob, entries);
-            } else if (specialCaseRoll >= runeLow && specialCaseRoll <= runeHighAdjusted) {
-                SpecialCaseRuneDrop(mob, entries);
-            } else if (specialCaseRoll >= resourceLow && specialCaseRoll <= resourceHighAdjusted) {
-                SpecialCaseResourceDrop(mob, entries);
-            } else if (specialCaseRoll >= glassLow && specialCaseRoll <= glassHighAdjusted) {
-                int glassID = rollRandomItem(126);
-                ItemBase glassItem = ItemBase.getItemBase(glassID);
-                if (glassItem != null) {
-                    MobLoot toAddGlass = new MobLoot(mob, glassItem, false);
-                    mob.getCharItemManager().addItemToInventory(toAddGlass);
-                }
-            } else if (specialCaseRoll >= guardLow && specialCaseRoll <= guardHighAdjusted) {
-                int guardContractID = racial_guard_uuids.get(new java.util.Random().nextInt(racial_guard_uuids.size()));
-                ItemBase guardContract = ItemBase.getItemBase(guardContractID);
-                if (guardContract != null) {
-                    MobLoot toAddContract = new MobLoot(mob, guardContract, false);
-                    mob.getCharItemManager().addItemToInventory(toAddContract);
-                }
-            }
-        }
-
 
         // Iterate all entries in this bootySet and process accordingly
         Zone zone = ZoneManager.findSmallestZone(mob.loc);
@@ -268,32 +222,6 @@ public enum LootManager {
     }
 
     public static void SpecialCaseRuneDrop(Mob mob,ArrayList<BootySetEntry> entries){
-        //int lootTableID = 0;
-        //for(BootySetEntry entry : entries){
-        //    if(entry.bootyType.equals("LOOT")){
-        //        lootTableID = entry.genTable;
-        //        break;
-        //    }
-        //}
-
-       // if(lootTableID == 0)
-       //     return;
-
-        //int RuneTableID = 0;
-        //for(GenTableEntry entry : _genTables.get(lootTableID)){
-        //    try {
-        //        if (ItemBase.getItemBase(_itemTables.get(entry.itemTableID).get(0).cacheID).getType().equals(Enum.ItemType.RUNE)) {
-        //            RuneTableID = entry.itemTableID;
-        //            break;
-        //        }
-        //    }catch(Exception e){
-
-        //    }
-        //}
-
-        //if(RuneTableID == 0)
-        //    return;
-
         int roll = ThreadLocalRandom.current().nextInt(static_rune_ids.size() + 1);
         int itemId = static_rune_ids.get(0);
         try {
@@ -377,7 +305,7 @@ public enum LootManager {
         if (itemUUID == 0)
             return null;
 
-        if (ItemBase.getItemBase(itemUUID).getType().ordinal() == Enum.ItemType.RESOURCE.ordinal()) {
+        if (ItemBase.getItemBase(itemUUID).getType().equals(Enum.ItemType.RESOURCE) || ItemBase.getItemBase(itemUUID).getName().equals("Mithril")) {
             if(ThreadLocalRandom.current().nextInt(1,101) < 91)
                 return null; // cut down world drops rates of resources by 90%
             int amount = ThreadLocalRandom.current().nextInt(tableRow.minSpawn, tableRow.maxSpawn + 1);
@@ -446,8 +374,23 @@ public enum LootManager {
             return inItem;
 
         if (prefixMod.action.length() > 0) {
-            inItem.setPrefix(prefixMod.action);
-            inItem.addPermanentEnchantment(prefixMod.action, 0, prefixMod.level, true);
+            String action = prefixMod.action;
+            if(action.equals("PRE-108") || action.equals("PRE-058") || action.equals("PRE-031")){//massive, barons and avatars to be replaced by leg or warlords
+                int roll = ThreadLocalRandom.current().nextInt(1,100);
+                if(inItem.getItemBase().getRange() > 15){
+                    action = "PRE-040";
+                }else {
+                    if (roll > 50) {
+                        //set warlords
+                        action = "PRE-021";
+                    } else {
+                        //set legendary
+                        action = "PRE-040";
+                    }
+                }
+            }
+            inItem.setPrefix(action);
+            inItem.addPermanentEnchantment(action, 0, prefixMod.level, true);
         }
 
         return inItem;
@@ -574,6 +517,10 @@ public enum LootManager {
                 case RESOURCE:
                     return;
             }
+
+            if (ib.getUUID() == 1580021)//mithril
+                return;
+
             toAdd.setIsID(true);
             mob.getCharItemManager().addItemToInventory(toAdd);
         }
@@ -633,6 +580,8 @@ public enum LootManager {
         if (chanceRoll > bse.dropChance)
             return;
 
+        if(bse.itemBase == 1580021)//mithril
+            return;
         MobLoot lootItem = new MobLoot(mob, ItemBase.getItemBase(bse.itemBase), true);
 
         if (lootItem != null) {
@@ -662,17 +611,58 @@ public enum LootManager {
             return;
         switch (ib.getUUID()) {
             case 971070: //wrapped rune
-                ItemBase runeBase = null;
-                int roll = ThreadLocalRandom.current().nextInt(static_rune_ids.size() + 1);
-                int itemId = static_rune_ids.get(0);
-                try {
-                    itemId = static_rune_ids.get(roll);
-                }catch(Exception e){
+                Random random = new Random();
+                int roll = random.nextInt(100);
+                int itemId;
+                ItemBase runeBase;
+                 if (roll >= 90) {
+                //35 or 40
+                     roll = ThreadLocalRandom.current().nextInt(SpecialLootHandler.static_rune_ids_high.size() + 1);
+                     itemId = SpecialLootHandler.static_rune_ids_high.get(0);
+                    try {
+                        itemId = SpecialLootHandler.static_rune_ids_high.get(roll);
+                   } catch (Exception e) {
 
-                }
-                runeBase = ItemBase.getItemBase(itemId);
-                if(runeBase != null) {
-                    winnings = new MobLoot(playerCharacter, runeBase, 1, false);
+                    }
+                  runeBase = ItemBase.getItemBase(itemId);
+                   if (runeBase != null) {
+                       MobLoot rune = new MobLoot(playerCharacter, runeBase, true);
+
+                       if (rune != null)
+                           playerCharacter.getCharItemManager().addItemToInventory(rune);
+                   }
+                } else if (roll >= 65 && roll <= 89) {
+                //30,35 or 40
+                    roll = ThreadLocalRandom.current().nextInt(SpecialLootHandler.static_rune_ids_mid.size() + 1);
+                    itemId = SpecialLootHandler.static_rune_ids_mid.get(0);
+                    try {
+                        itemId = SpecialLootHandler.static_rune_ids_mid.get(roll);
+                   } catch (Exception e) {
+
+                    }
+                    runeBase = ItemBase.getItemBase(itemId);
+                    if (runeBase != null) {
+                        MobLoot rune = new MobLoot(playerCharacter, runeBase, true);
+
+                        if (rune != null)
+                            playerCharacter.getCharItemManager().addItemToInventory(rune);
+                    }
+                 } else {
+                //5-30
+                     roll = ThreadLocalRandom.current().nextInt(SpecialLootHandler.static_rune_ids_low.size() + 1);
+                     itemId = SpecialLootHandler.static_rune_ids_low.get(0);
+                    try {
+                        itemId = SpecialLootHandler.static_rune_ids_low.get(roll);
+                    } catch (Exception ignored) {
+
+                   }
+                   runeBase = ItemBase.getItemBase(itemId);
+                   if (runeBase != null) {
+                       MobLoot rune = new MobLoot(playerCharacter, runeBase, true);
+
+                        if (rune != null)
+                            playerCharacter.getCharItemManager().addItemToInventory(rune);
+                    }
                 }
                 break;
             case 971012: //wrapped glass
@@ -763,7 +753,7 @@ public enum LootManager {
         ItemBase ib = ItemBase.getItemBase(selectedItem.cacheID);
         if(ib.getUUID() == Warehouse.coalIB.getUUID()){
             //no more coal, give gold instead
-            if (itemMan.getGoldInventory().getNumOfItems() + 250000 > 10000000) {
+            if (itemMan.getGoldInventory().getNumOfItems() + 250000 > MBServerStatics.PLAYER_GOLD_LIMIT) {
                 ErrorPopupMsg.sendErrorPopup(playerCharacter, 21);
                 return;
             }
@@ -941,8 +931,8 @@ public enum LootManager {
         }
 
         //present drop chance for all
-        if (ThreadLocalRandom.current().nextInt(100) < 35)
-            DropPresent(mob);
+        //if (ThreadLocalRandom.current().nextInt(100) < 35)
+        //    DropPresent(mob);
 
         //random contract drop chance for all
         if (ThreadLocalRandom.current().nextInt(100) < 40) {
