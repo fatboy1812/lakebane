@@ -174,7 +174,7 @@ public class WorldServer {
 				}
 			}
 			//outString += " pop: " + SessionManager.getActivePlayerCharacterCount() + " max pop: " + SessionManager._maxPopulation;
-			outString += "Active Players: " + activePop + " Boxed Players: " + boxedPop;
+			outString += " Active Players: " + activePop + " Boxed Players: " + boxedPop;
 		} catch (Exception e) {
 			Logger.error("Failed to build string");
 		}
