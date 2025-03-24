@@ -45,6 +45,13 @@ public class PersistentAoeJob extends AbstractEffectJob {
         if (this.aej == null || this.source == null || this.action == null || this.power == null || this.source == null || this.eb == null)
             return;
 
+        if(this.source.isAlive() && this.source.getObjectType().equals(GameObjectType.PlayerCharacter)){
+            PlayerCharacter pc = (PlayerCharacter)this.source;
+            if(pc.isBoxed){
+                this.cancelJob();
+            }
+        }
+
         if (!this.source.isAlive())
             PowersManager.finishEffectTime(this.source, this.target, this.action, this.trains);
         else if (this.iteration < this.power.getChantIterations()) {
