@@ -5183,13 +5183,14 @@ public class PlayerCharacter extends AbstractCharacter {
 
                     if(this.isActive && this.enteredWorld) {
                         if (!this.timestamps.containsKey("nextBoxCheck"))
-                            this.timestamps.put("nextBoxCheck", System.currentTimeMillis() + 10000);
+                            this.timestamps.put("nextBoxCheck", System.currentTimeMillis() + 3000);
 
-                        if (!this.isBoxed && this.timestamps.get("nextBoxCheck") < System.currentTimeMillis()) {
-                            this.isBoxed = checkIfBoxed(this);
-                            this.timestamps.put("nextBoxCheck", System.currentTimeMillis() + 10000);
+                        if(this.timestamps.get("nextBoxCheck") < System.currentTimeMillis()) {
+                            if (!this.isBoxed) {
+                                this.isBoxed = checkIfBoxed(this);
+                            }
+                            this.timestamps.put("nextBoxCheck", System.currentTimeMillis() + 3000);
                         }
-
                         if (this.level < 10 && this.enteredWorld) {
                             while (this.level < 10) {
                                 grantXP(Experience.getBaseExperience(this.level + 1) - this.exp);
