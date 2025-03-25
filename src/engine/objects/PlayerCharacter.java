@@ -5250,10 +5250,7 @@ public class PlayerCharacter extends AbstractCharacter {
         }
 
         player.isBoxed = false;
-        if (player.containsEffect(1672601862)) {
-            player.removeEffectBySource(EffectSourceType.DeathShroud, 41, false);
-        }
-
+        player.timestamps.put("nextBoxCheck", System.currentTimeMillis());
     }
     public static boolean checkIfBoxed(PlayerCharacter player){
         if(ConfigManager.MB_WORLD_BOXLIMIT.getValue().equals("false")) {
