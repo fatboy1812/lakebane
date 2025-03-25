@@ -5202,6 +5202,7 @@ public class PlayerCharacter extends AbstractCharacter {
                         }else if(!this.isBoxed && this.containsEffect(-654906771)){
                             this.effects.remove("PvE-Flagged");
                             this.effects.remove("1258");
+                            WorldGrid.updateObject(this);
                         }
                     }
                     if (this.isFlying()) {
@@ -5250,7 +5251,8 @@ public class PlayerCharacter extends AbstractCharacter {
         }
 
         player.isBoxed = false;
-        player.timestamps.put("nextBoxCheck", System.currentTimeMillis());
+        player.effects.remove("PvE-Flagged");
+        player.effects.remove("1258");
     }
     public static boolean checkIfBoxed(PlayerCharacter player){
         if(ConfigManager.MB_WORLD_BOXLIMIT.getValue().equals("false")) {
