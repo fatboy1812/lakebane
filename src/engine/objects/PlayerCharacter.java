@@ -5247,12 +5247,13 @@ public class PlayerCharacter extends AbstractCharacter {
 
         for (PlayerCharacter pc : sameMachine) {
             pc.isBoxed = true;
-
-            player.isBoxed = false;
-            if (player.containsEffect(1672601862)) {
-                player.removeEffectBySource(EffectSourceType.DeathShroud, 41, false);
-            }
         }
+
+        player.isBoxed = false;
+        if (player.containsEffect(1672601862)) {
+            player.removeEffectBySource(EffectSourceType.DeathShroud, 41, false);
+        }
+
     }
     public static boolean checkIfBoxed(PlayerCharacter player){
         if(ConfigManager.MB_WORLD_BOXLIMIT.getValue().equals("false")) {
