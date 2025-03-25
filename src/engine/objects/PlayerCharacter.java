@@ -5267,11 +5267,11 @@ public class PlayerCharacter extends AbstractCharacter {
 
         for (PlayerCharacter pc : sameMachine) {
             pc.isBoxed = true;
+            pc.auditBoxedStatus();
         }
 
         player.isBoxed = false;
-        player.effects.remove("PvE-Flagged");
-        player.effects.remove("1258");
+        player.auditBoxedStatus();
     }
     public static boolean checkIfBoxed(PlayerCharacter player){
         if(ConfigManager.MB_WORLD_BOXLIMIT.getValue().equals("false")) {
