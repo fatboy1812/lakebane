@@ -92,11 +92,11 @@ public class HourlyJobThread implements Runnable {
         Logger.info(MessageDispatcher.getNetstatString());
         Logger.info(PurgeOprhans.recordsDeleted.toString() + "orphaned items deleted");
 
-        for (Bane bane : Bane.banes.values()){
-            if(bane.getSiegePhase().equals(Enum.SiegePhase.CHALLENGE)){
-                bane.setDefaultTime();
-            }
-        }
+        //for (Bane bane : Bane.banes.values()){
+        //    if(bane.getSiegePhase().equals(Enum.SiegePhase.CHALLENGE)){
+        //        bane.setDefaultTime();
+        //    }
+        //}
 
         try{
             Logger.info("Trashing Multibox Cheaters");
@@ -119,5 +119,7 @@ public class HourlyJobThread implements Runnable {
         }catch(Exception e){
             Logger.error("Failed To Run Ban Multibox Abusers");
         }
+
+        BaneManager.default_check();
     }
 }

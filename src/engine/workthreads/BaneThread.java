@@ -13,6 +13,7 @@ import engine.Enum;
 import engine.InterestManagement.WorldGrid;
 import engine.db.archive.DataWarehouse;
 import engine.db.archive.MineRecord;
+import engine.gameManager.BaneManager;
 import engine.gameManager.BuildingManager;
 import engine.gameManager.ChatManager;
 import engine.gameManager.StrongholdManager;
@@ -27,44 +28,21 @@ import java.util.ArrayList;
 
 public class BaneThread implements Runnable {
 
-    private volatile Long lastRun;
     public static final Long instancedelay = 1000L;
     public BaneThread() {
         Logger.info(" BaneThread thread has started!");
     }
 
 
-    public void processBanesWindow() {
-
-        try {
-            synchronized (Bane.banes) {
-                for (int baneId : Bane.banes.keySet()) {
-                    Bane bane = Bane.banes.get(baneId);
-                    if (bane != null && bane.getSiegePhase().equals(Enum.SiegePhase.WAR)) {
-                        bane.applyZergBuffs();
-                    }
-                }
-            }
-        } catch (Exception e) {
-            Logger.error("BANE ERROR",e);
-        }
-
-
-    }
-
     public void run() {
-        lastRun = System.currentTimeMillis();
         while (true) {
-            if (System.currentTimeMillis() >= lastRun + instancedelay) { // Correct condition
-                this.processBanesWindow();
-                lastRun = System.currentTimeMillis(); // Update lastRun after processing
-            }else {
-                try {
-                    Thread.sleep(100); // Pause for 100ms to reduce CPU usage
-                } catch (InterruptedException e) {
-                    Logger.error("Thread interrupted", e);
-                    Thread.currentThread().interrupt();
-                }
+            //this.processBanesWindow();
+            BaneManager.pulse_banes();
+            try {
+                Thread.sleep(100); // Pause for 100ms to reduce CPU usage
+            } catch (InterruptedException e) {
+                Logger.error("Thread interrupted", e);
+                Thread.currentThread().interrupt();
             }
         }
     }
