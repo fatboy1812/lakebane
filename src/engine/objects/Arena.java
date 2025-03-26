@@ -19,8 +19,8 @@ public class Arena {
 
     }
     public Boolean disqualify() {
-        HashSet<AbstractWorldObject> inRange = WorldGrid.getObjectsInRangePartial(this.loc, 250f, MBServerStatics.MASK_PLAYER);
-        HashSet<AbstractWorldObject> warningRange = WorldGrid.getObjectsInRangePartial(this.loc, 500f, MBServerStatics.MASK_PLAYER);
+        HashSet<AbstractWorldObject> inRange = WorldGrid.getObjectsInRangePartial(this.loc, ArenaManager.arena_radius, MBServerStatics.MASK_PLAYER);
+        HashSet<AbstractWorldObject> warningRange = WorldGrid.getObjectsInRangePartial(this.loc, ArenaManager.arena_radius + 250f, MBServerStatics.MASK_PLAYER);
         for(AbstractWorldObject obj : warningRange){
             PlayerCharacter pc = (PlayerCharacter)obj;
             if(pc.equals(this.player1) || pc.equals(this.player2))

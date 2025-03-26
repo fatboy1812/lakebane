@@ -18,6 +18,8 @@ public class ArenaManager {
     public static Long pulseDelay = 180000L;
     public static Long lastExecution = 0L;
 
+    public static float arena_radius = 500f;
+
     public static void pulseArenas() {
         if(lastExecution == 0L){
             lastExecution = System.currentTimeMillis();
@@ -132,7 +134,7 @@ public class ArenaManager {
                 float y = 0; // Y coordinate is always 0
 
                 loc = new Vector3fImmutable(x, y, z * -1);
-                HashSet<AbstractWorldObject> inRange = WorldGrid.getObjectsInRangePartial(loc,500f, MBServerStatics.MASK_PLAYER);
+                HashSet<AbstractWorldObject> inRange = WorldGrid.getObjectsInRangePartial(loc,arena_radius, MBServerStatics.MASK_PLAYER);
                 if(inRange.isEmpty() && !isUnderWater(loc))
                     locSet = true;
                 //}
