@@ -6,6 +6,7 @@ import engine.powers.EffectsBase;
 import engine.powers.PowersBase;
 import engine.powers.effectmodifiers.AbstractEffectModifier;
 import engine.server.MBServerStatics;
+import org.pmw.tinylog.Logger;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -384,15 +385,19 @@ public class PlayerCombatStats {
                     }
                 }
             } else {
-                for (AbstractEffectModifier mod : this.owner.effects.get(effID).getEffectModifiers()) {
-                    if (mod.modType.equals(Enum.ModType.OCV)) {
-                        if(mod.getPercentMod() == 0) {
-                            float value = mod.getMinMod();
-                            int trains = this.owner.effects.get(effID).getTrains();
-                            float modValue = value + (trains * mod.getRamp());
-                            atrEnchants += modValue;
+                try {
+                    for (AbstractEffectModifier mod : this.owner.effects.get(effID).getEffectModifiers()) {
+                        if (mod.modType.equals(Enum.ModType.OCV)) {
+                            if (mod.getPercentMod() == 0) {
+                                float value = mod.getMinMod();
+                                int trains = this.owner.effects.get(effID).getTrains();
+                                float modValue = value + (trains * mod.getRamp());
+                                atrEnchants += modValue;
+                            }
                         }
                     }
+                }catch(Exception e){
+                    //Logger.error(e.getMessage());
                 }
             }
         }
@@ -434,16 +439,35 @@ public class PlayerCombatStats {
 
             atr *= 1.0f + stanceValue;
         if(this.owner.bonuses != null) {
-            float positivePercentBonuses = this.owner.bonuses.getFloatPercentPositive(Enum.ModType.OCV, Enum.SourceType.None) - stanceValue;
-            float negativePercentBonuses = this.owner.bonuses.getFloatPercentNegative(Enum.ModType.OCV, Enum.SourceType.None);
-            float modifier = 1 + (positivePercentBonuses + negativePercentBonuses);
+
+
+
+
+            //float positivePercentBonuses = this.owner.bonuses.getFloatPercentPositive(Enum.ModType.OCV, Enum.SourceType.None) - stanceValue;
+            //float negativePercentBonuses = this.owner.bonuses.getFloatPercentNegative(Enum.ModType.OCV, Enum.SourceType.None);
+            //float modifier = 1 + (positivePercentBonuses + negativePercentBonuses);
+            float modifier = this.owner.bonuses.getFloatPercentAll(Enum.ModType.OCV, Enum.SourceType.None);
             if(preciseRune > 1.0f)
                 modifier -= 0.05f;
-            if(stanceValue > 0.0f){
+            if(stanceValue != 0.0f){
                 modifier -= (stanceValue);
             }
             modifier -= healerDefStance;
-            atr *= modifier;
+            modifier += 1.0f;
+            float weaponMoveBonus = 0.0f;
+            if(this.owner.effects != null){
+                if(this.owner.effects.containsKey("WeaponMove")){
+                    Effect eff = this.owner.effects.get("WeaponMove");
+                    for(AbstractEffectModifier mod : eff.getEffectModifiers()){
+                        if(mod.modType.equals(Enum.ModType.OCV)){
+                            float min = mod.getPercentMod();
+                            float ramp = mod.getRamp() * eff.getTrains();
+                            weaponMoveBonus += (min + ramp) * 0.01f;
+                        }
+                    }
+                }
+            }
+            atr *= modifier - weaponMoveBonus;
         }
             atr = (float) Math.round(atr);
 
@@ -1056,15 +1080,28 @@ public class PlayerCombatStats {
         atr += (modifiedDexterity * 0.5f) + weaponATR1 + weaponATR2;
         atr *= precise;
         atr += atrBuffs;
-        if(pc.getWeaponPower() != null){
-            DeferredPowerJob dpj = pc.getWeaponPower();
-            dpj.endEffect();
+
+        float weaponMoveBonus = 0.0f;
+        if(pc.effects != null){
+            if(pc.effects.containsKey("WeaponMove")){
+                Effect eff = pc.effects.get("WeaponMove");
+                for(AbstractEffectModifier mod : eff.getEffectModifiers()){
+                    if(mod.modType.equals(Enum.ModType.OCV)){
+                        float min = mod.getPercentMod();
+                        float ramp = mod.getRamp() * eff.getTrains();
+                        weaponMoveBonus += (min + ramp) * 0.01f;
+                    }
+                }
+            }
         }
 
+        float subtraction = (stanceMod - 1) - (precise - 1) - healerDefStance;
+        float bonuses = 0.0f;
         if(pc.bonuses != null)
-            atr *= 1 + (pc.bonuses.getFloatPercentAll(Enum.ModType.OCV, Enum.SourceType.None) - (stanceMod - 1) - (precise - 1) - healerDefStance);
+            bonuses = pc.bonuses.getFloatPercentAll(Enum.ModType.OCV, Enum.SourceType.None) - subtraction - weaponMoveBonus;
 
-        atr *= stanceMod;
+        atr *= 1+ bonuses;
+        atr *= stanceMod - healerDefStance;
         return atr;
     }
 
