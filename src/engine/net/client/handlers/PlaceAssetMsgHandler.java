@@ -805,7 +805,7 @@ public class PlaceAssetMsgHandler extends AbstractClientMsgHandler {
         // Update guild binds and tags
         //load the new city on the clients
 
-        CityZoneMsg czm = new CityZoneMsg(1, treeObject.getLoc().x, treeObject.getLoc().y, treeObject.getLoc().z, cityObject.getCityName(), zoneObject, Enum.CityBoundsType.ZONE.extents, Enum.CityBoundsType.ZONE.extents);
+        CityZoneMsg czm = new CityZoneMsg(1, treeObject.getLoc().x, treeObject.getLoc().y, treeObject.getLoc().z, cityObject.getCityName(), zoneObject, Enum.CityBoundsType.ZONE.extents + 256, Enum.CityBoundsType.ZONE.extents + 256);
         DispatchMessage.dispatchMsgToAll(czm);
 
         GuildManager.updateAllGuildBinds(playerNation, cityObject);
