@@ -5181,20 +5181,15 @@ public class PlayerCharacter extends AbstractCharacter {
 
                     this.safeZone = this.isInSafeZone();
 
-                    if(this.isActive && this.enteredWorld) {
-
-                        if (this.level < 10 && this.enteredWorld) {
-                            while (this.level < 10) {
+                    if(this.isActive && this.enteredWorld)
+                        if (this.level < 10)
+                            while (this.level < 10)
                                 grantXP(Experience.getBaseExperience(this.level + 1) - this.exp);
-                            }
-                        }
-                    }
 
                     this.auditBoxedStatus();
 
-                    if (this.isFlying()) {
+                    if (this.isFlying())
                         this.auditFlightStatus();
-                    }
 
                 } catch (Exception e) {
                     Logger.error(e);
@@ -5209,33 +5204,31 @@ public class PlayerCharacter extends AbstractCharacter {
 
     public void auditBoxedStatus(){
 
-        if (!this.timestamps.containsKey("nextBoxCheck"))
-            this.timestamps.put("nextBoxCheck", System.currentTimeMillis() + 3000);
-
-        if(this.timestamps.get("nextBoxCheck") < System.currentTimeMillis()) {
-            if (!this.isBoxed) {
-                this.isBoxed = checkIfBoxed(this);
-            }
-            this.timestamps.put("nextBoxCheck", System.currentTimeMillis() + 3000);
+        if (!this.timestamps.containsKey("nextBoxCheck")) {
+            this.timestamps.put("nextBoxCheck", System.currentTimeMillis());
+            return;
         }
 
-        if (this.isBoxed && !this.containsEffect(-654906771)) {
-            PowersManager.applyPower(this, this, Vector3fImmutable.ZERO, -935138707, 40, false);
-        }else if(!this.isBoxed && this.containsEffect(-654906771)){
-            try {
-                this.effects.get("PvE-Flagged").endEffect();
-                //this.effects.remove("PvE-Flagged");
-            }catch(Exception ignored){
+        if(this.timestamps.get("nextBoxCheck") > System.currentTimeMillis())
+            return;
 
-            }
-            try{
-                this.effects.get("1258").endEffect();
-                //this.effects.remove("1258");
-            }catch(Exception ignored){
+        this.timestamps.put("nextBoxCheck", System.currentTimeMillis() + 3000);
 
+        if(this.isBoxed){
+            if(!this.containsEffect(-654906771))
+                PowersManager.applyPower(this, this, Vector3fImmutable.ZERO, -935138707, 40, false);
+        }else{
+            if(this.containsEffect(-654906771)){
+                try{
+                    this.effects.get("1258").endEffect();
+                    //this.effects.remove("1258");
+                }catch(Exception ignored){
+
+                }
             }
         }
     }
+
     public void auditFlightStatus(){
         if (this.effects.containsKey("MoveBuff")) {
             GroundPlayer(this);
@@ -5256,6 +5249,7 @@ public class PlayerCharacter extends AbstractCharacter {
             }
         }
     }
+
     public static void unboxPlayer(PlayerCharacter player){
         String machineID = player.getClientConnection().machineID;
         ArrayList<PlayerCharacter> sameMachine = new ArrayList<>();
@@ -5266,12 +5260,17 @@ public class PlayerCharacter extends AbstractCharacter {
         }
 
         for (PlayerCharacter pc : sameMachine) {
+            PowersManager.applyPower(pc, pc, Vector3fImmutable.ZERO, -935138707, 40, false);
             pc.isBoxed = true;
-            pc.auditBoxedStatus();
         }
 
         player.isBoxed = false;
-        player.auditBoxedStatus();
+        try{
+            player.effects.get("1258").endEffect();
+            //this.effects.remove("1258");
+        }catch(Exception ignored){
+
+        }
     }
     public static boolean checkIfBoxed(PlayerCharacter player){
         if(ConfigManager.MB_WORLD_BOXLIMIT.getValue().equals("false")) {

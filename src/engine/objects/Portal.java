@@ -6,6 +6,7 @@ import engine.InterestManagement.WorldGrid;
 import engine.gameManager.ConfigManager;
 import engine.job.JobScheduler;
 import engine.jobs.CloseGateJob;
+import engine.math.Vector3f;
 import engine.math.Vector3fImmutable;
 import engine.server.MBServerStatics;
 
@@ -104,7 +105,7 @@ public class Portal {
         if (player.getTimeStamp("lastMoveGate") < this.lastActive)
             return;
 
-        player.teleport(targetGate.getLoc());
+        player.teleport(targetGate.getLoc().add(new Vector3f(0f,6f,0f)));
         player.setSafeMode();
 
     }
