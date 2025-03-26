@@ -1649,7 +1649,7 @@ public enum PowersManager {
                 it.remove();
             else if (awo.getObjectType().equals(GameObjectType.PlayerCharacter)) {
                 PlayerBonuses bonus = ((PlayerCharacter) awo).getBonuses();
-                if (bonus != null && bonus.getBool(ModType.CannotTrack, SourceType.None))
+                if (bonus != null && bonus.getBool(ModType.CannotTrack, SourceType.None) || ((PlayerCharacter) awo).getAccount().status.equals(AccountStatus.ADMIN))
                     it.remove();
             }
         }
@@ -1713,7 +1713,7 @@ public enum PowersManager {
             if(awo.equals(tracker))
                 continue;
             PlayerCharacter pc = (PlayerCharacter)awo;
-            if(!pc.isAlive())
+            if(!pc.isAlive() || pc.getAccount().status.equals(AccountStatus.ADMIN))
                 continue;
             if(guildsPresent.contains(pc.guild.getNation()))
                 list.add(pc);
