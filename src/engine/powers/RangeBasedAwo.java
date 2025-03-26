@@ -78,7 +78,7 @@ public class RangeBasedAwo implements Comparable<RangeBasedAwo> {
             AbstractWorldObject awo = rba.awo;
 
             if (awo.getObjectType().equals(GameObjectType.PlayerCharacter))
-                if (((PlayerCharacter) awo).isCSR())
+                if (((PlayerCharacter) awo).getAccount().status.equals(Enum.AccountStatus.ADMIN))
                     continue;
 
             if (AbstractWorldObject.IsAbstractCharacter(awo) && !(pc.equals(awo))) {
