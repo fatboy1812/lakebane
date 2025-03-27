@@ -953,7 +953,7 @@ public class City extends AbstractWorldObject {
 
     public boolean isLocationWithinSiegeBounds(Vector3fImmutable insideLoc) {
 
-        return insideLoc.isInsideCircle(this.getLoc(), CityBoundsType.ZONE.extents);
+        return insideLoc.isInsideCircle(this.getLoc(), 880f);
 
     }
 
