@@ -619,6 +619,30 @@ public class MobAI {
     public static void DetermineAction(Mob mob) {
 
         try {
+            boolean override = false;
+            switch (mob.BehaviourType) {
+                case GuardCaptain:
+                case GuardMinion:
+                case GuardWallArcher:
+                case Pet1:
+                case HamletGuard:
+                    override = false;
+                    break;
+                default:
+                    override = true;
+                    break;
+            }
+
+            if(mob.isSiege())
+                override = false;
+
+            if(mob.isPet())
+                override = false;
+
+            if(override){
+                SuperSimpleMobAI.run(mob);
+                return;
+            }
 
             //always check the respawn que, respawn 1 mob max per second to not flood the client
 
