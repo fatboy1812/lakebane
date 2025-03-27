@@ -661,7 +661,7 @@ public class PlaceAssetMsgHandler extends AbstractClientMsgHandler {
                 if (!building.getBlueprint().isSiegeEquip())
                     continue;
 
-            if (!building.getLoc().isInsideCircle(serverCity.getLoc(), CityBoundsType.ZONE.extents))
+            if (!building.getLoc().isInsideCircle(serverCity.getLoc(), CityBoundsType.SIEGEBOUNDS.extents))
                 continue;
 
             if (building.getGuild() == null)
