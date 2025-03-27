@@ -645,7 +645,7 @@ public enum LootManager {
                         MobLoot rune = new MobLoot(playerCharacter, runeBase, true);
 
                         if (rune != null)
-                            playerCharacter.getCharItemManager().addItemToInventory(rune);
+                            playerCharacter.getCharItemManager().addItemToInventory(rune.promoteToItem(playerCharacter));
                     }
                  } else {
                 //5-30
@@ -661,7 +661,7 @@ public enum LootManager {
                        MobLoot rune = new MobLoot(playerCharacter, runeBase, true);
 
                         if (rune != null)
-                            playerCharacter.getCharItemManager().addItemToInventory(rune);
+                            playerCharacter.getCharItemManager().addItemToInventory(rune.promoteToItem(playerCharacter));
                     }
                 }
                 break;
