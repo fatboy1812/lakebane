@@ -221,7 +221,7 @@ public class Building extends AbstractWorldObject {
             }
 
             this._strongboxValue = rs.getInt("currentGold");
-            this.maxGold = 15000000; // *** Refactor to blueprint method
+            this.maxGold = MBServerStatics.BUILDING_GOLD_LIMIT; // *** Refactor to blueprint method
             this.reserve = rs.getInt("reserve");
 
             // Does building have a protection contract?

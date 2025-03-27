@@ -24,6 +24,7 @@ import engine.net.client.msg.ErrorPopupMsg;
 import engine.net.client.msg.ItemProductionMsg;
 import engine.net.client.msg.ManageNPCMsg;
 import engine.objects.*;
+import engine.server.MBServerStatics;
 import org.pmw.tinylog.Logger;
 
 import java.util.HashMap;
@@ -361,7 +362,7 @@ public class ItemProductionMsgHandler extends AbstractClientMsgHandler {
                 vendor.removeItemFromForge(targetItem);
 
                 //refund the gold for cancelled item
-                if(vendor.building.getStrongboxValue() + targetItem.getItemBase().getBaseValue() < 15000000){
+                if(vendor.building.getStrongboxValue() + targetItem.getItemBase().getBaseValue() < MBServerStatics.BUILDING_GOLD_LIMIT){
                     vendor.building.setStrongboxValue(vendor.building.getStrongboxValue() + targetItem.getItemBase().getBaseValue());
                 }
 

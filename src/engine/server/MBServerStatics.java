@@ -380,6 +380,7 @@ public class MBServerStatics {
     public static final int MINE_EARLY_WINDOW = 16; // 4pm
     public static final int MINE_LATE_WINDOW = 0; // Midnight
     public static final Long THREE_MINUTES = 180000L;
+    public static final int BUILDING_GOLD_LIMIT = 100000000;
     public static boolean DEBUG_PROTOCOL = false;
     public static int SPATIAL_HASH_BUCKETSX = 16384;
     public static int SPATIAL_HASH_BUCKETSY = 12288;
