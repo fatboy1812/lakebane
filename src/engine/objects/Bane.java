@@ -208,6 +208,25 @@ public final class Bane {
             return false;
         }
 
+        //audit that defending nation does no have a bane on them already
+        boolean defenderBaned = false;
+        Guild defenderNation = targetCity.getGuild().getNation();
+        if(defenderNation.getOwnedCity() != null && defenderNation.getOwnedCity().getBane() != null){
+            defenderBaned = true;
+        }else{
+            for (Guild sub : defenderNation.getSubGuildList()) {
+                if (sub.getOwnedCity() != null) {
+                    if (sub.getOwnedCity().getBane() != null) {
+                        defenderBaned = true;
+                    }
+                }
+            }
+        }
+        if(defenderBaned){
+            ChatManager.chatSystemInfo(player, "This Nation has already been baned!");
+            return false;
+        }
+
         if (targetCity.isLocationOnCityGrid(player.getLoc()) == true) {
             PlaceAssetMsg.sendPlaceAssetError(origin, 1, "Cannot place banestone on city grid.");
             return false;
@@ -727,8 +746,13 @@ public final class Bane {
         for(AbstractWorldObject obj : inSiegeRange){
             int uuid = obj.getObjectUUID();
             PlayerCharacter player = PlayerCharacter.getPlayerCharacter(uuid);
+
             if(player == null)
                 continue;
+
+            if(player.getAccount().status.equals(Enum.AccountStatus.ADMIN))
+                continue;
+
             Guild playerNation = player.guild.getNation();
             //separate the players into categories
             if(playerNation.equals(defendNation))
