@@ -2325,7 +2325,8 @@ public class Enum {
 
         GRID(544),
         ZONE(672),
-        PLACEMENT(673);
+        PLACEMENT(673),
+        SIEGEBOUNDS(880);
 
         public final float extents;
 
