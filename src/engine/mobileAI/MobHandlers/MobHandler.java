@@ -7,6 +7,7 @@ import engine.gameManager.PowersManager;
 import engine.gameManager.ZoneManager;
 import engine.math.Vector3f;
 import engine.math.Vector3fImmutable;
+import engine.mobileAI.MobAI;
 import engine.mobileAI.Threads.MobAIThread;
 import engine.mobileAI.utilities.CombatUtilities;
 import engine.mobileAI.utilities.MovementUtilities;
@@ -32,7 +33,6 @@ public class MobHandler {
 
         if(mob.combatTarget == null || !mob.combatTarget.isAlive()){
             CheckForAggro(mob);
-            return;
         }
         if(mob.combatTarget != null)
             CheckToDropAggro(mob);
@@ -45,7 +45,7 @@ public class MobHandler {
     }
 
     public static void CheckToDropAggro(Mob mob){
-        if(mob.loc.distanceSquared(mob.combatTarget.loc) > (64f * 64f))
+        if(mob.loc.distanceSquared(mob.combatTarget.loc) > (128f * 128f))
             mob.setCombatTarget(null);
     }
 
@@ -100,6 +100,12 @@ public class MobHandler {
     }
 
     public static void CheckForAggro(Mob mob){
+        switch(mob.BehaviourType){
+            case SimpleStandingGuard:
+            case Simple:
+            case None:
+                return;
+        }
         PlayerCharacter tar = null;
         for(int id : mob.playerAgroMap.keySet()){
             PlayerCharacter target = PlayerCharacter.getFromCache(id);
@@ -107,6 +113,8 @@ public class MobHandler {
                 if(MobCanAggro(mob,target))
                     tar = target;
         }
+        if(tar != null)
+            mob.setCombatTarget(tar);
     }
 
     public static Boolean MobCanAggro(Mob mob, PlayerCharacter loadedPlayer){
@@ -136,20 +144,26 @@ public class MobHandler {
         if(!mob.isAlive())
             return;
 
+        mob.updateLocation();
+
         if(mob.combatTarget == null){
             //patrol
             Patrol(mob);
         }else{
             //combat movement
-            if(CombatUtilities.inRangeToAttack(mob,mob.combatTarget))
+            if(CombatUtilities.inRangeToAttack(mob,mob.combatTarget)) {
                 return;
-            else
-                MovementUtilities.aiMove(mob,mob.combatTarget.loc,false);
+            }else {
+                MovementUtilities.moveToLocation(mob, mob.combatTarget.loc, mob.getRange());
+            }
         }
     }
 
     public static void CheckToAttack(Mob mob){
         try {
+
+            if(mob.getLastAttackTime() > System.currentTimeMillis())
+                return;
 
             PlayerCharacter target = (PlayerCharacter) mob.combatTarget;
 
@@ -158,8 +172,8 @@ public class MobHandler {
                 return;
             }
 
-            if (mob.BehaviourType.callsForHelp)
-                MobCallForHelp(mob);
+            //if (mob.BehaviourType.callsForHelp)
+            MobCallForHelp(mob);
 
             if (mob.isMoving() && mob.getRange() > 20)
                 return;
@@ -196,32 +210,17 @@ public class MobHandler {
     public static void MobCallForHelp(Mob mob) {
 
         try {
-
-            boolean callGotResponse = false;
-
-            if (mob.nextCallForHelp == 0)
-                mob.nextCallForHelp = System.currentTimeMillis();
-
-            if (mob.nextCallForHelp < System.currentTimeMillis())
-                return;
-
-            //mob sends call for help message
-
-            ChatManager.chatSayInfo(null, mob.getName() + " calls for help!");
-
             Zone mobCamp = mob.getParentZone();
 
             for (Mob helper : mobCamp.zoneMobSet) {
-                if (helper.BehaviourType.respondsToCallForHelp && helper.BehaviourType.BehaviourHelperType.equals(mob.BehaviourType)) {
+                if(helper.equals(mob))
+                    continue;
+
+                if(helper.combatTarget != null)
+                    continue;
+
                     helper.setCombatTarget(mob.getCombatTarget());
-                    callGotResponse = true;
-                }
             }
-
-            //wait 60 seconds to call for help again
-
-            if (callGotResponse)
-                mob.nextCallForHelp = System.currentTimeMillis() + 60000;
 
         } catch (Exception e) {
             //(mob.getObjectUUID() + " " + mob.getName() + " Failed At: MobCallForHelp" + " " + e.getMessage());
@@ -232,6 +231,8 @@ public class MobHandler {
 
         try {
 
+            if(mob.isMoving())
+                return;
             //make sure mob is out of combat stance
 
             int patrolDelay = ThreadLocalRandom.current().nextInt((int) (MobAIThread.AI_PATROL_DIVISOR * 0.5f), MobAIThread.AI_PATROL_DIVISOR) + MobAIThread.AI_PATROL_DIVISOR;
@@ -275,4 +276,5 @@ public class MobHandler {
             //(mob.getObjectUUID() + " " + mob.getName() + " Failed At: CheckToSendMobHome" + " " + e.getMessage());
         }
     }
+
 }
