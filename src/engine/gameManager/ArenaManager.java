@@ -112,11 +112,11 @@ public class ArenaManager {
 
         if(winner != null){
             ChatManager.chatPVP("[ARENA] " + winner.getName() + " has slain " + loser.getName() + " in the arena!");
-            //handle prize distribution
-            ItemBase specialLoot = ItemBase.getItemBase(971070);
-            MobLoot winnings = new MobLoot(winner,specialLoot,false);
-            winner.getCharItemManager().addItemToInventory(winnings.promoteToItem(winner));
-            winner.getCharItemManager().updateInventory();
+            //handle prize distribution of wrapped rune gift
+            //ItemBase specialLoot = ItemBase.getItemBase(971070);
+            //MobLoot winnings = new MobLoot(winner,specialLoot,false);
+            //winner.getCharItemManager().addItemToInventory(winnings.promoteToItem(winner));
+            //winner.getCharItemManager().updateInventory();
         }
     }
 
