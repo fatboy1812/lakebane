@@ -2,6 +2,7 @@ package engine.mobileAI.MobHandlers;
 
 import engine.Enum;
 import engine.InterestManagement.InterestManager;
+import engine.InterestManagement.WorldGrid;
 import engine.gameManager.ChatManager;
 import engine.gameManager.PowersManager;
 import engine.gameManager.ZoneManager;
@@ -15,6 +16,7 @@ import engine.objects.*;
 import engine.powers.PowersBase;
 import engine.server.MBServerStatics;
 
+import java.util.HashSet;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -109,6 +111,10 @@ public class MobHandler {
         PlayerCharacter tar = null;
         for(int id : mob.playerAgroMap.keySet()){
             PlayerCharacter target = PlayerCharacter.getFromCache(id);
+
+            if(target.loc.distanceSquared(mob.loc) > mob.getAggroRange() * mob.getAggroRange())
+                continue;
+
             if(tar == null || mob.loc.distanceSquared(tar.loc) < mob.loc.distanceSquared(target.loc))
                 if(MobCanAggro(mob,target))
                     tar = target;
@@ -210,16 +216,19 @@ public class MobHandler {
     public static void MobCallForHelp(Mob mob) {
 
         try {
-            Zone mobCamp = mob.getParentZone();
+            HashSet<AbstractWorldObject> helpers = WorldGrid.getObjectsInRangePartial(mob.loc,mob.getAggroRange() * 2, MBServerStatics.MASK_MOB);
+            for (AbstractWorldObject awo : helpers) {
+                if(awo.equals(mob))
+                    continue;
+                Mob helper = (Mob) awo;
 
-            for (Mob helper : mobCamp.zoneMobSet) {
                 if(helper.equals(mob))
                     continue;
 
                 if(helper.combatTarget != null)
                     continue;
 
-                    helper.setCombatTarget(mob.getCombatTarget());
+                helper.setCombatTarget(mob.getCombatTarget());
             }
 
         } catch (Exception e) {
