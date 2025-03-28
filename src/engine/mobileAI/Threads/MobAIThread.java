@@ -1,11 +1,10 @@
 package engine.mobileAI.Threads;
 
 import engine.gameManager.ConfigManager;
-import engine.mobileAI.MobAI;
 import engine.gameManager.ZoneManager;
+import engine.mobileAI.SuperSimpleMobAI;
 import engine.objects.Mob;
 import engine.objects.Zone;
-import engine.server.MBServerStatics;
 import org.pmw.tinylog.Logger;
 
 public class MobAIThread implements Runnable{
@@ -28,12 +27,40 @@ public class MobAIThread implements Runnable{
         AI_BASE_AGGRO_RANGE = (int)(60 * Float.parseFloat(ConfigManager.MB_AI_AGGRO_RANGE.getValue()));
         while (true) {
             for (Zone zone : ZoneManager.getAllZones()) {
-                if (zone != null && zone.zoneMobSet != null) {
+                if (zone != null) {
                     synchronized (zone.zoneMobSet) {
                         for (Mob mob : zone.zoneMobSet) {
                             try {
                                 if (mob != null) {
-                                    MobAI.DetermineAction(mob);
+                                    //MobAI.DetermineAction(mob);
+                                    if(mob.isSiege() || mob.isPet() || mob.isPlayerGuard()){
+                                        SuperSimpleMobAI.run(mob);
+                                        return;
+                                    }
+                                    boolean override;
+                                    switch (mob.BehaviourType) {
+                                        case GuardCaptain:
+                                        case GuardMinion:
+                                        case GuardWallArcher:
+                                        case Pet1:
+                                        case HamletGuard:
+                                            override = false;
+                                            break;
+                                        default:
+                                            override = true;
+                                            break;
+                                    }
+
+                                    if(mob.isSiege())
+                                        override = false;
+
+                                    if(mob.isPet())
+                                        override = false;
+
+                                    if(override){
+                                        SuperSimpleMobAI.run(mob);
+                                        return;
+                                    }
                                 }
                             } catch (Exception e) {
                                 Logger.error("Error processing Mob [Name: {}, UUID: {}]", mob.getName(), mob.getObjectUUID(), e);

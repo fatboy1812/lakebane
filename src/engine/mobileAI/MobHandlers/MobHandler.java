@@ -1,14 +1,7 @@
 package engine.mobileAI.MobHandlers;
 
-import engine.Enum;
-import engine.InterestManagement.InterestManager;
 import engine.InterestManagement.WorldGrid;
-import engine.gameManager.ChatManager;
 import engine.gameManager.PowersManager;
-import engine.gameManager.ZoneManager;
-import engine.math.Vector3f;
-import engine.math.Vector3fImmutable;
-import engine.mobileAI.MobAI;
 import engine.mobileAI.Threads.MobAIThread;
 import engine.mobileAI.utilities.CombatUtilities;
 import engine.mobileAI.utilities.MovementUtilities;
