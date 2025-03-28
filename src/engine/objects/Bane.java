@@ -57,6 +57,8 @@ public final class Bane {
     // Internal cache for banes
     private ActivateBaneJob activateBaneJob;
 
+    public ArrayList<PlayerCharacter> affected_players;
+
     /**
      * ResultSet Constructor
      */
@@ -694,6 +696,9 @@ public final class Bane {
                 toUnprotect.setProtectionState(ProtectionState.NONE);
         }
 
+        for(PlayerCharacter affected : this.affected_players)
+            affected.ZergMultiplier = 1.0f;
+
     }
 
     public boolean isErrant() {
@@ -736,6 +741,8 @@ public final class Bane {
         if(city == null)
             return;
 
+        if(this.affected_players == null)
+            this.affected_players = new ArrayList<>();
         city.onEnter();
 
         ArrayList<Integer> attackers = new ArrayList<>();
@@ -779,18 +786,24 @@ public final class Bane {
         float defenderMultiplier = ZergManager.getCurrentMultiplier(defenderSize,this.capSize);
         for(int uuid : attackers){
             PlayerCharacter player = PlayerCharacter.getPlayerCharacter(uuid);
-            if(inSiegeRange.contains(player)) //player is still physically here, needs updated multiplier
+            if(inSiegeRange.contains(player)) { //player is still physically here, needs updated multiplier
                 player.ZergMultiplier = attackerMultiplier;
-            else
+                this.affected_players.add(player);
+            }else {
                 player.ZergMultiplier = 1.0f;
+                this.affected_players.add(player);
+            }
         }
 
         for(int uuid : defenders){
             PlayerCharacter player = PlayerCharacter.getPlayerCharacter(uuid);
-            if(inSiegeRange.contains(player)) //player is still physically here, needs updated multiplier
-                player.ZergMultiplier = defenderMultiplier;
-            else
+            if(inSiegeRange.contains(player)) { //player is still physically here, needs updated multiplier
+                player.ZergMultiplier = attackerMultiplier;
+                this.affected_players.add(player);
+            }else {
                 player.ZergMultiplier = 1.0f;
+                this.affected_players.add(player);
+            }
         }
 
     }
