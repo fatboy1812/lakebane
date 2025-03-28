@@ -34,34 +34,6 @@ public class MobAIThread implements Runnable{
                             try {
                                 if (mob != null) {
                                     MobAI.DetermineAction(mob);
-                                    //if(mob.isSiege() || mob.isPet() || mob.isPlayerGuard()){
-                                    //    SuperSimpleMobAI.run(mob);
-                                    //    return;
-                                    //}
-                                    //boolean override;
-                                    //switch (mob.BehaviourType) {
-                                    //    case GuardCaptain:
-                                    //    case GuardMinion:
-                                    //    case GuardWallArcher:
-                                    //    case Pet1:
-                                    //    case HamletGuard:
-                                    //        override = false;
-                                    //        break;
-                                     //   default:
-                                    //        override = true;
-                                    //        break;
-                                    //}
-
-                                   // if(mob.isSiege())
-                                    //    override = false;
-
-                                    //if(mob.isPet())
-                                    //    override = false;
-
-                                    //if(override){
-                                     //   SuperSimpleMobAI.run(mob);
-                                    //    return;
-                                    //}
                                 }
                             } catch (Exception e) {
                                 Logger.error("Error processing Mob [Name: {}, UUID: {}]", mob.getName(), mob.getObjectUUID(), e);

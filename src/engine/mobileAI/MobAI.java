@@ -14,6 +14,7 @@ import engine.InterestManagement.WorldGrid;
 import engine.gameManager.*;
 import engine.math.Vector3f;
 import engine.math.Vector3fImmutable;
+import engine.mobileAI.MobHandlers.MobHandler;
 import engine.mobileAI.Threads.MobAIThread;
 import engine.mobileAI.utilities.CombatUtilities;
 import engine.mobileAI.utilities.MovementUtilities;
@@ -756,7 +757,9 @@ public class MobAI {
                     HamletGuardLogic(mob);
                     break;
                 default:
-                    DefaultLogic(mob);
+                    //SuperSimpleMobAI.run(mob);
+                    MobHandler.run(mob);
+                    //DefaultLogic(mob);
                     break;
             }
             if(mob.isAlive())
