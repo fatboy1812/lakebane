@@ -5214,16 +5214,28 @@ public class PlayerCharacter extends AbstractCharacter {
 
         this.timestamps.put("nextBoxCheck", System.currentTimeMillis() + 3000);
 
+        //DS: 1672601862
         if(this.isBoxed){
-            if(!this.containsEffect(-654906771))
-                PowersManager.applyPower(this, this, Vector3fImmutable.ZERO, -935138707, 40, false);
+            if(this.getPromotionClassID() == 0) {//fury cannot be PVE anymore, fuck them
+                if (!this.containsEffect(1672601862))
+                    PowersManager.applyPower(this, this, Vector3fImmutable.ZERO, 1672601862, 40, false);
+            }else {
+                if (!this.containsEffect(-654906771))
+                    PowersManager.applyPower(this, this, Vector3fImmutable.ZERO, -935138707, 40, false);
+            }
         }else{
-            if(this.containsEffect(-654906771)){
-                try{
-                    this.effects.get("1258").endEffect();
-                    //this.effects.remove("1258");
-                }catch(Exception ignored){
+            if(this.getPromotionClassID() == 0) {//fury cannot be PVE anymore, fuck them
+                if (this.containsEffect(1672601862)) {
+                    this.removeEffectBySource(EffectSourceType.DeathShroud,41,false);
+                }
+            }else {
+                if (this.containsEffect(-654906771)) {
+                    try {
+                        this.effects.get("1258").endEffect();
+                        //this.effects.remove("1258");
+                    } catch (Exception ignored) {
 
+                    }
                 }
             }
         }
