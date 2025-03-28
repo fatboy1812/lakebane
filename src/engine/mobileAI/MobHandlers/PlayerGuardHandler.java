@@ -16,14 +16,14 @@ import java.util.concurrent.ThreadLocalRandom;
 public class PlayerGuardHandler {
     public static void run(Mob guard) {
         try {
-            if (guard.combatTarget != null) {
+            if (guard.combatTarget != null)
                 checkToDropGuardAggro(guard);
-            }
 
             if (guard.combatTarget == null)
                 CheckForPlayerGuardAggro(guard);
 
-            CheckGuardMovement(guard);
+            if(MovementUtilities.canMove(guard))
+                CheckGuardMovement(guard);
 
             if (guard.combatTarget != null && CombatUtilities.inRangeToAttack(guard, guard.combatTarget))
                 CheckToAttack(guard);
@@ -47,14 +47,14 @@ public class PlayerGuardHandler {
                 continue;
 
             if(tar == null || guard.loc.distanceSquared(tar.loc) < guard.loc.distanceSquared(target.loc))
-                if(MobCanAggro(guard,target))
+                if(GuardCanAggro(guard,target))
                     tar = target;
         }
         if(tar != null)
             guard.setCombatTarget(tar);
     }
 
-    public static Boolean MobCanAggro(Mob mob, PlayerCharacter loadedPlayer){
+    public static Boolean GuardCanAggro(Mob guard, PlayerCharacter loadedPlayer){
         if (loadedPlayer == null)
             return false;
 
@@ -63,16 +63,16 @@ public class PlayerGuardHandler {
             return false;
 
         //Can't see target, skip aggro.
-        if (!mob.canSee(loadedPlayer))
+        if (!guard.canSee(loadedPlayer))
             return false;
 
-        if(mob.guardedCity != null && mob.guardedCity.cityOutlaws.contains(loadedPlayer.getObjectUUID()))
+        if(guard.guardedCity != null && guard.guardedCity.cityOutlaws.contains(loadedPlayer.getObjectUUID()))
             return true;
 
-        if(loadedPlayer.guild.getNation().equals(mob.guardedCity.getGuild().getNation()))
+        if(loadedPlayer.guild.getNation().equals(guard.guardedCity.getGuild().getNation()))
             return false;
 
-        return !mob.guardedCity.isOpen();
+        return !guard.guardedCity.isOpen();
     }
 
     public static boolean GuardCast(Mob mob) {
@@ -192,60 +192,60 @@ public class PlayerGuardHandler {
         return false;
     }
 
-    public static void CheckToAttack(Mob mob){
+    public static void CheckToAttack(Mob guard){
         try {
 
-            if(mob.getLastAttackTime() > System.currentTimeMillis())
+            if(guard.getLastAttackTime() > System.currentTimeMillis())
                 return;
 
-            PlayerCharacter target = (PlayerCharacter) mob.combatTarget;
+            PlayerCharacter target = (PlayerCharacter) guard.combatTarget;
 
-            if (!mob.canSee(target)) {
-                mob.setCombatTarget(null);
+            if (!guard.canSee(target)) {
+                guard.setCombatTarget(null);
                 return;
             }
 
-            if (mob.isMoving() && mob.getRange() > 20)
+            if (guard.isMoving() && guard.getRange() > 20)
                 return;
 
             if(target.combatStats == null)
                 target.combatStats = new PlayerCombatStats(target);
 
-            ItemBase mainHand = mob.getWeaponItemBase(true);
-            ItemBase offHand = mob.getWeaponItemBase(false);
+            ItemBase mainHand = guard.getWeaponItemBase(true);
+            ItemBase offHand = guard.getWeaponItemBase(false);
 
             if (mainHand == null && offHand == null) {
-                CombatUtilities.combatCycle(mob, target, true, null);
+                CombatUtilities.combatCycle(guard, target, true, null);
                 int delay = 3000;
-                mob.setLastAttackTime(System.currentTimeMillis() + delay);
-            } else if (mob.getWeaponItemBase(true) != null) {
+                guard.setLastAttackTime(System.currentTimeMillis() + delay);
+            } else if (guard.getWeaponItemBase(true) != null) {
                 int delay = 3000;
-                CombatUtilities.combatCycle(mob, target, true, mob.getWeaponItemBase(true));
-                mob.setLastAttackTime(System.currentTimeMillis() + delay);
-            } else if (mob.getWeaponItemBase(false) != null) {
+                CombatUtilities.combatCycle(guard, target, true, guard.getWeaponItemBase(true));
+                guard.setLastAttackTime(System.currentTimeMillis() + delay);
+            } else if (guard.getWeaponItemBase(false) != null) {
                 int attackDelay = 3000;
-                CombatUtilities.combatCycle(mob, target, false, mob.getWeaponItemBase(false));
-                mob.setLastAttackTime(System.currentTimeMillis() + attackDelay);
+                CombatUtilities.combatCycle(guard, target, false, guard.getWeaponItemBase(false));
+                guard.setLastAttackTime(System.currentTimeMillis() + attackDelay);
             }
 
             if (target.getPet() != null)
                 if (target.getPet().getCombatTarget() == null && target.getPet().assist)
-                    target.getPet().setCombatTarget(mob);
+                    target.getPet().setCombatTarget(guard);
 
         } catch (Exception e) {
-            ////(mob.getObjectUUID() + " " + mob.getName() + " Failed At: AttackPlayer" + " " + e.getMessage());
+            ////(guard.getObjectUUID() + " " + guard.getName() + " Failed At: AttackPlayer" + " " + e.getMessage());
         }
     }
 
-    public static void CheckGuardMovement(Mob mob){
-        if (mob.getCombatTarget() == null) {
-            if (!mob.isMoving())
-                Patrol(mob);
+    public static void CheckGuardMovement(Mob guard){
+        if (guard.getCombatTarget() == null) {
+            if (!guard.isMoving())
+                Patrol(guard);
             else {
-                mob.stopPatrolTime = System.currentTimeMillis();
+                guard.stopPatrolTime = System.currentTimeMillis();
             }
         } else {
-            MovementUtilities.moveToLocation(mob, mob.combatTarget.loc, mob.getRange());
+            MovementUtilities.moveToLocation(guard, guard.combatTarget.loc, guard.getRange());
         }
     }
 
