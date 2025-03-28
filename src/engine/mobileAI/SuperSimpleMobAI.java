@@ -12,18 +12,14 @@ public class SuperSimpleMobAI {
         if(mob.isPet() && !mob.isSiege()) {
             PetHandler.run(mob);
             return;
-        }
-        if (mob.isSiege()) {
+        }else if (mob.isSiege()) {
             SiegeHandler.run(mob);
             return;
-        }
-        if(mob.isPlayerGuard()){
+        }else if(mob.isPlayerGuard()){
             PlayerGuardHandler.run(mob);
             return;
+        }else {
+            MobHandler.run(mob);
         }
-        MobHandler.run(mob);
     }
-
-    //##generic methods for all mobs
-
 }

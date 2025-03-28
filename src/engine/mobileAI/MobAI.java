@@ -619,6 +619,11 @@ public class MobAI {
     public static void DetermineAction(Mob mob) {
 
         try {
+
+            if(mob.isSiege() || mob.isPet() || mob.isPlayerGuard()){
+                SuperSimpleMobAI.run(mob);
+                return;
+            }
             boolean override = false;
             switch (mob.BehaviourType) {
                 case GuardCaptain:
