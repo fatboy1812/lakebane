@@ -1464,7 +1464,13 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
 
             if (eff == null)
                 continue;
-            if (eff.cancelOnAttack() && eff.cancel()) {
+
+            boolean cancelOnAttack = eff.cancelOnAttack();
+            if(s.equals("Invisible"))
+                cancelOnAttack = true;
+
+
+            if (cancelOnAttack && eff.cancel()) {
                 eff.cancelJob();
                 this.effects.remove(s);
                 changed = true;
@@ -1559,7 +1565,10 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
                     override = true;
             }
 
-            if (!override && eff.cancelOnMove() && eff.cancel()) {
+            Boolean cancelOnMove = eff.cancelOnMove();
+            if(s.equals("SafeMode") || eff.getEffectsBase().getUUID() == 961)
+                cancelOnMove = true;
+            if (!override && cancelOnMove && eff.cancel()) {
                 //System.out.println("canceling on Move");
                 eff.cancelJob();
                 this.effects.remove(s);
