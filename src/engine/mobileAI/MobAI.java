@@ -758,8 +758,8 @@ public class MobAI {
                     break;
                 default:
                     //SuperSimpleMobAI.run(mob);
-                    MobHandler.run(mob);
-                    //DefaultLogic(mob);
+                    //MobHandler.run(mob);
+                    DefaultLogic(mob);
                     break;
             }
             if(mob.isAlive())
