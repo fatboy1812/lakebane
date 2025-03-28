@@ -34,6 +34,12 @@ public class PetHandler {
                 MovementUtilities.moveToLocation(pet, owner.loc, pet.getRange());
             }
         }else{
+
+            if (pet.combatTarget.equals(pet)) {
+                pet.setCombatTarget(null);
+                return;
+            }
+
             //chase target
             if(!CombatUtilities.inRangeToAttack(pet,pet.combatTarget)) {
                 MovementUtilities.moveToLocation(pet, pet.combatTarget.loc, pet.getRange());
