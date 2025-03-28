@@ -38,7 +38,7 @@ public class BaneThread implements Runnable {
         while (true) {
             try {
                 BaneManager.pulse_banes();
-                Thread.sleep(100); // Pause for 100ms to reduce CPU usage
+                Thread.sleep(1000); // Pause for 100ms to reduce CPU usage
             } catch (InterruptedException e) {
                 Logger.error("Thread interrupted", e);
                 Thread.currentThread().interrupt();
