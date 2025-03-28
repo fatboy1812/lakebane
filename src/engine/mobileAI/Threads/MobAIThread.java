@@ -2,6 +2,7 @@ package engine.mobileAI.Threads;
 
 import engine.gameManager.ConfigManager;
 import engine.gameManager.ZoneManager;
+import engine.mobileAI.MobAI;
 import engine.mobileAI.SuperSimpleMobAI;
 import engine.objects.Mob;
 import engine.objects.Zone;
@@ -32,35 +33,35 @@ public class MobAIThread implements Runnable{
                         for (Mob mob : zone.zoneMobSet) {
                             try {
                                 if (mob != null) {
-                                    //MobAI.DetermineAction(mob);
-                                    if(mob.isSiege() || mob.isPet() || mob.isPlayerGuard()){
-                                        SuperSimpleMobAI.run(mob);
-                                        return;
-                                    }
-                                    boolean override;
-                                    switch (mob.BehaviourType) {
-                                        case GuardCaptain:
-                                        case GuardMinion:
-                                        case GuardWallArcher:
-                                        case Pet1:
-                                        case HamletGuard:
-                                            override = false;
-                                            break;
-                                        default:
-                                            override = true;
-                                            break;
-                                    }
+                                    MobAI.DetermineAction(mob);
+                                    //if(mob.isSiege() || mob.isPet() || mob.isPlayerGuard()){
+                                    //    SuperSimpleMobAI.run(mob);
+                                    //    return;
+                                    //}
+                                    //boolean override;
+                                    //switch (mob.BehaviourType) {
+                                    //    case GuardCaptain:
+                                    //    case GuardMinion:
+                                    //    case GuardWallArcher:
+                                    //    case Pet1:
+                                    //    case HamletGuard:
+                                    //        override = false;
+                                    //        break;
+                                     //   default:
+                                    //        override = true;
+                                    //        break;
+                                    //}
 
-                                    if(mob.isSiege())
-                                        override = false;
+                                   // if(mob.isSiege())
+                                    //    override = false;
 
-                                    if(mob.isPet())
-                                        override = false;
+                                    //if(mob.isPet())
+                                    //    override = false;
 
-                                    if(override){
-                                        SuperSimpleMobAI.run(mob);
-                                        return;
-                                    }
+                                    //if(override){
+                                     //   SuperSimpleMobAI.run(mob);
+                                    //    return;
+                                    //}
                                 }
                             } catch (Exception e) {
                                 Logger.error("Error processing Mob [Name: {}, UUID: {}]", mob.getName(), mob.getObjectUUID(), e);
@@ -68,12 +69,12 @@ public class MobAIThread implements Runnable{
                         }
                     }
                 }
-            }
-            try {
-                Thread.sleep(100);
-            } catch (InterruptedException e) {
-                Logger.error("AI Thread interrupted", e);
-                Thread.currentThread().interrupt();
+                try {
+                    Thread.sleep(100);
+                } catch (InterruptedException e) {
+                    Logger.error("AI Thread interrupted", e);
+                    Thread.currentThread().interrupt();
+                }
             }
         }
     }
