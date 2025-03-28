@@ -1,6 +1,7 @@
 package engine.mobileAI.MobHandlers;
 
 import engine.gameManager.PowersManager;
+import engine.math.Vector3fImmutable;
 import engine.mobileAI.Threads.MobAIThread;
 import engine.mobileAI.utilities.CombatUtilities;
 import engine.mobileAI.utilities.MovementUtilities;
@@ -71,10 +72,7 @@ public class PlayerGuardHandler {
         if(loadedPlayer.guild.getNation().equals(mob.guardedCity.getGuild().getNation()))
             return false;
 
-        if(mob.guardedCity.isOpen())
-            return false;
-
-        return true;
+        return !mob.guardedCity.isOpen();
     }
 
     public static boolean GuardCast(Mob mob) {
@@ -116,7 +114,7 @@ public class PlayerGuardHandler {
             if (powerTokens.isEmpty())
                 return false;
 
-            int powerToken = 0;
+            int powerToken;
             int nukeRoll = ThreadLocalRandom.current().nextInt(1,100);
 
             if (nukeRoll < 55) {
@@ -263,13 +261,13 @@ public class PlayerGuardHandler {
 
             //early exit while waiting to patrol again
 
-            if (mob.stopPatrolTime + (patrolDelay * 1000) > System.currentTimeMillis())
+            if (mob.stopPatrolTime + (patrolDelay * 1000L) > System.currentTimeMillis())
                 return;
 
             if (mob.lastPatrolPointIndex > mob.patrolPoints.size() - 1)
                 mob.lastPatrolPointIndex = 0;
 
-            mob.destination = mob.patrolPoints.get(mob.lastPatrolPointIndex);
+            mob.destination = Vector3fImmutable.getRandomPointOnCircle(mob.patrolPoints.get(mob.lastPatrolPointIndex),16f);
             mob.lastPatrolPointIndex += 1;
 
             MovementUtilities.aiMove(mob, mob.destination, true);
