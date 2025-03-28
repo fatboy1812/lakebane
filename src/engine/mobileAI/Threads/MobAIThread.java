@@ -1,11 +1,11 @@
 package engine.mobileAI.Threads;
 
 import engine.gameManager.ConfigManager;
-import engine.gameManager.ZoneManager;
 import engine.mobileAI.MobAI;
-import engine.mobileAI.SuperSimpleMobAI;
+import engine.gameManager.ZoneManager;
 import engine.objects.Mob;
 import engine.objects.Zone;
+import engine.server.MBServerStatics;
 import org.pmw.tinylog.Logger;
 
 public class MobAIThread implements Runnable{
@@ -28,7 +28,7 @@ public class MobAIThread implements Runnable{
         AI_BASE_AGGRO_RANGE = (int)(60 * Float.parseFloat(ConfigManager.MB_AI_AGGRO_RANGE.getValue()));
         while (true) {
             for (Zone zone : ZoneManager.getAllZones()) {
-                if (zone != null) {
+                if (zone != null && zone.zoneMobSet != null) {
                     synchronized (zone.zoneMobSet) {
                         for (Mob mob : zone.zoneMobSet) {
                             try {
@@ -41,12 +41,12 @@ public class MobAIThread implements Runnable{
                         }
                     }
                 }
-                try {
-                    Thread.sleep(100);
-                } catch (InterruptedException e) {
-                    Logger.error("AI Thread interrupted", e);
-                    Thread.currentThread().interrupt();
-                }
+            }
+            try {
+                Thread.sleep(1);
+            } catch (InterruptedException e) {
+                Logger.error("AI Thread interrupted", e);
+                Thread.currentThread().interrupt();
             }
         }
     }
