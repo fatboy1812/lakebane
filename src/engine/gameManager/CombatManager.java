@@ -1009,61 +1009,60 @@ public enum CombatManager {
                 //handle damage shields
 
                 if (ac.isAlive() && tarAc != null && tarAc.isAlive())
-                    handleDamageShields(ac, tarAc, damage);
-
-                //handle mob hate values
-                if(target.getObjectType().equals(GameObjectType.Mob) && ac.getObjectType().equals(GameObjectType.PlayerCharacter)){
-                    Mob mobTarget = (Mob)target;
-                    if(mobTarget.hate_values.containsKey((PlayerCharacter) ac)){
-                        mobTarget.hate_values.put((PlayerCharacter) ac,mobTarget.hate_values.get((PlayerCharacter) ac) + damage);
-                    }else{
-                        mobTarget.hate_values.put((PlayerCharacter) ac, damage);
+                    try {
+                        handleDamageShields(ac, tarAc, damage);
+                    }catch(Exception e){
+                        Logger.error(e.getMessage());
                     }
-                }
 
             } else {
 
                 // Apply Weapon power effect if any.
                 // don't try to apply twice if dual wielding.
+                try {
+                    if (ac.getObjectType().equals(GameObjectType.PlayerCharacter) && (mainHand || wb.isTwoHanded())) {
+                        dpj = ((PlayerCharacter) ac).getWeaponPower();
 
-                if (ac.getObjectType().equals(GameObjectType.PlayerCharacter) && (mainHand || wb.isTwoHanded())) {
-                    dpj = ((PlayerCharacter) ac).getWeaponPower();
+                        if (dpj != null) {
 
-                    if (dpj != null) {
+                            PowersBase wp = dpj.getPower();
 
-                        PowersBase wp = dpj.getPower();
+                            if (wp.requiresHitRoll() == false) {
+                                PlayerBonuses bonus = ac.getBonuses();
+                                float attackRange = getWeaponRange(wb, bonus);
 
-                        if (wp.requiresHitRoll() == false) {
-                            PlayerBonuses bonus = ac.getBonuses();
-                            float attackRange = getWeaponRange(wb, bonus);
-
-                            if(ac.isMoving()){
-                                attackRange += (ac.getSpeed() * 0.1f);
-                            }
-
-                            if(AbstractWorldObject.IsAbstractCharacter(target)) {
-                                AbstractCharacter tarAc = (AbstractCharacter) target;
-                                if(tarAc != null && tarAc.isMoving()){
-                                    attackRange += (tarAc.getSpeed() * 0.1f);
+                                if (ac.isMoving()) {
+                                    attackRange += (ac.getSpeed() * 0.1f);
                                 }
-                            }
+
+                                if (AbstractWorldObject.IsAbstractCharacter(target)) {
+                                    AbstractCharacter tarAc = (AbstractCharacter) target;
+                                    if (tarAc != null && tarAc.isMoving()) {
+                                        attackRange += (tarAc.getSpeed() * 0.1f);
+                                    }
+                                }
 
 
-                            if(specialCaseHitRoll(dpj.getPowerToken())) {
-                                if(hitLanded) {
+                                if (specialCaseHitRoll(dpj.getPowerToken())) {
+                                    if (hitLanded) {
+                                        dpj.attack(target, attackRange);
+                                    }
+                                } else {
                                     dpj.attack(target, attackRange);
                                 }
-                            }else{
-                                dpj.attack(target, attackRange);
-                            }
-                        } else
-                            ((PlayerCharacter) ac).setWeaponPower(null);
+                            } else
+                                ((PlayerCharacter) ac).setWeaponPower(null);
+                        }
                     }
+                }catch(Exception e) {
+                    Logger.error(e.getMessage());
                 }
-
-                if (target.getObjectType() == GameObjectType.Mob)
-                    ((Mob) target).handleDirectAggro(ac);
-
+                try {
+                    if (target.getObjectType() == GameObjectType.Mob)
+                        ((Mob) target).handleDirectAggro(ac);
+                }catch(Exception e){
+                    Logger.error(e.getMessage());
+                }
                 errorTrack = 17;
 
                 //miss, Send miss message
