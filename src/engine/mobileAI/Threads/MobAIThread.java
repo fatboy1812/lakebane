@@ -3,6 +3,7 @@ package engine.mobileAI.Threads;
 import engine.gameManager.ConfigManager;
 import engine.mobileAI.MobAI;
 import engine.gameManager.ZoneManager;
+import engine.mobileAI.SuperSimpleMobAI;
 import engine.objects.Mob;
 import engine.objects.Zone;
 import engine.server.MBServerStatics;
@@ -43,7 +44,7 @@ public class MobAIThread implements Runnable{
                 }
             }
             try {
-                Thread.sleep(1);
+                Thread.sleep(100);
             } catch (InterruptedException e) {
                 Logger.error("AI Thread interrupted", e);
                 Thread.currentThread().interrupt();
