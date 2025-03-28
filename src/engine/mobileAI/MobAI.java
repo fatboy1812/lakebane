@@ -624,7 +624,7 @@ public class MobAI {
                 SuperSimpleMobAI.run(mob);
                 return;
             }
-            boolean override = false;
+            boolean override;
             switch (mob.BehaviourType) {
                 case GuardCaptain:
                 case GuardMinion:
