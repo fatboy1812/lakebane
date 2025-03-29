@@ -47,8 +47,9 @@ public class PersistentAoeJob extends AbstractEffectJob {
 
         if(this.source.isAlive() && this.source.getObjectType().equals(GameObjectType.PlayerCharacter)){
             PlayerCharacter pc = (PlayerCharacter)this.source;
-            if(pc.isBoxed){
+            if(pc.getPromotionClassID() == 2511){
                 this.cancelJob();
+                return;
             }
         }
 
