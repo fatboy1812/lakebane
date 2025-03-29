@@ -619,6 +619,13 @@ public class PlaceAssetMsgHandler extends AbstractClientMsgHandler {
             return false;
         }
 
+        //make sure building is withing range
+        float distanceSquared = buildingList.getLoc().distanceSquared(serverCity.loc);
+        float allowedSquared = (CityBoundsType.SIEGEBOUNDS.extents * 0.65f) * (CityBoundsType.SIEGEBOUNDS.extents * 0.65f);
+        if(allowedSquared < distanceSquared) {
+            PlaceAssetMsg.sendPlaceAssetError(origin, 52, ""); // Cannot place outisde a guild zone
+            return false;
+        }
         // If there is a bane placed, we limit bow placement to 2x the stone rank's worth of attacker assets
         // and 1x the tree rank for defenders
 
@@ -660,7 +667,7 @@ public class PlaceAssetMsgHandler extends AbstractClientMsgHandler {
 
         // Count bow for attackers and defenders
 
-        awoList = WorldGrid.getObjectsInRangePartial(serverCity, 1000, MBServerStatics.MASK_BUILDING);
+        awoList = WorldGrid.getObjectsInRangePartial(serverCity, CityBoundsType.SIEGEBOUNDS.extents, MBServerStatics.MASK_BUILDING);
 
         for (AbstractWorldObject awo : awoList) {
             Building building = (Building) awo;
