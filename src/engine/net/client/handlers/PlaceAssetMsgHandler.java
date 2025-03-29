@@ -572,9 +572,9 @@ public class PlaceAssetMsgHandler extends AbstractClientMsgHandler {
         Bane validBane = null;
         serverCity = null;
         for(Bane b : Bane.banes.values()){
-            if(b.getOwner().guild.equals(player.guild)){
-                serverCity = b.getCity();
-            }
+                City c = b.getCity();
+                if(c.getGuild().equals(player.guild) || b.getOwner().guild.equals(player.guild))
+                    serverCity = b.getCity();
         }
 
 
