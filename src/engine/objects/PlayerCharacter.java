@@ -5216,7 +5216,7 @@ public class PlayerCharacter extends AbstractCharacter {
 
         //DS: 1672601862
         if(this.isBoxed){
-            if(this.getPromotionClassID() == 0) {//fury cannot be PVE anymore, fuck them
+            if(this.getPromotionClassID() == 2511) {//fury cannot be PVE anymore, fuck them
                 if (!this.containsEffect(1672601862))
                     PowersManager.applyPower(this, this, Vector3fImmutable.ZERO, 1672601862, 40, false);
             }else {
@@ -5224,7 +5224,7 @@ public class PlayerCharacter extends AbstractCharacter {
                     PowersManager.applyPower(this, this, Vector3fImmutable.ZERO, -935138707, 40, false);
             }
         }else{
-            if(this.getPromotionClassID() == 0) {//fury cannot be PVE anymore, fuck them
+            if(this.getPromotionClassID() == 2511) {//fury cannot be PVE anymore, fuck them
                 if (this.containsEffect(1672601862)) {
                     this.removeEffectBySource(EffectSourceType.DeathShroud,41,false);
                 }

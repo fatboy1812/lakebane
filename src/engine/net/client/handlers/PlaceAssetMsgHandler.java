@@ -568,7 +568,15 @@ public class PlaceAssetMsgHandler extends AbstractClientMsgHandler {
             return false;
         }
 
-        serverCity = ZoneManager.getCityAtLocation(buildingList.getLoc());
+        //serverCity = ZoneManager.getCityAtLocation(buildingList.getLoc());
+        Bane validBane = null;
+        serverCity = null;
+        for(Bane b : Bane.banes.values()){
+            if(b.getOwner().guild.equals(player.guild)){
+                serverCity = b.getCity();
+            }
+        }
+
 
         // No valid player city found
 
