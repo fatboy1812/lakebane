@@ -9,6 +9,7 @@ import engine.objects.Mob;
 public class SuperSimpleMobAI {
 
     public static void run(Mob mob){
+        mob.updateLocation();
         if(mob.isPet() && !mob.isSiege()) {
             PetHandler.run(mob);
             return;

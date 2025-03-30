@@ -3,6 +3,8 @@ import engine.InterestManagement.WorldGrid;
 import engine.math.Vector3fImmutable;
 import engine.objects.*;
 import engine.server.MBServerStatics;
+import org.pmw.tinylog.Logger;
+
 import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 public class SpecialLootHandler {
@@ -278,13 +280,15 @@ public class SpecialLootHandler {
         if(mob.getCharItemManager() == null)
             return;
         MobLoot resource = new MobLoot(mob,resourceBase,false);
-
-        int stackMax = (int)(Warehouse.maxResources.get(resourceId) * 0.02f);
-        if(stackMax > 100)
+    try {
+        int stackMax = (int) (Warehouse.maxResources.get(resourceId) * 0.02f);
+        if (stackMax > 100)
             stackMax = 100;
 
         resource.setNumOfItems(ThreadLocalRandom.current().nextInt(stackMax));
-
+    }catch(Exception e) {
+        Logger.error("Unable To Get Max Resource Stack Size For: " + resourceId);
+    }
         mob.getCharItemManager().addItemToInventory(resource);
     }
 
