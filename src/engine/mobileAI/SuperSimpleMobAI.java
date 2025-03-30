@@ -11,13 +11,16 @@ public class SuperSimpleMobAI {
     public static void run(Mob mob){
         mob.updateLocation();
         if(mob.isPet() && !mob.isSiege()) {
-            PetHandler.run(mob);
+            MobAI.DetermineAction(mob);
+            //PetHandler.run(mob);
             return;
         }else if (mob.isSiege()) {
-            SiegeHandler.run(mob);
+            //SiegeHandler.run(mob);
+            MobAI.DetermineAction(mob);
             return;
         }else if(mob.isPlayerGuard()){
-            PlayerGuardHandler.run(mob);
+            //PlayerGuardHandler.run(mob);
+            MobAI.DetermineAction(mob);
             return;
         }else {
             MobHandler.run(mob);
