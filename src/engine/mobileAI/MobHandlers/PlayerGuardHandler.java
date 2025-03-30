@@ -9,12 +9,35 @@ import engine.net.client.msg.PerformActionMsg;
 import engine.objects.*;
 import engine.powers.ActionsBase;
 import engine.powers.PowersBase;
+import engine.server.MBServerStatics;
 
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class PlayerGuardHandler {
     public static void run(Mob guard) {
+        if(!guard.isAlive()){
+            CheckRespawn(guard);
+            return;
+        }
+
+        CheckForRecall(guard);
+
+        if (guard.contract != null && guard.contract.getName().contains("Wall Archer")) {
+            runWallArcherGuard(guard);
+            return;
+        }else if (guard.contract != null && guard.contract.getName().contains("Magister")) {
+            runMagisterGuard(guard);
+            return;
+        }else if (guard.contract != null && guard.contract.getName().contains("Archer")) {
+            runArcherGuard(guard);
+            return;
+        }
+        runMeleGuard(guard);
+    }
+
+    public static void runMeleGuard(Mob guard){
         try {
             if (guard.combatTarget != null)
                 checkToDropGuardAggro(guard);
@@ -24,6 +47,60 @@ public class PlayerGuardHandler {
 
             if(MovementUtilities.canMove(guard))
                 CheckGuardMovement(guard);
+
+            if (guard.combatTarget != null && CombatUtilities.inRangeToAttack(guard, guard.combatTarget))
+                CheckToAttack(guard);
+
+        } catch (Exception ignored) {
+
+        }
+    }
+
+    public static void runArcherGuard(Mob guard){
+        try {
+            if (guard.combatTarget != null)
+                checkToDropGuardAggro(guard);
+
+            if (guard.combatTarget == null)
+                CheckForPlayerGuardAggro(guard);
+
+            if(MovementUtilities.canMove(guard))
+                CheckGuardMovement(guard);
+
+            if (guard.combatTarget != null && CombatUtilities.inRangeToAttack(guard, guard.combatTarget))
+                CheckToAttack(guard);
+
+        } catch (Exception ignored) {
+
+        }
+    }
+
+    public static void runMagisterGuard(Mob guard){
+        try {
+            if (guard.combatTarget != null)
+                checkToDropGuardAggro(guard);
+
+            if (guard.combatTarget == null)
+                CheckForPlayerGuardAggro(guard);
+
+            if(MovementUtilities.canMove(guard))
+                CheckMagisterMovement(guard);
+
+            if (guard.combatTarget != null && inRangeToCast(guard, guard.combatTarget))
+                GuardCast(guard);
+
+        } catch (Exception ignored) {
+
+        }
+    }
+
+    public static void runWallArcherGuard(Mob guard){
+        try {
+            if (guard.combatTarget != null)
+                checkToDropGuardAggro(guard);
+
+            if (guard.combatTarget == null)
+                CheckForPlayerGuardAggro(guard);
 
             if (guard.combatTarget != null && CombatUtilities.inRangeToAttack(guard, guard.combatTarget))
                 CheckToAttack(guard);
@@ -75,7 +152,10 @@ public class PlayerGuardHandler {
         return !guard.guardedCity.isOpen();
     }
 
-    public static boolean GuardCast(Mob mob) {
+    public static void GuardCast(Mob mob) {
+
+        if(mob.nextCastTime > System.currentTimeMillis())
+            return;
 
         try {
             // Method picks a random spell from a mobile's list of powers
@@ -112,7 +192,7 @@ public class PlayerGuardHandler {
             // Sanity check
 
             if (powerTokens.isEmpty())
-                return false;
+                return;
 
             int powerToken;
             int nukeRoll = ThreadLocalRandom.current().nextInt(1,100);
@@ -159,7 +239,7 @@ public class PlayerGuardHandler {
 
             if (mobPower.requiresHitRoll)
                 if (CombatUtilities.triggerDefense(mob, mob.getCombatTarget()))
-                    return false;
+                    return;
 
             // Cast the spell
 
@@ -184,12 +264,11 @@ public class PlayerGuardHandler {
                 msg.setUnknown04(2);
 
                 PowersManager.finishUseMobPower(msg, mob, 0, 0);
-                return true;
             }
+            mob.nextCastTime = (long) (System.currentTimeMillis() + MobAIThread.AI_CAST_FREQUENCY);
         } catch (Exception e) {
             ////(mob.getObjectUUID() + " " + mob.getName() + " Failed At: MobCast" + " " + e.getMessage());
         }
-        return false;
     }
 
     public static void CheckToAttack(Mob guard){
@@ -274,6 +353,90 @@ public class PlayerGuardHandler {
 
         } catch (Exception e) {
             ////(mob.getObjectUUID() + " " + mob.getName() + " Failed At: AttackTarget" + " " + e.getMessage());
+        }
+    }
+
+    private static boolean inRangeToCast(Mob guard, AbstractWorldObject target){
+        float castRangeSquared = 50f * 50f;
+        float rangeSquared = guard.loc.distanceSquared(target.loc);
+        return castRangeSquared >= rangeSquared;
+    }
+
+    public static void CheckMagisterMovement(Mob guard){
+        if (guard.getCombatTarget() == null) {
+            if (!guard.isMoving())
+                Patrol(guard);
+            else {
+                guard.stopPatrolTime = System.currentTimeMillis();
+            }
+        } else {
+            if(guard.isMoving()){
+                float desiredRangeSquared = 40f * 40f;
+                float distance = guard.loc.distanceSquared(guard.combatTarget.loc);
+                if(distance <= desiredRangeSquared){
+                    guard.stopMovement(guard.getMovementLoc());
+                    guard.updateLocation();
+                }
+            }else {
+                MovementUtilities.moveToLocation(guard, guard.combatTarget.loc, guard.getRange());
+            }
+        }
+    }
+
+    public static void CheckForRecall(Mob guard){
+
+        if(guard.loc.distanceSquared(guard.parentZone.getLoc()) > (800 * 800)) {
+
+            PowersBase recall = PowersManager.getPowerByToken(-1994153779);
+            PowersManager.useMobPower(guard, guard, recall, 40);
+
+            for (Map.Entry playerEntry : guard.playerAgroMap.entrySet())
+                PlayerCharacter.getFromCache((int) playerEntry.getKey()).setHateValue(0);
+
+            guard.setCombatTarget(null);
+        }
+    }
+
+    public static void CheckRespawn(Mob guard){
+        if(!guard.despawned)
+            guard.despawn();
+
+        long respawnTime = 0L;
+
+        Building barracks = guard.building;
+        if(barracks == null){
+            respawnTime = MBServerStatics.FIFTEEN_MINUTES;
+        }else{
+            switch(barracks.getRank()) {
+                case 2:
+                    respawnTime = 750000; // 12.5 minutes
+                    break;
+                case 3:
+                    respawnTime = 660000; // 11 minutes
+                    break;
+                case 4:
+                    respawnTime = 570000; // 9.5 minutes
+                    break;
+                case 5:
+                    respawnTime = 480000; // 8 minutes
+                    break;
+                case 6:
+                    respawnTime = 450000; // 6.5 minutes
+                    break;
+                case 7:
+                    respawnTime = MBServerStatics.FIVE_MINUTES;
+                    break;
+                default:
+                    respawnTime = MBServerStatics.FIFTEEN_MINUTES;
+                    break;
+            }
+
+        }
+
+        if(guard.deathTime + respawnTime < System.currentTimeMillis()){
+            if (!Zone.respawnQue.contains(guard)) {
+                Zone.respawnQue.add(guard);
+            }
         }
     }
 }

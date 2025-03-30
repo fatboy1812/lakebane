@@ -35,7 +35,8 @@ public class MobAIThread implements Runnable{
                             for (Mob mob : zone.zoneMobSet) {
                                 try {
                                     if (mob != null) {
-                                        MobAI.DetermineAction(mob);
+                                        //MobAI.DetermineAction(mob);
+                                        SuperSimpleMobAI.run(mob);
                                     }
                                 } catch (Exception e) {
                                     Logger.error("Error processing Mob [Name: {}, UUID: {}]", mob.getName(), mob.getObjectUUID(), e);
