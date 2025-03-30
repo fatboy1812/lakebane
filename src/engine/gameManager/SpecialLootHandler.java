@@ -82,6 +82,20 @@ public class SpecialLootHandler {
             1452,1500,1502,1525,1527,1550,1552,1575,1577,1600,1602,1650,1652,1700,980100,
             980102
     );
+
+    public static final List<Integer> gold_resources = Arrays.asList(
+            1580000, 1580008, 1580009, 1580010, 1580011, 1580017
+    );
+    public static final List<Integer> lumber_resources = Arrays.asList(
+            1580004, 1580005, 1580006, 1580007, 1580018
+    );
+    public static final List<Integer> ore_resources = Arrays.asList(
+            1580000, 1580001, 1580002, 1580003, 1580019
+    );
+    public static final List<Integer> magic_resources = Arrays.asList(
+            1580012, 1580013, 1580014, 1580015, 1580016, 1580020
+    );
+
     public static void RollContract(Mob mob){
         Zone zone = getMacroZone(mob);
         if(zone == null)
@@ -245,5 +259,100 @@ public class SpecialLootHandler {
             return;
         MobLoot guard = new MobLoot(mob,guardBase,false);
         mob.getCharItemManager().addItemToInventory(guard);
+    }
+
+    public static void ResourceDrop(Mob mob){
+        Zone zone = getMacroZone(mob);
+        if(zone == null)
+            return;
+        int resourceId = 0;
+        int roll = ThreadLocalRandom.current().nextInt(125);
+        if(roll == 75){
+            resourceId = getResourceForZone(zone);
+        }
+        if(resourceId == 0)
+            return;
+        ItemBase resourceBase = ItemBase.getItemBase(resourceId);
+        if(resourceBase == null)
+            return;
+        if(mob.getCharItemManager() == null)
+            return;
+        MobLoot resource = new MobLoot(mob,resourceBase,false);
+
+        int stackMax = (int)(Warehouse.maxResources.get(resourceId) * 0.02f);
+        if(stackMax > 100)
+            stackMax = 100;
+
+        resource.setNumOfItems(ThreadLocalRandom.current().nextInt(stackMax));
+
+        mob.getCharItemManager().addItemToInventory(resource);
+    }
+
+    public static int getResourceForZone(Zone zone){
+        Random random = new Random();
+        switch (zone.getObjectUUID())
+        {
+            case 178:
+            case 717:
+            case 632:
+            case 952:
+            case 475:
+            case 371:
+            case 313:
+            case 234:
+                // Ecklund Wilds // ORE MINE
+                // Greensward Pyre // ORE MINE
+                // The Black Bog // ORE MINE
+                // Phaedra's Prize // ORE MINE
+                //plain of ashes ORE MINE
+                // Ashfell Plain // ORE MINE
+                // Kharsoom // ORE MINE
+                // Kralgaar Holm // ORE MINE
+                return ore_resources.get(random.nextInt(ore_resources.size()));
+            case 122:
+            case 824:
+            case 737:
+            case 569:
+            case 590:
+            case 437:
+            case 388:
+                // Sevaath Mere // LUMBER MINE
+                // Grimscairne // LUMBER MINE
+                // Fellgrim Forest // LUMBER MINE
+                // Aedroch Highlands // LUMBER MINE
+                // Leth'khalivar Desert // LUMBER MINE
+                // Western Battleground // LUMBER MINE
+                // Aurrochs Skrae // LUMBER MINE
+                return lumber_resources.get(random.nextInt(lumber_resources.size()));
+            case 197:
+            case 761:
+            case 616:
+            case 951:
+            case 532:
+            case 491:
+            case 353:
+            case 331:
+                // The Doomplain // GOLD MINE
+                // Thollok Marsh // GOLD MINE
+                // Holloch Forest // GOLD MINE
+                // Tainted Swamp // GOLD MINE
+                //Bone Marches // GOLD MINE
+                // Derros Plains // GOLD MINE
+                // The Blood Sands // GOLD MINE
+                // Ymur's Crown // GOLD MINE
+                return gold_resources.get(random.nextInt(gold_resources.size()));
+            case 418:
+            case 842:
+            case 785:
+            case 550:
+            case 508:
+                // Aeran Belendor // MAGIC MINE
+                // Aerath Hellendroth // MAGIC MINE
+                // Vale of Nar Addad // MAGIC MINE
+                // Pandemonium // MAGIC MINE
+                // Valkos Wilds // MAGIC MINE
+                return magic_resources.get(random.nextInt(magic_resources.size()));
+        }
+        return 0;
     }
 }

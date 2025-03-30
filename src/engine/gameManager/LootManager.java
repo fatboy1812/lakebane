@@ -92,6 +92,7 @@ public enum LootManager {
             SpecialLootHandler.RollGlass(mob);
             SpecialLootHandler.RollRune(mob);
             SpecialLootHandler.RollRacialGuard(mob);
+            SpecialLootHandler.ResourceDrop(mob);
         }
 
         //determine if mob is in hotzone
@@ -186,90 +187,6 @@ public enum LootManager {
         }
     }
 
-    public static void SpecialCaseContractDrop(Mob mob,ArrayList<BootySetEntry> entries){
-
-        int lootTableID = 0;
-        for(BootySetEntry entry : entries){
-            if(entry.bootyType.equals("LOOT")){
-                lootTableID = entry.genTable;
-                break;
-            }
-        }
-
-        if(lootTableID == 0)
-            return;
-
-        int ContractTableID = 0;
-        for(GenTableEntry entry : _genTables.get(lootTableID)){
-            try {
-                if (ItemBase.getItemBase(_itemTables.get(entry.itemTableID).get(0).cacheID).getType().equals(Enum.ItemType.CONTRACT)) {
-                    ContractTableID = entry.itemTableID;
-                    break;
-                }
-            }catch(Exception e){
-
-            }
-        }
-
-        if(ContractTableID == 0)
-            return;
-
-        ItemBase ib = ItemBase.getItemBase(rollRandomItem(ContractTableID));
-        if(ib != null){
-            MobLoot toAdd = new MobLoot(mob,ib,false);
-            mob.getCharItemManager().addItemToInventory(toAdd);
-        }
-    }
-
-    public static void SpecialCaseRuneDrop(Mob mob,ArrayList<BootySetEntry> entries){
-        int roll = ThreadLocalRandom.current().nextInt(static_rune_ids.size() + 1);
-        int itemId = static_rune_ids.get(0);
-        try {
-            itemId = static_rune_ids.get(roll);
-        }catch(Exception e){
-
-        }
-        ItemBase ib = ItemBase.getItemBase(itemId);
-        if(ib != null){
-            MobLoot toAdd = new MobLoot(mob,ib,false);
-            mob.getCharItemManager().addItemToInventory(toAdd);
-        }
-    }
-
-    public static void SpecialCaseResourceDrop(Mob mob,ArrayList<BootySetEntry> entries){
-        int lootTableID = 0;
-        for(BootySetEntry entry : entries){
-            if(entry.bootyType.equals("LOOT")){
-                lootTableID = entry.genTable;
-                break;
-            }
-        }
-
-        if(lootTableID == 0)
-            return;
-
-        int ResourceTableID = 0;
-        for(GenTableEntry entry : _genTables.get(lootTableID)){
-            try {
-                if (ItemBase.getItemBase(_itemTables.get(entry.itemTableID).get(0).cacheID).getType().equals(Enum.ItemType.RESOURCE)) {
-                    ResourceTableID = entry.itemTableID;
-                    break;
-                }
-            }catch(Exception e){
-
-            }
-        }
-
-        if(ResourceTableID == 0)
-            return;
-
-        ItemBase ib = ItemBase.getItemBase(rollRandomItem(ResourceTableID));
-        if(ib != null){
-            MobLoot toAdd = new MobLoot(mob,ib,false);
-            mob.getCharItemManager().addItemToInventory(toAdd);
-        }
-    }
-
     public static MobLoot getGenTableItem(int genTableID, AbstractCharacter mob, Boolean inHotzone) {
 
         if (mob == null || _genTables.containsKey(genTableID) == false)
@@ -305,24 +222,11 @@ public enum LootManager {
         if (itemUUID == 0)
             return null;
 
-        if (ItemBase.getItemBase(itemUUID).getType().equals(Enum.ItemType.RESOURCE) || ItemBase.getItemBase(itemUUID).getName().equals("Mithril")) {
-            if(ThreadLocalRandom.current().nextInt(1,101) < 91)
-                return null; // cut down world drops rates of resources by 90%
-            int amount = ThreadLocalRandom.current().nextInt(tableRow.minSpawn, tableRow.maxSpawn + 1);
-            return new MobLoot(mob, ItemBase.getItemBase(itemUUID), amount, false);
-        }
-        if(ItemBase.getItemBase(itemUUID).getType().equals(Enum.ItemType.RUNE)){
-            int randomRune = rollRandomItem(itemTableId);
-            if(randomRune != 0) {
-                itemUUID = randomRune;
-            }
-        } else if(ItemBase.getItemBase(itemUUID).getType().equals(Enum.ItemType.CONTRACT)){
-            int randomContract = rollRandomItem(itemTableId);
-            if(randomContract != 0) {
-                itemUUID = randomContract;
-            }
-        }
-        outItem = new MobLoot(mob, ItemBase.getItemBase(itemUUID), false);
+        ItemBase ib = ItemBase.getItemBase(itemUUID);
+        if (ib == null || ib.getType().equals(Enum.ItemType.RESOURCE) || ib.getName().equals("Mithril") || ib.getType().equals(Enum.ItemType.RUNE) || ib.getType().equals(Enum.ItemType.CONTRACT))
+            return null;
+
+        outItem = new MobLoot(mob, ib, false);
 
         if(selectedRow.pModTable != 0){
             try {
@@ -339,11 +243,6 @@ public enum LootManager {
             } catch (Exception e) {
                 Logger.error("Failed to GenerateSuffix for item: " + outItem.getName());
             }
-        }
-
-        if(outItem.getItemBase().getType().equals(Enum.ItemType.CONTRACT) || outItem.getItemBase().getType().equals(Enum.ItemType.RUNE)){
-            if(ThreadLocalRandom.current().nextInt(1,101) < 66)
-                return null; // cut down world drops rates of resources by 65%
         }
 
         return outItem;
