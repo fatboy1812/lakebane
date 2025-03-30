@@ -17,7 +17,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 public class PlayerGuardHandler {
     public static void run(Mob guard) {
-        if(!guard.isAlive()){
+        if(!guard.isAlive() || guard.despawned){
             CheckRespawn(guard);
             return;
         }
@@ -120,7 +120,14 @@ public class PlayerGuardHandler {
         for(int id : guard.playerAgroMap.keySet()){
             PlayerCharacter target = PlayerCharacter.getFromCache(id);
 
-            if(target.loc.distanceSquared(guard.loc) > guard.getAggroRange() * guard.getAggroRange())
+            float aggroRange = guard.getAggroRange();
+
+            if(guard.getEquip().get(2) != null && guard.getEquip().get(2).getItemBase().getRange() > 15)
+                aggroRange = guard.getEquip().get(2).getItemBase().getRange() * 1.5f;
+
+            float squared = aggroRange * aggroRange;
+
+            if(target.loc.distanceSquared(guard.loc) > squared)
                 continue;
 
             if(tar == null || guard.loc.distanceSquared(tar.loc) < guard.loc.distanceSquared(target.loc))
