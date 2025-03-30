@@ -737,6 +737,9 @@ public class Contract extends AbstractGameObject {
         if (this.allowedBuildings.size() == 0)
             return false;
 
+        if(this.name.equals("Siege Engineer") && building.getBlueprint().getBuildingGroup().equals(Enum.BuildingGroup.SIEGETENT))
+            return true;
+
         // Binary match
         return (building.getBlueprint().getBuildingGroup().elementOf(this.allowedBuildings));
     }

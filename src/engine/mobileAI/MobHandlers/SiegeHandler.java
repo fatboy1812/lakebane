@@ -8,6 +8,7 @@ import engine.mobileAI.utilities.MovementUtilities;
 import engine.objects.Building;
 import engine.objects.City;
 import engine.objects.Mob;
+import engine.server.MBServerStatics;
 
 public class SiegeHandler {
     public static void run(Mob engine){
@@ -30,7 +31,7 @@ public class SiegeHandler {
         if(!engine.despawned) {
             engine.despawn();
         }else{
-            if(engine.deathTime + (engine.spawnTime * 1000) > System.currentTimeMillis()){
+            if(engine.deathTime + MBServerStatics.FIFTEEN_MINUTES > System.currentTimeMillis()){
                 engine.respawn();
             }
         }
