@@ -657,43 +657,20 @@ public class PlayerCombatStats {
         }else {
             weapon = this.owner.charItemManager.getEquipped(2);
         }
-        float delayExtra = 0;
-        if(weapon == null) {
-            speed = 20.0f;
-        }else{
-            speed = weapon.getItemBase().getSpeed();
-            for(Effect eff : weapon.effects.values()){
-                for(AbstractEffectModifier mod : eff.getEffectModifiers()){
-                    if(mod.modType.equals(Enum.ModType.WeaponSpeed) || mod.modType.equals(Enum.ModType.AttackDelay)){
-                        float percent = mod.getPercentMod();
-                        int trains = eff.getTrains();
-                        float modValue = percent + (trains * mod.getRamp());
-                        speed *= 1 + (modValue * 0.01f);
-                    }
-                }
-            }
-        }
-        if(this.owner.charItemManager.getEquipped(1) != null){
-            for(Effect eff : this.owner.charItemManager.getEquipped(1).effects.values()){
-                for(AbstractEffectModifier mod : eff.getEffectModifiers()){
-                    if(mod.modType.equals(Enum.ModType.AttackDelay)){
-                        float percent = mod.getPercentMod();
-                        int trains = eff.getTrains();
-                        float modValue = percent + (trains * mod.getRamp());
-                        delayExtra += modValue * 0.01f;
-                    }
-                }
-            }
-        }
-        if(this.owner.charItemManager.getEquipped(2) != null){
-            for(Effect eff : this.owner.charItemManager.getEquipped(2).effects.values()){
-                for(AbstractEffectModifier mod : eff.getEffectModifiers()){
-                    if(mod.modType.equals(Enum.ModType.AttackDelay)){
-                        float percent = mod.getPercentMod();
-                        int trains = eff.getTrains();
-                        float modValue = percent + (trains * mod.getRamp());
-                        delayExtra += modValue * 0.01f;
-                    }
+
+        speed = weapon.getModifiedSpeed();
+
+        for(String effID : this.owner.effects.keySet()){
+            Effect eff = this.owner.effects.get(effID);
+            if(eff == null)
+                continue;
+            for(AbstractEffectModifier mod : eff.getEffectModifiers()){
+                if(mod.modType.equals(Enum.ModType.AttackDelay) && !effID.contains("Stance")){
+                    float base = mod.getPercentMod();
+                    if(mod.getRamp() != 0)
+                        base += (mod.getRamp() * eff.getTrains());
+                    base *= 0.01f;
+                    speed *= (1 + base);
                 }
             }
         }
@@ -713,11 +690,7 @@ public class PlayerCombatStats {
                 }
             }
         }
-
-        float bonusValues = 1 + this.owner.bonuses.getFloatPercentAll(Enum.ModType.AttackDelay,Enum.SourceType.None);//1.0f;
-        bonusValues -= stanceValue + delayExtra; // take away stance modifier from alacrity bonus values
         speed *= 1 + stanceValue; // apply stance bonus
-        speed *= bonusValues; // apply alacrity bonuses without stance mod
 
         if(speed < 10.0f)
             speed = 10.0f;
