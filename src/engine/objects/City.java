@@ -385,6 +385,11 @@ public class City extends AbstractWorldObject {
                 if (city.noTeleport)
                     continue;
 
+                if(city.getTOL() == null){
+                    Logger.error("City With UUID: " + city.getObjectUUID() + " Has No ToL.");
+                    continue;
+                }
+
                 if (city.parentZone != null && city.parentZone.isPlayerCity()) {
 
                     if (pc.getAccount().status.equals(AccountStatus.ADMIN)) {
