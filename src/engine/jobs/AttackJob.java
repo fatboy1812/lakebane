@@ -36,6 +36,7 @@ public class AttackJob extends AbstractJob {
             if(pc.combatTarget != null && pc.combatTarget.getObjectType().equals(Enum.GameObjectType.PlayerCharacter)){
                 PlayerCharacter target = (PlayerCharacter)pc.combatTarget;
                 if(!pc.canSee(target)) {
+                    this._cancelJob();
                     return;
                 }
             }
