@@ -397,7 +397,7 @@ public class City extends AbstractWorldObject {
                             cities.add(city);
                         }else {
                             try {
-                                if (city.getGuild().getNation().equals(pc.guild.getNation())) {
+                                if (city.getGuild() != null && city.getGuild().getNation().equals(pc.guild.getNation())) {
                                     cities.add(city);
                                 }
                             }catch(Exception e){
