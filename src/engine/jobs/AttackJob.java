@@ -9,11 +9,9 @@
 
 package engine.jobs;
 
-import engine.Enum;
 import engine.gameManager.CombatManager;
 import engine.job.AbstractJob;
 import engine.objects.AbstractCharacter;
-import engine.objects.PlayerCharacter;
 
 public class AttackJob extends AbstractJob {
 
@@ -30,16 +28,6 @@ public class AttackJob extends AbstractJob {
 
     @Override
     public void doJob() {
-
-        if(this.source.getObjectType().equals(Enum.GameObjectType.PlayerCharacter)){
-            PlayerCharacter pc = (PlayerCharacter)source;
-            if(pc.combatTarget != null && pc.combatTarget.getObjectType().equals(Enum.GameObjectType.PlayerCharacter)){
-                PlayerCharacter target = (PlayerCharacter)pc.combatTarget;
-                if(!pc.canSee(target)) {
-                    return;
-                }
-            }
-        }
         CombatManager.doCombat(this.source, slot);
     }
 
