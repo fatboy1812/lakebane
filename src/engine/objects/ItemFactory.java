@@ -705,9 +705,13 @@ public class ItemFactory {
 
         int rollPrefix = ThreadLocalRandom.current().nextInt(1, 100 + 1);
 
-        if (rollPrefix < 80) {
+        if (rollPrefix < vendor.getLevel() + 30) {
 
             int randomPrefix = TableRoll(vendor.getLevel());
+            if(vendor.contract.getName().contains("Heavy") || vendor.contract.getName().contains("Medium") || vendor.contract.getName().contains("Leather"))
+                randomPrefix += vendor.level * 0.5f;
+            if(randomPrefix > 320)
+                randomPrefix = 320;
             prefixEntry = ModTableEntry.rollTable(prefixTypeTable.modTableID, randomPrefix);
 
             if (prefixEntry != null)
@@ -720,9 +724,13 @@ public class ItemFactory {
         // Always have at least one mod on a magic rolled item.
         // Suffix will be our backup plan.
 
-        if (rollSuffix < 80 || prefixEntry == null) {
+        if (rollSuffix < vendor.getLevel() + 30) {
 
             int randomSuffix = TableRoll(vendor.getLevel());
+            if(vendor.contract.getName().contains("Heavy") || vendor.contract.getName().contains("Medium") || vendor.contract.getName().contains("Leather"))
+                randomSuffix += vendor.level * 0.25f;
+            if(randomSuffix > 320)
+                randomSuffix = 320;
             suffixEntry = ModTableEntry.rollTable(suffixTypeTable.modTableID, randomSuffix);
 
             if (suffixEntry != null)
@@ -776,31 +784,31 @@ public class ItemFactory {
 
     public static int TableRoll(int vendorLevel) {
         // Calculate min and max based on mobLevel
-        int min = 60;
-        int max = 120;
+        int min = 100;
+        int max = 160;
         switch(vendorLevel){
             case 20:
-                min = 70;
-                max = 140;
-                break;
-            case 30:
-                min = 80;
-                max = 160;
-                break;
-            case 40:
-                min = 90;
+                min = 120;
                 max = 180;
                 break;
-            case 50:
-                min = 100;
+            case 30:
+                min = 140;
                 max = 200;
                 break;
+            case 40:
+                min = 160;
+                max = 220;
+                break;
+            case 50:
+                min = 180;
+                max = 240;
+                break;
             case 60:
-                min = 175;
+                min = 200;
                 max = 260;
                 break;
             case 70:
-                min = 220;
+                min = 240;
                 max = 320;
                 break;
         }

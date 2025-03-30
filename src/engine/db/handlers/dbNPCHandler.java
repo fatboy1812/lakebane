@@ -131,6 +131,32 @@ public class dbNPCHandler extends dbHandlerBase {
         return npc;
     }
 
+    public int BANE_COMMANDER_EXISTS(final int objectUUID) {
+
+        int uid = 0;
+
+        String query = "SELECT `UID` FROM `obj_npc` WHERE `npc_buildingID` = ? LIMIT 1;";
+
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+
+            preparedStatement.setInt(1, objectUUID);
+
+            try (ResultSet rs = preparedStatement.executeQuery()) {
+                if (rs.next()) {
+                    // Retrieve the UID column value
+                    uid = rs.getInt("UID");
+                }
+            }
+
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
+
+        return uid;
+    }
+
+
     public int MOVE_NPC(long npcID, long parentID, float locX, float locY, float locZ) {
 
         int rowCount;
@@ -176,6 +202,18 @@ public class dbNPCHandler extends dbHandlerBase {
         return result;
     }
 
+    public static void updateSpecialPricing(final NPC npc){
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE obj_npc SET specialPrice=? WHERE UID = ?")) {
+            preparedStatement.setInt(1, npc.getSpecialPrice());
+            preparedStatement.setInt(2, npc.getDBID());
+
+            preparedStatement.executeUpdate();
+
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
+    }
     public void updateDatabase(final NPC npc) {
 
         try (Connection connection = DbManager.getConnection();

@@ -37,7 +37,7 @@ public class DamageOverTimeJob extends AbstractEffectJob {
     }
 
     @Override
-    protected void doJob() {
+    public void doJob() {
         if (this.target.getObjectType().equals(GameObjectType.Building)
                 && ((Building) this.target).isVulnerable() == false) {
             _cancelJob();
@@ -60,6 +60,8 @@ public class DamageOverTimeJob extends AbstractEffectJob {
 
         if (this.iteration < 0) {
             PowersManager.finishEffectTime(this.source, this.target, this.action, this.trains);
+            if (AbstractWorldObject.IsAbstractCharacter(source))
+                eb.startEffect((AbstractCharacter) this.source, this.target, this.trains, this);
             return;
         }
         this.skipSendEffect = true;

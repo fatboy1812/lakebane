@@ -76,6 +76,8 @@ public class ItemBase {
     private ArrayList<Integer> animations = new ArrayList<>();
     private ArrayList<Integer> offHandAnimations = new ArrayList<>();
 
+    public float dexReduction = 0.0f;
+
     /**
      * ResultSet Constructor
      */
@@ -151,7 +153,7 @@ public class ItemBase {
         }
         initBakedInStats();
         initializeHashes();
-
+        initDexReduction();
     }
 
     public static void addToCache(ItemBase itemBase) {
@@ -257,51 +259,53 @@ public class ItemBase {
             case 250019:
             case 250028:
             case 250037:
-                return 3000000;
+                return 1000000;
             case 250002: //10 stats
             case 250011:
             case 250020:
             case 250029:
             case 250038:
-                return 4000000;
+                return 2000000;
             case 250003: //15 stats
             case 250012:
             case 250021:
             case 250030:
             case 250039:
-                return 5000000;
+                return 3000000;
             case 250004: //20 stats
             case 250013:
             case 250022:
             case 250031:
             case 250040:
-                return 6000000;
+                return 4000000;
             case 250005: //25 stats
             case 250014:
             case 250023:
             case 250032:
             case 250041:
-                return 7000000;
+                return 5000000;
             case 250006: //30 stats
             case 250015:
             case 250024:
             case 250033:
             case 250042:
-                return 8000000;
+                return 6000000;
             case 250007: //35 stats
             case 250016:
             case 250025:
             case 250034:
             case 250043:
-                return 9000000;
+                return 7000000;
             case 250008: //40 stats
             case 250017:
             case 250026:
             case 250035:
             case 250044:
                 return 10000000;
+            case 252127:
+                return 5000000;
         }
-        return 10000000;
+        return 1000000;
     }
 
     /*
@@ -317,6 +321,10 @@ public class ItemBase {
 
     private void initBakedInStats() {
         DbManager.ItemBaseQueries.LOAD_BAKEDINSTATS(this);
+    }
+
+    private void initDexReduction(){
+        DbManager.ItemBaseQueries.LOAD_DEX_REDUCTION(this);
     }
 
     //TODO fix this later. Shouldn't be gotten from item base

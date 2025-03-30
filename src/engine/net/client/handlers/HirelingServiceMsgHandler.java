@@ -61,7 +61,7 @@ public class HirelingServiceMsgHandler extends AbstractClientMsgHandler {
                     return true;
 
 
-                npc.setRepairCost(msg.repairCost);
+                npc.setSpecialPrice(msg.repairCost);
                 ManageNPCMsg outMsg = new ManageNPCMsg(npc);
                 Dispatch dispatch = Dispatch.borrow(player, msg);
 

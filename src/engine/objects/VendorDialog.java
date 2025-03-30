@@ -21,7 +21,7 @@ public class VendorDialog extends AbstractGameObject {
     private static VendorDialog vd;
     private final String dialogType;
     private final String intro;
-    private ArrayList<MenuOption> options = new ArrayList<>();
+    ArrayList<MenuOption> options = new ArrayList<>();
 
     public VendorDialog(String dialogType, String intro, int UUID) {
         super(UUID);

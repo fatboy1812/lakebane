@@ -87,6 +87,7 @@ public abstract class AbstractConnectionManager extends ControlledRunnable {
 
                 this.processChangeRequests();
                 this.auditSocketChannelToConnectionMap();
+                //this.selector.select();
                 this.selector.select(250L);
                 this.processNewEvents();
 
@@ -664,7 +665,7 @@ public abstract class AbstractConnectionManager extends ControlledRunnable {
         }
 
         @Override
-        protected void doJob() {
+        public void doJob() {
             if (runStatus) {
                 this.ac.connMan.receive(sk);
                 this.ac.execTask.compareAndSet(true, false);
@@ -693,7 +694,7 @@ public abstract class AbstractConnectionManager extends ControlledRunnable {
         }
 
         @Override
-        protected void doJob() {
+        public void doJob() {
             if (runStatus) {
                 this.ac.connMan.sendFinish(sk);
                 this.ac.execTask.compareAndSet(true, false);

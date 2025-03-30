@@ -27,7 +27,7 @@ public class ChangeAltitudeJob extends AbstractScheduleJob {
     }
 
     @Override
-    protected void doJob() {
+    public void doJob() {
         if (this.ac != null)
             MovementManager.finishChangeAltitude(ac, targetAlt);
     }

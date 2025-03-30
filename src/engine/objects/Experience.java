@@ -23,7 +23,7 @@ import static engine.gameManager.LootManager.LOOTMANAGER;
 public class Experience {
 
     private static final TreeMap<Integer, Integer> ExpToLevel;
-    private static final int[] LevelToExp = {Integer.MIN_VALUE, // Pad
+    public static final int[] LevelToExp = {Integer.MIN_VALUE, // Pad
             // everything
             // over 1
 
@@ -121,6 +121,8 @@ public class Experience {
             190585732,  // Level 77
             201714185,  // Level 78
             213319687,  // Level 79
+
+            // R8
             225415457,   // Level 80
             238014819   // Level 81
 
@@ -302,7 +304,7 @@ public class Experience {
             case Cyan:
                 return 0.9;
             case Green:
-                return 0.7;
+                return 0.8;
             default:
                 return 0;
         }
@@ -345,6 +347,20 @@ public class Experience {
 
         if (killer == null || mob == null)
             return;
+
+        if(killer.equals(mob))
+            return;
+
+        if(killer.pvpKills.contains(mob.getObjectUUID()))
+            return;
+
+        if(true){
+            if(killer.combatStats == null)
+                killer.combatStats = new PlayerCombatStats(killer);
+
+            killer.combatStats.grantExperience(mob,g);
+            return;
+        }
 
         double grantedExperience = 0.0;
 
@@ -439,6 +455,9 @@ public class Experience {
                 if (grantedExperience == 0)
                     grantedExperience = 1;
 
+                //scaling
+                grantedExperience *= (1 / giveEXPTo.size()+0.9);
+
                 // Grant the player the EXP
                 playerCharacter.grantXP((int) Math.floor(grantedExperience));
             }
@@ -462,9 +481,13 @@ public class Experience {
                 grantedExperience *= LOOTMANAGER.HOTZONE_EXP_RATE;
 
             // Errant penalty
-            if (grantedExperience != 1)
+            if (grantedExperience != 1) {
                 if (killer.getGuild().isEmptyGuild())
-                    grantedExperience *= .6;
+                    grantedExperience *= 0.6f;
+            }
+
+            //bonus for no group
+            grantedExperience *= 1.9f;
 
             // Grant XP
             killer.grantXP((int) Math.floor(grantedExperience));

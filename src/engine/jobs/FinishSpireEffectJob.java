@@ -20,7 +20,7 @@ public class FinishSpireEffectJob extends AbstractEffectJob {
     }
 
     @Override
-    protected void doJob() {
+    public void doJob() {
 
         PlayerCharacter pc = (PlayerCharacter) target;
 

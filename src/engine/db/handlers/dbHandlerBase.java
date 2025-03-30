@@ -56,6 +56,13 @@ public abstract class dbHandlerBase {
             while (rs.next()) {
 
                 int id = rs.getInt(1);
+                try {
+                    if (rs.getInt("capSize") == 0) {
+                        continue;
+                    }
+                }catch(Exception e){
+                    //not a mine
+                }
 
                 if (DbManager.inCache(localObjectType, id)) {
                     objectList.add((T) DbManager.getFromCache(localObjectType, id));

@@ -33,11 +33,11 @@ public class MBServerStatics {
     // hit box
     // calcs
     public static final boolean PRINT_INCOMING_OPCODES = false; // print
-    public static final int BANK_GOLD_LIMIT = 25000000;
+    public static final int BANK_GOLD_LIMIT = 100000000;
     // incoming
     // opcodes to
     // console
-    public static final int PLAYER_GOLD_LIMIT = 10000000;
+    public static final int PLAYER_GOLD_LIMIT = 50000000;
     // buildings, npcs
     /*
      * Login cache flags
@@ -312,10 +312,10 @@ public class MBServerStatics {
     public static final float HEALTH_REGEN_SWIM_NOSTAMINA_STATIC = 0f; // 100%
     // weapon
     public static final float MANA_REGEN_STATIC = 0.16666666666666666666666666666667f;
-    public static final float MANA_REGEN_SIT = 0.008333333f; // 100% in 2
-    public static final float MANA_REGEN_IDLE = 0.00166667f; // 100% in 10
-    public static final float MANA_REGEN_WALK = 0.00125f; // 100% in 13.333
-    public static final float MANA_REGEN_RUN = 0f;
+    public static final float MANA_REGEN_SIT = 0.8333333f; // 1% every 1.2 seconds
+    public static final float MANA_REGEN_IDLE = 0.1666667f; // 1% every 6 seconds
+    public static final float MANA_REGEN_WALK = 0.125f; // 1% every 8 seconds
+    public static final float MANA_REGEN_RUN = 0.0f; // No regeneration while running
     public static final float STAMINA_REGEN_SIT = 2f; // 2 per second
     public static final float STAMINA_REGEN_IDLE = 0.2f; // 1 per 5 seconds
     public static final float STAMINA_REGEN_WALK = 0f;
@@ -326,7 +326,7 @@ public class MBServerStatics {
     public static final int REGEN_SENSITIVITY_MOB = 1000; // calc regen ever X
     public static final int TOMBSTONE = 2024;
     public static final int LOGOUT_TIMER_MS = 1000; // logout delay applied
-    public static final int CORPSE_CLEANUP_TIMER_MS = 15 * 60 * 1000; // Cleanup
+    public static final int CORPSE_CLEANUP_TIMER_MS = 10 * 60 * 1000; // Cleanup
     public static final int DEFAULT_SPAWN_TIME_MS = 3 * 60 * 1000; // 3 minute
     public static final int SESSION_CLEANUP_TIMER_MS = 30 * 1000; // cleanup
     public static final int MOVEMENT_FREQUENCY_MS = 1000; // Update movement
@@ -379,6 +379,8 @@ public class MBServerStatics {
     // Mine related
     public static final int MINE_EARLY_WINDOW = 16; // 4pm
     public static final int MINE_LATE_WINDOW = 0; // Midnight
+    public static final Long THREE_MINUTES = 180000L;
+    public static final int BUILDING_GOLD_LIMIT = 100000000;
     public static boolean DEBUG_PROTOCOL = false;
     public static int SPATIAL_HASH_BUCKETSX = 16384;
     public static int SPATIAL_HASH_BUCKETSY = 12288;

@@ -45,7 +45,7 @@ public class RefreshGroupJob extends AbstractJob {
     }
 
     @Override
-    protected void doJob() {
+    public void doJob() {
 
         if (this.pc == null || this.origin == null || grp == null) {
             return;

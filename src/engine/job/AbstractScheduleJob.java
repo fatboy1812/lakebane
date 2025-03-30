@@ -17,7 +17,7 @@ public abstract class AbstractScheduleJob extends AbstractJob {
     }
 
     @Override
-    protected abstract void doJob();
+    public abstract void doJob();
 
     public void cancelJob() {
         JobScheduler.getInstance().cancelScheduledJob(this);

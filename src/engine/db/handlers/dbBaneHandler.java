@@ -10,17 +10,13 @@
 package engine.db.handlers;
 
 import engine.gameManager.DbManager;
-import engine.objects.Bane;
-import engine.objects.Building;
-import engine.objects.City;
-import engine.objects.PlayerCharacter;
+import engine.gameManager.ZoneManager;
+import engine.math.Vector3fImmutable;
+import engine.objects.*;
 import org.joda.time.DateTime;
 import org.pmw.tinylog.Logger;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 
 public class dbBaneHandler extends dbHandlerBase {
 
@@ -89,6 +85,139 @@ public class dbBaneHandler extends dbHandlerBase {
         return true;
     }
 
+    public boolean SET_BANE_TIME_NEW(int hour, int cityUUID) {
+        hour += 12; // Adjust hour
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement getStatement = connection.prepareStatement("SELECT `placementDate`, `liveDate` FROM `dyn_banes` WHERE `cityUUID`=?");
+             PreparedStatement updateStatement = connection.prepareStatement("UPDATE `dyn_banes` SET `liveDate`=?, `time_set`=? WHERE `cityUUID`=?")) {
+
+            // Retrieve placementDate and liveDate
+            getStatement.setInt(1, cityUUID);
+            try (ResultSet rs = getStatement.executeQuery()) {
+                if (rs.next()) {
+                    DateTime placementDate = new DateTime(rs.getTimestamp("placementDate").getTime());
+                    Timestamp liveDateTimestamp = rs.getTimestamp("liveDate");
+
+                    // Explicitly check if liveDate is null
+                    DateTime toSet;
+                    if (liveDateTimestamp == null) {
+                        // If liveDate is null, default to placementDate
+                        toSet = placementDate;
+                    } else {
+                        // If liveDate is not null, use it
+                        DateTime liveDate = new DateTime(liveDateTimestamp.getTime());
+                        toSet = liveDate;
+                    }
+
+                    // Adjust the time
+                    toSet = toSet.withHourOfDay(hour).withMinuteOfHour(0).withSecondOfMinute(0).withMillisOfSecond(0);
+
+                    // Update liveDate and time_set flag
+                    updateStatement.setTimestamp(1, new java.sql.Timestamp(toSet.getMillis()));
+                    updateStatement.setInt(2, 1); // time_set flag
+                    updateStatement.setInt(3, cityUUID);
+
+                    updateStatement.execute();
+                    return true;
+                }
+            }
+
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
+        return false;
+    }
+
+    public boolean SET_BANE_DAY_NEW(int dayOffset, int cityUUID) {
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement getStatement = connection.prepareStatement("SELECT `placementDate`, `liveDate` FROM `dyn_banes` WHERE `cityUUID`=?");
+             PreparedStatement updateStatement = connection.prepareStatement("UPDATE `dyn_banes` SET `liveDate`=?, `day_set`=? WHERE `cityUUID`=?")) {
+
+            // Retrieve placementDate and liveDate
+            getStatement.setInt(1, cityUUID);
+            try (ResultSet rs = getStatement.executeQuery()) {
+                if (rs.next()) {
+                    DateTime placementDate = new DateTime(rs.getTimestamp("placementDate").getTime());
+                    Timestamp liveDateTimestamp = rs.getTimestamp("liveDate");
+
+                    // Explicitly check if liveDate is null
+                    DateTime liveDate;
+                    if (liveDateTimestamp == null) {
+                        // If liveDate is null, default to placementDate
+                        liveDate = placementDate;
+                    } else {
+                        // If liveDate is not null, use it
+                        liveDate = new DateTime(liveDateTimestamp.getTime());
+                    }
+
+                    // Calculate the new liveDate while preserving the time component
+                    DateTime updatedDate = placementDate.plusDays(dayOffset)
+                            .withHourOfDay(liveDate.getHourOfDay())
+                            .withMinuteOfHour(liveDate.getMinuteOfHour())
+                            .withSecondOfMinute(liveDate.getSecondOfMinute())
+                            .withMillisOfSecond(liveDate.getMillisOfSecond());
+
+                    // Update liveDate and day_set flag
+                    updateStatement.setTimestamp(1, new java.sql.Timestamp(updatedDate.getMillis()));
+                    updateStatement.setInt(2, 1); // day_set flag
+                    updateStatement.setInt(3, cityUUID);
+
+                    updateStatement.execute();
+                    return true;
+                }
+            }
+
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
+        return false;
+    }
+
+
+
+
+    public boolean SET_BANE_CAP_NEW(int count, int cityUUID) {
+
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `dyn_banes` SET `cap_size`=? WHERE `cityUUID`=?")) {
+
+            preparedStatement.setInt(1, count);
+            preparedStatement.setLong(2, cityUUID);
+
+            preparedStatement.execute();
+
+        } catch (SQLException e) {
+            Logger.error(e);
+            return false;
+        }
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `dyn_banes` SET `cap_set`=? WHERE `cityUUID`=?")) {
+
+            preparedStatement.setInt(1, 1);
+            preparedStatement.setLong(2, cityUUID);
+
+            preparedStatement.execute();
+
+        } catch (SQLException e) {
+            Logger.error(e);
+            return false;
+        }
+
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("UPDATE `dyn_banes` SET `cap_size`=? WHERE `cityUUID`=?")) {
+
+            preparedStatement.setInt(1, count);
+            preparedStatement.setLong(2, cityUUID);
+
+            preparedStatement.execute();
+
+        } catch (SQLException e) {
+            Logger.error(e);
+            return false;
+        }
+        return true;
+    }
+
     public boolean REMOVE_BANE(Bane bane) {
 
         if (bane == null)
@@ -106,5 +235,26 @@ public class dbBaneHandler extends dbHandlerBase {
         }
 
         return true;
+    }
+
+    public DateTime getLiveDate(int cityUUID) {
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement statement = connection.prepareStatement("SELECT `liveDate` FROM `dyn_banes` WHERE `cityUUID`=?")) {
+
+            statement.setInt(1, cityUUID);
+
+            try (ResultSet rs = statement.executeQuery()) {
+                if (rs.next()) {
+                    Timestamp liveDateTimestamp = rs.getTimestamp("liveDate");
+                    if (liveDateTimestamp != null) {
+                        return new DateTime(liveDateTimestamp.getTime());
+                    }
+                }
+            }
+
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
+        return null; // Return null if liveDate is not found or an error occurs
     }
 }

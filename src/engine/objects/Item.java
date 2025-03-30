@@ -817,32 +817,70 @@ public class Item extends AbstractWorldObject {
         return ownerID;
     }
 
-    public boolean stripCastableEnchants(){
-        //return true to refresh items in inventory to strip castables' mouse over data
-        ArrayList<String> keys = new ArrayList<>();
-
-        for(String eff : this.effects.keySet()){
-            Effect effect = this.effects.get(eff);
-            if(!effect.getJobContainer().noTimer())
-                keys.add(eff);
-        }
-
-        if(keys.size() > 0) {
-            for (String eff : keys) {
-                try {
-                    //this.effects.get(eff).getJobContainer().cancelJob();
-                    this.effects.get(eff).cancel();
-                    this.effects.remove(eff);
-                } catch (Exception e) {
-
-                }
+    public void stripCastableEnchants(){
+        try {
+            //strip EnchantWeapon
+            if(this.effects.get("EnchantWeapon") != null){
+                this.effects.remove("EnchantWeapon");
+                Effect eff = this.effects.get("EnchantWeapon");
+                eff.endEffectNoPower();
             }
-            return true;
+
+            //strip FGM-003
+            if(this.effects.get("1000") != null){
+                this.effects.remove("1000");
+                Effect eff = this.effects.get("1000");
+                eff.endEffectNoPower();
+            }
+
+            //strip FGM-001
+            if(this.effects.get("996") != null){
+                this.effects.remove("996");
+                Effect eff = this.effects.get("996");
+                eff.endEffectNoPower();
+            }
+
+            //strip ENC-001
+            if(this.effects.get("957") != null){
+                this.effects.remove("957");
+                Effect eff = this.effects.get("957");
+                eff.endEffectNoPower();
+            }
+            if(this.effects.get("958") != null){
+                this.effects.remove("958");
+                Effect eff = this.effects.get("958");
+                eff.endEffectNoPower();
+            }
+            if(this.effects.get("959") != null){
+                this.effects.remove("959");
+                Effect eff = this.effects.get("959");
+                eff.endEffectNoPower();
+            }
+            if(this.effects.get("960") != null){
+                this.effects.remove("960");
+                Effect eff = this.effects.get("960");
+                eff.endEffectNoPower();
+            }
+            if(this.effects.get("961") != null){
+                this.effects.remove("961");
+                Effect eff = this.effects.get("961");
+                eff.endEffectNoPower();
+            }
+            if(this.effects.get("962") != null){
+                this.effects.remove("962");
+                Effect eff = this.effects.get("962");
+                eff.endEffectNoPower();
+            }
+
+            this.applyAllBonuses();
+            //this.effects.values().removeAll(ToRemove);
+        }catch(Exception ignored){
+
         }
-        return false;
     }
     //Only to be used for trading
     public void setOwnerID(int ownerID) {
+        this.stripCastableEnchants();
         this.ownerID = ownerID;
     }
 
@@ -866,6 +904,7 @@ public class Item extends AbstractWorldObject {
     public boolean setOwner(AbstractGameObject owner) {
         if (owner == null)
             return false;
+        this.stripCastableEnchants();
         if (owner.getObjectType().equals(GameObjectType.NPC))
             this.ownerType = OwnerType.Npc;
         else if (owner.getObjectType().equals(GameObjectType.PlayerCharacter))
@@ -1087,6 +1126,7 @@ public class Item extends AbstractWorldObject {
         this.ownerID = pc.getObjectUUID();
         this.ownerType = OwnerType.PlayerCharacter;
         this.containerType = ItemContainerType.INVENTORY;
+        //this.stripCastableEnchants();
         return true;
     }
 
@@ -1107,6 +1147,7 @@ public class Item extends AbstractWorldObject {
         this.ownerID = npc.getObjectUUID();
         this.ownerType = OwnerType.Npc;
         this.containerType = Enum.ItemContainerType.INVENTORY;
+        //this.stripCastableEnchants();
         return true;
     }
 
@@ -1124,6 +1165,7 @@ public class Item extends AbstractWorldObject {
         this.ownerID = 0;
         this.ownerType = null;
         this.containerType = Enum.ItemContainerType.INVENTORY;
+        //this.stripCastableEnchants();
         return true;
     }
 
@@ -1226,7 +1268,10 @@ public class Item extends AbstractWorldObject {
     }
 
     public final int getMagicValue() {
-        return this.magicValue;
+        int val = this.calcMagicValue();
+        if(val == 0)
+            val = 1;
+        return val + this.getItemBase().getMagicValue();
     }
 
     public int getBaseValue() {
@@ -1487,5 +1532,22 @@ public class Item extends AbstractWorldObject {
         if (this.value == 0)
             return false;
         return true;
+    }
+
+    public float getModifiedSpeed() {
+        float speed = this.getItemBase().getSpeed();
+        try {
+            for (Effect eff : this.effects.values()) {
+                for (AbstractEffectModifier mod : eff.getEffectModifiers()) {
+                    if (mod.modType.equals(ModType.WeaponSpeed)) {
+                        float modValue = 1 + mod.getPercentMod() * 0.01f;
+                        speed *= modValue;
+                    }
+                }
+            }
+        }catch(Exception e){
+
+        }
+        return speed;
     }
 }

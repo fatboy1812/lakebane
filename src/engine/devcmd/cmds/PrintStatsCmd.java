@@ -11,6 +11,7 @@ package engine.devcmd.cmds;
 
 import engine.Enum;
 import engine.devcmd.AbstractDevCmd;
+import engine.gameManager.PowersManager;
 import engine.objects.*;
 
 import java.util.HashMap;
@@ -57,27 +58,42 @@ public class PrintStatsCmd extends AbstractDevCmd {
 
     public void printStatsPlayer(PlayerCharacter pc, PlayerCharacter tar) {
         String newline = "\r\n ";
-        String out = "Server stats for Player " + tar.getFirstName() + newline;
-        out += "Unused Stats: " + tar.getUnusedStatPoints() + newline;
-        out += "Stats Base (Modified)" + newline;
-        out += "  Str: " + (int) tar.statStrBase + " (" + tar.getStatStrCurrent() + ')' + ", maxStr: " + tar.getStrMax() + newline;
-        out += "  Dex: " + (int) tar.statDexBase + " (" + tar.getStatDexCurrent() + ')' + ", maxDex: " + tar.getDexMax() + newline;
-        out += "  Con: " + (int) tar.statConBase + " (" + tar.getStatConCurrent() + ')' + ", maxCon: " + tar.getConMax() + newline;
-        out += "  Int: " + (int) tar.statIntBase + " (" + tar.getStatIntCurrent() + ')' + ", maxInt: " + tar.getIntMax() + newline;
-        out += "  Spi: " + (int) tar.statSpiBase + " (" + tar.getStatSpiCurrent() + ')' + ", maxSpi: " + tar.getSpiMax() + newline;
-        throwbackInfo(pc, out);
-        out = "Health: " + tar.getHealth() + ", maxHealth: " + tar.getHealthMax() + newline;
-        out += "Mana: " + tar.getMana() + ", maxMana: " + tar.getManaMax() + newline;
-        out += "Stamina: " + tar.getStamina() + ", maxStamina: " + tar.getStaminaMax() + newline;
-        out += "Defense: " + tar.getDefenseRating() + newline;
-        out += "Main Hand: atr: " + tar.getAtrHandOne() + ", damage: " + tar.getMinDamageHandOne() + " to " + tar.getMaxDamageHandOne() + ", speed: " + tar.getSpeedHandOne() + newline;
-        out += "Off Hand:  atr: " + tar.getAtrHandTwo() + ", damage: " + tar.getMinDamageHandTwo() + " to " + tar.getMaxDamageHandTwo() + ", speed: " + tar.getSpeedHandTwo() + newline;
-        out += "isAlive: " + tar.isAlive() + ", Combat: " + tar.isCombat() + newline;
-        out += "Move Speed: " + tar.getSpeed() + newline;
-        out += "Health Regen: " + tar.getRegenModifier(Enum.ModType.HealthRecoverRate) + newline;
-        out += "Mana Regen: " + tar.getRegenModifier(Enum.ModType.ManaRecoverRate) + newline;
-        out += "Stamina Regen: " + tar.getRegenModifier(Enum.ModType.StaminaRecoverRate) + newline;
-        throwbackInfo(pc, out);
+
+        String newOut = "Server stats for Player " + tar.getFirstName() + newline;
+        newOut += "HEALTH: " + tar.getHealth() + " / " + tar.getHealthMax() + newline;
+        newOut += "MANA: " + tar.getMana() + " / " + tar.getManaMax() + newline;
+        newOut += "STAMINA: " + tar.getStamina() + " / " + tar.getStaminaMax() + newline;
+        newOut += "Unused Stats: " + tar.getUnusedStatPoints() + newline;
+        newOut += "Stats Base (Modified)" + newline;
+        newOut += "  Str: " + (int) tar.statStrBase + " (" + tar.getStatStrCurrent() + ')' + ", maxStr: " + tar.getStrMax() + newline;
+        newOut += "  Dex: " + (int) tar.statDexBase + " (" + tar.getStatDexCurrent() + ')' + ", maxDex: " + tar.getDexMax() + newline;
+        newOut += "  Con: " + (int) tar.statConBase + " (" + tar.getStatConCurrent() + ')' + ", maxCon: " + tar.getConMax() + newline;
+        newOut += "  Int: " + (int) tar.statIntBase + " (" + tar.getStatIntCurrent() + ')' + ", maxInt: " + tar.getIntMax() + newline;
+        newOut += "  Spi: " + (int) tar.statSpiBase + " (" + tar.getStatSpiCurrent() + ')' + ", maxSpi: " + tar.getSpiMax() + newline;
+        newOut += "Move Speed: " + tar.getSpeed() + newline;
+        newOut += "Health Regen: " + tar.combatStats.healthRegen + newline;
+        newOut += "Mana Regen: " + tar.combatStats.manaRegen + newline;
+        newOut += "Stamina Regen: " + tar.combatStats.staminaRegen + newline;
+        newOut += "DEFENSE: " + tar.combatStats.defense + newline;
+        newOut += "HAND ONE" + newline;
+        newOut += "ATR: " +  tar.combatStats.atrHandOne + newline;
+        newOut += "MIN: " + tar.combatStats.minDamageHandOne + newline;
+        newOut += "MAX: " + tar.combatStats.maxDamageHandOne + newline;
+        newOut += "RANGE: " + tar.combatStats.rangeHandOne + newline;
+        newOut += "ATTACK SPEED: " + tar.combatStats.attackSpeedHandOne + newline;
+        newOut += "HAND TWO" + newline;
+        newOut += "ATR: " + tar.combatStats.atrHandTwo + newline;
+        newOut += "MIN: " + tar.combatStats.minDamageHandTwo + newline;
+        newOut += "MAX: " + tar.combatStats.maxDamageHandTwo + newline;
+        newOut += "RANGE: " + tar.combatStats.rangeHandTwo + newline;
+        newOut += "ATTACK SPEED: " + tar.combatStats.attackSpeedHandTwo + newline;
+        newOut += "=== POWERS ===" + newline;
+        for(CharacterPower power : pc.getPowers().values()){
+            if(power.getPower().requiresHitRoll) {
+                newOut += power.getPower().name + " ATR: " + Math.round(PlayerCombatStats.getSpellAtr(pc,power.getPower())) + newline;
+            }
+        }
+        throwbackInfo(pc, newOut);
     }
 
     public void printStatsMob(PlayerCharacter pc, Mob tar) {

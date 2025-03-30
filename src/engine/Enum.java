@@ -9,15 +9,13 @@
 package engine;
 
 import ch.claude_martin.enumbitset.EnumBitSetHelper;
+import engine.gameManager.BuildingManager;
 import engine.gameManager.ConfigManager;
 import engine.gameManager.PowersManager;
 import engine.gameManager.ZoneManager;
 import engine.math.Vector2f;
 import engine.math.Vector3fImmutable;
-import engine.objects.AbstractCharacter;
-import engine.objects.ItemBase;
-import engine.objects.Shrine;
-import engine.objects.Zone;
+import engine.objects.*;
 import engine.powers.EffectsBase;
 import org.pmw.tinylog.Logger;
 
@@ -152,7 +150,8 @@ public class Enum {
         NEPHFEMALE(2026, MonsterType.Nephilim, RunSpeed.STANDARD, CharacterSex.FEMALE, 1.1f),
         HALFGIANTFEMALE(2027, MonsterType.HalfGiant, RunSpeed.STANDARD, CharacterSex.FEMALE, 1.15f),
         VAMPMALE(2028, MonsterType.Vampire, RunSpeed.STANDARD, CharacterSex.MALE, 1),
-        VAMPFEMALE(2029, MonsterType.Vampire, RunSpeed.STANDARD, CharacterSex.FEMALE, 1);
+        VAMPFEMALE(2029, MonsterType.Vampire, RunSpeed.STANDARD, CharacterSex.FEMALE, 1),
+        SAETOR(1999,MonsterType.Minotaur, RunSpeed.MINOTAUR, CharacterSex.MALE,1);
 
         @SuppressWarnings("unchecked")
         private static HashMap<Integer, RaceType> _raceTypeByID = new HashMap<>();
@@ -172,8 +171,6 @@ public class Enum {
         }
 
         public static RaceType getRaceTypebyRuneID(int runeID) {
-            if(runeID == 1999)
-                return _raceTypeByID.get(2017);
             return _raceTypeByID.get(runeID);
         }
 
@@ -211,8 +208,7 @@ public class Enum {
         STANDARD(6.1900001f, 13.97f, 4.2199998f, 13.97f, 6.3299999f, 18.379999f, 6.5f),
         CENTAUR(6.1900001f, 16.940001f, 5.5500002f, 16.940001f, 6.3299999f, 18.379999f, 6.5f),
         MINOTAUR(6.6300001f, 15.95f, 4.2199998f, 15.95f, 6.3299999f, 18.379999f, 6.5f),
-        IREKEI(6.1900001f, 13.97f, 4.2199998f, 13.97f, 6.3299999f, 18.379999f, 6.5f);
-
+        IREKEI(6.499500105f, 14.6685f, 4.2199998f, 14.6685f, 6.3299999f, 18.379999f, 6.5f);
         private float walkStandard;
         private float walkCombat;
         private float runStandard;
@@ -472,11 +468,14 @@ public class Enum {
 
                 // 14001 does not have a banestone to bind at
 
-                if (ruinZone.getLoadNum() == 14001)
+                if (ruinZone.getLoadNum() == 14001) {
                     spawnLocation = Vector3fImmutable.getRandomPointOnCircle(ruinZone.getLoc(), 30);
-                else
-                    spawnLocation = Vector3fImmutable.getRandomPointOnCircle(ruinZone.getLoc()
-                            .add(new Vector3fImmutable(-196.016f, 2.812f, 203.621f)), 30);
+                }else {
+                    //spawnLocation = Vector3fImmutable.getRandomPointOnCircle(ruinZone.getLoc()
+                    //.add(new Vector3fImmutable(-196.016f, 2.812f, 203.621f)), 30);
+                        spawnLocation = Vector3fImmutable.getRandomPointOnCircle(BuildingManager.getBuilding(27977).loc,30f);
+
+                }
             }
 
 
@@ -779,6 +778,7 @@ public class Enum {
         Combat,
         Spires,
         Snare,
+        Snared,
         Stun,
         Blind,
         Root,
@@ -881,6 +881,7 @@ public class Enum {
         Siege,
         Slash,
         Snare,
+        Snared,
         Sorcery,
         Spear,
         SpearMastery,
@@ -978,8 +979,8 @@ public class Enum {
             try {
                 returnMod = SourceType.valueOf(modName.replace(",", ""));
             } catch (Exception e) {
-                Logger.error(modName);
-                Logger.error(e);
+                //Logger.error(modName);
+                //Logger.error(e);
                 return SourceType.None;
             }
             return returnMod;
@@ -1030,6 +1031,7 @@ public class Enum {
         Silence,
         Slash,
         Snare,
+        Snared,
         Stance,
         Stun,
         Summon,
@@ -1154,6 +1156,7 @@ public class Enum {
         SkillDebuff,
         SlashResistanceDebuff,
         Snare,
+        Snared,
         StackableAttrCONBuff,
         StackableAttrDEXBuff,
         StackableAttrSTRBuff,
@@ -2322,7 +2325,8 @@ public class Enum {
 
         GRID(544),
         ZONE(672),
-        PLACEMENT(673);
+        PLACEMENT(673),
+        SIEGEBOUNDS(1750);
 
         public final float extents;
 

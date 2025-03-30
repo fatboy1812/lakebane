@@ -10,10 +10,14 @@
 package engine.objects;
 
 import engine.Enum;
+import engine.InterestManagement.InterestManager;
 import engine.InterestManagement.RealmMap;
+import engine.InterestManagement.WorldGrid;
 import engine.db.archive.DataWarehouse;
 import engine.db.archive.RealmRecord;
+import engine.gameManager.BuildingManager;
 import engine.gameManager.DbManager;
+import engine.gameManager.NPCManager;
 import engine.gameManager.PowersManager;
 import engine.net.ByteBufferWriter;
 import engine.powers.PowersBase;
@@ -379,6 +383,16 @@ public class Realm {
 
     public void abandonRealm() {
 
+        for(AbstractWorldObject awo : WorldGrid.getObjectsInRangePartial(this.getRulingCity().loc,1750,MBServerStatics.MASK_BUILDING)){
+            Building wall = (Building)awo;
+            if(wall.getBlueprint() != null && wall.getBlueprint().getBuildingGroup() != null && wall.getBlueprint().isWallPiece()){
+                float currentHealthRatio = wall.getCurrentHitpoints()/wall.healthMax;
+                float newMax = wall.getBlueprint().getMaxHealth(1);
+                wall.setMaxHitPoints(newMax);
+                wall.setHealth(wall.healthMax * currentHealthRatio);
+            }
+        }
+
         // Push event to warehouse
 
         RealmRecord realmRecord = RealmRecord.borrow(this, Enum.RecordEventType.LOST);
@@ -405,6 +419,17 @@ public class Realm {
         this.ruledSince = LocalDateTime.now();
         this.configure();
         this.updateDatabase();
+
+        for(AbstractWorldObject awo : WorldGrid.getObjectsInRangePartial(city.loc,1750,MBServerStatics.MASK_BUILDING)){
+            Building wall = (Building)awo;
+            if(wall.getBlueprint() != null && wall.getBlueprint().getBuildingGroup() != null && wall.getBlueprint().isWallPiece()){
+                float currentHealthRatio = wall.getCurrentHitpoints()/wall.healthMax;
+                float newMax = wall.healthMax * 1.1f;
+                wall.setMaxHitPoints(newMax);
+                wall.setHealth(wall.healthMax * currentHealthRatio);
+            }
+        }
+
 
         // Push event to warehouse
 

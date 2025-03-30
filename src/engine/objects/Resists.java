@@ -125,7 +125,7 @@ public class Resists {
     }
 
     //Handle Fortitudes
-    private static float handleFortitude(AbstractCharacter target, DamageType type, float damage) {
+    public static float handleFortitude(AbstractCharacter target, DamageType type, float damage) {
         if (target == null || !(target.getObjectType().equals(Enum.GameObjectType.PlayerCharacter)))
             return damage;
         PlayerBonuses bonus = target.getBonuses();
@@ -456,8 +456,11 @@ public class Resists {
         //handle fortitudes
         //damage = handleFortitude(target, type, damage);
         //calculate armor piercing
-        float ap = source.getBonuses().getFloatPercentAll(ModType.ArmorPiercing, SourceType.None);
-        float damageAfterResists = damage * (1 - (this.getResist(type, trains) * 0.01f) + ap);
+        //float ap = 0;
+        //if(type.equals(DamageType.Pierce) || type.equals(DamageType.Crush) || type.equals(DamageType.Slash))
+            //source.getBonuses().getFloatPercentAll(ModType.ArmorPiercing, SourceType.None);
+
+        float damageAfterResists = damage * (1 - (this.getResist(type, trains) * 0.01f));
         //check to see if any damage absorbers should cancel
         if (target != null) {
             //debug damage shields if any found

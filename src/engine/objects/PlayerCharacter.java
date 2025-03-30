@@ -26,7 +26,6 @@ import engine.job.JobScheduler;
 import engine.jobs.DeferredPowerJob;
 import engine.jobs.FinishSpireEffectJob;
 import engine.jobs.NoTimeJob;
-import engine.jobs.RefreshGroupJob;
 import engine.math.Bounds;
 import engine.math.FastMath;
 import engine.math.Vector3fImmutable;
@@ -37,10 +36,12 @@ import engine.net.client.ClientConnection;
 import engine.net.client.msg.*;
 import engine.net.client.msg.login.CommitNewCharacterMsg;
 import engine.powers.EffectsBase;
+import engine.powers.effectmodifiers.AbstractEffectModifier;
 import engine.server.MBServerStatics;
 import engine.server.login.LoginServer;
 import engine.server.login.LoginServerMsgHandler;
 import engine.server.world.WorldServer;
+import engine.util.KeyCloneAudit;
 import engine.util.MiscUtils;
 import org.joda.time.DateTime;
 import org.pmw.tinylog.Logger;
@@ -179,6 +180,10 @@ public class PlayerCharacter extends AbstractCharacter {
     public float ZergMultiplier = 1.0f;
 
     public boolean isBoxed = false;
+
+    public PlayerCombatStats combatStats;
+
+    public Integer selectedUUID = 0;
 
     /**
      * No Id Constructor
@@ -1301,7 +1306,7 @@ public class PlayerCharacter extends AbstractCharacter {
 
 
         if (ConfigManager.serverType.equals(ServerType.WORLDSERVER))
-            player.setLoc(player.bindLoc);
+            player.setLoc(player.getBindLoc());
         player.endLoc = Vector3fImmutable.ZERO;
 
         //get level based on experience
@@ -1531,25 +1536,48 @@ public class PlayerCharacter extends AbstractCharacter {
                 return true;
             Zone zone = ZoneManager.findSmallestZone(breather.getLoc());
 
+            if(zone == null)
+                return true;
+
+            if(zone.isPlayerCity())
+                return true;
+
+            float seaLevel = zone.getSeaLevel();
+
             if (zone.getSeaLevel() != 0) {
+                Zone parent = zone.getParent();
+                if(parent != null && parent.isMacroZone()){
+                    float parentLevel = parent.getSeaLevel();
+                    seaLevel -= parentLevel;
+                }
+
+                if(seaLevel == 0)
+                    return true;
 
                 float localAltitude = breather.getLoc().y;
+                float characterHeight = breather.characterHeight;
 
-
-                if (localAltitude + breather.characterHeight < zone.getSeaLevel() - 2)
+                if (localAltitude + characterHeight < seaLevel - 2) {
+                    //ChatManager.chatSystemInfo(breather, "YOU CANNOT BREATHE!");
                     return false;
-
+                }
                 if (breather.isMoving()) {
-                    if (localAltitude + breather.characterHeight < zone.getSeaLevel())
+                    if (localAltitude + breather.characterHeight < zone.getSeaLevel()) {
+                        //ChatManager.chatSystemInfo(breather, "YOU CANNOT BREATHE!");
                         return false;
+                    }
                 }
             } else {
-                if (breather.getLoc().y + breather.characterHeight < -2)
+                if (breather.getLoc().y + breather.characterHeight < -2) {
+                    //ChatManager.chatSystemInfo(breather, "YOU CANNOT BREATHE!");
                     return false;
+                }
 
                 if (breather.isMoving()) {
-                    if (breather.getLoc().y + breather.characterHeight < 0)
+                    if (breather.getLoc().y + breather.characterHeight < 0) {
+                        //ChatManager.chatSystemInfo(breather, "YOU CANNOT BREATHE!");
                         return false;
+                    }
                 }
             }
 
@@ -1842,6 +1870,11 @@ public class PlayerCharacter extends AbstractCharacter {
         message += " was killed by " + att.getFirstName();
         if (att.guild != null && (!(att.guild.getName().equals("Errant"))))
             message += " of " + att.guild.getName();
+
+        Zone killZone = ZoneManager.findSmallestZone(this.loc);
+        if(killZone != null){
+            message += " in " + killZone.getName();
+        }
         message += "!";
 
 
@@ -1961,8 +1994,7 @@ public class PlayerCharacter extends AbstractCharacter {
         this.altitude = (float) 0;
 
         // Release Mine Claims
-
-        Mine.releaseMineClaims(this);
+        //Mine.releaseMineClaims(this);
 
         this.getCharItemManager().closeTradeWindow();
 
@@ -2102,7 +2134,7 @@ public class PlayerCharacter extends AbstractCharacter {
         this.lastUpdateTime = System.currentTimeMillis();
         this.lastStamUpdateTime = System.currentTimeMillis();
 
-        this.update();
+        this.update(false);
 
         PowersManager.applyPower(this, this, Vector3fImmutable.ZERO, -1661758934, 40, false);
 
@@ -2206,6 +2238,10 @@ public class PlayerCharacter extends AbstractCharacter {
 
         if (bindLocation == null)
             bindLocation = Enum.Ruins.getRandomRuin().getLocation();
+
+        if(this.guild.getNation().equals(Guild.getErrantGuild())){
+            bindLocation = Vector3fImmutable.getRandomPointOnCircle(BuildingManager.getBuilding(27977).loc,20f);
+        }
 
         return bindLocation;
 
@@ -2892,7 +2928,7 @@ public class PlayerCharacter extends AbstractCharacter {
 
         float speed;
 
-        if (this.getAltitude() > 0)
+        if (this.isFlying())
             if (this.walkMode) {
                 speed = race.getRaceType().getRunSpeed().getFlyWalk();
             } else {
@@ -2912,7 +2948,8 @@ public class PlayerCharacter extends AbstractCharacter {
                 speed = race.getRaceType().getRunSpeed().getRunStandard();
         }
 
-        float endSpeed = speed * this.speedMod;
+        float mod = this.speedMod;
+        float endSpeed = speed * mod;
 
         if (endSpeed > 41 && !this.isCSR)
             endSpeed = 41;
@@ -2921,6 +2958,25 @@ public class PlayerCharacter extends AbstractCharacter {
     }
 
     public synchronized void grantXP(int xp) {
+        xp *= LootManager.NORMAL_EXP_RATE;
+        int groupSize = 1;
+        if(GroupManager.getGroup(this)!= null)
+            groupSize = GroupManager.getGroup(this).members.size();
+        if(this.promotionClass == null && this.level == 10){
+            this.setOverFlowEXP(0);
+            this.update(false);
+            this.incVer();
+            this.recalculate();
+            this.calculateMaxHealthManaStamina();
+            this.setHealth(this.healthMax);
+            this.mana.set(this.manaMax);
+            this.stamina.set(this.staminaMax);
+            //LoadJob.reloadCharacter(this);
+            DbManager.PlayerCharacterQueries.SET_PROPERTY(this, "char_experience", this.exp);
+            //			updateDatabase();
+            DbManager.AccountQueries.INVALIDATE_LOGIN_CACHE(this.getObjectUUID(), "character");
+            return;
+        }
         // Stop players from getting experience past the cap
         if (this.exp + xp >= Experience.getBaseExperience(MBServerStatics.LEVELCAP))
             xp = Experience.getBaseExperience(MBServerStatics.LEVELCAP) - this.exp + 1;
@@ -3056,6 +3112,14 @@ public class PlayerCharacter extends AbstractCharacter {
                 SetObjectValueMsg upm = new SetObjectValueMsg(this, 9);
                 DispatchMessage.dispatchMsgToInterestArea(this, upm, DispatchChannel.PRIMARY, MBServerStatics.CHARACTER_LOAD_RANGE, false, false);
                 checkGuildStatus();
+
+                //give gold for level up if level is under or equal to 20 and over 10
+                if(!this.isBoxed && this.level > 10 && this.level <= 20) {
+                    int gold = (int) ((100000 * (this.level - 10) / 55.0) );
+                    this.charItemManager.addGoldToInventory(gold, false);
+                    this.charItemManager.updateInventory();
+                }
+
             } else {
 
                 this.exp += remainingXP;
@@ -3069,7 +3133,7 @@ public class PlayerCharacter extends AbstractCharacter {
         }
 
         if (charReloadRequired) {
-            this.update();
+            this.update(false);
             this.incVer();
             this.recalculate();
             this.calculateMaxHealthManaStamina();
@@ -3103,25 +3167,7 @@ public class PlayerCharacter extends AbstractCharacter {
     public void calculateSpeedMod() {
         // get base race speed modifer
 
-
-        //this is retarded. *** Refactor
-        //        if (this.race != null) {
-        //            int ID = this.race.getObjectUUID();
-        //            if (ID == 2004 || ID == 2005)
-        //                this.raceRunMod = 1.21f; // centaur run bonus 22%
-        ////            else if (ID == 2017)
-        ////                this.raceRunMod = 1.14f; // mino run bonus 15%
-        //            else
-        //                this.raceRunMod = 1;
-        //        } else
-        //            this.raceRunMod = 1;
-
-
         float bonus = 1f;
-
-        //        // TODO: hardcoded, as didnt have time to introduce DB column to base object
-        //        if (baseClass.getName().equals("Fighter") || baseClass.getName().equals("Rogue"))
-        //            bonus += .05f;
 
         // get running skill
         if (this.skills != null) {
@@ -3142,7 +3188,7 @@ public class PlayerCharacter extends AbstractCharacter {
             bonus += this.bonuses.getFloatPercentNullZero(ModType.Speed, SourceType.None);
 
         // TODO get equip bonus
-        this.update();
+        this.update(false);
         this.speedMod = bonus;
     }
 
@@ -3173,14 +3219,6 @@ public class PlayerCharacter extends AbstractCharacter {
     public boolean toggleFollow() {
         this.follow = !this.follow;
         return this.follow;
-    }
-
-    public int getLastGroupToInvite() {
-        return this.lastGroupToInvite;
-    }
-
-    public void setLastGroupToInvite(int value) {
-        this.lastGroupToInvite = value;
     }
 
     @Override
@@ -3231,10 +3269,6 @@ public class PlayerCharacter extends AbstractCharacter {
         return this.loadedStaticObjects;
     }
 
-    public void setLoadedStaticObjects(HashSet<AbstractWorldObject> value) {
-        this.loadedStaticObjects = value;
-    }
-
     public boolean isTeleportMode() {
         return teleportMode;
     }
@@ -3242,20 +3276,6 @@ public class PlayerCharacter extends AbstractCharacter {
     public void setTeleportMode(boolean teleportMode) {
         this.teleportMode = teleportMode;
     }
-
-    // public ConcurrentHashMap<Integer, FinishRecycleTimeJob>
-    // getRecycleTimers() {
-    // return this.recycleTimers;
-    // }
-    // public UsePowerJob getLastPower() {
-    // return this.lastPower;
-    // }
-    // public void setLastPower(UsePowerJob value) {
-    // this.lastPower = value;
-    // }
-    // public void clearLastPower() {
-    // this.lastPower = null;
-    // }
     public long chatFloodTime(int chatOpcode, long chatTimeMilli, int qtyToSave) {
         if (qtyToSave < 1)
             return 0L; // disabled
@@ -3375,11 +3395,11 @@ public class PlayerCharacter extends AbstractCharacter {
     public void recalculatePlayerStats(boolean initialized) {
 
         //calculate base stats
-        calculateBaseStats();
+        this.calculateBaseStats();
 
         //calculate base skills
         CharacterSkill.updateAllBaseAmounts(this);
-        calculateModifiedStats();
+        this.calculateModifiedStats();
 
         //calculate modified skills
         CharacterSkill.updateAllModifiedAmounts(this);
@@ -3389,13 +3409,13 @@ public class PlayerCharacter extends AbstractCharacter {
 
 
         //calculate ATR, damage and defense
-        calculateAtrDefenseDamage();
+        this.calculateAtrDefenseDamage();
 
         //calculate movement bonus
-        calculateSpeedMod();
+        this.calculateSpeedMod();
 
         // recalculate Max Health/Mana/Stamina
-        calculateMaxHealthManaStamina();
+        this.calculateMaxHealthManaStamina();
 
         // recalculate Resists
         Resists.calculateResists(this);
@@ -3769,22 +3789,6 @@ public class PlayerCharacter extends AbstractCharacter {
         return this.statStrCurrent - this.race.getStrStart() - this.baseClass.getStrMod();
     }
 
-    public int getDexForClient() {
-        return this.statDexCurrent - this.race.getDexStart() - this.baseClass.getDexMod();
-    }
-
-    public int getConForClient() {
-        return this.statConCurrent - this.race.getConStart() - this.baseClass.getConMod();
-    }
-
-    public int getIntForClient() {
-        return this.statIntCurrent - this.race.getIntStart() - this.baseClass.getIntMod();
-    }
-
-    public int getSpiForClient() {
-        return this.statSpiCurrent - this.race.getSpiStart() - this.baseClass.getSpiMod();
-    }
-
     public int getTrainsAvailable() {
         return this.trainsAvailable.get();
     }
@@ -3822,15 +3826,6 @@ public class PlayerCharacter extends AbstractCharacter {
         }
         ConcurrentHashMap<Integer, Item> equipped = this.charItemManager.getEquipped();
 
-        //		// Reset passives
-        //		if (this.bonuses != null) {
-        //			this.bonuses.setBool("Block", false);
-        //			this.bonuses.setBool("Parry", false);
-        //			if (this.baseClass != null && this.baseClass.getUUID() == 2502)
-        //				this.bonuses.setBool("Dodge", true);
-        //			else
-        //				this.bonuses.setBool("Dodge", false);
-        //		}
         // calculate atr and damage for each hand
         calculateAtrDamageForWeapon(equipped.get(MBServerStatics.SLOT_MAINHAND), true, equipped.get(MBServerStatics.SLOT_OFFHAND));
         calculateAtrDamageForWeapon(equipped.get(MBServerStatics.SLOT_OFFHAND), false, equipped.get(MBServerStatics.SLOT_MAINHAND));
@@ -3876,6 +3871,285 @@ public class PlayerCharacter extends AbstractCharacter {
         }
     }
 
+    public void calculateATR(){
+        if(this.charItemManager == null){
+            this.atrHandOne = 1;
+            this.atrHandTwo = 1;
+            return;
+        }
+        for(int i = 1; i < 3; i++){
+            float atr = 0;
+            int primaryStat;
+            Item weapon = this.charItemManager.getEquipped(i);
+            ItemBase weaponBase = null;
+            String skill = "Unarmed Combat";
+            String mastery = "Unarmed Combat Mastery";
+
+            if(weapon != null) {
+                weaponBase = weapon.getItemBase();
+                skill = weaponBase.getSkillRequired();
+                mastery = weaponBase.getMastery();
+            }
+            int skillPercentage = this.skills.containsKey(skill) && this.skills.get(skill) != null
+                    ? this.skills.get(skill).getTotalSkillPercet()
+                    : 1;
+            int masteryPercentage = this.skills.containsKey(mastery) && this.skills.get(mastery) != null
+                    ? this.skills.get(mastery).getTotalSkillPercet()
+                    : 1;
+
+            // Determine the primary stat based on the weapon base
+            if (weaponBase != null && weaponBase.isStrBased()) {
+                primaryStat = this.statStrCurrent;
+            } else {
+                primaryStat = this.statDexCurrent;
+            }
+
+            // Calculate ATR based on primary stat, skill, and mastery
+            atr = (primaryStat * 0.5f) + (skillPercentage * 4) + (masteryPercentage * 3);
+
+            // Add any bonuses to ATR
+            if (this.bonuses != null) {
+                atr += this.bonuses.getFloat(ModType.OCV, SourceType.None);
+
+                // Apply positive bonus multipliers
+                float pos_Bonus = (1 + this.bonuses.getFloatPercentPositive(ModType.OCV, SourceType.None));
+                atr *= pos_Bonus;
+
+                // Apply negative bonus multipliers
+                float neg_Bonus = this.bonuses.getFloatPercentNegative(ModType.OCV, SourceType.None);
+                atr *= (1 + neg_Bonus);
+            }
+
+            atr -= 2;//no idea why, need for sync
+            // Ensure ATR is at least 1
+            atr = (atr < 1) ? 1 : atr;
+
+            // Set atrHandOne
+            if(i == 1)
+                this.atrHandOne = (short) atr;
+            else if(i == 2)
+                this.atrHandTwo = (short) atr;
+        }
+    }
+    public void calculateDamage(){
+        if(this.charItemManager == null){
+            this.minDamageHandOne = 1;
+            this.maxDamageHandOne = 5;
+            this.minDamageHandTwo = 1;
+            this.maxDamageHandTwo = 5;
+            return;
+        }
+        this.calculateMinDamage();
+        this.calculateMaxDamage();
+    }
+    public void calculateMinDamage(){
+        int baseDMG1 = 2;
+        int baseDMG2 = 2;
+        int weaponSkill1 = this.skills.containsKey("Unarmed Combat") && this.skills.get("Unarmed Combat") != null
+                ? this.skills.get("Unarmed Combat").getTotalSkillPercet()
+                : 0;
+
+        int weaponSkill2 = this.skills.containsKey("Unarmed Combat") && this.skills.get("Unarmed Combat") != null
+                ? this.skills.get("Unarmed Combat").getTotalSkillPercet()
+                : 0;
+
+        int weaponMastery1 = this.skills.containsKey("Unarmed Combat Mastery") && this.skills.get("Unarmed Combat Mastery") != null
+                ? this.skills.get("Unarmed Combat Mastery").getTotalSkillPercet()
+                : 0;
+
+        int weaponMastery2 = this.skills.containsKey("Unarmed Combat Mastery") && this.skills.get("Unarmed Combat Mastery") != null
+                ? this.skills.get("Unarmed Combat Mastery").getTotalSkillPercet()
+                : 0;
+
+        Item equippedRight = this.charItemManager.getEquipped(1);
+        Item equippedLeft = this.charItemManager.getEquipped(2);
+
+        int primary1 = this.statDexCurrent;
+        int secondary1 = this.statStrCurrent;
+        int primary2 = this.statDexCurrent;
+        int secondary2 = this.statStrCurrent;
+
+        if(equippedRight != null){
+            baseDMG1 = equippedRight.getItemBase().getMinDamage();
+            weaponSkill1 = this.skills.containsKey(equippedRight.getItemBase().getSkillRequired())
+                    && this.skills.get(equippedRight.getItemBase().getSkillRequired()) != null
+                    ? this.skills.get(equippedRight.getItemBase().getSkillRequired()).getTotalSkillPercet()
+                    : 0;
+
+            weaponMastery1 = this.skills.containsKey(equippedRight.getItemBase().getMastery())
+                    && this.skills.get(equippedRight.getItemBase().getMastery()) != null
+                    ? this.skills.get(equippedRight.getItemBase().getMastery()).getTotalSkillPercet()
+                    : 0;
+            if(equippedRight.getItemBase().isStrBased()) {
+                primary1 = this.statStrCurrent;
+                secondary1 = this.statDexCurrent;
+            }
+        }
+        if(equippedLeft != null){
+            baseDMG2 = equippedLeft.getItemBase().getMinDamage();
+            weaponSkill2 = this.skills.containsKey(equippedLeft.getItemBase().getSkillRequired())
+                    && this.skills.get(equippedLeft.getItemBase().getSkillRequired()) != null
+                    ? this.skills.get(equippedLeft.getItemBase().getSkillRequired()).getTotalSkillPercet()
+                    : 0;
+
+            weaponMastery2 = this.skills.containsKey(equippedLeft.getItemBase().getMastery())
+                    && this.skills.get(equippedLeft.getItemBase().getMastery()) != null
+                    ? this.skills.get(equippedLeft.getItemBase().getMastery()).getTotalSkillPercet()
+                    : 0;
+            if(equippedLeft.getItemBase().isStrBased()) {
+                primary2 = this.statStrCurrent;
+                secondary2 = this.statDexCurrent;
+            }
+        }
+
+        double primaryComponent1 = 0.0048 * primary1 + 0.049 * Math.sqrt(primary1 - 0.75);
+        double secondaryComponent1 = 0.0066 * secondary1 + 0.064 * Math.sqrt(secondary1 - 0.75);
+        double skillComponent1 = 0.01 * (weaponSkill1 + weaponMastery1);
+
+        int min1 =  (int)(baseDMG1 * (primaryComponent1 + secondaryComponent1 + skillComponent1));
+
+        double primaryComponent2 = 0.0048 * primary2 + 0.049 * Math.sqrt(primary2 - 0.75);
+        double secondaryComponent2 = 0.0066 * secondary2 + 0.064 * Math.sqrt(secondary2 - 0.75);
+        double skillComponent2 = 0.01 * (weaponSkill2 + weaponMastery2);
+
+        int min2 =  (int)(baseDMG2 * (primaryComponent2 + secondaryComponent2 + skillComponent2));
+
+        this.minDamageHandOne = min1;
+        this.minDamageHandTwo = min2;
+    }
+    public void calculateMaxDamage() {
+        int baseDMG1 = 8;
+        int baseDMG2 = 8;
+        int weaponSkill1 = this.skills.containsKey("Unarmed Combat") && this.skills.get("Unarmed Combat") != null
+                ? this.skills.get("Unarmed Combat").getTotalSkillPercet()
+                : 0;
+
+        int weaponSkill2 = this.skills.containsKey("Unarmed Combat") && this.skills.get("Unarmed Combat") != null
+                ? this.skills.get("Unarmed Combat").getTotalSkillPercet()
+                : 0;
+
+        int weaponMastery1 = this.skills.containsKey("Unarmed Combat Mastery") && this.skills.get("Unarmed Combat Mastery") != null
+                ? this.skills.get("Unarmed Combat Mastery").getTotalSkillPercet()
+                : 0;
+
+        int weaponMastery2 = this.skills.containsKey("Unarmed Combat Mastery") && this.skills.get("Unarmed Combat Mastery") != null
+                ? this.skills.get("Unarmed Combat Mastery").getTotalSkillPercet()
+                : 0;
+
+        Item equippedRight = this.charItemManager.getItemFromEquipped(ItemSlotType.RHELD.ordinal());
+        Item equippedLeft = this.charItemManager.getItemFromEquipped(ItemSlotType.LHELD.ordinal());
+
+        int primary1 = this.statDexCurrent;
+        int secondary1 = this.statStrCurrent;
+        int primary2 = this.statDexCurrent;
+        int secondary2 = this.statStrCurrent;
+
+        if (equippedRight != null) {
+            baseDMG1 = equippedRight.getItemBase().getMaxDamage();
+            weaponSkill1 = this.skills.containsKey(equippedRight.getItemBase().getSkillRequired())
+                    && this.skills.get(equippedRight.getItemBase().getSkillRequired()) != null
+                    ? this.skills.get(equippedRight.getItemBase().getSkillRequired()).getTotalSkillPercet()
+                    : 1;
+
+            weaponMastery1 = this.skills.containsKey(equippedRight.getItemBase().getMastery())
+                    && this.skills.get(equippedRight.getItemBase().getMastery()) != null
+                    ? this.skills.get(equippedRight.getItemBase().getMastery()).getTotalSkillPercet()
+                    : 1;
+            if (equippedRight.getItemBase().isStrBased()) {
+                primary1 = this.statStrCurrent;
+                secondary1 = this.statDexCurrent;
+            }
+        }
+
+        if (equippedLeft != null) {
+            baseDMG2 = equippedLeft.getItemBase().getMaxDamage();
+            weaponSkill2 = this.skills.containsKey(equippedLeft.getItemBase().getSkillRequired())
+                    && this.skills.get(equippedLeft.getItemBase().getSkillRequired()) != null
+                    ? this.skills.get(equippedLeft.getItemBase().getSkillRequired()).getTotalSkillPercet()
+                    : 1;
+
+            weaponMastery2 = this.skills.containsKey(equippedLeft.getItemBase().getMastery())
+                    && this.skills.get(equippedLeft.getItemBase().getMastery()) != null
+                    ? this.skills.get(equippedLeft.getItemBase().getMastery()).getTotalSkillPercet()
+                    : 1;
+            if (equippedLeft.getItemBase().isStrBased()) {
+                primary2 = this.statStrCurrent;
+                secondary2 = this.statDexCurrent;
+            }
+        }
+
+        // Calculate max damage for right hand weapon
+        double primaryComponent1 = 0.0124 * primary1 + 0.118 * Math.sqrt(primary1 - 0.75);
+        double secondaryComponent1 = 0.0022 * secondary1 + 0.028 * Math.sqrt(secondary1 - 0.75);
+        double skillComponent1 = 0.0075 * (weaponSkill1 + weaponMastery1);
+
+        int max1 = (int) (baseDMG1 * (primaryComponent1 + secondaryComponent1 + skillComponent1));
+
+        // Calculate max damage for left hand weapon
+        double primaryComponent2 = 0.0124 * primary2 + 0.118 * Math.sqrt(primary2 - 0.75);
+        double secondaryComponent2 = 0.0022 * secondary2 + 0.028 * Math.sqrt(secondary2 - 0.75);
+        double skillComponent2 = 0.0075 * (weaponSkill2 + weaponMastery2);
+
+        int max2 = (int) (baseDMG2 * (primaryComponent2 + secondaryComponent2 + skillComponent2));
+
+        this.maxDamageHandOne = max1;
+        this.maxDamageHandTwo = max2;
+    }
+    public void calculateSpeed(){
+        if(this.charItemManager == null){
+            this.speedHandOne = 20.0f;
+            this.speedHandTwo = 20.0f;
+            return;
+        }
+
+        ItemBase weaponBase1 = null;
+        ItemBase weaponBase2 = null;
+        if(this.charItemManager.getItemFromEquipped(ItemSlotType.RHELD.ordinal()) != null){
+            weaponBase1 = this.charItemManager.getItemFromEquipped(ItemSlotType.RHELD.ordinal()).getItemBase();
+        }
+        if(this.charItemManager.getItemFromEquipped(ItemSlotType.LHELD.ordinal()) != null){
+            weaponBase2 = this.charItemManager.getItemFromEquipped(ItemSlotType.LHELD.ordinal()).getItemBase();
+        }
+
+        float speed1;
+        float speed2;
+        if (weaponBase1 != null)
+            speed1 = weaponBase1.getSpeed();
+        else
+            speed1 = 20f;
+        if (weaponBase2 != null)
+            speed2 = weaponBase2.getSpeed();
+        else
+            speed2 = 20f;
+
+        if(this.bonuses!= null){
+            for (AbstractEffectModifier mod : this.bonuses.bonusFloats.keySet()) {
+                if (mod.modType.equals(ModType.AttackDelay) || mod.modType.equals(ModType.WeaponSpeed)) {
+                    float modValue = 1 + mod.getPercentMod() * 0.01f;
+                    speed1 *= modValue;
+                }
+            }
+        }
+
+        if(this.bonuses!= null){
+            for (AbstractEffectModifier mod : this.bonuses.bonusFloats.keySet()) {
+                if (mod.modType.equals(ModType.AttackDelay) || mod.modType.equals(ModType.WeaponSpeed)) {
+                    float modValue = 1 + mod.getPercentMod() * 0.01f;
+                    speed2 *= modValue;
+                }
+            }
+        }
+
+        if (speed1 < 10)
+            speed1 = 10;
+
+        if (speed2 < 10)
+            speed2 = 10;
+
+        this.speedHandOne = speed1;
+        this.speedHandTwo= speed2;
+    }
+
     /**
      * @ Calculates Atr, and Damage for each weapon
      */
@@ -3883,7 +4157,7 @@ public class PlayerCharacter extends AbstractCharacter {
 
         // make sure weapon exists
         boolean noWeapon = false;
-        ItemBase wb = null;
+        ItemBase weaponBase = null;
         if (weapon == null)
             noWeapon = true;
         else {
@@ -3894,16 +4168,13 @@ public class PlayerCharacter extends AbstractCharacter {
                 defaultAtrAndDamage(mainHand);
                 return;
             } else
-                wb = ib;
+                weaponBase = ib;
         }
         float skillPercentage, masteryPercentage;
         float mastDam;
         float min, max;
         float speed = 20f;
         boolean strBased = false;
-
-        ItemBase wbMain = (weapon != null) ? weapon.getItemBase() : null;
-        ItemBase wbOff = (otherHand != null) ? otherHand.getItemBase() : null;
 
         // get skill percentages and min and max damage for weapons
         if (noWeapon) {
@@ -3944,28 +4215,17 @@ public class PlayerCharacter extends AbstractCharacter {
                     this.rangeHandTwo *= range_bonus;
 
             }
-            skillPercentage = getModifiedAmount(this.skills.get(wb.getSkillRequired()));
-            masteryPercentage = getModifiedAmount(this.skills.get(wb.getMastery()));
+            skillPercentage = getModifiedAmount(this.skills.get(weaponBase.getSkillRequired()));
+            masteryPercentage = getModifiedAmount(this.skills.get(weaponBase.getMastery()));
             if (masteryPercentage == 0f)
                 mastDam = 0f;
-                //				mastDam = CharacterSkill.getQuickMastery(this, wb.getMastery());
+                //				mastDam = CharacterSkill.getQuickMastery(this, weaponBase.getMastery());
             else
                 mastDam = masteryPercentage;
-            min = (float) wb.getMinDamage();
-            max = (float) wb.getMaxDamage();
-            strBased = wb.isStrBased();
+            min = (float) weaponBase.getMinDamage();
+            max = (float) weaponBase.getMaxDamage();
+            strBased = weaponBase.isStrBased();
 
-            //
-            // Add parry bonus for weapon and allow parry if needed
-
-            //					// Only Fighters and Thieves can Parry
-            //					if ((this.baseClass != null && this.baseClass.getUUID() == 2500)
-            //							|| (this.promotionClass != null && this.promotionClass.getUUID() == 2520)) {
-            //						if (wbMain == null || wbMain.getRange() < MBServerStatics.RANGED_WEAPON_RANGE)
-            //							if (wbOff == null || wbOff.getRange() < MBServerStatics.RANGED_WEAPON_RANGE)
-            //								this.bonuses.setBool("Parry", true);
-            //					}
-            //				}
         }
 
         if (this.effects != null && this.effects.containsKey("DeathShroud"))
@@ -3976,13 +4236,16 @@ public class PlayerCharacter extends AbstractCharacter {
                 this.atrHandTwo = (short) 0;
         else {
             // calculate atr
+            //(Primary Stat / 2) + (Weapon Skill * 4) + (Weapon Mastery * 3) + (ATR Enchantments) * 1.stance modifier
             float atr = 0;
-            atr += (int) skillPercentage * 4f; //<-round down skill% -
-            atr += (int) masteryPercentage * 3f;
-            if (this.statStrCurrent > this.statDexCurrent)
-                atr += statStrCurrent / 2;
-            else
-                atr += statDexCurrent / 2;
+            int primaryStat;
+            if(weaponBase != null && weaponBase.isStrBased()){
+                primaryStat = this.statStrCurrent;
+            }else{
+                primaryStat = this.statDexCurrent;
+            }
+
+            atr = (primaryStat * 0.5f) + (skillPercentage * 4) + (masteryPercentage * 3);
 
             // add in any bonuses to atr
             if (this.bonuses != null) {
@@ -3993,14 +4256,11 @@ public class PlayerCharacter extends AbstractCharacter {
                 float pos_Bonus = (1 + this.bonuses.getFloatPercentPositive(ModType.OCV, SourceType.None));
                 atr *= pos_Bonus;
 
-                // next precise
-                //runes will have their own bonuses.
-                //	atr *= (1 + ((float) this.bonuses.getShort("rune.Attack") / 100));
-
                 //and negative percent modifiers
                 float neg_Bonus = this.bonuses.getFloatPercentNegative(ModType.OCV, SourceType.None);
 
                 atr *= (1 + neg_Bonus);
+
             }
 
             atr = (atr < 1) ? 1 : atr;
@@ -4013,13 +4273,41 @@ public class PlayerCharacter extends AbstractCharacter {
         }
 
         //calculate speed
-        if (wb != null)
-            speed = wb.getSpeed();
+        if (weapon != null)
+            speed = weapon.getModifiedSpeed();
         else
             speed = 20f; //unarmed attack speed
-        if (weapon != null)
-            speed *= (1 + this.bonuses.getFloatPercentAll(ModType.WeaponSpeed, SourceType.None));
-        speed *= (1 + this.bonuses.getFloatPercentAll(ModType.AttackDelay, SourceType.None));
+
+        //if(this.effects != null) {
+        //    for (Effect eff : this.effects.values()) {
+        //        for (AbstractEffectModifier mod : eff.getEffectModifiers()) {
+        //            if (mod.modType.equals(ModType.WeaponSpeed)) {
+        //                float modValue = 1 + mod.getPercentMod() * 0.01f;
+        //                speed *= modValue;
+        //            }
+        //        }
+        //    }
+
+        //    for (Effect eff : this.effects.values()) {
+        //        for (AbstractEffectModifier mod : eff.getEffectModifiers()) {
+        //            if (mod.modType.equals(ModType.AttackDelay)) {
+        //                float modValue = 1 + mod.getPercentMod() * 0.01f;
+        //                speed *= modValue;
+        //            }
+        //        }
+        //    }
+        //}
+
+        if(this.bonuses!= null){
+            for (AbstractEffectModifier mod : this.bonuses.bonusFloats.keySet()) {
+                if (mod.modType.equals(ModType.AttackDelay)) {
+                    float modValue = 1 + mod.getPercentMod() * 0.01f;
+                    speed *= modValue;
+                }
+            }
+        }
+
+
         if (speed < 10)
             speed = 10;
 
@@ -4097,16 +4385,21 @@ public class PlayerCharacter extends AbstractCharacter {
 
         }
 
+
         // set damages
         if (mainHand) {
             this.minDamageHandOne = (int) minDamage;
-            this.maxDamageHandOne = (int) maxDamage;
+            this.maxDamageHandOne = (int) maxDamage + 1;
             this.speedHandOne = speed;
         } else {
             this.minDamageHandTwo = (int) minDamage;
-            this.maxDamageHandTwo = (int) maxDamage;
+            this.maxDamageHandTwo = (int) maxDamage + 1;
             this.speedHandTwo = speed;
         }
+
+        //this.calculateATR();
+        //this.calculateDamage();
+        //this.calculateSpeed();
     }
 
     /**
@@ -4128,9 +4421,15 @@ public class PlayerCharacter extends AbstractCharacter {
         float def = ab.getDefense();
         //apply item defense bonuses
         if (shield != null) {
-            def += shield.getBonus(ModType.DR, SourceType.None);
-            def *= (1 + shield.getBonusPercent(ModType.DR, SourceType.None));
-
+            //def += shield.getBonus(ModType.DR, SourceType.None);
+            //def *= (1 + shield.getBonusPercent(ModType.DR, SourceType.None));
+            for(Effect eff : shield.effects.values()) {
+                for (AbstractEffectModifier mod : eff.getEffectModifiers()) {
+                    if (mod.modType.equals(ModType.DR)) {
+                        def += mod.minMod * (1 + (eff.getTrains() * mod.getRamp()));
+                    }
+                }
+            }
         }
 
         // float val = ((float)ab.getDefense()) * (1 + (skillMod / 100));
@@ -4164,7 +4463,7 @@ public class PlayerCharacter extends AbstractCharacter {
             //set parry if fighter or thief and no invalid weapon found
             this.bonuses.setBool(ModType.Parry, SourceType.None, false);
             if ((this.baseClass != null && this.baseClass.getObjectUUID() == 2500)
-                    || (this.promotionClass != null && this.promotionClass.getObjectUUID() == 2520))
+                    || (this.promotionClass != null && this.promotionClass.getObjectUUID() == 2520) || this.getRaceID() == 1999)
                 if (wbMain == null || wbMain.getRange() < MBServerStatics.RANGED_WEAPON_RANGE)
                     if (wbOff == null || wbOff.getRange() < MBServerStatics.RANGED_WEAPON_RANGE)
                         this.bonuses.setBool(ModType.Parry, SourceType.None, true);
@@ -4188,8 +4487,10 @@ public class PlayerCharacter extends AbstractCharacter {
 
         if (!ib.getType().equals(ItemType.ARMOR))
             return 0;
+
         if (ib.getSkillRequired().isEmpty())
             return ib.getDefense();
+
         CharacterSkill armorSkill = this.skills.get(ib.getSkillRequired());
         if (armorSkill == null) {
             Logger.error("Player " + this.getObjectUUID()
@@ -4200,8 +4501,18 @@ public class PlayerCharacter extends AbstractCharacter {
         float def = ib.getDefense();
         //apply item defense bonuses
         if (armor != null) {
-            def += armor.getBonus(ModType.DR, SourceType.None);
-            def *= (1 + armor.getBonusPercent(ModType.DR, SourceType.None));
+
+            for(Effect eff : armor.effects.values()){
+                for(AbstractEffectModifier mod : eff.getEffectModifiers()){
+                    if(mod.modType.equals(ModType.DR)){
+                        def += mod.minMod * (1+(eff.getTrains() * mod.getRamp()));
+                    }
+                }
+            }
+
+
+            //def += armor.getBonus(ModType.DR, SourceType.None);
+            //def *= (1 + armor.getBonusPercent(ModType.DR, SourceType.None));
         }
 
 
@@ -4424,59 +4735,100 @@ public class PlayerCharacter extends AbstractCharacter {
         ModType modType = ModType.GetModType(type);
 
         // must be allowed to use this passive
-        if (!this.bonuses.getBool(modType, SourceType.None))
+        if (!this.bonuses.getBool(modType, SourceType.None) && this.getRaceID() != 1999)
             return 0f;
 
         // must not be stunned
         if (this.bonuses.getBool(ModType.Stunned, SourceType.None))
             return 0f;
+        CharacterSkill passiveSkill;
 
-        // Get base skill amount
-        CharacterSkill sk = this.skills.get(type);
-        float amount;
-        if (sk == null)
-            amount = CharacterSkill.getQuickMastery(this, type);
-        else
-            amount = sk.getModifiedAmount();
+        Item mainHand = null;
+        Item offHand = null;
+        if(this.charItemManager != null){
+            mainHand = this.charItemManager.getEquipped(1);
+            offHand = this.charItemManager.getEquipped(2);
+        }
+        switch(type){
+            case "Block":
+                //if(!fromCombat)
+                    //return 0;
 
-        // Add bonuses
-        amount += this.bonuses.getFloat(modType, SourceType.None);
+                if(offHand == null)
+                    return 0;
 
-        // Add item bonuses and return
-        if (type.equals(ModType.Dodge) && !fromCombat)
-            return ((amount / 4) - attackerLevel + this.getLevel()) / 4;
-        else
-            return (amount - attackerLevel + this.getLevel()) / 4;
-    }
+                if(!offHand.getItemBase().isShield())
+                    return 0;
 
-    public float getPassiveChance1(ModType modType, SourceType sourceType, int attackerLevel, boolean fromCombat) {
-        if (this.skills == null || this.bonuses == null)
-            return 0f;
+                passiveSkill = this.skills.get("Block");
+                if(passiveSkill == null)
+                    return 0;
 
-        // must be allowed to use this passive
-        if (!this.bonuses.getBool(modType, sourceType))
-            return 0f;
+                float blockBonusFromShield = 0;
+                ItemBase ib = offHand.getItemBase();
+                blockBonusFromShield = ib.getBlockMod() * 5;
+                for(Effect eff : offHand.effects.values()){
+                    for(AbstractEffectModifier mod : eff.getEffectModifiers()){
+                        if(mod.modType.equals(ModType.PassiveDefense)){
+                            float min = mod.minMod;
+                            int trains = eff.getTrains();
+                            float ramp = mod.getRamp();
+                            blockBonusFromShield += (min + (trains * ramp)) * 5;
+                        }
+                    }
+                }
+                int divisr = 4;
+                if(!fromCombat)
+                    divisr = 16;
+                float blockChance = ((passiveSkill.getModifiedAmount() + blockBonusFromShield) / divisr);
+                if(this.bonuses != null)
+                    blockChance *= 1 + this.bonuses.getFloatPercentAll(ModType.Block, SourceType.None);
+                return blockChance;
+            case "Parry":
+                if(!fromCombat)
+                    return 0;
 
-        // must not be stunned
-        if (this.bonuses.getBool(ModType.Stunned, SourceType.None))
-            return 0f;
+                if(mainHand == null && this.getRaceID() != 1999) // saetors can always parry using their horns
+                    return 0;
 
-        // Get base skill amount
-        CharacterSkill sk = this.skills.get(sourceType.name());
-        float amount;
-        if (sk == null)
-            amount = CharacterSkill.getQuickMastery(this, modType.name());
-        else
-            amount = sk.getModifiedAmount();
+                int parryBonus = 0;
 
-        // Add bonuses
-        amount += this.bonuses.getFloat(modType, sourceType);
+                if(mainHand != null && offHand != null && !offHand.getItemBase().isShield())
+                    parryBonus = 5;
 
-        // Add item bonuses and return
-        if (sourceType.equals(SourceType.Dodge) && !fromCombat)
-            return ((amount / 4) - attackerLevel + this.getLevel()) / 4;
-        else
-            return (amount - attackerLevel + this.getLevel()) / 4;
+                if(mainHand != null && mainHand.getItemBase().isTwoHanded())
+                    parryBonus = 10;
+
+                passiveSkill = this.skills.get("Parry");
+                if(passiveSkill == null)
+                    return 0;
+
+                float parryChance =((passiveSkill.getModifiedAmount() + parryBonus) / 4);
+
+                if(this.bonuses != null)
+                    parryChance *= 1 + this.bonuses.getFloatPercentAll(ModType.Parry, SourceType.None);
+
+                return parryChance;
+
+            case "Dodge":
+                passiveSkill = this.skills.get("Dodge");
+                if(passiveSkill == null)
+                    return 0;
+
+                int divisor = 4;
+                if(!fromCombat)
+                    divisor = 16;
+
+                float dodgeChance = ((passiveSkill.getModifiedAmount()) / divisor);
+
+                if(this.bonuses != null)
+                    dodgeChance *= 1 + this.bonuses.getFloatPercentAll(ModType.Dodge, SourceType.None);
+
+                return dodgeChance;
+            default:
+                return 0;
+
+        }
     }
 
     public float getRegenModifier(ModType type) {
@@ -4563,10 +4915,6 @@ public class PlayerCharacter extends AbstractCharacter {
         super.removeFromCache();
     }
 
-    public void storeIgnoreListDB() {
-
-    }
-
     public void updateSkillsAndPowersToDatabase() {
         if (this.skills != null)
             for (CharacterSkill skill : this.skills.values()) {
@@ -4621,7 +4969,7 @@ public class PlayerCharacter extends AbstractCharacter {
 
         tmpLevel = targetLevel;
 
-        tmpLevel = (short) Math.min(tmpLevel, 75);
+        tmpLevel = (short) Math.min(tmpLevel, MBServerStatics.LEVELCAP);
 
         while (this.level < tmpLevel) {
             grantXP(Experience.getBaseExperience(tmpLevel) - this.exp);
@@ -4735,17 +5083,6 @@ public class PlayerCharacter extends AbstractCharacter {
         return true;
     }
 
-    // Method is called by Server Heartbeat simulation tick.
-    // Stat regen and transform updates should go in here.
-
-    public boolean isNoTeleScreen() {
-        return noTeleScreen;
-    }
-
-    public void setNoTeleScreen(boolean noTeleScreen) {
-        this.noTeleScreen = noTeleScreen;
-    }
-
     private double getDeltaTime() {
 
         return (System.currentTimeMillis() - lastUpdateTime) * .001f;
@@ -4771,6 +5108,12 @@ public class PlayerCharacter extends AbstractCharacter {
 
             Zone zone = ZoneManager.findSmallestZone(this.getLoc());
 
+            if(zone == null)
+                return false;
+
+            if(zone.isPlayerCity())
+                return false;
+
             if (zone.getSeaLevel() != 0) {
 
                 float localAltitude = this.getLoc().y + this.centerHeight;
@@ -4787,95 +5130,138 @@ public class PlayerCharacter extends AbstractCharacter {
         return false;
     }
 
-    public boolean isSwimming(Vector3fImmutable currentLoc) {
-
-        // If char is flying they aren't quite swimming
-        try {
-
-            float localAltitude = HeightMap.getWorldHeight(currentLoc);
-
-            Zone zone = ZoneManager.findSmallestZone(currentLoc);
-
-            if (zone.getSeaLevel() != 0) {
-
-                if (localAltitude < zone.getSeaLevel())
-                    return true;
-            } else {
-                if (localAltitude < 0)
-                    return true;
-            }
-        } catch (Exception e) {
-            Logger.info(this.getName() + e);
-        }
-
-        return false;
-    }
-
     private static void forceRespawn(PlayerCharacter sourcePlayer) throws MsgSendException {
 
         if (sourcePlayer == null)
             return;
+        try {
+            sourcePlayer.getClientConnection().disconnect();
+        } catch (Exception e) {
 
-        sourcePlayer.getClientConnection().disconnect();
+        }
 
     }
 
     @Override
-    public void update() {
+    public void update(Boolean newSystem) {
 
-        if (this.updateLock.writeLock().tryLock()) {
-            try {
+        this.updateLocation();
+        this.updateMovementState();
 
-                if (!this.isAlive() && this.isEnteredWorld()) {
-                    if(!this.timestamps.containsKey("DeathTime")){
-                        this.timestamps.put("DeathTime",System.currentTimeMillis());
+        if(!newSystem)
+            return;
+
+        try {
+
+            if (this.updateLock.writeLock().tryLock()) {
+                try {
+
+                    if (this.isAlive() && this.isActive && this.enteredWorld) {
+
+                        if (this.combatStats == null) {
+                            this.combatStats = new PlayerCombatStats(this);
+                        } else {
+                            try {
+                                this.combatStats.update();
+                            }catch(Exception ignored){
+
+                            }
+                        }
+                        this.doRegen();
                     }
-                    if((System.currentTimeMillis() - this.timestamps.get("DeathTime")) > 600000)
-                        forceRespawn(this);
-                    return;
-                }
-                updateLocation();
-                updateMovementState();
-                updateRegen();
 
-                if (this.getStamina() < 10) {
-                    if (this.getAltitude() > 0 || this.getDesiredAltitude() > 0) {
-                        PlayerCharacter.GroundPlayer(this);
-                        updateRegen();
+                    if (this.getStamina() < 10) {
+                        if (this.getAltitude() > 0 || this.getDesiredAltitude() > 0) {
+                            PlayerCharacter.GroundPlayer(this);
+                        }
                     }
+
+                    RealmMap.updateRealm(this);
+                    this.updateBlessingMessage();
+
+                    this.safeZone = this.isInSafeZone();
+
+                    if(this.isActive && this.enteredWorld)
+                        if (this.level < 10)
+                            while (this.level < 10)
+                                grantXP(Experience.getBaseExperience(this.level + 1) - this.exp);
+
+                    this.auditBoxedStatus();
+
+                    if (this.isFlying())
+                        this.auditFlightStatus();
+
+                } catch (Exception e) {
+                    Logger.error(e);
+                } finally {
+                    this.updateLock.writeLock().unlock();
                 }
+            }
+        }catch(Exception e){
+            Logger.error("UPDATE ISSUE: " + e);
+        }
+    }
 
-                RealmMap.updateRealm(this);
-                updateBlessingMessage();
+    public void auditBoxedStatus(){
 
-                this.safeZone = this.isInSafeZone();
-                if(!this.timestamps.containsKey("nextBoxCheck"))
-                    this.timestamps.put("nextBoxCheck", System.currentTimeMillis() + 10000);
+        if (!this.timestamps.containsKey("nextBoxCheck")) {
+            this.timestamps.put("nextBoxCheck", System.currentTimeMillis());
+            return;
+        }
 
-                if(!this.isBoxed && this.timestamps.get("nextBoxCheck") < System.currentTimeMillis()) {
-                    this.isBoxed = checkIfBoxed(this);
-                    this.timestamps.put("nextBoxCheck", System.currentTimeMillis() + 10000);
-                }
+        if(this.timestamps.get("nextBoxCheck") > System.currentTimeMillis())
+            return;
 
-                if(this.isBoxed && !this.containsEffect(1672601862)) {
+        this.timestamps.put("nextBoxCheck", System.currentTimeMillis() + 3000);
+
+        //DS: 1672601862
+        if(this.isBoxed){
+            if(this.getPromotionClassID() == 2511) {//fury cannot be PVE anymore, fuck them
+                if (!this.containsEffect(1672601862))
                     PowersManager.applyPower(this, this, Vector3fImmutable.ZERO, 1672601862, 40, false);
+            }else {
+                if (!this.containsEffect(-654906771))
+                    PowersManager.applyPower(this, this, Vector3fImmutable.ZERO, -935138707, 40, false);
+            }
+        }else{
+            if(this.getPromotionClassID() == 2511) {//fury cannot be PVE anymore, fuck them
+                if (this.containsEffect(1672601862)) {
+                    this.removeEffectBySource(EffectSourceType.DeathShroud,41,false);
                 }
+            }else {
+                if (this.containsEffect(-654906771)) {
+                    try {
+                        this.effects.get("1258").endEffect();
+                        //this.effects.remove("1258");
+                    } catch (Exception ignored) {
 
-                if(this.isFlying()){
-                    //if (!AbstractCharacter.CanFly(this)) {
-                    if(this.effects.containsKey("MoveBuff")){
-                        GroundPlayer(this);
-                        //ChatManager.chatSystemInfo(this, "You Cannot Fly While Having A MovementBuff");
                     }
                 }
-
-            } catch (Exception e) {
-                Logger.error(e);
-            } finally {
-                this.updateLock.writeLock().unlock();
             }
         }
     }
+
+    public void auditFlightStatus(){
+        if (this.effects.containsKey("MoveBuff")) {
+            GroundPlayer(this);
+        }
+        if (!this.timestamps.containsKey("StunGrounded"))
+            this.timestamps.put("StunGrounded", System.currentTimeMillis() - 1000L);
+        if (this.bonuses.getBool(ModType.Stunned, SourceType.None) && this.timestamps.get("StunGrounded") < System.currentTimeMillis()) {
+            boolean isFlyMoving = this.getDesiredAltitude() != this.altitude;
+            if (!isFlyMoving && this.bonuses.getBool(ModType.Stunned, SourceType.None)) {
+                this.setDesiredAltitude(this.altitude - 10);
+                this.setTakeOffTime(System.currentTimeMillis());
+
+                ChangeAltitudeMsg msg = new ChangeAltitudeMsg(this.getObjectType().ordinal(), this.getObjectUUID(), false, this.getAltitude(), this.getDesiredAltitude(), this.getAltitude());
+                // force a landing
+                DispatchMessage.dispatchMsgToInterestArea(this, msg, DispatchChannel.PRIMARY, MBServerStatics.CHARACTER_LOAD_RANGE, true, false);
+                this.timestamps.put("StunGrounded", System.currentTimeMillis() + 1500L);
+                ChatManager.chatSystemInfo(this, "Applying 1 Tier Ground");
+            }
+        }
+    }
+
     public static void unboxPlayer(PlayerCharacter player){
         String machineID = player.getClientConnection().machineID;
         ArrayList<PlayerCharacter> sameMachine = new ArrayList<>();
@@ -4885,16 +5271,23 @@ public class PlayerCharacter extends AbstractCharacter {
             }
         }
 
-        for(PlayerCharacter pc : sameMachine)
+        for (PlayerCharacter pc : sameMachine) {
+            PowersManager.applyPower(pc, pc, Vector3fImmutable.ZERO, -935138707, 40, false);
             pc.isBoxed = true;
-
-        player.isBoxed = false;
-        if(player.containsEffect(1672601862)) {
-            player.removeEffectBySource(EffectSourceType.DeathShroud,41,false);
         }
 
+        player.isBoxed = false;
+        try{
+            player.effects.get("1258").endEffect();
+            //this.effects.remove("1258");
+        }catch(Exception ignored){
+
+        }
     }
     public static boolean checkIfBoxed(PlayerCharacter player){
+        if(ConfigManager.MB_WORLD_BOXLIMIT.getValue().equals("false")) {
+            return false;
+        }
         try {
             String machineID = player.getClientConnection().machineID;
             ArrayList<PlayerCharacter> sameMachine = new ArrayList<>();
@@ -4998,11 +5391,12 @@ public class PlayerCharacter extends AbstractCharacter {
                 ChatManager.chatSystemInfo(this,
                         "Arrived at End location. " + this.getEndLoc());
             return;
-            //Next upda
         }
 
-        setLoc(newLoc);
+
         this.region = AbstractWorldObject.GetRegionByWorldObject(this);
+
+        setLoc(newLoc);
 
         if (this.getDebug(1))
             ChatManager.chatSystemInfo(this,
@@ -5010,11 +5404,6 @@ public class PlayerCharacter extends AbstractCharacter {
 
         if (this.getStamina() < 10)
             MovementManager.sendOOS(this);
-
-        //	if (MBServerStatics.MOVEMENT_SYNC_DEBUG || this.getDebug(1))
-        //                Logger.info("MovementManager", "Updating movement current loc:" + this.getLoc().getX() + " " + this.getLoc().getZ()
-        //                        + " end loc: " + this.getEndLoc().getX() + " " + this.getEndLoc().getZ() + " distance " + this.getEndLoc().distance2D(this.getLoc()));
-
     }
 
     @Override
@@ -5074,203 +5463,6 @@ public class PlayerCharacter extends AbstractCharacter {
 
         // Char is moving, yet not swimming or flying he must be running
         this.movementState = MovementState.RUNNING;
-
-    }
-
-    @Override
-    public void updateRegen() {
-
-        float healthRegen = 0f;
-        float manaRegen = 0f;
-        float stamRegen = 0f;
-
-        boolean updateClient = false;
-
-        // Early exit if char is dead or disconnected
-        if ((this.isAlive() == false)
-                || (this.isActive() == false) || this.getLoc().x == 0 && this.getLoc().z == 0)
-            return;
-
-        // Calculate Regen amount from last simulation tick
-        switch (this.movementState) {
-
-            case IDLE:
-
-                healthRegen = ((this.healthMax * MBServerStatics.HEALTH_REGEN_IDLE) + MBServerStatics.HEALTH_REGEN_IDLE_STATIC) * (getRegenModifier(ModType.HealthRecoverRate));
-
-                if (this.isCasting() || this.isItemCasting())
-                    healthRegen *= .75f;
-                // Characters regen mana when in only walk mode and idle
-                if (this.walkMode)
-                    manaRegen = ((this.manaMax * MBServerStatics.MANA_REGEN_IDLE) * getRegenModifier(ModType.ManaRecoverRate));
-                else if (!this.isCasting() && !this.isItemCasting())
-                    manaRegen = ((this.manaMax * MBServerStatics.MANA_REGEN_IDLE) * getRegenModifier(ModType.ManaRecoverRate));
-                else
-                    manaRegen = 0;
-
-                if (!PlayerCharacter.CanBreathe(this))
-                    stamRegen = MBServerStatics.STAMINA_REGEN_SWIM;
-                else if ((!this.isCasting() && !this.isItemCasting()) || this.lastMovementState.equals(MovementState.FLYING))
-                    stamRegen = MBServerStatics.STAMINA_REGEN_IDLE * getRegenModifier(ModType.StaminaRecoverRate);
-                else
-                    stamRegen = 0;
-                break;
-            case SITTING:
-                healthRegen = ((this.healthMax * MBServerStatics.HEALTH_REGEN_SIT) + MBServerStatics.HEALTH_REGEN_SIT_STATIC) * getRegenModifier(ModType.HealthRecoverRate);
-                manaRegen = (this.manaMax * MBServerStatics.MANA_REGEN_SIT) * (getRegenModifier(ModType.ManaRecoverRate));
-                stamRegen = MBServerStatics.STAMINA_REGEN_SIT * getRegenModifier(ModType.StaminaRecoverRate);
-                break;
-            case RUNNING:
-                if (this.walkMode == true) {
-                    healthRegen = ((this.healthMax * MBServerStatics.HEALTH_REGEN_WALK) + MBServerStatics.HEALTH_REGEN_IDLE_STATIC) * getRegenModifier(ModType.HealthRecoverRate);
-                    manaRegen = this.manaMax * MBServerStatics.MANA_REGEN_WALK * getRegenModifier(ModType.ManaRecoverRate);
-                    stamRegen = MBServerStatics.STAMINA_REGEN_WALK;
-                } else {
-                    healthRegen = 0;
-                    manaRegen = 0;
-
-                    if (this.combat == true)
-                        stamRegen = MBServerStatics.STAMINA_REGEN_RUN_COMBAT;
-                    else
-                        stamRegen = MBServerStatics.STAMINA_REGEN_RUN_NONCOMBAT;
-                }
-                break;
-            case FLYING:
-
-                float seventyFive = this.staminaMax * .75f;
-                float fifty = this.staminaMax * .5f;
-                float twentyFive = this.staminaMax * .25f;
-
-                if (this.getDesiredAltitude() == 0 && this.getAltitude() <= 10) {
-                    if (this.isCombat())
-                        stamRegen = 0;
-                    else
-                        stamRegen = MBServerStatics.STAMINA_REGEN_IDLE * getRegenModifier(ModType.StaminaRecoverRate);
-                } else if (!this.useFlyMoveRegen()) {
-
-                    healthRegen = ((this.healthMax * MBServerStatics.HEALTH_REGEN_IDLE) + MBServerStatics.HEALTH_REGEN_IDLE_STATIC) * (getRegenModifier(ModType.HealthRecoverRate));
-
-                    if (this.isCasting() || this.isItemCasting())
-                        healthRegen *= .75f;
-                    // Characters regen mana when in only walk mode and idle
-                    if (this.walkMode)
-                        manaRegen = (this.manaMax * MBServerStatics.MANA_REGEN_IDLE + (this.getSpiMod() * .015f)) * (getRegenModifier(ModType.ManaRecoverRate));
-                    else if (!this.isCasting() && !this.isItemCasting())
-                        manaRegen = (this.manaMax * MBServerStatics.MANA_REGEN_IDLE + (this.getSpiMod() * .015f)) * (getRegenModifier(ModType.ManaRecoverRate));
-                    else
-                        manaRegen = 0;
-
-                    if (!this.isItemCasting() && !this.isCasting() || this.getTakeOffTime() != 0)
-                        stamRegen = MBServerStatics.STAMINA_REGEN_FLY_IDLE;
-                    else
-                        stamRegen = -1f;
-                } else if (this.walkMode == true) {
-                    healthRegen = ((this.healthMax * MBServerStatics.HEALTH_REGEN_WALK) + MBServerStatics.HEALTH_REGEN_IDLE_STATIC) * getRegenModifier(ModType.HealthRecoverRate);
-                    manaRegen = ((this.manaMax * MBServerStatics.MANA_REGEN_WALK) + (this.getSpiMod() * .015f)) * (getRegenModifier(ModType.ManaRecoverRate));
-                    stamRegen = MBServerStatics.STAMINA_REGEN_FLY_WALK;
-                } else {
-                    healthRegen = 0;
-                    manaRegen = 0;
-                    if (this.isCombat())
-                        stamRegen = MBServerStatics.STAMINA_REGEN_FLY_RUN_COMBAT;
-                    else
-                        stamRegen = MBServerStatics.STAMINA_REGEN_FLY_RUN;
-                }
-
-                float oldStamina = this.stamina.get();
-
-                if (FastMath.between(oldStamina, 0, twentyFive) && !this.wasTripped25) {
-                    updateClient = true;
-                    this.wasTripped25 = true;
-                    this.wasTripped50 = false;
-                    this.wasTripped75 = false;
-                } else if (FastMath.between(oldStamina, twentyFive, fifty) && !this.wasTripped50) {
-                    updateClient = true;
-                    this.wasTripped25 = false;
-                    this.wasTripped50 = true;
-                    this.wasTripped75 = false;
-                } else if (FastMath.between(oldStamina, fifty, seventyFive) && !this.wasTripped75) {
-                    updateClient = true;
-                    this.wasTripped25 = false;
-                    this.wasTripped50 = false;
-                    this.wasTripped75 = true;
-                }
-                break;
-            case SWIMMING:
-                if (this.walkMode == true) {
-                    healthRegen = ((this.healthMax * MBServerStatics.HEALTH_REGEN_WALK) + MBServerStatics.HEALTH_REGEN_IDLE_STATIC) * getRegenModifier(ModType.HealthRecoverRate);
-                    manaRegen = ((this.manaMax * MBServerStatics.MANA_REGEN_WALK) + (this.getSpiMod() * .015f)) * (getRegenModifier(ModType.ManaRecoverRate));
-                    stamRegen = MBServerStatics.STAMINA_REGEN_SWIM;
-                } else {
-                    healthRegen = 0;
-                    manaRegen = 0;
-                    stamRegen = MBServerStatics.STAMINA_REGEN_SWIM;
-
-                    if (this.combat == true)
-                        stamRegen += MBServerStatics.STAMINA_REGEN_RUN_COMBAT;
-                    else
-                        stamRegen += MBServerStatics.STAMINA_REGEN_RUN_NONCOMBAT;
-                }
-                break;
-        }
-
-        // Are we drowning?
-        if ((this.getStamina() <= 0)
-                && (PlayerCharacter.CanBreathe(this) == false))
-            healthRegen = (this.healthMax * -.03f);
-
-        // Multiple regen values by current deltaTime
-        //     Logger.info("", healthRegen + "");
-        healthRegen *= getDeltaTime();
-        manaRegen *= getDeltaTime();
-        stamRegen *= getStamDeltaTime();
-
-        boolean workedHealth = false;
-        boolean workedMana = false;
-        boolean workedStamina = false;
-
-        float old, mod;
-        while (!workedHealth || !workedMana || !workedStamina) {
-            if (!this.isAlive() || !this.isActive())
-                return;
-            if (!workedHealth) {
-                old = this.health.get();
-                mod = old + healthRegen;
-                if (mod > this.healthMax)
-                    mod = healthMax;
-                else if (mod <= 0) {
-                    if (this.isAlive.compareAndSet(true, false))
-                        killCharacter("Water");
-                    return;
-                }
-                workedHealth = this.health.compareAndSet(old, mod);
-            }
-            if (!workedStamina) {
-                old = this.stamina.get();
-                mod = old + stamRegen;
-                if (mod > this.staminaMax)
-                    mod = staminaMax;
-                else if (mod < 0)
-                    mod = 0;
-                workedStamina = this.stamina.compareAndSet(old, mod);
-            }
-            if (!workedMana) {
-                old = this.mana.get();
-                mod = old + manaRegen;
-                if (mod > this.manaMax)
-                    mod = manaMax;
-                else if (mod < 0)
-                    mod = 0;
-                workedMana = this.mana.compareAndSet(old, mod);
-            }
-        }
-
-        if (updateClient)
-            this.syncClient();
-
-        // Reset this char's frame time.
-        this.lastUpdateTime = System.currentTimeMillis();
-        this.lastStamUpdateTime = System.currentTimeMillis();
 
     }
 
@@ -5388,21 +5580,9 @@ public class PlayerCharacter extends AbstractCharacter {
         return movementState;
     }
 
-    public boolean isHasAnniversery() {
-        return hasAnniversery;
-    }
-
     public void setHasAnniversery(boolean hasAnniversery) {
         DbManager.PlayerCharacterQueries.SET_ANNIVERSERY(this, hasAnniversery);
         this.hasAnniversery = hasAnniversery;
-    }
-
-    public int getSpamCount() {
-        return spamCount;
-    }
-
-    public void setSpamCount(int spamCount) {
-        this.spamCount = spamCount;
     }
 
     public String getHash() {
@@ -5430,10 +5610,6 @@ public class PlayerCharacter extends AbstractCharacter {
         this.lastRealmID = lastRealmID;
     }
 
-    public int getSubRaceID() {
-        return subRaceID;
-    }
-
     public void setSubRaceID(int subRaceID) {
         this.subRaceID = subRaceID;
     }
@@ -5444,29 +5620,6 @@ public class PlayerCharacter extends AbstractCharacter {
 
     public void setGuildHistory(ArrayList<GuildHistory> guildHistory) {
         this.guildHistory = guildHistory;
-    }
-
-    public void moveTo(Vector3fImmutable endLoc) {
-        this.setInBuilding(-1);
-        this.setInFloorID(-1);
-        MoveToPointMsg moveToMsg = new MoveToPointMsg();
-        moveToMsg.setStartCoord(this.getLoc());
-        moveToMsg.setEndCoord(endLoc);
-        moveToMsg.setInBuilding(-1);
-        moveToMsg.setUnknown01(-1);
-        moveToMsg.setSourceType(GameObjectType.PlayerCharacter.ordinal());
-        moveToMsg.setSourceID(this.getObjectUUID());
-
-        Dispatch dispatch = Dispatch.borrow(this, moveToMsg);
-        DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.PRIMARY);
-
-        try {
-            MovementManager.movement(moveToMsg, this);
-        } catch (MsgSendException e) {
-            // TODO Auto-generated catch block
-            Logger.error("Player.MoveTo", this.getName() + " tripped error " + e.getMessage());
-        }
-
     }
 
     public void updateScaleHeight() {
@@ -5505,10 +5658,6 @@ public class PlayerCharacter extends AbstractCharacter {
         this.overFlowEXP = overFlowEXP;
     }
 
-    public MovementState getLastMovementState() {
-        return lastMovementState;
-    }
-
     public void setLastMovementState(MovementState lastMovementState) {
         this.lastMovementState = lastMovementState;
     }
@@ -5516,7 +5665,7 @@ public class PlayerCharacter extends AbstractCharacter {
     @Override
     public final void setIsCasting(final boolean isCasting) {
         if (this.isCasting != isCasting)
-            this.update();
+            this.update(false);
         this.isCasting = isCasting;
     }
 
@@ -5530,18 +5679,14 @@ public class PlayerCharacter extends AbstractCharacter {
     public void resetRegenUpdateTime() {
         this.lastUpdateTime = System.currentTimeMillis();
         this.lastStamUpdateTime = System.currentTimeMillis();
+        this.timestamps.put("LastRegenHealth", System.currentTimeMillis());
+        this.timestamps.put("LastRegenMana", System.currentTimeMillis());
+        this.timestamps.put("LastRegenStamina", System.currentTimeMillis());
+        this.timestamps.put("LastConsumeStamina", System.currentTimeMillis());
     }
 
     public float getCharacterHeight() {
         return characterHeight;
-    }
-
-    public void setCharacterHeight(float characterHeight) {
-        this.characterHeight = characterHeight;
-    }
-
-    public void setCenterHeight(float centerHeight) {
-        this.centerHeight = centerHeight;
     }
 
     public boolean isEnteredWorld() {
@@ -5549,27 +5694,13 @@ public class PlayerCharacter extends AbstractCharacter {
     }
 
     public void setEnteredWorld(boolean enteredWorld) {
+        if(enteredWorld)
+            this.timestamps.put("nextBoxCheck", System.currentTimeMillis() + 10000);
         this.enteredWorld = enteredWorld;
-    }
-
-    public long getChannelMute() {
-        return channelMute;
-    }
-
-    public void setChannelMute(long channelMute) {
-        this.channelMute = channelMute;
     }
 
     public boolean isLastSwimming() {
         return lastSwimming;
-    }
-
-    public boolean isTeleporting() {
-        return isTeleporting;
-    }
-
-    public void setTeleporting(boolean isTeleporting) {
-        this.isTeleporting = isTeleporting;
     }
 
     @Override
@@ -5619,5 +5750,392 @@ public class PlayerCharacter extends AbstractCharacter {
         dirtyLock.writeLock().lock();
         this.dirtyLoad = dirtyLoad;
         dirtyLock.writeLock().unlock();
+    }
+
+    public void doRegen() {
+        if (!this.timestamps.containsKey("SyncClient"))
+            this.timestamps.put("SyncClient", System.currentTimeMillis());
+
+        if (!this.isAlive() || !this.enteredWorld || !this.isActive) {
+            this.resetRegenUpdateTime();
+            return;
+        }
+            float healthRegen = 0f;
+            float manaRegen = 0f;
+            float stamRegen = 0f;
+            boolean updateClient = false;
+            // Early exit if char is dead or disconnected
+            if ((this.isAlive() == false)
+                    || (this.isActive() == false) || this.getLoc().x == 0 && this.getLoc().z == 0)
+                return;
+            // Calculate Regen amount from last simulation tick
+            switch (this.movementState) {
+                case IDLE:
+                    healthRegen = ((this.healthMax * MBServerStatics.HEALTH_REGEN_IDLE) + MBServerStatics.HEALTH_REGEN_IDLE_STATIC) * (getRegenModifier(ModType.HealthRecoverRate));
+                    if (this.isCasting() || this.isItemCasting())
+                        healthRegen *= .75f;
+                    // Characters regen mana when in only walk mode and idle
+                    if (this.walkMode)
+                        manaRegen = ((this.manaMax * MBServerStatics.MANA_REGEN_IDLE) * getRegenModifier(ModType.ManaRecoverRate));
+                    else if (!this.isCasting() && !this.isItemCasting())
+                        manaRegen = ((this.manaMax * MBServerStatics.MANA_REGEN_IDLE) * getRegenModifier(ModType.ManaRecoverRate));
+                    else
+                        manaRegen = 0;
+                    if (!PlayerCharacter.CanBreathe(this))
+                        stamRegen = MBServerStatics.STAMINA_REGEN_SWIM;
+                    else if ((!this.isCasting() && !this.isItemCasting()) || this.lastMovementState.equals(MovementState.FLYING))
+                        stamRegen = MBServerStatics.STAMINA_REGEN_IDLE * getRegenModifier(ModType.StaminaRecoverRate);
+                    else
+                        stamRegen = 0;
+                    break;
+                case SITTING:
+                    healthRegen = ((this.healthMax * MBServerStatics.HEALTH_REGEN_SIT) + MBServerStatics.HEALTH_REGEN_SIT_STATIC) * getRegenModifier(ModType.HealthRecoverRate);
+                    manaRegen = (this.manaMax * MBServerStatics.MANA_REGEN_SIT) * (getRegenModifier(ModType.ManaRecoverRate));
+                    stamRegen = MBServerStatics.STAMINA_REGEN_SIT * getRegenModifier(ModType.StaminaRecoverRate);
+                    break;
+                case RUNNING:
+                    if (this.walkMode == true) {
+                        healthRegen = ((this.healthMax * MBServerStatics.HEALTH_REGEN_WALK) + MBServerStatics.HEALTH_REGEN_IDLE_STATIC) * getRegenModifier(ModType.HealthRecoverRate);
+                        manaRegen = this.manaMax * MBServerStatics.MANA_REGEN_WALK * getRegenModifier(ModType.ManaRecoverRate);
+                        stamRegen = MBServerStatics.STAMINA_REGEN_WALK;
+                    } else {
+                        healthRegen = 0;
+                        manaRegen = 0;
+
+                        if(this.containsEffect(441156479) || this.containsEffect(441156455)) {
+                            stamRegen = MBServerStatics.STAMINA_REGEN_WALK;
+                        }else {
+                            if (this.combat == true)
+                                stamRegen = MBServerStatics.STAMINA_REGEN_RUN_COMBAT;
+                            else
+                                stamRegen = MBServerStatics.STAMINA_REGEN_RUN_NONCOMBAT;
+                        }
+                    }
+                    break;
+                case FLYING:
+                    float seventyFive = this.staminaMax * .75f;
+                    float fifty = this.staminaMax * .5f;
+                    float twentyFive = this.staminaMax * .25f;
+                    if (this.getDesiredAltitude() == 0 && this.getAltitude() <= 10) {
+                        if (this.isCombat())
+                            stamRegen = 0;
+                        else
+                            stamRegen = MBServerStatics.STAMINA_REGEN_IDLE * getRegenModifier(ModType.StaminaRecoverRate);
+                    } else if (!this.useFlyMoveRegen()) {
+                        healthRegen = ((this.healthMax * MBServerStatics.HEALTH_REGEN_IDLE) + MBServerStatics.HEALTH_REGEN_IDLE_STATIC) * (getRegenModifier(ModType.HealthRecoverRate));
+                        if (this.isCasting() || this.isItemCasting())
+                            healthRegen *= .75f;
+                        // Characters regen mana when in only walk mode and idle
+                        if (this.walkMode)
+                            manaRegen = (this.manaMax * MBServerStatics.MANA_REGEN_IDLE + (this.getSpiMod() * .015f)) * (getRegenModifier(ModType.ManaRecoverRate));
+                        else if (!this.isCasting() && !this.isItemCasting())
+                            manaRegen = (this.manaMax * MBServerStatics.MANA_REGEN_IDLE + (this.getSpiMod() * .015f)) * (getRegenModifier(ModType.ManaRecoverRate));
+                        else
+                            manaRegen = 0;
+                        if (!this.isItemCasting() && !this.isCasting() || this.getTakeOffTime() != 0)
+                            stamRegen = MBServerStatics.STAMINA_REGEN_FLY_IDLE;
+                        else
+                            stamRegen = -1f;
+                    } else if (this.walkMode == true) {
+                        healthRegen = ((this.healthMax * MBServerStatics.HEALTH_REGEN_WALK) + MBServerStatics.HEALTH_REGEN_IDLE_STATIC) * getRegenModifier(ModType.HealthRecoverRate);
+                        manaRegen = ((this.manaMax * MBServerStatics.MANA_REGEN_WALK) + (this.getSpiMod() * .015f)) * (getRegenModifier(ModType.ManaRecoverRate));
+                        stamRegen = MBServerStatics.STAMINA_REGEN_FLY_WALK;
+                    } else {
+                        healthRegen = 0;
+                        manaRegen = 0;
+                        if (this.isCombat())
+                            stamRegen = MBServerStatics.STAMINA_REGEN_FLY_RUN_COMBAT;
+                        else
+                            stamRegen = MBServerStatics.STAMINA_REGEN_FLY_RUN;
+                    }
+                    float oldStamina = this.stamina.get();
+                    if (FastMath.between(oldStamina, 0, twentyFive) && !this.wasTripped25) {
+                        updateClient = true;
+                        this.wasTripped25 = true;
+                        this.wasTripped50 = false;
+                        this.wasTripped75 = false;
+                    } else if (FastMath.between(oldStamina, twentyFive, fifty) && !this.wasTripped50) {
+                        updateClient = true;
+                        this.wasTripped25 = false;
+                        this.wasTripped50 = true;
+                        this.wasTripped75 = false;
+                    } else if (FastMath.between(oldStamina, fifty, seventyFive) && !this.wasTripped75) {
+                        updateClient = true;
+                        this.wasTripped25 = false;
+                        this.wasTripped50 = false;
+                        this.wasTripped75 = true;
+                    }
+                    break;
+                case SWIMMING:
+                    if (this.walkMode == true) {
+                        healthRegen = ((this.healthMax * MBServerStatics.HEALTH_REGEN_WALK) + MBServerStatics.HEALTH_REGEN_IDLE_STATIC) * getRegenModifier(ModType.HealthRecoverRate);
+                        manaRegen = ((this.manaMax * MBServerStatics.MANA_REGEN_WALK) + (this.getSpiMod() * .015f)) * (getRegenModifier(ModType.ManaRecoverRate));
+                        stamRegen = MBServerStatics.STAMINA_REGEN_SWIM;
+                    } else {
+                        healthRegen = 0;
+                        manaRegen = 0;
+                        stamRegen = MBServerStatics.STAMINA_REGEN_SWIM;
+                        if (this.combat == true)
+                            stamRegen += MBServerStatics.STAMINA_REGEN_RUN_COMBAT;
+                        else
+                            stamRegen += MBServerStatics.STAMINA_REGEN_RUN_NONCOMBAT;
+                    }
+                    break;
+            }
+            // Are we drowning?
+            if ((this.getStamina() <= 0)
+                    && (PlayerCharacter.CanBreathe(this) == false))
+                healthRegen = (this.healthMax * -.03f);
+            // Multiple regen values by current deltaTime
+            //     Logger.info("", healthRegen + "");
+            healthRegen *= getDeltaTime();
+            manaRegen *= 0.01f;
+            manaRegen *= getDeltaTime();
+            stamRegen *= getStamDeltaTime();
+            if(this.isSit()){
+                healthRegen *= 1.5;
+                manaRegen *= 1.5;
+                stamRegen *= 1.5;
+            }
+            boolean workedHealth = false;
+            boolean workedMana = false;
+            boolean workedStamina = false;
+            float old, mod;
+            while (!workedHealth || !workedMana || !workedStamina) {
+                if (!this.isAlive() || !this.isActive())
+                    return;
+                if (!workedHealth) {
+                    old = this.health.get();
+                    mod = old + healthRegen;
+                    if (mod > this.healthMax)
+                        mod = healthMax;
+                    else if (mod <= 0) {
+                        if (this.isAlive.compareAndSet(true, false))
+                            killCharacter("Water");
+                        return;
+                    }
+                    workedHealth = this.health.compareAndSet(old, mod);
+                }
+                if (!workedStamina) {
+                    old = this.stamina.get();
+                    mod = old + stamRegen;
+                    if (mod > this.staminaMax)
+                        mod = staminaMax;
+                    else if (mod < 0)
+                        mod = 0;
+                    workedStamina = this.stamina.compareAndSet(old, mod);
+                }
+                if (!workedMana) {
+                    old = this.mana.get();
+                    mod = old + manaRegen;
+                    if (mod > this.manaMax)
+                        mod = manaMax;
+                    else if (mod < 0)
+                        mod = 0;
+                    workedMana = this.mana.compareAndSet(old, mod);
+                }
+            }
+            if (updateClient)
+                this.syncClient();
+            // Reset this char's frame time.
+            this.lastUpdateTime = System.currentTimeMillis();
+            this.lastStamUpdateTime = System.currentTimeMillis();
+        //this.updateMovementState();
+        ///boolean updateHealth = this.regenerateHealth();
+        //boolean updateMana = this.regenerateMana();
+        //boolean updateStamina = this.regenerateStamina();
+        //boolean consumeStamina = this.consumeStamina();
+        if (this.timestamps.get("SyncClient") + 5000L < System.currentTimeMillis()) {
+            //if (updateHealth || updateMana || updateStamina || consumeStamina) {
+                this.syncClient();
+                this.timestamps.put("SyncClient", System.currentTimeMillis());
+            //}
+        }
+    }
+
+    public boolean regenerateHealth(){
+        Long regenTime;
+        Long currentTime = System.currentTimeMillis();
+        regenTime = this.timestamps.getOrDefault("LastRegenHealth", currentTime);
+        float secondsPassed = (currentTime - regenTime) / 1000f;
+        float onePercent = this.healthMax * 0.01f;
+        float rate = 1.0f / RecoveryType.getRecoveryType(this).healthRate;
+        rate *= this.getRegenModifier(ModType.HealthRecoverRate);
+        rate *= this.combatStats.healthRegen;
+
+        if(this.isMoving() && !this.walkMode)
+            rate = 0.0f;
+
+        float healthRegenerated = onePercent * rate * secondsPassed;
+        //ChatManager.chatSystemInfo(this,"HEALTH REGENERATED: " + healthRegenerated + " SECONDS PASSED: " + secondsPassed);
+        ChatManager.chatSystemInfo(this,"HEALTH : " + Math.round(this.health.get()) + " / " + this.healthMax);
+        boolean workedHealth = false;
+        float old = this.health.get();
+        float mod = old + healthRegenerated;
+        while(!workedHealth) {
+            if (mod > this.healthMax)
+                mod = healthMax;
+            else if (mod <= 0) {
+                if (this.isAlive.compareAndSet(true, false))
+                    killCharacter("Water");
+                return false;
+            }
+            workedHealth = this.health.compareAndSet(old, mod);
+        }
+
+        this.timestamps.put("LastRegenHealth",currentTime);
+        return mod > old;
+    }
+    public boolean regenerateMana(){
+        Long regenTime;
+        Long currentTime = System.currentTimeMillis();
+        regenTime = this.timestamps.getOrDefault("LastRegenMana", currentTime);
+        float secondsPassed = (currentTime - regenTime) / 1000f;
+        float onePercent = this.manaMax * 0.01f;
+        float rate = 1.0f / RecoveryType.getRecoveryType(this).manaRate;
+        rate *= this.combatStats.manaRegen;
+
+        if(this.isMoving() && !this.walkMode)
+            rate = 0.0f;
+
+        float manaRegenerated = onePercent * secondsPassed * rate;
+
+        boolean workedMana = false;
+        float  old = this.mana.get();
+        float mod = old + manaRegenerated;
+        while(!workedMana) {
+
+            if (mod > this.manaMax)
+                mod = manaMax;
+            else if (mod < 0)
+                mod = 0;
+            workedMana = this.mana.compareAndSet(old, mod);
+        }
+
+        this.timestamps.put("LastRegenMana",currentTime);
+        return mod > old;
+    }
+    public boolean regenerateStamina(){
+
+        Long currentTime = System.currentTimeMillis();
+
+        if(this.isMoving() || this.isFlying() || !this.canBreathe) {
+            this.timestamps.put("LastRegenStamina",currentTime);
+            return false;
+        }
+
+        Long regenTime;
+
+        regenTime = this.timestamps.getOrDefault("LastRegenStamina", currentTime);
+        float secondsPassed = (currentTime - regenTime) / 1000f;
+
+        float secondsToRecover1 = RecoveryType.getRecoveryType(this).staminaRate;
+        secondsToRecover1 *= this.combatStats.staminaRegen;
+
+        float ratio = secondsPassed / secondsToRecover1;
+        //rate *= this.getRegenModifier(ModType.StaminaRecoverRate); // Adjust rate with modifiers
+
+        //float staminaRegenerated = secondsPassed / rate; // Stamina regenerates 1 point per `rate` seconds
+        float staminaRegenerated = secondsPassed * ratio; // Stamina regenerates 1 point per `rate` seconds
+
+        boolean workedStamina = false;
+        float old = this.stamina.get();
+        float mod = old + staminaRegenerated;
+        while (!workedStamina) {
+            if (mod > this.staminaMax)
+                mod = staminaMax;
+            else if (mod < 0)
+                mod = 0;
+            workedStamina = this.stamina.compareAndSet(old, mod);
+        }
+        //ChatManager.chatSystemInfo(this, "STAM: " + this.stamina.get() + " / " + this.staminaMax);
+        this.timestamps.put("LastRegenStamina", currentTime);
+        return mod > old;
+    }
+    public boolean consumeStamina(){
+        Long regenTime;
+        Long currentTime = System.currentTimeMillis();
+        regenTime = this.timestamps.getOrDefault("LastConsumeStamina", currentTime);
+        float secondsPassed = (currentTime - regenTime) / 1000f;
+
+        float consumption;
+
+        if(!this.isMoving() && !this.isFlying() && this.canBreathe) {
+            this.timestamps.put("LastConsumeStamina",currentTime);
+            return false;
+        }
+        if(!this.combat){
+            consumption = 0.4f * secondsPassed;
+        }else{
+            consumption = 0.65f * secondsPassed;
+        }
+        if(!this.canBreathe)
+            consumption = 1.5f * secondsPassed;
+        else if(this.isFlying())
+            consumption = 2.0f * secondsPassed;
+
+        boolean workedStamina = false;
+        float old = this.stamina.get();
+        float mod = old - consumption;
+        while (!workedStamina) {
+            if (mod <= 0)
+                mod = 0;
+            workedStamina = this.stamina.compareAndSet(old, mod);
+        }
+        //ChatManager.chatSystemInfo(this, "STAM: " + this.stamina.get() + " / " + this.staminaMax);
+        this.timestamps.put("LastConsumeStamina",currentTime);
+        if(this.stamina.get() == 0){
+            return this.consumeHealth(secondsPassed);
+        }
+        return mod < old;
+    }
+
+    public boolean consumeHealth(float secondsPassed){
+        float consumption = 2.0f * secondsPassed;
+        boolean workedHealth = false;
+        float old = this.health.get();
+        float mod = old - consumption;
+        while(!workedHealth) {
+
+            if (mod > this.healthMax)
+                mod = healthMax;
+            else if (mod <= 0) {
+                if (this.isAlive.compareAndSet(true, false))
+                    killCharacter("Water");
+                return true;
+            }
+            workedHealth = this.health.compareAndSet(old, mod);
+        }
+        return mod < old;
+    }
+
+    enum RecoveryType{
+        //Values for health and mana are in terms of the number of seconds it takes to recover 1% of max pool
+        //Values for stamina are in terms of the number of seconds it takes to recover 1 point
+        RESTING(3.0f,1.2f,0.5f), //sitting
+        IDLING(15.0f,6.0f,5.0f), //standing not moving
+        WALKING(20.0f,8.0f,0.0f), // moving in walk mode
+        RUNNING(0.0f,0.0f,0.0f); // moving in run mode
+        public float healthRate;
+        public float manaRate;
+        public float staminaRate;
+        RecoveryType(float health, float mana, float stamina) {
+            this.healthRate = health;
+            this.manaRate = mana;
+            this.staminaRate = stamina;
+        }
+        public static RecoveryType getRecoveryType(PlayerCharacter pc){
+            if (pc.isMoving()) {
+                if(pc.walkMode){
+                    return RecoveryType.WALKING;
+                }else{
+                    return RecoveryType.RUNNING;
+                }
+            }else if(pc.isSit()){
+                return RecoveryType.RESTING;
+            }else{
+                return RecoveryType.IDLING;
+            }
+        }
     }
 }

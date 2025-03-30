@@ -34,7 +34,7 @@ public class UseItemJob extends AbstractScheduleJob {
     }
 
     @Override
-    protected void doJob() {
+    public void doJob() {
         PowersManager.finishApplyPower(ac, target, Vector3fImmutable.ZERO, pb, trains, liveCounter);
     }
 

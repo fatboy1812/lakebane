@@ -22,7 +22,7 @@ public class FinishEffectTimeJob extends AbstractEffectJob {
     }
 
     @Override
-    protected void doJob() {
+    public void doJob() {
         PowersManager.finishEffectTime(this.source, this.target, this.action, this.trains);
     }
 

@@ -79,7 +79,7 @@ public class NPC extends AbstractCharacter {
     private HashSet<Integer> canRoll = null;
     public int parentZoneUUID;
     public int equipmentSetID = 0;
-    private int repairCost = 5;
+    private int specialPrice = 5;
 
     // New NPC constructor.  Fill in the blanks and then call
     // PERSIST.
@@ -152,6 +152,12 @@ public class NPC extends AbstractCharacter {
                 submitUpgradeJob();
 
             this.name = rs.getString("npc_name");
+
+            try {
+                this.specialPrice = rs.getInt("specialPrice");
+            }catch(Exception e){
+                this.specialPrice = 5;
+            }
 
         } catch (Exception e) {
             Logger.error("NPC: " + this.dbID + " :" + e);
@@ -798,7 +804,7 @@ public class NPC extends AbstractCharacter {
 
     @Override
     public void updateDatabase() {
-        DbManager.NPCQueries.updateDatabase(this);
+        DbManager.NPCQueries.updateSpecialPricing(this);
     }
 
     public int getSymbol() {
@@ -870,6 +876,11 @@ public class NPC extends AbstractCharacter {
         // zone collection
 
         this.parentZone = ZoneManager.getZoneByUUID(this.parentZoneUUID);
+        if(this.parentZone == null) {
+            Logger.error("PARENT ZONE NOT IDENTIFIED FOR NPC : " + this.getObjectUUID());
+            return;
+        }
+
         this.parentZone.zoneNPCSet.remove(this);
         this.parentZone.zoneNPCSet.add(this);
 
@@ -1290,12 +1301,13 @@ public class NPC extends AbstractCharacter {
         return name;
     }
 
-    public int getRepairCost() {
-        return repairCost;
+    public int getSpecialPrice() {
+        return specialPrice;
     }
 
-    public void setRepairCost(int repairCost) {
-        this.repairCost = repairCost;
+    public void setSpecialPrice(int specialPrice) {
+        this.specialPrice = specialPrice;
+        DbManager.NPCQueries.updateSpecialPricing(this);
     }
 
     public void processUpgradeNPC(PlayerCharacter player) {

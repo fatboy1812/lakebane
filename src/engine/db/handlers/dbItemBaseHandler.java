@@ -22,6 +22,7 @@ import java.util.HashMap;
 
 public class dbItemBaseHandler extends dbHandlerBase {
 
+    public static final HashMap<Integer,Float> dexReductions = new HashMap<>();
     public dbItemBaseHandler() {
 
     }
@@ -42,6 +43,14 @@ public class dbItemBaseHandler extends dbHandlerBase {
             }
         } catch (SQLException e) {
             Logger.error(e);
+        }
+    }
+
+    public void LOAD_DEX_REDUCTION(ItemBase itemBase) {
+        if(dexReductions.containsKey(itemBase.getUUID())){
+            itemBase.dexReduction = dexReductions.get(itemBase.getUUID());
+        }else{
+            itemBase.dexReduction = 0.0f;
         }
     }
 
@@ -94,6 +103,21 @@ public class dbItemBaseHandler extends dbHandlerBase {
         }
 
         Logger.info("read: " + recordsRead + " cached: " + ItemBase.getUUIDCache().size());
+        try (Connection connection = DbManager.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement("SELECT * FROM `static_item_dexpenalty`")) {
+
+            ResultSet rs = preparedStatement.executeQuery();
+
+            // Check if a result was found
+            if (rs.next()) {
+                int ID = rs.getInt("ID");
+                float factor = rs.getInt("item_bulk_factor");
+                dexReductions.put(ID,factor);
+            }
+
+        } catch (SQLException e) {
+            Logger.error(e);
+        }
     }
 
     public HashMap<Integer, ArrayList<Integer>> LOAD_RUNES_FOR_NPC_AND_MOBS() {

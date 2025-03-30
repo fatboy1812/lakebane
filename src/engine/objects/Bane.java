@@ -14,19 +14,19 @@ import engine.Enum.ProtectionState;
 import engine.Enum.SiegePhase;
 import engine.Enum.SiegeResult;
 import engine.InterestManagement.HeightMap;
+import engine.InterestManagement.InterestManager;
 import engine.InterestManagement.WorldGrid;
 import engine.db.archive.BaneRecord;
 import engine.db.archive.DataWarehouse;
-import engine.gameManager.BuildingManager;
-import engine.gameManager.ChatManager;
-import engine.gameManager.DbManager;
-import engine.gameManager.ZoneManager;
+import engine.gameManager.*;
 import engine.job.JobScheduler;
 import engine.jobs.ActivateBaneJob;
 import engine.jobs.BaneDefaultTimeJob;
 import engine.math.Vector3fImmutable;
+import engine.net.Dispatch;
 import engine.net.DispatchMessage;
 import engine.net.client.ClientConnection;
+import engine.net.client.msg.CityDataMsg;
 import engine.net.client.msg.PlaceAssetMsg;
 import engine.net.client.msg.chat.ChatSystemMsg;
 import engine.server.MBServerStatics;
@@ -37,6 +37,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
 
 public final class Bane {
@@ -48,9 +49,15 @@ public final class Bane {
     private DateTime placementDate = null;
     private DateTime liveDate = null;
     private BaneDefaultTimeJob defaultTimeJob;
+    public boolean timeSet = false;
+    public boolean daySet = false;
+    public boolean capSet = false;
+    public int capSize = 10;
 
     // Internal cache for banes
     private ActivateBaneJob activateBaneJob;
+
+    public ArrayList<PlayerCharacter> affected_players;
 
     /**
      * ResultSet Constructor
@@ -63,6 +70,12 @@ public final class Bane {
         this.cityUUID = rs.getInt("cityUUID");
         this.ownerUUID = rs.getInt("ownerUUID");
         this.stoneUUID = rs.getInt("stoneUUID");
+
+        this.timeSet = rs.getInt("time_set") == 1;
+        this.daySet = rs.getInt("day_set") == 1;
+        this.capSet = rs.getInt("cap_set") == 1;
+        this.capSize = rs.getInt("cap_size");
+
 
         sqlDateTime = rs.getTimestamp("placementDate");
 
@@ -100,12 +113,11 @@ public final class Bane {
                 abtj = new ActivateBaneJob(cityUUID);
                 JobScheduler.getInstance().scheduleJob(abtj, this.liveDate.getMillis());
                 this.activateBaneJob = abtj;
-
                 break;
         }
 
-        if (this.liveDate == null)
-            setDefaultTime();
+        //add bane commander NPC
+        //summonBaneCommander(this);
     }
 
     public static boolean summonBanestone(PlayerCharacter player, ClientConnection origin, int rank) {
@@ -198,6 +210,25 @@ public final class Bane {
             return false;
         }
 
+        //audit that defending nation does no have a bane on them already
+        boolean defenderBaned = false;
+        Guild defenderNation = targetCity.getGuild().getNation();
+        if(defenderNation.getOwnedCity() != null && defenderNation.getOwnedCity().getBane() != null){
+            defenderBaned = true;
+        }else{
+            for (Guild sub : defenderNation.getSubGuildList()) {
+                if (sub.getOwnedCity() != null) {
+                    if (sub.getOwnedCity().getBane() != null) {
+                        defenderBaned = true;
+                    }
+                }
+            }
+        }
+        if(defenderBaned){
+            ChatManager.chatSystemInfo(player, "This Nation has already been baned!");
+            return false;
+        }
+
         if (targetCity.isLocationOnCityGrid(player.getLoc()) == true) {
             PlaceAssetMsg.sendPlaceAssetError(origin, 1, "Cannot place banestone on city grid.");
             return false;
@@ -266,7 +297,56 @@ public final class Bane {
         BaneRecord baneRecord = BaneRecord.borrow(bane, Enum.RecordEventType.PENDING);
         DataWarehouse.pushToWarehouse(baneRecord);
 
+        //add bane commander NPC
+        summonBaneCommander(bane);
+
+        try {
+            //update map for all players online
+            for (PlayerCharacter playerCharacter : SessionManager.getAllActivePlayerCharacters()) {
+                CityDataMsg cityDataMsg = new CityDataMsg(SessionManager.getSession(playerCharacter), false);
+                cityDataMsg.updateMines(true);
+                cityDataMsg.updateCities(true);
+                Dispatch dispatch = Dispatch.borrow(playerCharacter, cityDataMsg);
+                DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
+            }
+        }catch(Exception e){
+
+        }
+
         return true;
+    }
+
+    public static void summonBaneCommander(Bane bane){
+        Vector3fImmutable spawnLoc = Vector3fImmutable.getRandomPointOnCircle(bane.getStone().loc,6);
+        NPC baneCommander;
+        int commanderuuid = DbManager.NPCQueries.BANE_COMMANDER_EXISTS(bane.getStone().getObjectUUID());
+
+        if(commanderuuid == 0) {
+            //add bane commander NPC
+            int contractID = 1502042;
+            baneCommander = NPC.createNPC("Bane Commander", contractID, spawnLoc, bane.getCity().getGuild(), ZoneManager.findSmallestZone(bane.getStone().loc), (short) 70, bane.getStone());
+            try {
+                NPCManager.slotCharacterInBuilding(baneCommander);
+            }catch(Exception e){
+
+            }
+            WorldGrid.addObject(baneCommander,spawnLoc.x,spawnLoc.z);
+            WorldGrid.updateObject(baneCommander);
+        }
+        else
+        {
+            baneCommander = NPC.getNPC(commanderuuid);
+        }
+        //try {
+        //    NPCManager.slotCharacterInBuilding(baneCommander);
+        //}catch (Exception e){
+            //swallow it
+        //}
+        baneCommander.runAfterLoad();
+        //baneCommander.setLoc(spawnLoc);
+        InterestManager.setObjectDirty(baneCommander);
+
+        baneCommander.updateLocation();
     }
 
     public static Bane getBane(int cityUUID) {
@@ -369,28 +449,24 @@ public final class Bane {
 
     // Cache access
 
-    private void setDefaultTime() {
+    public void setDefaultTime() {
 
         DateTime timeToSetDefault = new DateTime(this.placementDate);
         timeToSetDefault = timeToSetDefault.plusDays(1);
 
-        DateTime currentTime = DateTime.now();
-        DateTime defaultTime = new DateTime(this.placementDate);
-        defaultTime = defaultTime.plusDays(2);
-        defaultTime = defaultTime.hourOfDay().setCopy(22);
-        defaultTime = defaultTime.minuteOfHour().setCopy(0);
-        defaultTime = defaultTime.secondOfMinute().setCopy(0);
-
-        if (currentTime.isAfter(timeToSetDefault))
-            this.setLiveDate(defaultTime);
-        else {
-
-            if (this.defaultTimeJob != null)
-                this.defaultTimeJob.cancelJob();
-
-            BaneDefaultTimeJob bdtj = new BaneDefaultTimeJob(this);
-            JobScheduler.getInstance().scheduleJob(bdtj, timeToSetDefault.getMillis());
-            this.defaultTimeJob = bdtj;
+        if (DateTime.now().isAfter(timeToSetDefault)){
+            if(!this.capSet){
+                DbManager.BaneQueries.SET_BANE_CAP_NEW(20,this.getCityUUID());
+                this.capSet = true;
+            }
+            if(!this.daySet){
+                DbManager.BaneQueries.SET_BANE_DAY_NEW(3,this.getCityUUID());
+                this.daySet = true;
+            }
+            if(!this.timeSet){
+                DbManager.BaneQueries.SET_BANE_TIME_NEW(9,this.getCityUUID());
+                this.timeSet = true;
+            }
         }
     }
 
@@ -448,6 +524,16 @@ public final class Bane {
             return false;
         }
 
+        //Remove bane commander NPC
+        if(!baneStone.getHirelings().isEmpty()) {
+            NPC npc = (NPC)baneStone.getHirelings().keySet().stream().findFirst().orElse(null);
+            if(npc != null) {
+                DbManager.NPCQueries.DELETE_NPC(npc);
+                DbManager.removeFromCache(npc);
+                WorldGrid.RemoveWorldObject(npc);
+                WorldGrid.removeObject(npc);
+            }
+        }
         // Remove object from simulation
 
         baneStone.removeFromCache();
@@ -469,6 +555,9 @@ public final class Bane {
         return liveDate;
     }
 
+    public void setLiveDate_NEW(DateTime baneTime) {
+
+    }
     public void setLiveDate(DateTime baneTime) {
 
         if (DbManager.BaneQueries.SET_BANE_TIME(baneTime, this.getCity().getObjectUUID())) {
@@ -607,6 +696,9 @@ public final class Bane {
                 toUnprotect.setProtectionState(ProtectionState.NONE);
         }
 
+        for(PlayerCharacter affected : this.affected_players)
+            affected.ZergMultiplier = 1.0f;
+
     }
 
     public boolean isErrant() {
@@ -642,6 +734,78 @@ public final class Bane {
      */
     public int getCityUUID() {
         return cityUUID;
+    }
+
+    public void applyZergBuffs(){
+        City city = this.getCity();
+        if(city == null)
+            return;
+
+        if(this.affected_players == null)
+            this.affected_players = new ArrayList<>();
+        city.onEnter();
+
+        ArrayList<Integer> attackers = new ArrayList<>();
+        ArrayList<Integer> defenders = new ArrayList<>();
+        Guild attackNation = this.getOwner().getGuild().getNation();
+        Guild defendNation = this.getCity().getGuild().getNation();
+        HashSet<AbstractWorldObject> inSiegeRange = WorldGrid.getObjectsInRangePartial(city.getTOL().loc,1750f,1);
+        for(AbstractWorldObject obj : inSiegeRange){
+            int uuid = obj.getObjectUUID();
+            PlayerCharacter player = PlayerCharacter.getPlayerCharacter(uuid);
+
+            if(player == null)
+                continue;
+
+            if(player.getAccount().status.equals(Enum.AccountStatus.ADMIN))
+                continue;
+
+            Guild playerNation = player.guild.getNation();
+            //separate the players into categories
+            if(playerNation.equals(defendNation))
+                defenders.add(uuid);
+            else if(playerNation.equals(attackNation))
+                attackers.add(uuid);
+            else
+                MovementManager.translocate(player,Vector3fImmutable.getRandomPointOnCircle(ZoneManager.getZoneByUUID(656).getLoc(),30f),Regions.GetRegionForTeleport(ZoneManager.getZoneByUUID(656).getLoc()));
+        }
+        int attackerSize = 0;
+        int defenderSize = 0;
+        for(int uuid : city.baneAttendees.keySet()){
+            PlayerCharacter player = PlayerCharacter.getPlayerCharacter(uuid);
+            if(player == null)
+                continue;
+            if(player.guild.getNation().equals(defendNation))
+                defenderSize += 1;
+            else if(player.guild.getNation().equals(attackNation))
+                attackerSize += 1;
+        }
+
+        //apply zerg mechanic for attackers
+        float attackerMultiplier = ZergManager.getCurrentMultiplier(attackerSize,this.capSize);
+        float defenderMultiplier = ZergManager.getCurrentMultiplier(defenderSize,this.capSize);
+        for(int uuid : attackers){
+            PlayerCharacter player = PlayerCharacter.getPlayerCharacter(uuid);
+            if(inSiegeRange.contains(player)) { //player is still physically here, needs updated multiplier
+                player.ZergMultiplier = attackerMultiplier;
+                this.affected_players.add(player);
+            }else {
+                player.ZergMultiplier = 1.0f;
+                this.affected_players.add(player);
+            }
+        }
+
+        for(int uuid : defenders){
+            PlayerCharacter player = PlayerCharacter.getPlayerCharacter(uuid);
+            if(inSiegeRange.contains(player)) { //player is still physically here, needs updated multiplier
+                player.ZergMultiplier = attackerMultiplier;
+                this.affected_players.add(player);
+            }else {
+                player.ZergMultiplier = 1.0f;
+                this.affected_players.add(player);
+            }
+        }
+
     }
 
 }

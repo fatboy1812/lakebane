@@ -66,6 +66,7 @@ public class ArcLoginNotifyMsgHandler extends AbstractClientMsgHandler {
         // Send Guild, Nation and IC MOTD
         GuildManager.enterWorldMOTD(player);
         ChatManager.sendSystemMessage(player, ConfigManager.MB_WORLD_GREETING.getValue());
+        ChatManager.sendSystemMessage(player, " Experience Gain: " + ConfigManager.MB_NORMAL_EXP_RATE.getValue());
 
         // Send branch string if available from ConfigManager.
 

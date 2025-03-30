@@ -1,7 +1,9 @@
 package engine.jobs;
 
+import engine.gameManager.ZoneManager;
 import engine.job.AbstractScheduleJob;
 import engine.objects.Building;
+import engine.objects.City;
 import org.pmw.tinylog.Logger;
 
 /*
@@ -20,7 +22,7 @@ public class UpgradeBuildingJob extends AbstractScheduleJob {
     }
 
     @Override
-    protected void doJob() {
+    public void doJob() {
 
 
         // Must have a building to rank!
@@ -40,6 +42,18 @@ public class UpgradeBuildingJob extends AbstractScheduleJob {
         // accordingly for buildings with blueprints
 
         rankingBuilding.setRank(rankingBuilding.getRank() + 1);
+
+        if(rankingBuilding.getBlueprint().isWallPiece()){
+            City cityObject = ZoneManager.getCityAtLocation(rankingBuilding.loc);
+            if(cityObject.getTOL().getRank() == 8) {
+                if (rankingBuilding.getBlueprint() != null && rankingBuilding.getBlueprint().getBuildingGroup() != null && rankingBuilding.getBlueprint().isWallPiece()) {
+                    float currentHealthRatio = rankingBuilding.getCurrentHitpoints() / rankingBuilding.healthMax;
+                    float newMax = rankingBuilding.healthMax * 1.1f;
+                    rankingBuilding.setMaxHitPoints(newMax);
+                    rankingBuilding.setHealth(rankingBuilding.healthMax * currentHealthRatio);
+                }
+            }
+        }
 
         // Reload the object
 

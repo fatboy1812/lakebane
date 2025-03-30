@@ -13,6 +13,9 @@ import engine.objects.Mob;
 import engine.objects.Zone;
 import org.pmw.tinylog.Logger;
 
+import java.util.ArrayList;
+import java.util.Collection;
+
 /**
  * Thread blocks until MagicBane dispatch messages are
  * enqueued then processes them in FIFO order. The collection
@@ -25,41 +28,48 @@ import org.pmw.tinylog.Logger;
 
 public class MobRespawnThread implements Runnable {
 
+    private volatile boolean running = true;
+    private static final long RESPAWN_INTERVAL = 100; // Configurable interval
 
     public MobRespawnThread() {
-        Logger.info(" MobRespawnThread thread has started!");
-
+        Logger.info("MobRespawnThread initialized.");
     }
 
     @Override
     public void run() {
-
-        while (true) {
-
+        while (running) {
             try {
-                for (Zone zone : ZoneManager.getAllZones()) {
+                Collection<Zone> zones = ZoneManager.getAllZones();
+                if (zones != null) {
+                    for (Zone zone : zones) {
+                        synchronized (zone) { // Optional: Synchronize on zone
+                            if (!Zone.respawnQue.isEmpty() && Zone.lastRespawn + RESPAWN_INTERVAL < System.currentTimeMillis()) {
 
-                    if (zone.respawnQue.isEmpty() == false && zone.lastRespawn + 100 < System.currentTimeMillis()) {
-
-                        Mob respawner = zone.respawnQue.iterator().next();
-
-                        if (respawner == null)
-                            continue;
-
-                        respawner.respawn();
-                        zone.respawnQue.remove(respawner);
-                        zone.lastRespawn = System.currentTimeMillis();
+                                Mob respawner = Zone.respawnQue.iterator().next();
+                                if (respawner != null) {
+                                    respawner.respawn();
+                                    Zone.respawnQue.remove(respawner);
+                                    Zone.lastRespawn = System.currentTimeMillis();
+                                    Thread.sleep(100);
+                                }
+                            }
+                        }
                     }
                 }
+                Thread.sleep(100); // Prevent busy-waiting
             } catch (Exception e) {
-                Logger.error(e);
+                Logger.error("Error in MobRespawnThread", e);
             }
-
         }
+        Logger.info("MobRespawnThread stopped.");
     }
+
+    public void stop() {
+        running = false;
+    }
+
     public static void startRespawnThread() {
-        Thread respawnThread;
-        respawnThread = new Thread(new MobRespawnThread());
+        Thread respawnThread = new Thread(new MobRespawnThread());
         respawnThread.setName("respawnThread");
         respawnThread.start();
     }

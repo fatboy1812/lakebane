@@ -30,7 +30,7 @@ public class AttributeEffectModifier extends AbstractEffectModifier {
     @Override
     public void applyBonus(AbstractCharacter ac, int trains) {
 
-        ac.update();
+        ac.update(false);
         Float amount = 0f;
         PlayerBonuses bonus = ac.getBonuses();
         if (this.percentMod != 0f) { //Stat Percent Modifiers

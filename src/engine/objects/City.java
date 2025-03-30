@@ -39,6 +39,7 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
@@ -87,6 +88,8 @@ public class City extends AbstractWorldObject {
     private boolean open = false;
     private boolean reverseKOS = false;
     private String hash;
+
+    public HashMap<Integer, Long> baneAttendees = new HashMap<>();
 
     /**
      * ResultSet Constructor
@@ -234,7 +237,24 @@ public class City extends AbstractWorldObject {
         writer.putInt(rulingGuild.getObjectUUID());
 
         writer.putString(rulingGuild.getName());
-        writer.putString(city.motto);
+        try {
+            if (city.getBane() != null) {
+                Bane bane = city.getBane();
+                if (bane.daySet && bane.timeSet && bane.getLiveDate() != null) {
+                    int day = bane.getLiveDate().dayOfMonth().get();
+                    int month = bane.getLiveDate().getMonthOfYear();
+                    int year = bane.getLiveDate().year().get();
+                    int hour = bane.getLiveDate().getHourOfDay();
+                    writer.putString("BANE SET: " + month + "/" + day + "/" + year + "   " + hour + ":00 CST");
+                } else {
+                    writer.putString("BANED!: Unset");
+                }
+            } else {
+                writer.putString(city.motto);
+            }
+        }catch(Exception e){
+            writer.putString(city.motto);
+        }
         writer.putString(rulingGuild.getLeadershipType());
 
         // Serialize guild ruler's name
@@ -320,8 +340,11 @@ public class City extends AbstractWorldObject {
         writer.putFloat(city.location.y);
         writer.putFloat(city.location.z);
 
-        writer.putInt(city.siegesWithstood);
-
+        if(city.getBane() != null) {
+            writer.putInt(city.getBane().capSize);
+        }else{
+            writer.putInt(0);
+        }
         writer.put((byte) 1);
         writer.put((byte) 0);
         writer.putInt(0x64);
@@ -366,18 +389,22 @@ public class City extends AbstractWorldObject {
 
                     if (pc.getAccount().status.equals(AccountStatus.ADMIN)) {
                         cities.add(city);
-                    } else
+                    } else {
                         //list Player cities
 
                         //open city, just list
                         if (city.open && city.getTOL() != null && city.getTOL().getRank() > 4) {
-
-                            if (!BuildingManager.IsPlayerHostile(city.getTOL(), pc))
-                                cities.add(city); //verify nation or guild is same
-                        } else if (Guild.sameNationExcludeErrant(city.getGuild(), pcG))
                             cities.add(city);
-
-
+                        }else {
+                            try {
+                                if (city.getGuild().getNation().equals(pc.guild.getNation())) {
+                                    cities.add(city);
+                                }
+                            }catch(Exception e){
+                                Logger.error(e);
+                            }
+                        }
+                    }
                 } else if (city.isNpc == 1) {
                     //list NPC cities
                     Guild g = city.getGuild();
@@ -428,7 +455,7 @@ public class City extends AbstractWorldObject {
 
                         if (!BuildingManager.IsPlayerHostile(city.getTOL(), pc))
                             cities.add(city); //verify nation or guild is same
-                    } else if (Guild.sameNationExcludeErrant(city.getGuild(), pcG))
+                    } else if (city.open && Guild.sameNationExcludeErrant(city.getGuild(), pcG))
                         cities.add(city);
 
                 } else if (city.isNpc == 1) {
@@ -788,8 +815,10 @@ public class City extends AbstractWorldObject {
 
         // Set city motto to current guild motto
 
-        if (BuildingManager.getBuilding(this.treeOfLifeID) == null)
+        if (BuildingManager.getBuilding(this.treeOfLifeID) == null) {
             Logger.info("City UID " + this.getObjectUUID() + " Failed to Load Tree of Life with ID " + this.treeOfLifeID);
+            this.destroy();
+        }
 
         if ((ConfigManager.serverType.equals(ServerType.WORLDSERVER))
                 && (this.isNpc == (byte) 0)) {
@@ -924,7 +953,7 @@ public class City extends AbstractWorldObject {
 
     public boolean isLocationWithinSiegeBounds(Vector3fImmutable insideLoc) {
 
-        return insideLoc.isInsideCircle(this.getLoc(), CityBoundsType.ZONE.extents);
+        return insideLoc.isInsideCircle(this.getLoc(), CityBoundsType.SIEGEBOUNDS.extents);
 
     }
 
@@ -989,7 +1018,7 @@ public class City extends AbstractWorldObject {
 
         // Gather current list of players within the zone bounds
 
-        currentPlayers = WorldGrid.getObjectsInRangePartial(this.location, CityBoundsType.ZONE.extents, MBServerStatics.MASK_PLAYER);
+        currentPlayers = WorldGrid.getObjectsInRangePartial(this.location, 1500, MBServerStatics.MASK_PLAYER);
         currentMemory = new HashSet<>();
 
         for (AbstractWorldObject playerObject : currentPlayers) {
@@ -1001,7 +1030,15 @@ public class City extends AbstractWorldObject {
             currentMemory.add(player.getObjectUUID());
 
             // Player is already in our memory
-
+            if(this.getBane() != null){
+                //handle zerg mechanics here
+                if(this.getBane().getSiegePhase().equals(SiegePhase.WAR)){
+                    //bane is live, start tallying players
+                    if(!this.baneAttendees.containsKey(player.getObjectUUID())){
+                        this.baneAttendees.put(player.getObjectUUID(),System.currentTimeMillis());
+                    }
+                }
+            }
             if (_playerMemory.contains(player.getObjectUUID()))
                 continue;
 
@@ -1028,14 +1065,29 @@ public class City extends AbstractWorldObject {
         } catch (Exception e) {
             Logger.error(e.getMessage());
         }
-
     }
+
+    private void onExitBane() {
+        ArrayList<Integer> toRemove = new ArrayList<>();
+        for (Integer uuid : this.baneAttendees.keySet()) {
+            if (!_playerMemory.contains(uuid)) {
+                long timeGone = System.currentTimeMillis() - this.baneAttendees.get(uuid).longValue();
+                if (timeGone > 180000L) { // 3 minutes
+                    toRemove.add(uuid); // Mark for removal
+                }
+            }
+        }
+        for(int uuid : toRemove){
+            this.baneAttendees.remove(uuid);
+        }
+    }
+
 
     private void onExit(HashSet<Integer> currentMemory) {
 
         PlayerCharacter player;
         int playerUUID = 0;
-        HashSet<Integer> toRemove = new HashSet<>();
+        HashSet<Integer> toRemoveStandard = new HashSet<>();
         Iterator<Integer> iter = _playerMemory.iterator();
 
         while (iter.hasNext()) {
@@ -1057,20 +1109,27 @@ public class City extends AbstractWorldObject {
 
             this.removeAllCityEffects(player, false);
 
+            player.ZergMultiplier = 1.0f;
             // We will remove this player after iteration is complete
             // so store it in a temporary collection
 
-            toRemove.add(playerUUID);
+            toRemoveStandard.add(playerUUID);
             // ***For debugging
             // Logger.info("PlayerMemory for ", this.getCityName() + ": " + _playerMemory.size());
         }
 
         // Remove players from city memory
 
-        _playerMemory.removeAll(toRemove);
-        for (Integer removalUUID : toRemove) {
+        _playerMemory.removeAll(toRemoveStandard);
+        for (Integer removalUUID : toRemoveStandard) {
             if (this.cityOutlaws.contains(removalUUID))
                 this.cityOutlaws.remove(removalUUID);
+        }
+        if(this.getBane() != null){
+            //handle zerg mechanics here
+            if(this.getBane().getSiegePhase().equals(SiegePhase.WAR)){
+                this.onExitBane();
+            }
         }
     }
 

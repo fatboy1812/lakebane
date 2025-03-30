@@ -3,6 +3,7 @@ package engine.mobileAI.Threads;
 import engine.gameManager.ConfigManager;
 import engine.mobileAI.MobAI;
 import engine.gameManager.ZoneManager;
+import engine.mobileAI.SuperSimpleMobAI;
 import engine.objects.Mob;
 import engine.objects.Zone;
 import engine.server.MBServerStatics;
@@ -27,18 +28,26 @@ public class MobAIThread implements Runnable{
         AI_CAST_FREQUENCY = Float.parseFloat(ConfigManager.MB_AI_CAST_FREQUENCY.getValue());
         AI_BASE_AGGRO_RANGE = (int)(60 * Float.parseFloat(ConfigManager.MB_AI_AGGRO_RANGE.getValue()));
         while (true) {
-            for (Zone zone : ZoneManager.getAllZones()) {
-
-                for (Mob mob : zone.zoneMobSet) {
-
-                    try {
-                        if (mob != null)
-                            MobAI.DetermineAction(mob);
-                    } catch (Exception e) {
-                        Logger.error("Mob: " + mob.getName() + " UUID: " + mob.getObjectUUID() + " ERROR: " + e);
-                        e.printStackTrace();
+            try {
+                for (Zone zone : ZoneManager.getAllZones()) {
+                    if (zone != null && zone.zoneMobSet != null) {
+                        synchronized (zone.zoneMobSet) {
+                            for (Mob mob : zone.zoneMobSet) {
+                                try {
+                                    if (mob != null) {
+                                        //MobAI.DetermineAction(mob);
+                                        SuperSimpleMobAI.run(mob);
+                                    }
+                                } catch (Exception e) {
+                                    Logger.error("Error processing Mob [Name: {}, UUID: {}]", mob.getName(), mob.getObjectUUID(), e);
+                                }
+                            }
+                        }
                     }
                 }
+                Thread.sleep(100);
+            }catch(Exception e){
+                Logger.error(e.getMessage());
             }
         }
     }

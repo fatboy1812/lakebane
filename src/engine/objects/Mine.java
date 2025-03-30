@@ -18,6 +18,7 @@ import engine.math.Vector3fImmutable;
 import engine.net.ByteBufferWriter;
 import engine.net.client.msg.ErrorPopupMsg;
 import engine.server.MBServerStatics;
+import org.joda.time.DateTime;
 import org.pmw.tinylog.Logger;
 
 import java.net.UnknownHostException;
@@ -29,6 +30,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ThreadLocalRandom;
 
 import static engine.gameManager.DbManager.MineQueries;
 import static engine.gameManager.DbManager.getObject;
@@ -65,6 +67,11 @@ public class Mine extends AbstractGameObject {
     public boolean isStronghold = false;
     public ArrayList<Mob> strongholdMobs;
     public HashMap<Integer,Integer> oldBuildings;
+    public HashMap<Integer, Long> mineAttendees = new HashMap<>();
+
+    public Long allowed_teleport_time;
+    public Boolean enforceLore = false;
+    public HashMap<Guild, Enum.GuildType> chosen_charters;
 
     /**
      * ResultSet Constructor
@@ -72,14 +79,30 @@ public class Mine extends AbstractGameObject {
     public Mine(ResultSet rs) throws SQLException, UnknownHostException {
         super(rs);
 
+        if (rs.getInt("capSize") == 0) {
+            throw new IllegalArgumentException("Mine creation canceled: capSize cannot be 0");
+        }
+
         this.mineType = MineProduction.getByName(rs.getString("mine_type"));
 
         int ownerUID = rs.getInt("mine_ownerUID");
         this.buildingID = rs.getInt("mine_buildingUID");
         this.flags = rs.getInt("flags");
         int parent = rs.getInt("parent");
-        this.parentZone = ZoneManager.getZoneByUUID(parent);
-        this.zoneName = this.parentZone.getParent().getName();
+        if(ZoneManager.getZoneByUUID(parent) != null) {
+            this.parentZone = ZoneManager.getZoneByUUID(parent);
+            this.zoneName = this.parentZone.getParent().getName();
+        }else{
+            this.parentZone = ZoneManager.getSeaFloor();
+            if(this.parentZone.getParent() != null)
+                this.zoneName = this.parentZone.getParent().getName();
+            else
+                this.zoneName = "FAILED TO LOAD ZONE";
+            Logger.error("MINE FAILED TO LOAD PARENT: ");
+            Logger.error("MINE UID: " + rs.getInt("UID"));
+            Logger.error("MINE buildingID: " + buildingID);
+
+        }
 
         this.owningGuild = Guild.getGuild(ownerUID);
         Guild nation = null;
@@ -114,6 +137,11 @@ public class Mine extends AbstractGameObject {
             tower.setMaxHitPoints(5000f * this.capSize);
             tower.setCurrentHitPoints(tower.healthMax);
         }
+        this.allowed_teleport_time = System.currentTimeMillis();
+
+        //decide if lore or not
+        this.enforceLore = false;
+        //this.enforceLore = ThreadLocalRandom.current().nextInt(1,5) == 2;
     }
 
     public static void releaseMineClaims(PlayerCharacter playerCharacter) {
@@ -190,12 +218,12 @@ public class Mine extends AbstractGameObject {
             writer.putInt(mine.getObjectType().ordinal());
             writer.putInt(mine.getObjectUUID());
             writer.putInt(mine.getObjectUUID()); //actually a hash of mine
-            if(mine.isStronghold){
-                writer.putString("STRONGHOLD");
-                writer.putString("");
+            if(mine.enforceLore){
+                writer.putString(mine.mineType.name);
+                writer.putString(mine.capSize + " Man LORE");
             }else {
                 writer.putString(mine.mineType.name);
-                writer.putString(mine.capSize + " Man ");
+                writer.putString(mine.capSize + " Man ARAC");
             }
             //writer.putString(mine.zoneName + " " + mine.capSize + " Man ");
 
@@ -322,9 +350,10 @@ public class Mine extends AbstractGameObject {
     public static ArrayList<Mine> getMinesToTeleportTo(PlayerCharacter player) {
         ArrayList<Mine> mines = new ArrayList<>();
         for(Mine mine : Mine.getMines())
-            if(!mine.isActive)
+            if(!mine.isActive && System.currentTimeMillis() > mine.allowed_teleport_time)
                 if(mine.getOwningGuild() != null)
-                  if(mine.getOwningGuild().getNation().equals(Guild.getErrantGuild()) == false && mine.getOwningGuild().getNation().equals(player.getGuild().getNation()))
+                  if(mine.getOwningGuild().getNation().equals(player.getGuild().getNation()))
+                      if(!mine.getOwningGuild().equals(Guild.getErrantGuild()))
                          mines.add(mine);
 
         return mines;
@@ -407,6 +436,7 @@ public class Mine extends AbstractGameObject {
                     //something went wrong resetting zerg multiplier, maybe player was deleted?
                 }
             }
+            this.allowed_teleport_time = System.currentTimeMillis() + MBServerStatics.FIVE_MINUTES;
         }
     }
 
@@ -578,16 +608,16 @@ public class Mine extends AbstractGameObject {
         int amount = 0;
         switch(this.capSize){
             case 3:
-                amount = 1800000;
-                break;
-            case 5:
                 amount = 3000000;
                 break;
+            case 5:
+                amount = 4200000;
+                break;
             case 10:
-                amount = 6000000;
+                amount = 7200000;
                 break;
             case 20:
-                amount = 12000000;
+                amount = 13200000;
                 break;
         }
         if(this.production.UUID == 7)
@@ -605,7 +635,7 @@ public class Mine extends AbstractGameObject {
 
         // Gather current list of players within the zone bounds
 
-        HashSet<AbstractWorldObject> currentPlayers = WorldGrid.getObjectsInRangePartial(tower.loc, Enum.CityBoundsType.GRID.extents, MBServerStatics.MASK_PLAYER);
+        HashSet<AbstractWorldObject> currentPlayers = WorldGrid.getObjectsInRangePartial(tower.loc, MBServerStatics.CHARACTER_LOAD_RANGE * 3, MBServerStatics.MASK_PLAYER);
         HashMap<Guild,ArrayList<PlayerCharacter>> charactersByNation = new HashMap<>();
         ArrayList<Guild> updatedNations = new ArrayList<>();
         for (AbstractWorldObject playerObject : currentPlayers) {
@@ -620,6 +650,7 @@ public class Mine extends AbstractGameObject {
 
             if(!this._playerMemory.contains(player.getObjectUUID())){
                 this._playerMemory.add(player.getObjectUUID());
+                ChatManager.chatSystemInfo(player,"You Have Entered an Active Mine Area");
             }
             Guild nation = player.guild.getNation();
             if(charactersByNation.containsKey(nation)){
@@ -638,10 +669,27 @@ public class Mine extends AbstractGameObject {
                 }
             }
         }
+
+        for(Integer id : this.mineAttendees.keySet()){
+            PlayerCharacter attendee = PlayerCharacter.getPlayerCharacter(id);
+            if(attendee == null)
+                continue;
+
+            if(charactersByNation.containsKey(attendee.guild.getNation())){
+                if(!charactersByNation.get(attendee.guild.getNation()).contains(attendee)){
+                    charactersByNation.get(attendee.guild.getNation()).add(attendee);
+                }
+            }
+
+        }
         for(Guild nation : updatedNations){
             float multiplier = ZergManager.getCurrentMultiplier(charactersByNation.get(nation).size(),this.capSize);
             for(PlayerCharacter player : charactersByNation.get(nation)){
-                player.ZergMultiplier = multiplier;
+                if(this.capSize == 3 && player.getPromotionClassID() == 2519) {
+                    player.ZergMultiplier = 0.0f; // priest gets 100% debuff at 3 man mines
+                }else{
+                    player.ZergMultiplier = multiplier;
+                }
             }
         }
         try
@@ -659,18 +707,28 @@ public class Mine extends AbstractGameObject {
         if(tower == null)
             return;
         ArrayList<Integer>toRemove = new ArrayList<>();
-        HashSet<AbstractWorldObject> currentPlayers = WorldGrid.getObjectsInRangePartial(tower.loc, Enum.CityBoundsType.GRID.extents, MBServerStatics.MASK_PLAYER);
+        HashSet<AbstractWorldObject> currentPlayers = WorldGrid.getObjectsInRangePartial(tower.loc, MBServerStatics.CHARACTER_LOAD_RANGE * 3, MBServerStatics.MASK_PLAYER);
         for(Integer id : currentMemory){
             PlayerCharacter pc = PlayerCharacter.getPlayerCharacter(id);
-            if(currentPlayers.contains(pc) == false){
-                toRemove.add(id);
+            if(!currentPlayers.contains(pc)){
+                if(this.mineAttendees.containsKey(id)){
+                    long timeGone = System.currentTimeMillis() - this.mineAttendees.get(id).longValue();
+                    if (timeGone > 180000L) { // 3 minutes
+                        toRemove.add(id); // Mark for removal
+                    }
+                }
                 pc.ZergMultiplier = 1.0f;
+            } else {
+                this.mineAttendees.put(id,System.currentTimeMillis());
             }
         }
 
         // Remove players from city memory
 
         _playerMemory.removeAll(toRemove);
+        for(int id : toRemove){
+            this.mineAttendees.remove(id);
+        }
     }
     public static Building getTower(Mine mine){
         Building tower = BuildingManager.getBuildingFromCache(mine.buildingID);

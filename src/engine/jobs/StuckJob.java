@@ -30,7 +30,7 @@ public class StuckJob extends AbstractScheduleJob {
     }
 
     @Override
-    protected void doJob() {
+    public void doJob() {
 
         Vector3fImmutable stuckLoc;
         Building building = null;

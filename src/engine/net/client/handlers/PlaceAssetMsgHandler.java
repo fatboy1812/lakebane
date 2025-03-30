@@ -568,7 +568,15 @@ public class PlaceAssetMsgHandler extends AbstractClientMsgHandler {
             return false;
         }
 
-        serverCity = ZoneManager.getCityAtLocation(buildingList.getLoc());
+        //serverCity = ZoneManager.getCityAtLocation(buildingList.getLoc());
+        Bane validBane = null;
+        serverCity = null;
+        for(Bane b : Bane.banes.values()){
+                City c = b.getCity();
+                if(c.getGuild().equals(player.guild) || b.getOwner().guild.equals(player.guild))
+                    serverCity = b.getCity();
+        }
+
 
         // No valid player city found
 
@@ -611,6 +619,13 @@ public class PlaceAssetMsgHandler extends AbstractClientMsgHandler {
             return false;
         }
 
+        //make sure building is withing range
+        float distanceSquared = buildingList.getLoc().distanceSquared(serverCity.loc);
+        float allowedSquared = (CityBoundsType.SIEGEBOUNDS.extents * 0.65f) * (CityBoundsType.SIEGEBOUNDS.extents * 0.65f);
+        if(allowedSquared < distanceSquared) {
+            PlaceAssetMsg.sendPlaceAssetError(origin, 52, ""); // Cannot place outisde a guild zone
+            return false;
+        }
         // If there is a bane placed, we limit bow placement to 2x the stone rank's worth of attacker assets
         // and 1x the tree rank for defenders
 
@@ -652,7 +667,7 @@ public class PlaceAssetMsgHandler extends AbstractClientMsgHandler {
 
         // Count bow for attackers and defenders
 
-        awoList = WorldGrid.getObjectsInRangePartial(serverCity, 1000, MBServerStatics.MASK_BUILDING);
+        awoList = WorldGrid.getObjectsInRangePartial(serverCity, CityBoundsType.SIEGEBOUNDS.extents, MBServerStatics.MASK_BUILDING);
 
         for (AbstractWorldObject awo : awoList) {
             Building building = (Building) awo;
@@ -661,7 +676,7 @@ public class PlaceAssetMsgHandler extends AbstractClientMsgHandler {
                 if (!building.getBlueprint().isSiegeEquip())
                     continue;
 
-            if (!building.getLoc().isInsideCircle(serverCity.getLoc(), CityBoundsType.ZONE.extents))
+            if (!building.getLoc().isInsideCircle(serverCity.getLoc(), CityBoundsType.SIEGEBOUNDS.extents))
                 continue;
 
             if (building.getGuild() == null)
@@ -1027,6 +1042,10 @@ public class PlaceAssetMsgHandler extends AbstractClientMsgHandler {
 
     private boolean placeCityWalls(PlayerCharacter player, ClientConnection origin, PlaceAssetMsg msg) {
 
+        if(player.getAccount().status.equals(AccountStatus.ADMIN)){
+            adminCreateBuildings(player,msg);
+            return false;
+        }
         // Member variables
 
         Zone serverZone;
@@ -1148,6 +1167,15 @@ public class PlaceAssetMsgHandler extends AbstractClientMsgHandler {
             wallPiece.setProtectionState(ProtectionState.PROTECTED);
             PlaceAssetMsg.sendPlaceAssetConfirmWall(origin, serverZone);
 
+            //walls in R8 city are immediately granted extra HP by 10%
+            if(cityObject.getTOL().getRank() == 8) {
+                if (wallPiece.getBlueprint() != null && wallPiece.getBlueprint().getBuildingGroup() != null && wallPiece.getBlueprint().isWallPiece()) {
+                    float currentHealthRatio = wallPiece.getCurrentHitpoints() / wallPiece.healthMax;
+                    float newMax = wallPiece.healthMax * 1.1f;
+                    wallPiece.setMaxHitPoints(newMax);
+                    wallPiece.setHealth(wallPiece.healthMax * currentHealthRatio);
+                }
+            }
         }
 
         // Deduct gold from character's inventory
@@ -1156,7 +1184,7 @@ public class PlaceAssetMsgHandler extends AbstractClientMsgHandler {
         return true;
     }
 
-    private Building createStructure(PlayerCharacter playerCharacter, PlacementInfo buildingInfo, Zone currentZone) {
+    private static Building createStructure(PlayerCharacter playerCharacter, PlacementInfo buildingInfo, Zone currentZone) {
 
         Blueprint blueprint;
         Building newMesh;
@@ -1377,5 +1405,17 @@ public class PlaceAssetMsgHandler extends AbstractClientMsgHandler {
         }
 
         return true;
+    }
+
+    public static void adminCreateBuildings(PlayerCharacter pc, PlaceAssetMsg msg){
+        //handled for building dungeon layouts
+        Zone zone = ZoneManager.getZoneByZoneID(993);
+        for(PlacementInfo placement : msg.getPlacementInfo()){
+            Building building = createStructure(pc,placement,zone);
+            if(building != null) {
+                building.setProtectionState(ProtectionState.NPC);
+                building.setRank(1);
+            }
+        }
     }
 }

@@ -68,7 +68,7 @@ public abstract class AbstractJob implements Runnable {
         this.markStopRunTime();
     }
 
-    protected abstract void doJob();
+    public abstract void doJob();
 
     public void executeJob(String threadName) {
         this.workerID.set(threadName);

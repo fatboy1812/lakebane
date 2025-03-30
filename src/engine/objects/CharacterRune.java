@@ -164,6 +164,19 @@ public class CharacterRune extends AbstractGameObject {
                     runes.remove(runes.indexOf(rune));
                     CharacterSkill.calculateSkills(pc);
                     pc.applyBonuses();
+                    if(ItemBase.getItemBase(rune.getRuneBaseID()) != null && ItemBase.getItemBase(rune.getRuneBaseID()).isStatRune()){
+                        //handle point refund
+                        int creationCost = 0;
+                        for(RuneBaseAttribute attr : rune.runeBase.getAttrs()){
+                            if(attr.getAttributeID() == MBServerStatics.RUNE_COST_ATTRIBUTE_ID){
+                                creationCost = (int)attr.getModValue();
+                            }
+                        }
+                        if(creationCost > 0){
+                            pc.unusedStatPoints += creationCost;
+                            pc.syncClient();
+                        }
+                    }
                     return true;
                 }
             }

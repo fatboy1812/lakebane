@@ -27,7 +27,7 @@ public class SummonSendJob extends AbstractScheduleJob {
     }
 
     @Override
-    protected void doJob() {
+    public void doJob() {
 
         if (this.source == null)
             return;

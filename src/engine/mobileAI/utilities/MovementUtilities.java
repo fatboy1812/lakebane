@@ -98,20 +98,24 @@ public class MovementUtilities {
 
     }
 
-    public static boolean inRangeDropAggro(Mob agent, AbstractCharacter target) {
+    public static boolean outOfAggroRange(Mob agent, AbstractCharacter target) {
 
         Vector3fImmutable sl = agent.getLoc();
         Vector3fImmutable tl = target.getLoc();
 
-        float distanceSquaredToTarget = sl.distanceSquared2D(tl) - sqr(agent.calcHitBox() + target.calcHitBox()); //distance to center of target
-
+        float disSq = sl.distanceSquared(tl);
         float range = agent.getRange() + 150;
+
+
+        //float distanceSquaredToTarget = sl.distanceSquared2D(tl) - sqr(agent.calcHitBox() + target.calcHitBox()); //distance to center of target
+
+
 
         if (range > 200)
             range = 200;
 
 
-        return distanceSquaredToTarget < sqr(range);
+        return disSq > (range * range);
 
     }
 

@@ -96,11 +96,6 @@ public class VendorDialogMsg extends ClientNetMsg {
             return;
         }
 
-
-        if(npc.contractUUID == 1502040){ //enrollment officer
-            PlayerCharacter.unboxPlayer(playerCharacter);
-        }
-
         // Restrict disc trainers to only characters who have
         // tht disc applied.
 
@@ -119,26 +114,39 @@ public class VendorDialogMsg extends ClientNetMsg {
 
         VendorDialog vd = null;
         Contract contract = npc.getContract();
+        if(npc.contractUUID == 1502043){
+            vd = Contract.HandleArenaMaster(msg.unknown03,npc,playerCharacter);
+            msg.updateMessage(3, vd);
+        }else if(npc.contractUUID == 1502040){ //enrollment officer
+            //PlayerCharacter.unboxPlayer(playerCharacter);
+            vd = Contract.HandleEnrollmentOfficer(msg.unknown03,npc,playerCharacter);
+            msg.updateMessage(3, vd);
+        }else if(contract.getContractID() == 1502042){
+           vd = Contract.HandleBaneCommanderOptions(msg.unknown03, npc, playerCharacter);
+           msg.updateMessage(3, vd);
+        }else if(contract.getContractID() == 1502044){
+            vd = Contract.HandleGamblerOptions(msg.unknown03, npc, playerCharacter);
+            msg.updateMessage(3, vd);
+        }else {
 
-        if (contract == null)
-            vd = VendorDialog.getHostileVendorDialog();
-        else if (npc.getBuilding() != null) {
-            if (BuildingManager.IsPlayerHostile(npc.getBuilding(), playerCharacter))
+            if (contract == null)
                 vd = VendorDialog.getHostileVendorDialog();
-            else
+            else if (npc.getBuilding() != null) {
+                if (npc.getBuilding() != null && BuildingManager.IsPlayerHostile(npc.getBuilding(), playerCharacter))
+                    vd = VendorDialog.getHostileVendorDialog();
+                else
+                    vd = contract.getVendorDialog();
+            } else
                 vd = contract.getVendorDialog();
-        } else
-            vd = contract.getVendorDialog();
-        if (vd == null)
-            vd = VendorDialog.getHostileVendorDialog();
-
+            if (vd == null)
+                vd = VendorDialog.getHostileVendorDialog();
         if (msg.messageType == 1 || msg.unknown03 == vd.getObjectUUID()) {
             msg.updateMessage(3, vd);
         } else {
             if (VendorDialogMsg.handleSpecialCase(msg, npc, playerCharacter, vd, origin))
                 return;
-
-            vd = VendorDialog.getVendorDialog(msg.unknown03);
+        }
+            //vd = VendorDialog.getVendorDialog(msg.unknown03);
             msg.updateMessage(3, vd);
         }
 
@@ -570,6 +578,8 @@ public class VendorDialogMsg extends ClientNetMsg {
             case 2519:
             case 2520:
             case 2521:
+            case 2523:
+            case 2525:
                 valid = true;
                 break;
         }
@@ -625,6 +635,11 @@ public class VendorDialogMsg extends ClientNetMsg {
                 .getObjectUUID(), true);
         DispatchMessage.dispatchMsgToInterestArea(pc, arm, DispatchChannel.PRIMARY, MBServerStatics.CHARACTER_LOAD_RANGE, true, false);
 
+        if(pc.getCharItemManager() != null && pc.getCharItemManager().getGoldInventory() != null && pc.getCharItemManager().getGoldInventory().getNumOfItems() < 1000) {
+            pc.getCharItemManager().addGoldToInventory(1500, false);
+            pc.getCharItemManager().addItemToInventory(new MobLoot(pc, ItemBase.getItemBase(980066), 1, false).promoteToItem(pc));
+            pc.getCharItemManager().updateInventory();
+        }
 
     }
 

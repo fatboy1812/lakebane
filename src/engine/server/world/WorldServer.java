@@ -164,7 +164,17 @@ public class WorldServer {
 			long uptimeSeconds = Math.abs(uptimeDuration.getSeconds());
 			String uptime = String.format("%d hours %02d minutes %02d seconds", uptimeSeconds / 3600, (uptimeSeconds % 3600) / 60, (uptimeSeconds % 60));
 			outString += "uptime: " + uptime;
-			outString += " pop: " + SessionManager.getActivePlayerCharacterCount() + " max pop: " + SessionManager._maxPopulation;
+			int activePop = 0;
+			int boxedPop = 0;
+			for(PlayerCharacter pc : SessionManager.getAllActivePlayerCharacters()){
+				if(pc.isBoxed){
+					boxedPop ++;
+				}else{
+					activePop ++;
+				}
+			}
+			//outString += " pop: " + SessionManager.getActivePlayerCharacterCount() + " max pop: " + SessionManager._maxPopulation;
+			outString += " Active Players: " + activePop + " Boxed Players: " + boxedPop;
 		} catch (Exception e) {
 			Logger.error("Failed to build string");
 		}
@@ -513,7 +523,51 @@ public class WorldServer {
 
 		Logger.info("Running garbage collection...");
 		System.gc();
+
+		Logger.info("Starting Bane Thread");
+		BaneThread.startBaneThread();
+
+		Logger.info("Starting Player Update Thread");
+		UpdateThread.startUpdateThread();
+
+
+		printThreads();
+		Logger.info("Threads Running:");
+
 		return true;
+	}
+
+	public static void printThreads() {
+		// Get the root thread group
+		ThreadGroup rootGroup = Thread.currentThread().getThreadGroup();
+		while (rootGroup.getParent() != null) {
+			rootGroup = rootGroup.getParent();
+		}
+
+		// Estimate the number of threads
+		int activeThreads = rootGroup.activeCount();
+
+		// Create an array to hold the threads
+		Thread[] threads = new Thread[activeThreads];
+
+		// Get the active threads
+		rootGroup.enumerate(threads, true);
+
+		int availableThreads = Runtime.getRuntime().availableProcessors();
+
+		// Print the count
+		Logger.info("Total threads in application: " + threads.length + " / " + availableThreads + " Total Threads On Machine");
+		if(threads.length > (int)(availableThreads * 0.75f)){
+			Logger.error("WARNING! Too many threads are being used, hardware update recommended");
+		}
+
+		// Optionally, list the thread names
+		Logger.info("Active threads:");
+		for (Thread thread : threads) {
+			if (thread != null) {
+				Logger.info(thread.getName());
+			}
+		}
 	}
 
 	protected boolean initDatabaselayer() {

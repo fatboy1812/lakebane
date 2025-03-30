@@ -26,7 +26,7 @@ public class FinishRecycleTimeJob extends AbstractScheduleJob {
     }
 
     @Override
-    protected void doJob() {
+    public void doJob() {
         PowersManager.finishRecycleTime(this.msg, this.pc, false);
     }
 

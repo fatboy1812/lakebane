@@ -8,6 +8,7 @@
 
 package engine.gameManager;
 
+import engine.Enum;
 import engine.Enum.*;
 import engine.exception.MsgSendException;
 import engine.job.JobContainer;
@@ -26,7 +27,6 @@ import engine.powers.effectmodifiers.WeaponProcEffectModifier;
 import engine.server.MBServerStatics;
 import org.pmw.tinylog.Logger;
 
-import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -301,6 +301,21 @@ public enum CombatManager {
             if (target == null)
                 return 0;
 
+            //pet to assist in attacking target
+            if(abstractCharacter.getObjectType().equals(GameObjectType.PlayerCharacter)){
+                PlayerCharacter attacker = (PlayerCharacter)abstractCharacter;
+                if(attacker.combatStats == null){
+                    attacker.combatStats = new PlayerCombatStats(attacker);
+                }
+                if(attacker.getPet() != null){
+                    Mob pet = attacker.getPet();
+                    if(pet.combatTarget == null && pet.assist)
+                        pet.setCombatTarget(attacker.combatTarget);
+                }
+
+            }
+
+
             //target must be valid type
 
             if (AbstractWorldObject.IsAbstractCharacter(target)) {
@@ -316,10 +331,13 @@ public enum CombatManager {
                 else if (!tar.isActive())
                     return 0;
 
-                if (target.getObjectType().equals(GameObjectType.PlayerCharacter) && abstractCharacter.getObjectType().equals(GameObjectType.PlayerCharacter) && abstractCharacter.getTimers().get("Attack" + slot) == null)
+                if (target.getObjectType().equals(GameObjectType.PlayerCharacter) && abstractCharacter.getObjectType().equals(GameObjectType.PlayerCharacter) && abstractCharacter.getTimers().get("Attack" + slot) == null) {
+                    if(((PlayerCharacter)target).combatStats == null){
+                        ((PlayerCharacter)target).combatStats = new PlayerCombatStats(((PlayerCharacter)target));
+                    }
                     if (!((PlayerCharacter) abstractCharacter).canSee((PlayerCharacter) target))
                         return 0;
-
+                }
                 //must not be immune to all or immune to attack
 
                 Resists res = tar.getResists();
@@ -452,6 +470,18 @@ public enum CombatManager {
 
             //Range check.
 
+            if(abstractCharacter.isMoving()){
+                range += (abstractCharacter.getSpeed() * 0.1f);
+            }
+
+            if(AbstractWorldObject.IsAbstractCharacter(target)) {
+                AbstractCharacter tarAc = (AbstractCharacter) target;
+                if(tarAc != null && tarAc.isMoving()){
+                    range += (tarAc.getSpeed() * 0.1f);
+                }
+            }
+
+            range += 2;
             if (NotInRange(abstractCharacter, target, range)) {
 
                 //target is in stealth and can't be seen by source
@@ -475,6 +505,16 @@ public enum CombatManager {
                 }
             }
 
+            if(abstractCharacter.getObjectType().equals(GameObjectType.PlayerCharacter)){
+                PlayerCharacter pc = (PlayerCharacter)abstractCharacter;
+                if(pc.isBoxed){
+                    if(target.getObjectType().equals(GameObjectType.PlayerCharacter)) {
+                        ChatManager.chatSystemInfo(pc, "You Are PvE Flagged: Cannot Attack Players.");
+                        attackFailure = true;
+                    }
+                }
+            }
+
             //TODO Verify attacker has los (if not ranged weapon).
 
             if (!attackFailure) {
@@ -483,16 +523,24 @@ public enum CombatManager {
                     createTimer(abstractCharacter, slot, 20, true); //2 second for no weapon
                 else {
                     int wepSpeed = (int) (wb.getSpeed());
+                    if(abstractCharacter.getObjectType().equals(GameObjectType.PlayerCharacter)){
+                        PlayerCharacter pc = (PlayerCharacter)abstractCharacter;
+                        if(slot == 1){
+                            wepSpeed = (int) pc.combatStats.attackSpeedHandOne;
+                        }else{
+                            wepSpeed = (int) pc.combatStats.attackSpeedHandTwo;
+                        }
+                    }else {
 
-                    if (weapon != null && weapon.getBonusPercent(ModType.WeaponSpeed, SourceType.None) != 0f) //add weapon speed bonus
-                        wepSpeed *= (1 + weapon.getBonus(ModType.WeaponSpeed, SourceType.None));
+                        if (weapon != null && weapon.getBonusPercent(ModType.WeaponSpeed, SourceType.None) != 0f) //add weapon speed bonus
+                            wepSpeed *= (1 + weapon.getBonus(ModType.WeaponSpeed, SourceType.None));
 
-                    if (abstractCharacter.getBonuses() != null && abstractCharacter.getBonuses().getFloatPercentAll(ModType.AttackDelay, SourceType.None) != 0f) //add effects speed bonus
-                        wepSpeed *= (1 + abstractCharacter.getBonuses().getFloatPercentAll(ModType.AttackDelay, SourceType.None));
+                        if (abstractCharacter.getBonuses() != null && abstractCharacter.getBonuses().getFloatPercentAll(ModType.AttackDelay, SourceType.None) != 0f) //add effects speed bonus
+                            wepSpeed *= (1 + abstractCharacter.getBonuses().getFloatPercentAll(ModType.AttackDelay, SourceType.None));
 
-                    if (wepSpeed < 10)
-                        wepSpeed = 10; //Old was 10, but it can be reached lower with legit buffs,effects.
-
+                        if (wepSpeed < 10)
+                            wepSpeed = 10; //Old was 10, but it can be reached lower with legit buffs,effects.
+                    }
                     createTimer(abstractCharacter, slot, wepSpeed, true);
                 }
 
@@ -537,14 +585,32 @@ public enum CombatManager {
             if (target == null)
                 return;
 
-            if (mainHand) {
-                atr = ac.getAtrHandOne();
-                minDamage = ac.getMinDamageHandOne();
-                maxDamage = ac.getMaxDamageHandOne();
-            } else {
-                atr = ac.getAtrHandTwo();
-                minDamage = ac.getMinDamageHandTwo();
-                maxDamage = ac.getMaxDamageHandTwo();
+            if(ac.getObjectType().equals(GameObjectType.PlayerCharacter)){
+                PlayerCharacter pc = (PlayerCharacter) ac;
+                if( pc.combatStats == null){
+                    pc.combatStats = new PlayerCombatStats(pc);
+                }
+                pc.combatStats.calculateATR(true);
+                pc.combatStats.calculateATR(false);
+                if (mainHand) {
+                    atr = pc.combatStats.atrHandOne;
+                    minDamage = pc.combatStats.minDamageHandOne;
+                    maxDamage = pc.combatStats.maxDamageHandOne;
+                } else {
+                    atr = pc.combatStats.atrHandTwo;
+                    minDamage = pc.combatStats.minDamageHandTwo;
+                    maxDamage = pc.combatStats.maxDamageHandTwo;
+                }
+            }else {
+                if (mainHand) {
+                    atr = ac.getAtrHandOne();
+                    minDamage = ac.getMinDamageHandOne();
+                    maxDamage = ac.getMaxDamageHandOne();
+                } else {
+                    atr = ac.getAtrHandTwo();
+                    minDamage = ac.getMinDamageHandTwo();
+                    maxDamage = ac.getMaxDamageHandTwo();
+                }
             }
 
             boolean tarIsRat = false;
@@ -638,7 +704,15 @@ public enum CombatManager {
                 }
             } else {
                 AbstractCharacter tar = (AbstractCharacter) target;
-                defense = tar.getDefenseRating();
+                if(tar.getObjectType().equals(GameObjectType.PlayerCharacter)){
+                    if(((PlayerCharacter)tar).combatStats == null){
+                        ((PlayerCharacter)tar).combatStats = new PlayerCombatStats((PlayerCharacter)tar);
+                    }
+                    ((PlayerCharacter)tar).combatStats.calculateDefense();
+                    defense = ((PlayerCharacter)tar).combatStats.defense;
+                }else {
+                    defense = tar.getDefenseRating();
+                }
                 handleRetaliate(tar, ac);   //Handle target attacking back if in combat and has no other target
             }
 
@@ -647,7 +721,7 @@ public enum CombatManager {
             //Get hit chance
 
             //int chance;
-            float dif = atr - defense;
+            //float dif = atr - defense;
 
             //if (dif > 100)
             //    chance = 94;
@@ -662,9 +736,8 @@ public enum CombatManager {
 
             DeferredPowerJob dpj = null;
 
-
-
-            if (LandHit((int)atr,(int)defense)) {
+            boolean hitLanded = LandHit((int)atr,(int)defense);
+            if (hitLanded) {
 
                 if (ac.getObjectType().equals(GameObjectType.PlayerCharacter))
                     updateAttackTimers((PlayerCharacter) ac, target, true);
@@ -693,7 +766,25 @@ public enum CombatManager {
 
                         PlayerBonuses bonus = ac.getBonuses();
                         float attackRange = getWeaponRange(wb, bonus);
-                        dpj.attack(target, attackRange);
+
+                        if(ac.isMoving()){
+                            attackRange += (ac.getSpeed() * 0.1f);
+                        }
+
+                        if(AbstractWorldObject.IsAbstractCharacter(target)) {
+                            //AbstractCharacter tarAc = (AbstractCharacter) target;
+                            if(tarAc != null && tarAc.isMoving()){
+                                attackRange += (tarAc.getSpeed() * 0.1f);
+                            }
+                        }
+
+                        if(specialCaseHitRoll(dpj.getPowerToken())) {
+                            if(hitLanded) {
+                                dpj.attack(target, attackRange);
+                            }
+                        }else{
+                            dpj.attack(target, attackRange);
+                        }
 
                         if (dpj.getPower() != null && (dpj.getPowerToken() == -1851459567 || dpj.getPowerToken() == -1851489518))
                             ((PlayerCharacter) ac).setWeaponPower(dpj);
@@ -708,7 +799,25 @@ public enum CombatManager {
 
                     if (dpj != null && dpj.getPower() != null && (dpj.getPowerToken() == -1851459567 || dpj.getPowerToken() == -1851489518)) {
                         float attackRange = getWeaponRange(wb, bonuses);
-                        dpj.attack(target, attackRange);
+
+                        if(ac.isMoving()){
+                            attackRange += (ac.getSpeed() * 0.1f);
+                        }
+
+                        if(AbstractWorldObject.IsAbstractCharacter(target)) {
+                            //AbstractCharacter tarAc = (AbstractCharacter) target;
+                            if(tarAc != null && tarAc.isMoving()){
+                                attackRange += (tarAc.getSpeed() * 0.1f);
+                            }
+                        }
+
+                        if(specialCaseHitRoll(dpj.getPowerToken())) {
+                            if(hitLanded) {
+                                dpj.attack(target, attackRange);
+                            }
+                        }else{
+                            dpj.attack(target, attackRange);
+                        }
                     }
                 }
 
@@ -815,12 +924,35 @@ public enum CombatManager {
                 else
                     damage = calculateDamage(ac, tarAc, minDamage, maxDamage, damageType, resists);
 
+                if(weapon != null && weapon.effects != null){
+                    float armorPierce = 0;
+                    for(Effect eff : weapon.effects.values()){
+                        for(AbstractEffectModifier mod : eff.getEffectModifiers()){
+                            if(mod.modType.equals(ModType.ArmorPiercing)){
+                                armorPierce += mod.getPercentMod() + (mod.getRamp() * eff.getTrains());
+                            }
+                        }
+                    }
+                    if(armorPierce > 0){
+                        damage *= 1 + (armorPierce * 0.01f);
+                    }
+                }
+                //Resists.handleFortitude(tarAc,damageType,damage);
+
                 float d = 0f;
+
+                int originalDamage = (int)damage;
+                if(ac != null && ac.getObjectType().equals(GameObjectType.PlayerCharacter)){
+                    damage *= ((PlayerCharacter)ac).ZergMultiplier;
+                } // Health modifications are modified by the ZergMechanic
 
                 errorTrack = 12;
 
                 //Subtract Damage from target's health
 
+                if(ac.getObjectType().equals(GameObjectType.PlayerCharacter)){
+                    damage *= ((PlayerCharacter)ac).ZergMultiplier;
+                }
                 if (tarAc != null) {
 
                     if (tarAc.isSit())
@@ -830,9 +962,15 @@ public enum CombatManager {
                         ac.setHateValue(damage * MBServerStatics.PLAYER_COMBAT_HATE_MODIFIER);
                         ((Mob) tarAc).handleDirectAggro(ac);
                     }
-
-                    if (tarAc.getHealth() > 0)
+                    if (tarAc.getHealth() > 0) {
                         d = tarAc.modifyHealth(-damage, ac, false);
+                        if(tarAc != null && tarAc.getObjectType().equals(GameObjectType.PlayerCharacter) && ((PlayerCharacter)ac).ZergMultiplier != 1.0f){
+                            PlayerCharacter debugged = (PlayerCharacter)tarAc;
+                            ChatManager.chatSystemInfo(debugged, "ZERG DEBUG: " + ac.getName() + " Hits You For: " + (int)damage + " instead of " + originalDamage);
+                        }
+                    }
+
+                    tarAc.cancelOnTakeDamage();
 
                 } else if (target.getObjectType().equals(GameObjectType.Building)) {
 
@@ -864,67 +1002,67 @@ public enum CombatManager {
                 errorTrack = 14;
 
                 //handle procs
-
-                if (weapon != null && tarAc != null && tarAc.isAlive()) {
-
-                    ConcurrentHashMap<String, Effect> effects = weapon.getEffects();
-
-                    for (Effect eff : effects.values()) {
-                        if (eff == null)
-                            continue;
-
-                        HashSet<AbstractEffectModifier> aems = eff.getEffectModifiers();
-
-                        if (aems != null) {
-                            for (AbstractEffectModifier aem : aems) {
-
-                                if (!tarAc.isAlive())
-                                    break;
-
-                                if (aem instanceof WeaponProcEffectModifier) {
-
-                                    int procChance = ThreadLocalRandom.current().nextInt(100);
-
-                                    if (procChance < MBServerStatics.PROC_CHANCE)
-                                        ((WeaponProcEffectModifier) aem).applyProc(ac, target);
-
-                                }
-                            }
-                        }
-                    }
-                }
+                procChanceHandler(weapon,ac,tarAc);
 
                 errorTrack = 15;
 
                 //handle damage shields
 
                 if (ac.isAlive() && tarAc != null && tarAc.isAlive())
-                    handleDamageShields(ac, tarAc, damage);
+                    try {
+                        handleDamageShields(ac, tarAc, damage);
+                    }catch(Exception e){
+                        Logger.error(e.getMessage());
+                    }
 
             } else {
 
                 // Apply Weapon power effect if any.
                 // don't try to apply twice if dual wielding.
+                try {
+                    if (ac.getObjectType().equals(GameObjectType.PlayerCharacter) && (mainHand || wb.isTwoHanded())) {
+                        dpj = ((PlayerCharacter) ac).getWeaponPower();
 
-                if (ac.getObjectType().equals(GameObjectType.PlayerCharacter) && (mainHand || wb.isTwoHanded())) {
-                    dpj = ((PlayerCharacter) ac).getWeaponPower();
+                        if (dpj != null) {
 
-                    if (dpj != null) {
+                            PowersBase wp = dpj.getPower();
 
-                        PowersBase wp = dpj.getPower();
+                            if (wp.requiresHitRoll() == false) {
+                                PlayerBonuses bonus = ac.getBonuses();
+                                float attackRange = getWeaponRange(wb, bonus);
 
-                        if (wp.requiresHitRoll() == false) {
-                            PlayerBonuses bonus = ac.getBonuses();
-                            float attackRange = getWeaponRange(wb, bonus);
-                            dpj.attack(target, attackRange);
-                        } else
-                            ((PlayerCharacter) ac).setWeaponPower(null);
+                                if (ac.isMoving()) {
+                                    attackRange += (ac.getSpeed() * 0.1f);
+                                }
+
+                                if (AbstractWorldObject.IsAbstractCharacter(target)) {
+                                    AbstractCharacter tarAc = (AbstractCharacter) target;
+                                    if (tarAc != null && tarAc.isMoving()) {
+                                        attackRange += (tarAc.getSpeed() * 0.1f);
+                                    }
+                                }
+
+
+                                if (specialCaseHitRoll(dpj.getPowerToken())) {
+                                    if (hitLanded) {
+                                        dpj.attack(target, attackRange);
+                                    }
+                                } else {
+                                    dpj.attack(target, attackRange);
+                                }
+                            } else
+                                ((PlayerCharacter) ac).setWeaponPower(null);
+                        }
                     }
+                }catch(Exception e) {
+                    Logger.error(e.getMessage());
                 }
-
-                if (target.getObjectType() == GameObjectType.Mob)
-                    ((Mob) target).handleDirectAggro(ac);
-
+                try {
+                    if (target.getObjectType() == GameObjectType.Mob)
+                        ((Mob) target).handleDirectAggro(ac);
+                }catch(Exception e){
+                    Logger.error(e.getMessage());
+                }
                 errorTrack = 17;
 
                 //miss, Send miss message
@@ -947,6 +1085,41 @@ public enum CombatManager {
         }
     }
 
+    private static void procChanceHandler(Item weapon, AbstractCharacter ac, AbstractCharacter tarAc) {
+
+        //no weapon means no proc
+        if(weapon == null)
+            return;
+
+        //caster is dead of null, no proc
+        if(ac == null || !ac.isAlive())
+            return;
+
+        //target is dead or null, no proc
+        if(tarAc == null || !tarAc.isAlive())
+            return;
+
+        //no effects on weapon, skip proc
+        if(weapon.effects == null || weapon.effects.isEmpty())
+            return;
+
+        for (Effect eff : weapon.effects.values()){
+            for(AbstractEffectModifier mod : eff.getEffectModifiers()) {
+                if (mod.modType.equals(ModType.WeaponProc)) {
+                    int procChance = ThreadLocalRandom.current().nextInt(100);
+                    if (procChance < MBServerStatics.PROC_CHANCE) {
+                        try {
+                            ((WeaponProcEffectModifier) mod).applyProc(ac, tarAc);
+                            break;
+                        } catch (Exception e) {
+                            Logger.error(eff.getName() + " Failed To Cast Proc");
+                        }
+                    }
+                }
+            }
+        }
+    }
+
     public static boolean canTestParry(AbstractCharacter ac, AbstractWorldObject target) {
 
         if (ac == null || target == null || !AbstractWorldObject.IsAbstractCharacter(target))
@@ -964,6 +1137,12 @@ public enum CombatManager {
         Item acOff = acItem.getItemFromEquipped(2);
         Item tarMain = tarItem.getItemFromEquipped(1);
         Item tarOff = tarItem.getItemFromEquipped(2);
+
+        if(target.getObjectType().equals(GameObjectType.PlayerCharacter)){
+            PlayerCharacter pc = (PlayerCharacter) target;
+            if(pc.getRaceID() == 1999 && !isRanged(acMain) && !isRanged(acOff))
+                return true;
+        }
 
         return !isRanged(acMain) && !isRanged(acOff) && !isRanged(tarMain) && !isRanged(tarOff);
     }
@@ -1023,10 +1202,12 @@ public enum CombatManager {
 
         //calculate resists in if any
 
+
+
         if (resists != null)
-            return resists.getResistedDamage(source, target, damageType, damage, 0);
-        else
-            return damage;
+            damage = resists.getResistedDamage(source, target, damageType, damage, 0);
+
+        return damage;
     }
 
     private static void sendPassiveDefenseMessage(AbstractCharacter source, ItemBase wb, AbstractWorldObject target, int passiveType, DeferredPowerJob dpj, boolean mainHand) {
@@ -1054,10 +1235,6 @@ public enum CombatManager {
             for (Effect eff : source.getEffects().values())
                 if (eff.getPower() != null && (eff.getPower().getToken() == 429506943 || eff.getPower().getToken() == 429408639 || eff.getPower().getToken() == 429513599 || eff.getPower().getToken() == 429415295))
                     swingAnimation = 0;
-
-        if(source != null && source.getObjectType().equals(GameObjectType.PlayerCharacter)){
-            damage *= ((PlayerCharacter)source).ZergMultiplier;
-        } // Health modifications are modified by the ZergMechanic
 
         TargetedActionMsg cmm = new TargetedActionMsg(source, target, damage, swingAnimation);
         DispatchMessage.sendToAllInRange(target, cmm);
@@ -1180,6 +1357,14 @@ public enum CombatManager {
 
     private static boolean testPassive(AbstractCharacter source, AbstractCharacter target, String type) {
 
+        if(target.getBonuses() != null)
+            if(target.getBonuses().getBool(ModType.Stunned, SourceType.None))
+                return false;
+
+        if(source.getBonuses() != null)
+            if(source.getBonuses().getBool(ModType.IgnorePassiveDefense, SourceType.None))
+                return false;
+
         float chance = target.getPassiveChance(type, source.getLevel(), true);
 
         if (chance == 0f)
@@ -1190,7 +1375,7 @@ public enum CombatManager {
         if (chance > 75f)
             chance = 75f;
 
-        int roll = ThreadLocalRandom.current().nextInt(100);
+        int roll = ThreadLocalRandom.current().nextInt(1,100);
 
         return roll < chance;
 
@@ -1242,14 +1427,17 @@ public enum CombatManager {
         DispatchMessage.dispatchMsgToInterestArea(pc, rwss, DispatchChannel.PRIMARY, MBServerStatics.CHARACTER_LOAD_RANGE, false, false);
     }
 
-    private static void toggleSit(boolean toggle, ClientConnection origin) {
+    public static void toggleSit(boolean toggle, ClientConnection origin) {
 
         PlayerCharacter pc = SessionManager.getPlayerCharacter(origin);
 
         if (pc == null)
             return;
 
-        pc.setSit(toggle);
+        if(pc.isFlying())
+            pc.setSit(false);
+        else
+            pc.setSit(toggle);
 
         UpdateStateMsg rwss = new UpdateStateMsg();
         rwss.setPlayer(pc);
@@ -1327,6 +1515,13 @@ public enum CombatManager {
                 return;
 
             retaliater.setCombatTarget(ac);
+            if(retaliater.isPlayerGuard && (retaliater.BehaviourType.equals(MobBehaviourType.GuardMinion) || retaliater.BehaviourType.equals(MobBehaviourType.GuardCaptain))){
+                for(Mob guard : retaliater.guardedCity.getParent().zoneMobSet){
+                    if(guard.isPlayerGuard && guard.combatTarget == null){
+                        guard.setCombatTarget(ac);
+                    }
+                }
+            }
 
         }
     }
@@ -1358,9 +1553,9 @@ public enum CombatManager {
 
                 Resists resists = ac.getResists();
 
-                if (resists != null)
+                if (resists != null) {
                     amount = resists.getResistedDamage(target, ac, ds.getDamageType(), amount, 0);
-
+                }
                 total += amount;
             }
 
@@ -1443,19 +1638,31 @@ public enum CombatManager {
             ((AbstractCharacter) awo).getCharItemManager().damageRandomArmor(1);
     }
 
-    public static boolean LandHit(int atr, int defense){
+    public static boolean LandHit(int ATR, int DEF){
+
+        //float chance = (ATR-((ATR+DEF) * 0.315f)) / ((DEF-((ATR+DEF) * 0.315f)) + (ATR-((ATR+DEF) * 0.315f)));
+        //float convertedChance = chance * 100;
 
         int roll = ThreadLocalRandom.current().nextInt(101);
-        float chance = (float)((atr-((atr+defense)*0.315))/((defense-((atr+defense)*0.315))+(atr-((atr+defense)*0.315))));
 
-        int connvertedChance = (int)(chance * 100);
+        //if(roll <= 5)//always 5% chance to miss
+        //    return false;
 
-        if(connvertedChance < 5)
-            connvertedChance = 5;
+        //if(roll >= 95)//always 5% chance to hit
+        //    return true;
 
-        if(connvertedChance > 95)
-            connvertedChance = 95;
+        float chance = PlayerCombatStats.getHitChance(ATR,DEF);
+        return chance >= roll;
+    }
 
-        return connvertedChance > roll;
+    public static boolean specialCaseHitRoll(int powerID){
+        switch(powerID) {
+            case 563200808: // Naargal's Bite
+            case 563205337: // Naargal's Dart
+            case 563205930: // Sword of Saint Malorn
+                return true;
+            default:
+                return false;
+        }
     }
 }

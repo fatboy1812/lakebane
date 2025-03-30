@@ -31,7 +31,7 @@ public class FinishSummonsJob extends AbstractScheduleJob {
     }
 
     @Override
-    protected void doJob() {
+    public void doJob() {
 
         if (this.target == null)
             return;

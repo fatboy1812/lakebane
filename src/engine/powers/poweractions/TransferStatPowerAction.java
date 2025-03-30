@@ -217,8 +217,13 @@ public class TransferStatPowerAction extends AbstractPowerAction {
 
             // Apply any power effect modifiers (such as stances)
             PlayerBonuses bonus = source.getBonuses();
-            if (bonus != null)
+            if (bonus != null){
                 damage *= (1 + bonus.getFloatPercentAll(ModType.PowerDamageModifier, SourceType.None));
+            }
+
+            if(source.getObjectType().equals(Enum.GameObjectType.PlayerCharacter)){
+                damage *= ((PlayerCharacter)source).ZergMultiplier;
+            }
 
             //get amount to transfer
             fromAmount = damage;

@@ -13,8 +13,11 @@ import ch.claude_martin.enumbitset.EnumBitSet;
 import engine.Enum;
 import engine.gameManager.DbManager;
 import engine.gameManager.LootManager;
+import engine.gameManager.PowersManager;
 import engine.loot.BootySetEntry;
+import engine.powers.EffectsBase;
 import engine.server.MBServerStatics;
+import org.pmw.tinylog.Logger;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -53,6 +56,8 @@ public class MobBase extends AbstractGameObject {
     private float run = 0;
     private float walkCombat = 0;
     private float runCombat = 0;
+
+    public ArrayList<MobBaseEffects> mobbaseEffects;
 
     /**
      * ResultSet Constructor
@@ -108,6 +113,7 @@ public class MobBase extends AbstractGameObject {
 
         this.mobBaseStats = DbManager.MobBaseQueries.LOAD_STATS(this.loadID);
         DbManager.MobBaseQueries.LOAD_ALL_MOBBASE_SPEEDS(this);
+        this.mobbaseEffects = DbManager.MobBaseQueries.GET_RUNEBASE_EFFECTS(this.getObjectUUID());
 
     }
 
@@ -254,7 +260,7 @@ public class MobBase extends AbstractGameObject {
     }
 
     public int getAtr() {
-        return atr;
+        return attackRating;
     }
 
     public void setAtr(int atr) {
@@ -299,6 +305,25 @@ public class MobBase extends AbstractGameObject {
 
     public float getRunCombat() {
         return runCombat;
+    }
+
+    public static void applyMobbaseEffects(Mob mob){
+        if(mob.getMobBaseID() == 12008)
+            mob.level = 65;
+        else if(mob.getMobBaseID() == 12019)
+            mob.level = 80;
+        for(MobBaseEffects mbe : mob.mobBase.mobbaseEffects){
+            if(mob.level >= mbe.getReqLvl()){
+                try {
+                    //PowersManager.applyPower(mob, mob, mob.loc, mbe.getToken(), mbe.getRank(), false);
+                    EffectsBase effectsBase = PowersManager.getEffectByToken(mbe.getToken());
+                    if(effectsBase != null)
+                        mob.addEffectNoTimer(Integer.toString(effectsBase.getUUID()), effectsBase, mbe.getRank(), true);
+                }catch(Exception e){
+                    Logger.error("NULL POWER FOR MOB: " + mob.getObjectUUID() + ", POWER TOKEN: " + mbe.getToken());
+                }
+            }
+        }
     }
 
 }

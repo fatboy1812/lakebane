@@ -15,6 +15,7 @@ import engine.Enum.GameObjectType;
 import engine.Enum.GridObjectType;
 import engine.InterestManagement.HeightMap;
 import engine.InterestManagement.WorldGrid;
+import engine.gameManager.ZoneManager;
 import engine.job.AbstractScheduleJob;
 import engine.job.JobContainer;
 import engine.job.JobScheduler;
@@ -175,11 +176,11 @@ public abstract class AbstractWorldObject extends AbstractGameObject {
         }
 
         //set players new altitude to region lerp altitude.
-        if (region != null)
-            if (region.center.y == region.highLerp.y)
-                worldObject.loc = worldObject.loc.setY(region.center.y + worldObject.getAltitude());
-            else
-                worldObject.loc = worldObject.loc.setY(region.lerpY(worldObject) + worldObject.getAltitude());
+        //if (region != null)
+        //    if (region.center.y == region.highLerp.y)
+        //        worldObject.loc = worldObject.loc.setY(region.center.y + worldObject.getAltitude());
+        //    else
+        //        worldObject.loc = worldObject.loc.setY(region.lerpY(worldObject) + worldObject.getAltitude());
 
         return region;
     }
@@ -270,8 +271,9 @@ public abstract class AbstractWorldObject extends AbstractGameObject {
             this.effects.remove(name);
             if (this.getObjectType().equals(GameObjectType.PlayerCharacter))
                 if (name.equals("Flight")) {
-                    ((PlayerCharacter) this).update();
-                    PlayerCharacter.GroundPlayer((PlayerCharacter) this);
+                    ((PlayerCharacter) this).update(false);
+                    if(!AbstractCharacter.CanFly((PlayerCharacter) this))
+                        PlayerCharacter.GroundPlayer((PlayerCharacter) this);
                 }
         }
         applyAllBonuses();
@@ -385,7 +387,7 @@ public abstract class AbstractWorldObject extends AbstractGameObject {
                     if (source.equals("Flight")) {
                         //ground player
                         if (this.getObjectType().equals(GameObjectType.PlayerCharacter)) {
-                            ((PlayerCharacter) this).update();
+                            ((PlayerCharacter) this).update(false);
                             PlayerCharacter.GroundPlayer((PlayerCharacter) this);
                         }
                     }
@@ -414,7 +416,7 @@ public abstract class AbstractWorldObject extends AbstractGameObject {
                 if (source.equals("Flight")) {
                     //ground player
                     if (this.getObjectType().equals(GameObjectType.PlayerCharacter)) {
-                        ((PlayerCharacter) this).update();
+                        ((PlayerCharacter) this).update(false);
                         PlayerCharacter.GroundPlayer((PlayerCharacter) this);
                     }
                 }
@@ -499,8 +501,28 @@ public abstract class AbstractWorldObject extends AbstractGameObject {
             if (loc.x > MBServerStatics.MAX_WORLD_WIDTH || loc.z < MBServerStatics.MAX_WORLD_HEIGHT)
                 return;
             this.lastLoc = new Vector3fImmutable(this.loc);
-            this.loc = loc;
-            this.loc = this.loc.setY(HeightMap.getWorldHeight(this) + this.getAltitude());
+            if(AbstractCharacter.IsAbstractCharacter(this)){
+                float y;
+                float worldHeight = HeightMap.getWorldHeight(loc);
+                Zone zone = ZoneManager.findSmallestZone(loc);
+                if(zone != null && zone.isPlayerCity()){
+                    worldHeight = zone.getWorldAltitude();
+                }
+                if(this.region != null){
+                    float regionAlt = this.region.lerpY(this);
+                    float altitude = this.getAltitude();
+                    y = regionAlt + altitude + worldHeight;
+                }else{
+                    y = HeightMap.getWorldHeight(loc) + this.getAltitude();
+                }
+                Vector3fImmutable newLoc = new Vector3fImmutable(loc.x,y,loc.z);
+                this.loc = newLoc;
+                WorldGrid.addObject(this, newLoc.x, newLoc.z);
+                return;
+            }else{
+                this.loc = loc;
+            }
+            //this.loc = this.loc.setY(HeightMap.getWorldHeight(this) + this.getAltitude());
 
             //lets not add mob to world grid if he is currently despawned.
             if (this.getObjectType().equals(GameObjectType.Mob) && ((Mob) this).despawned)

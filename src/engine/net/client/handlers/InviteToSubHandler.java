@@ -21,6 +21,7 @@ import engine.net.client.ClientConnection;
 import engine.net.client.msg.ClientNetMsg;
 import engine.net.client.msg.ErrorPopupMsg;
 import engine.net.client.msg.guild.InviteToSubMsg;
+import engine.objects.Bane;
 import engine.objects.Guild;
 import engine.objects.GuildStatusController;
 import engine.objects.PlayerCharacter;
@@ -110,6 +111,12 @@ public class InviteToSubHandler extends AbstractClientMsgHandler {
         if (!sourceGuild.canSubAGuild(targetGuild)) {
             sendChat(source, "This Guild can't be subbed.");
             return true;
+        }
+
+        //ensure bane to be subbed does not have a bane dropped
+        for(Bane bane : Bane.banes.values()){
+            if(bane.getOwner().guild.getNation().equals(targetGuild))
+                return true;
         }
 
         //all tests passed, let's send invite.

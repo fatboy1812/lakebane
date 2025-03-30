@@ -220,7 +220,7 @@ public class Bounds {
             //player is inside building region, skip collision check. we only do collision from the outside.
             if (player.region != null && player.region.parentBuildingID == building.getObjectUUID())
                 continue;
-            if (building.getBounds().colliders == null)
+            if (building.getBounds() == null || building.getBounds().colliders == null)
                 continue;
 
             for (Colliders collider : building.getBounds().colliders) {

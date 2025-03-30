@@ -259,6 +259,14 @@ public class MerchantMsgHandler extends AbstractClientMsgHandler {
                 }
             }
             if(mineTele == null){
+                //must be the dungeon request?
+                Vector3fImmutable loc = Vector3fImmutable.getRandomPointOnCircle(BuildingManager.getBuilding(2827951).loc,30f);
+                ChatManager.chatSystemInfo(player, "You Will Teleport To Whitehorn Citadel In " + 10 +  " Seconds.");
+                if (10 > 0) {
+                    //TODO add timer to teleport
+                    TeleportJob tj = new TeleportJob(player, npc, loc, origin, true);
+                    JobScheduler.getInstance().scheduleJob(tj, 10 * 1000);
+                }
                 return;
             }else {
                 int time = MBServerStatics.TELEPORT_TIME_IN_SECONDS;

@@ -13,14 +13,13 @@ import engine.Enum;
 import engine.Enum.GameObjectType;
 import engine.gameManager.ConfigManager;
 import engine.gameManager.DbManager;
+import engine.net.DispatchMessage;
+import engine.net.client.msg.chat.ChatSystemMsg;
 import engine.objects.Account;
 import engine.objects.PlayerCharacter;
 import org.pmw.tinylog.Logger;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 
 public class dbAccountHandler extends dbHandlerBase {
@@ -77,18 +76,24 @@ public class dbAccountHandler extends dbHandlerBase {
         }
     }
 
-    public void SET_TRASH(String machineID) {
-
+    public void SET_TRASH(String machineID, String type) {
         try (Connection connection = DbManager.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO dyn_trash(`machineID`, `count`)"
-                     + " VALUES (?, 1) ON DUPLICATE KEY UPDATE `count` = `count` + 1;")) {
+             PreparedStatement preparedStatement = connection.prepareStatement(
+                     "INSERT INTO dyn_trash(`machineID`, `count`, `type`)"
+                             + " VALUES (?, 1, ?) ON DUPLICATE KEY UPDATE `count` = `count` + 1;")) {
 
             preparedStatement.setString(1, machineID);
+            preparedStatement.setString(2, type);
             preparedStatement.execute();
 
         } catch (SQLException e) {
             Logger.error(e);
         }
+
+        ChatSystemMsg chatMsg = new ChatSystemMsg(null, "Account: " + machineID + " has been kicked from game for cheating");
+        chatMsg.setMessageType(10);
+        chatMsg.setChannel(Enum.ChatChannelType.SYSTEM.getChannelID());
+        DispatchMessage.dispatchMsgToAll(chatMsg);
     }
 
     public ArrayList<String> GET_TRASH_LIST() {
@@ -267,6 +272,23 @@ public class dbAccountHandler extends dbHandlerBase {
 
         } catch (SQLException e) {
             Logger.error(e);
+        }
+    }
+
+    public void TRASH_CHEATERS() {
+        try (Connection connection = DbManager.getConnection();
+             CallableStatement callableStatement = connection.prepareCall("{CALL BanAccountsWithMachineID()}")) {
+
+            boolean hasResultSet = callableStatement.execute();
+
+            if (!hasResultSet && callableStatement.getUpdateCount() > 0) {
+                Logger.info("TRASHED CHEATERS");
+            } else {
+                Logger.warn("No cheaters to trash.");
+            }
+
+        } catch (SQLException e) {
+            Logger.error("Error trashing cheaters: ", e);
         }
     }
 

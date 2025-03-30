@@ -93,13 +93,10 @@ public enum SimulationManager {
         }
         try {
 
-            if ((_updatePulseTime != 0)
-                    && (System.currentTimeMillis() > _updatePulseTime))
+            if ((_updatePulseTime != 0) && (System.currentTimeMillis() > _updatePulseTime))
                 pulseUpdate();
         } catch (Exception e) {
-            Logger.error(
-                    "Fatal error in Update Pulse: DISABLED");
-            //  _runegatePulseTime = 0;
+            Logger.error("Fatal error in Update Pulse: DISABLED");
         }
 
         try {
@@ -113,9 +110,18 @@ public enum SimulationManager {
         }
 
         try {
-            if ((_cityPulseTime != 0)
-                    && (System.currentTimeMillis() > _cityPulseTime))
-                pulseCities();
+            if ((_cityPulseTime != 0) && (System.currentTimeMillis() > _cityPulseTime)) {
+                try {
+                    pulseCities();
+                }catch(Exception e){
+
+                }
+                try {
+                    ArenaManager.pulseArenas();
+                }catch(Exception e){
+
+                }
+            }
         } catch (Exception e) {
             Logger.error(
                     "Fatal error in City Pulse: DISABLED. Error Message : "
@@ -151,7 +157,11 @@ public enum SimulationManager {
 
             if (player == null)
                 continue;
-            player.update();
+            try {
+                player.update(false);
+            }catch(Exception e){
+
+            }
         }
 
         _updatePulseTime = System.currentTimeMillis() + 500;

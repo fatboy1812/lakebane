@@ -326,6 +326,10 @@ public class Effect {
             writer.putString(item.getName());
             writer.putFloat(-1000f);
         } else {
+            if(true){
+                serializeForClientMsg(writer);
+                return;
+            }
             float duration = this.jc.timeToExecutionLeft() / 1000;
             writer.putInt(this.eb.getToken());
             writer.putInt(aej.getTrains());
@@ -338,6 +342,10 @@ public class Effect {
     }
 
     public void serializeForClientMsg(ByteBufferWriter writer) {
+        if(true){
+            serializeForLoad(writer);
+            return;
+        }
         AbstractJob aj = this.jc.getJob();
         if (aj == null || (!(aj instanceof AbstractEffectJob))) {
             //TODO put error message here

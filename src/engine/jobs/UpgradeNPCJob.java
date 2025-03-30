@@ -27,7 +27,7 @@ public class UpgradeNPCJob extends AbstractScheduleJob {
     }
 
     @Override
-    protected void doJob() {
+    public void doJob() {
 
         int newRank;
 

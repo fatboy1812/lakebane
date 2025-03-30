@@ -29,6 +29,7 @@ import engine.objects.*;
 import engine.server.MBServerStatics;
 import engine.server.world.WorldServer;
 import engine.session.Session;
+import engine.util.KeyCloneAudit;
 import engine.util.StringUtils;
 import org.pmw.tinylog.Logger;
 
@@ -85,7 +86,7 @@ public class ClientMessagePump implements NetMsgHandler {
         if (pc == null)
             return;
 
-        pc.update();
+        pc.update(false);
         if (msg.getSpeed() == 2)
             pc.setWalkMode(false);
         else
@@ -114,7 +115,7 @@ public class ClientMessagePump implements NetMsgHandler {
         if (pc == null)
             return;
 
-        pc.update();
+        pc.update(false);
 
         pc.setSit(msg.toggleSitStand());
 
@@ -235,6 +236,11 @@ public class ClientMessagePump implements NetMsgHandler {
 
         if (!itemManager.doesCharOwnThisItem(i.getObjectUUID())) {
             forceTransferFromEquipToInventory(msg, origin, "You do not own this item");
+            return;
+        }
+
+        if(pc.getRaceID() == 1999 && msg.getSlotNumber() == MBServerStatics.SLOT_FEET){
+            forceTransferFromEquipToInventory(msg, origin, "Saetors Cannot Wear FEET Slot Items");
             return;
         }
 
@@ -565,6 +571,11 @@ public class ClientMessagePump implements NetMsgHandler {
             return;
 
         if (i.isCanDestroy()) {
+
+            if (i.getItemBase().isRune() && !sourcePlayer.isInSafeZone()) {
+                ChatManager.chatSystemInfo(sourcePlayer, "You May Only Delete Runes In A Safe Zone.");
+                return;
+            }
             int goldValue = i.getBaseValue();
             if (i.getItemBase().isRune())
                 goldValue = 500000;
@@ -572,7 +583,7 @@ public class ClientMessagePump implements NetMsgHandler {
             if (i.getItemBaseID() == 980066)
                 goldValue = 0;
 
-            if(itemManager.getGoldInventory().getNumOfItems() + goldValue > 10000000)
+            if(itemManager.getGoldInventory().getNumOfItems() + goldValue > MBServerStatics.PLAYER_GOLD_LIMIT)
                 return;
 
             if (itemManager.delete(i)) {
@@ -785,6 +796,8 @@ public class ClientMessagePump implements NetMsgHandler {
 
         if (item == null)
             return;
+
+        item.stripCastableEnchants();
 
         if (item.lootLock.tryLock()) {
             try {
@@ -1281,7 +1294,7 @@ public class ClientMessagePump implements NetMsgHandler {
 
                 cost *= profit;
 
-                if (gold.getNumOfItems() + cost > 10000000) {
+                if (gold.getNumOfItems() + cost > MBServerStatics.PLAYER_GOLD_LIMIT) {
                     return;
                 }
 
@@ -1474,6 +1487,7 @@ public class ClientMessagePump implements NetMsgHandler {
                                 if (buy != null) {
                                     me.transferEnchants(buy);
                                     itemMan.addItemToInventory(buy);
+                                    buy.stripCastableEnchants();
                                     if(npc.contractUUID == 900 && buy.getItemBaseID() == 1705032){
                                         buy.setNumOfItems(10);
                                         DbManager.ItemQueries.UPDATE_NUM_ITEMS(buy,buy.getNumOfItems());
@@ -1681,8 +1695,12 @@ public class ClientMessagePump implements NetMsgHandler {
                 return;
             }
 
-            int cost = (int)((toRepair.getMagicValue()/max*(max - dur)) + (npc.getRepairCost() * npc.buyPercent));
-
+            int pointsToRepair = max - dur;
+            double damageRatio = (double)1.0d - (toRepair.getDurabilityMax() - toRepair.getDurabilityCurrent()) / toRepair.getDurabilityMax();
+            int modifiedValue = (int)(damageRatio * toRepair.getMagicValue());
+            int costPerPoint = modifiedValue / toRepair.getDurabilityMax();
+            int modifiedRepairCost = (int)(pointsToRepair * costPerPoint)+ npc.getSpecialPrice();
+            int cost = (int)(modifiedRepairCost * 1 + npc.buyPercent) + npc.getSpecialPrice();
             Building b = (!npc.isStatic()) ? npc.getBuilding() : null;
 
             if (b != null)
@@ -1876,6 +1894,7 @@ public class ClientMessagePump implements NetMsgHandler {
 
             switch (protocolMsg) {
                 case SETSELECTEDOBECT:
+                    KeyCloneAudit.auditTargetMsg(msg);
                     ClientMessagePump.targetObject((TargetObjectMsg) msg, origin);
                     break;
 

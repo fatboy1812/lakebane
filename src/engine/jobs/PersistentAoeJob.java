@@ -40,10 +40,18 @@ public class PersistentAoeJob extends AbstractEffectJob {
     }
 
     @Override
-    protected void doJob() {
+    public void doJob() {
 
         if (this.aej == null || this.source == null || this.action == null || this.power == null || this.source == null || this.eb == null)
             return;
+
+        if(this.source.isAlive() && this.source.getObjectType().equals(GameObjectType.PlayerCharacter)){
+            PlayerCharacter pc = (PlayerCharacter)this.source;
+            if(pc.getPromotionClassID() == 2511){
+                this.cancelJob();
+                return;
+            }
+        }
 
         if (!this.source.isAlive())
             PowersManager.finishEffectTime(this.source, this.target, this.action, this.trains);

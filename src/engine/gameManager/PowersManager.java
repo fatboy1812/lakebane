@@ -8,9 +8,9 @@
 
 package engine.gameManager;
 
-import com.sun.corba.se.spi.orbutil.fsm.ActionBase;
 import engine.Enum.*;
 import engine.InterestManagement.HeightMap;
+import engine.InterestManagement.InterestManager;
 import engine.InterestManagement.WorldGrid;
 import engine.db.handlers.dbEffectsBaseHandler;
 import engine.db.handlers.dbPowerHandler;
@@ -165,6 +165,43 @@ public enum PowersManager {
     public static void usePower(final PerformActionMsg msg, ClientConnection origin,
                                 boolean sendCastToSelf) {
 
+        PlayerCharacter pc = SessionManager.getPlayerCharacter(origin);
+
+        if(pc == null)
+            return;
+
+        if(!pc.isFlying() && powersBaseByToken.get(msg.getPowerUsedID()) != null && powersBaseByToken.get(msg.getPowerUsedID()).isSpell) //cant be sitting if flying
+            CombatManager.toggleSit(false,origin);
+
+
+        if(msg.getPowerUsedID() != 421084024 && origin.getPlayerCharacter().getPromotionClassID() != 2513) {
+            if (!origin.getPlayerCharacter().getPowers().containsKey(msg.getPowerUsedID())) {
+                Logger.error(origin.getPlayerCharacter().getFirstName() + " attempted to cast a power they do not have");
+                return;
+            }
+        }
+        //crusader sacrifice
+        if((msg.getPowerUsedID() == 428695403 && msg.getTargetID() == pc.getObjectUUID())){
+            RecyclePowerMsg recyclePowerMsg = new RecyclePowerMsg(msg.getPowerUsedID());
+            Dispatch dispatch = Dispatch.borrow(origin.getPlayerCharacter(), recyclePowerMsg);
+            DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.PRIMARY);
+
+            // Send Fail to cast message
+            if (pc != null) {
+                sendPowerMsg(pc, 2, msg);
+                if (pc.isCasting()) {
+                    pc.update(false);
+                }
+
+                pc.setIsCasting(false);
+            }
+            return;
+        }
+
+        if(msg.getPowerUsedID() == -1851459567){//backstab
+            applyPower(pc,pc,pc.loc,-1851459567,msg.getNumTrains(),false);
+        }
+
         if (usePowerA(msg, origin, sendCastToSelf)) {
             // Cast failed for some reason, reset timer
 
@@ -173,18 +210,19 @@ public enum PowersManager {
             DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.PRIMARY);
 
             // Send Fail to cast message
-            PlayerCharacter pc = SessionManager
-                    .getPlayerCharacter(origin);
-
             if (pc != null) {
                 sendPowerMsg(pc, 2, msg);
                 if (pc.isCasting()) {
-                    pc.update();
+                    pc.update(false);
                 }
 
                 pc.setIsCasting(false);
             }
 
+        }
+
+        if(msg.getPowerUsedID() == 429429978){
+            origin.getPlayerCharacter().getRecycleTimers().remove(429429978);
         }
     }
 
@@ -194,7 +232,8 @@ public enum PowersManager {
         msg.setUnknown04(1);
 
         if (useMobPowerA(msg, caster)) {
-            //sendMobPowerMsg(caster,2,msg); //Lol wtf was i thinking sending msg's to mobs... ZZZZ
+            if(pb.token == -1994153779)
+                InterestManager.setObjectDirty(caster);
         }
     }
 
@@ -213,16 +252,16 @@ public enum PowersManager {
             City city = ZoneManager.getCityAtLocation(playerCharacter.loc);
             if (city == null) {
                 failed = true;
-            }else{
-                Bane bane = city.getBane();
-                if (bane == null) {
-                    failed = true;
-                }else{
-                    if(!bane.getSiegePhase().equals(SiegePhase.WAR)){
-                        failed = true;
-                    }
-                }
-            }
+            }//else{
+             //   Bane bane = city.getBane();
+             //   if (bane == null) {
+             //       failed = true;
+             //   }else{
+             //       if(!bane.getSiegePhase().equals(SiegePhase.WAR)){
+             //           failed = true;
+             //       }
+             //   }
+            //}
             if(failed){
                 //check to see if we are at an active mine
                 Zone zone = ZoneManager.findSmallestZone(playerCharacter.loc);
@@ -239,8 +278,15 @@ public enum PowersManager {
                 }
             }
 
-            if(failed)
+            if(failed) {
+                playerCharacter.setIsCasting(false);
+
+                RecyclePowerMsg recyclePowerMsg = new RecyclePowerMsg(msg.getPowerUsedID());
+                Dispatch dispatch = Dispatch.borrow(playerCharacter, recyclePowerMsg);
+                DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.PRIMARY);
+
                 return false;
+            }
         }
 
         if (MBServerStatics.POWERS_DEBUG) {
@@ -326,17 +372,18 @@ public enum PowersManager {
 
 
         // Check powers for normal users
-        if (playerCharacter.getPowers() == null || !playerCharacter.getPowers().containsKey(msg.getPowerUsedID()))
-            if (!playerCharacter.isCSR()) {
-                if (!MBServerStatics.POWERS_DEBUG) {
-                    //  ChatManager.chatSayInfo(pc, "You may not cast that spell!");
+        if(msg.getPowerUsedID() != 421084024) {
+            if (playerCharacter.getPowers() == null || !playerCharacter.getPowers().containsKey(msg.getPowerUsedID()))
+                if (!playerCharacter.isCSR()) {
+                    if (!MBServerStatics.POWERS_DEBUG) {
+                        //  ChatManager.chatSayInfo(pc, "You may not cast that spell!");
 
-                    Logger.info("usePowerA(): Cheat attempted? '" + msg.getPowerUsedID() + "' was not associated with " + playerCharacter.getName());
-                    return true;
-                }
-            } else
-                CSRCast = true;
-
+                        Logger.info("usePowerA(): Cheat attempted? '" + msg.getPowerUsedID() + "' was not associated with " + playerCharacter.getName());
+                        return true;
+                    }
+                } else
+                    CSRCast = true;
+        }
         // get numTrains for power
         int trains = msg.getNumTrains();
 
@@ -346,8 +393,10 @@ public enum PowersManager {
             msg.setNumTrains(trains);
         }
 
+        //double stack point values for some useless disc spells
         switch(pb.token){
             case 429420458: // BH eyes
+            case 429601664: // huntsman skin the beast
                 msg.setNumTrains(msg.getNumTrains() * 2);
                 break;
         }
@@ -487,6 +536,23 @@ public enum PowersManager {
                 }
             }
 
+            if(!passed){
+                if (playerCharacter.getRace().getName().contains("Shade")) {
+                    if(playerCharacter.getHidden() > 0){
+                        switch(msg.getPowerUsedID()){
+                            case -1851459567:
+                            case 2094922127:
+                            case -355707373:
+                            case 246186475:
+                            case 666419835:
+                            case 1480354319:
+                                passed = true;
+                                break;
+                        }
+                    }
+                }
+            }
+
             if (!passed)
                 return true;
         }
@@ -591,7 +657,7 @@ public enum PowersManager {
 
         // make person casting stand up if spell (unless they're casting a chant which does not make them stand up)
         if (pb.isSpell() && !pb.isChant() && playerCharacter.isSit()) {
-            playerCharacter.update();
+            playerCharacter.update(false);
             playerCharacter.setSit(false);
             UpdateStateMsg updateStateMsg = new UpdateStateMsg(playerCharacter);
             DispatchMessage.dispatchMsgToInterestArea(playerCharacter, updateStateMsg, DispatchChannel.PRIMARY, MBServerStatics.CHARACTER_LOAD_RANGE, true, false);
@@ -599,12 +665,12 @@ public enum PowersManager {
         }
 
         // update cast (use skill) fail condition
-        if(pb.token != 429396028) {
+        if(pb.token != 429396028 && pb.breaksForm) {
             playerCharacter.cancelOnCast();
         }
 
         // update castSpell (use spell) fail condition if spell
-        if (pb.isSpell())
+        if (pb.isSpell() && pb.breaksForm)
             playerCharacter.cancelOnSpell();
 
         // get cast time in ms.
@@ -614,7 +680,7 @@ public enum PowersManager {
 
 
         if (time > 100) {
-            playerCharacter.update();
+            playerCharacter.update(false);
             playerCharacter.setIsCasting(true);
         }
 
@@ -745,10 +811,11 @@ public enum PowersManager {
 
         // make person casting stand up if spell (unless they're casting a chant which does not make them stand up)
         // update cast (use skill) fail condition
-        caster.cancelOnCast();
+        if(pb.breaksForm)
+            caster.cancelOnCast();
 
         // update castSpell (use spell) fail condition if spell
-        if (pb.isSpell())
+        if (pb.isSpell() && pb.breaksForm)
             caster.cancelOnSpell();
 
         // get cast time in ms.
@@ -784,15 +851,37 @@ public enum PowersManager {
         if (playerCharacter == null || msg == null)
             return;
 
-        if((msg.getPowerUsedID() == 429495514 || msg.getPowerUsedID() == 429407306) && playerCharacter.getRace().getName().toLowerCase().contains("shade")){
-            //msg.setPowerUsedID(407015607);
-            applyPower(playerCharacter,playerCharacter,playerCharacter.loc,429397210,msg.getNumTrains(),false);
+        //handle sprint for bard sprint
+        if(msg.getPowerUsedID() == 429005674){
+            msg.setPowerUsedID(429611355);
         }
-        if(msg.getPowerUsedID() == 429494441) {//wildkins chase
+
+        //handle root and snare break for wildkin's chase
+        if(msg.getPowerUsedID() == 429494441) {
             playerCharacter.removeEffectBySource(EffectSourceType.Root,40,true);
+            playerCharacter.removeEffectBySource(EffectSourceType.Snare,40,true);
         }
+
+        //handle power block portion for shade hide
+        if(playerCharacter.getRace().getName().contains("Shade")) {
+            if (msg.getPowerUsedID() == 429407306 || msg.getPowerUsedID() == 429495514) {
+                int trains = msg.getNumTrains() - 1;
+                if (trains < 1)
+                    trains = 1;
+                applyPower(playerCharacter, playerCharacter, playerCharacter.loc, 429397210, trains, false);
+                playerCharacter.removeEffectBySource(EffectSourceType.Invisibility,40,true);
+                applyPower(playerCharacter, playerCharacter, playerCharacter.loc, msg.getPowerUsedID(), msg.getNumTrains(), false);
+            }
+        }
+        if(msg.getTargetType() == GameObjectType.PlayerCharacter.ordinal()) {
+            PlayerCharacter target = PlayerCharacter.getPlayerCharacter(msg.getTargetID());
+            if (msg.getPowerUsedID() == 429601664)
+                if(target.getPromotionClassID() != 2516)//templar
+                    PlayerCharacter.getPlayerCharacter(msg.getTargetID()).removeEffectBySource(EffectSourceType.Transform, msg.getNumTrains(), true);
+        }
+
         if (playerCharacter.isCasting()) {
-            playerCharacter.update();
+            playerCharacter.update(false);
             playerCharacter.updateStamRegen(-100);
         }
 
@@ -831,6 +920,9 @@ public enum PowersManager {
                             + "' was not found on powersBaseByToken map.");
             return;
         }
+
+        if(pb.targetSelf)
+            msg.setTargetID(playerCharacter.getObjectUUID());
 
         int trains = msg.getNumTrains();
 
@@ -1001,7 +1093,7 @@ public enum PowersManager {
                     continue;
                 // If something blocks the action, then stop
 
-                if (ab.blocked(target, pb, trains)) {
+                if (ab.blocked(target, pb, trains, playerCharacter)) {
 
                     PowersManager.sendEffectMsg(playerCharacter, 5, ab, pb);
                     continue;
@@ -1088,7 +1180,18 @@ public enum PowersManager {
 
 
         //DispatchMessage.dispatchMsgToInterestArea(playerCharacter, msg, DispatchChannel.PRIMARY, MBServerStatics.CHARACTER_LOAD_RANGE, true, false);
-
+//handle mob hate values
+        HashSet<AbstractWorldObject> mobs = WorldGrid.getObjectsInRangePartial(playerCharacter.loc,60.0f,MBServerStatics.MASK_MOB);
+        for(AbstractWorldObject awo : mobs){
+            Mob mobTarget = (Mob)awo;
+            if(mobTarget.hate_values != null) {
+                if (mobTarget.hate_values.containsKey(playerCharacter)) {
+                    mobTarget.hate_values.put(playerCharacter, mobTarget.hate_values.get(playerCharacter) + pb.getHateValue(trains));
+                } else {
+                    mobTarget.hate_values.put(playerCharacter, pb.getHateValue(trains));
+                }
+            }
+        }
 
     }
 
@@ -1177,7 +1280,7 @@ public enum PowersManager {
                     continue;
                 // If something blocks the action, then stop
 
-                if (ab.blocked(target, pb, trains))
+                if (ab.blocked(target, pb, trains, caster))
                     continue;
                 // TODO handle overwrite stack order here
                 String stackType = ab.getStackType();
@@ -1378,7 +1481,7 @@ public enum PowersManager {
         // Handle Accepting or Denying a summons.
         // set timer based on summon type.
         boolean wentThrough = false;
-        if (msg.accepted())
+        if (msg.accepted()) {
             // summons accepted, let's move the player if within time
             if (source.isAlive()) {
 
@@ -1424,14 +1527,14 @@ public enum PowersManager {
                     duration = 45000; // Belgosh Summons, 45 seconds
 
                 boolean enemiesNear = false;
-                for(AbstractWorldObject awo : WorldGrid.getObjectsInRangePartial(pc.loc,MBServerStatics.CHARACTER_LOAD_RANGE, MBServerStatics.MASK_PLAYER)){
-                    PlayerCharacter playerCharacter = (PlayerCharacter)awo;
-                    if(!playerCharacter.guild.getNation().equals(pc.guild.getNation())){
+                for (AbstractWorldObject awo : WorldGrid.getObjectsInRangePartial(pc.loc, MBServerStatics.CHARACTER_LOAD_RANGE, MBServerStatics.MASK_PLAYER)) {
+                    PlayerCharacter playerCharacter = (PlayerCharacter) awo;
+                    if (!playerCharacter.guild.getNation().equals(pc.guild.getNation())) {
                         enemiesNear = true;
                     }
                 }
 
-                if(enemiesNear && !pc.isInSafeZone())
+                if (enemiesNear && !pc.isInSafeZone())
                     duration += 60000;
 
                 // Teleport to summoners location
@@ -1442,7 +1545,10 @@ public enum PowersManager {
                     timers.put("Summon", jc);
                 wentThrough = true;
             }
-
+        }else{
+            // recycle summons power
+            finishRecycleTime(428523680, source, true);
+        }
         // Summons failed
         if (!wentThrough)
             // summons refused. Let's be nice and reset recycle timer
@@ -1543,7 +1649,7 @@ public enum PowersManager {
                 it.remove();
             else if (awo.getObjectType().equals(GameObjectType.PlayerCharacter)) {
                 PlayerBonuses bonus = ((PlayerCharacter) awo).getBonuses();
-                if (bonus != null && bonus.getBool(ModType.CannotTrack, SourceType.None))
+                if (bonus != null && bonus.getBool(ModType.CannotTrack, SourceType.None) || ((PlayerCharacter) awo).getAccount().status.equals(AccountStatus.ADMIN))
                     it.remove();
             }
         }
@@ -1559,16 +1665,27 @@ public enum PowersManager {
 
         // create list of characters
         HashSet<AbstractCharacter> trackChars;
-        switch(msg.getPowerToken()){
-            case 431511776:
-            case 429578587:
-            case 429503360:
-                trackChars = getTrackList(playerCharacter);
-                break;
-            default:
-                trackChars = RangeBasedAwo.getTrackList(allTargets, playerCharacter, maxTargets);
-                break;
+
+        PowersBase trackPower = PowersManager.getPowerByToken(msg.getPowerToken());
+        if(trackPower != null && trackPower.category.equals("TRACK")){
+            trackChars = getTrackList(playerCharacter);
+        }else{
+            trackChars = RangeBasedAwo.getTrackList(allTargets, playerCharacter, maxTargets);
         }
+
+
+
+        //switch(msg.getPowerToken()){
+        //    case 431511776: // Hunt Foe Huntress
+        //    case 429578587: // Hunt Foe Scout
+        //    case 429503360: // Track Huntsman
+        //    case 44106356: //
+        //        trackChars = getTrackList(playerCharacter);
+        //        break;
+        //    default:
+        //        trackChars = RangeBasedAwo.getTrackList(allTargets, playerCharacter, maxTargets);
+        //        break;
+        //}
 
         TrackWindowMsg trackWindowMsg = new TrackWindowMsg(msg);
 
@@ -1596,7 +1713,7 @@ public enum PowersManager {
             if(awo.equals(tracker))
                 continue;
             PlayerCharacter pc = (PlayerCharacter)awo;
-            if(!pc.isAlive())
+            if(!pc.isAlive() || pc.getAccount().status.equals(AccountStatus.ADMIN))
                 continue;
             if(guildsPresent.contains(pc.guild.getNation()))
                 list.add(pc);
@@ -1720,6 +1837,10 @@ public enum PowersManager {
     private static void applyPowerA(AbstractCharacter ac, AbstractWorldObject target,
                                     Vector3fImmutable targetLoc, PowersBase pb, int trains,
                                     boolean fromItem) {
+
+        if(fromItem && pb.token == 429021400)
+            trains = 40;
+
         int time = pb.getCastTime(trains);
         if (!fromItem)
             finishApplyPowerA(ac, target, targetLoc, pb, trains, false);
@@ -1785,7 +1906,7 @@ public enum PowersManager {
             if (trains < ab.getMinTrains() || trains > ab.getMaxTrains())
                 continue;
             // If something blocks the action, then stop
-            if (ab.blocked(target, pb, trains))
+            if (ab.blocked(target, pb, trains, ac))
                 // sendPowerMsg(pc, 5, msg);
                 continue;
             // TODO handle overwrite stack order here
@@ -1858,14 +1979,10 @@ public enum PowersManager {
         }
     }
 
-    public static void runPowerAction(AbstractCharacter source,
-                                      AbstractWorldObject awo, Vector3fImmutable targetLoc,
-                                      ActionsBase ab, int trains, PowersBase pb) {
+    public static void runPowerAction(AbstractCharacter source, AbstractWorldObject awo, Vector3fImmutable targetLoc, ActionsBase ab, int trains, PowersBase pb) {
         AbstractPowerAction pa = ab.getPowerAction();
         if (pa == null) {
-            Logger.error(
-                    "runPowerAction(): PowerAction not found of IDString: "
-                            + ab.getEffectID());
+            Logger.error("runPowerAction(): PowerAction not found of IDString: " + ab.getEffectID());
             return;
         }
         pa.startAction(source, awo, targetLoc, trains, ab, pb);
@@ -2318,7 +2435,7 @@ public enum PowersManager {
 
         // set player is not casting for regens
         if (pc.isCasting()) {
-            pc.update();
+            pc.update(false);
         }
         pc.setIsCasting(false);
 
@@ -2360,7 +2477,8 @@ public enum PowersManager {
     public static boolean testAttack(PlayerCharacter pc, AbstractWorldObject awo,
                                      PowersBase pb, PerformActionMsg msg) {
         // Get defense for target
-        float atr = CharacterSkill.getATR(pc, pb.getSkillName());
+        //float atr = CharacterSkill.getATR(pc, pb.getSkillName());
+        float atr = PlayerCombatStats.getSpellAtr(pc, pb);
         float defense;
 
         if (AbstractWorldObject.IsAbstractCharacter(awo)) {
@@ -2400,6 +2518,15 @@ public enum PowersManager {
                     dodgeMsg.setTargetType(awo.getObjectType().ordinal());
                     dodgeMsg.setTargetID(awo.getObjectUUID());
                     sendPowerMsg(pc, 4, dodgeMsg);
+                    return true;
+                } else if (testPassive(pc, tarAc, "Block")) {
+                    // Dodge fired, send dodge message
+                    //PerformActionMsg dodgeMsg = new PerformActionMsg(msg);
+                    //dodgeMsg.setTargetType(awo.getObjectType().ordinal());
+                    //dodgeMsg.setTargetID(awo.getObjectUUID());
+                    //sendPowerMsg(pc, 4, dodgeMsg);
+                    TargetedActionMsg cmm = new TargetedActionMsg(pc, 75, tarAc, MBServerStatics.COMBAT_SEND_BLOCK);
+                    DispatchMessage.sendToAllInRange(tarAc, cmm);
                     return true;
                 }
             }
@@ -2448,7 +2575,12 @@ public enum PowersManager {
             if (AbstractWorldObject.IsAbstractCharacter(awo)) {
                 AbstractCharacter tarAc = (AbstractCharacter) awo;
                 // Handle Dodge passive
-                return testPassive(caster, tarAc, "Dodge");
+                boolean passiveFired = false;
+                passiveFired =  testPassive(caster, tarAc, "Dodge");
+                if(!passiveFired)
+                    passiveFired =  testPassive(caster, tarAc, "Block");
+
+                return passiveFired;
             }
             return false;
         } else
@@ -2690,7 +2822,7 @@ public enum PowersManager {
 
     public static void cancelOnStun(AbstractCharacter ac) {
         if(ac.getObjectType().equals(GameObjectType.PlayerCharacter)){
-            PlayerCharacter.GroundPlayer((PlayerCharacter)ac);
+            //PlayerCharacter.GroundPlayer((PlayerCharacter)ac);
         }
     }
 
@@ -2837,6 +2969,127 @@ public enum PowersManager {
         }
     }
 
+    public static boolean breakForm(int token) {
+        switch (token) {
+            case 429505865:
+            case 429407561:
+            case 429492073:
+            case 429644123:
+            case 429393769:
+            case 429545819:
+            case 429426537:
+            case 429590377:
+            case 429508425:
+            case 429541193:
+            case 429573961:
+            case 427924330:
+            case 429402918:
+            case 429545688:
+            case 429005674:
+            case 429637823:
+            case 429590426:
+            case 428066972:
+            case 429441862:
+            case 431611756:
+            case 431578988:
+            case 429502506:
+            case 429398191:
+            case 429447384:
+            case 428892191:
+            case 431579167:
+            case 430977067:
+            case 429409100:
+            case 429441868:
+            case 429594877:
+            case 427908971:
+            case 683741153:
+            case 429770569:
+            case 429452379:
+            case 429605055:
+            case 429086971:
+            case 429443230:
+            case 429505400:
+            case 429492122:
+            case 429643992:
+            case 550062236:
+            case 429498252:
+            case 429611224:
+            case 429441834:
+            case 428918940:
+            case 429633739:
+            case 429633579:
+            case 429568043:
+            case 429048646:
+            case 428392639:
+            case 428425407:
+            case 429054168:
+            case 429021400:
+            case 428955864:
+            case 429119704:
+            case 428890328:
+            case 428923096:
+            case 429218008:
+            case 429086936:
+            case 428988632:
+            case 428688204:
+            case 429514603:
+            case 428924959:
+            case 429393818:
+            case 429720966:
+            case 428982463:
+            case 427933887:
+            case 429572287:
+            case 429501222:
+            case 430694431:
+            case 429436131:
+            case 430006124:
+            case 429611355:
+            case 428005600:
+            case 427935608:
+            case 428949695:
+            case 427988218:
+            case 429414616:
+            case 429496495:
+            case 429428796:
+            case 563795754:
+            case 428988217:
+            case 429432716:
+            case 428955899:
+            case 429393286:
+            case 550062220:
+            case 429495557:
+            case 429401278:
+            case 428377478:
+            case 429409094:
+            case 428191947:
+            case 429434474:
+            case 429403363:
+            case 429512920:
+            case 429419611:
+            case 429645676:
+            case 429602895:
+            case 429605071:
+            case 429592428:
+            case 429500010:
+            case 429406602:
+            case 429426586:
+            case 429633898:
+            case 550062212:
+            case 429994027:
+            case 430813227:
+            case 429928491:
+            case 430026795:
+            case 429517915:
+            case 431854842:
+            case 429767544:
+            case 429502507:
+            case 428398816:
+            case 429446315:
+            case 429441979:
+                return false;
+        }
+        return true;
+    }
 }
 
 

@@ -14,12 +14,10 @@ import engine.net.DispatchMessage;
 import engine.net.client.msg.ErrorPopupMsg;
 import engine.net.client.msg.chat.ChatSystemMsg;
 import engine.objects.*;
+import engine.server.MBServerStatics;
 import org.pmw.tinylog.Logger;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 /**
@@ -40,6 +38,16 @@ public enum LootManager {
     public static final ArrayList<Integer> vorg_ma_uuids = new ArrayList<>(Arrays.asList(27570,188900,188910,188920,188930,188940,188950,189500));
     public static final ArrayList<Integer> vorg_la_uuids = new ArrayList<>(Arrays.asList(27550,27560,189100,189110,189120,189130,189140,189150));
     public static final ArrayList<Integer> vorg_cloth_uuids = new ArrayList<>(Arrays.asList(27600,188700,188720,189550,189560));
+    public static final ArrayList<Integer> racial_guard_uuids = new ArrayList<>(Arrays.asList(841,951,952,1050,1052,1180,1182,1250,1252,1350,1352,1450,1452,1500,1502,1525,1527,1550,1552,1575,1577,1600,1602,1650,1652,1700,980100,980102));
+
+    public static final ArrayList<Integer> static_rune_ids = new ArrayList<>(Arrays.asList(
+            250001, 250002, 250003, 250004, 250005, 250006, 250007, 250008, 250010, 250011,
+            250012, 250013, 250014, 250015, 250016, 250017, 250019, 250020, 250021, 250022,
+            250023, 250024, 250025, 250026, 250028, 250029, 250030, 250031, 250032, 250033,
+            250034, 250035, 250037, 250038, 250039, 250040, 250041, 250042, 250043, 250044,
+            250115, 250118, 250119, 250120, 250121, 250122, 252123, 252124, 252125, 252126,
+            252127
+    ));
 
     // Drop Rates
 
@@ -74,6 +82,19 @@ public enum LootManager {
     }
 
     public static void GenerateMobLoot(Mob mob) {
+
+        if(mob == null){
+            return;
+        }
+
+        if(!mob.getSafeZone()) {
+            SpecialLootHandler.RollContract(mob);
+            SpecialLootHandler.RollGlass(mob);
+            SpecialLootHandler.RollRune(mob);
+            SpecialLootHandler.RollRacialGuard(mob);
+            SpecialLootHandler.ResourceDrop(mob);
+        }
+
         //determine if mob is in hotzone
         boolean inHotzone = false;
 
@@ -111,7 +132,10 @@ public enum LootManager {
             if (ib == null)
                 break;
             if (ib.isDiscRune() || ib.getName().toLowerCase().contains("of the gods")) {
-                ChatSystemMsg chatMsg = new ChatSystemMsg(null, mob.getName() + " in " + mob.getParentZone().getName() + " has found the " + ib.getName() + ". Are you tough enough to take it?");
+                Zone camp = mob.getParentZone();
+                Zone macro = camp.getParent();
+                String name = camp.getName() + "(" + macro.getName() + ")";
+                ChatSystemMsg chatMsg = new ChatSystemMsg(null, mob.getName() + " in " + name + " has found the " + ib.getName() + ". Are you tough enough to take it?");
                 chatMsg.setMessageType(10);
                 chatMsg.setChannel(Enum.ChatChannelType.SYSTEM.getChannelID());
                 DispatchMessage.dispatchMsgToAll(chatMsg);
@@ -125,36 +149,17 @@ public enum LootManager {
         boolean hotzoneWasRan = false;
         float dropRate;
 
-        if(!mob.getSafeZone()) {
-            int specialCaseRoll = ThreadLocalRandom.current().nextInt(1, 100000);
-            //Special Case Contract Drop
-            if(specialCaseRoll < 100){
-                SpecialCaseResourceDrop(mob,entries);
-            } else if(specialCaseRoll > 100 && specialCaseRoll < 500){
-                SpecialCaseContractDrop(mob,entries);
-            }else if(specialCaseRoll > 500 && specialCaseRoll < 900){
-                SpecialCaseRuneDrop(mob,entries);
-            } else if(specialCaseRoll > 900 && specialCaseRoll < 910){
-                int glassID = rollRandomItem(126);
-                ItemBase glassItem = ItemBase.getItemBase(glassID);
-                if (glassItem != null) {
-                    MobLoot toAddGlass = new MobLoot(mob, glassItem, false);
-
-                    if (toAddGlass != null)
-                        mob.getCharItemManager().addItemToInventory(toAddGlass);
-                }
-            }
-        }
-
         // Iterate all entries in this bootySet and process accordingly
+        Zone zone = ZoneManager.findSmallestZone(mob.loc);
         for (BootySetEntry bse : entries) {
             switch (bse.bootyType) {
                 case "GOLD":
+                    if (zone != null && zone.getSafeZone() == (byte)1)
+                        return; // no loot to drop in safezones
                     GenerateGoldDrop(mob, bse, inHotzone);
                     break;
                 case "LOOT":
-
-                    if (mob.getSafeZone())
+                    if (zone != null && zone.getSafeZone() == (byte)1)
                         return; // no loot to drop in safezones
 
                     dropRate = LootManager.NORMAL_DROP_RATE;
@@ -179,109 +184,6 @@ public enum LootManager {
                     GenerateInventoryDrop(mob, bse);
                     break;
             }
-        }
-    }
-
-    public static void SpecialCaseContractDrop(Mob mob,ArrayList<BootySetEntry> entries){
-
-        int lootTableID = 0;
-        for(BootySetEntry entry : entries){
-            if(entry.bootyType.equals("LOOT")){
-                lootTableID = entry.genTable;
-                break;
-            }
-        }
-
-        if(lootTableID == 0)
-            return;
-
-        int ContractTableID = 0;
-        for(GenTableEntry entry : _genTables.get(lootTableID)){
-            try {
-                if (ItemBase.getItemBase(_itemTables.get(entry.itemTableID).get(0).cacheID).getType().equals(Enum.ItemType.CONTRACT)) {
-                    ContractTableID = entry.itemTableID;
-                    break;
-                }
-            }catch(Exception e){
-
-            }
-        }
-
-        if(ContractTableID == 0)
-            return;
-
-        ItemBase ib = ItemBase.getItemBase(rollRandomItem(ContractTableID));
-        if(ib != null){
-            MobLoot toAdd = new MobLoot(mob,ib,false);
-            mob.getCharItemManager().addItemToInventory(toAdd);
-        }
-    }
-
-    public static void SpecialCaseRuneDrop(Mob mob,ArrayList<BootySetEntry> entries){
-        int lootTableID = 0;
-        for(BootySetEntry entry : entries){
-            if(entry.bootyType.equals("LOOT")){
-                lootTableID = entry.genTable;
-                break;
-            }
-        }
-
-        if(lootTableID == 0)
-            return;
-
-        int RuneTableID = 0;
-        for(GenTableEntry entry : _genTables.get(lootTableID)){
-            try {
-                if (ItemBase.getItemBase(_itemTables.get(entry.itemTableID).get(0).cacheID).getType().equals(Enum.ItemType.RUNE)) {
-                    RuneTableID = entry.itemTableID;
-                    break;
-                }
-            }catch(Exception e){
-
-            }
-        }
-
-        if(RuneTableID == 0)
-            return;
-
-        ItemBase ib = ItemBase.getItemBase(rollRandomItem(RuneTableID));
-        if(ib != null){
-            MobLoot toAdd = new MobLoot(mob,ib,false);
-            mob.getCharItemManager().addItemToInventory(toAdd);
-        }
-    }
-
-    public static void SpecialCaseResourceDrop(Mob mob,ArrayList<BootySetEntry> entries){
-        int lootTableID = 0;
-        for(BootySetEntry entry : entries){
-            if(entry.bootyType.equals("LOOT")){
-                lootTableID = entry.genTable;
-                break;
-            }
-        }
-
-        if(lootTableID == 0)
-            return;
-
-        int ResourceTableID = 0;
-        for(GenTableEntry entry : _genTables.get(lootTableID)){
-            try {
-                if (ItemBase.getItemBase(_itemTables.get(entry.itemTableID).get(0).cacheID).getType().equals(Enum.ItemType.RESOURCE)) {
-                    ResourceTableID = entry.itemTableID;
-                    break;
-                }
-            }catch(Exception e){
-
-            }
-        }
-
-        if(ResourceTableID == 0)
-            return;
-
-        ItemBase ib = ItemBase.getItemBase(rollRandomItem(ResourceTableID));
-        if(ib != null){
-            MobLoot toAdd = new MobLoot(mob,ib,false);
-            mob.getCharItemManager().addItemToInventory(toAdd);
         }
     }
 
@@ -320,24 +222,11 @@ public enum LootManager {
         if (itemUUID == 0)
             return null;
 
-        if (ItemBase.getItemBase(itemUUID).getType().ordinal() == Enum.ItemType.RESOURCE.ordinal()) {
-            if(ThreadLocalRandom.current().nextInt(1,101) < 91)
-                return null; // cut down world drops rates of resources by 90%
-            int amount = ThreadLocalRandom.current().nextInt(tableRow.minSpawn, tableRow.maxSpawn + 1);
-            return new MobLoot(mob, ItemBase.getItemBase(itemUUID), amount, false);
-        }
-        if(ItemBase.getItemBase(itemUUID).getType().equals(Enum.ItemType.RUNE)){
-            int randomRune = rollRandomItem(itemTableId);
-            if(randomRune != 0) {
-                itemUUID = randomRune;
-            }
-        } else if(ItemBase.getItemBase(itemUUID).getType().equals(Enum.ItemType.CONTRACT)){
-            int randomContract = rollRandomItem(itemTableId);
-            if(randomContract != 0) {
-                itemUUID = randomContract;
-            }
-        }
-        outItem = new MobLoot(mob, ItemBase.getItemBase(itemUUID), false);
+        ItemBase ib = ItemBase.getItemBase(itemUUID);
+        if (ib == null || ib.getType().equals(Enum.ItemType.RESOURCE) || ib.getName().equals("Mithril") || ib.getType().equals(Enum.ItemType.RUNE) || ib.getType().equals(Enum.ItemType.CONTRACT))
+            return null;
+
+        outItem = new MobLoot(mob, ib, false);
 
         if(selectedRow.pModTable != 0){
             try {
@@ -354,11 +243,6 @@ public enum LootManager {
             } catch (Exception e) {
                 Logger.error("Failed to GenerateSuffix for item: " + outItem.getName());
             }
-        }
-
-        if(outItem.getItemBase().getType().equals(Enum.ItemType.CONTRACT) || outItem.getItemBase().getType().equals(Enum.ItemType.RUNE)){
-            if(ThreadLocalRandom.current().nextInt(1,101) < 66)
-                return null; // cut down world drops rates of resources by 65%
         }
 
         return outItem;
@@ -389,8 +273,23 @@ public enum LootManager {
             return inItem;
 
         if (prefixMod.action.length() > 0) {
-            inItem.setPrefix(prefixMod.action);
-            inItem.addPermanentEnchantment(prefixMod.action, 0, prefixMod.level, true);
+            String action = prefixMod.action;
+            if(action.equals("PRE-108") || action.equals("PRE-058") || action.equals("PRE-031")){//massive, barons and avatars to be replaced by leg or warlords
+                int roll = ThreadLocalRandom.current().nextInt(1,100);
+                if(inItem.getItemBase().getRange() > 15){
+                    action = "PRE-040";
+                }else {
+                    if (roll > 50) {
+                        //set warlords
+                        action = "PRE-021";
+                    } else {
+                        //set legendary
+                        action = "PRE-040";
+                    }
+                }
+            }
+            inItem.setPrefix(action);
+            inItem.addPermanentEnchantment(action, 0, prefixMod.level, true);
         }
 
         return inItem;
@@ -420,7 +319,27 @@ public enum LootManager {
         if (suffixMod == null)
             return inItem;
 
-        if (suffixMod.action.length() > 0) {
+        int moveSpeedRoll = ThreadLocalRandom.current().nextInt(100);
+        if(inItem.getItemBase().getValidSlot() == MBServerStatics.SLOT_FEET && moveSpeedRoll < 10){
+            int rankRoll = ThreadLocalRandom.current().nextInt(10);
+            String suffixSpeed = "SUF-148";
+            switch(rankRoll) {
+                case 1:
+                case 2:
+                case 3:
+                    suffixSpeed = "SUF-149";
+                    break;
+                case 4:
+                case 5:
+                case 6:
+                case 7:
+                    suffixSpeed = "SUF-150";
+                    break;
+
+            }
+            inItem.setSuffix(suffixSpeed);
+            inItem.addPermanentEnchantment(suffixSpeed, 0, suffixMod.level, false);
+        }else if (suffixMod.action.length() > 0) {
             inItem.setSuffix(suffixMod.action);
             inItem.addPermanentEnchantment(suffixMod.action, 0, suffixMod.level, false);
         }
@@ -497,6 +416,10 @@ public enum LootManager {
                 case RESOURCE:
                     return;
             }
+
+            if (ib.getUUID() == 1580021)//mithril
+                return;
+
             toAdd.setIsID(true);
             mob.getCharItemManager().addItemToInventory(toAdd);
         }
@@ -532,7 +455,7 @@ public enum LootManager {
                 ItemBase itemBase = me.getItemBase();
                 if(isVorg) {
                     mob.spawnTime = ThreadLocalRandom.current().nextInt(300, 2700);
-                    dropChance = 10;
+                    dropChance = 7.5f;
                     itemBase = getRandomVorg(itemBase);
                 }
                 if (equipmentRoll > dropChance)
@@ -556,6 +479,8 @@ public enum LootManager {
         if (chanceRoll > bse.dropChance)
             return;
 
+        if(bse.itemBase == 1580021)//mithril
+            return;
         MobLoot lootItem = new MobLoot(mob, ItemBase.getItemBase(bse.itemBase), true);
 
         if (lootItem != null) {
@@ -565,6 +490,123 @@ public enum LootManager {
         }
     }
 
+    public static void newFatePeddler(PlayerCharacter playerCharacter, Item gift) {
+
+        CharacterItemManager itemMan = playerCharacter.getCharItemManager();
+
+        if (itemMan == null)
+            return;
+
+        //check if player owns the gift he is trying to open
+
+        if (!itemMan.doesCharOwnThisItem(gift.getObjectUUID()))
+            return;
+
+        ItemBase ib = gift.getItemBase();
+
+        MobLoot winnings = null;
+
+        if (ib == null)
+            return;
+        switch (ib.getUUID()) {
+            case 971070: //wrapped rune
+                Random random = new Random();
+                int roll = random.nextInt(100);
+                int itemId;
+                ItemBase runeBase;
+                 if (roll >= 90) {
+                //35 or 40
+                     roll = ThreadLocalRandom.current().nextInt(SpecialLootHandler.static_rune_ids_high.size() + 1);
+                     itemId = SpecialLootHandler.static_rune_ids_high.get(0);
+                    try {
+                        itemId = SpecialLootHandler.static_rune_ids_high.get(roll);
+                   } catch (Exception e) {
+
+                    }
+                  runeBase = ItemBase.getItemBase(itemId);
+                   if (runeBase != null) {
+                       MobLoot rune = new MobLoot(playerCharacter, runeBase, true);
+
+                       if (rune != null)
+                           playerCharacter.getCharItemManager().addItemToInventory(rune);
+                   }
+                } else if (roll >= 65 && roll <= 89) {
+                //30,35 or 40
+                    roll = ThreadLocalRandom.current().nextInt(SpecialLootHandler.static_rune_ids_mid.size() + 1);
+                    itemId = SpecialLootHandler.static_rune_ids_mid.get(0);
+                    try {
+                        itemId = SpecialLootHandler.static_rune_ids_mid.get(roll);
+                   } catch (Exception e) {
+
+                    }
+                    runeBase = ItemBase.getItemBase(itemId);
+                    if (runeBase != null) {
+                        MobLoot rune = new MobLoot(playerCharacter, runeBase, true);
+
+                        if (rune != null)
+                            playerCharacter.getCharItemManager().addItemToInventory(rune.promoteToItem(playerCharacter));
+                    }
+                 } else {
+                //5-30
+                     roll = ThreadLocalRandom.current().nextInt(SpecialLootHandler.static_rune_ids_low.size() + 1);
+                     itemId = SpecialLootHandler.static_rune_ids_low.get(0);
+                    try {
+                        itemId = SpecialLootHandler.static_rune_ids_low.get(roll);
+                    } catch (Exception ignored) {
+
+                   }
+                   runeBase = ItemBase.getItemBase(itemId);
+                   if (runeBase != null) {
+                       MobLoot rune = new MobLoot(playerCharacter, runeBase, true);
+
+                        if (rune != null)
+                            playerCharacter.getCharItemManager().addItemToInventory(rune.promoteToItem(playerCharacter));
+                    }
+                }
+                break;
+            case 971012: //wrapped glass
+                int chance = ThreadLocalRandom.current().nextInt(100);
+                if(chance == 50){
+                    int ID = 7000000;
+                    int additional = ThreadLocalRandom.current().nextInt(0,28);
+                    ID += (additional * 10);
+                    ItemBase glassBase = ItemBase.getItemBase(ID);
+                    if(glassBase != null) {
+                        winnings = new MobLoot(playerCharacter, glassBase, 1, false);
+                        ChatManager.chatSystemInfo(playerCharacter, "You've Won A " + glassBase.getName());
+                    }
+                }else{
+                    ChatManager.chatSystemInfo(playerCharacter, "Please Try Again!");
+                }
+                break;
+        }
+
+        if (winnings == null) {
+            itemMan.consume(gift);
+            itemMan.updateInventory();
+            return;
+        }
+
+        //early exit if the inventory of the player will not hold the item
+
+        if (!itemMan.hasRoomInventory(winnings.getItemBase().getWeight())) {
+            ErrorPopupMsg.sendErrorPopup(playerCharacter, 21);
+            return;
+        }
+
+        winnings.setIsID(true);
+
+        //remove gift from inventory
+
+        itemMan.consume(gift);
+
+        //add winnings to player inventory
+
+        Item playerWinnings = winnings.promoteToItem(playerCharacter);
+        itemMan.addItemToInventory(playerWinnings);
+        itemMan.updateInventory();
+
+    }
     public static void peddleFate(PlayerCharacter playerCharacter, Item gift) {
 
         //get table ID for the itembase ID
@@ -610,7 +652,7 @@ public enum LootManager {
         ItemBase ib = ItemBase.getItemBase(selectedItem.cacheID);
         if(ib.getUUID() == Warehouse.coalIB.getUUID()){
             //no more coal, give gold instead
-            if (itemMan.getGoldInventory().getNumOfItems() + 250000 > 10000000) {
+            if (itemMan.getGoldInventory().getNumOfItems() + 250000 > MBServerStatics.PLAYER_GOLD_LIMIT) {
                 ErrorPopupMsg.sendErrorPopup(playerCharacter, 21);
                 return;
             }
@@ -668,7 +710,7 @@ public enum LootManager {
     public static ItemBase getRandomVorg(ItemBase itemBase){
         int roll = 0;
         if(vorg_ha_uuids.contains(itemBase.getUUID())) {
-            roll = ThreadLocalRandom.current().nextInt(0, 10);
+            roll = ThreadLocalRandom.current().nextInt(0, 9);
             switch (roll) {
                 case 1:
                     return ItemBase.getItemBase(vorg_ha_uuids.get(0));
@@ -692,7 +734,7 @@ public enum LootManager {
         }
 
         if(vorg_ma_uuids.contains(itemBase.getUUID())) {
-            roll = ThreadLocalRandom.current().nextInt(0, 10);
+            roll = ThreadLocalRandom.current().nextInt(0, 8);
             switch (roll) {
                 case 1:
                     return ItemBase.getItemBase(vorg_ma_uuids.get(0));
@@ -714,7 +756,7 @@ public enum LootManager {
         }
 
         if(vorg_la_uuids.contains(itemBase.getUUID())) {
-            roll = ThreadLocalRandom.current().nextInt(0, 10);
+            roll = ThreadLocalRandom.current().nextInt(0, 8);
             switch (roll) {
                 case 1:
                     return ItemBase.getItemBase(vorg_la_uuids.get(0));
@@ -736,7 +778,7 @@ public enum LootManager {
         }
 
         if(vorg_cloth_uuids.contains(itemBase.getUUID())) {
-            roll = ThreadLocalRandom.current().nextInt(0, 10);
+            roll = ThreadLocalRandom.current().nextInt(0, 5);
             switch (roll) {
                 case 1:
                     return ItemBase.getItemBase(vorg_cloth_uuids.get(0));
@@ -788,8 +830,8 @@ public enum LootManager {
         }
 
         //present drop chance for all
-        if (ThreadLocalRandom.current().nextInt(100) < 35)
-            DropPresent(mob);
+        //if (ThreadLocalRandom.current().nextInt(100) < 35)
+        //    DropPresent(mob);
 
         //random contract drop chance for all
         if (ThreadLocalRandom.current().nextInt(100) < 40) {

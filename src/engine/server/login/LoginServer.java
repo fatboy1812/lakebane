@@ -281,6 +281,9 @@ public class LoginServer {
         Logger.info("Loading All Realms");
         Realm.loadAllRealms();
 
+        Logger.info("Trashing Multibox Cheaters");
+        DbManager.AccountQueries.TRASH_CHEATERS();
+
         Logger.info("***Boot Successful***");
         return true;
     }
@@ -450,7 +453,7 @@ public class LoginServer {
                 objectUUID = rs.getInt("UID");
                 objectType = rs.getString("type");
 
-                Logger.info("INVALIDATED : " + objectType + " UUID: " + objectUUID);
+                //Logger.info("INVALIDATED : " + objectType + " UUID: " + objectUUID);
 
                 switch (objectType) {
 
@@ -462,7 +465,7 @@ public class LoginServer {
                         PlayerCharacter player = (PlayerCharacter) DbManager.getObject(Enum.GameObjectType.PlayerCharacter, objectUUID);
                         PlayerCharacter.initializePlayer(player);
                         player.getAccount().characterMap.replace(player.getObjectUUID(), player);
-                        Logger.info("Player active state is : " + player.isActive());
+                        //Logger.info("Player active state is : " + player.isActive());
                         break;
                 }
 

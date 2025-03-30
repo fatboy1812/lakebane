@@ -29,7 +29,7 @@ public class DebugTimerJob extends AbstractScheduleJob {
     }
 
     @Override
-    protected void doJob() {
+    public void doJob() {
         if (this.pc == null) {
             return;
         }

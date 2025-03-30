@@ -610,8 +610,7 @@ public class CharacterItemManager {
         if (i == null)
             return false;
 
-        if(i.stripCastableEnchants())
-            this.updateInventory();
+        //i.stripCastableEnchants();
 
         if (!this.doesCharOwnThisItem(i.getObjectUUID()))
             return false;
@@ -1057,8 +1056,12 @@ public class CharacterItemManager {
         // add to Bank
         this.bank.add(i);
         i.addToCache();
-        if(i.stripCastableEnchants())
+        try {
+            i.stripCastableEnchants();
             this.updateInventory();
+        }catch(Exception ignored){
+            Logger.error("FAILED TO STRIP CASTABLE ENCHANTS: Move Item To Bank");
+        }
 
         calculateWeights();
 
@@ -1199,6 +1202,13 @@ public class CharacterItemManager {
         } else
             return false; // NPC's dont have vaults!
 
+        try {
+            i.stripCastableEnchants();
+            this.updateInventory();
+        }catch(Exception ignored){
+            Logger.error("FAILED TO STRIP CASTABLE ENCHANTS: Move Item To Vault");
+        }
+
         // remove it from other lists:
         this.remItemFromLists(i, slot);
 
@@ -1207,8 +1217,6 @@ public class CharacterItemManager {
 
         calculateWeights();
 
-        if(i.stripCastableEnchants())
-            this.updateInventory();
         return true;
     }
 
@@ -1501,6 +1509,8 @@ public class CharacterItemManager {
 
         if (purchasedItem == null || npc == null)
             return false;
+
+        purchasedItem.stripCastableEnchants();
 
         itemMan = npc.getCharItemManager();
 
@@ -2016,8 +2026,7 @@ public class CharacterItemManager {
                     if (item.getItemBase().getType().equals(ItemType.GOLD)) {
                         int amt = item.getNumOfItems();
                         item.setNumOfItems(0);
-                        if(item.stripCastableEnchants())
-                            this.updateInventory();
+                        //item.stripCastableEnchants();
                         MobLoot ml = new MobLoot(this.absCharacter, amt);
                         ml.zeroItem();
                         ml.containerType = Enum.ItemContainerType.INVENTORY;
@@ -2344,7 +2353,7 @@ public class CharacterItemManager {
         }
 
 
-        if (this.getGoldInventory().getNumOfItems() + goldFrom2 > 10000000) {
+        if (this.getGoldInventory().getNumOfItems() + goldFrom2 > MBServerStatics.PLAYER_GOLD_LIMIT) {
             PlayerCharacter pc = (PlayerCharacter) this.absCharacter;
             if (pc.getClientConnection() != null)
                 ErrorPopupMsg.sendErrorPopup(pc, 202);
@@ -2352,7 +2361,7 @@ public class CharacterItemManager {
         }
 
 
-        if (tradingWith.getGoldInventory().getNumOfItems() + goldFrom1 > 10000000) {
+        if (tradingWith.getGoldInventory().getNumOfItems() + goldFrom1 > MBServerStatics.PLAYER_GOLD_LIMIT) {
             PlayerCharacter pc = (PlayerCharacter) tradingWith.absCharacter;
             if (pc.getClientConnection() != null)
                 ErrorPopupMsg.sendErrorPopup(pc, 202);
@@ -2443,6 +2452,9 @@ public class CharacterItemManager {
     public void damageItem(Item item, int amount) {
         if (item == null || amount < 1 || amount > 5)
             return;
+        if(item.getItemBase().isGlass()){
+            amount = 1;
+        }
 
         //verify the item is equipped by this player
         int slot = item.getEquipSlot();

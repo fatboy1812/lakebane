@@ -26,7 +26,7 @@ public class UpdateGroupJob extends AbstractScheduleJob {
     }
 
     @Override
-    protected void doJob() {
+    public void doJob() {
 
         if (this.group == null)
             return;

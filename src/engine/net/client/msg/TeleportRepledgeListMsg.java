@@ -10,6 +10,7 @@
 package engine.net.client.msg;
 
 
+import engine.Dungeons.Dungeon;
 import engine.net.AbstractConnection;
 import engine.net.AbstractNetMsg;
 import engine.net.ByteBufferReader;
@@ -108,7 +109,7 @@ public class TeleportRepledgeListMsg extends ClientNetMsg {
         for (int i = 0; i < 3; i++)
             writer.putInt(0);
 
-        writer.putInt(cities.size() + mines.size());
+        writer.putInt(cities.size() + mines.size());// + 1);
 
         for (City city : cities)
             City.serializeForClientMsg(city, writer);
@@ -116,6 +117,7 @@ public class TeleportRepledgeListMsg extends ClientNetMsg {
         for(Mine mine : mines)
             Mine.serializeForClientMsgTeleport(mine, writer);
 
+        //Dungeon.serializeForClientMsgTeleport(writer);
     }
 
     public PlayerCharacter getPlayer() {

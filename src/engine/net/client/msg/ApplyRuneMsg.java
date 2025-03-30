@@ -78,6 +78,27 @@ public class ApplyRuneMsg extends ClientNetMsg {
         }
         int raceID = playerCharacter.getRaceID();
         //Check race is met
+
+        //confirm sub-race runes are applicable only by proper races
+        switch(runeID){
+            case 252134: //elf
+            case 252135: // elf
+            case 252136:  // elf
+                if(playerCharacter.getRaceID() != 2008 && playerCharacter.getRaceID() != 2009)
+                    return false;
+                break;
+            case 252129: // human
+            case 252130: // human
+            case 252131: // human
+            case 252132: // human
+            case 252133: // human
+                if(playerCharacter.getRaceID() != 2011 && playerCharacter.getRaceID() != 2012)
+                    return false;
+                break;
+
+        }
+
+
         ConcurrentHashMap<Integer, Boolean> races = rb.getRace();
         if(runeID != 3007 && runeID != 3014) {//bounty hunter and huntsman
             if (races.size() > 0) {
@@ -146,6 +167,8 @@ public class ApplyRuneMsg extends ClientNetMsg {
                     valid = true;
                 if(runeID == 3035 && baseClassID == 2501)
                     valid = true;
+                if(runeID == 3028 && baseClassID == 2501 && playerCharacter.getRace().getName().contains("Irekei"))
+                    valid = true;
                 if (!valid) {
                     return false;
                 }
@@ -154,6 +177,7 @@ public class ApplyRuneMsg extends ClientNetMsg {
             ConcurrentHashMap<Integer, Boolean> promotionClasses = rb.getPromotionClass();
             if (promotionClasses.size() > 0) {
                 int promotionClassID = playerCharacter.getPromotionClassID();
+                int baseClassID = playerCharacter.getBaseClassID();
                 boolean valid = false;
                 for (int validID : promotionClasses.keySet()) {
                     if (validID == promotionClassID) {
@@ -170,6 +194,8 @@ public class ApplyRuneMsg extends ClientNetMsg {
                 if(runeID == 3033 && raceID == 1999)
                     valid = true;
                 if(runeID == 3028 && (raceID == 2013 || raceID == 2014) && playerCharacter.getBaseClassID() == 2501)
+                    valid = true;
+                if(runeID == 3035 && baseClassID == 2501)
                     valid = true;
                 if (!valid) {
                     return false;
@@ -197,7 +223,7 @@ public class ApplyRuneMsg extends ClientNetMsg {
         for (CharacterRune cr : runes) {
             int runeBaseID = cr.getRuneBaseID();
             //count number of discipline runes
-            if (runeBaseID > 3000 && runeBaseID < 3049) {
+            if(isDiscipline(runeBaseID)){
                 discCount++;
             }
             //see if rune is already applied
@@ -326,23 +352,27 @@ public class ApplyRuneMsg extends ClientNetMsg {
                 break;
         }
         //if discipline, check number applied
+        int discAllowed = 0;
         if (isDiscipline(runeID)) {
             switch(playerCharacter.getRank()){
                 case 1:
+                    discAllowed = 0;
+                    break;
                 case 2:
                 case 3:
                 case 4:
                 case 5:
                 case 6:
-                    if(discCount > 3)
-                        return false;
+                    discAllowed = 3;
                     break;
                 case 7:
                 case 8:
-                    if(discCount > 5)
-                        return false;
+                    discAllowed = 5;
                     break;
             }
+
+            if(discCount >= discAllowed)
+                return false;
         }
         //Everything succeeded. Let's apply the rune
         //Attempt add rune to database

@@ -1,5 +1,6 @@
 package engine.devcmd.cmds;
 
+import engine.Enum;
 import engine.devcmd.AbstractDevCmd;
 import engine.gameManager.LootManager;
 import engine.gameManager.ZoneManager;
@@ -26,7 +27,52 @@ public class SimulateBootyCmd extends AbstractDevCmd {
         String newline = "\r\n ";
 
         String output;
+        if(target.getObjectType().equals(Enum.GameObjectType.PlayerCharacter)){
+            int ATR = Integer.parseInt(words[0]);
+            int DEF = Integer.parseInt(words[1]);
+            int attacks = Integer.parseInt(words[2]);
 
+            int hits = 0;
+            int misses = 0;
+            int defaultHits = 0;
+            int defualtMisses = 0;
+
+            float chance = (ATR-((ATR+DEF) * 0.315f)) / ((DEF-((ATR+DEF) * 0.315f)) + (ATR-((ATR+DEF) * 0.315f)));
+            float convertedChance = chance * 100;
+            output = "" + newline;
+            output += "DEF VS ATR SIMULATION: " + attacks + " ATTACKS SIMULATED" + newline;
+            output += "DEF = " + DEF + newline;
+            output += "ATR = " + ATR + newline;
+            output += "CHANCE TO LAND HIT: " + convertedChance + "%" + newline;
+            if(convertedChance < 5){
+                output += "CHANCE ADJUSTED TO 5.0%" + newline;
+                convertedChance = 5.0f;
+            }
+            if(convertedChance > 95){
+                output += "CHANCE ADJUSTED TO 95.0%" + newline;
+                convertedChance = 95.0f;
+            }
+            for(int i = 0; i < attacks; i++){
+                int roll = ThreadLocalRandom.current().nextInt(101);
+
+                if(roll <= convertedChance){
+                    hits += 1;
+                }else{
+                    misses += 1;
+                }
+            }
+
+            float totalHits = defaultHits + hits;
+            float totalMisses = defualtMisses + misses;
+            float hitPercent = Math.round(totalHits / attacks * 100);
+            float missPercent = Math.round(totalMisses / attacks * 100);
+
+            output += "HITS LANDED: " + (defaultHits + hits) + "(" + Math.round(hitPercent) + "%)" + newline;
+            output += "HITS MISSED: " + (defualtMisses + misses) + "(" + Math.round(missPercent) + "%)";
+
+            throwbackInfo(playerCharacter,output);
+            return;
+        }
         try
         {
             simCount = Integer.parseInt(words[0]);
@@ -54,6 +100,7 @@ public class SimulateBootyCmd extends AbstractDevCmd {
         ArrayList<Item> Resources = new ArrayList<Item>();
         ArrayList<Item> Runes = new ArrayList<Item>();
         ArrayList<Item> Contracts = new ArrayList<Item>();
+        ArrayList<Item> GuardContracts = new ArrayList<Item>();
         ArrayList<Item> Offerings = new ArrayList<Item>();
         ArrayList<Item> OtherDrops = new ArrayList<Item>();
         ArrayList<Item> EquipmentDrops = new ArrayList<Item>();
@@ -68,7 +115,10 @@ public class SimulateBootyCmd extends AbstractDevCmd {
                 for (Item lootItem : mob.getCharItemManager().getInventory()) {
                     switch (lootItem.getItemBase().getType()) {
                         case CONTRACT: //CONTRACT
-                            Contracts.add(lootItem);
+                            if(lootItem.getName().contains("Captain"))
+                                GuardContracts.add(lootItem);
+                            else
+                                Contracts.add(lootItem);
                             break;
                         case OFFERING: //OFFERING
                             Offerings.add(lootItem);
@@ -140,9 +190,17 @@ public class SimulateBootyCmd extends AbstractDevCmd {
             }
         }
 
+        int baseBound = 100000;
+        int levelPenalty = (int) (Math.max(0, Math.abs(50 - mob.level)) * 0.01 * 100000);
+        int totalRange = baseBound + levelPenalty;
+        if(mob.level >= 50){
+            totalRange = baseBound;
+        }
+        output += "TOTAL ROLL POTENTIAL: " + totalRange + newline;
         output += "GLASS DROPS: " + GlassItems.size() + newline;
         output += "RUNE DROPS: " + Runes.size() + newline;
         output += "CONTRACTS DROPS: " + Contracts.size() + newline;
+        output += "GUARD CONTRACTS DROPS: " + GuardContracts.size() + newline;
         output += "RESOURCE DROPS: " + Resources.size() + newline;
         output += "OFFERINGS DROPPED: " + Offerings.size() + newline;
         output += "ENCHANTED ITEMS DROPPED: " + OtherDrops.size() + newline;

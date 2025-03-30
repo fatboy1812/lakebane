@@ -125,9 +125,9 @@ public enum MaintenanceManager {
 
 
             //no maintenance if day of week doesnt match
-            if (LocalDateTime.now().getDayOfWeek().ordinal() != building.maintDateTime.getDayOfWeek().ordinal()) {
-                continue;
-            }
+            //if (LocalDateTime.now().getDayOfWeek().ordinal() != building.maintDateTime.getDayOfWeek().ordinal()) {
+            //    continue;
+            //}
             //  Add building to maintenance queue
 
             maintList.add(building);

@@ -23,7 +23,7 @@ public class CheckNetMsgFactoryJob extends AbstractJob {
     }
 
     @Override
-    protected void doJob() {
+    public void doJob() {
         NetMsgFactory factory = conn.getFactory();
 
         // Make any/all msg possible

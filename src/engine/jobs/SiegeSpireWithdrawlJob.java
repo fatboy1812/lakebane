@@ -25,7 +25,7 @@ public class SiegeSpireWithdrawlJob extends AbstractScheduleJob {
     }
 
     @Override
-    protected void doJob() {
+    public void doJob() {
 
         if (spire == null)
             return;

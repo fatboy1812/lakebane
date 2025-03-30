@@ -25,7 +25,7 @@ public class LogoutCharacterJob extends AbstractScheduleJob {
     }
 
     @Override
-    protected void doJob() {
+    public void doJob() {
         server.logoutCharacter(this.pc);
     }
 

@@ -29,7 +29,7 @@ public class HealthRecoverRateEffectModifier extends AbstractEffectModifier {
     @Override
     public void applyBonus(AbstractCharacter ac, int trains) {
 
-        ac.update();
+        ac.update(false);
         Float amount = 0f;
         PlayerBonuses bonus = ac.getBonuses();
         if (this.useRampAdd)

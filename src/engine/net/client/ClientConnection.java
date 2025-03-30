@@ -44,8 +44,15 @@ public class ClientConnection extends AbstractConnection {
     public ReentrantLock buyLock = new ReentrantLock();
     public boolean desyncDebug = false;
     public byte[] lastByteBuffer;
+    public long lastTargetSwitchTime;
     protected SessionID sessionID = null;
     private byte cryptoInitTries = 0;
+
+    public int strikes = 0;
+    public Long lastStrike = 0L;
+
+    public int finalStrikes = 0;
+    public long finalStrikeRefresh = 0L;
 
     public ClientConnection(ClientConnectionManager connMan,
                             SocketChannel sockChan) {
@@ -227,10 +234,10 @@ public class ClientConnection extends AbstractConnection {
             SessionManager.remSession(
                     SessionManager.getSession(sessionID));
         } catch (NullPointerException e) {
-            Logger
-                    .error(
-                            "Tried to remove improperly initialized session. Skipping." +
-                                    e);
+            //Logger
+                    //.error(
+                            //"Tried to remove improperly initialized session. Skipping." +
+                                    //e);
         }
     }
 

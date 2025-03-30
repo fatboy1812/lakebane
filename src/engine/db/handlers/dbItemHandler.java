@@ -134,9 +134,13 @@ public class dbItemHandler extends dbHandlerBase {
 
             ResultSet rs = preparedStatement.executeQuery();
 
-            if (rs.next())
-                worked = rs.getBoolean("result");
-
+            if (rs.next()) {
+                try {
+                    worked = rs.getBoolean("result");
+                }catch(Exception e){
+                    worked = false;
+                }
+            }
         } catch (SQLException e) {
             Logger.error(e);
         }

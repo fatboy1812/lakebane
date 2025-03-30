@@ -85,6 +85,7 @@ public enum DevCmdManager {
         DevCmdManager.registerDevCmd(new AddBuildingCmd());
         DevCmdManager.registerDevCmd(new AddNPCCmd());
         DevCmdManager.registerDevCmd(new AddMobCmd());
+        DevCmdManager.registerDevCmd(new DungenonCmd());
         DevCmdManager.registerDevCmd(new RemoveObjectCmd());
         DevCmdManager.registerDevCmd(new RotateCmd());
         DevCmdManager.registerDevCmd(new FlashMsgCmd());
@@ -177,19 +178,42 @@ public enum DevCmdManager {
             return false;
         }
 
+        if(!pcSender.getTimestamps().containsKey("DEVCOMMAND"))
+            pcSender.getTimestamps().put("DEVCOMMAND",System.currentTimeMillis() - 1500L);
+        else if(System.currentTimeMillis() - pcSender.getTimestamps().get("DEVCOMMAND") < 1000L)
+            return false;
+
         //kill any commands not available to everyone on production server
         //only admin level can run dev commands on production
         boolean playerAllowed = false;
-        switch(adc.getMainCmdString()){
-            case "printresists":
-            case "printstats":
-            case "printskills":
-            case "printpowers":
-            case "gimme":
-                playerAllowed = true;
-                if(!a.status.equals(Enum.AccountStatus.ADMIN))
-                    target = pcSender;
-                break;
+        if(ConfigManager.MB_WORLD_TESTMODE.getValue().equals("true")) {
+            switch (adc.getMainCmdString()) {
+                case "printresists":
+                case "printstats":
+                case "printskills":
+                case "printpowers":
+                case "gimme":
+                case "goto":
+                case "teleportmode":
+                case "printbonuses":
+                    playerAllowed = true;
+                    if (!a.status.equals(Enum.AccountStatus.ADMIN))
+                        target = pcSender;
+                    break;
+            }
+        }else{
+            switch (adc.getMainCmdString()) {
+                case "printresists":
+                case "printstats":
+                case "printskills":
+                case "printpowers":
+                case "printbonuses":
+                //case "gimme":
+                    playerAllowed = true;
+                    if (!a.status.equals(Enum.AccountStatus.ADMIN))
+                        target = pcSender;
+                    break;
+            }
         }
         if (!playerAllowed && !a.status.equals(Enum.AccountStatus.ADMIN)) {
             Logger.info("Account " + a.getUname() + "attempted to use dev command " + cmd);

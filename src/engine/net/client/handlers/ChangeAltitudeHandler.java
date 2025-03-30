@@ -9,6 +9,7 @@
 
 package engine.net.client.handlers;
 
+import engine.Enum;
 import engine.Enum.DispatchChannel;
 import engine.exception.MsgSendException;
 import engine.net.DispatchMessage;
@@ -42,17 +43,23 @@ public class ChangeAltitudeHandler extends AbstractClientMsgHandler {
         if (!AbstractCharacter.CanFly(pc))
             return false;
 
+        if(pc.getBonuses().getBool(Enum.ModType.Stunned, Enum.SourceType.None))
+            return false;
+
         if (pc.isSwimming())
             return false;
         if (pc.region != null && !pc.region.isOutside())
             return false;
 
-
         // Find out if we already have an altitude timer running and if so
         // do not process more alt change requests
 
+        pc.updateFlight();
+
         if (pc.getTakeOffTime() != 0)
             return false;
+
+        pc.setTakeOffTime(System.currentTimeMillis());
 
 
         // remove all movement timers and jobs
@@ -67,7 +74,7 @@ public class ChangeAltitudeHandler extends AbstractClientMsgHandler {
         if (pc.getAltitude() == 0 && !msg.up())
             return true;
 
-        pc.update();
+        pc.update(false);
         pc.stopMovement(pc.getLoc());
         msg.setStartAlt(pc.getAltitude());
         if (msg.up()) {
@@ -132,7 +139,7 @@ public class ChangeAltitudeHandler extends AbstractClientMsgHandler {
         }
 
         if (msg.up()) {
-            pc.update();
+            pc.update(false);
             pc.setDesiredAltitude(targetAlt);
             pc.setTakeOffTime(System.currentTimeMillis());
         } else {
@@ -158,7 +165,7 @@ public class ChangeAltitudeHandler extends AbstractClientMsgHandler {
             } else
                 pc.setDesiredAltitude(targetAlt);
 
-            pc.update();
+            pc.update(false);
 
 
             pc.setTakeOffTime(System.currentTimeMillis());

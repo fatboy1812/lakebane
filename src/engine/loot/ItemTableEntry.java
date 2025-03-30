@@ -52,7 +52,7 @@ public class ItemTableEntry {
         itemTableEntryList = LootManager._itemTables.get(itemTable);
 
         if(itemTableEntryList != null && itemTableEntryList.size() > 1){
-            id =  itemTableEntryList.get(ThreadLocalRandom.current().nextInt(0,itemTableEntryList.size() - 1)).cacheID;
+            id =  itemTableEntryList.get(ThreadLocalRandom.current().nextInt(0, itemTableEntryList.size())).cacheID;
         }
         return id;
     }

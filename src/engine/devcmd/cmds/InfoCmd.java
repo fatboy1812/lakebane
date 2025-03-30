@@ -15,9 +15,13 @@ import engine.Enum.GameObjectType;
 import engine.Enum.TargetColor;
 import engine.devcmd.AbstractDevCmd;
 import engine.gameManager.BuildingManager;
+import engine.gameManager.PowersManager;
 import engine.gameManager.SessionManager;
 import engine.math.Vector3fImmutable;
 import engine.objects.*;
+import engine.powers.EffectsBase;
+import engine.powers.PowersBase;
+import engine.server.MBServerStatics;
 import engine.util.StringUtils;
 
 import java.text.DecimalFormat;
@@ -331,14 +335,18 @@ public class InfoCmd extends AbstractDevCmd {
                 output += "Movement State: " + targetPC.getMovementState().name();
                 output += newline;
                 output += "Movement Speed: " + targetPC.getSpeed();
-
+                output += newline;
                 output += "Altitude : " + targetPC.getLoc().y;
-
+                output += newline;
                 output += "Swimming : " + targetPC.isSwimming();
                 output += newline;
                 output += "isMoving : " + targetPC.isMoving();
                 output += newline;
-                output += "Zerg Multiplier : " + targetPC.ZergMultiplier;
+                output += "Zerg Multiplier : " + targetPC.ZergMultiplier + newline;
+                output += "Hidden : " + targetPC.getHidden() + newline;
+                output += "Target Loc: " + targetPC.loc + newline;
+                output += "Player Loc: " + pc.loc + newline;
+                output += "Distance Squared: " + pc.loc.distanceSquared(targetPC.loc);
                 break;
 
             case NPC:
@@ -493,13 +501,16 @@ public class InfoCmd extends AbstractDevCmd {
                     output += newline;
                     output += "No building found." + newline;
                 }
-                int max = (int)(4.882 * targetMob.level + 121.0);
-                if(max > 321){
-                    max = 321;
+
+                output += "Damage: " + targetMob.mobBase.getDamageMin() + " - " + targetMob.mobBase.getDamageMax() + newline;
+                output += "ATR: " + targetMob.mobBase.getAttackRating() + newline;
+                output += "DEF: " + targetMob.defenseRating + newline;
+                output += "RANGE: " + targetMob.getRange() + newline;
+                output += "Effects:" + newline;
+                for(MobBaseEffects mbe : targetMob.mobBase.mobbaseEffects){
+                    EffectsBase eb = PowersManager.getEffectByToken(mbe.getToken());
+                    output += eb.getName() + newline;
                 }
-                int min = (int)(4.469 * targetMob.level - 3.469);
-                output += "Min Loot Roll = " + min;
-                output += "Max Loot Roll = " + max;
                 break;
             case Item:  //intentional passthrough
             case MobLoot:
@@ -529,6 +540,13 @@ public class InfoCmd extends AbstractDevCmd {
                     //	output += eff.getEffectToken() + (eff.bakedInStat() ? " (baked in)" : "") + newline;
                 }
 
+                break;
+
+            case Corpse:
+                Corpse corpse = (Corpse)target;
+                Long timeLeft = MBServerStatics.CORPSE_CLEANUP_TIMER_MS - (System.currentTimeMillis() - corpse.spawnedTime);
+                output += "Despawn in: " + timeLeft;
+                output += newline;
                 break;
         }
 

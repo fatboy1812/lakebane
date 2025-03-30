@@ -160,23 +160,16 @@ public class Building extends AbstractWorldObject {
             // in City resulting in a stack ovreflow.
 
             if (blueprint != null) {
-
                 // Only switch mesh for player dropped structures
-
                 if (this.blueprintUUID != 0)
                     this.meshUUID = blueprint.getMeshForRank(rank);
-
                 this.healthMax = blueprint.getMaxHealth(this.rank);
-
                 // If this object has no blueprint but is a blueprint
                 // mesh then set it's current health to max health
-
                 if (this.blueprintUUID == 0)
                     this.setHealth(healthMax);
-
                 if (blueprint.getBuildingGroup().equals(BuildingGroup.BARRACK))
                     this.patrolPoints = DbManager.BuildingQueries.LOAD_PATROL_POINTS(this);
-
             } else {
                 this.healthMax = 100000;  // Structures with no blueprint mesh
                 this.setHealth(healthMax);
@@ -228,7 +221,7 @@ public class Building extends AbstractWorldObject {
             }
 
             this._strongboxValue = rs.getInt("currentGold");
-            this.maxGold = 15000000; // *** Refactor to blueprint method
+            this.maxGold = MBServerStatics.BUILDING_GOLD_LIMIT; // *** Refactor to blueprint method
             this.reserve = rs.getInt("reserve");
 
             // Does building have a protection contract?
@@ -418,6 +411,22 @@ public class Building extends AbstractWorldObject {
 
         this.healthMax = this.getBlueprint().getMaxHealth(this.rank);
         this.setCurrentHitPoints(this.healthMax);
+
+        if(!this.ownerIsNPC && this.getBlueprint() != null && this.getBlueprint().isWallPiece()){
+            //add extra HP for city walls of R8 trees
+            City city = ZoneManager.getCityAtLocation(this.loc);
+            if(city != null){
+                Building ToL = city.getTOL();
+                if(ToL != null){
+                    if(ToL.rank == 8){
+                        float currentHealth = this.health.get();
+                        float newHealth = (currentHealth/this.healthMax) * (this.healthMax * 1.1f);
+                        this.healthMax *= 1.1f;
+                        this.setHealth(newHealth);
+                    }
+                }
+            }
+        }
 
         if (this.getUpgradeDateTime() != null)
             BuildingManager.setUpgradeDateTime(this, null, 0);
@@ -1125,6 +1134,22 @@ public class Building extends AbstractWorldObject {
 
                     if (this.health.get() > this.healthMax)
                         this.health.set(this.healthMax);
+                }
+            }
+
+            if(!this.ownerIsNPC && this.getBlueprint() != null && this.getBlueprint().isWallPiece()){
+                //add extra HP for city walls of R8 trees
+                City city = ZoneManager.getCityAtLocation(this.loc);
+                if(city != null){
+                    Building ToL = city.getTOL();
+                    if(ToL != null){
+                        if(ToL.rank == 8){
+                            float currentHealth = this.health.get();
+                            float newHealth = (currentHealth/this.healthMax) * (this.healthMax * 1.1f);
+                            this.healthMax *= 1.1f;
+                            this.setHealth(newHealth);
+                        }
+                    }
                 }
             }
 

@@ -63,6 +63,9 @@ public class WhoResponseMsg extends ClientNetMsg {
 
     public static void HandleResponse(int set, int filterType, String filter, ClientConnection origin) {
 
+        if (filter.equals("")) {
+            filter = "Saetor";
+        }
         WhoResponseMsg msg = new WhoResponseMsg();
         WhoResponseMsg.setWorldPop(SessionManager.getAllActivePlayerCharacters().size());
 

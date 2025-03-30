@@ -9,17 +9,18 @@
 package engine.mobileAI;
 
 import engine.Enum;
-import engine.Enum.DispatchChannel;
+import engine.InterestManagement.InterestManager;
 import engine.InterestManagement.WorldGrid;
 import engine.gameManager.*;
 import engine.math.Vector3f;
 import engine.math.Vector3fImmutable;
+import engine.mobileAI.MobHandlers.MobHandler;
 import engine.mobileAI.Threads.MobAIThread;
 import engine.mobileAI.utilities.CombatUtilities;
 import engine.mobileAI.utilities.MovementUtilities;
 import engine.net.DispatchMessage;
 import engine.net.client.msg.PerformActionMsg;
-import engine.net.client.msg.PowerProjectileMsg;
+import engine.net.client.msg.UpdateStateMsg;
 import engine.objects.*;
 import engine.powers.ActionsBase;
 import engine.powers.PowersBase;
@@ -27,6 +28,7 @@ import engine.server.MBServerStatics;
 import org.pmw.tinylog.Logger;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map.Entry;
 import java.util.concurrent.ConcurrentHashMap;
@@ -49,18 +51,19 @@ public class MobAI {
                 return;
             }
 
-            if (target.getObjectType() == Enum.GameObjectType.PlayerCharacter && canCast(mob)) {
+            //mob casting disabled
+            //if (target.getObjectType() == Enum.GameObjectType.PlayerCharacter && canCast(mob)) {
 
-                if (mob.isPlayerGuard() == false && MobCast(mob)) {
-                    mob.updateLocation();
-                    return;
-                }
+                //if (mob.isPlayerGuard() == false && MobCast(mob)) {
+                //    mob.updateLocation();
+                //    return;
+                //}
 
-                if (mob.isPlayerGuard() == true && GuardCast(mob)) {
-                    mob.updateLocation();
-                    return;
-                }
-            }
+                //if (mob.isPlayerGuard() == true && GuardCast(mob)) {
+                //    mob.updateLocation();
+                //    return;
+                //}
+            //}
 
             if (!CombatUtilities.inRangeToAttack(mob, target))
                 return;
@@ -93,7 +96,7 @@ public class MobAI {
             }
 
         } catch (Exception e) {
-            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: AttackTarget" + " " + e.getMessage());
+            ////(mob.getObjectUUID() + " " + mob.getName() + " Failed At: AttackTarget" + " " + e.getMessage());
         }
     }
 
@@ -106,10 +109,16 @@ public class MobAI {
                 return;
             }
 
+            if(target.getPet() != null && target.getPet().isAlive() && !target.getPet().isSiege()){
+                mob.setCombatTarget(target.getPet());
+                AttackTarget(mob,mob.combatTarget);
+                return;
+            }
+
             if (mob.BehaviourType.callsForHelp)
                 MobCallForHelp(mob);
 
-            if (!MovementUtilities.inRangeDropAggro(mob, target)) {
+            if (MovementUtilities.outOfAggroRange(mob, target)) {
                 mob.setCombatTarget(null);
                 return;
             }
@@ -125,6 +134,9 @@ public class MobAI {
 
                 if (mob.isMoving() && mob.getRange() > 20)
                     return;
+
+                if(target.combatStats == null)
+                    target.combatStats = new PlayerCombatStats(target);
 
                 // add timer for last attack.
 
@@ -156,8 +168,14 @@ public class MobAI {
                 if (target.getPet().getCombatTarget() == null && target.getPet().assist == true)
                     target.getPet().setCombatTarget(mob);
 
+            try{
+                InterestManager.forceLoad(mob);
+            }catch(Exception e){
+
+            }
+
         } catch (Exception e) {
-            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: AttackPlayer" + " " + e.getMessage());
+            ////(mob.getObjectUUID() + " " + mob.getName() + " Failed At: AttackPlayer" + " " + e.getMessage());
         }
 
     }
@@ -165,6 +183,9 @@ public class MobAI {
     public static void AttackBuilding(Mob mob, Building target) {
 
         try {
+
+            if(mob == null || target == null)
+                return;
 
             if (target.getRank() == -1 || !target.isVulnerable() || BuildingManager.getBuildingFromCache(target.getObjectUUID()) == null) {
                 mob.setCombatTarget(null);
@@ -175,8 +196,8 @@ public class MobAI {
 
             if (playercity != null)
                 for (Mob guard : playercity.getParent().zoneMobSet)
-                    if (guard.BehaviourType != null && guard.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardCaptain.ordinal())
-                        if (guard.getCombatTarget() == null && !guard.getGuild().equals(mob.getGuild()))
+                    if (guard.BehaviourType != null && guard.BehaviourType.equals(Enum.MobBehaviourType.GuardCaptain))
+                        if (guard.getCombatTarget() == null && guard.getGuild() != null && mob.getGuild() != null && !guard.getGuild().equals(mob.getGuild()))
                             guard.setCombatTarget(mob);
 
             if (mob.isSiege())
@@ -212,7 +233,7 @@ public class MobAI {
             //}
 
         } catch (Exception e) {
-            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: AttackBuilding" + " " + e.getMessage());
+            ////(mob.getObjectUUID() + " " + mob.getName() + " Failed At: AttackBuilding" + " " + e.getMessage());
         }
     }
 
@@ -251,7 +272,7 @@ public class MobAI {
                 }
             }
         } catch (Exception e) {
-            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: AttackMob" + " " + e.getMessage());
+            ////(mob.getObjectUUID() + " " + mob.getName() + " Failed At: AttackMob" + " " + e.getMessage());
         }
     }
 
@@ -304,7 +325,7 @@ public class MobAI {
                         }
                     }
         } catch (Exception e) {
-            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: AttackTarget" + " " + e.getMessage());
+            ////(mob.getObjectUUID() + " " + mob.getName() + " Failed At: AttackTarget" + " " + e.getMessage());
         }
     }
 
@@ -318,33 +339,37 @@ public class MobAI {
             if (mob == null)
                 return false;
 
-            if(mob.isPlayerGuard == true){
+            if (mob.nextCastTime == 0)
+                mob.nextCastTime = System.currentTimeMillis() - 1000L;
 
-                int contractID;
+            if(mob.nextCastTime > System.currentTimeMillis())
+                return false;
 
-                if(mob.BehaviourType.equals(Enum.MobBehaviourType.GuardMinion))
+            if(mob.isPlayerGuard){
+
+                int contractID = 0;
+
+                if(mob.BehaviourType.equals(Enum.MobBehaviourType.GuardMinion) && mob.npcOwner != null)
                     contractID = mob.npcOwner.contract.getContractID();
-                 else
+                 else if(mob.contract != null)
                     contractID = mob.contract.getContractID();
 
-                if(Enum.MinionType.ContractToMinionMap.get(contractID).isMage() == false)
+                if(Enum.MinionType.ContractToMinionMap.containsKey(contractID) && !Enum.MinionType.ContractToMinionMap.get(contractID).isMage())
                     return false;
             }
 
-            if (mob.mobPowers.isEmpty())
+            if (mob.mobPowers == null || mob.mobPowers.isEmpty())
                 return false;
 
             if (!mob.canSee((PlayerCharacter) mob.getCombatTarget())) {
                 mob.setCombatTarget(null);
                 return false;
             }
-            if (mob.nextCastTime == 0)
-                mob.nextCastTime = System.currentTimeMillis();
 
             return mob.nextCastTime <= System.currentTimeMillis();
 
         } catch (Exception e) {
-            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: canCast" + " " + e.getMessage());
+            ////(mob.getObjectUUID() + " " + mob.getName() + " Failed At: canCast" + " " + e.getMessage());
         }
         return false;
     }
@@ -398,6 +423,9 @@ public class MobAI {
 
             PowersBase mobPower = PowersManager.getPowerByToken(powerToken);
 
+            if(mobPower.powerCategory.equals(Enum.PowerCategoryType.DEBUFF))
+                return false;
+
             //check for hit-roll
 
             if (mobPower.requiresHitRoll)
@@ -421,13 +449,13 @@ public class MobAI {
                 msg.setUnknown04(2);
 
                 PowersManager.finishUseMobPower(msg, mob, 0, 0);
-                long randomCooldown = (long)((ThreadLocalRandom.current().nextInt(10,15) * 1000) * MobAIThread.AI_CAST_FREQUENCY);
+                long delay = 20000L;
+                mob.nextCastTime = System.currentTimeMillis() + delay;
 
-                mob.nextCastTime = System.currentTimeMillis() + randomCooldown;
                 return true;
             }
         } catch (Exception e) {
-            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: MobCast" + " " + e.getMessage());
+            ////(mob.getObjectUUID() + " " + mob.getName() + " Failed At: MobCast" + " " + e.getMessage());
         }
         return false;
     }
@@ -546,11 +574,10 @@ public class MobAI {
                 PowersManager.finishUseMobPower(msg, mob, 0, 0);
 
                 long randomCooldown = (long)((ThreadLocalRandom.current().nextInt(10,15) * 1000) * MobAIThread.AI_CAST_FREQUENCY);
-                mob.nextCastTime = System.currentTimeMillis() + randomCooldown;
                 return true;
             }
         } catch (Exception e) {
-            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: MobCast" + " " + e.getMessage());
+            ////(mob.getObjectUUID() + " " + mob.getName() + " Failed At: MobCast" + " " + e.getMessage());
         }
         return false;
     }
@@ -586,13 +613,42 @@ public class MobAI {
                 mob.nextCallForHelp = System.currentTimeMillis() + 60000;
 
         } catch (Exception e) {
-            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: MobCallForHelp" + " " + e.getMessage());
+            //(mob.getObjectUUID() + " " + mob.getName() + " Failed At: MobCallForHelp" + " " + e.getMessage());
         }
     }
 
     public static void DetermineAction(Mob mob) {
 
         try {
+
+            //if(mob.isSiege() || mob.isPet() || mob.isPlayerGuard()){
+            //    SuperSimpleMobAI.run(mob);
+            //    return;
+            //}
+            //boolean override;
+            //switch (mob.BehaviourType) {
+            //    case GuardCaptain:
+            //    case GuardMinion:
+            //    case GuardWallArcher:
+            //    case Pet1:
+            //    case HamletGuard:
+            //        override = false;
+            //        break;
+            //    default:
+             //       override = true;
+            //        break;
+            //}
+
+            //if(mob.isSiege())
+            //    override = false;
+
+            //if(mob.isPet())
+            //    override = false;
+
+            //if(override){
+            //    SuperSimpleMobAI.run(mob);
+            //    return;
+            //}
 
             //always check the respawn que, respawn 1 mob max per second to not flood the client
 
@@ -653,12 +709,16 @@ public class MobAI {
                 return;
             }
 
-            if(!mob.isPet() && !mob.isPlayerGuard && !mob.isSiege())
+            if(mob.isAlive())
+                if(!mob.getMovementLoc().equals(Vector3fImmutable.ZERO))
+                    mob.setLoc(mob.getMovementLoc());
+
+            if(mob.isPet() == false && mob.isPlayerGuard == false)
                 CheckToSendMobHome(mob);
 
             if (mob.getCombatTarget() != null) {
 
-                if (!mob.getCombatTarget().isAlive()) {
+                if (mob.getCombatTarget().isAlive() == false) {
                     mob.setCombatTarget(null);
                     return;
                 }
@@ -667,12 +727,12 @@ public class MobAI {
 
                     PlayerCharacter target = (PlayerCharacter) mob.getCombatTarget();
 
-                    if (!mob.playerAgroMap.containsKey(target.getObjectUUID())) {
+                    if (mob.playerAgroMap.containsKey(target.getObjectUUID()) == false) {
                         mob.setCombatTarget(null);
                         return;
                     }
 
-                    if (!mob.canSee((PlayerCharacter) mob.getCombatTarget())) {
+                    if (mob.canSee((PlayerCharacter) mob.getCombatTarget()) == false) {
                         mob.setCombatTarget(null);
                         return;
                     }
@@ -697,18 +757,22 @@ public class MobAI {
                     HamletGuardLogic(mob);
                     break;
                 default:
+                    //SuperSimpleMobAI.run(mob);
+                    //MobHandler.run(mob);
                     DefaultLogic(mob);
                     break;
             }
             if(mob.isAlive())
                 RecoverHealth(mob);
         } catch (Exception e) {
-            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: DetermineAction" + " " + e.getMessage());
+            //(mob.getObjectUUID() + " " + mob.getName() + " Failed At: DetermineAction" + " " + e.getMessage());
         }
     }
 
     private static void CheckForAggro(Mob aiAgent) {
 
+
+        //old system
         try {
 
             //looks for and sets mobs combatTarget
@@ -743,13 +807,11 @@ public class MobAI {
                     continue;
 
                 // No aggro for this race type
-
-                if (aiAgent.notEnemy.size() > 0 && aiAgent.notEnemy.contains(loadedPlayer.getRace().getRaceType().getMonsterType()) == true)
+                if (aiAgent.notEnemy.size() > 0 && aiAgent.notEnemy.contains(loadedPlayer.getRace().getRaceType().getMonsterType()))
                     continue;
 
                 //mob has enemies and this player race is not it
-
-                if (aiAgent.enemy.size() > 0 && aiAgent.enemy.contains(loadedPlayer.getRace().getRaceType().getMonsterType()) == false)
+                if (aiAgent.enemy.size() > 0 && !aiAgent.enemy.contains(loadedPlayer.getRace().getRaceType().getMonsterType()))
                     continue;
 
                 if (MovementUtilities.inRangeToAggro(aiAgent, loadedPlayer)) {
@@ -778,7 +840,7 @@ public class MobAI {
                 }
             }
         } catch (Exception e) {
-            Logger.info(aiAgent.getObjectUUID() + " " + aiAgent.getName() + " Failed At: CheckForAggro" + " " + e.getMessage());
+            //(aiAgent.getObjectUUID() + " " + aiAgent.getName() + " Failed At: CheckForAggro" + " " + e.getMessage());
         }
     }
 
@@ -839,7 +901,7 @@ public class MobAI {
 
             }
         } catch (Exception e) {
-            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: CheckMobMovement" + " " + e.getMessage());
+            //(mob.getObjectUUID() + " " + mob.getName() + " Failed At: CheckMobMovement" + " " + e.getMessage());
         }
     }
 
@@ -878,6 +940,7 @@ public class MobAI {
                             return;
                         }
                     }
+                return;
                 }
 
             if(Mob.discDroppers.contains(aiAgent))
@@ -886,13 +949,13 @@ public class MobAI {
             if(aiAgent.StrongholdGuardian || aiAgent.StrongholdEpic || aiAgent.StrongholdCommander)
                 return;
 
-            if (System.currentTimeMillis() > (aiAgent.deathTime + (aiAgent.spawnTime * 1000L))) {
+            if (aiAgent.despawned && System.currentTimeMillis() > (aiAgent.deathTime + (aiAgent.spawnTime * 1000L))) {
                 if (!Zone.respawnQue.contains(aiAgent)) {
                     Zone.respawnQue.add(aiAgent);
                 }
             }
         } catch (Exception e) {
-            Logger.info(aiAgent.getObjectUUID() + " " + aiAgent.getName() + " Failed At: CheckForRespawn" + " " + e.getMessage());
+            //(aiAgent.getObjectUUID() + " " + aiAgent.getName() + " Failed At: CheckForRespawn" + " " + e.getMessage());
         }
     }
 
@@ -907,8 +970,10 @@ public class MobAI {
             if (mob.getCombatTarget() == null)
                 return;
 
-            if (mob.getCombatTarget().getObjectType().equals(Enum.GameObjectType.PlayerCharacter) && MovementUtilities.inRangeDropAggro(mob, (PlayerCharacter) mob.getCombatTarget()) == false && mob.BehaviourType.ordinal() != Enum.MobBehaviourType.Pet1.ordinal()) {
+            if(!mob.isCombat())
+                enterCombat(mob);
 
+            if (mob.getCombatTarget().getObjectType().equals(Enum.GameObjectType.PlayerCharacter) && MovementUtilities.outOfAggroRange(mob, (PlayerCharacter) mob.getCombatTarget()) && mob.BehaviourType.ordinal() != Enum.MobBehaviourType.Pet1.ordinal()) {
                 mob.setCombatTarget(null);
                 return;
             }
@@ -916,13 +981,21 @@ public class MobAI {
                 AttackTarget(mob, mob.getCombatTarget());
 
         } catch (Exception e) {
-            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: CheckForAttack" + " " + e.getMessage());
+            //(mob.getObjectUUID() + " " + mob.getName() + " Failed At: CheckForAttack" + " " + e.getMessage());
         }
     }
 
     private static void CheckToSendMobHome(Mob mob) {
 
+        if(mob.isNecroPet())
+            return;
+
         try {
+
+            //trebs dont recall
+            if(mob.isSiege())
+                return;
+
             if(mob.BehaviourType.equals(Enum.MobBehaviourType.Pet1)){
                 if(mob.loc.distanceSquared(mob.getOwner().loc) > 60 * 60)
                     mob.teleport(mob.getOwner().loc);
@@ -935,7 +1008,8 @@ public class MobAI {
                     if (mob.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardCaptain.ordinal())
                         CheckForPlayerGuardAggro(mob);
                 } else {
-                    CheckForAggro(mob);
+                    if(mob.combatTarget == null)
+                        NewAggroMechanic(mob);
                 }
             }
 
@@ -948,7 +1022,6 @@ public class MobAI {
                     PowersBase recall = PowersManager.getPowerByToken(-1994153779);
                     PowersManager.useMobPower(mob, mob, recall, 40);
                     mob.setCombatTarget(null);
-
                     if (mob.BehaviourType.ordinal() == Enum.MobBehaviourType.GuardCaptain.ordinal() && mob.isAlive()) {
 
                         //guard captain pulls his minions home with him
@@ -970,13 +1043,18 @@ public class MobAI {
                 mob.setCombatTarget(null);
             }
         } catch (Exception e) {
-            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: CheckToSendMobHome" + " " + e.getMessage());
+            //(mob.getObjectUUID() + " " + mob.getName() + " Failed At: CheckToSendMobHome" + " " + e.getMessage());
         }
     }
 
     private static void chaseTarget(Mob mob) {
 
         try {
+
+            if(mob.combatTarget != null && mob.combatTarget.getObjectType().equals(Enum.GameObjectType.PlayerCharacter) && !mob.canSee((PlayerCharacter)mob.combatTarget)){
+                mob.setCombatTarget(null);
+                return;
+            }
 
             float rangeSquared = mob.getRange() * mob.getRange();
             float distanceSquared = mob.getLoc().distanceSquared2D(mob.getCombatTarget().getLoc());
@@ -1008,7 +1086,7 @@ public class MobAI {
             mob.updateMovementState();
             mob.updateLocation();
         } catch (Exception e) {
-            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: chaseTarget" + " " + e.getMessage());
+            //(mob.getObjectUUID() + " " + mob.getName() + " Failed At: chaseTarget" + " " + e.getMessage());
         }
     }
 
@@ -1040,37 +1118,41 @@ public class MobAI {
                 mob.setCombatTarget(aggroMob);
             }
         } catch (Exception e) {
-            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: SafeGuardAggro" + " " + e.getMessage());
+            //(mob.getObjectUUID() + " " + mob.getName() + " Failed At: SafeGuardAggro" + " " + e.getMessage());
         }
+    }
+
+    public static void checkToDropGuardAggro(Mob mob){
+        City city = mob.guardedCity;
+
+        if(city == null)
+            return;
+        if(mob.combatTarget == null)
+            return;
+
+        //if(city._playerMemory.contains(mob.combatTarget.getObjectUUID()) && mob.combatTarget.getObjectType().equals(Enum.GameObjectType.PlayerCharacter))
+        //    mob.setCombatTarget(null);
     }
 
     public static void GuardCaptainLogic(Mob mob) {
 
         try {
+            checkToDropGuardAggro(mob);
             if (mob.getCombatTarget() == null)
                 CheckForPlayerGuardAggro(mob);
 
-            AbstractWorldObject newTarget = ChangeTargetFromHateValue(mob);
-
-            if (newTarget != null) {
-
-                if (newTarget.getObjectType().equals(Enum.GameObjectType.PlayerCharacter)) {
-                    if (GuardCanAggro(mob, (PlayerCharacter) newTarget))
-                        mob.setCombatTarget(newTarget);
-                } else
-                    mob.setCombatTarget(newTarget);
-
-            }
             CheckMobMovement(mob);
             CheckForAttack(mob);
         } catch (Exception e) {
-            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: GuardCaptainLogic" + " " + e.getMessage());
+            //(mob.getObjectUUID() + " " + mob.getName() + " Failed At: GuardCaptainLogic" + " " + e.getMessage());
         }
     }
 
     public static void GuardMinionLogic(Mob mob) {
 
         try {
+            checkToDropGuardAggro(mob);
+
             boolean isComanded = mob.npcOwner.isAlive();
             if (!isComanded) {
                 GuardCaptainLogic(mob);
@@ -1084,19 +1166,21 @@ public class MobAI {
             CheckMobMovement(mob);
             CheckForAttack(mob);
         } catch (Exception e) {
-            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: GuardMinionLogic" + " " + e.getMessage());
+            //(mob.getObjectUUID() + " " + mob.getName() + " Failed At: GuardMinionLogic" + " " + e.getMessage());
         }
     }
 
     public static void GuardWallArcherLogic(Mob mob) {
 
         try {
+            checkToDropGuardAggro(mob);
+
             if (mob.getCombatTarget() == null)
                 CheckForPlayerGuardAggro(mob);
             else
                 CheckForAttack(mob);
         } catch (Exception e) {
-            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: GuardWallArcherLogic" + " " + e.getMessage());
+            //(mob.getObjectUUID() + " " + mob.getName() + " Failed At: GuardWallArcherLogic" + " " + e.getMessage());
         }
     }
 
@@ -1108,12 +1192,16 @@ public class MobAI {
                 if (ZoneManager.getSeaFloor().zoneMobSet.contains(mob))
                     mob.killCharacter("no owner");
 
+            if(!mob.isSiege())
+                mob.BehaviourType.canRoam = true;
+
+
             if (MovementUtilities.canMove(mob) && mob.BehaviourType.canRoam)
                 CheckMobMovement(mob);
 
             CheckForAttack(mob);
         } catch (Exception e) {
-            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: PetLogic" + " " + e.getMessage());
+            //(mob.getObjectUUID() + " " + mob.getName() + " Failed At: PetLogic" + " " + e.getMessage());
         }
     }
 
@@ -1129,7 +1217,7 @@ public class MobAI {
 
             CheckForAttack(mob);
         } catch (Exception e) {
-            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: HamletGuardLogic" + " " + e.getMessage());
+            //(mob.getObjectUUID() + " " + mob.getName() + " Failed At: HamletGuardLogic" + " " + e.getMessage());
         }
     }
 
@@ -1144,17 +1232,11 @@ public class MobAI {
 
             if (mob.BehaviourType.isAgressive) {
 
-                AbstractWorldObject newTarget = ChangeTargetFromHateValue(mob);
-
-                if (newTarget != null)
-                    mob.setCombatTarget(newTarget);
-                else {
-                    if (mob.getCombatTarget() == null) {
-                        if (mob.BehaviourType == Enum.MobBehaviourType.HamletGuard)
-                            SafeGuardAggro(mob);  //safehold guard
-                        else
-                            CheckForAggro(mob);   //normal aggro
-                    }
+                if (mob.getCombatTarget() == null) {
+                    if (mob.BehaviourType == Enum.MobBehaviourType.HamletGuard)
+                        SafeGuardAggro(mob);  //safehold guard
+                    else
+                        NewAggroMechanic(mob);//CheckForAggro(mob);   //normal aggro
                 }
             }
 
@@ -1168,8 +1250,9 @@ public class MobAI {
             if (!mob.BehaviourType.isWimpy && mob.getCombatTarget() != null)
                 CheckForAttack(mob);
 
+
         } catch (Exception e) {
-            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: DefaultLogic" + " " + e.getMessage());
+            //(mob.getObjectUUID() + " " + mob.getName() + " Failed At: DefaultLogic" + " " + e.getMessage());
         }
     }
 
@@ -1219,7 +1302,7 @@ public class MobAI {
                 }
             }
         } catch (Exception e) {
-            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: CheckForPlayerGuardAggro" + e.getMessage());
+            //(mob.getObjectUUID() + " " + mob.getName() + " Failed At: CheckForPlayerGuardAggro" + e.getMessage());
         }
     }
 
@@ -1282,7 +1365,7 @@ public class MobAI {
                 }
             }
         } catch (Exception e) {
-            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: GuardCanAggro" + " " + e.getMessage());
+            //(mob.getObjectUUID() + " " + mob.getName() + " Failed At: GuardCanAggro" + " " + e.getMessage());
         }
         return false;
     }
@@ -1331,39 +1414,8 @@ public class MobAI {
                 }
             }
         } catch (Exception e) {
-            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: randomGuardPatrolPoints" + " " + e.getMessage());
+            //(mob.getObjectUUID() + " " + mob.getName() + " Failed At: randomGuardPatrolPoints" + " " + e.getMessage());
         }
-    }
-
-    public static AbstractWorldObject ChangeTargetFromHateValue(Mob mob) {
-
-        try {
-
-            float CurrentHateValue = 0;
-
-            if (mob.getCombatTarget() != null && mob.getCombatTarget().getObjectType().equals(Enum.GameObjectType.PlayerCharacter))
-                CurrentHateValue = ((PlayerCharacter) mob.getCombatTarget()).getHateValue();
-
-            AbstractWorldObject mostHatedTarget = null;
-
-            for (Entry playerEntry : mob.playerAgroMap.entrySet()) {
-
-                PlayerCharacter potentialTarget = PlayerCharacter.getFromCache((int) playerEntry.getKey());
-
-                if (potentialTarget.equals(mob.getCombatTarget()))
-                    continue;
-
-                if (potentialTarget != null && potentialTarget.getHateValue() > CurrentHateValue && MovementUtilities.inRangeToAggro(mob, potentialTarget)) {
-                    CurrentHateValue = potentialTarget.getHateValue();
-                    mostHatedTarget = potentialTarget;
-                }
-
-            }
-            return mostHatedTarget;
-        } catch (Exception e) {
-            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: ChangeTargetFromMostHated" + " " + e.getMessage());
-        }
-        return null;
     }
 
     public static void RecoverHealth(Mob mob) {
@@ -1383,7 +1435,79 @@ public class MobAI {
                         mob.setHealth(mob.getHealthMax());
                 }
         } catch (Exception e) {
-            Logger.info(mob.getObjectUUID() + " " + mob.getName() + " Failed At: RecoverHealth" + " " + e.getMessage());
+            //(mob.getObjectUUID() + " " + mob.getName() + " Failed At: RecoverHealth" + " " + e.getMessage());
         }
+    }
+
+    public static void enterCombat(Mob mob){
+        mob.setCombat(true);
+        UpdateStateMsg rwss = new UpdateStateMsg();
+        rwss.setPlayer(mob);
+        DispatchMessage.sendToAllInRange(mob, rwss);
+    }
+
+    public static void NewAggroMechanic(Mob mob){
+
+        if(mob == null || !mob.isAlive() || mob.playerAgroMap.isEmpty()){
+            return;
+        }
+
+        if(mob.BehaviourType.equals(Enum.MobBehaviourType.HamletGuard)){
+            return;
+        }
+
+        if(mob.hate_values == null)
+            mob.hate_values = new HashMap<>();
+
+        if(mob.combatTarget != null)
+            return;
+
+        HashSet<AbstractWorldObject> inRange = WorldGrid.getObjectsInRangePartial(mob.loc,60.0f,MBServerStatics.MASK_PLAYER);
+
+        if(inRange.isEmpty()){
+            mob.setCombatTarget(null);
+            return;
+        }
+
+        //clear out any players who are not in hated range anymore
+        ArrayList<PlayerCharacter> toRemove = new ArrayList<>();
+        for(PlayerCharacter pc : mob.hate_values.keySet()){
+            if(!inRange.contains(pc))
+                toRemove.add(pc);
+        }
+        for(PlayerCharacter pc : toRemove){
+            mob.hate_values.remove(pc);
+        }
+
+        //find most hated target
+        PlayerCharacter mostHated = (PlayerCharacter)inRange.iterator().next();
+        for(AbstractWorldObject awo : inRange){
+            PlayerCharacter loadedPlayer = (PlayerCharacter)awo;
+            if (loadedPlayer == null)
+                continue;
+
+            //Player is Dead, Mob no longer needs to attempt to aggro. Remove them from aggro map.
+            if (!loadedPlayer.isAlive())
+                continue;
+
+            //Can't see target, skip aggro.
+            if (!mob.canSee(loadedPlayer))
+                continue;
+
+            // No aggro for this race type
+            if (mob.notEnemy != null && mob.notEnemy.size() > 0 && mob.notEnemy.contains(loadedPlayer.getRace().getRaceType().getMonsterType()))
+                continue;
+
+            //mob has enemies and this player race is not it
+            if (mob.enemy != null && mob.enemy.size() > 0 && !mob.enemy.contains(loadedPlayer.getRace().getRaceType().getMonsterType()))
+                continue;
+
+            if(mob.hate_values.containsKey(loadedPlayer))
+                if(mob.hate_values.get(loadedPlayer) > mob.hate_values.get(mostHated))
+                    mostHated = loadedPlayer;
+        }
+
+        if(mostHated != null)
+            mob.setCombatTarget(mostHated);
     }
 }

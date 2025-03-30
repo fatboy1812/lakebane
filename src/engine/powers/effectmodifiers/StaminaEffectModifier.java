@@ -125,9 +125,15 @@ public class StaminaEffectModifier extends AbstractEffectModifier {
             PlayerBonuses bonus = source.getBonuses();
 
             // Apply any power effect modifiers (such as stances)
-            if (bonus != null)
-                modAmount *= (1 + (bonus.getFloatPercentAll(ModType.PowerDamageModifier, SourceType.None)));
+            if (bonus != null){
+                modAmount *= (1 + bonus.getFloatPercentAll(ModType.PowerDamageModifier, SourceType.None));
+            }
         }
+
+        if(source.getObjectType().equals(Enum.GameObjectType.PlayerCharacter)){
+            modAmount *= ((PlayerCharacter)source).ZergMultiplier;
+        }
+
         if (modAmount == 0f)
             return;
         if (AbstractWorldObject.IsAbstractCharacter(awo)) {

@@ -9,6 +9,7 @@
 
 package engine.powers;
 
+import engine.Enum;
 import engine.Enum.ModType;
 import engine.Enum.SourceType;
 import engine.Enum.StackType;
@@ -237,32 +238,86 @@ public class ActionsBase {
     }
 
     //Add blocked types here
-    public boolean blocked(AbstractWorldObject awo, PowersBase pb, int trains) {
+    public boolean blocked(AbstractWorldObject awo, PowersBase pb, int trains, AbstractCharacter source) {
+
+        if(!pb.getName().contains("Summon")) {
+            if (AbstractWorldObject.IsAbstractCharacter(awo)) {
+                AbstractCharacter target = (AbstractCharacter) awo;
+                if (source.getObjectType().equals(Enum.GameObjectType.PlayerCharacter)) {
+                    PlayerCharacter pc = (PlayerCharacter) source;
+                    if (target.getObjectType().equals(Enum.GameObjectType.PlayerCharacter)) {
+                        if (pc.isBoxed && pc.getObjectUUID() != target.getObjectUUID()) {
+                            return true;
+                        }
+                    }
+                }
+            }
+        }
+
+        if(pb.isChant)
+            return false;
+
         if (AbstractWorldObject.IsAbstractCharacter(awo)) {
             AbstractCharacter ac = (AbstractCharacter) awo;
+
+            if(ac.effects.containsKey(this.stackType)) {
+                Boolean sameRank = false;
+                Effect eff = ac.effects.get(this.stackType);
+
+                String currentEffect = eff.getEffectsBase().getIDString();
+                String newEffect = this.effectID;
+                if (currentEffect.equals(newEffect) && !this.stackType.equals("Stun"))
+                    return false;
+
+                if (eff != null) {
+                    for (ActionsBase action : eff.getPower().getActions()) {
+                        if (this.stackType.equals(action.stackType) && this.stackOrder == action.stackOrder) {
+                            if (this.stackType.equals("NoStun")) {
+                                return true;
+                            }
+                        }
+
+                        if (sameRank) {
+                            if (this.greaterThan && trains <= eff.getTrains())
+                                return true;
+
+                            if (this.greaterThanEqual && trains < eff.getTrains())
+                                return true;
+                        }
+                    }
+                }
+            }
             PlayerBonuses bonus = ac.getBonuses();
             if (bonus == null)
                 return false;
 
-            //TODO make this more efficient then testing strings
-            if (this.stackType.equals("Stun") && bonus.getBool(ModType.ImmuneTo, SourceType.Stun))
-                return true; //Currently stun immune. Skip stun
-            else if (this.stackType.equals("Snare") && bonus.getBool(ModType.ImmuneTo, SourceType.Snare))
-                return true; //Currently snare immune. Skip snare
-            else if (this.stackType.equals("Blindness") && bonus.getBool(ModType.ImmuneTo, SourceType.Blind))
-                return true; //Currently blind immune. Skip blind
-            else if (this.stackType.equals("PowerInhibitor") && bonus.getBool(ModType.ImmuneTo, SourceType.Powerblock))
-                return true; //Currently power block immune. Skip power block
-            else if (this.stackType.equals("Root") && bonus.getBool(ModType.ImmuneTo, SourceType.Root))
+            SourceType sourceType = null;
+            try {
+                sourceType = SourceType.GetSourceType(this.stackType);
+            }catch(Exception ignored){
+
+            }
+            if(sourceType != null && (bonus.getBool(ModType.ImmuneTo,sourceType) || bonus.getBool(ModType.NoMod,sourceType)))
                 return true;
-                //			else if (pb.isHeal() && (bonus.getByte("immuneTo.Heal")) >= trains)
-                //				return true; //Currently shadowmantled. Skip heals
-            else if (this.stackType.equals("Flight") && bonus.getBool(ModType.NoMod, SourceType.Fly))
+            if(ac.getObjectType().equals(Enum.GameObjectType.PlayerCharacter)){
+                PlayerCharacter pc = (PlayerCharacter)ac;
+                if(this.stackType.equals("Blindness") && pc.getRace().getName().contains("Shade"))
+                    return true;
+                if(this.stackType.equals("Stun") && pc.getRace().getName().contains("Minotaur"))
+                    return true;
+            }
+
+            if(this.stackType.equals("Stun") && bonus.getBool(ModType.ImmuneTo,SourceType.Stun))
                 return true;
-            else if (this.stackType.equals("Track") && bonus.getBool(ModType.CannotTrack, SourceType.None))
+
+            if(pb.vampDrain() && bonus.getBool(ModType.BlockedPowerType, SourceType.VAMPDRAIN))
                 return true;
-            else
-                return pb.vampDrain() && bonus.getBool(ModType.BlockedPowerType, SourceType.VAMPDRAIN);
+
+            if (this.stackType.equals("Track") && bonus.getBool(ModType.CannotTrack, SourceType.None))
+                return true;
+
+            if (this.stackType.equals("PowerInhibitor") && bonus.getBool(ModType.ImmuneTo, SourceType.Powerblock))
+                return true;
         }
         return false;
     }

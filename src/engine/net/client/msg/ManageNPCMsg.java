@@ -503,7 +503,7 @@ public class ManageNPCMsg extends ClientNetMsg {
                         writer.putInt(0);
                         writer.putString("Repair items");
                         writer.putString("percent");
-                        writer.putInt(npc.getRepairCost()); //cost for repair
+                        writer.putInt(npc.getSpecialPrice()); //cost for repair
                         writer.putInt(0);
 
                         ArrayList<Integer> modPrefixList = npc.getModTypeTable();

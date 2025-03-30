@@ -35,7 +35,7 @@ public class UseMobPowerJob extends AbstractScheduleJob {
     }
 
     @Override
-    protected void doJob() {
+    public void doJob() {
         PowersManager.finishUseMobPower(this.msg, this.caster, casterLiveCounter, targetLiveCounter);
     }
 

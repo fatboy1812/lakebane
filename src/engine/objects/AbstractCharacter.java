@@ -14,10 +14,7 @@ import engine.Enum.*;
 import engine.InterestManagement.InterestManager;
 import engine.InterestManagement.WorldGrid;
 import engine.exception.SerializationException;
-import engine.gameManager.CombatManager;
-import engine.gameManager.ConfigManager;
-import engine.gameManager.MovementManager;
-import engine.gameManager.PowersManager;
+import engine.gameManager.*;
 import engine.job.AbstractJob;
 import engine.job.JobContainer;
 import engine.job.JobScheduler;
@@ -31,7 +28,6 @@ import engine.net.ByteBufferWriter;
 import engine.net.DispatchMessage;
 import engine.net.client.msg.UpdateStateMsg;
 import engine.powers.EffectsBase;
-import engine.powers.effectmodifiers.AbstractEffectModifier;
 import engine.server.MBServerStatics;
 import org.pmw.tinylog.Logger;
 
@@ -504,7 +500,6 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
             canFly = false;
         }
 
-
         return canFly;
 
     }
@@ -765,7 +760,11 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
     public abstract Vector3fImmutable getBindLoc();
 
     public final void setBindLoc(final Vector3fImmutable value) {
-        this.bindLoc = value;
+        if(this.getObjectType().equals(GameObjectType.PlayerCharacter) && this.guild.getNation().equals(Guild.getErrantGuild())){
+            this.bindLoc = Vector3fImmutable.getRandomPointOnCircle(BuildingManager.getBuilding(27977).loc,20f);
+        }else {
+            this.bindLoc = value;
+        }
     }
 
     public final Vector3fImmutable getFaceDir() {
@@ -1102,17 +1101,10 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
     }
 
     public final void setCombatTarget(final AbstractWorldObject value) {
-        if(this.getObjectTypeMask() == 2050) {//MOB?
+        if (this.getObjectTypeMask() == 2050) {//MOB?
             if (value == null) {
                 if (this.isCombat()) {
                     this.setCombat(false);
-                    UpdateStateMsg rwss = new UpdateStateMsg();
-                    rwss.setPlayer(this);
-                    DispatchMessage.sendToAllInRange(this, rwss);
-                }
-                }else {
-                if (!this.isCombat()) {
-                    this.setCombat(true);
                     UpdateStateMsg rwss = new UpdateStateMsg();
                     rwss.setPlayer(this);
                     DispatchMessage.sendToAllInRange(this, rwss);
@@ -1195,13 +1187,13 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
 
     public final float modifyHealth(float value, final AbstractCharacter attacker, final boolean fromCost) {
 
-        if(attacker != null && attacker.getObjectType().equals(GameObjectType.PlayerCharacter)){
-            value *= ((PlayerCharacter)attacker).ZergMultiplier;
-        } // Health modifications are modified by the ZergMechanic
+        //if(attacker != null && attacker.getObjectType().equals(GameObjectType.PlayerCharacter)){
+        //    value *= ((PlayerCharacter)attacker).ZergMultiplier;
+        //} // Health modifications are modified by the ZergMechanic
 
-        if(attacker != null && attacker.getObjectType().equals(GameObjectType.Mob) && ((Mob)attacker).getOwner() != null){
-            value *= ((Mob)attacker).getOwner().ZergMultiplier;
-        }// Health modifications from pets are modified by the owner's ZergMechanic
+        //if(attacker != null && attacker.getObjectType().equals(GameObjectType.Mob) && ((Mob)attacker).getOwner() != null){
+        //    value *= ((Mob)attacker).getOwner().ZergMultiplier;
+        //}// Health modifications from pets are modified by the owner's ZergMechanic
 
         try {
 
@@ -1270,13 +1262,13 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
             final boolean fromCost
     ) {
 
-        if(attacker != null && attacker.getObjectType().equals(GameObjectType.PlayerCharacter)){
-            value *= ((PlayerCharacter)attacker).ZergMultiplier;
-        } // Health modifications are modified by the ZergMechanic
+        //if(attacker != null && attacker.getObjectType().equals(GameObjectType.PlayerCharacter)){
+        //    value *= ((PlayerCharacter)attacker).ZergMultiplier;
+        //} // Health modifications are modified by the ZergMechanic
 
-        if(attacker != null && attacker.getObjectType().equals(GameObjectType.Mob) && ((Mob)attacker).getOwner() != null){
-            value *= ((Mob)attacker).getOwner().ZergMultiplier;
-        }// Health modifications from pets are modified by the owner's ZergMechanic
+        //if(attacker != null && attacker.getObjectType().equals(GameObjectType.Mob) && ((Mob)attacker).getOwner() != null){
+        //    value *= ((Mob)attacker).getOwner().ZergMultiplier;
+        //}// Health modifications from pets are modified by the owner's ZergMechanic
 
         if (!this.isAlive()) {
             return 0f;
@@ -1317,13 +1309,13 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
             final boolean fromCost
     ) {
 
-        if(attacker != null && attacker.getObjectType().equals(GameObjectType.PlayerCharacter)){
-            value *= ((PlayerCharacter)attacker).ZergMultiplier;
-        } // Health modifications are modified by the ZergMechanic
+        //if(attacker != null && attacker.getObjectType().equals(GameObjectType.PlayerCharacter)){
+        //    value *= ((PlayerCharacter)attacker).ZergMultiplier;
+        //} // Health modifications are modified by the ZergMechanic
 
-        if(attacker != null && attacker.getObjectType().equals(GameObjectType.Mob) && ((Mob)attacker).getOwner() != null){
-            value *= ((Mob)attacker).getOwner().ZergMultiplier;
-        }// Health modifications from pets are modified by the owner's ZergMechanic
+        //if(attacker != null && attacker.getObjectType().equals(GameObjectType.Mob) && ((Mob)attacker).getOwner() != null){
+       //     value *= ((Mob)attacker).getOwner().ZergMultiplier;
+        //}// Health modifications from pets are modified by the owner's ZergMechanic
 
         if (!this.isAlive()) {
             return 0f;
@@ -1472,6 +1464,7 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
 
             if (eff == null)
                 continue;
+
             if (eff.cancelOnAttack() && eff.cancel()) {
                 eff.cancelJob();
                 this.effects.remove(s);
@@ -1559,7 +1552,15 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
             Effect eff = this.effects.get(s);
             if (eff == null)
                 continue;
-            if (eff.cancelOnMove() && eff.cancel()) {
+
+            Boolean override = false;
+            if(this.getObjectType().equals(GameObjectType.PlayerCharacter)) {
+                PlayerCharacter pc = (PlayerCharacter) this;
+                if (eff.getEffectsBase().getIDString().equals("INVIS-B") && s.equals("Invisible") && pc.getRace().getName().contains("Shade"))
+                    override = true;
+            }
+
+            if (!override && eff.cancelOnMove() && eff.cancel()) {
                 //System.out.println("canceling on Move");
                 eff.cancelJob();
                 this.effects.remove(s);
@@ -1718,7 +1719,11 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
 
                 // clear bonuses and reapply rune bonuses
                 if (this.getObjectType().equals(GameObjectType.PlayerCharacter)) {
-                    this.bonuses.calculateRuneBaseEffects((PlayerCharacter) this);
+                    try {
+                        this.bonuses.calculateRuneBaseEffects((PlayerCharacter) this);
+                    }catch(Exception ignored){
+
+                    }
                 } else {
                     this.bonuses.clearRuneBaseEffects();
                 }
@@ -1841,7 +1846,7 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
     }
 
     //updates
-    public void update() {
+    public void update(Boolean newSystem) {
     }
 
     public void updateRegen() {
@@ -1861,16 +1866,16 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
             try {
                 switch (updateType) {
                     case ALL:
-                        update();
+                        update(false);
                         break;
                     case REGEN:
                         updateRegen();
                         break;
                     case LOCATION:
-                        update();
+                        update(false);
                         break;
                     case MOVEMENTSTATE:
-                        update();
+                        update(false);
                         break;
                     case FLIGHT:
                         updateFlight();
