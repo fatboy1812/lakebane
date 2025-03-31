@@ -583,6 +583,9 @@ public class ClientMessagePump implements NetMsgHandler {
             if (i.getItemBaseID() == 980066)
                 goldValue = 0;
 
+            if(SpecialLootHandler.getMaxResource(i.getItemBaseID()) == 0)
+                goldValue = 0;
+
             if(itemManager.getGoldInventory().getNumOfItems() + goldValue > MBServerStatics.PLAYER_GOLD_LIMIT)
                 return;
 
