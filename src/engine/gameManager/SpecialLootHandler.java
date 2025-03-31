@@ -268,8 +268,8 @@ public class SpecialLootHandler {
         if(zone == null)
             return;
         int resourceId = 0;
-        int roll = ThreadLocalRandom.current().nextInt(125);
-        if(roll == 75){
+        int roll = ThreadLocalRandom.current().nextInt(1000);
+        if(roll == 500){
             resourceId = getResourceForZone(zone);
         }
         if(resourceId == 0)
@@ -281,12 +281,12 @@ public class SpecialLootHandler {
             return;
         MobLoot resource = new MobLoot(mob,resourceBase,false);
     try {
-        int stackMax = (int) (getMaxResource(resourceId) * 0.02f);
+        int stackMax = (int) (getMaxResource(resourceId) * 0.01f);
         if (stackMax > 100)
             stackMax = 100;
 
 
-        int amount = ThreadLocalRandom.current().nextInt(stackMax);
+        int amount = ThreadLocalRandom.current().nextInt((int)(stackMax * 0.5f),stackMax);
         resource.setNumOfItems(amount);
 
         Logger.error("Set Stack Size For: " +resource.getName() + " To: " +  amount + ". Actual Amount = " + resource.getNumOfItems());
@@ -367,28 +367,33 @@ public class SpecialLootHandler {
 
     public static int getMaxResource(int key) {
         switch (key) {
-            case 1580000: return 10000;
-            case 1580001: return 2000;
-            case 1580002: return 2000;
-            case 1580003: return 1000;
-            case 1580004: return 10000;
-            case 1580005: return 3000;
-            case 1580006: return 3000;
-            case 1580007: return 1000;
-            case 1580008: return 3000;
-            case 1580009: return 2000;
-            case 1580010: return 2000;
-            case 1580011: return 1000;
-            case 1580012: return 2000;
-            case 1580013: return 3000;
-            case 1580014: return 1000;
-            case 1580015: return 1000;
-            case 1580016: return 1000;
-            case 1580017: return 500;
-            case 1580018: return 500;
-            case 1580019: return 500;
-            case 1580020: return 500;
-            case 1580021: return 500;
+            case 1580000:
+            case 1580004:
+                return 10000;
+            case 1580001:
+            case 1580012:
+            case 1580010:
+            case 1580009:
+            case 1580002:
+                return 2000;
+            case 1580003:
+            case 1580016:
+            case 1580015:
+            case 1580014:
+            case 1580011:
+            case 1580007:
+                return 1000;
+            case 1580005:
+            case 1580013:
+            case 1580008:
+            case 1580006:
+                return 3000;
+            case 1580017:
+            case 1580018:
+            case 1580019:
+            case 1580020:
+            case 1580021:
+                return 500;
             default: return 0; // Default value if the key is not found
         }
     }
