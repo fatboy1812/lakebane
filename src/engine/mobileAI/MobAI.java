@@ -621,6 +621,10 @@ public class MobAI {
 
         try {
 
+            if(mob.isSiege() && mob.despawned){
+                mob.respawn();
+            }
+
             //if(mob.isSiege() || mob.isPet() || mob.isPlayerGuard()){
             //    SuperSimpleMobAI.run(mob);
             //    return;
