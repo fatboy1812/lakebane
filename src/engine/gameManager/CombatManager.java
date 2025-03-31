@@ -301,6 +301,12 @@ public enum CombatManager {
             if (target == null)
                 return 0;
 
+            if(abstractCharacter.getObjectType().equals(GameObjectType.PlayerCharacter) && target.getObjectType().equals(GameObjectType.PlayerCharacter)){
+                PlayerCharacter attacker = (PlayerCharacter) abstractCharacter;
+                if(!attacker.canSee((PlayerCharacter)target))
+                    return 0;
+            }
+
             //pet to assist in attacking target
             if(abstractCharacter.getObjectType().equals(GameObjectType.PlayerCharacter)){
                 PlayerCharacter attacker = (PlayerCharacter)abstractCharacter;
