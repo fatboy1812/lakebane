@@ -690,10 +690,10 @@ public class PlaceAssetMsgHandler extends AbstractClientMsgHandler {
             if (building.getRank() < 0) {
                 continue;
             }
-            if (building.getGuild().equals(serverCity.getGuild()))
+            if (building.getGuild().equals(serverCity.getGuild()) && building.getRank() != -1)
                 defenderBuildings.add(building);
 
-            if (building.getGuild().equals(serverCity.getBane().getOwner().getGuild()))
+            if (building.getGuild().equals(serverCity.getBane().getOwner().getGuild()) && building.getRank() != -1)
                 attackerBuildings.add(building);
 
         }
@@ -893,7 +893,7 @@ public class PlaceAssetMsgHandler extends AbstractClientMsgHandler {
 
         for (Building building : serverZone.zoneBuildingSet) {
 
-            if (building.getBlueprint().getBuildingGroup() == BuildingGroup.SPIRE) {
+            if (building.getBlueprint().getBuildingGroup() == BuildingGroup.SPIRE && building.getRank() != -1) {
 
                 if (building.getBlueprintUUID() == blueprint.getMeshForRank(0)) {
                     PlaceAssetMsg.sendPlaceAssetError(origin, 46, "");  // "Spire of that type exists"
@@ -965,7 +965,7 @@ public class PlaceAssetMsgHandler extends AbstractClientMsgHandler {
             if (building.getBlueprint() == null)
                 continue;
 
-            if (building.getBlueprint().getBuildingGroup() == BuildingGroup.SHRINE) {
+            if (building.getBlueprint().getBuildingGroup() == BuildingGroup.SHRINE && building.getRank() != -1) {
                 if (building.getBlueprintUUID() == blueprint.getMeshForRank(0)) {
                     PlaceAssetMsg.sendPlaceAssetError(origin, 43, "");  // "shrine of that type exists"
                     return false;
@@ -1024,7 +1024,7 @@ public class PlaceAssetMsgHandler extends AbstractClientMsgHandler {
         }
 
         for (Building building : serverZone.zoneBuildingSet) {
-            if (building.getBlueprint().getBuildingGroup() == BuildingGroup.BARRACK)
+            if (building.getBlueprint().getBuildingGroup() == BuildingGroup.BARRACK && building.getRank() != -1)
                 barracksCount++;
         }
 
