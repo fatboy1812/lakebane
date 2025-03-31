@@ -11,6 +11,7 @@ package engine.devcmd.cmds;
 
 import engine.Enum.GameObjectType;
 import engine.devcmd.AbstractDevCmd;
+import engine.gameManager.CombatManager;
 import engine.objects.AbstractGameObject;
 import engine.objects.Mob;
 import engine.objects.PlayerCharacter;
@@ -80,7 +81,7 @@ public class aiInfoCmd extends AbstractDevCmd {
             output += "Player ID: " + entry.getKey() + " Hate Value: " + (PlayerCharacter.getPlayerCharacter(entry.getKey())).getHateValue() + newline;
         }
         if (mob.getCombatTarget() != null)
-            output += "Current Target: " + mob.getCombatTarget().getName() + newline;
+            output += "Current Target: " + mob.getCombatTarget().getName()  + " (" + CombatManager.getCombatDistance(mob) + ")" +  newline;
         else
             output += "Current Target: NULL" + newline;
 

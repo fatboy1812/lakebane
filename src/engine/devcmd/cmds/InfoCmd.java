@@ -346,8 +346,20 @@ public class InfoCmd extends AbstractDevCmd {
                 output += "Hidden : " + targetPC.getHidden() + newline;
                 output += "Target Loc: " + targetPC.loc + newline;
                 output += "Player Loc: " + pc.loc + newline;
-                output += "Distance Squared: " + pc.loc.distanceSquared(targetPC.loc) + newline;
                 output += "Flying Altitude Addition: " + pc.getAltitude() + newline;
+                float attackerAltitude = 0;
+                    if(pc.isFlying()){
+                        attackerAltitude += pc.getAltitude();
+                    }
+                Vector3fImmutable attackerLoc = new Vector3fImmutable(pc.loc.x,attackerAltitude,pc.loc.z);
+
+                float targetAltitude = 0;
+                    if(targetPC.isFlying()){
+                        targetAltitude += targetPC.getAltitude();
+                }
+                Vector3fImmutable targetLoc = new Vector3fImmutable(targetPC.loc.x,targetAltitude,targetPC.loc.z);
+                    float distance = attackerLoc.distance(targetLoc);
+                    output += "Distance: " + String.valueOf(distance);
                 break;
 
             case NPC:

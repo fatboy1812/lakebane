@@ -1468,8 +1468,8 @@ public enum CombatManager {
         Vector3fImmutable attackerLoc = new Vector3fImmutable(ac.loc.x,attackerAltitude,ac.loc.z);
 
         float targetAltitude = 0;
-        if(ac.getObjectType().equals(GameObjectType.PlayerCharacter)){
-            PlayerCharacter pcTar = (PlayerCharacter)ac;
+        if(target.getObjectType().equals(GameObjectType.PlayerCharacter)){
+            PlayerCharacter pcTar = (PlayerCharacter)target;
             if(pcTar.isFlying()){
                 targetAltitude += pcTar.getAltitude();
             }
@@ -1478,6 +1478,29 @@ public enum CombatManager {
 
         return attackerLoc.distanceSquared(targetLoc) > range * range;
 
+    }
+
+    public static float getCombatDistance(AbstractCharacter ac){
+        AbstractWorldObject target = ac.combatTarget;
+        float attackerAltitude = 0;
+        if(ac.getObjectType().equals(GameObjectType.PlayerCharacter)){
+            PlayerCharacter attacker = (PlayerCharacter)ac;
+            if(attacker.isFlying()){
+                attackerAltitude += attacker.getAltitude();
+            }
+        }
+        Vector3fImmutable attackerLoc = new Vector3fImmutable(ac.loc.x,attackerAltitude,ac.loc.z);
+
+        float targetAltitude = 0;
+        if(target.getObjectType().equals(GameObjectType.PlayerCharacter)){
+            PlayerCharacter pcTar = (PlayerCharacter)target;
+            if(pcTar.isFlying()){
+                targetAltitude += pcTar.getAltitude();
+            }
+        }
+        Vector3fImmutable targetLoc = new Vector3fImmutable(target.loc.x,targetAltitude,target.loc.z);
+
+        return attackerLoc.distance(targetLoc);
     }
 
     //Called when character takes damage.
