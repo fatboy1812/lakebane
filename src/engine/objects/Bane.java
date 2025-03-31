@@ -76,7 +76,6 @@ public final class Bane {
         this.capSet = rs.getInt("cap_set") == 1;
         this.capSize = rs.getInt("cap_size");
 
-
         sqlDateTime = rs.getTimestamp("placementDate");
 
         if (sqlDateTime != null)
@@ -116,8 +115,17 @@ public final class Bane {
                 break;
         }
 
-        //add bane commander NPC
-        //summonBaneCommander(this);
+        //default 20 if tree count exceeds 6
+        if(!this.capSet){
+            int treeCount = 1;
+            for(Guild sub : this.getCity().getGuild().getNation().getSubGuildList()){
+                if(sub.getOwnedCity() != null)
+                    treeCount ++;
+            }
+
+            if(treeCount > 6)
+                this.capSize = 20;
+        }
     }
 
     public static boolean summonBanestone(PlayerCharacter player, ClientConnection origin, int rank) {
@@ -299,6 +307,16 @@ public final class Bane {
 
         //add bane commander NPC
         summonBaneCommander(bane);
+
+        //check to default cap to more than 10 if tree limit exceeded
+        int treeCount = 1;
+        for(Guild sub : targetCity.getGuild().getNation().getSubGuildList()){
+            if(sub.getOwnedCity() != null)
+                treeCount ++;
+        }
+
+        if(treeCount > 6)
+            bane.capSize = 20;
 
         try {
             //update map for all players online
