@@ -65,8 +65,10 @@ public class StuckJob extends AbstractScheduleJob {
         stuckLoc = building.getStuckLocation();
 
         if (stuckLoc == null) {
-            ErrorPopupMsg.sendErrorMsg(player, "Unable to find desired location");
-            return;
+
+            stuckLoc = building.loc.add(new Vector3fImmutable(building.getBounds().getHalfExtents().x,0,building.getBounds().getHalfExtents().y));
+            //ErrorPopupMsg.sendErrorMsg(player, "Unable to find desired location");
+            //return;
         }
 
         player.teleport(stuckLoc);
