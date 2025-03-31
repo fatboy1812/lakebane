@@ -116,18 +116,18 @@ public class Bounds {
         deltaY = Math.abs(sourceBounds.origin.y - targetBounds.origin.y);
 
         if (sourceBounds.flipExtents) {
-            sourceExtentX = sourceBounds.halfExtents.y;
-            sourceExtentY = sourceBounds.halfExtents.x;
+            sourceExtentX = sourceBounds.halfExtents.y - 1;
+            sourceExtentY = sourceBounds.halfExtents.x - 1;
         } else {
-            sourceExtentX = sourceBounds.halfExtents.x;
-            sourceExtentY = sourceBounds.halfExtents.y;
+            sourceExtentX = sourceBounds.halfExtents.x - 1;
+            sourceExtentY = sourceBounds.halfExtents.y - 1;
         }
         if (targetBounds.flipExtents) {
-            targetExtentX = targetBounds.halfExtents.y;
-            targetExtentY = targetBounds.halfExtents.x;
+            targetExtentX = targetBounds.halfExtents.y - 1;
+            targetExtentY = targetBounds.halfExtents.x - 1;
         } else {
-            targetExtentX = targetBounds.halfExtents.x;
-            targetExtentY = targetBounds.halfExtents.y;
+            targetExtentX = targetBounds.halfExtents.x - 1;
+            targetExtentY = targetBounds.halfExtents.y - 1;
         }
 
         extentX = sourceExtentX + targetExtentX;
