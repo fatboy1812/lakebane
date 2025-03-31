@@ -1458,6 +1458,7 @@ public enum CombatManager {
         //return magnitudeSquared > range * range;
 
         //new system without heightmaps
+        range += (calcHitBox(ac) + calcHitBox(target));
         float attackerAltitude = 0;
         if(ac.getObjectType().equals(GameObjectType.PlayerCharacter)){
             PlayerCharacter attacker = (PlayerCharacter)ac;
