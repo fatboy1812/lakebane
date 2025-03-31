@@ -346,7 +346,8 @@ public class InfoCmd extends AbstractDevCmd {
                 output += "Hidden : " + targetPC.getHidden() + newline;
                 output += "Target Loc: " + targetPC.loc + newline;
                 output += "Player Loc: " + pc.loc + newline;
-                output += "Distance Squared: " + pc.loc.distanceSquared(targetPC.loc);
+                output += "Distance Squared: " + pc.loc.distanceSquared(targetPC.loc) + newline;
+                output += "Flying Altitude Addition: " + pc.getAltitude() + newline;
                 break;
 
             case NPC:

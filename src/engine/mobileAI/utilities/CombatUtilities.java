@@ -30,20 +30,20 @@ public class CombatUtilities {
         if (Float.isNaN(agent.getLoc().x))
             return false;
 
-        try {
-            Vector3fImmutable sl = agent.getLoc();
-            Vector3fImmutable tl = target.getLoc();
+        //try {
+        //    Vector3fImmutable sl = agent.getLoc();
+        //    Vector3fImmutable tl = target.getLoc();
 
             //add Hitbox's to range.
-            float range = agent.getRange();
-            range += CombatManager.calcHitBox(target) + CombatManager.calcHitBox(agent);
+       //     float range = agent.getRange();
+       //     range += CombatManager.calcHitBox(target) + CombatManager.calcHitBox(agent);
 
-            return !(sl.distanceSquared(tl) > sqr(range));
-        } catch (Exception e) {
-            Logger.error(e.toString());
-            return false;
-        }
-
+        //    return !(sl.distanceSquared(tl) > sqr(range));
+        //} catch (Exception e) {
+        //    Logger.error(e.toString());
+        //    return false;
+        //}
+        return !CombatManager.NotInRange(agent,target,agent.getRange());
     }
 
     public static boolean inRange2D(AbstractWorldObject entity1, AbstractWorldObject entity2, double range) {

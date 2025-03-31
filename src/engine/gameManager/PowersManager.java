@@ -1749,7 +1749,7 @@ public enum PowersManager {
                     return true;
                 if (itemMan.inventoryContains(item)) {
                     tl = acOwner.getLoc();
-                    return !(sl.distanceSquared(tl) <= sqr(range));
+                    return !(sl.distanceSquared2D(tl) <= sqr(range));
                 }
                 return true;
             }
@@ -1759,7 +1759,7 @@ public enum PowersManager {
         range += (calcHitBox(ac) + calcHitBox(target));
 
 
-        float distanceToTarget = sl.distanceSquared(tl);//distance to center of target
+        float distanceToTarget = sl.distanceSquared2D(tl);//distance to center of target
 
         return distanceToTarget > range * range;
 
@@ -2066,7 +2066,7 @@ public enum PowersManager {
                 //see if targets are within 3D range of each other
                 Vector3fImmutable tloc = awo.getLoc();
 
-                if (tloc.distanceSquared(targetLoc) > sqr(pb.getRadius())) {
+                if (tloc.distanceSquared2D(targetLoc) > sqr(pb.getRadius())) {
                     awolist.remove(); // too far away
                     continue;
                 }
@@ -2265,7 +2265,7 @@ public enum PowersManager {
                 //see if targets are within 3D range of each other
                 Vector3fImmutable tloc = awo.getLoc();
 
-                if (tloc.distanceSquared(targetLoc) > sqr(pb.getRadius())) {
+                if (tloc.distanceSquared2D(targetLoc) > sqr(pb.getRadius())) {
                     awolist.remove(); // too far away
                     continue;
                 }

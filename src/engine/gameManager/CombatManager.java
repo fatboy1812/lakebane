@@ -1446,16 +1446,37 @@ public enum CombatManager {
 
     public static boolean NotInRange(AbstractCharacter ac, AbstractWorldObject target, float range) {
 
-        Vector3fImmutable sl = ac.getLoc();
-        Vector3fImmutable tl = target.getLoc();
+        //Vector3fImmutable sl = ac.getLoc();
+        //Vector3fImmutable tl = target.getLoc();
 
         //add Hitbox to range.
 
-        range += (calcHitBox(ac) + calcHitBox(target));
+        //range += (calcHitBox(ac) + calcHitBox(target));
 
-        float magnitudeSquared = tl.distanceSquared(sl);
+        //float magnitudeSquared = tl.distanceSquared(sl);
 
-        return magnitudeSquared > range * range;
+        //return magnitudeSquared > range * range;
+
+        //new system without heightmaps
+        float attackerAltitude = 0;
+        if(ac.getObjectType().equals(GameObjectType.PlayerCharacter)){
+            PlayerCharacter attacker = (PlayerCharacter)ac;
+            if(attacker.isFlying()){
+                attackerAltitude += attacker.getAltitude();
+            }
+        }
+        Vector3fImmutable attackerLoc = new Vector3fImmutable(ac.loc.x,attackerAltitude,ac.loc.z);
+
+        float targetAltitude = 0;
+        if(ac.getObjectType().equals(GameObjectType.PlayerCharacter)){
+            PlayerCharacter pcTar = (PlayerCharacter)ac;
+            if(pcTar.isFlying()){
+                targetAltitude += pcTar.getAltitude();
+            }
+        }
+        Vector3fImmutable targetLoc = new Vector3fImmutable(target.loc.x,targetAltitude,target.loc.z);
+
+        return attackerLoc.distanceSquared(targetLoc) > range * range;
 
     }
 
