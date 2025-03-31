@@ -262,7 +262,6 @@ public class SpecialLootHandler {
         MobLoot guard = new MobLoot(mob,guardBase,false);
         mob.getCharItemManager().addItemToInventory(guard);
     }
-
     public static void ResourceDrop(Mob mob){
         Zone zone = getMacroZone(mob);
         if(zone == null)
@@ -296,7 +295,6 @@ public class SpecialLootHandler {
     }
         mob.getCharItemManager().addItemToInventory(resource);
     }
-
     public static int getResourceForZone(Zone zone){
         Random random = new Random();
         switch (zone.getObjectUUID())
@@ -364,7 +362,6 @@ public class SpecialLootHandler {
         }
         return 0;
     }
-
     public static int getMaxResource(int key) {
         switch (key) {
             case 1580000:
