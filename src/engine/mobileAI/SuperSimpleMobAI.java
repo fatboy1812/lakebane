@@ -19,8 +19,8 @@ public class SuperSimpleMobAI {
             MobAI.DetermineAction(mob);
             return;
         }else if(mob.isPlayerGuard()){
-            //PlayerGuardHandler.run(mob);
-            MobAI.DetermineAction(mob);
+            PlayerGuardHandler.run(mob);
+            //MobAI.DetermineAction(mob);
             return;
         }else {
             MobHandler.run(mob);

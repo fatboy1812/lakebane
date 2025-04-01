@@ -1,5 +1,6 @@
 package engine.mobileAI.MobHandlers;
 
+import engine.Enum;
 import engine.gameManager.PowersManager;
 import engine.math.Vector3fImmutable;
 import engine.mobileAI.Threads.MobAIThread;
@@ -15,6 +16,8 @@ import java.util.ArrayList;
 import java.util.Map;
 import java.util.concurrent.ThreadLocalRandom;
 
+import static engine.Enum.MinionClass.*;
+
 public class PlayerGuardHandler {
     public static void run(Mob guard) {
         if(!guard.isAlive() || guard.despawned){
@@ -24,17 +27,16 @@ public class PlayerGuardHandler {
 
         CheckForRecall(guard);
 
-        if (guard.contract != null && guard.contract.getName().contains("Wall Archer")) {
-            runWallArcherGuard(guard);
+        if(guard.playerAgroMap.isEmpty())
             return;
-        }else if (guard.contract != null && guard.contract.getName().contains("Magister")) {
+
+        if(guard.getName().contains("Adept")){
             runMagisterGuard(guard);
-            return;
-        }else if (guard.contract != null && guard.contract.getName().contains("Archer")) {
-            runArcherGuard(guard);
-            return;
+        }else if(guard.getName().contains("Archer")){
+            runWallArcherGuard(guard);
+        }else{
+            runMeleGuard(guard);
         }
-        runMeleGuard(guard);
     }
 
     public static void runMeleGuard(Mob guard){
@@ -113,6 +115,9 @@ public class PlayerGuardHandler {
     public static void checkToDropGuardAggro(Mob guard){
         if(guard.combatTarget.loc.distanceSquared(guard.loc) > (128f * 128f))
             guard.setCombatTarget(null);
+
+        if(guard.combatTarget.getObjectType().equals(Enum.GameObjectType.PlayerCharacter) && !guard.canSee((PlayerCharacter)guard.combatTarget))
+            guard.setCombatTarget(null);
     }
 
     public static void CheckForPlayerGuardAggro(Mob guard){
@@ -169,50 +174,10 @@ public class PlayerGuardHandler {
             // and casts it on the current target (or itself).  Validation
             // (including empty lists) is done previously within canCast();
 
-            ArrayList<Integer> powerTokens;
-            ArrayList<Integer> purgeTokens;
-            AbstractCharacter target = (AbstractCharacter) mob.getCombatTarget();
-
-            // Generate a list of tokens from the mob powers for this mobile.
-
-            powerTokens = new ArrayList<>(mob.mobPowers.keySet());
-            purgeTokens = new ArrayList<>();
-
-            // If player has this effect on them currently then remove
-            // this token from our list.
-
-            for (int powerToken : powerTokens) {
-
-                PowersBase powerBase = PowersManager.getPowerByToken(powerToken);
-
-                for (ActionsBase actionBase : powerBase.getActions()) {
-
-                    String stackType = actionBase.stackType;
-
-                    if (target.getEffects() != null && target.getEffects().containsKey(stackType))
-                        purgeTokens.add(powerToken);
-                }
-            }
-
-            powerTokens.removeAll(purgeTokens);
-
-            // Sanity check
-
-            if (powerTokens.isEmpty())
+            if(mob.combatTarget.getObjectType().equals(Enum.GameObjectType.PlayerCharacter) && !mob.canSee((PlayerCharacter)mob.combatTarget))
                 return;
 
-            int powerToken;
-            int nukeRoll = ThreadLocalRandom.current().nextInt(1,100);
-
-            if (nukeRoll < 55) {
-
-                //use direct damage spell
-                powerToken = powerTokens.get(powerTokens.size() - 1);
-
-            } else {
-                //use random spell
-                powerToken = powerTokens.get(ThreadLocalRandom.current().nextInt(powerTokens.size()));
-            }
+            int powerToken = 429757701;//mage bolt
 
             int powerRank = 1;
 
@@ -243,6 +208,7 @@ public class PlayerGuardHandler {
             PowersBase mobPower = PowersManager.getPowerByToken(powerToken);
 
             //check for hit-roll
+            mob.nextCastTime = (long) (System.currentTimeMillis() + 15000);
 
             if (mobPower.requiresHitRoll)
                 if (CombatUtilities.triggerDefense(mob, mob.getCombatTarget()))
@@ -250,29 +216,11 @@ public class PlayerGuardHandler {
 
             // Cast the spell
 
-            if (CombatUtilities.inRange2D(mob, mob.getCombatTarget(), mobPower.getRange())) {
-
-                PerformActionMsg msg;
-
-                if (!mobPower.isHarmful() || mobPower.targetSelf) {
-
-                    if (mobPower.category.equals("DISPEL")) {
-                        PowersManager.useMobPower(mob, target, mobPower, powerRank);
-                        msg = PowersManager.createPowerMsg(mobPower, powerRank, mob, target);
-                    } else {
-                        PowersManager.useMobPower(mob, mob, mobPower, powerRank);
-                        msg = PowersManager.createPowerMsg(mobPower, powerRank, mob, mob);
-                    }
-                } else {
-                    PowersManager.useMobPower(mob, target, mobPower, powerRank);
-                    msg = PowersManager.createPowerMsg(mobPower, powerRank, mob, target);
-                }
-
-                msg.setUnknown04(2);
-
-                PowersManager.finishUseMobPower(msg, mob, 0, 0);
-            }
-            mob.nextCastTime = (long) (System.currentTimeMillis() + MobAIThread.AI_CAST_FREQUENCY);
+            PerformActionMsg msg;
+            PowersManager.useMobPower(mob, (AbstractCharacter) mob.combatTarget, mobPower, powerRank);
+            msg = PowersManager.createPowerMsg(mobPower, powerRank, mob, (AbstractCharacter) mob.combatTarget);
+            msg.setUnknown04(2);
+            PowersManager.finishUseMobPower(msg, mob, 0, 0);
         } catch (Exception e) {
             ////(mob.getObjectUUID() + " " + mob.getName() + " Failed At: MobCast" + " " + e.getMessage());
         }
@@ -293,6 +241,10 @@ public class PlayerGuardHandler {
 
             if (guard.isMoving() && guard.getRange() > 20)
                 return;
+
+            if(!CombatUtilities.inRangeToAttack(guard,guard.combatTarget)) {
+                return;
+            }
 
             if(target.combatStats == null)
                 target.combatStats = new PlayerCombatStats(target);
@@ -324,6 +276,10 @@ public class PlayerGuardHandler {
     }
 
     public static void CheckGuardMovement(Mob guard){
+
+        if(guard.isMoving())
+            guard.updateLocation();
+
         if (guard.getCombatTarget() == null) {
             if (!guard.isMoving())
                 Patrol(guard);
@@ -331,7 +287,9 @@ public class PlayerGuardHandler {
                 guard.stopPatrolTime = System.currentTimeMillis();
             }
         } else {
-            MovementUtilities.moveToLocation(guard, guard.combatTarget.loc, guard.getRange());
+            if(!CombatUtilities.inRangeToAttack(guard,guard.combatTarget)) {
+                MovementUtilities.moveToLocation(guard, guard.combatTarget.loc, guard.getRange());
+            }
         }
     }
 
@@ -382,10 +340,12 @@ public class PlayerGuardHandler {
                 float distance = guard.loc.distanceSquared(guard.combatTarget.loc);
                 if(distance <= desiredRangeSquared){
                     guard.stopMovement(guard.getMovementLoc());
-                    guard.updateLocation();
                 }
             }else {
-                MovementUtilities.moveToLocation(guard, guard.combatTarget.loc, guard.getRange());
+                if(!inRangeToCast(guard,guard.combatTarget))
+                    MovementUtilities.moveToLocation(guard, guard.combatTarget.loc, 0);
+                else
+                    guard.stopMovement(guard.getMovementLoc());
             }
         }
     }
