@@ -35,6 +35,10 @@ public class PetHandler {
             }
         }else{
 
+            if(!pet.combatTarget.isAlive()) {
+                pet.setCombatTarget(null);
+                return;
+            }
             if (pet.combatTarget.equals(pet)) {
                 pet.setCombatTarget(null);
                 return;

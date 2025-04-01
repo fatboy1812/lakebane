@@ -11,8 +11,8 @@ public class SuperSimpleMobAI {
     public static void run(Mob mob){
         mob.updateLocation();
         if(mob.isPet() && !mob.isSiege()) {
-            MobAI.DetermineAction(mob);
-            //PetHandler.run(mob);
+            //MobAI.DetermineAction(mob);
+            PetHandler.run(mob);
             return;
         }else if (mob.isSiege()) {
             //SiegeHandler.run(mob);
