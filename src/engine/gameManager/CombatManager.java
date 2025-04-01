@@ -1478,6 +1478,9 @@ public enum CombatManager {
             }
         }
         Vector3fImmutable attackerLoc = new Vector3fImmutable(ac.loc.x,attackerAltitude,ac.loc.z);
+        if(ac.isMoving()){
+            attackerLoc = new Vector3fImmutable(ac.getMovementLoc().x,attackerAltitude,ac.getMovementLoc().z);
+        }
 
         float targetAltitude = 0;
         if(target.getObjectType().equals(GameObjectType.PlayerCharacter)){

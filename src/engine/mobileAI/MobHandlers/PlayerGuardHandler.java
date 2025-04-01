@@ -281,13 +281,13 @@ public class PlayerGuardHandler {
             guard.updateLocation();
 
         if (guard.getCombatTarget() == null) {
-            if (!guard.isMoving())
+            if (!guard.isMoving()) {
                 Patrol(guard);
-            else {
+            }else {
                 guard.stopPatrolTime = System.currentTimeMillis();
             }
         } else {
-            if(!CombatUtilities.inRangeToAttack(guard,guard.combatTarget)) {
+            if (!CombatUtilities.inRangeToAttack(guard, guard.combatTarget)) {
                 MovementUtilities.moveToLocation(guard, guard.combatTarget.loc, guard.getRange());
             }
         }
@@ -343,7 +343,7 @@ public class PlayerGuardHandler {
                 }
             }else {
                 if(!inRangeToCast(guard,guard.combatTarget))
-                    MovementUtilities.moveToLocation(guard, guard.combatTarget.loc, 0);
+                    MovementUtilities.moveToLocation(guard, guard.combatTarget.loc.moveTowards(guard.loc,25), 0);
                 else
                     guard.stopMovement(guard.getMovementLoc());
             }
