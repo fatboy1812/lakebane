@@ -4817,7 +4817,7 @@ public class PlayerCharacter extends AbstractCharacter {
 
                 int divisor = 4;
                 if(!fromCombat)
-                    divisor = 16;
+                    divisor = 8;
 
                 float dodgeChance = ((passiveSkill.getModifiedAmount()) / divisor);
 
