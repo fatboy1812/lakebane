@@ -1014,12 +1014,17 @@ public enum CombatManager {
 
                 //handle damage shields
 
-                if (ac.isAlive() && tarAc != null && tarAc.isAlive())
-                    try {
-                        handleDamageShields(ac, tarAc, damage);
-                    }catch(Exception e){
-                        Logger.error(e.getMessage());
+                try {
+                    if (ac.isAlive() && tarAc != null && tarAc.isAlive()) {
+                        try {
+                            handleDamageShields(ac, tarAc, damage);
+                        } catch (Exception e) {
+                            Logger.error(e.getMessage());
+                        }
                     }
+                }catch(Exception e){
+                    Logger.error(e.getMessage());
+                }
 
             } else {
 
