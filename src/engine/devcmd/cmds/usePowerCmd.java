@@ -22,7 +22,7 @@ import engine.objects.PlayerCharacter;
 public class usePowerCmd extends AbstractDevCmd {
 
     public usePowerCmd() {
-        super("convertLoc");
+        super("usePower");
     }
 
     @Override
