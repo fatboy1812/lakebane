@@ -662,22 +662,11 @@ public class PlayerCombatStats {
             speed = 20.0f;
         }else{
             //calculate modified weapon speed with enchants
-            speed = weapon.getItemBase().getSpeed();
-            for(Effect eff : weapon.effects.values()){
-                for(AbstractEffectModifier mod : eff.getEffectModifiers()){
-                    if(mod.modType.equals(Enum.ModType.WeaponSpeed) || mod.modType.equals(Enum.ModType.AttackDelay)){
-                        float percent = mod.getPercentMod();
-                        int trains = eff.getTrains();
-                        float modValue = percent + (trains * mod.getRamp());
-                        speed *= 1.0f + (modValue * 0.01f);
-                    }
-                }
-            }
+            speed = weapon.getModifiedSpeed();
         }
 
         //apply bonuses one at a time
         for(String effID : this.owner.effects.keySet()){
-            if(!effID.contains("Stance")){
                 if(this.owner.effects != null) {
                     for (AbstractEffectModifier mod : this.owner.effects.get(effID).getEffectModifiers()) {
                         if (mod.modType.equals(Enum.ModType.AttackDelay)) {
@@ -688,27 +677,7 @@ public class PlayerCombatStats {
                         }
                     }
                 }
-            }
         }
-
-        //apply stance value last
-        float stanceValue = 0.0f;
-        for(String effID : this.owner.effects.keySet()){
-            if(effID.contains("Stance")){
-                if(this.owner.effects != null) {
-                    for (AbstractEffectModifier mod : this.owner.effects.get(effID).getEffectModifiers()) {
-                        if (mod.modType.equals(Enum.ModType.AttackDelay)) {
-                            float percent = mod.getPercentMod();
-                            int trains = this.owner.effects.get(effID).getTrains();
-                            float modValue = percent + (trains * mod.getRamp());
-                            stanceValue += modValue * 0.01f;
-                        }
-                    }
-                }
-            }
-        }
-
-        speed *= stanceValue;
 
         if(speed < 10.0f)
             speed = 10.0f;
