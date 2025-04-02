@@ -288,8 +288,6 @@ public class SpecialLootHandler {
         int amount = ThreadLocalRandom.current().nextInt((int)(stackMax * 0.5f),stackMax);
         resource.setNumOfItems(amount);
 
-        Logger.error("Set Stack Size For: " +resource.getName() + " To: " +  amount + ". Actual Amount = " + resource.getNumOfItems());
-
     }catch(Exception e) {
         Logger.error("Unable To Get Max Resource Stack Size For: " + resourceId);
     }
