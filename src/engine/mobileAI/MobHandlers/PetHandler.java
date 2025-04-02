@@ -44,6 +44,12 @@ public class PetHandler {
                 return;
             }
 
+            //ensure boxed characters' pets cannot attack anything except mobs
+            if(pet.combatTarget != null && pet.getOwner() != null && pet.getOwner().isBoxed && !pet.combatTarget.getObjectType().equals(Enum.GameObjectType.Mob)){
+                pet.setCombatTarget(null);
+                return;
+            }
+
             //chase target
             if(!CombatUtilities.inRangeToAttack(pet,pet.combatTarget)) {
                 MovementUtilities.moveToLocation(pet, pet.combatTarget.loc, pet.getRange());
