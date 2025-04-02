@@ -231,4 +231,25 @@ public enum MaintenanceManager {
 
         Logger.info("Maintenance has completed!");
     }
+
+    public static void auditSiegeEquipment(){
+        ArrayList<AbstractGameObject> buildingList = new ArrayList(DbManager.getList(Enum.GameObjectType.Building));
+        for(AbstractGameObject ago : buildingList){
+            Building building = (Building)ago;
+            if(building == null)
+                continue;
+            if(building.getBlueprint() == null)
+                continue;
+            if(building.getBlueprint().getBuildingGroup().equals(Enum.BuildingGroup.SIEGETENT)){
+                if(building.getProtectionState().equals(Enum.ProtectionState.NONE)){
+                    building.destroyOrDerank(null);
+                }
+            }
+            if(building.getBlueprint().getBuildingGroup().equals(Enum.BuildingGroup.BULWARK)){
+                if(building.getProtectionState().equals(Enum.ProtectionState.NONE)){
+                    building.destroyOrDerank(null);
+                }
+            }
+        }
+    }
 }

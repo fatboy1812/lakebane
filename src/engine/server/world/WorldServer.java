@@ -534,6 +534,9 @@ public class WorldServer {
 		printThreads();
 		Logger.info("Threads Running:");
 
+		Logger.info("Auditing old Siege Assets...");
+		MaintenanceManager.auditSiegeEquipment();
+
 		return true;
 	}
 
