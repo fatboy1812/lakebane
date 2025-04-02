@@ -344,22 +344,44 @@ public class InfoCmd extends AbstractDevCmd {
                 output += newline;
                 output += "Zerg Multiplier : " + targetPC.ZergMultiplier + newline;
                 output += "Hidden : " + targetPC.getHidden() + newline;
-                output += "Target Loc: " + targetPC.loc + newline;
-                output += "Player Loc: " + pc.loc + newline;
-                output += "Flying Altitude Addition: " + pc.getAltitude() + newline;
+
                 float attackerAltitude = 0;
-                    if(pc.isFlying()){
-                        attackerAltitude += pc.getAltitude();
+                if (pc.isFlying()) {
+                    attackerAltitude += pc.getAltitude();
+                }
+
+                if (pc.region != null) {
+                    Building parent = BuildingManager.getBuilding(pc.region.parentBuildingID);
+                    if (parent != null) {
+                        attackerAltitude += pc.region.lerpY(pc) - parent.loc.y;
                     }
-                Vector3fImmutable attackerLoc = new Vector3fImmutable(pc.loc.x,attackerAltitude,pc.loc.z);
+                }
+
+                Vector3fImmutable attackerLoc = new Vector3fImmutable(pc.loc.x, attackerAltitude, pc.loc.z);
+                if (pc.isMoving()) {
+                    attackerLoc = new Vector3fImmutable(pc.getMovementLoc().x, attackerAltitude, pc.getMovementLoc().z);
+                }
 
                 float targetAltitude = 0;
-                    if(targetPC.isFlying()){
-                        targetAltitude += targetPC.getAltitude();
+                if (target.getObjectType().equals(GameObjectType.PlayerCharacter)) {
+                    PlayerCharacter pcTar = (PlayerCharacter) target;
+                    if (pcTar.isFlying()) {
+                        targetAltitude += pcTar.getAltitude();
+                    }
                 }
-                Vector3fImmutable targetLoc = new Vector3fImmutable(targetPC.loc.x,targetAltitude,targetPC.loc.z);
-                    float distance = attackerLoc.distance(targetLoc);
-                    output += "Distance: " + String.valueOf(distance);
+                AbstractCharacter absTar = (AbstractCharacter) target;
+
+                if (absTar.region != null) {
+                    Building parent = BuildingManager.getBuilding(absTar.region.parentBuildingID);
+                    if (parent != null) {
+                        targetAltitude += absTar.region.lerpY(absTar) - parent.loc.y;
+                    }
+                }
+                Vector3fImmutable targetLoc = new Vector3fImmutable(absTar.loc.x, targetAltitude, absTar.loc.z);
+
+                output += "Player Alt = " + attackerLoc.y + newline;
+                output += "Target Alt = " + targetLoc.y + newline;
+                output += "Distance = " + attackerLoc.distance(targetLoc) + newline;
                 break;
 
             case NPC:

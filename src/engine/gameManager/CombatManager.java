@@ -1477,18 +1477,36 @@ public enum CombatManager {
                 attackerAltitude += attacker.getAltitude();
             }
         }
+
+        if(ac.region != null) {
+            Building parent = BuildingManager.getBuilding(ac.region.parentBuildingID);
+            if (parent != null) {
+                attackerAltitude += ac.region.lerpY(ac) - parent.loc.y;
+            }
+        }
+
         Vector3fImmutable attackerLoc = new Vector3fImmutable(ac.loc.x,attackerAltitude,ac.loc.z);
         if(ac.isMoving()){
             attackerLoc = new Vector3fImmutable(ac.getMovementLoc().x,attackerAltitude,ac.getMovementLoc().z);
         }
 
         float targetAltitude = 0;
-        if(target.getObjectType().equals(GameObjectType.PlayerCharacter)){
-            PlayerCharacter pcTar = (PlayerCharacter)target;
-            if(pcTar.isFlying()){
+        if(target.getObjectType().equals(GameObjectType.PlayerCharacter)) {
+            PlayerCharacter pcTar = (PlayerCharacter) target;
+            if (pcTar.isFlying()) {
                 targetAltitude += pcTar.getAltitude();
             }
         }
+        if(AbstractCharacter.IsAbstractCharacter(target)) {
+            AbstractCharacter absTar = (AbstractCharacter)target;
+            if (absTar.region != null) {
+                Building parent = BuildingManager.getBuilding(absTar.region.parentBuildingID);
+                if (parent != null) {
+                    targetAltitude += absTar.region.lerpY(absTar) - parent.loc.y;
+                }
+            }
+        }
+
         Vector3fImmutable targetLoc = new Vector3fImmutable(target.loc.x,targetAltitude,target.loc.z);
 
         return attackerLoc.distanceSquared(targetLoc) > range * range;
