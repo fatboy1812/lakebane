@@ -9,7 +9,10 @@ import engine.objects.Mob;
 public class SuperSimpleMobAI {
 
     public static void run(Mob mob){
-        mob.updateLocation();
+
+        if(mob.isMoving())
+            mob.updateLocation();
+
         if(mob.isPet() && !mob.isSiege()) {
             //MobAI.DetermineAction(mob);
             PetHandler.run(mob);

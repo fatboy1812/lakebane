@@ -113,6 +113,10 @@ public class Mob extends AbstractIntelligenceAgent {
 
     public HashMap<PlayerCharacter,Float> hate_values;
 
+    public long lastExecution = 0;
+
+    public static long executionDelay = 500;
+
 
     /**
      * No Id Constructor
