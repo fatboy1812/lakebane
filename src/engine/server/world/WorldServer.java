@@ -535,8 +535,8 @@ public class WorldServer {
 		Logger.info("Threads Running:");
 
 		Logger.info("Auditing old Siege Assets...");
-		MaintenanceManager.auditSiegeEquipment();
-
+		int assetsRemoved = MaintenanceManager.auditSiegeEquipment();
+		Logger.info("Siege Assets That Were Unprotected Removed: " + assetsRemoved);
 		return true;
 	}
 
