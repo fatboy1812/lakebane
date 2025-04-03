@@ -297,8 +297,13 @@ public class PlayerGuardHandler {
 
         try {
 
-            if(mob.isMoving())
+            if(mob.isMoving()) {
+                mob.stopPatrolTime = System.currentTimeMillis();
                 return;
+            }
+
+            if(mob.building != null)
+                mob.patrolPoints = mob.building.patrolPoints;
             //make sure mob is out of combat stance
 
             int patrolDelay = ThreadLocalRandom.current().nextInt((int) (MobAIThread.AI_PATROL_DIVISOR * 0.5f), MobAIThread.AI_PATROL_DIVISOR) + MobAIThread.AI_PATROL_DIVISOR;
