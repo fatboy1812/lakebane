@@ -55,7 +55,7 @@ public class PetHandler {
             }
 
             //chase target
-            if(!CombatUtilities.inRangeToAttack(pet,pet.combatTarget)) {
+            if(!CombatUtilities.inRange2D(pet,pet.combatTarget,pet.getRange())) {
                 MovementUtilities.moveToLocation(pet, pet.combatTarget.loc, pet.getRange());
             }else{
                 if(pet.getLastAttackTime() > System.currentTimeMillis())
