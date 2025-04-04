@@ -14,9 +14,9 @@ import java.util.Random;
 
 public class HotzoneManager {
 
-    public static Zone hotzone;
-    public static Mob currentBoss;
-    public static ArrayList<Mob> minions;
+    public static Zone hotzone = null;
+    public static Mob currentBoss = null;
+    public static ArrayList<Mob> minions = null;
 
     public static int bossID = 0;
     public static int minionID = 0;
