@@ -136,7 +136,7 @@ public class ArcLoginNotifyMsgHandler extends AbstractClientMsgHandler {
 
         //Send current hotzone
 
-        if (ZoneManager.hotZone != null) {
+        if (HotzoneManager.hotzone != null) {
             HotzoneChangeMsg hcm = new HotzoneChangeMsg(Enum.GameObjectType.Zone.ordinal(), ZoneManager.hotZone.getObjectUUID());
             Dispatch dispatch = Dispatch.borrow(player, hcm);
             DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.SECONDARY);
