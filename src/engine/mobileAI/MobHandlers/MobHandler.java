@@ -150,7 +150,7 @@ public class MobHandler {
             Patrol(mob);
         }else{
             //combat movement
-            if(CombatUtilities.inRangeToAttack(mob,mob.combatTarget)) {
+            if(CombatUtilities.inRange2D(mob,mob.combatTarget,mob.getRange())) {
                 return;
             }else {
                 MovementUtilities.moveToLocation(mob, mob.combatTarget.loc, mob.getRange());
