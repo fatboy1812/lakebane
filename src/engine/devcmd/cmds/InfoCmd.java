@@ -21,6 +21,7 @@ import engine.math.Vector3fImmutable;
 import engine.objects.*;
 import engine.powers.EffectsBase;
 import engine.powers.PowersBase;
+import engine.powers.effectmodifiers.AbstractEffectModifier;
 import engine.server.MBServerStatics;
 import engine.util.StringUtils;
 
@@ -579,6 +580,13 @@ public class InfoCmd extends AbstractDevCmd {
                 for (String name : effects.keySet()) {
                     Effect eff = effects.get(name);
                     output += eff.getEffectsBase().getIDString();
+                    for(AbstractEffectModifier mod : eff.getEffectModifiers()){
+                        if(mod.getPercentMod() != 0)
+                            output += eff.getEffectsBase().getIDString() + " - " + mod.modType.toString() + " = " + (mod.getPercentMod() + (mod.getRamp() * eff.getTrains()));
+                        if(mod.minMod != 0)
+                            output += eff.getEffectsBase().getIDString() + " - " + mod.modType.toString() + " = " + (mod.minMod + (mod.getRamp() * eff.getTrains()));
+                    }
+
                     output += newline;
                     //	output += eff.getEffectToken() + (eff.bakedInStat() ? " (baked in)" : "") + newline;
                 }
