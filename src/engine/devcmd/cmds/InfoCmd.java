@@ -245,8 +245,16 @@ public class InfoCmd extends AbstractDevCmd {
                 output += "Building Regions from Bounds: Size - " + targetBuilding.getBounds().getRegions().size();
                 output += newline;
 
+                output += "Region Info" + newline;
+
                 for (Regions regions : targetBuilding.getBounds().getRegions()) {
-                    //TODO ADD REGION INFO
+                }
+                output += newline;
+
+                output += "Patrol Points" + newline;
+
+                for(Vector3fImmutable pp : targetBuilding.patrolPoints){
+                    output += String.valueOf(pp) + newline;
                 }
 
                 break;
