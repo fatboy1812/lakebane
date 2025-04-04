@@ -582,9 +582,9 @@ public class InfoCmd extends AbstractDevCmd {
                     output += eff.getEffectsBase().getIDString();
                     for(AbstractEffectModifier mod : eff.getEffectModifiers()){
                         if(mod.getPercentMod() != 0)
-                            output += eff.getEffectsBase().getIDString() + " - " + mod.modType.toString() + " = " + (mod.getPercentMod() + (mod.getRamp() * eff.getTrains()));
+                            output += eff.getEffectsBase().getIDString() + " - " + mod.modType.toString() + " = " + (mod.getPercentMod() + (mod.getRamp() * eff.getTrains())) + newline;
                         if(mod.minMod != 0)
-                            output += eff.getEffectsBase().getIDString() + " - " + mod.modType.toString() + " = " + (mod.minMod + (mod.getRamp() * eff.getTrains()));
+                            output += eff.getEffectsBase().getIDString() + " - " + mod.modType.toString() + " = " + (mod.minMod + (mod.getRamp() * eff.getTrains())) + newline;
                     }
 
                     output += newline;
