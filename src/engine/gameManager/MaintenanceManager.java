@@ -241,6 +241,10 @@ public enum MaintenanceManager {
                 continue;
             if(building.getBlueprint() == null)
                 continue;
+            if(building.getBlueprint().getBuildingGroup() == null)
+                continue;
+            if(building.getProtectionState() == null)
+                continue;
             if(building.getBlueprint().getBuildingGroup().equals(Enum.BuildingGroup.SIEGETENT)){
                 if(building.getProtectionState().equals(Enum.ProtectionState.NONE)){
                     building.destroyOrDerank(null);
