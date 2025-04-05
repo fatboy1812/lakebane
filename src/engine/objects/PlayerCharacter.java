@@ -5214,6 +5214,8 @@ public class PlayerCharacter extends AbstractCharacter {
 
         this.timestamps.put("nextBoxCheck", System.currentTimeMillis() + 3000);
 
+        this.isBoxed = checkIfBoxed(this);
+
         //DS: 1672601862
         if(this.isBoxed){
             if(this.getPromotionClassID() == 2511) {//fury cannot be PVE anymore, fuck them
