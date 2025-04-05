@@ -72,6 +72,7 @@ public class ArcLoginNotifyMsgHandler extends AbstractClientMsgHandler {
         }else{
             ChatManager.sendSystemMessage(player, "There Is Currently No Hotzone");
         }
+        ChatManager.sendSystemMessage(player, "The Big Test");
 
         // Send branch string if available from ConfigManager.
 
