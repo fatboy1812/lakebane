@@ -60,21 +60,21 @@ public class MobHandler {
                 if (mob.getCharItemManager().getInventoryCount() > 0) {
                     if (System.currentTimeMillis() > mob.deathTime + MBServerStatics.DESPAWN_TIMER_WITH_LOOT) {
                         mob.despawn();
-                        mob.deathTime = System.currentTimeMillis();
+                        mob.setDeathTime(System.currentTimeMillis());
                         return;
                     }
                     //No items in inventory.
                 } else if (mob.isHasLoot()) {
                     if (System.currentTimeMillis() > mob.deathTime + MBServerStatics.DESPAWN_TIMER_ONCE_LOOTED) {
                         mob.despawn();
-                        mob.deathTime = System.currentTimeMillis();
+                        mob.setDeathTime(System.currentTimeMillis());
                         return;
                     }
                     //Mob never had Loot.
                 } else {
                     if (System.currentTimeMillis() > mob.deathTime + MBServerStatics.DESPAWN_TIMER) {
                         mob.despawn();
-                        mob.deathTime = System.currentTimeMillis();
+                        mob.setDeathTime(System.currentTimeMillis());
                         return;
                     }
                 }
@@ -84,15 +84,8 @@ public class MobHandler {
             if(Mob.discDroppers.contains(mob))
                 return;
 
-            //int spawnTime = mob.spawnTime - 20;
-            //int percent = 100 - mob.level;
-            //float toKeep = (100 - percent) * 0.01f;
-            //int newSpawn = (int)(spawnTime + (20 * toKeep));
-            if (mob.despawned && System.currentTimeMillis() > (mob.deathTime + (mob.spawnTime * 1000L))) {
-            //if (mob.despawned && System.currentTimeMillis() > (mob.deathTime + (newSpawn * 1000L))) {
-                if (!Zone.respawnQue.contains(mob)) {
-                    Zone.respawnQue.add(mob);
-                }
+            if (System.currentTimeMillis() > (mob.deathTime + (mob.spawnTime * 1000L))) {
+                Zone.respawnQue.add(mob);
             }
         } catch (Exception e) {
             //(aiAgent.getObjectUUID() + " " + aiAgent.getName() + " Failed At: CheckForRespawn" + " " + e.getMessage());
