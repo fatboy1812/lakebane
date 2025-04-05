@@ -12,7 +12,9 @@ import engine.Enum;
 import engine.Enum.DispatchChannel;
 import engine.Enum.GameObjectType;
 import engine.gameManager.GroupManager;
+import engine.gameManager.HotzoneManager;
 import engine.gameManager.SessionManager;
+import engine.gameManager.ZoneManager;
 import engine.job.JobScheduler;
 import engine.jobs.RefreshGroupJob;
 import engine.net.AbstractNetMsg;
@@ -534,6 +536,12 @@ public enum InterestManager implements Runnable {
         player.setDirtyLoad(true);
         updateStaticList(player, origin);
         updateMobileList(player, origin);
+
+        if (HotzoneManager.hotzone != null) {
+            HotzoneChangeMsg hcm = new HotzoneChangeMsg(Enum.GameObjectType.Zone.ordinal(), ZoneManager.hotZone.getObjectUUID());
+            Dispatch dispatch = Dispatch.borrow(player, hcm);
+            DispatchMessage.dispatchMsgDispatch(dispatch, DispatchChannel.SECONDARY);
+        }
     }
 
     public synchronized void HandleLoadForTeleport(PlayerCharacter playerCharacter) {
