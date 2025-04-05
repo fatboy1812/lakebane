@@ -60,21 +60,18 @@ public class MobHandler {
                 if (mob.getCharItemManager().getInventoryCount() > 0) {
                     if (System.currentTimeMillis() > mob.deathTime + MBServerStatics.DESPAWN_TIMER_WITH_LOOT) {
                         mob.despawn();
-                        mob.setDeathTime(System.currentTimeMillis());
                         return;
                     }
                     //No items in inventory.
                 } else if (mob.isHasLoot()) {
                     if (System.currentTimeMillis() > mob.deathTime + MBServerStatics.DESPAWN_TIMER_ONCE_LOOTED) {
                         mob.despawn();
-                        mob.setDeathTime(System.currentTimeMillis());
                         return;
                     }
                     //Mob never had Loot.
                 } else {
                     if (System.currentTimeMillis() > mob.deathTime + MBServerStatics.DESPAWN_TIMER) {
                         mob.despawn();
-                        mob.setDeathTime(System.currentTimeMillis());
                         return;
                     }
                 }

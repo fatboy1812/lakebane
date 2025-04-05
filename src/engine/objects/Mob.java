@@ -1461,7 +1461,7 @@ public class Mob extends AbstractIntelligenceAgent {
 
     public void despawn() {
 
-        if(HotzoneManager.currentBoss.equals(this)){
+        if(HotzoneManager.currentBoss != null && HotzoneManager.currentBoss.equals(this)){
             HotzoneManager.end_hotzone();
         }
 
@@ -1473,6 +1473,8 @@ public class Mob extends AbstractIntelligenceAgent {
         if(this.StrongholdEpic && this.stronghold != null && this.stronghold.isActive)
             this.stronghold.isActive = false;
             //StrongholdManager.EndStronghold(this.stronghold);
+
+        this.setDeathTime(System.currentTimeMillis());
     }
 
     @Override
