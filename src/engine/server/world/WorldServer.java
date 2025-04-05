@@ -540,6 +540,7 @@ public class WorldServer {
 
 		Logger.info("Starting Hotzone...");
 		HotzoneManager.create_random_hotzone();
+		Logger.info("The Current Hotzone Is: " + HotzoneManager.hotzone.getName());
 
 		return true;
 	}
