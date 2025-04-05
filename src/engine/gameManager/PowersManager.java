@@ -811,8 +811,8 @@ public enum PowersManager {
 
         // make person casting stand up if spell (unless they're casting a chant which does not make them stand up)
         // update cast (use skill) fail condition
-        if(pb.breaksForm)
-            caster.cancelOnCast();
+        //if(pb.breaksForm)
+        //    caster.cancelOnCast();
 
         // update castSpell (use spell) fail condition if spell
         if (pb.isSpell() && pb.breaksForm)
