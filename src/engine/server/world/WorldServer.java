@@ -673,8 +673,8 @@ public class WorldServer {
 					//ADD GUARDS HERE.
 					if (m.building != null && m.building.getBlueprint() != null && m.building.getBlueprint().getBuildingGroup() != null && m.building.getBlueprint().getBuildingGroup() == BuildingGroup.BARRACK)
 						DbManager.MobQueries.LOAD_PATROL_POINTS(m);
-					} catch (Exception e) {
-						Logger.error(m.getObjectUUID() + " returned an Error Message :" + e.getMessage());
+					} catch (Exception ignored) {
+						//Logger.error(m.getObjectUUID() + " returned an Error Message :" + e.getMessage());
 					}
 				}
 
