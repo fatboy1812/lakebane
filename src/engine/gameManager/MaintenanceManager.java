@@ -17,6 +17,8 @@ import org.pmw.tinylog.Logger;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Objects;
 
 public enum MaintenanceManager {
 
@@ -234,7 +236,9 @@ public enum MaintenanceManager {
 
     public static int auditSiegeEquipment(){
         int count = 0;
-        ArrayList<AbstractGameObject> buildingList = new ArrayList(DbManager.getList(Enum.GameObjectType.Building));
+        Collection<AbstractGameObject> buildingList = DbManager.getList(Enum.GameObjectType.Building);
+        if(buildingList == null)
+            return 0;
         for(AbstractGameObject ago : buildingList){
             Building building = (Building)ago;
             if(building == null)
