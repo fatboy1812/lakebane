@@ -8,9 +8,12 @@ import engine.net.DispatchMessage;
 import engine.net.client.msg.HotzoneChangeMsg;
 import engine.objects.*;
 
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class HotzoneManager {
 
@@ -18,8 +21,8 @@ public class HotzoneManager {
     public static Mob currentBoss = null;
     public static ArrayList<Mob> minions = null;
 
-    public static int bossID = 0;
-    public static int minionID = 0;
+    public static int bossID = 14180;
+    public static int minionID = 2112;
 
     public static final ArrayList<Integer> int_rune_ids = new ArrayList<>(Arrays.asList(
             250028, 250029, 250030, 250031, 250032, 250033, 250034, 250035
@@ -32,12 +35,20 @@ public class HotzoneManager {
     ));
 
     public static void wipe_hotzone(){
-        hotzone = null;
-        DbManager.MobQueries.DELETE_MOB(currentBoss);
-        WorldGrid.removeObject(currentBoss);
-        for(Mob minion : minions){
-            DbManager.MobQueries.DELETE_MOB(minion);
-            WorldGrid.removeObject(minion);
+        HotzoneManager.hotzone = null;
+        if(HotzoneManager.currentBoss != null) {
+            DbManager.MobQueries.DELETE_MOB(HotzoneManager.currentBoss);
+            WorldGrid.removeObject(HotzoneManager.currentBoss);
+            HotzoneManager.currentBoss.removeFromCache();
+        }
+        if(HotzoneManager.minions != null) {
+            for (Mob minion : HotzoneManager.minions) {
+                if (minion != null) {
+                    DbManager.MobQueries.DELETE_MOB(minion);
+                    WorldGrid.removeObject(minion);
+                    minion.removeFromCache();
+                }
+            }
         }
     }
 
@@ -46,33 +57,57 @@ public class HotzoneManager {
         wipe_hotzone();
 
         //TODO create and assign a new zone to be hotzone
-        hotzone = null;
+        Zone newHot = null;
+        while (newHot == null){
+            int roll = ThreadLocalRandom.current().nextInt(ZoneManager.macroZones.size() + 1);
+            if(ZoneManager.macroZones.toArray()[roll] != null){
+                Zone potential = (Zone) ZoneManager.macroZones.toArray()[roll];
+                if(potential.getSafeZone() == 0) {
+                    HotzoneManager.hotzone = potential;
+                    break;
+                }
+            }
+        }
 
-        currentBoss = create_epic();
-        minions = new ArrayList<>();
+        HotzoneManager.currentBoss = create_epic();
+        HotzoneManager.currentBoss.equipmentSetID = 9713;
+        HotzoneManager.currentBoss.runAfterLoad();
+        HotzoneManager.currentBoss.setLoc(hotzone.getLoc());
+        HotzoneManager.currentBoss.spawnTime = 999999999;
+        HotzoneManager.currentBoss.BehaviourType = Enum.MobBehaviourType.Aggro;
+        HotzoneManager.currentBoss.setResists(new Resists());
+        HotzoneManager.minions = new ArrayList<>();
         for(int i = 0; i < 5; i++){
             Mob minion = create_minion();
+            minion.equipmentSetID = 6329;
+            minion.runAfterLoad();
             minion.setLoc(Vector3fImmutable.getRandomPointOnCircle(currentBoss.loc,32f));
-            minions.add(minion);
+            HotzoneManager.minions.add(minion);
+            minion.spawnTime = 999999999;
+            minion.BehaviourType = Enum.MobBehaviourType.Aggro;
         }
         generate_epic_loot();
 
         generate_minion_loot();
 
+        ZoneManager.hotZoneLastUpdate = LocalDateTime.now().withMinute(0).withSecond(0).atZone(ZoneId.systemDefault()).toInstant();
+
         for(PlayerCharacter player : SessionManager.getAllActivePlayerCharacters()) {
-            HotzoneChangeMsg hcm = new HotzoneChangeMsg(Enum.GameObjectType.Zone.ordinal(), hotzone.getObjectUUID());
+            int zoneType = Enum.GameObjectType.Zone.ordinal();
+            int zoneUUID = HotzoneManager.hotzone.getObjectUUID();
+            HotzoneChangeMsg hcm = new HotzoneChangeMsg(zoneType, zoneUUID);
             Dispatch dispatch = Dispatch.borrow(player, hcm);
             DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
         }
     }
 
     public static Mob create_epic(){
-        Mob epic = Mob.createStrongholdMob(bossID,hotzone.getLoc(), Guild.getErrantGuild(),true,hotzone,null,0,"Hotzone Commander",85);
+        Mob epic = Mob.createMob(253014,hotzone.getLoc(), Guild.getErrantGuild(),true,hotzone,null,0,"Hotzone Commander",85);
         return epic;
     }
 
     public static Mob create_minion(){
-        Mob minion = Mob.createStrongholdMob(minionID,hotzone.getLoc(), Guild.getErrantGuild(),true,hotzone,null,0,"Hotzone Minion",65);
+        Mob minion = Mob.createMob(253006,hotzone.getLoc(), Guild.getErrantGuild(),true,hotzone,null,0,"Hotzone Minion",65);
         return minion;
     }
 
@@ -99,6 +134,8 @@ public class HotzoneManager {
     }
 
     public static void generate_minion_loot(){
+        if(ThreadLocalRandom.current().nextInt(100) > 35)
+            return;
         for(Mob minion : minions){
             minion.getCharItemManager().clearInventory();
             Random random = new Random();

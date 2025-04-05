@@ -537,6 +537,10 @@ public class WorldServer {
 		Logger.info("Auditing old Siege Assets...");
 		int assetsRemoved = MaintenanceManager.auditSiegeEquipment();
 		Logger.info("Siege Assets That Were Unprotected Removed: " + assetsRemoved);
+
+		Logger.info("Starting Hotzone...");
+		HotzoneManager.create_random_hotzone();
+
 		return true;
 	}
 

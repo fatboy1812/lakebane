@@ -96,7 +96,7 @@ public enum LootManager {
         }
 
         //determine if mob is in hotzone
-        boolean inHotzone = false;
+        boolean inHotzone = ZoneManager.inHotZone(mob.loc);//false;
 
         //iterate the booty sets
 
@@ -173,10 +173,9 @@ public enum LootManager {
                     // Generate hotzone loot if in hotzone
                     // Only one bite at the hotzone apple per bootyset.
 
-                    if (inHotzone == true && hotzoneWasRan == false)
+                    if (inHotzone)
                         if (_genTables.containsKey(bse.genTable + 1) && ThreadLocalRandom.current().nextInt(1, 100 + 1) < (bse.dropChance * dropRate)) {
                             GenerateLootDrop(mob, bse.genTable + 1, true);  //generate loot drop from hotzone table
-                            hotzoneWasRan = true;
                         }
 
                     break;
@@ -410,12 +409,17 @@ public enum LootManager {
         MobLoot toAdd = getGenTableItem(tableID, mob, inHotzone);
         if(toAdd != null){
             ItemBase ib = toAdd.getItemBase();
+
+            //the following early exits are handled now in SpecialLootHandler
             switch(ib.getType()){
                 case CONTRACT:
                 case RUNE:
                 case RESOURCE:
                     return;
             }
+
+            if(ib.isGlass())
+                return;
 
             if (ib.getUUID() == 1580021)//mithril
                 return;

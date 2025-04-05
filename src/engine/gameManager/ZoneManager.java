@@ -149,10 +149,10 @@ public enum ZoneManager {
 
     public static boolean inHotZone(final Vector3fImmutable loc) {
 
-        if (ZoneManager.hotZone == null)
+        if (HotzoneManager.hotzone == null)
             return false;
 
-        return (Bounds.collide(loc, ZoneManager.hotZone.getBounds()) == true);
+        return (Bounds.collide(loc, HotzoneManager.hotzone.getBounds()));
     }
 
     public static Zone getSeaFloor() {

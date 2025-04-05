@@ -37,7 +37,7 @@ public class HotzoneChangeMsg extends ClientNetMsg {
         this.zoneType = zoneType;
         this.zoneID = zoneID;
 
-        int hotZoneDuration = Integer.parseInt(ConfigManager.MB_HOTZONE_DURATION.getValue());
+        int hotZoneDuration = 1;
         Instant currentInstant = LocalDateTime.now().atZone(ZoneId.systemDefault()).toInstant();
         secondsRemaining = (int) Duration.between(currentInstant, ZoneManager.hotZoneLastUpdate.plusSeconds(hotZoneDuration * 3600)).getSeconds();
 
