@@ -1,0 +1,118 @@
+[33m7cd9e102[m[33m ([m[1;36mHEAD -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{0}: reset: moving to 7cd9e1029f47079b8d4f17ec6155538e03b25ec2
+[33m7a1a5ee0[m HEAD@{1}: revert: Revert "increase XP for hotzone base don config manager entry"
+[33m80c4a74d[m HEAD@{2}: commit: increase XP for hotzone base don config manager entry
+[33m7cd9e102[m[33m ([m[1;36mHEAD -> [m[1;32mmaster[m[33m, [m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m)[m HEAD@{3}: commit: try catch to boot
+[33me757cf64[m HEAD@{4}: commit: announce hotzone
+[33mdd2efea4[m HEAD@{5}: commit: announce hotzone
+[33mbf74238b[m HEAD@{6}: commit: announce hotzone
+[33m97bc4ef2[m HEAD@{7}: commit: box check update for players
+[33mce58351a[m HEAD@{8}: commit: enabled hotzone system
+[33me8fbf499[m HEAD@{9}: commit: Hotzone management
+[33mc2d0fa53[m HEAD@{10}: commit: Hotzone management
+[33m3e33e6a3[m HEAD@{11}: commit: Hotzone management
+[33mf9e1edab[m HEAD@{12}: commit: initial HotzoneManager class
+[33ma5b0607f[m HEAD@{13}: commit: initial HotzoneManager class
+[33mb2e8d513[m HEAD@{14}: commit: initial HotzoneManager class
+[33m5ceaf003[m HEAD@{15}: commit: fix for mob lag under flyers
+[33mb6f9fe2f[m HEAD@{16}: commit: fix for mob lag under flyers
+[33me2845e90[m HEAD@{17}: commit: show enchantment bonuses on weapon
+[33m26aa8901[m HEAD@{18}: commit: show enchantment bonuses on weapon
+[33m8833ef1f[m HEAD@{19}: commit: building info to show patrol points
+[33m9249da5e[m HEAD@{20}: commit: player guards to update and use barracks patrol points
+[33m1c19f51c[m HEAD@{21}: commit: mob patrolling delay
+[33m36052799[m HEAD@{22}: commit: audit siege equipment and remove unprotecte don boot
+[33mf0b57948[m HEAD@{23}: commit: audit siege equipment and remove unprotecte don boot
+[33mf34d1ee3[m HEAD@{24}: commit: boxed characters pets can only attack mobs
+[33m76b4327b[m HEAD@{25}: commit: boxed characters pets can only attack mobs
+[33m1a2b1f34[m HEAD@{26}: commit: usage of building region altitudes in new combat location formula
+[33mc73333b3[m HEAD@{27}: commit: remove debug from resource stack size, system confirmed working
+[33m172db0f9[m HEAD@{28}: commit: attack speed calculations
+[33me13626ea[m HEAD@{29}: commit: new pet AI completed
+[33m76326c75[m HEAD@{30}: commit: new player guard AI completed
+[33m394b9e28[m HEAD@{31}: commit: magister and archer mobs systems in place
+[33m125261ed[m HEAD@{32}: commit: use power dev command
+[33mceaa148f[m HEAD@{33}: commit: use power dev command
+[33m9539efa3[m HEAD@{34}: commit: add poison blade and litany of serenity to exception break list
+[33m20e06006[m HEAD@{35}: commit: combat error tracking
+[33m4f839c37[m HEAD@{36}: commit: increase dodge chance vs spells
+[33mce3b2503[m HEAD@{37}: commit: remove ability to block spells
+[33m31daecf3[m HEAD@{38}: commit: stop auto attacking when target becomes invisible
+[33mef9d776c[m HEAD@{39}: commit: default bane cap set to 20 when tree limit exceeded
+[33me1270a43[m HEAD@{40}: commit: attack speed calculation
+[33m1c8a1497[m HEAD@{41}: commit: reduce overlap check by 1 unity per building
+[33m39b544de[m HEAD@{42}: commit: destroyed buildings no longer count towards restricted amounts
+[33mf6b0a0ed[m HEAD@{43}: commit: default stuck location to edge of buildings bounds
+[33ma3129da5[m HEAD@{44}: commit: special loot handler cleanup
+[33m267f67a6[m HEAD@{45}: commit: remove junking value from resources
+[33m0920aae1[m HEAD@{46}: commit: remove junking value from resources
+[33mdba33cc4[m HEAD@{47}: commit: fix resource drop rates
+[33m9ce08260[m HEAD@{48}: commit: heightmap combat issue resolved
+[33m8d948dae[m HEAD@{49}: commit: test new mechanics
+[33m365493a6[m HEAD@{50}: commit: calculate hit box for new range checks
+[33m91681c32[m HEAD@{51}: commit: aiInfo shows target distance
+[33mb88e41ef[m HEAD@{52}: commit: eliminate heightmaps from combat range checks
+[33m6761b6eb[m HEAD@{53}: commit: cant telport to cities without trees
+[33mbf9728ab[m HEAD@{54}: commit: instate old mob AI for siege, pets and player guards
+[33m3357b5fa[m HEAD@{55}: commit: city TP null check
+[33md0d94b92[m HEAD@{56}: commit: revert attack speed claculation
+[33m4df699a2[m HEAD@{57}: revert: Revert "players will not auto attack others in stealth anymore"
+[33m6718bcf3[m HEAD@{58}: revert: Revert "players will not auto attack others in stealth anymore"
+[33mad679bf9[m HEAD@{59}: commit (merge): Merge branch 'lakebane-recovery'
+[33mf566f407[m HEAD@{60}: checkout: moving from lakebane-recovery to master
+[33mb23d7d9b[m[33m ([m[1;31morigin/lakebane-recovery[m[33m, [m[1;32mlakebane-recovery[m[33m)[m HEAD@{61}: checkout: moving from dungeons to lakebane-recovery
+[33m387c55e8[m HEAD@{62}: commit: secondary server option
+[33mf4e29d81[m HEAD@{63}: commit: secondary server option
+[33me219a4a2[m HEAD@{64}: commit: bane NPC system completed
+[33me3cf633a[m HEAD@{65}: checkout: moving from feature-baneNPC to dungeons
+[33me3cf633a[m HEAD@{66}: checkout: moving from dual-worlds to feature-baneNPC
+[33mf566f407[m HEAD@{67}: checkout: moving from feature-baneNPC to dual-worlds
+[33me3cf633a[m HEAD@{68}: commit: bane NPC system completed
+[33m4daedd2b[m HEAD@{69}: commit: defautl bane is 7 daysin furute
+[33mef817518[m HEAD@{70}: commit: bane commander NPC work finished
+[33m305e2e11[m HEAD@{71}: commit: bane commander NPC work
+[33m46769121[m HEAD@{72}: commit: bane commander NPC work
+[33m533f9141[m HEAD@{73}: commit: bane commander NPC work
+[33m782945ae[m HEAD@{74}: commit: create bane commander NPC for placed banes
+[33m825ef1f3[m HEAD@{75}: commit: create bane commander NPC for placed banes
+[33m3bb7b495[m HEAD@{76}: commit: custom set bane sizes
+[33me48070d7[m HEAD@{77}: commit: optimized shrine favour rank calculation
+[33mbfef1d60[m HEAD@{78}: commit: optimized shrine favour rank calculation
+[33mf566f407[m HEAD@{79}: checkout: moving from master to feature-baneNPC
+[33mf566f407[m HEAD@{80}: commit: optimized shrine favour rank calculation
+[33mbbdcb613[m HEAD@{81}: commit: spamming send mob home for trebuchets
+[33mb48b578e[m HEAD@{82}: commit: strip all castable enchants
+[33mf3b4f11f[m HEAD@{83}: commit: strip all castable enchants
+[33m888608eb[m HEAD@{84}: commit: strip all castable enchants
+[33m21d546a9[m HEAD@{85}: commit: strip all castable enchants
+[33m01047973[m HEAD@{86}: commit: strip all castable enchants when owner is updated
+[33m6c77ac47[m HEAD@{87}: commit: errant players cannot teleport to errant mines
+[33m49cd35e6[m HEAD@{88}: commit: strip temporary item effects
+[33m2d2d4d43[m HEAD@{89}: commit: strip temporary item effects
+[33m810c353b[m HEAD@{90}: revert: Revert "test commmit"
+[33mb35d1f31[m HEAD@{91}: revert: Revert "giant safezone NPCs"
+[33m14b7744a[m HEAD@{92}: revert: Revert "giant safezone NPCs"
+[33m4656c516[m HEAD@{93}: revert: Revert "giant safezone NPCs"
+[33m151e29dc[m HEAD@{94}: revert: Revert "giant safezone NPCs"
+[33m9d5a9093[m HEAD@{95}: revert: Revert "giant safezone NPCs"
+[33m938827cf[m HEAD@{96}: revert: Revert "temporary item enchant stripping"
+[33md12d7fad[m HEAD@{97}: revert: Revert "temporary item enchant stripping"
+[33m2393e5af[m HEAD@{98}: revert: Revert "wont boot"
+[33m4b72668e[m HEAD@{99}: revert: Revert "wont boot"
+[33m3b1e3546[m HEAD@{100}: merge origin/master: Fast-forward
+[33m9965223d[m HEAD@{101}: checkout: moving from revert to master
+[33m9965223d[m HEAD@{102}: checkout: moving from master to revert
+[33m9965223d[m HEAD@{103}: reset: moving to 9965223d9bf5e35dcd8b1c8b45b282097c14eff0
+[33m3b1e3546[m HEAD@{104}: commit: wont boot
+[33ma7c39925[m HEAD@{105}: commit: wont boot
+[33m09117c2f[m HEAD@{106}: commit: temporary item enchant stripping
+[33m36801a21[m HEAD@{107}: commit: temporary item enchant stripping
+[33m0a7072cf[m HEAD@{108}: commit: giant safezone NPCs
+[33mc5ab2922[m HEAD@{109}: commit: giant safezone NPCs
+[33m8207374f[m HEAD@{110}: commit: giant safezone NPCs
+[33ma696d537[m HEAD@{111}: commit: giant safezone NPCs
+[33mc57b9177[m HEAD@{112}: commit: giant safezone NPCs
+[33mc541aae8[m HEAD@{113}: checkout: moving from feature-collision to master
+[33mef297782[m HEAD@{114}: commit: Collision Commit
+[33mc541aae8[m HEAD@{115}: checkout: moving from master to feature-collision
+[33mc541aae8[m HEAD@{116}: commit: test commmit
+[33m9965223d[m HEAD@{117}: clone: from https://github.com/fatboy1812/lakebane.git

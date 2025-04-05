@@ -1,0 +1,512 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="6d83d38e-bac3-455e-8576-633aa269a59e" name="Changes" comment="increase XP for hotzone base don config manager entry" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="FileTemplateManagerImpl">
+    <option name="RECENT_TEMPLATES">
+      <list>
+        <option value="Class" />
+      </list>
+    </option>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_BRANCH_BY_REPOSITORY">
+      <map>
+        <entry key="$PROJECT_DIR$" value="lakebane-recovery" />
+      </map>
+    </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="RESET_MODE" value="HARD" />
+    <option name="UPDATE_TYPE" value="REBASE" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
+  </component>
+  <component name="ProjectId" id="2m9oFJlaltpVgAVW1oOabKi7jd8" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
+  <component name="ProjectViewState">
+    <option name="autoscrollToSource" value="true" />
+    <option name="hideEmptyMiddlePackages" value="true" />
+    <option name="showLibraryContents" value="true" />
+  </component>
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "last_opened_file_path": "C:/Users/fatbo/IdeaProjects/lakebane",
+    "project.structure.last.edited": "Libraries",
+    "project.structure.proportion": "0.15",
+    "project.structure.side.proportion": "0.2",
+    "settings.editor.selected.configurable": "project.propVCSSupport.DirectoryMappings"
+  }
+}]]></component>
+  <component name="RecentsManager">
+    <key name="MoveClassesOrPackagesDialog.RECENTS_KEY">
+      <recent name="engine" />
+      <recent name="CollisionEngine" />
+    </key>
+    <key name="CopyClassDialog.RECENTS_KEY">
+      <recent name="engine.devcmd.cmds" />
+    </key>
+  </component>
+  <component name="RunManager" selected="Remote JVM Debug.lakebane-test">
+    <configuration default="true" type="JetRunConfigurationType">
+      <module name="lakebane" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
+      <module name="lakebane" />
+      <option name="filePath" />
+      <method v="2">
+        <option name="Make" enabled="true" />
+      </method>
+    </configuration>
+    <configuration name="lakebane-prod" type="Remote">
+      <module name="lakebane" />
+      <option name="USE_SOCKET_TRANSPORT" value="true" />
+      <option name="SERVER_MODE" value="false" />
+      <option name="SHMEM_ADDRESS" />
+      <option name="HOST" value="63.141.245.218" />
+      <option name="PORT" value="5000" />
+      <option name="AUTO_RESTART" value="false" />
+      <RunnerSettings RunnerId="Debug">
+        <option name="DEBUG_PORT" value="5000" />
+        <option name="LOCAL" value="false" />
+      </RunnerSettings>
+      <method v="2" />
+    </configuration>
+    <configuration name="lakebane-test" type="Remote">
+      <module name="lakebane" />
+      <option name="USE_SOCKET_TRANSPORT" value="true" />
+      <option name="SERVER_MODE" value="false" />
+      <option name="SHMEM_ADDRESS" />
+      <option name="HOST" value="208.110.84.202" />
+      <option name="PORT" value="5000" />
+      <option name="AUTO_RESTART" value="false" />
+      <RunnerSettings RunnerId="Debug">
+        <option name="DEBUG_PORT" value="5000" />
+        <option name="LOCAL" value="false" />
+      </RunnerSettings>
+      <method v="2" />
+    </configuration>
+    <list>
+      <item itemvalue="Remote JVM Debug.lakebane-prod" />
+      <item itemvalue="Remote JVM Debug.lakebane-test" />
+    </list>
+  </component>
+  <component name="SpellCheckerSettings" RuntimeDictionaries="0" Folders="0" CustomDictionaries="0" DefaultDictionary="application-level" UseSingleDictionary="true" transferred="true" />
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="6d83d38e-bac3-455e-8576-633aa269a59e" name="Changes" comment="" />
+      <created>1726498047977</created>
+      <option name="number" value="Default" />
+      <option name="presentableId" value="Default" />
+      <updated>1726498047977</updated>
+    </task>
+    <task id="LOCAL-00042" summary="calculate hit box for new range checks">
+      <created>1743390946559</created>
+      <option name="number" value="00042" />
+      <option name="presentableId" value="LOCAL-00042" />
+      <option name="project" value="LOCAL" />
+      <updated>1743390946559</updated>
+    </task>
+    <task id="LOCAL-00043" summary="test new mechanics">
+      <created>1743391400757</created>
+      <option name="number" value="00043" />
+      <option name="presentableId" value="LOCAL-00043" />
+      <option name="project" value="LOCAL" />
+      <updated>1743391400757</updated>
+    </task>
+    <task id="LOCAL-00044" summary="heightmap combat issue resolved">
+      <created>1743391936241</created>
+      <option name="number" value="00044" />
+      <option name="presentableId" value="LOCAL-00044" />
+      <option name="project" value="LOCAL" />
+      <updated>1743391936241</updated>
+    </task>
+    <task id="LOCAL-00045" summary="fix resource drop rates">
+      <created>1743460002377</created>
+      <option name="number" value="00045" />
+      <option name="presentableId" value="LOCAL-00045" />
+      <option name="project" value="LOCAL" />
+      <updated>1743460002377</updated>
+    </task>
+    <task id="LOCAL-00046" summary="remove junking value from resources">
+      <created>1743460093318</created>
+      <option name="number" value="00046" />
+      <option name="presentableId" value="LOCAL-00046" />
+      <option name="project" value="LOCAL" />
+      <updated>1743460093318</updated>
+    </task>
+    <task id="LOCAL-00047" summary="remove junking value from resources">
+      <created>1743460164067</created>
+      <option name="number" value="00047" />
+      <option name="presentableId" value="LOCAL-00047" />
+      <option name="project" value="LOCAL" />
+      <updated>1743460164067</updated>
+    </task>
+    <task id="LOCAL-00048" summary="special loot handler cleanup">
+      <created>1743460271400</created>
+      <option name="number" value="00048" />
+      <option name="presentableId" value="LOCAL-00048" />
+      <option name="project" value="LOCAL" />
+      <updated>1743460271400</updated>
+    </task>
+    <task id="LOCAL-00049" summary="default stuck location to edge of buildings bounds">
+      <created>1743460554205</created>
+      <option name="number" value="00049" />
+      <option name="presentableId" value="LOCAL-00049" />
+      <option name="project" value="LOCAL" />
+      <updated>1743460554205</updated>
+    </task>
+    <task id="LOCAL-00050" summary="destroyed buildings no longer count towards restricted amounts">
+      <created>1743460847184</created>
+      <option name="number" value="00050" />
+      <option name="presentableId" value="LOCAL-00050" />
+      <option name="project" value="LOCAL" />
+      <updated>1743460847185</updated>
+    </task>
+    <task id="LOCAL-00051" summary="reduce overlap check by 1 unity per building">
+      <created>1743461069426</created>
+      <option name="number" value="00051" />
+      <option name="presentableId" value="LOCAL-00051" />
+      <option name="project" value="LOCAL" />
+      <updated>1743461069426</updated>
+    </task>
+    <task id="LOCAL-00052" summary="attack speed calculation">
+      <created>1743461311448</created>
+      <option name="number" value="00052" />
+      <option name="presentableId" value="LOCAL-00052" />
+      <option name="project" value="LOCAL" />
+      <updated>1743461311448</updated>
+    </task>
+    <task id="LOCAL-00053" summary="default bane cap set to 20 when tree limit exceeded">
+      <created>1743462291041</created>
+      <option name="number" value="00053" />
+      <option name="presentableId" value="LOCAL-00053" />
+      <option name="project" value="LOCAL" />
+      <updated>1743462291041</updated>
+    </task>
+    <task id="LOCAL-00054" summary="stop auto attacking when target becomes invisible">
+      <created>1743462568932</created>
+      <option name="number" value="00054" />
+      <option name="presentableId" value="LOCAL-00054" />
+      <option name="project" value="LOCAL" />
+      <updated>1743462568932</updated>
+    </task>
+    <task id="LOCAL-00055" summary="remove ability to block spells">
+      <created>1743467011024</created>
+      <option name="number" value="00055" />
+      <option name="presentableId" value="LOCAL-00055" />
+      <option name="project" value="LOCAL" />
+      <updated>1743467011024</updated>
+    </task>
+    <task id="LOCAL-00056" summary="increase dodge chance vs spells">
+      <created>1743467095813</created>
+      <option name="number" value="00056" />
+      <option name="presentableId" value="LOCAL-00056" />
+      <option name="project" value="LOCAL" />
+      <updated>1743467095813</updated>
+    </task>
+    <task id="LOCAL-00057" summary="combat error tracking">
+      <created>1743525394442</created>
+      <option name="number" value="00057" />
+      <option name="presentableId" value="LOCAL-00057" />
+      <option name="project" value="LOCAL" />
+      <updated>1743525394443</updated>
+    </task>
+    <task id="LOCAL-00058" summary="add poison blade and litany of serenity to exception break list">
+      <created>1743525698353</created>
+      <option name="number" value="00058" />
+      <option name="presentableId" value="LOCAL-00058" />
+      <option name="project" value="LOCAL" />
+      <updated>1743525698353</updated>
+    </task>
+    <task id="LOCAL-00059" summary="use power dev command">
+      <created>1743526145500</created>
+      <option name="number" value="00059" />
+      <option name="presentableId" value="LOCAL-00059" />
+      <option name="project" value="LOCAL" />
+      <updated>1743526145500</updated>
+    </task>
+    <task id="LOCAL-00060" summary="use power dev command">
+      <created>1743527094917</created>
+      <option name="number" value="00060" />
+      <option name="presentableId" value="LOCAL-00060" />
+      <option name="project" value="LOCAL" />
+      <updated>1743527094917</updated>
+    </task>
+    <task id="LOCAL-00061" summary="magister and archer mobs systems in place">
+      <created>1743530791757</created>
+      <option name="number" value="00061" />
+      <option name="presentableId" value="LOCAL-00061" />
+      <option name="project" value="LOCAL" />
+      <updated>1743530791757</updated>
+    </task>
+    <task id="LOCAL-00062" summary="new player guard AI completed">
+      <created>1743531848686</created>
+      <option name="number" value="00062" />
+      <option name="presentableId" value="LOCAL-00062" />
+      <option name="project" value="LOCAL" />
+      <updated>1743531848686</updated>
+    </task>
+    <task id="LOCAL-00063" summary="new pet AI completed">
+      <created>1743532094673</created>
+      <option name="number" value="00063" />
+      <option name="presentableId" value="LOCAL-00063" />
+      <option name="project" value="LOCAL" />
+      <updated>1743532094673</updated>
+    </task>
+    <task id="LOCAL-00064" summary="attack speed calculations">
+      <created>1743629818768</created>
+      <option name="number" value="00064" />
+      <option name="presentableId" value="LOCAL-00064" />
+      <option name="project" value="LOCAL" />
+      <updated>1743629818768</updated>
+    </task>
+    <task id="LOCAL-00065" summary="remove debug from resource stack size, system confirmed working">
+      <created>1743634358173</created>
+      <option name="number" value="00065" />
+      <option name="presentableId" value="LOCAL-00065" />
+      <option name="project" value="LOCAL" />
+      <updated>1743634358174</updated>
+    </task>
+    <task id="LOCAL-00066" summary="usage of building region altitudes in new combat location formula">
+      <created>1743636323590</created>
+      <option name="number" value="00066" />
+      <option name="presentableId" value="LOCAL-00066" />
+      <option name="project" value="LOCAL" />
+      <updated>1743636323590</updated>
+    </task>
+    <task id="LOCAL-00067" summary="boxed characters pets can only attack mobs">
+      <created>1743636529211</created>
+      <option name="number" value="00067" />
+      <option name="presentableId" value="LOCAL-00067" />
+      <option name="project" value="LOCAL" />
+      <updated>1743636529211</updated>
+    </task>
+    <task id="LOCAL-00068" summary="boxed characters pets can only attack mobs">
+      <created>1743636847086</created>
+      <option name="number" value="00068" />
+      <option name="presentableId" value="LOCAL-00068" />
+      <option name="project" value="LOCAL" />
+      <updated>1743636847086</updated>
+    </task>
+    <task id="LOCAL-00069" summary="audit siege equipment and remove unprotecte don boot">
+      <created>1743637379771</created>
+      <option name="number" value="00069" />
+      <option name="presentableId" value="LOCAL-00069" />
+      <option name="project" value="LOCAL" />
+      <updated>1743637379771</updated>
+    </task>
+    <task id="LOCAL-00070" summary="audit siege equipment and remove unprotecte don boot">
+      <created>1743642524815</created>
+      <option name="number" value="00070" />
+      <option name="presentableId" value="LOCAL-00070" />
+      <option name="project" value="LOCAL" />
+      <updated>1743642524815</updated>
+    </task>
+    <task id="LOCAL-00071" summary="mob patrolling delay">
+      <created>1743709451921</created>
+      <option name="number" value="00071" />
+      <option name="presentableId" value="LOCAL-00071" />
+      <option name="project" value="LOCAL" />
+      <updated>1743709451922</updated>
+    </task>
+    <task id="LOCAL-00072" summary="player guards to update and use barracks patrol points">
+      <created>1743709639994</created>
+      <option name="number" value="00072" />
+      <option name="presentableId" value="LOCAL-00072" />
+      <option name="project" value="LOCAL" />
+      <updated>1743709639994</updated>
+    </task>
+    <task id="LOCAL-00073" summary="building info to show patrol points">
+      <created>1743727144229</created>
+      <option name="number" value="00073" />
+      <option name="presentableId" value="LOCAL-00073" />
+      <option name="project" value="LOCAL" />
+      <updated>1743727144230</updated>
+    </task>
+    <task id="LOCAL-00074" summary="show enchantment bonuses on weapon">
+      <created>1743771046662</created>
+      <option name="number" value="00074" />
+      <option name="presentableId" value="LOCAL-00074" />
+      <option name="project" value="LOCAL" />
+      <updated>1743771046662</updated>
+    </task>
+    <task id="LOCAL-00075" summary="show enchantment bonuses on weapon">
+      <created>1743771500891</created>
+      <option name="number" value="00075" />
+      <option name="presentableId" value="LOCAL-00075" />
+      <option name="project" value="LOCAL" />
+      <updated>1743771500891</updated>
+    </task>
+    <task id="LOCAL-00076" summary="fix for mob lag under flyers">
+      <created>1743795883677</created>
+      <option name="number" value="00076" />
+      <option name="presentableId" value="LOCAL-00076" />
+      <option name="project" value="LOCAL" />
+      <updated>1743795883677</updated>
+    </task>
+    <task id="LOCAL-00077" summary="fix for mob lag under flyers">
+      <created>1743795994587</created>
+      <option name="number" value="00077" />
+      <option name="presentableId" value="LOCAL-00077" />
+      <option name="project" value="LOCAL" />
+      <updated>1743795994587</updated>
+    </task>
+    <task id="LOCAL-00078" summary="initial HotzoneManager class">
+      <created>1743802668585</created>
+      <option name="number" value="00078" />
+      <option name="presentableId" value="LOCAL-00078" />
+      <option name="project" value="LOCAL" />
+      <updated>1743802668585</updated>
+    </task>
+    <task id="LOCAL-00079" summary="initial HotzoneManager class">
+      <created>1743802705541</created>
+      <option name="number" value="00079" />
+      <option name="presentableId" value="LOCAL-00079" />
+      <option name="project" value="LOCAL" />
+      <updated>1743802705541</updated>
+    </task>
+    <task id="LOCAL-00080" summary="initial HotzoneManager class">
+      <created>1743809759626</created>
+      <option name="number" value="00080" />
+      <option name="presentableId" value="LOCAL-00080" />
+      <option name="project" value="LOCAL" />
+      <updated>1743809759626</updated>
+    </task>
+    <task id="LOCAL-00081" summary="Hotzone management">
+      <created>1743813848530</created>
+      <option name="number" value="00081" />
+      <option name="presentableId" value="LOCAL-00081" />
+      <option name="project" value="LOCAL" />
+      <updated>1743813848531</updated>
+    </task>
+    <task id="LOCAL-00082" summary="Hotzone management">
+      <created>1743814017471</created>
+      <option name="number" value="00082" />
+      <option name="presentableId" value="LOCAL-00082" />
+      <option name="project" value="LOCAL" />
+      <updated>1743814017471</updated>
+    </task>
+    <task id="LOCAL-00083" summary="Hotzone management">
+      <created>1743814092812</created>
+      <option name="number" value="00083" />
+      <option name="presentableId" value="LOCAL-00083" />
+      <option name="project" value="LOCAL" />
+      <updated>1743814092812</updated>
+    </task>
+    <task id="LOCAL-00084" summary="enabled hotzone system">
+      <created>1743814589369</created>
+      <option name="number" value="00084" />
+      <option name="presentableId" value="LOCAL-00084" />
+      <option name="project" value="LOCAL" />
+      <updated>1743814589369</updated>
+    </task>
+    <task id="LOCAL-00085" summary="box check update for players">
+      <created>1743814759139</created>
+      <option name="number" value="00085" />
+      <option name="presentableId" value="LOCAL-00085" />
+      <option name="project" value="LOCAL" />
+      <updated>1743814759139</updated>
+    </task>
+    <task id="LOCAL-00086" summary="announce hotzone">
+      <created>1743815201263</created>
+      <option name="number" value="00086" />
+      <option name="presentableId" value="LOCAL-00086" />
+      <option name="project" value="LOCAL" />
+      <updated>1743815201263</updated>
+    </task>
+    <task id="LOCAL-00087" summary="announce hotzone">
+      <created>1743815219119</created>
+      <option name="number" value="00087" />
+      <option name="presentableId" value="LOCAL-00087" />
+      <option name="project" value="LOCAL" />
+      <updated>1743815219119</updated>
+    </task>
+    <task id="LOCAL-00088" summary="announce hotzone">
+      <created>1743815340877</created>
+      <option name="number" value="00088" />
+      <option name="presentableId" value="LOCAL-00088" />
+      <option name="project" value="LOCAL" />
+      <updated>1743815340877</updated>
+    </task>
+    <task id="LOCAL-00089" summary="try catch to boot">
+      <created>1743815664936</created>
+      <option name="number" value="00089" />
+      <option name="presentableId" value="LOCAL-00089" />
+      <option name="project" value="LOCAL" />
+      <updated>1743815664936</updated>
+    </task>
+    <task id="LOCAL-00090" summary="increase XP for hotzone base don config manager entry">
+      <created>1743816496084</created>
+      <option name="number" value="00090" />
+      <option name="presentableId" value="LOCAL-00090" />
+      <option name="project" value="LOCAL" />
+      <updated>1743816496084</updated>
+    </task>
+    <option name="localTasksCounter" value="91" />
+    <servers />
+  </component>
+  <component name="Vcs.Log.Tabs.Properties">
+    <option name="TAB_STATES">
+      <map>
+        <entry key="MAIN">
+          <value>
+            <State>
+              <option name="FILTERS">
+                <map>
+                  <entry key="branch">
+                    <value>
+                      <list>
+                        <option value="master" />
+                      </list>
+                    </value>
+                  </entry>
+                </map>
+              </option>
+            </State>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="remove ability to block spells" />
+    <MESSAGE value="increase dodge chance vs spells" />
+    <MESSAGE value="combat error tracking" />
+    <MESSAGE value="add poison blade and litany of serenity to exception break list" />
+    <MESSAGE value="use power dev command" />
+    <MESSAGE value="magister and archer mobs systems in place" />
+    <MESSAGE value="new player guard AI completed" />
+    <MESSAGE value="new pet AI completed" />
+    <MESSAGE value="attack speed calculations" />
+    <MESSAGE value="remove debug from resource stack size, system confirmed working" />
+    <MESSAGE value="usage of building region altitudes in new combat location formula" />
+    <MESSAGE value="boxed characters pets can only attack mobs" />
+    <MESSAGE value="audit siege equipment and remove unprotecte don boot" />
+    <MESSAGE value="mob patrolling delay" />
+    <MESSAGE value="player guards to update and use barracks patrol points" />
+    <MESSAGE value="building info to show patrol points" />
+    <MESSAGE value="show enchantment bonuses on weapon" />
+    <MESSAGE value="fix for mob lag under flyers" />
+    <MESSAGE value="initial HotzoneManager class" />
+    <MESSAGE value="Hotzone management" />
+    <MESSAGE value="enabled hotzone system" />
+    <MESSAGE value="box check update for players" />
+    <MESSAGE value="announce hotzone" />
+    <MESSAGE value="try catch to boot" />
+    <MESSAGE value="increase XP for hotzone base don config manager entry" />
+    <option name="LAST_COMMIT_MESSAGE" value="increase XP for hotzone base don config manager entry" />
+  </component>
+</project>
