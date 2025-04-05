@@ -56,7 +56,6 @@ public class HotzoneManager {
 
         wipe_hotzone();
 
-        //TODO create and assign a new zone to be hotzone
         Zone newHot = null;
         while (newHot == null){
             int roll = ThreadLocalRandom.current().nextInt(ZoneManager.macroZones.size() + 1);
@@ -159,9 +158,13 @@ public class HotzoneManager {
         }
     }
 
-    public static Zone get_new_hotzone(){
-        Zone newHot = null;
-
-        return newHot;
+    public static void end_hotzone(){
+        wipe_hotzone();
+        for(PlayerCharacter player : SessionManager.getAllActivePlayerCharacters()) {
+            int zoneType = Enum.GameObjectType.Zone.ordinal();
+            HotzoneChangeMsg hcm = new HotzoneChangeMsg(zoneType, 0);
+            Dispatch dispatch = Dispatch.borrow(player, hcm);
+            DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
+        }
     }
 }
