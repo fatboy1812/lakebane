@@ -70,7 +70,7 @@ public class MobHandler {
                     }
                     //Mob never had Loot.
                 } else {
-                    if (System.currentTimeMillis() > mob.deathTime + MBServerStatics.DESPAWN_TIMER) {
+                    if (System.currentTimeMillis() > mob.deathTime + MBServerStatics.DESPAWN_TIMER_ONCE_LOOTED) {
                         mob.despawn();
                         return;
                     }

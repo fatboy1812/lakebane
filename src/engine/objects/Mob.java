@@ -1474,7 +1474,7 @@ public class Mob extends AbstractIntelligenceAgent {
             this.stronghold.isActive = false;
             //StrongholdManager.EndStronghold(this.stronghold);
 
-        this.setDeathTime(System.currentTimeMillis());
+        //this.setDeathTime(System.currentTimeMillis());
     }
 
     @Override
