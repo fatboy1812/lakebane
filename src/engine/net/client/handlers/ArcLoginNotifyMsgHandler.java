@@ -67,6 +67,11 @@ public class ArcLoginNotifyMsgHandler extends AbstractClientMsgHandler {
         GuildManager.enterWorldMOTD(player);
         ChatManager.sendSystemMessage(player, ConfigManager.MB_WORLD_GREETING.getValue());
         ChatManager.sendSystemMessage(player, " Experience Gain: " + ConfigManager.MB_NORMAL_EXP_RATE.getValue());
+        if(HotzoneManager.hotzone != null) {
+            ChatManager.sendSystemMessage(player, "The Current Hotzone Is: " + HotzoneManager.hotzone.getName());
+        }else{
+            ChatManager.sendSystemMessage(player, "There Is Currently No Hotzone");
+        }
 
         // Send branch string if available from ConfigManager.
 
