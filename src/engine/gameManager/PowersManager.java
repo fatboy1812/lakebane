@@ -2746,13 +2746,27 @@ public enum PowersManager {
      */
     public static void cancelOnAttack(AbstractCharacter ac) {
         ac.cancelTimer("Stuck");
+        for(String eff : ac.effects.keySet()) {
+            if (eff.contains("INVULNERABLE")) {
+                ac.effects.get(eff).cancelJob();
+            }
+        }
     }
 
     public static void cancelOnAttackSwing(AbstractCharacter ac) {
+        for(String eff : ac.effects.keySet()) {
+            if (eff.contains("INVULNERABLE")) {
+                ac.effects.get(eff).cancelJob();
+            }
+        }
     }
 
     public static void cancelOnCast(AbstractCharacter ac) {
-
+        for(String eff : ac.effects.keySet()) {
+            if (eff.contains("INVULNERABLE")) {
+                ac.effects.get(eff).cancelJob();
+            }
+        }
     }
 
     public static void cancelOnSpell(AbstractCharacter ac) {
