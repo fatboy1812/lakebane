@@ -542,13 +542,13 @@ public class WorldServer {
 			Logger.error(e.getMessage());
 		}
 
-		try{
-		Logger.info("Starting Hotzone...");
-		HotzoneManager.create_random_hotzone();
-		Logger.info("The Current Hotzone Is: " + HotzoneManager.hotzone.getName());
-		}catch(Exception e){
-			Logger.error(e.getMessage());
-		}
+		//try{
+		//Logger.info("Starting Hotzone...");
+		//HotzoneManager.create_random_hotzone();
+		//Logger.info("The Current Hotzone Is: " + HotzoneManager.hotzone.getName());
+		//}catch(Exception e){
+		//	Logger.error(e.getMessage());
+		//}
 
 		return true;
 	}

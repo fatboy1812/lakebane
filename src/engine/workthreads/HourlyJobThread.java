@@ -117,7 +117,7 @@ public class HourlyJobThread implements Runnable {
                 }
             }
 
-            HotzoneManager.create_random_hotzone();
+            //HotzoneManager.create_random_hotzone();
 
         }catch(Exception e){
             Logger.error("Failed To Run Ban Multibox Abusers");
