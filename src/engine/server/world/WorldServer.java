@@ -534,13 +534,21 @@ public class WorldServer {
 		printThreads();
 		Logger.info("Threads Running:");
 
-		Logger.info("Auditing old Siege Assets...");
-		int assetsRemoved = MaintenanceManager.auditSiegeEquipment();
-		Logger.info("Siege Assets That Were Unprotected Removed: " + assetsRemoved);
+		try {
+			Logger.info("Auditing old Siege Assets...");
+			int assetsRemoved = MaintenanceManager.auditSiegeEquipment();
+			Logger.info("Siege Assets That Were Unprotected Removed: " + assetsRemoved);
+		}catch(Exception e){
+			Logger.error(e.getMessage());
+		}
 
+		try{
 		Logger.info("Starting Hotzone...");
 		HotzoneManager.create_random_hotzone();
 		Logger.info("The Current Hotzone Is: " + HotzoneManager.hotzone.getName());
+		}catch(Exception e){
+			Logger.error(e.getMessage());
+		}
 
 		return true;
 	}
