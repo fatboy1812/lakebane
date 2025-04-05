@@ -293,8 +293,12 @@ public enum CombatManager {
 
             PlayerBonuses bonus = abstractCharacter.getBonuses();
 
-            if (bonus != null && bonus.getBool(ModType.ImmuneToAttack, SourceType.None))
-                return 0;
+            if(abstractCharacter.combatTarget != null && AbstractCharacter.IsAbstractCharacter(abstractCharacter.combatTarget))
+            {
+                PlayerBonuses targetBonus = ((AbstractCharacter)abstractCharacter.combatTarget).getBonuses();
+                if (targetBonus != null && targetBonus.getBool(ModType.ImmuneToAttack, SourceType.None))
+                    return 0;
+            }
 
             AbstractWorldObject target = abstractCharacter.getCombatTarget();
 
