@@ -291,7 +291,7 @@ public enum CombatManager {
 
             //Make sure player can attack
 
-            PlayerBonuses bonus = abstractCharacter.getBonuses();
+            PlayerBonuses bonus;
 
             if(abstractCharacter.combatTarget != null && AbstractCharacter.IsAbstractCharacter(abstractCharacter.combatTarget))
             {
