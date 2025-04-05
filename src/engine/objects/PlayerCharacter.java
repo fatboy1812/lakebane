@@ -2952,7 +2952,7 @@ public class PlayerCharacter extends AbstractCharacter {
         float endSpeed = speed * mod;
 
         if (endSpeed > 41 && !this.isCSR)
-            endSpeed = 41;
+            endSpeed = 41;//poop
 
         return endSpeed;
     }
