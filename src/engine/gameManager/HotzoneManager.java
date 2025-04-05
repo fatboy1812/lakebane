@@ -7,12 +7,11 @@ import engine.net.Dispatch;
 import engine.net.DispatchMessage;
 import engine.net.client.msg.HotzoneChangeMsg;
 import engine.objects.*;
+import engine.server.MBServerStatics;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class HotzoneManager {
@@ -165,6 +164,29 @@ public class HotzoneManager {
             HotzoneChangeMsg hcm = new HotzoneChangeMsg(zoneType, 0);
             Dispatch dispatch = Dispatch.borrow(player, hcm);
             DispatchMessage.dispatchMsgDispatch(dispatch, Enum.DispatchChannel.SECONDARY);
+        }
+    }
+
+    public static void pulse_hotzone(){
+        if(HotzoneManager.hotzone == null)
+            return;
+        HashSet<AbstractWorldObject> inRange = WorldGrid.getObjectsInRangePartial(HotzoneManager.hotzone.getLoc(),HotzoneManager.hotzone.getBounds().getHalfExtents().x, MBServerStatics.MASK_PLAYER);
+        HashMap<Guild,ArrayList<PlayerCharacter>> players_by_nation = new HashMap<>();
+        for(AbstractWorldObject awo : inRange){
+            PlayerCharacter player = (PlayerCharacter)awo;
+            if(player != null){
+                if(players_by_nation.containsKey(player.guild.getNation())){
+                    if(players_by_nation.get(player.guild.getNation()).size() > 4){
+                        MovementManager.translocate(player,Vector3fImmutable.getRandomPointOnCircle(ZoneManager.getZoneByUUID(656).getLoc(),30f),Regions.GetRegionForTeleport(ZoneManager.getZoneByUUID(656).getLoc()));
+                    }else {
+                        players_by_nation.get(player.guild.getNation()).add(player);
+                    }
+                }else{
+                    ArrayList<PlayerCharacter> newList = new ArrayList<>();
+                    newList.add(player);
+                    players_by_nation.put(player.guild.getNation(),newList);
+                }
+            }
         }
     }
 }
