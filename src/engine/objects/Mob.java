@@ -1461,6 +1461,10 @@ public class Mob extends AbstractIntelligenceAgent {
 
     public void despawn() {
 
+        if(HotzoneManager.currentBoss.equals(this)){
+            HotzoneManager.end_hotzone();
+        }
+
         this.despawned = true;
 
         WorldGrid.RemoveWorldObject(this);
