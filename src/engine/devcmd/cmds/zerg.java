@@ -45,7 +45,8 @@ public class zerg extends AbstractDevCmd {
                     continue;
                 if(counted.guild.getNation().equals(playerCharacter.guild.getNation())) {
                     count++;
-                    output += counted.getName() + "(" + playerCharacter.affectedMine.mineAttendees.get(pcID) + ")" + newline;
+                    int secondsLeft = 180 - (int) ((int) ( System.currentTimeMillis() - playerCharacter.affectedMine.mineAttendees.get(pcID)) * 0.001f);
+                    output += counted.getName() + "(" + secondsLeft + ")" + newline;
                 }
             }
             output += "Friendly Players Counted: " + count;
@@ -60,7 +61,8 @@ public class zerg extends AbstractDevCmd {
                     continue;
                 if(counted.guild.getNation().equals(playerCharacter.guild.getNation())) {
                     count++;
-                    output += counted.getName() + "(" + playerCharacter.affectedBane.mineAttendees.get(pcID) + ")" + newline;
+                    int secondsLeft = 180 - (int) ((int) ( System.currentTimeMillis() - playerCharacter.affectedBane.mineAttendees.get(pcID)) * 0.001f);
+                    output += counted.getName() + "(" + secondsLeft + ")" + newline;
                 }
             }
             output += "Friendly Players Counted: " + count;
