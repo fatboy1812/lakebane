@@ -37,6 +37,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -58,6 +59,10 @@ public final class Bane {
     private ActivateBaneJob activateBaneJob;
 
     public ArrayList<PlayerCharacter> affected_players;
+
+    public HashMap<Integer, Long> mineAttendees = new HashMap<>();
+    public final HashSet<Integer> _playerMemory = new HashSet<>();
+    public ArrayList<PlayerCharacter> affectedPlayers = new ArrayList<>();
 
     /**
      * ResultSet Constructor
@@ -759,71 +764,113 @@ public final class Bane {
         if(city == null)
             return;
 
-        if(this.affected_players == null)
-            this.affected_players = new ArrayList<>();
-        city.onEnter();
+        this.onEnter();
+    }
 
-        ArrayList<Integer> attackers = new ArrayList<>();
-        ArrayList<Integer> defenders = new ArrayList<>();
-        Guild attackNation = this.getOwner().getGuild().getNation();
-        Guild defendNation = this.getCity().getGuild().getNation();
-        HashSet<AbstractWorldObject> inSiegeRange = WorldGrid.getObjectsInRangePartial(city.getTOL().loc,1750f,1);
-        for(AbstractWorldObject obj : inSiegeRange){
-            int uuid = obj.getObjectUUID();
-            PlayerCharacter player = PlayerCharacter.getPlayerCharacter(uuid);
+    public void onEnter() {
 
-            if(player == null)
+        Building tower = this.getCity().getTOL();
+
+        // Gather current list of players within the zone bounds
+
+        HashSet<AbstractWorldObject> currentPlayers = WorldGrid.getObjectsInRangePartial(tower.loc, Enum.CityBoundsType.SIEGEBOUNDS.extents, MBServerStatics.MASK_PLAYER);
+        HashMap<Guild,ArrayList<PlayerCharacter>> charactersByNation = new HashMap<>();
+        ArrayList<Guild> updatedNations = new ArrayList<>();
+        for (AbstractWorldObject playerObject : currentPlayers) {
+
+            if (playerObject == null)
                 continue;
 
-            if(player.getAccount().status.equals(Enum.AccountStatus.ADMIN))
-                continue;
+            PlayerCharacter player = (PlayerCharacter) playerObject;
 
-            Guild playerNation = player.guild.getNation();
-            //separate the players into categories
-            if(playerNation.equals(defendNation))
-                defenders.add(uuid);
-            else if(playerNation.equals(attackNation))
-                attackers.add(uuid);
-            else
-                MovementManager.translocate(player,Vector3fImmutable.getRandomPointOnCircle(ZoneManager.getZoneByUUID(656).getLoc(),30f),Regions.GetRegionForTeleport(ZoneManager.getZoneByUUID(656).getLoc()));
-        }
-        int attackerSize = 0;
-        int defenderSize = 0;
-        for(int uuid : city.baneAttendees.keySet()){
-            PlayerCharacter player = PlayerCharacter.getPlayerCharacter(uuid);
-            if(player == null)
-                continue;
-            if(player.guild.getNation().equals(defendNation))
-                defenderSize += 1;
-            else if(player.guild.getNation().equals(attackNation))
-                attackerSize += 1;
-        }
+            if(this.affectedPlayers.contains(player) == false)
+                this.affectedPlayers.add(player);
 
-        //apply zerg mechanic for attackers
-        float attackerMultiplier = ZergManager.getCurrentMultiplier(attackerSize,this.capSize);
-        float defenderMultiplier = ZergManager.getCurrentMultiplier(defenderSize,this.capSize);
-        for(int uuid : attackers){
-            PlayerCharacter player = PlayerCharacter.getPlayerCharacter(uuid);
-            if(inSiegeRange.contains(player)) { //player is still physically here, needs updated multiplier
-                player.ZergMultiplier = attackerMultiplier;
-                this.affected_players.add(player);
-            }else {
-                player.ZergMultiplier = 1.0f;
-                this.affected_players.add(player);
+            if(!this._playerMemory.contains(player.getObjectUUID())){
+                this._playerMemory.add(player.getObjectUUID());
+                ChatManager.chatSystemInfo(player,"You Have Entered an Active Bane Area");
+            }
+            Guild nation = player.guild.getNation();
+            if(charactersByNation.containsKey(nation)){
+                if(!charactersByNation.get(nation).contains(player)) {
+                    charactersByNation.get(nation).add(player);
+                    if(!updatedNations.contains(nation)){
+                        updatedNations.add(nation);
+                    }
+                }
+            }else{
+                ArrayList<PlayerCharacter> players = new ArrayList<>();
+                players.add(player);
+                charactersByNation.put(nation,players);
+                if(!updatedNations.contains(nation)){
+                    updatedNations.add(nation);
+                }
             }
         }
 
-        for(int uuid : defenders){
-            PlayerCharacter player = PlayerCharacter.getPlayerCharacter(uuid);
-            if(inSiegeRange.contains(player)) { //player is still physically here, needs updated multiplier
-                player.ZergMultiplier = attackerMultiplier;
-                this.affected_players.add(player);
-            }else {
-                player.ZergMultiplier = 1.0f;
-                this.affected_players.add(player);
+        for(Integer id : this.mineAttendees.keySet()){
+            PlayerCharacter attendee = PlayerCharacter.getPlayerCharacter(id);
+            if(attendee == null)
+                continue;
+
+            if(charactersByNation.containsKey(attendee.guild.getNation())){
+                if(!charactersByNation.get(attendee.guild.getNation()).contains(attendee)){
+                    charactersByNation.get(attendee.guild.getNation()).add(attendee);
+                }
+            }
+
+        }
+        Guild attackingNation = this.getOwner().getGuild().getNation();
+        Guild defendingNation = this.getCity().getGuild().getNation();
+        for(Guild nation : updatedNations){
+            float multiplier = ZergManager.getCurrentMultiplier(charactersByNation.get(nation).size(),this.capSize);
+            for(PlayerCharacter player : charactersByNation.get(nation)){
+                player.ZergMultiplier = multiplier;
+                if(this.capSize != 9999){
+                    if(!player.guild.getNation().equals(attackingNation) && !player.guild.getNation().equals(defendingNation)){
+                        Building sdrTol = BuildingManager.getBuildingFromCache(27977);
+                        MovementManager.translocate(player,Vector3fImmutable.getRandomPointOnCircle(sdrTol.loc,16f),null);
+                    }
+                }
+            }
+        }
+        try
+        {
+            this.onExit(this._playerMemory);
+        }
+        catch(Exception ignored){
+
+        }
+    }
+
+    private void onExit(HashSet<Integer> currentMemory) {
+
+        Building tower = this.getCity().getTOL();
+        if(tower == null)
+            return;
+        ArrayList<Integer>toRemove = new ArrayList<>();
+        HashSet<AbstractWorldObject> currentPlayers = WorldGrid.getObjectsInRangePartial(tower.loc, Enum.CityBoundsType.SIEGEBOUNDS.extents, MBServerStatics.MASK_PLAYER);
+        for(Integer id : currentMemory){
+            PlayerCharacter pc = PlayerCharacter.getPlayerCharacter(id);
+            if(!currentPlayers.contains(pc)){
+                if(this.mineAttendees.containsKey(id)){
+                    long timeGone = System.currentTimeMillis() - this.mineAttendees.get(id).longValue();
+                    if (timeGone > 180000L) { // 3 minutes
+                        toRemove.add(id); // Mark for removal
+                    }
+                }
+                pc.ZergMultiplier = 1.0f;
+            } else {
+                this.mineAttendees.put(id,System.currentTimeMillis());
             }
         }
 
+        // Remove players from city memory
+
+        _playerMemory.removeAll(toRemove);
+        for(int id : toRemove){
+            this.mineAttendees.remove(id);
+        }
     }
 
 }
