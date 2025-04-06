@@ -8,6 +8,7 @@ import engine.mobileAI.utilities.MovementUtilities;
 import engine.objects.Building;
 import engine.objects.City;
 import engine.objects.Mob;
+import engine.objects.Zone;
 import engine.server.MBServerStatics;
 
 public class SiegeHandler {
@@ -28,12 +29,23 @@ public class SiegeHandler {
     }
 
     public static void check_siege_respawn(Mob engine){
-        if(!engine.despawned) {
-            engine.despawn();
-        }else{
-            if(engine.deathTime + MBServerStatics.FIFTEEN_MINUTES > System.currentTimeMillis()){
-                engine.respawn();
+        try {
+
+            if (engine.deathTime == 0) {
+                engine.setDeathTime(System.currentTimeMillis());
+                return;
             }
+
+            if (!engine.despawned) {
+                engine.despawn();
+                return;
+            }
+
+            if (System.currentTimeMillis() > (engine.deathTime + MBServerStatics.FIFTEEN_MINUTES)) {
+                Zone.respawnQue.add(engine);
+            }
+        } catch (Exception e) {
+            //(aiAgent.getObjectUUID() + " " + aiAgent.getName() + " Failed At: CheckForRespawn" + " " + e.getMessage());
         }
     }
 
