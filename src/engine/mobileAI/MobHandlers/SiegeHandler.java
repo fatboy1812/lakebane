@@ -1,6 +1,7 @@
 package engine.mobileAI.MobHandlers;
 
 import engine.Enum;
+import engine.InterestManagement.WorldGrid;
 import engine.gameManager.MovementManager;
 import engine.gameManager.ZoneManager;
 import engine.mobileAI.utilities.CombatUtilities;
@@ -42,7 +43,8 @@ public class SiegeHandler {
             }
 
             if (System.currentTimeMillis() > (engine.deathTime + MBServerStatics.FIFTEEN_MINUTES)) {
-                Zone.respawnQue.add(engine);
+                engine.respawn();
+                WorldGrid.updateObject(engine);
             }
         } catch (Exception e) {
             //(aiAgent.getObjectUUID() + " " + aiAgent.getName() + " Failed At: CheckForRespawn" + " " + e.getMessage());
