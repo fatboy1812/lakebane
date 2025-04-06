@@ -70,15 +70,6 @@ public class PetHandler {
                 pet.setLastAttackTime(System.currentTimeMillis() + 3000);
 
                 //attack target
-                if(pet.combatTarget.getObjectType().equals(Enum.GameObjectType.Building)){
-                    //attacking building
-                    City playercity = ZoneManager.getCityAtLocation(pet.getLoc());
-                    if (playercity != null)
-                        for (Mob guard : playercity.getParent().zoneMobSet)
-                            if (guard.combatTarget == null && guard.getGuild() != null && pet.getGuild() != null && !guard.getGuild().equals(pet.getGuild()))
-                                MovementUtilities.aiMove(guard,pet.loc,false);
-                }
-
                 CombatUtilities.combatCycle(pet,pet.combatTarget,true,null);
             }
         }
