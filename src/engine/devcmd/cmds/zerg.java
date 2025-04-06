@@ -32,12 +32,12 @@ public class zerg extends AbstractDevCmd {
             return;
 
         String newline = "\r\n ";
-        String output = "Antizerg Information for Player: " + playerCharacter.getName()  + newline;
+        String output = newline + "Antizerg Information for Player: " + playerCharacter.getName()  + newline;
         output += "Zerg Multiplier: " + playerCharacter.ZergMultiplier + newline;
         if(playerCharacter.affectedMine != null){
             output += "Multiplier Type: MINE" + newline;
             output += newline;
-            output += "Counted Players (Time Left)" + newline;
+            output += "Counted Players (Time Left in Seconds)" + newline;
             int count = 0;
             for(int pcID : playerCharacter.affectedMine.mineAttendees.keySet()){
                 PlayerCharacter counted = PlayerCharacter.getFromCache(pcID);
@@ -52,7 +52,7 @@ public class zerg extends AbstractDevCmd {
         }else if(playerCharacter.affectedBane != null){
             output += "Multiplier Type: BANE" + newline;
             output += newline;
-            output += "Counted Players (Time Left)" + newline;
+            output += "Counted Players (Time Left in Seconds)" + newline;
             int count = 0;
             for(int pcID : playerCharacter.affectedBane.mineAttendees.keySet()){
                 PlayerCharacter counted = PlayerCharacter.getFromCache(pcID);
