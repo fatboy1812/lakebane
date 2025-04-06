@@ -18,8 +18,8 @@ public class SuperSimpleMobAI {
             PetHandler.run(mob);
             return;
         }else if (mob.isSiege()) {
-            //SiegeHandler.run(mob);
-            MobAI.DetermineAction(mob);
+            SiegeHandler.run(mob);
+            //MobAI.DetermineAction(mob);
             return;
         }else if(mob.isPlayerGuard()){
             PlayerGuardHandler.run(mob);
