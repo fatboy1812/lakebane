@@ -113,9 +113,15 @@ public class InviteToSubHandler extends AbstractClientMsgHandler {
             return true;
         }
 
-        //ensure bane to be subbed does not have a bane dropped
+        //ensure guild to be subbed does not have a bane dropped
         for(Bane bane : Bane.banes.values()){
             if(bane.getOwner().guild.getNation().equals(targetGuild))
+                return true;
+        }
+
+        //ensure nation that is subbing the guild doesn't have a bane placed on it
+        for(Bane bane : Bane.banes.values()){
+            if(bane.getOwner().guild.getNation().equals(sourceGuild))
                 return true;
         }
 

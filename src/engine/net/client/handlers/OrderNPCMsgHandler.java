@@ -5,10 +5,7 @@ import engine.Enum.DispatchChannel;
 import engine.Enum.GameObjectType;
 import engine.Enum.ProfitType;
 import engine.exception.MsgSendException;
-import engine.gameManager.BuildingManager;
-import engine.gameManager.DbManager;
-import engine.gameManager.NPCManager;
-import engine.gameManager.SessionManager;
+import engine.gameManager.*;
 import engine.math.FastMath;
 import engine.math.Vector3fImmutable;
 import engine.net.Dispatch;
@@ -293,6 +290,12 @@ public class OrderNPCMsgHandler extends AbstractClientMsgHandler {
     private static synchronized void processRedeedNPC(AbstractCharacter abstractCharacter, Building building, ClientConnection origin) {
 
         // Member variable declaration
+        City city = ZoneManager.getCityAtLocation(abstractCharacter.getLoc());
+        if(city != null){
+            if(city.getBane() != null){
+                return;
+            }
+        }
 
         switch (abstractCharacter.getObjectType()) {
             case NPC:
