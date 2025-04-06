@@ -687,8 +687,12 @@ public class Mine extends AbstractGameObject {
             for(PlayerCharacter player : charactersByNation.get(nation)){
                 if(this.capSize == 3 && player.getPromotionClassID() == 2519) {
                     player.ZergMultiplier = 0.0f; // priest gets 100% debuff at 3 man mines
+                    player.affectedBane = null;
+                    player.affectedMine = this;
                 }else{
                     player.ZergMultiplier = multiplier;
+                    player.affectedBane = null;
+                    player.affectedMine = this;
                 }
             }
         }
@@ -718,6 +722,8 @@ public class Mine extends AbstractGameObject {
                     }
                 }
                 pc.ZergMultiplier = 1.0f;
+                pc.affectedBane = null;
+                pc.affectedMine = null;
             } else {
                 this.mineAttendees.put(id,System.currentTimeMillis());
             }

@@ -723,8 +723,11 @@ public final class Bane {
                 toUnprotect.setOwner(this.getOwner());
         }
 
-        for(PlayerCharacter affected : this.affected_players)
+        for(PlayerCharacter affected : this.affected_players) {
             affected.ZergMultiplier = 1.0f;
+            affected.affectedBane = null;
+            affected.affectedMine = null;
+        }
 
     }
 
@@ -830,6 +833,8 @@ public final class Bane {
             float multiplier = ZergManager.getCurrentMultiplier(charactersByNation.get(nation).size(),this.capSize);
             for(PlayerCharacter player : charactersByNation.get(nation)){
                 player.ZergMultiplier = multiplier;
+                player.affectedBane = this;
+                player.affectedMine = null;
                 if(this.capSize != 9999){
                     if(!player.guild.getNation().equals(attackingNation) && !player.guild.getNation().equals(defendingNation)){
                         Building sdrTol = BuildingManager.getBuildingFromCache(27977);
@@ -864,6 +869,8 @@ public final class Bane {
                     }
                 }
                 pc.ZergMultiplier = 1.0f;
+                pc.affectedBane = null;
+                pc.affectedMine = null;
             } else {
                 this.mineAttendees.put(id,System.currentTimeMillis());
             }
