@@ -64,7 +64,7 @@ public class SiegeHandler {
                     if (guard.isPlayerGuard && guard.combatTarget == null && guard.getGuild() != null && engine.getGuild() != null && !guard.getGuild().equals(engine.getGuild()))
                         MovementUtilities.aiMove(guard,engine.loc,false);
 
-            MovementManager.sendRWSSMsg(engine);
+            //MovementManager.sendRWSSMsg(engine);
         }
     }
 }
