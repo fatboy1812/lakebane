@@ -29,6 +29,7 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 /*
@@ -131,6 +132,18 @@ public class PlaceAssetMsgHandler extends AbstractClientMsgHandler {
             numCities = serverRealm.getNumCities();
             PlaceAssetMsg.sendPlaceAssetError(origin, 58, Integer.toString(numCities)); // This territory is full
             return false;
+        }
+
+        //validate no trees are within siege bound sof eachother
+        ConcurrentHashMap<Integer, AbstractGameObject> worldCities = DbManager.getMap(Enum.GameObjectType.City);
+        for (AbstractGameObject ago : worldCities.values()) {
+
+            if (ago.getObjectType().equals(GameObjectType.City)) {
+                City city = (City) ago;
+                if(city.loc.distance(placementInfo.getLoc()) < CityBoundsType.SIEGEBOUNDS.extents * 2){
+                    return false;
+                }
+            }
         }
 
         return true;
