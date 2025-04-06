@@ -41,6 +41,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static engine.Enum.SiegeResult.CAPTURE;
+
 public final class Bane {
 
     public static ConcurrentHashMap<Integer, Bane> banes = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_LOW);
@@ -717,6 +719,8 @@ public final class Bane {
         for (Building toUnprotect : cityZone.zoneBuildingSet) {
             if (toUnprotect.getBlueprint() != null && toUnprotect.getBlueprint().isSiegeEquip() && toUnprotect.assetIsProtected() == true)
                 toUnprotect.setProtectionState(ProtectionState.NONE);
+            if(siegeResult.equals(CAPTURE))
+                toUnprotect.setOwner(this.getOwner());
         }
 
         for(PlayerCharacter affected : this.affected_players)
