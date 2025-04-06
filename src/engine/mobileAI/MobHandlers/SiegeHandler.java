@@ -14,7 +14,7 @@ import engine.server.MBServerStatics;
 public class SiegeHandler {
     public static void run(Mob engine){
 
-        if(!engine.isAlive()) {
+        if(!engine.isAlive() || engine.despawned) {
             check_siege_respawn(engine);
             return;
         }
