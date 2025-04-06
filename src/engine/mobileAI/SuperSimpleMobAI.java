@@ -13,6 +13,10 @@ public class SuperSimpleMobAI {
         if(mob.isMoving())
             mob.updateLocation();
 
+        if(mob.getMobBaseID() == 13171){
+            SiegeHandler.run(mob);
+            return;
+        }
         if(mob.isPet() && !mob.isSiege()) {
             //MobAI.DetermineAction(mob);
             PetHandler.run(mob);
