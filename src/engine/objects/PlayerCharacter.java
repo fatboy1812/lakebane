@@ -86,6 +86,9 @@ public class PlayerCharacter extends AbstractCharacter {
     private final ConcurrentHashMap<Integer, Long> killMap = new ConcurrentHashMap<>(MBServerStatics.CHM_INIT_CAP, MBServerStatics.CHM_LOAD, MBServerStatics.CHM_THREAD_LOW);
     private final AtomicInteger trainsAvailable = new AtomicInteger(0); // num skill trains not used
 
+    public Mine affectedMine = null;
+    public Bane affectedBane = null;
+
     public boolean notDeleted; // <-Use this for deleting character
     // ===========================================
     // Variables NOT to put into the database!!!! (session only)

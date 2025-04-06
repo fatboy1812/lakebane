@@ -65,6 +65,7 @@ public enum DevCmdManager {
         DevCmdManager.registerDevCmd(new JumpCmd());
         DevCmdManager.registerDevCmd(new GotoCmd());
         DevCmdManager.registerDevCmd(new SummonCmd());
+        DevCmdManager.registerDevCmd(new zerg());
         DevCmdManager.registerDevCmd(new SetHealthCmd());
         DevCmdManager.registerDevCmd(new SetManaCmd());
         DevCmdManager.registerDevCmd(new SetStaminaCmd());
@@ -198,6 +199,7 @@ public enum DevCmdManager {
                 case "goto":
                 case "teleportmode":
                 case "printbonuses":
+                case "zerg":
                     playerAllowed = true;
                     if (!a.status.equals(Enum.AccountStatus.ADMIN))
                         target = pcSender;
@@ -210,6 +212,7 @@ public enum DevCmdManager {
                 case "printskills":
                 case "printpowers":
                 case "printbonuses":
+                case "zerg":
                 //case "gimme":
                     playerAllowed = true;
                     if (!a.status.equals(Enum.AccountStatus.ADMIN))
