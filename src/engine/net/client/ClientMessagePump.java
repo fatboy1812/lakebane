@@ -1938,6 +1938,10 @@ public class ClientMessagePump implements NetMsgHandler {
                 case CANCELGUILDCREATION:
                     break;
                 case LEAVEREQUEST:
+                    PlayerCharacter pc = origin.getPlayerCharacter();
+                    if(pc != null && pc.isBoxed){
+                        PlayerCharacter.unboxPlayer(pc);
+                    }
                     origin.disconnect();
                     break;
                 case POWER:

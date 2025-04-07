@@ -958,7 +958,13 @@ public enum CombatManager {
                 //Subtract Damage from target's health
 
                 if(ac.getObjectType().equals(GameObjectType.PlayerCharacter)){
-                    damage *= ((PlayerCharacter)ac).ZergMultiplier;
+                    float multiplier = ((PlayerCharacter)ac).ZergMultiplier;
+                    if(!target.getObjectType().equals(GameObjectType.Building)) {
+                        damage *= ((PlayerCharacter) ac).ZergMultiplier;
+                    }else{
+                        if(multiplier < 1.0f)
+                            damage *= multiplier;
+                    }
                 }
 
                 if (tarAc != null) {
@@ -972,7 +978,7 @@ public enum CombatManager {
                     }
                     if (tarAc.getHealth() > 0) {
                         d = tarAc.modifyHealth(-damage, ac, false);
-                        if(tarAc != null && tarAc.getObjectType().equals(GameObjectType.PlayerCharacter) && ((PlayerCharacter)ac).ZergMultiplier != 1.0f){
+                        if(tarAc.getObjectType().equals(GameObjectType.PlayerCharacter) && ((PlayerCharacter) ac).ZergMultiplier != 1.0f){
                             PlayerCharacter debugged = (PlayerCharacter)tarAc;
                             ChatManager.chatSystemInfo(debugged, "ZERG DEBUG: " + ac.getName() + " Hits You For: " + (int)damage + " instead of " + originalDamage + " With Multiplier Of: " + ((PlayerCharacter)ac).ZergMultiplier);
                         }
