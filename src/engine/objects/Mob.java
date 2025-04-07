@@ -1457,6 +1457,8 @@ public class Mob extends AbstractIntelligenceAgent {
         this.lastPatrolPointIndex = 0;
         InterestManager.setObjectDirty(this);
         this.hate_values = new HashMap<>();
+        if(this.isSiege)
+            InterestManager.forceLoad(this);
     }
 
     public void despawn() {
