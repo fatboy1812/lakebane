@@ -1458,7 +1458,7 @@ public class Mob extends AbstractIntelligenceAgent {
         InterestManager.setObjectDirty(this);
         this.hate_values = new HashMap<>();
         if(this.isSiege)
-            InterestManager.forceLoad(this);
+            WorldGrid.updateObject(this);
     }
 
     public void despawn() {
