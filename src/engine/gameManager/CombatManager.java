@@ -952,9 +952,6 @@ public enum CombatManager {
                 float d = 0f;
 
                 int originalDamage = (int)damage;
-                if(ac != null && ac.getObjectType().equals(GameObjectType.PlayerCharacter)){
-                    damage *= ((PlayerCharacter)ac).ZergMultiplier;
-                } // Health modifications are modified by the ZergMechanic
 
                 errorTrack = 12;
 
@@ -963,6 +960,7 @@ public enum CombatManager {
                 if(ac.getObjectType().equals(GameObjectType.PlayerCharacter)){
                     damage *= ((PlayerCharacter)ac).ZergMultiplier;
                 }
+
                 if (tarAc != null) {
 
                     if (tarAc.isSit())
@@ -976,7 +974,7 @@ public enum CombatManager {
                         d = tarAc.modifyHealth(-damage, ac, false);
                         if(tarAc != null && tarAc.getObjectType().equals(GameObjectType.PlayerCharacter) && ((PlayerCharacter)ac).ZergMultiplier != 1.0f){
                             PlayerCharacter debugged = (PlayerCharacter)tarAc;
-                            ChatManager.chatSystemInfo(debugged, "ZERG DEBUG: " + ac.getName() + " Hits You For: " + (int)damage + " instead of " + originalDamage);
+                            ChatManager.chatSystemInfo(debugged, "ZERG DEBUG: " + ac.getName() + " Hits You For: " + (int)damage + " instead of " + originalDamage + " With Multiplier Of: " + ((PlayerCharacter)ac).ZergMultiplier);
                         }
                     }
 
