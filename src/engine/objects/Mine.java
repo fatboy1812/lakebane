@@ -682,18 +682,12 @@ public class Mine extends AbstractGameObject {
             }
 
         }
-        for(Guild nation : updatedNations){
-            float multiplier = ZergManager.getCurrentMultiplier(charactersByNation.get(nation).size(),this.capSize);
-            for(PlayerCharacter player : charactersByNation.get(nation)){
-                if(this.capSize == 3 && player.getPromotionClassID() == 2519) {
-                    player.ZergMultiplier = 0.0f; // priest gets 100% debuff at 3 man mines
-                    player.affectedBane = null;
-                    player.affectedMine = this;
-                }else{
-                    player.ZergMultiplier = multiplier;
-                    player.affectedBane = null;
-                    player.affectedMine = this;
-                }
+        for(Guild nation : updatedNations) {
+            float multiplier = ZergManager.getCurrentMultiplier(charactersByNation.get(nation).size(), this.capSize);
+            for (PlayerCharacter player : charactersByNation.get(nation)) {
+                player.ZergMultiplier = multiplier;
+                player.affectedBane = null;
+                player.affectedMine = this;
             }
         }
         try

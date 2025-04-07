@@ -144,6 +144,9 @@ public class ApplyRuneMsg extends ClientNetMsg {
                             break;
                     }
                 }
+                if(runeID == 3022 &&(raceID == 2025 || raceID == 2026)) // nephilim can tak undead hunter
+                    valid = true;
+
                 if (!valid) {
                     return false;
                 }
