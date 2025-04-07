@@ -350,7 +350,7 @@ public class LoginServerMsgHandler implements NetMsgHandler {
 
             if (pc == null) {
                 Logger.info("Player returned null while creating character.");
-                this.sendCharacterSelectScreen(session, true);
+                //this.sendCharacterSelectScreen(session, true);
                 return;
             }
 
