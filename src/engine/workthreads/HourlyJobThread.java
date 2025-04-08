@@ -54,17 +54,17 @@ public class HourlyJobThread implements Runnable {
         }
 
         //run mines every day at 1:00 am CST
-        if(LocalDateTime.now().getHour() == 1) {
+        //if(LocalDateTime.now().getHour() == 1) {
             //produce mine resources once a day
-            for (Mine mine : Mine.getMines()) {
-                try {
-                    mine.depositMineResources();
-                } catch (Exception e) {
-                    Logger.info(e.getMessage() + " for Mine " + mine.getObjectUUID());
-                }
-                mine.wasClaimed = false;
-            }
-        }
+        //    for (Mine mine : Mine.getMines()) {
+        //        try {
+        //            mine.depositMineResources();
+        //        } catch (Exception e) {
+        //            Logger.info(e.getMessage() + " for Mine " + mine.getObjectUUID());
+        //        }
+        //        mine.wasClaimed = false;
+        //    }
+        //}
 
         //run maintenance every day at 2 am
         if(LocalDateTime.now().getHour() == 2) {

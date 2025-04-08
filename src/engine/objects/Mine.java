@@ -438,6 +438,16 @@ public class Mine extends AbstractGameObject {
             }
             this.allowed_teleport_time = System.currentTimeMillis() + MBServerStatics.FIVE_MINUTES;
         }
+
+        if(isAc){
+            try {
+                this.depositMineResources();
+            } catch (Exception e) {
+                Logger.info(e.getMessage() + " for Mine " + this.getObjectUUID());
+            }
+            this.wasClaimed = false;
+        }
+
     }
 
     public boolean validForMine(Resource r) {
