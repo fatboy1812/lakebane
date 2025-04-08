@@ -210,10 +210,7 @@ public enum SimulationManager {
             city = (City) cityObject;
             city.onEnter();
         }
-        for(Mine mine : Mine.getMines()){
-            if(mine != null && mine.isActive)
-                mine.onEnter();
-        }
+
         _cityPulseTime = System.currentTimeMillis() + CITY_PULSE;
 
     }

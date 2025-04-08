@@ -1,6 +1,7 @@
 package engine.mobileAI.MobHandlers;
 
 import engine.Enum;
+import engine.InterestManagement.InterestManager;
 import engine.InterestManagement.WorldGrid;
 import engine.gameManager.MovementManager;
 import engine.gameManager.ZoneManager;
@@ -42,9 +43,8 @@ public class SiegeHandler {
                 return;
             }
 
-            if (System.currentTimeMillis() > (engine.deathTime + MBServerStatics.FIFTEEN_MINUTES)) {
-                engine.respawn();
-                WorldGrid.updateObject(engine);
+            if (System.currentTimeMillis() > (engine.deathTime + MBServerStatics.THREE_MINUTES)) {
+                Zone.respawnQue.add(engine);
             }
         } catch (Exception e) {
             //(aiAgent.getObjectUUID() + " " + aiAgent.getName() + " Failed At: CheckForRespawn" + " " + e.getMessage());
@@ -58,7 +58,7 @@ public class SiegeHandler {
         if(CombatUtilities.inRangeToAttack(engine,engine.combatTarget)){
             CombatUtilities.combatCycle(engine, engine.combatTarget, true, null);
             engine.setLastAttackTime(System.currentTimeMillis() + 15000);
-            //MovementManager.sendRWSSMsg(engine);
+            MovementManager.sendRWSSMsg(engine);
         }
     }
 }
