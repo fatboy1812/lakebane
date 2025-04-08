@@ -1,5 +1,6 @@
 package engine.mobileAI.MobHandlers;
 
+import engine.InterestManagement.InterestManager;
 import engine.InterestManagement.WorldGrid;
 import engine.gameManager.PowersManager;
 import engine.mobileAI.Threads.MobAIThread;
@@ -83,7 +84,13 @@ public class MobHandler {
 
             if (System.currentTimeMillis() > (mob.deathTime + (mob.spawnTime * 1000L))) {
                 if (!Zone.respawnQue.contains(mob)) {
-                    Zone.respawnQue.add(mob);
+                    if(mob.isSiege()){
+                        mob.respawn();
+                        WorldGrid.loadObject(mob);
+                        //InterestManager.forceLoad(mob);
+                    }else {
+                        Zone.respawnQue.add(mob);
+                    }
                 }
             }
         } catch (Exception e) {

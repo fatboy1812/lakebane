@@ -5148,7 +5148,8 @@ public class PlayerCharacter extends AbstractCharacter {
     @Override
     public void update(Boolean newSystem) {
 
-        this.updateLocation();
+        if(this.isMoving())
+            this.updateLocation();
         this.updateMovementState();
 
         if(!newSystem)
