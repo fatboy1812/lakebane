@@ -25,7 +25,7 @@ public class SiegeHandler {
             return;
         }
 
-        if(engine.getOwner() == null || !engine.getOwner().isAlive() || !engine.playerAgroMap.containsKey(engine.getOwner().getObjectUUID()))
+        if(engine.getOwner() == null || !engine.getOwner().isAlive() || engine.loc.distanceSquared(engine.getOwner().loc) > MBServerStatics.CHARACTER_LOAD_RANGE * MBServerStatics.CHARACTER_LOAD_RANGE)
             return;
 
         if(engine.combatTarget == null || !engine.combatTarget.getObjectType().equals(Enum.GameObjectType.Building))
