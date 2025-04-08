@@ -84,7 +84,7 @@ public abstract class AbstractCharacter extends AbstractWorldObject {
     protected float staminaMax;
     protected AtomicFloat mana = new AtomicFloat();
     protected float manaMax;                                            // Health/Mana/Stamina
-    protected AtomicBoolean isAlive = new AtomicBoolean(true);
+    public AtomicBoolean isAlive = new AtomicBoolean(true);
     protected Resists resists = new Resists("Genric");
     protected ConcurrentHashMap<String, JobContainer> timers;
     protected ConcurrentHashMap<String, Long> timestamps;

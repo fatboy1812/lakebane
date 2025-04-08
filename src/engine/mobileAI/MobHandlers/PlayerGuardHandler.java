@@ -357,7 +357,7 @@ public class PlayerGuardHandler {
 
     public static void CheckForRecall(Mob guard){
 
-        if(guard.loc.distanceSquared(guard.parentZone.getLoc()) > (800 * 800)) {
+        if(guard.loc.distanceSquared(guard.guardedCity.loc) > (800 * 800)) {
 
             PowersBase recall = PowersManager.getPowerByToken(-1994153779);
             PowersManager.useMobPower(guard, guard, recall, 40);

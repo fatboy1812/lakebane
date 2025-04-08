@@ -3,7 +3,9 @@ package engine.mobileAI.MobHandlers;
 import engine.Enum;
 import engine.InterestManagement.InterestManager;
 import engine.InterestManagement.WorldGrid;
+import engine.gameManager.BuildingManager;
 import engine.gameManager.MovementManager;
+import engine.gameManager.NPCManager;
 import engine.gameManager.ZoneManager;
 import engine.mobileAI.utilities.CombatUtilities;
 import engine.mobileAI.utilities.MovementUtilities;
@@ -13,10 +15,12 @@ import engine.objects.Mob;
 import engine.objects.Zone;
 import engine.server.MBServerStatics;
 
+import java.util.HashMap;
+
 public class SiegeHandler {
     public static void run(Mob engine){
 
-        if(!engine.isAlive() || engine.despawned) {
+        if(!engine.isAlive()) {
             check_siege_respawn(engine);
             return;
         }
@@ -38,13 +42,21 @@ public class SiegeHandler {
                 return;
             }
 
-            if (!engine.despawned) {
-                engine.despawn();
-                return;
-            }
+            if (System.currentTimeMillis() > (engine.deathTime + 10000)) {
+                //Zone.respawnQue.add(engine);
+                engine.despawned = false;
+                engine.setCombatTarget(null);
+                engine.setHealth(engine.healthMax);
+                engine.isAlive.set(true);
+                engine.deathTime = 0;
 
-            if (System.currentTimeMillis() > (engine.deathTime + MBServerStatics.THREE_MINUTES)) {
-                Zone.respawnQue.add(engine);
+                if (engine.building != null)
+                    engine.region = BuildingManager.GetRegion(engine.building, engine.bindLoc.x, engine.bindLoc.y, engine.bindLoc.z);
+
+                MovementManager.translocate(engine, engine.bindLoc, engine.region);
+
+                engine.updateLocation();
+                InterestManager.setObjectDirty(engine);
             }
         } catch (Exception e) {
             //(aiAgent.getObjectUUID() + " " + aiAgent.getName() + " Failed At: CheckForRespawn" + " " + e.getMessage());

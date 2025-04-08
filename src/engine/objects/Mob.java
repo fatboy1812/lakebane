@@ -884,6 +884,7 @@ public class Mob extends AbstractIntelligenceAgent {
         mob = new Mob(minionMobBase, guild, parent, level, new Vector3fImmutable(1, 1, 1), 0, false);
         //mob.runAfterLoad();
         mob.despawned = true;
+        mob.isAlive.set(false);
         DbManager.addToCache(mob);
 
         mob.setObjectTypeMask(MBServerStatics.MASK_MOB | mob.getTypeMasks());
@@ -1419,6 +1420,10 @@ public class Mob extends AbstractIntelligenceAgent {
         this.updateLocation();
         //resync corpses
         InterestManager.setObjectDirty(this);
+
+        if(this.isSiege()){
+            this.despawn();
+        }
     }
 
     public void respawn() {
@@ -1434,9 +1439,10 @@ public class Mob extends AbstractIntelligenceAgent {
         this.isAlive.set(true);
         this.deathTime = 0;
         this.lastBindLoc = this.bindLoc;
-        this.setLoc(this.lastBindLoc);
-        this.stopMovement(this.lastBindLoc);
-
+        if(!this.isSiege) {
+            this.setLoc(this.lastBindLoc);
+            this.stopMovement(this.lastBindLoc);
+        }
         NPCManager.applyRuneSetEffects(this);
 
         this.recalculateStats();
@@ -1457,8 +1463,6 @@ public class Mob extends AbstractIntelligenceAgent {
         this.lastPatrolPointIndex = 0;
         InterestManager.setObjectDirty(this);
         this.hate_values = new HashMap<>();
-        if(this.isSiege)
-            WorldGrid.updateObject(this);
     }
 
     public void despawn() {
