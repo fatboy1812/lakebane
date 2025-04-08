@@ -84,7 +84,7 @@ public class MobHandler {
 
             if (System.currentTimeMillis() > (mob.deathTime + (mob.spawnTime * 1000L))) {
                 if (!Zone.respawnQue.contains(mob)) {
-                    if(mob.isSiege()){
+                    if(mob.isSiege() || mob.getMobBaseID() == 14104){
                         mob.respawn();
                         WorldGrid.loadObject(mob);
                         //InterestManager.forceLoad(mob);
