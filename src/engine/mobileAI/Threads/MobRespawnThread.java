@@ -8,6 +8,7 @@
 
 
 package engine.mobileAI.Threads;
+import engine.InterestManagement.WorldGrid;
 import engine.gameManager.ZoneManager;
 import engine.objects.Mob;
 import engine.objects.Zone;
@@ -50,6 +51,7 @@ public class MobRespawnThread implements Runnable {
                                     respawner.respawn();
                                     Zone.respawnQue.remove(respawner);
                                     Zone.lastRespawn = System.currentTimeMillis();
+                                    WorldGrid.loadObject(respawner);
                 //                    Thread.sleep(100);
                                 }
                             }
