@@ -836,7 +836,7 @@ public final class Bane {
                 player.affectedBane = this;
                 player.affectedMine = null;
                 if(this.capSize != 9999){
-                    if(!player.guild.getNation().equals(attackingNation) && !player.guild.getNation().equals(defendingNation)){
+                    if(!player.guild.getNation().equals(attackingNation) && !player.guild.getNation().equals(defendingNation) && !player.getAccount().status.equals(Enum.AccountStatus.ADMIN)){
                         Building sdrTol = BuildingManager.getBuildingFromCache(27977);
                         MovementManager.translocate(player,Vector3fImmutable.getRandomPointOnCircle(sdrTol.loc,32f),null);
                         ChatManager.chatSystemInfo(player, "You Were Removed From an Active Bane Area");
