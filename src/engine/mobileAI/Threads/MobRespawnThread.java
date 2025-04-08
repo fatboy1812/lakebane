@@ -39,10 +39,10 @@ public class MobRespawnThread implements Runnable {
     public void run() {
         while (running) {
             try {
-                Collection<Zone> zones = ZoneManager.getAllZones();
-                if (zones != null) {
-                    for (Zone zone : zones) {
-                        synchronized (zone) { // Optional: Synchronize on zone
+                //Collection<Zone> zones = ZoneManager.getAllZones();
+                //if (zones != null) {
+                //    for (Zone zone : zones) {
+                //        synchronized (zone) { // Optional: Synchronize on zone
                             if (!Zone.respawnQue.isEmpty() && Zone.lastRespawn + RESPAWN_INTERVAL < System.currentTimeMillis()) {
 
                                 Mob respawner = Zone.respawnQue.iterator().next();
@@ -50,13 +50,13 @@ public class MobRespawnThread implements Runnable {
                                     respawner.respawn();
                                     Zone.respawnQue.remove(respawner);
                                     Zone.lastRespawn = System.currentTimeMillis();
-                                    Thread.sleep(100);
+                //                    Thread.sleep(100);
                                 }
                             }
-                        }
-                    }
-                }
-                Thread.sleep(100); // Prevent busy-waiting
+                //        }
+                //    }
+                //}
+                //Thread.sleep(100); // Prevent busy-waiting
             } catch (Exception e) {
                 Logger.error("Error in MobRespawnThread", e);
             }

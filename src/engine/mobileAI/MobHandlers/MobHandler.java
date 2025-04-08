@@ -82,7 +82,9 @@ public class MobHandler {
                 return;
 
             if (System.currentTimeMillis() > (mob.deathTime + (mob.spawnTime * 1000L))) {
-                Zone.respawnQue.add(mob);
+                if (!Zone.respawnQue.contains(mob)) {
+                    Zone.respawnQue.add(mob);
+                }
             }
         } catch (Exception e) {
             //(aiAgent.getObjectUUID() + " " + aiAgent.getName() + " Failed At: CheckForRespawn" + " " + e.getMessage());
