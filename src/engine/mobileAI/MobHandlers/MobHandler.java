@@ -157,7 +157,8 @@ public class MobHandler {
             if(CombatUtilities.inRange2D(mob,mob.combatTarget,mob.getRange())) {
                 return;
             }else {
-                MovementUtilities.moveToLocation(mob, mob.combatTarget.loc, mob.getRange());
+                if(!mob.isMoving())
+                    MovementUtilities.moveToLocation(mob, mob.combatTarget.loc.moveTowards(mob.loc,mob.getRange() - 1),0);
             }
         }
     }
