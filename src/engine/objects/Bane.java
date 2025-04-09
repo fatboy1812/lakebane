@@ -717,16 +717,34 @@ public final class Bane {
 
         //UNPROTECT ALL SIEGE EQUIPMENT AFTER A BANE
         for (Building toUnprotect : cityZone.zoneBuildingSet) {
-            if (toUnprotect.getBlueprint() != null && toUnprotect.getBlueprint().isSiegeEquip() && toUnprotect.assetIsProtected() == true)
+            if (toUnprotect.getBlueprint() != null && toUnprotect.getBlueprint().isSiegeEquip() && toUnprotect.assetIsProtected())
                 toUnprotect.setProtectionState(ProtectionState.NONE);
-            if(siegeResult.equals(CAPTURE))
-                toUnprotect.setOwner(this.getOwner());
         }
 
-        for(PlayerCharacter affected : this.affected_players) {
-            affected.ZergMultiplier = 1.0f;
-            affected.affectedBane = null;
-            affected.affectedMine = null;
+        if(siegeResult.equals(CAPTURE)){
+            for (Building toTransfer : cityZone.zoneBuildingSet) {
+                toTransfer.setOwner(this.getOwner());
+                WorldGrid.updateObject(toTransfer);
+            }
+            this.getCity().getTOL().setHealth(this.getCity().getTOL().healthMax);
+            WorldGrid.updateObject(this.getCity().getTOL());
+
+            if(this.getCity().parentZone != null && this.getCity().parentZone.zoneMobSet != null) {
+                for (Mob mob : this.getCity().parentZone.zoneMobSet) {
+                    mob.setGuild(this.getOwner().guild);
+                    InterestManager.setObjectDirty(mob);
+                    mob.setCombatTarget(null);
+                    mob.teleport(mob.bindLoc);
+                }
+            }
+        }
+
+        if(this.affected_players != null) {
+            for (PlayerCharacter affected : this.affected_players) {
+                affected.ZergMultiplier = 1.0f;
+                affected.affectedBane = null;
+                affected.affectedMine = null;
+            }
         }
 
     }
