@@ -14,8 +14,8 @@ public class SuperSimpleMobAI {
         if(mob == null)
             return;
 
+        MobType type = MobType.getMobType(mob);
         try {
-            MobType type = MobType.getMobType(mob);
             switch(type){
                 case Siege:
                     SiegeHandler.run(mob);

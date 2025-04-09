@@ -2,6 +2,7 @@ package engine.mobileAI.MobHandlers;
 
 import engine.Enum;
 import engine.gameManager.PowersManager;
+import engine.gameManager.ZoneManager;
 import engine.math.Vector3fImmutable;
 import engine.mobileAI.Threads.MobAIThread;
 import engine.mobileAI.utilities.CombatUtilities;
@@ -357,7 +358,13 @@ public class PlayerGuardHandler {
 
     public static void CheckForRecall(Mob guard){
 
-        if(guard.loc.distanceSquared(guard.guardedCity.loc) > (800 * 800)) {
+        if(guard.guardedCity == null){
+            City guarded = ZoneManager.getCityAtLocation(guard.bindLoc);
+            if( guarded != null){
+                guard.guardedCity = guarded;
+            }
+        }
+        if(guard.guardedCity != null && guard.loc.distanceSquared(guard.guardedCity.loc) > (800 * 800)) {
 
             PowersBase recall = PowersManager.getPowerByToken(-1994153779);
             PowersManager.useMobPower(guard, guard, recall, 40);
