@@ -11,6 +11,9 @@ public class SuperSimpleMobAI {
 
     public static void run(Mob mob){
 
+        if(mob == null)
+            return;
+
         try {
             MobType type = MobType.getMobType(mob);
             switch(type){
@@ -28,29 +31,6 @@ public class SuperSimpleMobAI {
                     break;
             }
 
-
-            if (mob.isMoving())
-                mob.updateLocation();
-
-            if (mob.getMobBaseID() == 13171) {
-                SiegeHandler.run(mob);
-                return;
-            }
-            if (mob.isPet() && !mob.isSiege()) {
-                //MobAI.DetermineAction(mob);
-                PetHandler.run(mob);
-                return;
-            } else if (mob.isSiege()) {
-                SiegeHandler.run(mob);
-                //MobAI.DetermineAction(mob);
-                return;
-            } else if (mob.isPlayerGuard()) {
-                PlayerGuardHandler.run(mob);
-                //MobAI.DetermineAction(mob);
-                return;
-            } else {
-                MobHandler.run(mob);
-            }
         }catch(Exception e){
             Logger.error(e.getMessage());
         }
