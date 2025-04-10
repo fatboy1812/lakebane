@@ -30,6 +30,11 @@ public class HoardeManager {
     ));
 
     public static void pulse_horde(){
+        if(nextHorde == 0){
+            nextHorde = System.currentTimeMillis() + MBServerStatics.THREE_MINUTES;
+            return;
+        }
+
         if(nextPulse < System.currentTimeMillis()){
             for(Mob boss : bosses){
                 if(boss.isAlive())
