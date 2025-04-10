@@ -410,6 +410,20 @@ public class Building extends AbstractWorldObject {
         // New rank mean new max hitpoints.
 
         this.healthMax = this.getBlueprint().getMaxHealth(this.rank);
+
+        //refresh HP update for R8 Tols
+        if(this.parentZone != null && this.parentZone.isPlayerCity()){
+            City city = ZoneManager.getCityAtLocation(this.loc);
+            if(city != null){
+                if(city.getTOL() != null && city.getTOL().rank == 8){
+                    if(this.getBlueprint() != null){
+                        this.healthMax = this.getBlueprint().getMaxHealth(this.rank) * 1.1f;
+                        this.setHealth(this.healthMax);
+                    }
+                }
+            }
+        }
+
         this.setCurrentHitPoints(this.healthMax);
 
         if(!this.ownerIsNPC && this.getBlueprint() != null && this.getBlueprint().isWallPiece()){
@@ -1182,6 +1196,18 @@ public class Building extends AbstractWorldObject {
 
             if (this.upgradeDateTime != null)
                 BuildingManager.submitUpgradeJob(this);
+
+            if(this.parentZone != null && this.parentZone.isPlayerCity()){
+                City city = ZoneManager.getCityAtLocation(this.loc);
+                if(city != null){
+                    if(city.getTOL() != null && city.getTOL().rank == 8){
+                        if(this.getBlueprint() != null){
+                            this.healthMax = this.getBlueprint().getMaxHealth(this.rank) * 1.1f;
+                            this.setHealth(this.healthMax);
+                        }
+                    }
+                }
+            }
 
         } catch (Exception e) {
             e.printStackTrace();

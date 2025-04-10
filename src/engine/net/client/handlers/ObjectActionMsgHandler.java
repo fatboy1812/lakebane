@@ -194,7 +194,8 @@ public class ObjectActionMsgHandler extends AbstractClientMsgHandler {
                     continue;
                 }
 
-                hPMod = (building.getMaxHitPoints() * Realm.getRealmHealthMod(city));
+                //hPMod = (building.getMaxHitPoints() * Realm.getRealmHealthMod(city));
+                hPMod = building.getMaxHitPoints() * 1.1f;
                 building.setMaxHitPoints(building.getMaxHitPoints() + hPMod);
             }
         }
