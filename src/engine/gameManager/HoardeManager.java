@@ -1,7 +1,10 @@
 package engine.gameManager;
 
 import engine.Enum;
+import engine.net.DispatchMessage;
+import engine.net.client.msg.chat.ChatSystemMsg;
 import engine.objects.*;
+import engine.server.MBServerStatics;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -12,6 +15,10 @@ public class HoardeManager {
     public static Zone hotzone = null;
     public static ArrayList<Mob> minions = null;
     public static ArrayList<Mob> bosses = null;
+
+    public static int HordeLevel = 0;
+    public static long nextPulse = 0;
+    public static long nextHorde = 0;
     public static final ArrayList<Integer> int_rune_ids = new ArrayList<>(Arrays.asList(
             250028, 250029, 250030, 250031, 250032, 250033, 250034, 250035
     ));
@@ -22,23 +29,73 @@ public class HoardeManager {
             250019, 250020, 250021, 250022, 250023, 250024, 250025, 250026
     ));
 
-    public static void StartHorde(){
-        minions = new ArrayList<>();
-        bosses = new ArrayList<>();
-
-        Zone khar = ZoneManager.getZoneByUUID(806);
-        for(Building building : khar.zoneBuildingSet){
-            if(ThreadLocalRandom.current().nextInt(1,100) < 30)
-                spawnInvaders(building);
+    public static void pulse_horde(){
+        if(nextPulse < System.currentTimeMillis()){
+            for(Mob boss : bosses){
+                if(boss.isAlive())
+                    return;
+            }
+            for(Mob minion : minions){
+                if(minion.isAlive())
+                    return;
+            }
+            nextPulse = System.currentTimeMillis() + 10000;
         }
-        generate_epic_loot();
-        generate_minion_loot();
+
+        if(nextHorde < System.currentTimeMillis())
+            StartHorde();
+
     }
 
-    public static void spawnInvaders(Building building){
+    public static void StartHorde(){
+
+        if(bosses != null){
+            for(Mob boss : bosses){
+                DbManager.MobQueries.DELETE_MOB(boss);
+            }
+        }
+
+        if(minions != null){
+            for(Mob minion : minions){
+                if(minion.isAlive())
+                    DbManager.MobQueries.DELETE_MOB(minion);
+            }
+        }
+
+        minions = new ArrayList<>();
+        bosses = new ArrayList<>();
+        HordeLevel ++;
+
+        Zone khar = ZoneManager.getZoneByUUID(806);
+        hotzone = khar;
+
+        if(HordeLevel >= 11){
+            HordeLevel = 1;
+            ChatSystemMsg chatMsg = new ChatSystemMsg(null, "The Horde Attacking " + khar.getName() + " Has Been Defeated!");
+            chatMsg.setMessageType(10);
+            chatMsg.setChannel(Enum.ChatChannelType.SYSTEM.getChannelID());
+            DispatchMessage.dispatchMsgToAll(chatMsg);
+            nextHorde = System.currentTimeMillis() + MBServerStatics.THIRTY_MINUTES;
+            return;
+        }
+
+        for(int i = 0; i < HordeLevel; i++){
+            spawnInvaders();
+        }
+
+        generate_epic_loot();
+        generate_minion_loot();
+
+        ChatSystemMsg chatMsg = new ChatSystemMsg(null, "A Horde Is Attacking " + khar.getName() + ", Glory and Riches Await Those Who Would Defend!" + " Level: " + HordeLevel);
+        chatMsg.setMessageType(10);
+        chatMsg.setChannel(Enum.ChatChannelType.SYSTEM.getChannelID());
+        DispatchMessage.dispatchMsgToAll(chatMsg);
+    }
+
+    public static void spawnInvaders(){
         Mob epic = create_epic();
         if(epic != null){
-            epic.bindLoc = building.loc;
+            epic.bindLoc = hotzone.getLoc();
             epic.equipmentSetID = 9713;
             epic.runAfterLoad();
             epic.setLoc(hotzone.getLoc());
@@ -50,7 +107,7 @@ public class HoardeManager {
         for(int i = 0; i< 5; i++){
             Mob minion = create_minion();
             if(epic != null){
-                minion.bindLoc = building.loc;
+                minion.bindLoc = hotzone.getLoc();
                 minion.equipmentSetID = 6329;
                 minion.runAfterLoad();
                 minion.setLoc(hotzone.getLoc());
@@ -63,12 +120,12 @@ public class HoardeManager {
     }
 
     public static Mob create_epic(){
-        Mob epic = Mob.createMob(253014,hotzone.getLoc(), Guild.getErrantGuild(),true,hotzone,null,0,"Hotzone Commander",85);
+        Mob epic = Mob.createMob(253014,hotzone.getLoc(), Guild.getErrantGuild(),true,hotzone,null,0,"Raid Commander",85);
         return epic;
     }
 
     public static Mob create_minion(){
-        Mob minion = Mob.createMob(253006,hotzone.getLoc(), Guild.getErrantGuild(),true,hotzone,null,0,"Hotzone Minion",65);
+        Mob minion = Mob.createMob(253006,hotzone.getLoc(), Guild.getErrantGuild(),true,hotzone,null,0,"Raid Minion",65);
         return minion;
     }
 
