@@ -590,7 +590,10 @@ public class ClientMessagePump implements NetMsgHandler {
                 return;
 
             if (itemManager.delete(i)) {
-                if (goldValue > 0)
+
+                if(i.getItemBase().isRune()){
+                    TransmutationHandler.ExchangeRuneForToken(sourcePlayer,i);
+                }else if (goldValue > 0)
                     itemManager.addGoldToInventory(goldValue, false);
 
                 itemManager.updateInventory();
