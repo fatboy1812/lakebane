@@ -44,6 +44,7 @@ public enum DevCmdManager {
         DevCmdManager.registerDevCmd(new DistanceCmd());
         DevCmdManager.registerDevCmd(new HelpCmd());
         DevCmdManager.registerDevCmd(new hotzoneCmd());
+        DevCmdManager.registerDevCmd(new hordeCmd());
         DevCmdManager.registerDevCmd(new GetZoneCmd());
         DevCmdManager.registerDevCmd(new ZoneSetCmd());
         DevCmdManager.registerDevCmd(new PrintBankCmd());
