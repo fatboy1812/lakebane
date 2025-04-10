@@ -7,10 +7,7 @@ import engine.net.client.msg.chat.ChatSystemMsg;
 import engine.objects.*;
 import engine.server.MBServerStatics;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.Random;
+import java.util.*;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class HoardeManager {
@@ -30,6 +27,16 @@ public class HoardeManager {
     public static final ArrayList<Integer> con_rune_ids = new ArrayList<>(Arrays.asList(
             250019, 250020, 250021, 250022, 250023, 250024, 250025, 250026
     ));
+    public static final List<Integer> racial_guard = Arrays.asList(
+            841,951,952,1050,1052,1180,1182,1250,1252,1350,1352,1450,
+            1452,1500,1502,1525,1527,1550,1552,1575,1577,1600,1602,1650,1652,1700,980100,
+            980102
+    );
+
+    public static final List<Integer> GLASS_ITEMS = Arrays.asList(
+            7000100, 7000110, 7000120, 7000130, 7000140, 7000150, 7000160, 7000170, 7000180, 7000190,
+            7000200, 7000210, 7000220, 7000230, 7000240, 7000250, 7000270, 7000280
+    );
 
     public static void pulse_horde(){
 
@@ -103,7 +110,7 @@ public class HoardeManager {
         }
 
         generate_epic_loot();
-        //generate_minion_loot();
+        generate_minion_loot();
 
         ChatSystemMsg chatMsg = new ChatSystemMsg(null, "A Horde Is Attacking " + khar.getName() + ", Glory and Riches Await Those Who Would Defend!" + " Level: " + HordeLevel);
         chatMsg.setMessageType(10);
@@ -169,32 +176,81 @@ public class HoardeManager {
                 MobLoot loot = new MobLoot(currentBoss, runeBase, true);
                 currentBoss.getCharItemManager().addItemToInventory(loot);
             }
+            RollRacialGuard(currentBoss);
+            RollBaneStone(currentBoss);
+            RollGlass(currentBoss);
         }
     }
 
-    public static void generate_minion_loot(){
-        if(ThreadLocalRandom.current().nextInt(100) > 35)
+    public static void RollRacialGuard(Mob mob){
+        int roll = ThreadLocalRandom.current().nextInt(10);
+        if(roll != 5)
             return;
-        for(Mob minion : minions){
-            minion.getCharItemManager().clearInventory();
-            Random random = new Random();
-            ItemBase runeBase;
-            int tableRoll = random.nextInt(3);
-            switch(tableRoll){
-                case 1:
-                    runeBase = ItemBase.getItemBase(dex_rune_ids.get(random.nextInt(6)));
-                    break;
-                case 2:
-                    runeBase = ItemBase.getItemBase(con_rune_ids.get(random.nextInt(6)));
-                    break;
-                default:
-                    runeBase = ItemBase.getItemBase(int_rune_ids.get(random.nextInt(6)));
-                    break;
+        Random random = new Random();
+        int guardId = racial_guard.get(random.nextInt(racial_guard.size()));
+        ItemBase guardBase = ItemBase.getItemBase(guardId);
+        if(guardBase == null)
+            return;
+        if(mob.getCharItemManager() == null)
+            return;
+        MobLoot guard = new MobLoot(mob,guardBase,false);
+        mob.getCharItemManager().addItemToInventory(guard);
+    }
+
+    public static void RollBaneStone(Mob mob){
+        int roll = ThreadLocalRandom.current().nextInt(25);
+        if(roll != 5)
+            return;
+        ItemBase baneStoneBase = ItemBase.getItemBase(910018);//r8 banescroll
+        if(baneStoneBase == null)
+            return;
+        if(mob.getCharItemManager() == null)
+            return;
+        MobLoot baneStone = new MobLoot(mob,baneStoneBase,false);
+        mob.getCharItemManager().addItemToInventory(baneStone);
+    }
+
+    public static void RollGlass(Mob mob){
+        int roll = ThreadLocalRandom.current().nextInt(100);
+        if(roll != 50)
+            return;
+        Random random = new Random();
+        int glassId = GLASS_ITEMS.get(random.nextInt(GLASS_ITEMS.size()));
+        ItemBase glassBase = ItemBase.getItemBase(glassId);
+        if(glassBase == null)
+            return;
+        if(mob.getCharItemManager() == null)
+            return;
+        MobLoot glass = new MobLoot(mob,glassBase,false);
+        mob.getCharItemManager().addItemToInventory(glass);
+    }
+
+    public static void generate_minion_loot(){
+
+        for (Mob minion : minions) {
+            int roll = ThreadLocalRandom.current().nextInt(25);
+            if (roll == 5) {
+                minion.getCharItemManager().clearInventory();
+                Random random = new Random();
+                ItemBase runeBase;
+                int tableRoll = random.nextInt(3);
+                switch (tableRoll) {
+                    case 1:
+                        runeBase = ItemBase.getItemBase(dex_rune_ids.get(random.nextInt(6)));
+                        break;
+                    case 2:
+                        runeBase = ItemBase.getItemBase(con_rune_ids.get(random.nextInt(6)));
+                        break;
+                    default:
+                        runeBase = ItemBase.getItemBase(int_rune_ids.get(random.nextInt(6)));
+                        break;
+                }
+                if (runeBase != null) {
+                    MobLoot loot = new MobLoot(minion, runeBase, true);
+                    minion.getCharItemManager().addItemToInventory(loot);
+                }
             }
-            if(runeBase != null){
-                MobLoot loot = new MobLoot(minion,runeBase,true);
-                minion.getCharItemManager().addItemToInventory(loot);
-            }
+            minion.getCharItemManager().addGoldToInventory(ThreadLocalRandom.current().nextInt(25000,75000),false);
         }
     }
 }
