@@ -660,10 +660,10 @@ public class Contract extends AbstractGameObject {
                         me.magicValue = 10;//000;
                         break;
                     case 252127:
-                        me.magicValue = 5;//000;
+                        me.magicValue = 3;//000;
                         break;
                     default:
-                        me.magicValue = 5;//000;
+                        me.magicValue = 1;//000;
                         break;
                 }
             }

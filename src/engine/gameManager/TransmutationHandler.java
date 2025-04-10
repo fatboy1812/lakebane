@@ -113,11 +113,11 @@ public class TransmutationHandler {
             case 250044:
                 return -10;//000;
             case 252127:
-                return -5;//000;
+                return -3;// MoT
             case 3040: //prospector
                 return -1;
             default:
-                return -5;//000;
+                return -1;//000;
         }
     }
 }
