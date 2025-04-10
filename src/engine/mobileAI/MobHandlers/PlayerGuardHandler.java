@@ -117,6 +117,17 @@ public class PlayerGuardHandler {
         if(guard.combatTarget.loc.distanceSquared(guard.loc) > (128f * 128f))
             guard.setCombatTarget(null);
 
+        try {
+            if (guard.combatTarget.getObjectType().equals(Enum.GameObjectType.PlayerCharacter)) {
+                PlayerCharacter pc = (PlayerCharacter) guard.combatTarget;
+                if (pc.guild.getNation().equals(guard.guild.getNation())) {
+                    guard.setCombatTarget(null);
+                }
+            }
+        }catch(Exception ignored){
+
+        }
+
         if(guard.combatTarget.getObjectType().equals(Enum.GameObjectType.PlayerCharacter) && !guard.canSee((PlayerCharacter)guard.combatTarget))
             guard.setCombatTarget(null);
     }
@@ -155,6 +166,17 @@ public class PlayerGuardHandler {
         //Can't see target, skip aggro.
         if (!guard.canSee(loadedPlayer))
             return false;
+
+        try {
+            if (guard.combatTarget.getObjectType().equals(Enum.GameObjectType.PlayerCharacter)) {
+                PlayerCharacter pc = (PlayerCharacter) guard.combatTarget;
+                if (pc.guild.getNation().equals(guard.guild.getNation())) {
+                    return false;
+                }
+            }
+        }catch(Exception ignored){
+
+        }
 
         if(guard.guardedCity != null && guard.guardedCity.cityOutlaws.contains(loadedPlayer.getObjectUUID()))
             return true;
