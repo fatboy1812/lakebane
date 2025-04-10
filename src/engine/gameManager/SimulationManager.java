@@ -213,7 +213,8 @@ public enum SimulationManager {
 
         _cityPulseTime = System.currentTimeMillis() + CITY_PULSE;
 
-        HoardeManager.pulse_horde();
+        //uncomment to enable horde system
+        //HoardeManager.pulse_horde();
     }
 
     /*
