@@ -30,25 +30,31 @@ public class HoardeManager {
     ));
 
     public static void pulse_horde(){
+
         if(nextHorde == 0){
             nextHorde = System.currentTimeMillis() + MBServerStatics.THREE_MINUTES;
             return;
         }
 
         if(nextPulse < System.currentTimeMillis()){
-            for(Mob boss : bosses){
-                if(boss.isAlive())
-                    return;
-            }
-            for(Mob minion : minions){
-                if(minion.isAlive())
-                    return;
-            }
             nextPulse = System.currentTimeMillis() + 10000;
-        }
+            if(bosses != null) {
+                for (Mob boss : bosses) {
+                    if (boss.isAlive())
+                        return;
+                }
+            }
+            if(minions != null) {
+                for (Mob minion : minions) {
+                    if (minion.isAlive())
+                        return;
+                }
+            }
 
-        if(nextHorde < System.currentTimeMillis())
-            StartHorde();
+            if(nextHorde < System.currentTimeMillis()) {
+                StartHorde();
+            }
+        }
 
     }
 
@@ -74,9 +80,9 @@ public class HoardeManager {
         Zone khar = ZoneManager.getZoneByUUID(806);
         hotzone = khar;
 
-        if(HordeLevel >= 11){
+        if(HordeLevel >= 4){
             HordeLevel = 1;
-            ChatSystemMsg chatMsg = new ChatSystemMsg(null, "The Horde Attacking " + khar.getName() + " Has Been Defeated!");
+            ChatSystemMsg chatMsg = new ChatSystemMsg(null, "The Horde Attacking " + khar.getName() + " Has Been Defeated! Next Wave In 30 Minutes!");
             chatMsg.setMessageType(10);
             chatMsg.setChannel(Enum.ChatChannelType.SYSTEM.getChannelID());
             DispatchMessage.dispatchMsgToAll(chatMsg);
