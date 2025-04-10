@@ -45,8 +45,11 @@ public class HoardeManager {
             return;
         }
 
+        if(nextHorde > System.currentTimeMillis())
+            return;
+
         if(nextPulse < System.currentTimeMillis()){
-            nextPulse = System.currentTimeMillis() + 10000;
+            nextPulse = System.currentTimeMillis() + 1000;
             if(bosses != null) {
                 for (Mob boss : bosses) {
                     if (boss.isAlive())
@@ -59,6 +62,8 @@ public class HoardeManager {
                         return;
                 }
             }
+
+            int secondsRemaining = (int) ((nextHorde - System.currentTimeMillis()) * 0.001f);
 
             if(nextHorde < System.currentTimeMillis()) {
                 StartHorde();
@@ -88,6 +93,12 @@ public class HoardeManager {
             }
             try {
                 DbManager.removeFromCache(awo);
+            }catch(Exception ignored){
+
+            }
+            try {
+                ((Mob)awo).killCharacter("no raid");
+                ((Mob)awo).despawn();
             }catch(Exception ignored){
 
             }
