@@ -1,6 +1,7 @@
 package engine.gameManager;
 
 import engine.Enum;
+import engine.InterestManagement.WorldGrid;
 import engine.net.DispatchMessage;
 import engine.net.client.msg.chat.ChatSystemMsg;
 import engine.objects.*;
@@ -8,6 +9,7 @@ import engine.server.MBServerStatics;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -60,28 +62,34 @@ public class HoardeManager {
 
     public static void StartHorde(){
 
-        if(bosses != null){
-            for(Mob boss : bosses){
-                DbManager.MobQueries.DELETE_MOB(boss);
-            }
-        }
-
-        if(minions != null){
-            for(Mob minion : minions){
-                if(minion.isAlive())
-                    DbManager.MobQueries.DELETE_MOB(minion);
-            }
-        }
-
         minions = new ArrayList<>();
         bosses = new ArrayList<>();
         HordeLevel ++;
 
         Zone khar = ZoneManager.getZoneByUUID(806);
+        HashSet<AbstractWorldObject> mobs = WorldGrid.getObjectsInRangePartial(khar.getLoc(),700,MBServerStatics.MASK_MOB);
+        for(AbstractWorldObject awo : mobs){
+            try {
+                DbManager.MobQueries.DELETE_MOB((Mob)awo);
+            }catch(Exception ignored){
+
+            }
+            try {
+                WorldGrid.removeObject(awo);
+            }catch(Exception ignored){
+
+            }
+            try {
+                DbManager.removeFromCache(awo);
+            }catch(Exception ignored){
+
+            }
+
+        }
         hotzone = khar;
 
         if(HordeLevel >= 4){
-            HordeLevel = 1;
+            HordeLevel = 0;
             ChatSystemMsg chatMsg = new ChatSystemMsg(null, "The Horde Attacking " + khar.getName() + " Has Been Defeated! Next Wave In 30 Minutes!");
             chatMsg.setMessageType(10);
             chatMsg.setChannel(Enum.ChatChannelType.SYSTEM.getChannelID());
@@ -95,7 +103,7 @@ public class HoardeManager {
         }
 
         generate_epic_loot();
-        generate_minion_loot();
+        //generate_minion_loot();
 
         ChatSystemMsg chatMsg = new ChatSystemMsg(null, "A Horde Is Attacking " + khar.getName() + ", Glory and Riches Await Those Who Would Defend!" + " Level: " + HordeLevel);
         chatMsg.setMessageType(10);
