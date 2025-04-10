@@ -2,6 +2,8 @@ package engine.gameManager;
 
 import engine.objects.*;
 
+import java.util.ArrayList;
+
 public class TransmutationHandler {
 
     public static int tokenId = 680162;
@@ -23,7 +25,7 @@ public class TransmutationHandler {
         //TODO system to get rune token cost
         int cost = -5;
 
-        if (cost > tokenCount) {
+        if (tokenCount + cost < 0) {
             ChatManager.chatSystemInfo(pc, "You Do Not Have Enough Tokens For This Rune.");
             return;
         }
@@ -46,10 +48,18 @@ public class TransmutationHandler {
         }
         tokenCount += amount;
         MobLoot tokens = new MobLoot(pc,ItemBase.getItemBase(tokenId),1, false);
-        tokens.setNumOfItems(tokenCount);
         Item promoted = tokens.promoteToItem(pc);
+        promoted.setNumOfItems(tokenCount);
         pc.getCharItemManager().addItemToInventory(promoted);
         pc.getCharItemManager().updateInventory();
         DbManager.ItemQueries.UPDATE_NUM_ITEMS(promoted,tokenCount);
+        for(Item i : pc.getCharItemManager().getInventory()){
+            if(i.getItemBaseID() == tokenId){
+                if(i.getNumOfItems() <= 0){
+                    pc.getCharItemManager().delete(i);
+                    pc.getCharItemManager().updateInventory();
+                }
+            }
+        }
     }
 }
