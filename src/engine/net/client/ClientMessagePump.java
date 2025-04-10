@@ -1444,13 +1444,7 @@ public class ClientMessagePump implements NetMsgHandler {
                             float bargain = sourcePlayer.getBargain();
                             switch(npc.getContractID()){
                                 case 1201:
-                                    //cost = ItemBase.getDiscPrice(ib.getUUID());
-                                    //bargain = 0;
-                                    TransmutationHandler.ExchangeTokensForRune(sourcePlayer,me.getItemBase());
-                                    return;
                                 case 1202:
-                                    //cost = ItemBase.getStatPrice(ib.getUUID());
-                                    //bargain = 0;
                                     TransmutationHandler.ExchangeTokensForRune(sourcePlayer,me.getItemBase());
                                     return;
                                 case 900:
