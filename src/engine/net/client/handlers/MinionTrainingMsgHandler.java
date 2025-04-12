@@ -181,6 +181,8 @@ public class MinionTrainingMsgHandler extends AbstractClientMsgHandler {
 
                             zone.zoneMobSet.add(siegeMob);
                             siegeMob.setLoc(siegeMob.bindLoc);
+                            siegeMob.despawn();
+                            siegeMob.setDeathTime(System.currentTimeMillis());
                         }
                     }
 

@@ -2864,7 +2864,7 @@ public class Enum {
         SpellAggroGrouperWimpy(Spell, true, false, true, false, false),
         //Independent Types
         SimpleStandingGuard(null, false, false, false, false, false),
-        Pet1(null, false, false, true, false, false),
+        Pet1 (null, false, false, true, false, false),
         Simple(null, false, false, true, false, false),
         Helpee(null, false, true, true, false, true),
         HelpeeWimpy(null, true, false, true, false, false),
@@ -2873,7 +2873,8 @@ public class Enum {
         GuardWallArcher(null, false, true, false, false, false),
         Wanderer(null, false, true, true, false, false),
         HamletGuard(null, false, true, false, false, false),
-        AggroWanderer(null, false, false, true, false, false);
+        AggroWanderer(null, false, false, true, false, false),
+        SIEGE (null, false, false, false, false, false);
 
         private static HashMap<Integer, MobBehaviourType> _behaviourTypes = new HashMap<>();
         public MobBehaviourType BehaviourHelperType;

@@ -902,8 +902,7 @@ public class Mob extends AbstractIntelligenceAgent {
         owner.getSiegeMinionMap().put(mob, slot);
 
         mob.setNpcOwner(owner);
-        mob.BehaviourType = MobBehaviourType.Pet1;
-        mob.BehaviourType.canRoam = false;
+        mob.BehaviourType = MobBehaviourType.SIEGE;
         return mob;
     }
 

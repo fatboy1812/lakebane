@@ -1,5 +1,6 @@
 package engine.mobileAI.MobHandlers;
 
+import engine.Enum;
 import engine.InterestManagement.InterestManager;
 import engine.InterestManagement.WorldGrid;
 import engine.gameManager.PowersManager;
@@ -58,6 +59,11 @@ public class MobHandler {
 
             if (!mob.despawned) {
 
+                if(mob.BehaviourType.equals(Enum.MobBehaviourType.SIEGE)){
+                    mob.despawn();
+                    return;
+                }
+
                 if (mob.getCharItemManager().getInventoryCount() > 0) {
                     if (System.currentTimeMillis() > mob.deathTime + MBServerStatics.DESPAWN_TIMER_WITH_LOOT) {
                         mob.despawn();
@@ -84,13 +90,13 @@ public class MobHandler {
 
             if (System.currentTimeMillis() > (mob.deathTime + (mob.spawnTime * 1000L))) {
                 if (!Zone.respawnQue.contains(mob)) {
-                    if(mob.isSiege() || mob.getMobBaseID() == 14104){
-                        mob.respawn();
-                        WorldGrid.loadObject(mob);
+                    //if(mob.isSiege() || mob.getMobBaseID() == 14104){
+                    //    mob.respawn();
+                    //    WorldGrid.loadObject(mob);
                         //InterestManager.forceLoad(mob);
-                    }else {
+                    //}else {
                         Zone.respawnQue.add(mob);
-                    }
+                    //}
                 }
             }
         } catch (Exception e) {
